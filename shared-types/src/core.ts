@@ -63,10 +63,22 @@ export interface ThumbnailUrls {
   large?: string;
   xlarge?: string;
   originalSize?: string;
-  [size: string]: string | undefined; // Index signature for dynamic access
+  [size: string]: string | undefined;
 }
 
 // Generic metadata type
 export interface Metadata {
-  [key: string]: string | number | boolean | null | undefined;
+  [key: string]: string | number | boolean | null | undefined | string[] | { [key: string]: string | number };
+}
+
+// Specific metadata types for generated content
+export interface GenerationMetadata extends Metadata {
+  prompt?: string;
+  negativePrompt?: string;
+  creatorUsername?: string;
+  creator?: string;
+  artist?: string;
+  loraModels?: string[];
+  loraStrengths?: { [key: string]: string | number };
+  bulkSiblings?: string[];
 }

@@ -45,7 +45,7 @@ const AVATAR_THUMBNAIL_CONFIGS = {
 function selectOptimalAvatarSize(
   containerWidth: number,
   containerHeight: number,
-  avatarThumbnails?: Record<string, string>
+  avatarThumbnails?: Record<string, string | undefined>
 ): keyof typeof AVATAR_THUMBNAIL_CONFIGS | null {
   if (!avatarThumbnails) return null;
 

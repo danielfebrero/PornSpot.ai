@@ -62,7 +62,7 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
                     href={`/profile/${album.metadata.creatorUsername}`}
                     className="hover:text-foreground transition-colors hover:underline"
                   >
-                    {album.metadata.creatorUsername}
+                    {String(album.metadata.creatorUsername)}
                   </LocaleLink>
                 </div>
               )}

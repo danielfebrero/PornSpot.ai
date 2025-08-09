@@ -78,11 +78,11 @@ const useMediaMetadata = (media: Media) => {
     // 2. creator/artist from metadata (fallback for older entries)
     // 3. Check if we have createdBy info
     if (metadata.creatorUsername) {
-      creator = metadata.creatorUsername;
-      creatorUsername = metadata.creatorUsername;
+      creator = String(metadata.creatorUsername);
+      creatorUsername = String(metadata.creatorUsername);
       isCreatorClickable = true;
     } else if (metadata.creator || metadata.artist) {
-      creator = metadata.creator || metadata.artist;
+      creator = String(metadata.creator || metadata.artist);
     } else if (media.createdBy && media.createdByType === "user") {
       creator = `User ${media.createdBy.slice(-8)}`; // Show last 8 chars of userId as fallback
     } else if (media.createdBy && media.createdByType === "admin") {
@@ -408,30 +408,32 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                 icon={<Bot className="w-5 h-5" />}
                 title="Generation Parameters"
               >
-                <GenerationPrompt title="Prompt" prompt={metadata.prompt} />
+                <GenerationPrompt title="Prompt" prompt={String(metadata.prompt)} />
                 {metadata.negativePrompt && (
                   <GenerationPrompt
                     title="Negative Prompt"
-                    prompt={metadata.negativePrompt}
+                    prompt={String(metadata.negativePrompt)}
                   />
                 )}
               </MetaSection>
             )}
 
-            {metadata.loraModels.length > 0 && (
+            {Array.isArray(metadata.loraModels) && metadata.loraModels.length > 0 && (
               <MetaSection
                 icon={<Palette className="w-5 h-5" />}
                 title="LoRA Models"
               >
                 <div className="space-y-2">
-                  {metadata.loraModels.map((lora: any, index: number) => (
+                  {metadata.loraModels.map((lora: string, index: number) => (
                     <InfoPill
                       key={index}
                       icon={<Hash className="w-4 h-4" />}
-                      label={
-                        typeof lora === "string" ? lora : lora.name || lora
+                      label={lora}
+                      value={
+                        typeof metadata.loraStrengths === 'object' && metadata.loraStrengths
+                          ? String(metadata.loraStrengths[lora] || "N/A")
+                          : "N/A"
                       }
-                      value={metadata.loraStrengths[lora] || "N/A"}
                       isTag
                     />
                   ))}
@@ -439,7 +441,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
               </MetaSection>
             )}
 
-            {metadata.bulkSiblings.length > 0 && (
+            {Array.isArray(metadata.bulkSiblings) && metadata.bulkSiblings.length > 0 && (
               <MetaSection
                 icon={<Layers className="w-5 h-5" />}
                 title="Related Images"

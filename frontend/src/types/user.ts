@@ -1,5 +1,5 @@
 // Import shared types we need to reference (avoiding circular reference)
-import { Album, Media, User as BaseUser, UserProfileInsights as BaseUserProfileInsights, Comment, UserLoginRequest, UserRegistrationRequest } from ".";
+import { Album, Media, User as BaseUser, UserProfileInsights as BaseUserProfileInsights, Comment, UserLoginRequest, UserRegistrationRequest, GenerationMetadata } from ".";
 import type { UserInteraction as BaseUserInteraction } from "@pornspot-ai/shared-types";
 
 // Frontend-specific interaction request (with albumId and action for frontend usage)
@@ -22,6 +22,7 @@ export interface FrontendMedia extends Media {
   uploadedAt?: string; // For generated content timing
   userId?: string; // For user-generated content
   isPublic?: boolean; // For generated content visibility
+  metadata?: GenerationMetadata; // Override with more specific metadata type
 }
 
 // Comment type with target enrichment for frontend display
