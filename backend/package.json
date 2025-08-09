@@ -34,7 +34,7 @@
     "migrate:gsi4-albums:dry-run": "npm run build && node dist/scripts/backfill-gsi4-albums.js --dry-run"
   },
   "dependencies": {
-    "@pornspot-ai/shared-types": "workspace:*",
+    "@pornspot-ai/shared-types": "file:../shared-types",
     "@aws-sdk/client-dynamodb": "^3.450.0",
     "@aws-sdk/client-s3": "^3.450.0",
     "@aws-sdk/client-ssm": "^3.450.0",
