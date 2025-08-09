@@ -20,7 +20,9 @@
     ],
     "baseUrl": "src",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@pornspot-ai/shared-types": ["../shared-types/src/index.ts"],
+      "@pornspot-ai/shared-types/*": ["../shared-types/src/*"]
     },
     "forceConsistentCasingInFileNames": true
   },

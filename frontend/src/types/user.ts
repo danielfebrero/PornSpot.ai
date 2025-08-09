@@ -4,7 +4,7 @@ import type {
   Media,
   User as BaseUser,
   UserProfileInsights as BaseUserProfileInsights,
-  Comment,
+  Comment as SharedComment,
   UserLoginRequest,
   UserRegistrationRequest,
   GenerationMetadata,
@@ -35,7 +35,7 @@ export interface FrontendMedia extends Media {
 }
 
 // Comment type with target enrichment for frontend display
-export interface CommentWithTarget extends Comment {
+export interface CommentWithTarget extends SharedComment {
   target?: Media | Album; // Added for enriched comments from getUserComments API
 }
 
