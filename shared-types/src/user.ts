@@ -1,5 +1,5 @@
 // User Authentication Types
-import type { AuthProvider, SubscriptionStatus, ThumbnailUrls } from "./core";
+import type { ThumbnailUrls } from "./core";
 
 export interface User {
   userId: string;

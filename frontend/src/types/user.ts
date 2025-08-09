@@ -167,6 +167,8 @@ export interface GoogleOAuthResponse {
 
 // Extended user with plan information - frontend specific
 export interface UserWithPlanInfo extends BaseUser {
+  // Explicitly include username to avoid build-time type resolution issues on Vercel
+  username?: string;
   role?: string; // 'user', 'admin', 'moderator'
   planInfo?: {
     plan: string; // 'free', 'starter', 'unlimited', 'pro'
