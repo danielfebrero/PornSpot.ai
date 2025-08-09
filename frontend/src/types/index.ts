@@ -4,6 +4,8 @@ export * from "@pornspot-ai/shared-types";
 // Import types we need to reference
 import type { ApiResponse, Album, Media } from "@pornspot-ai/shared-types";
 
+export type { ApiResponse, Album, Media };
+
 // Frontend-specific pagination types that extend the base types
 export interface UnifiedPaginationMeta {
   hasNext: boolean; // Whether more pages exist
