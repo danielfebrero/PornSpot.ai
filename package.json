@@ -72,7 +72,8 @@
   },
   "workspaces": [
     "backend",
-    "frontend"
+    "frontend",
+    "shared-types"
   ],
   "keywords": [
     "gallery",

@@ -12,7 +12,13 @@ import {
   UserProfileUpdateRequest,
   UserProfileUpdateResponse,
   GetPublicProfileResponse,
-} from "@/types/user";
+} from "@/types";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_URL) {
+  throw new Error("NEXT_PUBLIC_API_URL is not set");
+}
 import { ApiUtil } from "../api-util";
 
 // User Authentication API Functions

@@ -10,7 +10,7 @@ import LocaleLink from "@/components/ui/LocaleLink";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { HorizontalScroll } from "@/components/ui/HorizontalScroll";
 import { Avatar } from "@/components/ui/Avatar";
-import { Media, Comment as CommentType } from "@/types";
+import { FrontendMedia as Media, CommentWithTarget as CommentType } from "@/types";
 import { useProfileDataQuery } from "@/hooks/queries/useProfileDataQuery";
 import { useAlbums } from "@/hooks/queries/useAlbumsQuery";
 import { useCommentsQuery } from "@/hooks/queries/useCommentsQuery";
@@ -443,6 +443,7 @@ export default function ProfileComponent({
         id: "media4",
         type: "media",
         filename: "my-latest-shot.jpg",
+        originalFilename: "my-latest-shot.jpg",
         originalName: "My Latest Shot",
         mimeType: "image/jpeg",
         size: 3024000,
@@ -470,6 +471,7 @@ export default function ProfileComponent({
       {
         id: "media6",
         filename: "street-photography.jpg",
+        originalFilename: "street-photography.jpg",
         type: "media",
         originalName: "Street Photography",
         mimeType: "image/jpeg",
@@ -498,6 +500,7 @@ export default function ProfileComponent({
       {
         id: "media7",
         filename: "ai-generated-art.jpg",
+        originalFilename: "ai-generated-art.jpg",
         originalName: "AI Generated Art",
         mimeType: "image/jpeg",
         size: 1856000,
@@ -526,6 +529,7 @@ export default function ProfileComponent({
       {
         id: "media8",
         filename: "nature-landscape.jpg",
+        originalFilename: "nature-landscape.jpg",
         originalName: "Nature Landscape",
         mimeType: "image/jpeg",
         size: 2856000,
@@ -554,6 +558,7 @@ export default function ProfileComponent({
       {
         id: "media9",
         filename: "portrait-studio.jpg",
+        originalFilename: "portrait-studio.jpg",
         originalName: "Portrait Studio",
         mimeType: "image/jpeg",
         size: 2456000,
@@ -582,6 +587,7 @@ export default function ProfileComponent({
       {
         id: "media10",
         filename: "macro-flowers.jpg",
+        originalFilename: "macro-flowers.jpg",
         originalName: "Macro Flowers",
         mimeType: "image/jpeg",
         size: 1956000,

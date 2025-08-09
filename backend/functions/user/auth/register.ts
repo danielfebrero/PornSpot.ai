@@ -2,9 +2,9 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { UserUtil } from "@shared/utils/user";
 import { EmailService } from "@shared/utils/email";
+import { UserRegistrationRequest } from "@shared";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
-import { UserRegistrationRequest } from "@shared/types";
 
 const handleRegister = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const request: UserRegistrationRequest = JSON.parse(event.body!);

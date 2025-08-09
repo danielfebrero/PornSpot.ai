@@ -2,7 +2,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { userApi } from "@/lib/api";
 import { queryKeys, queryClient, invalidateQueries } from "@/lib/queryClient";
 import { useUserContext } from "@/contexts/UserContext";
-import { UserLoginRequest, UserRegistrationRequest } from "@/types/user";
+import { UserLoginRequest, UserRegistrationRequest } from "@/types";
 
 // Hook for fetching current user profile
 export function useUserProfile() {

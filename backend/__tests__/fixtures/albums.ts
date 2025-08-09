@@ -1,4 +1,4 @@
-import { Album, AlbumEntity, CreateAlbumRequest } from "../../shared/types";
+import { Album, AlbumEntity, CreateAlbumRequest } from "@shared";
 
 export const mockAlbumId = "test-album-123";
 export const mockTimestamp = "2023-01-01T00:00:00.000Z";

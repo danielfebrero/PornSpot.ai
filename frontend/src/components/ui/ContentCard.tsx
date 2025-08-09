@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocaleRouter } from "@/lib/navigation";
 import { useNavigationLoading } from "@/contexts/NavigationLoadingContext";
-import { Media, Album, ThumbnailContext, ThumbnailSize } from "@/types";
+import { FrontendMedia as Media, Album, ThumbnailContext, ThumbnailSize } from "@/types";
 import { LikeButton } from "@/components/user/LikeButton";
 import { BookmarkButton } from "@/components/user/BookmarkButton";
 import { AddToAlbumDialog } from "@/components/user/AddToAlbumDialog";

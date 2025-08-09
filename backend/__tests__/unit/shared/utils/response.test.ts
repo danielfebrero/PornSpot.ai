@@ -1,5 +1,5 @@
 import { ResponseUtil } from "../../../../shared/utils/response";
-import { ApiResponse } from "../../../../shared/types";
+import { ApiResponse } from "@shared";
 
 describe("ResponseUtil", () => {
   describe("success", () => {

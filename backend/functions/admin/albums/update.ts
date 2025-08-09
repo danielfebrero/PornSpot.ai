@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { RevalidationService } from "@shared/utils/revalidation";
-import { UpdateAlbumRequest } from "@shared/types";
+import { UpdateAlbumRequest } from "@shared";
 import { LambdaHandlerUtil, AdminAuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 

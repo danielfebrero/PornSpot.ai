@@ -1,6 +1,8 @@
 // Main exports for the shared layer
-export * from "./types";
-export * from "./types/user";
+// Re-export types from shared-types package
+export * from "@pornspot-ai/shared-types";
+
+// Export backend-specific utilities
 export * from "./utils/dynamodb";
 export * from "./utils/s3";
 export * from "./utils/response";

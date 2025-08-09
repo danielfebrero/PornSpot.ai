@@ -7,7 +7,7 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import { User, UserContextType } from "@/types/user";
+import { User, UserContextType } from "@/types";
 import { userApi } from "@/lib/api";
 
 const UserContext = createContext<UserContextType | undefined>(undefined);

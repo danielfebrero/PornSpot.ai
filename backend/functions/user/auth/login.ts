@@ -3,7 +3,7 @@ import * as bcrypt from "bcrypt";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { UserUtil } from "@shared/utils/user";
-import { UserLoginRequest } from "@shared/types";
+import { UserLoginRequest } from "@shared";
 import { SessionUtil } from "@shared/utils/session";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";

@@ -6,7 +6,7 @@ import {
   CreateCommentRequest,
   UpdateCommentRequest,
   CommentEntity,
-} from "@shared/types";
+} from "@shared";
 import { v4 as uuidv4 } from "uuid";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";

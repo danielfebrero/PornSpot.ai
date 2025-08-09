@@ -2,7 +2,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { RevalidationService } from "@shared/utils/revalidation";
-import { RemoveMediaFromAlbumRequest } from "@shared/types";
+import { RemoveMediaFromAlbumRequest } from "@shared";
+import { UserAuthUtil } from "@shared/utils/user-auth";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 
 const handleBulkRemoveMedia = async (

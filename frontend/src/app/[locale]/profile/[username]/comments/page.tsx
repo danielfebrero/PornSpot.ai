@@ -9,7 +9,7 @@ import { ContentCard } from "@/components/ui/ContentCard";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { cn } from "@/lib/utils";
 import { useCommentsQuery } from "@/hooks/queries/useCommentsQuery";
-import { Media, Album, Comment as CommentType } from "@/types";
+import { Media, Album, CommentWithTarget as CommentType } from "@/types";
 import { formatDistanceToNow } from "@/lib/dateUtils";
 import { useDevice } from "@/contexts/DeviceContext";
 

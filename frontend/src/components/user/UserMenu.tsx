@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useLogout } from "@/hooks/queries/useUserQuery";
 import { useAdminContext } from "@/contexts/AdminContext";
 import { useLocaleRouter } from "@/lib/navigation";
-import { User } from "@/types/user";
+import { User } from "@/types";
 import { UserPlanBadge } from "@/components/UserPlanBadge";
 import Avatar from "@/components/ui/Avatar";
 import { DollarSign } from "lucide-react";

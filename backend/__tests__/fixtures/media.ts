@@ -1,4 +1,4 @@
-import { Media, MediaEntity, UploadMediaRequest } from "../../shared/types";
+import { Media, MediaEntity, UploadMediaRequest } from "@shared";
 import { mockAlbumId, mockTimestamp } from "./albums";
 
 export const mockMediaId = "test-media-456";

@@ -1,76 +1,10 @@
-export interface Album {
-  id: string;
-  title: string;
-  tags?: string[];
-  type: string;
-  coverImageUrl?: string;
-  thumbnailUrls?: {
-    cover?: string;
-    small?: string;
-    medium?: string;
-    large?: string;
-    xlarge?: string;
-    originalSize?: string;
-  };
-  isPublic: boolean;
-  mediaCount: number;
-  likeCount?: number;
-  bookmarkCount?: number;
-  viewCount?: number;
-  commentCount?: number;
-  createdAt: string;
-  updatedAt: string;
-  metadata?: Record<string, any>;
-  // User tracking fields
-  createdBy?: string; // userId or adminId who created this album
-  createdByType?: "user" | "admin"; // type of creator
-  media?: Media[];
-  comments?: Comment[];
-}
+// Re-export shared types from the shared types package
+export * from "@pornspot-ai/shared-types";
 
-export interface Media {
-  id: string;
-  albumId?: string; // Album this media belongs to (required for bookmark functionality)
-  filename: string;
-  type: string;
-  originalName?: string;
-  originalFilename?: string;
-  mimeType: string;
-  size: number;
-  width?: number;
-  height?: number;
-  url: string;
-  thumbnailUrl?: string;
-  thumbnailUrls?: {
-    cover?: string;
-    small?: string;
-    medium?: string;
-    large?: string;
-    xlarge?: string;
-    originalSize?: string;
-  };
-  createdAt: string;
-  updatedAt: string;
-  metadata?: Record<string, any>;
-  likeCount?: number;
-  bookmarkCount?: number;
-  viewCount?: number;
-  commentCount?: number;
-  // User tracking fields
-  createdBy?: string; // userId or adminId who uploaded this media
-  createdByType?: "user" | "admin"; // type of creator
-  albums?: Album[]; // For storing full album information when populated
-  comments?: Comment[]; // Include comments directly in Media
-}
+// Import types we need to reference
+import type { ApiResponse, Album, Media } from "@pornspot-ai/shared-types";
 
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
-// NEW UNIFIED PAGINATION TYPES - Used by all backend endpoints after migration
+// Frontend-specific pagination types that extend the base types
 export interface UnifiedPaginationMeta {
   hasNext: boolean; // Whether more pages exist
   cursor: string | null; // Base64-encoded cursor for next page
@@ -99,36 +33,7 @@ export interface UnifiedMediaResponse extends ApiResponse {
   };
 }
 
-// Admin types
-export interface AdminUser {
-  id: string;
-  username: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface LoginRequest {
-  username: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  success: boolean;
-  data?: {
-    user: AdminUser;
-  };
-  error?: string;
-}
-
-export interface AdminStats {
-  totalAlbums: number;
-  totalMedia: number;
-  publicAlbums: number;
-  storageUsed: string;
-  storageUsedBytes: number;
-}
-
-// Thumbnail system types
+// Frontend-specific thumbnail system types
 export type ThumbnailSize =
   | "cover"
   | "small"
@@ -136,6 +41,7 @@ export type ThumbnailSize =
   | "large"
   | "xlarge"
   | "originalSize";
+
 export type ThumbnailContext =
   | "cover-selector"
   | "create-album"
@@ -153,55 +59,42 @@ export interface ThumbnailUrls {
   originalSize?: string;
 }
 
-// Comment types
-export interface Comment {
-  id: string;
-  content: string;
-  targetType: "album" | "media";
-  targetId: string;
-  userId: string;
-  username?: string;
-  createdAt: string;
-  updatedAt: string;
-  likeCount?: number;
-  isEdited?: boolean;
-  target?: Media | Album; // Added for enriched comments from getUserComments API
-}
-
-export interface CreateCommentRequest {
-  content: string;
-  targetType: "album" | "media";
-  targetId: string;
-}
-
-export interface UpdateCommentRequest {
-  content: string;
-}
-
-export interface CommentResponse {
-  success: boolean;
-  data?: Comment;
-  error?: string;
-}
-
-export interface CommentListResponse {
-  success: boolean;
-  data?: {
-    comments: Comment[];
-    pagination: {
-      page: number;
-      limit: number;
-      hasNext: boolean;
-      nextKey?: string;
-      cursor?: string;
-      total: number;
-    };
-  };
-  error?: string;
-}
-
-// User authentication types
-export * from "./user";
-
-// Permission and plan types
+// Frontend-specific permission and plan types
 export * from "./permissions";
+
+// Re-export frontend-specific user types
+export type {
+  FrontendMedia,
+  CommentWithTarget,
+  InteractionRequest,
+  UserInteraction,
+  UserRegistrationFormData,
+  UserLoginFormData,
+  UserLoginResponse,
+  UserContextType,
+  AuthError,
+  ValidationError,
+  GoogleOAuthState,
+  GoogleOAuthResponse,
+  UsernameAvailabilityResponse,
+  UserWithPlanInfo,
+  UserProfileUpdateRequest,
+  UserProfileUpdateResponse,
+  PublicUserProfile,
+  GetPublicProfileResponse,
+  UnifiedUserInteractionsResponse,
+  UnifiedCommentsResponse,
+  UserInteractionStatsResponse,
+  UserRegistrationResponse,
+  UserMeResponse,
+  EmailVerificationRequest,
+  EmailVerificationResponse,
+  ResendVerificationRequest,
+  ResendVerificationResponse
+} from "./user";
+
+// Re-export shared types that are needed directly
+export type { 
+  UserLoginRequest,
+  UserRegistrationRequest 
+} from "@pornspot-ai/shared-types";

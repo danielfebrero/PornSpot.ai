@@ -1,0 +1,28 @@
+{
+  "name": "@pornspot-ai/shared-types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript types for PornSpot.ai frontend and backend",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  },
+  "keywords": [
+    "typescript",
+    "types",
+    "shared",
+    "pornspot-ai"
+  ],
+  "author": "pornspot.ai",
+  "license": "MIT",
+  "private": true
+}

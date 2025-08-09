@@ -1,4 +1,4 @@
-import { User, UserWithPlanInfo } from "@/types/user";
+import { User, UserWithPlanInfo } from "@/types";
 import { UserWithPlan, UserPlan, UserRole } from "@/types/permissions";
 import { getAllPlanDefinitions } from "@/utils/permissions";
 

@@ -74,4 +74,4 @@ export interface PermissionContext {
 }
 
 // Import the base User interface
-import { User } from "./user";
+import { User } from "@/types";

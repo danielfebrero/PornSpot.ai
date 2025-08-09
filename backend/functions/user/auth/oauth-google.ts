@@ -5,9 +5,9 @@ import { ResponseUtil } from "@shared/utils/response";
 import { OAuthUserUtil } from "@shared/utils/oauth-user";
 import { ParameterStoreService } from "@shared/utils/parameters";
 import { SessionUtil } from "@shared/utils/session";
+import { GoogleTokenResponse, GoogleOAuthUserInfo } from "@shared";
 import { ValidationUtil } from "@shared/utils/validation";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
-import { GoogleTokenResponse, GoogleOAuthUserInfo } from "@shared/types";
 
 // Google OAuth configuration from environment variables
 const GOOGLE_CLIENT_ID = process.env["GOOGLE_CLIENT_ID"];

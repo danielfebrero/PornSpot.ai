@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
-import { SessionValidationResult, AdminUser } from "@shared/types";
+import { SessionValidationResult, AdminUser } from "@shared";
 
 export class AuthMiddleware {
   static async validateSession(

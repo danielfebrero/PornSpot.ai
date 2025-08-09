@@ -7,7 +7,7 @@ import { ValidationUtil } from "@shared/utils/validation";
 import {
   UsernameAvailabilityRequest,
   UsernameAvailabilityResponse,
-} from "@shared/types";
+} from "@shared";
 
 const handleCheckUsername = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   // Support both GET and POST methods for flexibility

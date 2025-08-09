@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
-import { UserSessionValidationResult, User } from "@shared/types";
+import { UserSessionValidationResult, User } from "@shared";
 import { UsernameGenerator } from "@shared/utils/username-generator";
 
 export class UserAuthMiddleware {

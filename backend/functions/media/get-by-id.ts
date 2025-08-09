@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
-import { Comment } from "@shared/types";
+import { Comment } from "@shared";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 
 const handleGetMediaById = async (

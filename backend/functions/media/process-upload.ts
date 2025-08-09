@@ -300,7 +300,7 @@ async function processMediaUpload(
 
       if (thumbnailUrls && Object.keys(thumbnailUrls).length > 0) {
         // Update the media record with thumbnail URLs and WebP display URL
-        const updateData: Partial<import("@shared/types").MediaEntity> = {
+        const updateData: Partial<import("@shared").MediaEntity> = {
           thumbnailUrl:
             thumbnailUrls["small"] || Object.values(thumbnailUrls)[0], // Default to small (240px) or first available
           thumbnailUrls: {
@@ -323,7 +323,7 @@ async function processMediaUpload(
         }
       } else {
         // Just update status and WebP URL if thumbnail generation failed
-        const updateData: Partial<import("@shared/types").MediaEntity> = {
+        const updateData: Partial<import("@shared").MediaEntity> = {
           status: "uploaded" as const,
           updatedAt: new Date().toISOString(),
         };

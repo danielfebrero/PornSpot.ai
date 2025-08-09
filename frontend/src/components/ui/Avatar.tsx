@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User } from "@/types/user";
+import { User } from "@/types";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { cn } from "@/lib/utils";
 import { useContainerDimensions } from "@/hooks/useContainerDimensions";
@@ -45,7 +45,7 @@ const AVATAR_THUMBNAIL_CONFIGS = {
 function selectOptimalAvatarSize(
   containerWidth: number,
   containerHeight: number,
-  avatarThumbnails?: Record<string, string>
+  avatarThumbnails?: Record<string, string | undefined>
 ): keyof typeof AVATAR_THUMBNAIL_CONFIGS | null {
   if (!avatarThumbnails) return null;
 

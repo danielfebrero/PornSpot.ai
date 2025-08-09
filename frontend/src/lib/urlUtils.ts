@@ -53,7 +53,7 @@ export function composeMediaUrl(
  * @returns Object with composed full URLs
  */
 export function composeThumbnailUrls(
-  thumbnailUrls: { [size: string]: string } | null | undefined
+  thumbnailUrls: { [size: string]: string | undefined } | null | undefined
 ): { [size: string]: string } | undefined {
   if (!thumbnailUrls || typeof thumbnailUrls !== "object") {
     return undefined;
@@ -79,7 +79,7 @@ export function composeThumbnailUrls(
  * @returns Composed URL
  */
 export function getBestThumbnailUrl(
-  thumbnailUrls: { [size: string]: string } | null | undefined,
+  thumbnailUrls: { [size: string]: string | undefined } | null | undefined,
   fallbackUrl: string | null | undefined,
   preferredSize?: string
 ): string {

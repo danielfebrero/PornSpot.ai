@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { DynamoDBService } from "./dynamodb";
-import { UserEntity } from "../types/user";
+import { UserEntity } from "@pornspot-ai/shared-types";
 import { UsernameGenerator } from "./username-generator";
 
 export class OAuthUserUtil {
