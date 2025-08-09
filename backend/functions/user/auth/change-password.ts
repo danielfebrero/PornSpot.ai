@@ -1,7 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
-import { UserAuthUtil } from "@shared/utils/user-auth";
 import * as bcrypt from "bcrypt";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
@@ -15,9 +14,12 @@ interface ChangePasswordResponse {
   message: string;
 }
 
-const handleChangePassword = async (event: APIGatewayProxyEvent, auth: AuthResult): Promise<APIGatewayProxyResult> => {
+const handleChangePassword = async (
+  event: APIGatewayProxyEvent,
+  auth: AuthResult
+): Promise<APIGatewayProxyResult> => {
   console.log("🔍 /user/auth/change-password handler called");
-  
+
   // Only allow PUT method
   if (event.httpMethod !== "PUT") {
     console.log("❌ Method not allowed:", event.httpMethod);
@@ -57,7 +59,10 @@ const handleChangePassword = async (event: APIGatewayProxyEvent, auth: AuthResul
   const requestData: ChangePasswordRequest = JSON.parse(event.body!);
 
   // Validate required fields using shared validation
-  const currentPassword = ValidationUtil.validateRequiredString(requestData.currentPassword, "Current password");
+  const currentPassword = ValidationUtil.validateRequiredString(
+    requestData.currentPassword,
+    "Current password"
+  );
   const newPassword = ValidationUtil.validatePassword(requestData.newPassword);
 
   // Password strength validation (same as registration)

@@ -4,7 +4,6 @@ import { DynamoDBService } from "@shared/utils/dynamodb";
 import { S3Service } from "@shared/utils/s3";
 import { ResponseUtil } from "@shared/utils/response";
 import { UploadMediaRequest, AddMediaToAlbumRequest } from "@shared";
-import { UserAuthUtil } from "@shared/utils/user-auth";
 import { RevalidationService } from "@shared/utils/revalidation";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
@@ -16,7 +15,8 @@ const handleAddMedia = async (
   const { userId, userRole = "user" } = auth;
   const albumId = LambdaHandlerUtil.getPathParam(event, "albumId");
 
-  const request: AddMediaToAlbumRequest | UploadMediaRequest = LambdaHandlerUtil.parseJsonBody(event);
+  const request: AddMediaToAlbumRequest | UploadMediaRequest =
+    LambdaHandlerUtil.parseJsonBody(event);
 
   // Verify album exists and check ownership
   const album = await DynamoDBService.getAlbum(albumId);
@@ -24,8 +24,17 @@ const handleAddMedia = async (
     return ResponseUtil.notFound(event, "Album not found");
   }
 
+  if (!album.createdBy) {
+    return ResponseUtil.badRequest(
+      event,
+      "Album ownership information is missing"
+    );
+  }
+
   // Check if user owns this album or has admin privileges using helper
-  if (!LambdaHandlerUtil.checkOwnershipOrAdmin(album.createdBy, userId, userRole)) {
+  if (
+    !LambdaHandlerUtil.checkOwnershipOrAdmin(album.createdBy, userId, userRole)
+  ) {
     console.log("❌ User does not own album and is not admin:", {
       userId,
       albumCreatedBy: album.createdBy,
@@ -62,10 +71,9 @@ const handleAddMedia = async (
       const mediaIds = ValidationUtil.validateArray(
         request.mediaIds,
         "mediaIds",
-        (id, index) => ValidationUtil.validateRequiredString(id, `mediaId[${index}]`),
-        1, // min length
-        50  // max length to avoid timeouts
-      );
+        (id, index) =>
+          ValidationUtil.validateRequiredString(id, `mediaId[${index}]`)
+      ) as string[];
 
       try {
         const results = await DynamoDBService.bulkAddMediaToAlbum(
@@ -104,7 +112,10 @@ const handleAddMedia = async (
 
     // Handle single addition
     if (request.mediaId) {
-      const mediaId = ValidationUtil.validateRequiredString(request.mediaId, "mediaId");
+      const mediaId = ValidationUtil.validateRequiredString(
+        request.mediaId,
+        "mediaId"
+      );
 
       // Verify media exists
       const media = await DynamoDBService.getMedia(mediaId);
@@ -138,8 +149,14 @@ const handleAddMedia = async (
   const uploadRequest = request as UploadMediaRequest;
 
   // Validate upload request using shared validation
-  const filename = ValidationUtil.validateRequiredString(uploadRequest.filename, "filename");
-  const mimeType = ValidationUtil.validateRequiredString(uploadRequest.mimeType, "mimeType");
+  const filename = ValidationUtil.validateRequiredString(
+    uploadRequest.filename,
+    "filename"
+  );
+  const mimeType = ValidationUtil.validateRequiredString(
+    uploadRequest.mimeType,
+    "mimeType"
+  );
 
   // Album was already verified above, so we can proceed directly
   // Generate presigned upload URL
@@ -173,10 +190,7 @@ const handleAddMedia = async (
     createdByType: "user" as const,
     status: "pending" as const, // Will be updated to 'uploaded' after successful upload
   };
-  console.log(
-    "Generated media relative path:",
-    S3Service.getRelativePath(key)
-  );
+  console.log("Generated media relative path:", S3Service.getRelativePath(key));
 
   // Create the media entity
   await DynamoDBService.createMedia(mediaEntity);

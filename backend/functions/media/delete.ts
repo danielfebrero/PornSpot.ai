@@ -18,12 +18,22 @@ const handleDeleteMedia = async (
     return ResponseUtil.notFound(event, "Media not found");
   }
 
-  // Check if user owns the media (or use helper for admin override)
-  if (!LambdaHandlerUtil.checkOwnershipOrAdmin(existingMedia.createdBy, userId, auth.userRole)) {
-    return ResponseUtil.forbidden(
+  if (!existingMedia.createdBy) {
+    return ResponseUtil.badRequest(
       event,
-      "You can only delete your own media"
+      "Media ownership information is missing"
     );
+  }
+
+  // Check if user owns the media (or use helper for admin override)
+  if (
+    !LambdaHandlerUtil.checkOwnershipOrAdmin(
+      existingMedia.createdBy,
+      userId,
+      auth.userRole
+    )
+  ) {
+    return ResponseUtil.forbidden(event, "You can only delete your own media");
   }
 
   console.log("🗑️ Deleting media:", {
@@ -33,9 +43,7 @@ const handleDeleteMedia = async (
   });
 
   // Get all album IDs that will be affected by this deletion (before deletion)
-  const albumRelations = await DynamoDBService.getAlbumMediaRelations(
-    mediaId
-  );
+  const albumRelations = await DynamoDBService.getAlbumMediaRelations(mediaId);
   const affectedAlbumIds = albumRelations.map((relation) => relation.albumId);
 
   // Delete S3 object

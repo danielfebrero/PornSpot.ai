@@ -3,7 +3,6 @@ import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { RevalidationService } from "@shared/utils/revalidation";
 import { RemoveMediaFromAlbumRequest } from "@shared";
-import { UserAuthUtil } from "@shared/utils/user-auth";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 
 const handleBulkRemoveMedia = async (
@@ -11,7 +10,8 @@ const handleBulkRemoveMedia = async (
   auth: AuthResult
 ): Promise<APIGatewayProxyResult> => {
   const albumId = LambdaHandlerUtil.getPathParam(event, "albumId");
-  const request: RemoveMediaFromAlbumRequest = LambdaHandlerUtil.parseJsonBody(event);
+  const request: RemoveMediaFromAlbumRequest =
+    LambdaHandlerUtil.parseJsonBody(event);
 
   // Verify album exists and check ownership
   const album = await DynamoDBService.getAlbum(albumId);
@@ -19,8 +19,21 @@ const handleBulkRemoveMedia = async (
     return ResponseUtil.notFound(event, "Album not found");
   }
 
+  if (!album.createdBy) {
+    return ResponseUtil.badRequest(
+      event,
+      "Album ownership information is missing"
+    );
+  }
+
   // Check if user owns this album or has admin privileges
-  if (!LambdaHandlerUtil.checkOwnershipOrAdmin(album.createdBy, auth.userId, auth.userRole)) {
+  if (
+    !LambdaHandlerUtil.checkOwnershipOrAdmin(
+      album.createdBy,
+      auth.userId,
+      auth.userRole
+    )
+  ) {
     console.log("❌ User does not own album and is not admin:", {
       userId: auth.userId,
       albumCreatedBy: album.createdBy,
@@ -78,7 +91,9 @@ const handleBulkRemoveMedia = async (
       await RevalidationService.revalidateAlbum(albumId);
     }
 
-    console.log(`📱 User ${auth.userId} bulk removed ${results.successful.length} media items from album ${albumId}`);
+    console.log(
+      `📱 User ${auth.userId} bulk removed ${results.successful.length} media items from album ${albumId}`
+    );
 
     return ResponseUtil.success(event, {
       success: true,

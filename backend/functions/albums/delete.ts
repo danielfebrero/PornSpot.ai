@@ -20,12 +20,22 @@ const handleDeleteAlbum = async (
     return ResponseUtil.notFound(event, "Album not found");
   }
 
-  // Check if user owns the album (or is admin) using helper
-  if (!LambdaHandlerUtil.checkOwnershipOrAdmin(existingAlbum.createdBy, userId, userRole)) {
-    return ResponseUtil.forbidden(
+  if (!existingAlbum.createdBy) {
+    return ResponseUtil.badRequest(
       event,
-      "You can only delete your own albums"
+      "Album ownership information is missing"
     );
+  }
+
+  // Check if user owns the album (or is admin) using helper
+  if (
+    !LambdaHandlerUtil.checkOwnershipOrAdmin(
+      existingAlbum.createdBy,
+      userId,
+      userRole
+    )
+  ) {
+    return ResponseUtil.forbidden(event, "You can only delete your own albums");
   }
 
   // Get all media in the album to remove them from the album (not delete them)

@@ -16,8 +16,19 @@ export interface AdminAuthResult {
 export interface LambdaHandlerConfig {
   requireAuth?: boolean;
   includeRole?: boolean;
-  requireBody?: boolean;
+  /**
+   * Require a request body. When an array is provided, the body is required only for the listed HTTP methods.
+   */
+  requireBody?: boolean | string[];
   validatePathParams?: string[];
+  /**
+   * Validate that specific query string parameters are present and non-empty
+   */
+  validateQueryParams?: string[];
+  /**
+   * If provided, validatePathParams will only be enforced for the specified HTTP methods
+   */
+  validatePathParamsMethods?: string[];
 }
 
 export type AuthenticatedHandler = (
@@ -59,8 +70,12 @@ export class LambdaHandlerUtil {
           return ResponseUtil.noContent(event);
         }
 
-        // Validate required path parameters
-        if (config.validatePathParams) {
+        // Validate required path parameters (optionally by method)
+        if (
+          config.validatePathParams &&
+          (!config.validatePathParamsMethods ||
+            config.validatePathParamsMethods.includes(event.httpMethod))
+        ) {
           for (const param of config.validatePathParams) {
             if (!event.pathParameters?.[param]) {
               return ResponseUtil.badRequest(
@@ -71,9 +86,29 @@ export class LambdaHandlerUtil {
           }
         }
 
-        // Validate request body if required
-        if (config.requireBody && !event.body) {
+        // Validate request body if required (supports method-scoped array)
+        const requireBody = Array.isArray(config.requireBody)
+          ? config.requireBody.includes(event.httpMethod)
+          : !!config.requireBody;
+        if (requireBody && !event.body) {
           return ResponseUtil.badRequest(event, "Request body is required");
+        }
+
+        // Validate required query string parameters
+        if (config.validateQueryParams) {
+          for (const param of config.validateQueryParams) {
+            const value = event.queryStringParameters?.[param];
+            if (
+              value === undefined ||
+              value === null ||
+              String(value).trim() === ""
+            ) {
+              return ResponseUtil.badRequest(
+                event,
+                `${param} is required in query`
+              );
+            }
+          }
         }
 
         // Handle authentication
@@ -123,8 +158,12 @@ export class LambdaHandlerUtil {
           return ResponseUtil.noContent(event);
         }
 
-        // Validate required path parameters
-        if (config.validatePathParams) {
+        // Validate required path parameters (optionally by method)
+        if (
+          config.validatePathParams &&
+          (!config.validatePathParamsMethods ||
+            config.validatePathParamsMethods.includes(event.httpMethod))
+        ) {
           for (const param of config.validatePathParams) {
             if (!event.pathParameters?.[param]) {
               return ResponseUtil.badRequest(
@@ -135,9 +174,29 @@ export class LambdaHandlerUtil {
           }
         }
 
-        // Validate request body if required
-        if (config.requireBody && !event.body) {
+        // Validate request body if required (supports method-scoped array)
+        const requireBody = Array.isArray(config.requireBody)
+          ? config.requireBody.includes(event.httpMethod)
+          : !!config.requireBody;
+        if (requireBody && !event.body) {
           return ResponseUtil.badRequest(event, "Request body is required");
+        }
+
+        // Validate required query string parameters
+        if (config.validateQueryParams) {
+          for (const param of config.validateQueryParams) {
+            const value = event.queryStringParameters?.[param];
+            if (
+              value === undefined ||
+              value === null ||
+              String(value).trim() === ""
+            ) {
+              return ResponseUtil.badRequest(
+                event,
+                `${param} is required in query`
+              );
+            }
+          }
         }
 
         // Call the actual handler
@@ -207,8 +266,12 @@ export class LambdaHandlerUtil {
           return ResponseUtil.noContent(event);
         }
 
-        // Validate required path parameters
-        if (config.validatePathParams) {
+        // Validate required path parameters (optionally by method)
+        if (
+          config.validatePathParams &&
+          (!config.validatePathParamsMethods ||
+            config.validatePathParamsMethods.includes(event.httpMethod))
+        ) {
           for (const param of config.validatePathParams) {
             if (!event.pathParameters?.[param]) {
               return ResponseUtil.badRequest(
@@ -219,9 +282,29 @@ export class LambdaHandlerUtil {
           }
         }
 
-        // Validate request body if required
-        if (config.requireBody && !event.body) {
+        // Validate request body if required (supports method-scoped array)
+        const requireBody = Array.isArray(config.requireBody)
+          ? config.requireBody.includes(event.httpMethod)
+          : !!config.requireBody;
+        if (requireBody && !event.body) {
           return ResponseUtil.badRequest(event, "Request body is required");
+        }
+
+        // Validate required query string parameters
+        if (config.validateQueryParams) {
+          for (const param of config.validateQueryParams) {
+            const value = event.queryStringParameters?.[param];
+            if (
+              value === undefined ||
+              value === null ||
+              String(value).trim() === ""
+            ) {
+              return ResponseUtil.badRequest(
+                event,
+                `${param} is required in query`
+              );
+            }
+          }
         }
 
         // Prefer API Gateway authorizer context (prod) and fallback to session (local dev)

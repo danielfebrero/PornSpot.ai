@@ -1,7 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
-import { UserAuthUtil } from "@shared/utils/user-auth";
 import { UserProfileInsights } from "@shared";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
@@ -104,5 +103,5 @@ const handleGetUserProfile = async (
 };
 
 export const handler = LambdaHandlerUtil.withAuth(handleGetUserProfile, {
-  validateQueryParams: ['username']
+  validateQueryParams: ["username"],
 });

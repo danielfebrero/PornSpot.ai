@@ -1,7 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
-import { UserAuthUtil } from "@shared/utils/user-auth";
 import { UserEntity } from "@shared";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
@@ -38,9 +37,12 @@ interface UpdateProfileResponse {
   };
 }
 
-const handleEditProfile = async (event: APIGatewayProxyEvent, auth: AuthResult): Promise<APIGatewayProxyResult> => {
+const handleEditProfile = async (
+  event: APIGatewayProxyEvent,
+  auth: AuthResult
+): Promise<APIGatewayProxyResult> => {
   console.log("🔍 /user/profile/edit handler called");
-  
+
   // Only allow PUT method
   if (event.httpMethod !== "PUT") {
     console.log("❌ Method not allowed:", event.httpMethod);
@@ -69,7 +71,9 @@ const handleEditProfile = async (event: APIGatewayProxyEvent, auth: AuthResult):
     try {
       ValidationUtil.validateUsername(updateData.username);
     } catch (error) {
-      validationErrors.push(error instanceof Error ? error.message : "Username validation failed");
+      validationErrors.push(
+        error instanceof Error ? error.message : "Username validation failed"
+      );
     }
   }
 
@@ -83,7 +87,9 @@ const handleEditProfile = async (event: APIGatewayProxyEvent, auth: AuthResult):
         }
       }
     } catch (error) {
-      validationErrors.push(error instanceof Error ? error.message : "Bio validation failed");
+      validationErrors.push(
+        error instanceof Error ? error.message : "Bio validation failed"
+      );
     }
   }
 
@@ -93,11 +99,15 @@ const handleEditProfile = async (event: APIGatewayProxyEvent, auth: AuthResult):
       if (updateData.location) {
         ValidationUtil.validateOptionalString(updateData.location, "Location");
         if (updateData.location.length > 100) {
-          validationErrors.push("Location cannot be longer than 100 characters");
+          validationErrors.push(
+            "Location cannot be longer than 100 characters"
+          );
         }
       }
     } catch (error) {
-      validationErrors.push(error instanceof Error ? error.message : "Location validation failed");
+      validationErrors.push(
+        error instanceof Error ? error.message : "Location validation failed"
+      );
     }
   }
 
@@ -110,13 +120,16 @@ const handleEditProfile = async (event: APIGatewayProxyEvent, auth: AuthResult):
           validationErrors.push("Website cannot be longer than 200 characters");
         }
         // Simple URL validation
-        const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+        const urlRegex =
+          /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
         if (!urlRegex.test(updateData.website.trim())) {
           validationErrors.push("Website must be a valid URL");
         }
       }
     } catch (error) {
-      validationErrors.push(error instanceof Error ? error.message : "Website validation failed");
+      validationErrors.push(
+        error instanceof Error ? error.message : "Website validation failed"
+      );
     }
   }
 
@@ -124,17 +137,26 @@ const handleEditProfile = async (event: APIGatewayProxyEvent, auth: AuthResult):
   if (updateData.preferredLanguage !== undefined) {
     try {
       if (updateData.preferredLanguage) {
-        ValidationUtil.validateOptionalString(updateData.preferredLanguage, "Preferred language");
+        ValidationUtil.validateOptionalString(
+          updateData.preferredLanguage,
+          "Preferred language"
+        );
         // Validate against supported locales (empty string is allowed for auto mode)
         const supportedLanguages = ["", "de", "en", "es", "fr", "ru", "zh"];
         if (!supportedLanguages.includes(updateData.preferredLanguage.trim())) {
           validationErrors.push(
-            `Preferred language must be one of: ${supportedLanguages.join(", ")}`
+            `Preferred language must be one of: ${supportedLanguages.join(
+              ", "
+            )}`
           );
         }
       }
     } catch (error) {
-      validationErrors.push(error instanceof Error ? error.message : "Preferred language validation failed");
+      validationErrors.push(
+        error instanceof Error
+          ? error.message
+          : "Preferred language validation failed"
+      );
     }
   }
 

@@ -2,7 +2,6 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import * as bcrypt from "bcrypt";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
-import { UserUtil } from "@shared/utils/user";
 import { UserLoginRequest } from "@shared";
 import { SessionUtil } from "@shared/utils/session";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
@@ -15,7 +14,10 @@ const handleLogin = async (
 
   // Validate input using shared validation
   const email = ValidationUtil.validateEmail(request.email);
-  const password = ValidationUtil.validateRequiredString(request.password, "password");
+  const password = ValidationUtil.validateRequiredString(
+    request.password,
+    "password"
+  );
 
   const userEntity = await DynamoDBService.getUserByEmail(email);
 

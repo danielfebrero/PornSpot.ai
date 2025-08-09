@@ -6,6 +6,7 @@ import {
   CreateCommentRequest,
   UpdateCommentRequest,
   CommentEntity,
+  CommentTargetType,
 } from "@shared";
 import { v4 as uuidv4 } from "uuid";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
@@ -37,11 +38,20 @@ async function createComment(
   userId: string
 ): Promise<APIGatewayProxyResult> {
   const request: CreateCommentRequest = LambdaHandlerUtil.parseJsonBody(event);
-  
+
   // Validate input using shared utilities
-  const targetType = ValidationUtil.validateRequiredString(request.targetType, "targetType");
-  const targetId = ValidationUtil.validateRequiredString(request.targetId, "targetId");
-  const content = ValidationUtil.validateRequiredString(request.content, "content");
+  const targetType = ValidationUtil.validateRequiredString(
+    request.targetType,
+    "targetType"
+  );
+  const targetId = ValidationUtil.validateRequiredString(
+    request.targetId,
+    "targetId"
+  );
+  const content = ValidationUtil.validateRequiredString(
+    request.content,
+    "content"
+  );
 
   if (!["album", "media"].includes(targetType)) {
     return ResponseUtil.badRequest(
@@ -94,7 +104,7 @@ async function createComment(
     EntityType: "Comment",
     id: commentId,
     content: content.trim(),
-    targetType,
+    targetType: targetType as CommentTargetType,
     targetId,
     userId: user.userId,
     username: user.username,
@@ -148,9 +158,12 @@ async function updateComment(
   );
 
   const request: UpdateCommentRequest = LambdaHandlerUtil.parseJsonBody(event);
-  
+
   // Validate input using shared utilities
-  const content = ValidationUtil.validateRequiredString(request.content, "content");
+  const content = ValidationUtil.validateRequiredString(
+    request.content,
+    "content"
+  );
 
   if (content.trim().length === 0) {
     return ResponseUtil.badRequest(event, "Comment content cannot be empty");
@@ -269,6 +282,6 @@ async function deleteComment(
 
 export const handler = LambdaHandlerUtil.withAuth(handleComment, {
   requireBody: ["POST", "PUT"],
-  validatePathParams: ["PUT", "DELETE"],
-  pathParamNames: ["commentId"]
+  validatePathParams: ["commentId"],
+  validatePathParamsMethods: ["PUT", "DELETE"],
 });

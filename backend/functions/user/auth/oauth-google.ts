@@ -48,7 +48,7 @@ const handleOAuthCallback = async (
 
   // Extract OAuth parameters from request body
   const code = requestBody.code;
-  const state = requestBody.state;
+  // const state = requestBody.state;
   const error = requestBody.error;
 
   // Handle OAuth errors from Google
@@ -62,8 +62,13 @@ const handleOAuthCallback = async (
   }
 
   // Validate required parameters using centralized validation
-  const authCode = ValidationUtil.validateRequiredString(code, "Authorization code");
-  const stateParam = ValidationUtil.validateRequiredString(state, "State parameter");
+  const authCode = ValidationUtil.validateRequiredString(
+    code,
+    "Authorization code"
+  );
+
+  // TODO: What can we do with the state parameter?
+  // const stateParam = ValidationUtil.validateRequiredString(state, "State parameter");
 
   console.log("Exchanging authorization code for tokens");
 

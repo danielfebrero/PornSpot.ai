@@ -4,7 +4,6 @@ import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { RevalidationService } from "@shared/utils/revalidation";
 import { CreateAlbumRequest, AlbumEntity } from "@shared";
-import { UserAuthUtil } from "@shared/utils/user-auth";
 import { PlanUtil } from "@shared/utils/plan";
 import { CoverThumbnailUtil } from "@shared/utils/cover-thumbnail";
 import { getPlanPermissions } from "@shared/utils/permissions";
@@ -27,7 +26,8 @@ const handleCreateAlbum = async (
     const mediaIds = ValidationUtil.validateArray(
       request.mediaIds,
       "mediaIds",
-      (mediaId, index) => ValidationUtil.validateRequiredString(mediaId, `mediaId[${index}]`)
+      (mediaId, index) =>
+        ValidationUtil.validateRequiredString(mediaId, `mediaId[${index}]`)
     );
 
     // Verify all media items exist and belong to the user (unless admin)
@@ -43,7 +43,9 @@ const handleCreateAlbum = async (
   }
 
   // Validate optional tags
-  const tags = request.tags ? ValidationUtil.validateTags(request.tags) : undefined;
+  const tags = request.tags
+    ? ValidationUtil.validateTags(request.tags)
+    : undefined;
 
   // Validate cover image ID if provided and generate thumbnails
   let coverImageUrl: string | undefined;
@@ -62,7 +64,7 @@ const handleCreateAlbum = async (
       request.coverImageId,
       "coverImageId"
     );
-    
+
     const coverMedia = await DynamoDBService.getMedia(coverImageId);
     if (!coverMedia) {
       return ResponseUtil.badRequest(

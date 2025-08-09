@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
-import { InteractionRequest, UserInteractionEntity } from "@shared";
+import { InteractionRequest, UserInteractionEntity, TargetType } from "@shared";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 import { CounterUtil } from "@shared/utils/counter";
@@ -11,14 +11,20 @@ const handleBookmarkInteraction = async (
   auth: AuthResult
 ): Promise<APIGatewayProxyResult> => {
   const { userId } = auth;
-  
+
   console.log("🔄 Bookmark/Unbookmark function called");
 
   const body: InteractionRequest = LambdaHandlerUtil.parseJsonBody(event);
-  
+
   // Validate input using shared validation
-  const targetType = ValidationUtil.validateRequiredString(body.targetType, "targetType");
-  const targetId = ValidationUtil.validateRequiredString(body.targetId, "targetId");
+  const targetType = ValidationUtil.validateRequiredString(
+    body.targetType,
+    "targetType"
+  );
+  const targetId = ValidationUtil.validateRequiredString(
+    body.targetId,
+    "targetId"
+  );
   const action = ValidationUtil.validateRequiredString(body.action, "action");
 
   // Validate target type
@@ -71,7 +77,7 @@ const handleBookmarkInteraction = async (
       EntityType: "UserInteraction",
       userId: userId,
       interactionType: "bookmark",
-      targetType,
+      targetType: targetType as TargetType,
       targetId,
       createdAt: now,
     };

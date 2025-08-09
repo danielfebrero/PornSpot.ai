@@ -1,6 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
-import { UserUtil } from "@shared/utils/user";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
@@ -9,7 +8,9 @@ import {
   UsernameAvailabilityResponse,
 } from "@shared";
 
-const handleCheckUsername = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+const handleCheckUsername = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   // Support both GET and POST methods for flexibility
   let username: string;
 
@@ -37,9 +38,11 @@ const handleCheckUsername = async (event: APIGatewayProxyEvent): Promise<APIGate
   // Validate username format using shared validation
   try {
     const validatedUsername = ValidationUtil.validateUsername(username);
-    
+
     // Check if username is available
-    const existingUser = await DynamoDBService.getUserByUsername(validatedUsername);
+    const existingUser = await DynamoDBService.getUserByUsername(
+      validatedUsername
+    );
     const isAvailable = !existingUser;
 
     const response: UsernameAvailabilityResponse = {
@@ -56,7 +59,8 @@ const handleCheckUsername = async (event: APIGatewayProxyEvent): Promise<APIGate
     const response: UsernameAvailabilityResponse = {
       success: false,
       available: false,
-      message: error instanceof Error ? error.message : "Username validation failed",
+      message:
+        error instanceof Error ? error.message : "Username validation failed",
     };
     return ResponseUtil.success(event, response);
   }

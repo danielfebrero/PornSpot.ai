@@ -20,14 +20,19 @@ The following shared utilities have been created to consolidate common patterns 
 **Purpose**: Eliminates the duplication of common Lambda handler patterns found in 50+ functions.
 
 **Before** (repeated in every function):
+
 ```typescript
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   if (event.httpMethod === "OPTIONS") {
     return ResponseUtil.noContent(event);
   }
 
   try {
-    const authResult = await UserAuthUtil.requireAuth(event, { includeRole: true });
+    const authResult = await UserAuthUtil.requireAuth(event, {
+      includeRole: true,
+    });
     if (UserAuthUtil.isErrorResponse(authResult)) {
       return authResult;
     }
@@ -44,23 +49,37 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 ```
 
 **After** (consolidated):
+
 ```typescript
-const handleFunction = async (event: APIGatewayProxyEvent, auth: AuthResult): Promise<APIGatewayProxyResult> => {
+const handleFunction = async (
+  event: APIGatewayProxyEvent,
+  auth: AuthResult
+): Promise<APIGatewayProxyResult> => {
   // ... actual handler logic only
 };
 
 export const handler = LambdaHandlerUtil.withAuth(handleFunction, {
   requireBody: true,
   includeRole: true,
-  validatePathParams: ['albumId'],
+  validatePathParams: ["albumId"],
+});
+```
+
+**Example (query param validation)**:
+
+```typescript
+export const handler = LambdaHandlerUtil.withAuth(handleGetUserProfile, {
+  validateQueryParams: ["username"],
 });
 ```
 
 **Features**:
+
 - Automatic OPTIONS request handling
 - Authentication validation
 - Request body validation
 - Path parameter validation
+- Query parameter validation (validateQueryParams)
 - Centralized error handling
 - Type-safe auth result
 
@@ -71,6 +90,7 @@ export const handler = LambdaHandlerUtil.withAuth(handleFunction, {
 **Purpose**: Centralizes validation logic that was duplicated across multiple functions.
 
 **Common Validations**:
+
 ```typescript
 // String validation
 const title = ValidationUtil.validateAlbumTitle(request.title);
@@ -92,6 +112,7 @@ const interaction = ValidationUtil.validateInteractionType(type);
 **Purpose**: Consolidates DynamoDB counter increment/decrement operations that were duplicated throughout the DynamoDBService.
 
 **Before** (repeated pattern):
+
 ```typescript
 static async incrementAlbumLikeCount(albumId: string, increment: number = 1): Promise<void> {
   await docClient.send(
@@ -106,6 +127,7 @@ static async incrementAlbumLikeCount(albumId: string, increment: number = 1): Pr
 ```
 
 **After** (centralized):
+
 ```typescript
 // All counter operations use the same underlying pattern
 static async incrementAlbumLikeCount(albumId: string, increment: number = 1): Promise<void> {
@@ -114,6 +136,7 @@ static async incrementAlbumLikeCount(albumId: string, increment: number = 1): Pr
 ```
 
 **Features**:
+
 - Generic counter increment/decrement
 - Support for all entity types (album, media, comment)
 - Support for all counter types (like, bookmark, view, comment, media)
@@ -129,6 +152,7 @@ static async incrementAlbumLikeCount(albumId: string, increment: number = 1): Pr
 **Purpose**: Reduces duplication in API request patterns across frontend components.
 
 **Before** (repeated pattern):
+
 ```typescript
 const response = await fetch(`${API_URL}/albums?${searchParams.toString()}`, {
   method: "GET",
@@ -144,12 +168,14 @@ return response.json();
 ```
 
 **After** (consolidated):
+
 ```typescript
 const response = await ApiUtil.get<UnifiedAlbumsResponse>("/albums", params);
 return ApiUtil.extractData(response);
 ```
 
 **Features**:
+
 - Consistent request/response handling
 - Built-in error handling
 - Support for all HTTP methods
@@ -166,11 +192,16 @@ return ApiUtil.extractData(response);
 // albums/create.ts
 import { LambdaHandlerUtil, ValidationUtil } from "@shared/utils";
 
-const handleCreateAlbum = async (event: APIGatewayProxyEvent, auth: AuthResult) => {
+const handleCreateAlbum = async (
+  event: APIGatewayProxyEvent,
+  auth: AuthResult
+) => {
   const request = LambdaHandlerUtil.parseJsonBody<CreateAlbumRequest>(event);
   const title = ValidationUtil.validateAlbumTitle(request.title);
-  const tags = request.tags ? ValidationUtil.validateTags(request.tags) : undefined;
-  
+  const tags = request.tags
+    ? ValidationUtil.validateTags(request.tags)
+    : undefined;
+
   // ... business logic only
 };
 
@@ -187,11 +218,16 @@ export const handler = LambdaHandlerUtil.withAuth(handleCreateAlbum, {
 import { ApiUtil } from "../api-util";
 
 export const albumsApi = {
-  getAlbums: async (params?: GetAlbumsParams): Promise<UnifiedAlbumsResponse> => {
-    const response = await ApiUtil.get<UnifiedAlbumsResponse>("/albums", params);
+  getAlbums: async (
+    params?: GetAlbumsParams
+  ): Promise<UnifiedAlbumsResponse> => {
+    const response = await ApiUtil.get<UnifiedAlbumsResponse>(
+      "/albums",
+      params
+    );
     return ApiUtil.extractData(response);
   },
-  
+
   createAlbum: async (albumData: CreateAlbumData): Promise<Album> => {
     const response = await ApiUtil.post<Album>("/albums", albumData);
     return ApiUtil.extractData(response);
@@ -204,12 +240,15 @@ export const albumsApi = {
 ### Lines of Code Reduction
 
 **Backend**:
+
 - **Lambda handlers**: ~20-30 lines per function → ~5-10 lines per function
 - **Counter operations**: ~15 lines per operation → 1 line per operation
 - **Validation**: ~5-10 lines per validation → 1 line per validation
 
 **Frontend**:
+
 - **API calls**: ~15-20 lines per request → ~2-3 lines per request
+- Query parameter validation (validateQueryParams)
 
 ### Estimated Total Reduction
 
