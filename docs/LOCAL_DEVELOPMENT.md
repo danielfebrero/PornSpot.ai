@@ -147,3 +147,18 @@ The `start-local-backend.sh` script provides some useful commands for managing t
 - **View LocalStack logs**: `docker-compose -f docker-compose.local.yml logs -f`
 - **Stop LocalStack**: `docker-compose -f docker-compose.local.yml down`
 - **Check LocalStack health**: `curl http://localhost:4566/_localstack/health`
+
+## Package linking note (Vercel compatibility)
+
+Some environments (like Vercel) don't support the npm "workspace:" protocol during install, which can cause errors like:
+
+```
+npm ERR! code EUNSUPPORTEDPROTOCOL
+npm ERR! Unsupported URL Type "workspace:": workspace:*
+```
+
+To avoid this, internal dependency `@pornspot-ai/shared-types` is referenced via a local file link instead of `workspace:*` in both `frontend/package.json` and `backend/package.json`:
+
+- `"@pornspot-ai/shared-types": "file:../shared-types"`
+
+The `shared-types` package includes a `prepare` script to build on install so consumers receive compiled `dist/` when installing from `file:`. If you edit types locally, either rebuild `shared-types` or reinstall the frontend/backend to pick up changes.

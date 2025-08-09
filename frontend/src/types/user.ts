@@ -1,5 +1,14 @@
-// Import shared types we need to reference (avoiding circular reference)
-import { Album, Media, User as BaseUser, UserProfileInsights as BaseUserProfileInsights, Comment, UserLoginRequest, UserRegistrationRequest, GenerationMetadata } from ".";
+// Import shared types directly to avoid barrel ("./index") circular dependencies
+import type {
+  Album,
+  Media,
+  User as BaseUser,
+  UserProfileInsights as BaseUserProfileInsights,
+  Comment,
+  UserLoginRequest,
+  UserRegistrationRequest,
+  GenerationMetadata,
+} from "@pornspot-ai/shared-types";
 import type { UserInteraction as BaseUserInteraction } from "@pornspot-ai/shared-types";
 
 // Frontend-specific interaction request (with albumId and action for frontend usage)
@@ -272,10 +281,7 @@ export interface UnifiedCommentsResponse {
   error?: string;
 }
 
-// Comment type with target enrichment for frontend display
-export interface CommentWithTarget extends Comment {
-  target?: Media | Album; // Added for enriched comments from getUserComments API
-}
+// (duplicate removed)
 
 // User interaction stats - frontend specific
 export interface UserInteractionStatsResponse {
@@ -298,5 +304,5 @@ export type {
   UserInteractionsResponse,
   ApiResponse,
   UsernameAvailabilityRequest,
-  Comment
+  Comment,
 } from "@pornspot-ai/shared-types";

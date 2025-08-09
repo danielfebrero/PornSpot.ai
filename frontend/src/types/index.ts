@@ -50,15 +50,6 @@ export type ThumbnailContext =
   | "admin"
   | "default";
 
-export interface ThumbnailUrls {
-  cover?: string;
-  small?: string;
-  medium?: string;
-  large?: string;
-  xlarge?: string;
-  originalSize?: string;
-}
-
 // Frontend-specific permission and plan types
 export * from "./permissions";
 
@@ -90,11 +81,8 @@ export type {
   EmailVerificationRequest,
   EmailVerificationResponse,
   ResendVerificationRequest,
-  ResendVerificationResponse
+  ResendVerificationResponse,
 } from "./user";
 
 // Re-export shared types that are needed directly
-export type { 
-  UserLoginRequest,
-  UserRegistrationRequest 
-} from "@pornspot-ai/shared-types";
+// (explicit re-exports removed; already provided by export * above)
