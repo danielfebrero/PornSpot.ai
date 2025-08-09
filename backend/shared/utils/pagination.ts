@@ -9,40 +9,7 @@
  * @since 2024-12
  */
 
-/**
- * Standard pagination request parameters
- */
-export interface PaginationRequest {
-  cursor?: string; // Base64-encoded JSON of DynamoDB lastEvaluatedKey
-  limit?: number; // Number of items per page
-}
-
-/**
- * Standard pagination metadata in responses
- */
-export interface PaginationMeta {
-  hasNext: boolean; // Whether more pages are available
-  cursor: string | null; // Base64-encoded cursor for next page, null if no more pages
-  limit: number; // Actual limit used (may differ from requested)
-}
-
-/**
- * Generic paginated API response structure
- */
-export interface PaginatedApiResponse<T> {
-  success: boolean;
-  data: T[];
-  pagination: PaginationMeta;
-  error?: string;
-}
-
-/**
- * DynamoDB query result structure
- */
-export interface DynamoDBPaginationResult<T> {
-  items: T[];
-  lastEvaluatedKey?: Record<string, any>;
-}
+import { ApiKeyedPaginatedResponse, PaginationMeta } from "@shared";
 
 /**
  * Pagination utility class with static methods for cursor management
@@ -150,15 +117,16 @@ export class PaginationUtil {
    * @param limit - Actual limit used
    * @returns Complete paginated response object
    */
-  static createPaginatedResponse<T>(
+  static createPaginatedResponse<K extends string, T>(
+    key: K,
     items: T[],
     lastEvaluatedKey: Record<string, any> | undefined,
     limit: number
-  ): Omit<PaginatedApiResponse<T>, "success"> {
+  ): ApiKeyedPaginatedResponse<K, T>["data"] {
     return {
-      data: items,
+      [key]: items,
       pagination: this.createPaginationMeta(lastEvaluatedKey, limit),
-    };
+    } as ApiKeyedPaginatedResponse<K, T>["data"]; // satisfies keyed payload shape
   }
 
   /**
@@ -180,20 +148,7 @@ export class PaginationUtil {
 /**
  * Type guard to check if response is paginated
  */
-export function isPaginatedResponse<T>(
-  response: any
-): response is PaginatedApiResponse<T> {
-  return (
-    response &&
-    typeof response === "object" &&
-    Array.isArray(response.data) &&
-    response.pagination &&
-    typeof response.pagination.hasNext === "boolean" &&
-    (response.pagination.cursor === null ||
-      typeof response.pagination.cursor === "string") &&
-    typeof response.pagination.limit === "number"
-  );
-}
+// Removed generic isPaginatedResponse type guard; prefer explicit keyed payload checks per endpoint
 
 /**
  * Default pagination limits for different entity types

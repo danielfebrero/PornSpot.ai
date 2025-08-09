@@ -6,7 +6,10 @@ import {
   DEFAULT_PAGINATION_LIMITS,
   MAX_PAGINATION_LIMITS,
 } from "@shared/utils/pagination";
-import { LambdaHandlerUtil, AdminAuthResult } from "@shared/utils/lambda-handler";
+import {
+  LambdaHandlerUtil,
+  AdminAuthResult,
+} from "@shared/utils/lambda-handler";
 
 const handleListAlbums = async (
   event: APIGatewayProxyEvent,
@@ -22,9 +25,7 @@ const handleListAlbums = async (
     );
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Invalid pagination parameters";
+      error instanceof Error ? error.message : "Invalid pagination parameters";
     return ResponseUtil.badRequest(event, errorMessage);
   }
 
@@ -34,15 +35,17 @@ const handleListAlbums = async (
   const { albums, lastEvaluatedKey: nextKey } =
     await DynamoDBService.listAlbums(limit, lastEvaluatedKey);
 
-  // Create pagination metadata using unified utility
-  const paginationMeta = PaginationUtil.createPaginationMeta(nextKey, limit);
+  // Build typed paginated payload
+  const payload = PaginationUtil.createPaginatedResponse(
+    "albums",
+    albums,
+    nextKey,
+    limit
+  );
 
   console.log(`🔍 Admin ${auth.username} listed ${albums.length} albums`);
 
-  return ResponseUtil.success(event, {
-    albums: albums,
-    pagination: paginationMeta,
-  });
+  return ResponseUtil.success(event, payload);
 };
 
 export const handler = LambdaHandlerUtil.withAdminAuth(handleListAlbums);

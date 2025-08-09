@@ -59,9 +59,7 @@ const handleGetAlbums = async (
     );
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Invalid pagination parameters";
+      error instanceof Error ? error.message : "Invalid pagination parameters";
     return ResponseUtil.badRequest(event, errorMessage);
   }
 
@@ -116,16 +114,11 @@ const handleGetAlbums = async (
       lastEvaluatedKey,
       tag
     );
-    console.log(
-      "[Albums API] Raw albums from DB:",
-      result.albums?.length || 0
-    );
+    console.log("[Albums API] Raw albums from DB:", result.albums?.length || 0);
 
     // Filter to only show public albums if finalCreatedBy !== currentUserId
     if (finalCreatedBy !== currentUserId || isPublicParam) {
-      result.albums = result.albums.filter(
-        (album) => album.isPublic === true
-      );
+      result.albums = result.albums.filter((album) => album.isPublic === true);
       console.log(
         "[Albums API] Public albums after filtering:",
         result.albums?.length || 0
@@ -141,16 +134,15 @@ const handleGetAlbums = async (
     );
   }
 
-  // Create pagination metadata using unified utility
-  const paginationMeta = PaginationUtil.createPaginationMeta(
+  // Build typed paginated payload
+  const payload = PaginationUtil.createPaginatedResponse(
+    "albums",
+    result.albums,
     result.lastEvaluatedKey,
     limit
   );
 
-  return ResponseUtil.success(event, {
-    albums: result.albums,
-    pagination: paginationMeta,
-  });
+  return ResponseUtil.success(event, payload);
 };
 
 export const handler = LambdaHandlerUtil.withoutAuth(handleGetAlbums);

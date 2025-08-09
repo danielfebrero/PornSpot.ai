@@ -23,9 +23,7 @@ const handleGetLikes = async (
 
   if (targetUsername) {
     // Look up the target user by username
-    const targetUser = await DynamoDBService.getUserByUsername(
-      targetUsername
-    );
+    const targetUser = await DynamoDBService.getUserByUsername(targetUsername);
     if (!targetUser) {
       return ResponseUtil.notFound(event, "User not found");
     }
@@ -42,9 +40,7 @@ const handleGetLikes = async (
     );
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Invalid pagination parameters";
+      error instanceof Error ? error.message : "Invalid pagination parameters";
     return ResponseUtil.badRequest(event, errorMessage);
   }
 
@@ -79,16 +75,15 @@ const handleGetLikes = async (
     })
   );
 
-  // Calculate pagination info
-  const paginationMeta = PaginationUtil.createPaginationMeta(
+  // Build typed paginated payload
+  const payload = PaginationUtil.createPaginatedResponse(
+    "interactions",
+    enrichedInteractions,
     result.lastEvaluatedKey,
     limit
   );
 
-  return ResponseUtil.success(event, {
-    interactions: enrichedInteractions,
-    pagination: paginationMeta,
-  });
+  return ResponseUtil.success(event, payload);
 };
 
 export const handler = LambdaHandlerUtil.withAuth(handleGetLikes);

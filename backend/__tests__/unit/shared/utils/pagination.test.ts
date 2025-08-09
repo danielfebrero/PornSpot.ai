@@ -138,19 +138,20 @@ describe("PaginationUtil", () => {
   });
 
   describe("createPaginatedResponse", () => {
-    it("should create paginated response with data", () => {
+    it("should create keyed paginated payload with data", () => {
       const items = [{ id: "1" }, { id: "2" }];
       const lastKey = { PK: "USER#123" };
       const limit = 20;
 
       const response = PaginationUtil.createPaginatedResponse(
+        "items",
         items,
         lastKey,
         limit
       );
 
       expect(response).toEqual({
-        data: items,
+        items,
         pagination: {
           hasNext: true,
           cursor: Buffer.from(JSON.stringify(lastKey)).toString("base64"),
@@ -159,17 +160,18 @@ describe("PaginationUtil", () => {
       });
     });
 
-    it("should create response without next page", () => {
+    it("should create keyed response without next page", () => {
       const items = [{ id: "1" }];
 
       const response = PaginationUtil.createPaginatedResponse(
+        "items",
         items,
         undefined,
         20
       );
 
       expect(response).toEqual({
-        data: items,
+        items,
         pagination: {
           hasNext: false,
           cursor: null,

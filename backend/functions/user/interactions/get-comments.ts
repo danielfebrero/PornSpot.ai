@@ -11,7 +11,9 @@ import {
   MAX_PAGINATION_LIMITS,
 } from "@shared/utils/pagination";
 
-const handleGetComments = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+const handleGetComments = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   console.log("🔄 Get comments function called");
 
   // Get parameters from path and query string
@@ -26,8 +28,14 @@ const handleGetComments = async (event: APIGatewayProxyEvent): Promise<APIGatewa
   }
 
   // Original target-based comments functionality - validate required parameters
-  const validatedTargetType = ValidationUtil.validateRequiredString(targetType, "targetType");
-  const validatedTargetId = ValidationUtil.validateRequiredString(targetId, "targetId");
+  const validatedTargetType = ValidationUtil.validateRequiredString(
+    targetType,
+    "targetType"
+  );
+  const validatedTargetId = ValidationUtil.validateRequiredString(
+    targetId,
+    "targetId"
+  );
 
   if (!["album", "media"].includes(validatedTargetType)) {
     return ResponseUtil.badRequest(
@@ -59,9 +67,7 @@ const handleGetComments = async (event: APIGatewayProxyEvent): Promise<APIGatewa
     );
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Invalid pagination parameters";
+      error instanceof Error ? error.message : "Invalid pagination parameters";
     return ResponseUtil.badRequest(event, errorMessage);
   }
 
@@ -89,8 +95,10 @@ const handleGetComments = async (event: APIGatewayProxyEvent): Promise<APIGatewa
     isEdited: comment.isEdited || false,
   }));
 
-  // Create standardized pagination metadata
-  const paginationMeta = PaginationUtil.createPaginationMeta(
+  // Build typed paginated payload
+  const payload = PaginationUtil.createPaginatedResponse(
+    "comments",
+    comments,
     result.lastEvaluatedKey,
     limit
   );
@@ -99,10 +107,7 @@ const handleGetComments = async (event: APIGatewayProxyEvent): Promise<APIGatewa
     `✅ Retrieved ${comments.length} comments for ${validatedTargetType} ${validatedTargetId}`
   );
 
-  return ResponseUtil.success(event, {
-    comments,
-    pagination: paginationMeta,
-  });
+  return ResponseUtil.success(event, payload);
 };
 
 // Helper function to get comments by user
@@ -110,7 +115,10 @@ async function getUserComments(
   event: APIGatewayProxyEvent,
   targetUsername: string
 ): Promise<APIGatewayProxyResult> {
-  const validatedUsername = ValidationUtil.validateRequiredString(targetUsername, "username");
+  const validatedUsername = ValidationUtil.validateRequiredString(
+    targetUsername,
+    "username"
+  );
 
   // Look up the target user by username
   const targetUser = await DynamoDBService.getUserByUsername(validatedUsername);
@@ -130,9 +138,7 @@ async function getUserComments(
     );
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Invalid pagination parameters";
+      error instanceof Error ? error.message : "Invalid pagination parameters";
     return ResponseUtil.badRequest(event, errorMessage);
   }
 
@@ -212,8 +218,10 @@ async function getUserComments(
     })
   );
 
-  // Create standardized pagination metadata
-  const paginationMeta = PaginationUtil.createPaginationMeta(
+  // Build typed paginated payload
+  const payload = PaginationUtil.createPaginatedResponse(
+    "comments",
+    enrichedComments,
     result.lastEvaluatedKey,
     limit
   );
@@ -222,10 +230,7 @@ async function getUserComments(
     `✅ Retrieved ${enrichedComments.length} comments for user ${validatedUsername}`
   );
 
-  return ResponseUtil.success(event, {
-    comments: enrichedComments,
-    pagination: paginationMeta,
-  });
+  return ResponseUtil.success(event, payload);
 }
 
 export const handler = LambdaHandlerUtil.withoutAuth(handleGetComments);

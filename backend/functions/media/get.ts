@@ -33,9 +33,7 @@ const handleGetMedia = async (
     );
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Invalid pagination parameters";
+      error instanceof Error ? error.message : "Invalid pagination parameters";
     return ResponseUtil.badRequest(event, errorMessage);
   }
 
@@ -44,15 +42,17 @@ const handleGetMedia = async (
   const { media, lastEvaluatedKey: nextKey } =
     await DynamoDBService.listAlbumMedia(albumId, limit, lastEvaluatedKey);
 
-  // Create pagination metadata using unified utility
-  const paginationMeta = PaginationUtil.createPaginationMeta(nextKey, limit);
+  // Build typed paginated payload
+  const payload = PaginationUtil.createPaginatedResponse(
+    "media",
+    media,
+    nextKey,
+    limit
+  );
 
-  return ResponseUtil.success(event, {
-    media: media,
-    pagination: paginationMeta,
-  });
+  return ResponseUtil.success(event, payload);
 };
 
 export const handler = LambdaHandlerUtil.withoutAuth(handleGetMedia, {
-  validatePathParams: ['albumId']
+  validatePathParams: ["albumId"],
 });

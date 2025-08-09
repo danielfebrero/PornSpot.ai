@@ -8,9 +8,11 @@ import {
   MAX_PAGINATION_LIMITS,
 } from "@shared/utils/pagination";
 import { Media } from "@shared";
-import { UserAuthUtil } from "@shared/utils/user-auth";
 
-const handleListUserMedia = async (event: APIGatewayProxyEvent, auth: AuthResult): Promise<APIGatewayProxyResult> => {
+const handleListUserMedia = async (
+  event: APIGatewayProxyEvent,
+  auth: AuthResult
+): Promise<APIGatewayProxyResult> => {
   const userId = auth.userId;
   console.log("✅ Authenticated user:", userId);
 
@@ -24,9 +26,7 @@ const handleListUserMedia = async (event: APIGatewayProxyEvent, auth: AuthResult
     );
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Invalid pagination parameters";
+      error instanceof Error ? error.message : "Invalid pagination parameters";
     return ResponseUtil.badRequest(event, errorMessage);
   }
 
@@ -44,13 +44,15 @@ const handleListUserMedia = async (event: APIGatewayProxyEvent, auth: AuthResult
     DynamoDBService.convertMediaEntityToMedia(item)
   );
 
-  // Create pagination metadata using unified utility
-  const paginationMeta = PaginationUtil.createPaginationMeta(nextKey, limit);
+  // Build typed paginated payload
+  const payload = PaginationUtil.createPaginatedResponse(
+    "media",
+    mediaResponse,
+    nextKey,
+    limit
+  );
 
-  return ResponseUtil.success(event, {
-    media: mediaResponse,
-    pagination: paginationMeta,
-  });
+  return ResponseUtil.success(event, payload);
 };
 
 export const handler = LambdaHandlerUtil.withAuth(handleListUserMedia);

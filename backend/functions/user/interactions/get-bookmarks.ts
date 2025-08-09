@@ -26,9 +26,7 @@ const handleGetBookmarks = async (
     );
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Invalid pagination parameters";
+      error instanceof Error ? error.message : "Invalid pagination parameters";
     return ResponseUtil.badRequest(event, errorMessage);
   }
 
@@ -61,16 +59,15 @@ const handleGetBookmarks = async (
     })
   );
 
-  // Calculate pagination info
-  const paginationMeta = PaginationUtil.createPaginationMeta(
+  // Build typed paginated payload
+  const payload = PaginationUtil.createPaginatedResponse(
+    "interactions",
+    enrichedInteractions,
     result.lastEvaluatedKey,
     limit
   );
 
-  return ResponseUtil.success(event, {
-    interactions: enrichedInteractions,
-    pagination: paginationMeta,
-  });
+  return ResponseUtil.success(event, payload);
 };
 
 export const handler = LambdaHandlerUtil.withAuth(handleGetBookmarks);
