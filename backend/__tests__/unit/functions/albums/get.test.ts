@@ -210,7 +210,7 @@ describe("Albums Get Handler", () => {
       const event = createGetAlbumsEvent({ isPublic: "true", tag: "second" });
       const result = await handler(event);
 
-      const data = expectSuccessResponse(result);
+      expectSuccessResponse(result);
       expect(mockListAlbumsByPublicStatus).toHaveBeenCalledWith(
         true,
         20,

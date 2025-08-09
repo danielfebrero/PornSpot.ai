@@ -3,22 +3,17 @@ import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { UserAuthUtil } from "@shared/utils/user-auth";
 import { UserEntity } from "@shared";
+import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 
 interface DeleteAccountResponse {
   message: string;
 }
 
-export const handler = async (
-  event: APIGatewayProxyEvent
+const handleDeleteAccount = async (
+  event: APIGatewayProxyEvent,
+  auth: AuthResult
 ): Promise<APIGatewayProxyResult> => {
   console.log("🔍 /user/account/delete handler called");
-  console.log("📋 Event method:", event.httpMethod);
-
-  // Handle CORS preflight requests
-  if (event.httpMethod === "OPTIONS") {
-    console.log("⚡ Handling OPTIONS request");
-    return ResponseUtil.noContent(event);
-  }
 
   // Only allow DELETE method
   if (event.httpMethod !== "DELETE") {
@@ -26,45 +21,29 @@ export const handler = async (
     return ResponseUtil.methodNotAllowed(event, "Only DELETE method allowed");
   }
 
-  try {
-    // Extract user authentication using centralized utility
-    console.log("🔑 Validating user session...");
-    const authResult = await UserAuthUtil.requireAuth(event);
+  console.log(`✅ User session valid: ${auth.userId}`);
 
-    // Handle error response from authentication
-    if (UserAuthUtil.isErrorResponse(authResult)) {
-      console.log("❌ User session validation failed");
-      return authResult;
-    }
+  // Start the account deletion process (soft delete)
+  console.log("🗑️ Starting account deletion process (soft delete)...");
 
-    const userId = authResult.userId!;
-    console.log(`✅ User session valid: ${userId}`);
+  // 1. Mark user account as deleted and anonymize personal data
+  console.log("📝 Anonymizing user account...");
+  await anonymizeUserAccount(auth.userId);
 
-    // Start the account deletion process (soft delete)
-    console.log("🗑️ Starting account deletion process (soft delete)...");
+  // 2. Delete active user sessions
+  console.log("🚪 Deleting user sessions...");
+  await deleteUserSessions(auth.userId);
 
-    // 1. Mark user account as deleted and anonymize personal data
-    console.log("📝 Anonymizing user account...");
-    await anonymizeUserAccount(userId);
+  // Note: We keep media, albums, and interactions but they will show as "[deleted]" user
 
-    // 2. Delete active user sessions
-    console.log("🚪 Deleting user sessions...");
-    await deleteUserSessions(userId);
+  console.log("✅ Account deletion completed successfully (soft delete)");
 
-    // Note: We keep media, albums, and interactions but they will show as "[deleted]" user
+  const response: DeleteAccountResponse = {
+    message:
+      "Account deleted successfully. Your content will remain but show as '[deleted]' user",
+  };
 
-    console.log("✅ Account deletion completed successfully (soft delete)");
-
-    const response: DeleteAccountResponse = {
-      message:
-        "Account deleted successfully. Your content will remain but show as '[deleted]' user",
-    };
-
-    return ResponseUtil.success(event, response);
-  } catch (error) {
-    console.error("💥 Error deleting account:", error);
-    return ResponseUtil.internalError(event, "Failed to delete account");
-  }
+  return ResponseUtil.success(event, response);
 };
 
 /**
@@ -113,10 +92,12 @@ async function deleteUserSessions(userId: string): Promise<void> {
     // the user's isActive flag is set to false, which should invalidate sessions
     // A more robust approach would require indexing sessions by userId
     console.log(
-      `� Sessions for user ${userId} will be invalidated due to account deactivation`
+      `🔐 Sessions for user ${userId} will be invalidated due to account deactivation`
     );
   } catch (error) {
     console.error("Error handling user sessions:", error);
     throw error;
   }
 }
+
+export const handler = LambdaHandlerUtil.withAuth(handleDeleteAccount);

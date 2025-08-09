@@ -1,5 +1,3 @@
-[ ] When I am on user/bookmarks and try to navigate to a bookmarked album, it crashes.
-
 [x] On desktop, user/bookmarks and user/likes show grid-cols-1 instead of grid-cols-3 until you navigate or change viewmode.
 
 [ ] In Admin zone, last images I uploaded were 2 by 2 instead of bulk upload. This should be fixed to allow bulk uploads for images.

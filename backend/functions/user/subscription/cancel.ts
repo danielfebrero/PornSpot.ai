@@ -1,23 +1,17 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
-import { UserAuthUtil } from "@shared/utils/user-auth";
+import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 
 interface CancelSubscriptionResponse {
   message: string;
 }
 
-export const handler = async (
-  event: APIGatewayProxyEvent
+const handleCancelSubscription = async (
+  event: APIGatewayProxyEvent,
+  auth: AuthResult
 ): Promise<APIGatewayProxyResult> => {
   console.log("🔍 /user/subscription/cancel handler called");
-  console.log("📋 Event method:", event.httpMethod);
-
-  // Handle CORS preflight requests
-  if (event.httpMethod === "OPTIONS") {
-    console.log("⚡ Handling OPTIONS request");
-    return ResponseUtil.noContent(event);
-  }
 
   // Only allow POST method
   if (event.httpMethod !== "POST") {
@@ -25,66 +19,52 @@ export const handler = async (
     return ResponseUtil.methodNotAllowed(event, "Only POST method allowed");
   }
 
-  try {
-    // Extract user authentication using centralized utility
-    console.log("🔑 Validating user session...");
-    const authResult = await UserAuthUtil.requireAuth(event);
+  console.log(`✅ User session valid: ${auth.userId}`);
 
-    // Handle error response from authentication
-    if (UserAuthUtil.isErrorResponse(authResult)) {
-      console.log("❌ User session validation failed");
-      return authResult;
-    }
+  // Get full user entity to access subscription information
+  console.log("📋 Fetching user subscription details...");
+  const userEntity = await DynamoDBService.getUserById(auth.userId);
 
-    const userId = authResult.userId!;
-    console.log(`✅ User session valid: ${userId}`);
-
-    // Get full user entity to access subscription information
-    console.log("📋 Fetching user subscription details...");
-    const userEntity = await DynamoDBService.getUserById(userId);
-
-    if (!userEntity) {
-      console.log("❌ User entity not found");
-      return ResponseUtil.unauthorized(event, "User not found");
-    }
-
-    // Check if user has an active subscription
-    if (!userEntity.plan || userEntity.plan === "free") {
-      console.log("❌ User has no active subscription");
-      return ResponseUtil.badRequest(event, "No active subscription to cancel");
-    }
-
-    if (userEntity.subscriptionStatus === "canceled") {
-      console.log("❌ Subscription already canceled");
-      return ResponseUtil.badRequest(event, "Subscription is already canceled");
-    }
-
-    // TODO: In a real implementation, you would:
-    // 1. Call Stripe API to cancel the subscription
-    // 2. Handle webhook to update the database
-    // For now, we'll simulate by updating the status
-
-    console.log("💳 Canceling subscription...");
-
-    // Update subscription status to canceled
-    // Keep the plan active until the end of the billing period
-    const updates = {
-      subscriptionStatus: "canceled" as const,
-      // Keep plan and planEndDate unchanged - user retains access until end of billing period
-    };
-
-    await DynamoDBService.updateUser(userId, updates);
-
-    console.log("✅ Subscription canceled successfully");
-
-    const response: CancelSubscriptionResponse = {
-      message:
-        "Subscription canceled successfully. You will retain access to your current plan until the end of your billing period.",
-    };
-
-    return ResponseUtil.success(event, response);
-  } catch (error) {
-    console.error("💥 Error canceling subscription:", error);
-    return ResponseUtil.internalError(event, "Failed to cancel subscription");
+  if (!userEntity) {
+    console.log("❌ User entity not found");
+    return ResponseUtil.unauthorized(event, "User not found");
   }
+
+  // Check if user has an active subscription
+  if (!userEntity.plan || userEntity.plan === "free") {
+    console.log("❌ User has no active subscription");
+    return ResponseUtil.badRequest(event, "No active subscription to cancel");
+  }
+
+  if (userEntity.subscriptionStatus === "canceled") {
+    console.log("❌ Subscription already canceled");
+    return ResponseUtil.badRequest(event, "Subscription is already canceled");
+  }
+
+  // TODO: In a real implementation, you would:
+  // 1. Call Stripe API to cancel the subscription
+  // 2. Handle webhook to update the database
+  // For now, we'll simulate by updating the status
+
+  console.log("💳 Canceling subscription...");
+
+  // Update subscription status to canceled
+  // Keep the plan active until the end of the billing period
+  const updates = {
+    subscriptionStatus: "canceled" as const,
+    // Keep plan and planEndDate unchanged - user retains access until end of billing period
+  };
+
+  await DynamoDBService.updateUser(auth.userId, updates);
+
+  console.log(`✅ User ${auth.userId} subscription canceled successfully`);
+
+  const response: CancelSubscriptionResponse = {
+    message:
+      "Subscription canceled successfully. You will retain access to your current plan until the end of your billing period.",
+  };
+
+  return ResponseUtil.success(event, response);
 };
+
+export const handler = LambdaHandlerUtil.withAuth(handleCancelSubscription);

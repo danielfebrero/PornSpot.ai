@@ -2,64 +2,44 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { UserUtil } from "@shared/utils/user";
 import { DynamoDBService } from "@shared/utils/dynamodb";
+import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
+import { ValidationUtil } from "@shared/utils/validation";
 import {
   UsernameAvailabilityRequest,
   UsernameAvailabilityResponse,
 } from "@shared";
 
-export const handler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
-  if (event.httpMethod === "OPTIONS") {
-    return ResponseUtil.noContent(event);
+const handleCheckUsername = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  // Support both GET and POST methods for flexibility
+  let username: string;
+
+  if (event.httpMethod === "GET") {
+    // GET method: username in query parameter
+    username = event.queryStringParameters?.["username"] || "";
+  } else if (event.httpMethod === "POST") {
+    // POST method: username in request body
+    const request: UsernameAvailabilityRequest = JSON.parse(event.body!);
+    username = request.username || "";
+  } else {
+    return ResponseUtil.error(event, "Method not allowed", 405);
   }
 
+  // Validate username is provided
+  if (!username || username.trim().length === 0) {
+    const response: UsernameAvailabilityResponse = {
+      success: false,
+      available: false,
+      error: "Username is required",
+    };
+    return ResponseUtil.success(event, response);
+  }
+
+  // Validate username format using shared validation
   try {
-    // Support both GET and POST methods for flexibility
-    let username: string;
-
-    if (event.httpMethod === "GET") {
-      // GET method: username in query parameter
-      username = event.queryStringParameters?.["username"] || "";
-    } else if (event.httpMethod === "POST") {
-      // POST method: username in request body
-      if (!event.body) {
-        return ResponseUtil.badRequest(event, "Request body is required");
-      }
-
-      const request: UsernameAvailabilityRequest = JSON.parse(event.body);
-      username = request.username || "";
-    } else {
-      return ResponseUtil.error(event, "Method not allowed", 405);
-    }
-
-    // Validate username is provided
-    if (!username || username.trim().length === 0) {
-      const response: UsernameAvailabilityResponse = {
-        success: false,
-        available: false,
-        error: "Username is required",
-      };
-      return ResponseUtil.success(event, response);
-    }
-
-    // Validate username format
-    const usernameValidation = UserUtil.validateUsername(username);
-    if (!usernameValidation.isValid) {
-      const response: UsernameAvailabilityResponse = {
-        success: false,
-        available: false,
-        message: `Username validation failed: ${usernameValidation.errors.join(
-          ", "
-        )}`,
-      };
-      return ResponseUtil.success(event, response);
-    }
-
+    const validatedUsername = ValidationUtil.validateUsername(username);
+    
     // Check if username is available
-    const existingUser = await DynamoDBService.getUserByUsername(
-      username.trim()
-    );
+    const existingUser = await DynamoDBService.getUserByUsername(validatedUsername);
     const isAvailable = !existingUser;
 
     const response: UsernameAvailabilityResponse = {
@@ -72,11 +52,14 @@ export const handler = async (
 
     return ResponseUtil.success(event, response);
   } catch (error) {
-    console.error("Username availability check error:", error);
-
-    return ResponseUtil.internalError(
-      event,
-      "Failed to check username availability"
-    );
+    // Username validation failed
+    const response: UsernameAvailabilityResponse = {
+      success: false,
+      available: false,
+      message: error instanceof Error ? error.message : "Username validation failed",
+    };
+    return ResponseUtil.success(event, response);
   }
 };
+
+export const handler = LambdaHandlerUtil.withoutAuth(handleCheckUsername);

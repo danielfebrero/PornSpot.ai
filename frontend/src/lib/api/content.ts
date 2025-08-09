@@ -1,8 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_URL) {
-  throw new Error("NEXT_PUBLIC_API_URL is not set");
-}
+import { ApiUtil } from "../api-util";
 
 // Content API Functions
 export const contentApi = {
@@ -23,22 +19,22 @@ export const contentApi = {
     };
     error?: string;
   }> => {
-    const response = await fetch(`${API_URL}/content/view-count`, {
+    // Use custom config to disable credentials for this public endpoint
+    const response = await ApiUtil.request<{
+      success: boolean;
+      data: {
+        viewCounts: Array<{
+          targetType: "album" | "media";
+          targetId: string;
+          viewCount: number;
+        }>;
+      };
+      error?: string;
+    }>("/content/view-count", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      // No credentials needed for public view count endpoint
-      body: JSON.stringify({ targets }),
+      body: { targets },
+      credentials: "omit", // No credentials needed for public view count endpoint
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Failed to get view counts: ${response.status} ${response.statusText} - ${errorText}`
-      );
-    }
-
-    return await response.json();
+    return response;
   },
 };

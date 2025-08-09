@@ -2,36 +2,7 @@ import {
   APIGatewayRequestAuthorizerEvent,
   APIGatewayAuthorizerResult,
 } from "aws-lambda";
-import { UserAuthMiddleware } from "@shared/auth/user-middleware";
-import { PlanUtil } from "@shared/utils/plan";
-
-// Helper function to generate an IAM policy
-const generatePolicy = (
-  principalId: string,
-  effect: "Allow" | "Deny",
-  resource: string,
-  context?: { [key: string]: any }
-): APIGatewayAuthorizerResult => {
-  const authResponse: any = {
-    principalId,
-    policyDocument: {
-      Version: "2012-10-17",
-      Statement: [
-        {
-          Action: "execute-api:Invoke",
-          Effect: effect,
-          Resource: resource,
-        },
-      ],
-    },
-  };
-
-  if (context) {
-    authResponse.context = context;
-  }
-
-  return authResponse;
-};
+import { AuthorizerUtil } from "@shared/utils/authorizer";
 
 /**
  * Admin-Only Authorizer - Only allows admin role
@@ -45,14 +16,11 @@ export const handler = async (
 
   // Allow OPTIONS requests to pass through without authentication (CORS preflight)
   if (event.httpMethod === "OPTIONS") {
-    console.log("OPTIONS request detected, allowing without authentication");
-    return generatePolicy("anonymous", "Allow", event.methodArn, {
-      requestType: "OPTIONS",
-    });
+    return AuthorizerUtil.handleOptionsRequest(event);
   }
 
   try {
-    const cookieHeader = event.headers?.["Cookie"] || event.headers?.["cookie"];
+    const cookieHeader = AuthorizerUtil.getCookieHeader(event);
     console.log("🍪 Cookie header found:", !!cookieHeader);
 
     if (!cookieHeader) {
@@ -60,32 +28,16 @@ export const handler = async (
       throw new Error("No authentication cookie found");
     }
 
-    console.log("🔧 Creating mock event for session validation...");
-    const mockEvent: any = {
-      headers: {
-        Cookie: cookieHeader,
-      },
-    };
-
-    console.log("⚡ Calling UserAuthMiddleware.validateSession...");
-    const userValidation = await UserAuthMiddleware.validateSession(mockEvent);
-    console.log("📊 User validation result:", {
-      isValid: userValidation.isValid,
-      hasUser: !!userValidation.user,
-      userId: userValidation.user?.userId,
-      email: userValidation.user?.email,
-    });
+    const userValidation = await AuthorizerUtil.validateUserSession(cookieHeader);
 
     if (userValidation.isValid && userValidation.user) {
       console.log("✅ User session is valid. Checking role...");
 
       // Get user role
-      const userRole = await PlanUtil.getUserRole(
+      const userRole = await AuthorizerUtil.getUserRole(
         userValidation.user.userId,
         userValidation.user.email
       );
-
-      console.log("👤 User role:", userRole);
 
       // Check if user has admin role ONLY
       if (userRole === "admin") {
@@ -98,25 +50,17 @@ export const handler = async (
           sessionId: userValidation.session?.sessionId || "",
         };
 
-        // Reconstruct the ARN to grant access to all admin endpoints
-        const { methodArn } = event;
-        const parts = methodArn.split(":");
-        const region = parts[3];
-        const accountId = parts[4];
-        const apiGatewayArnPart = parts[5];
+        // Grant access to all admin endpoints
+        const wildcardResource = AuthorizerUtil.generateWildcardResource(event.methodArn);
 
-        if (!apiGatewayArnPart) {
+        if (!wildcardResource) {
           console.error("Could not parse method ARN, denying access.");
-          return generatePolicy("user", "Deny", event.methodArn);
+          return AuthorizerUtil.generatePolicy("user", "Deny", event.methodArn);
         }
 
-        const [apiId, stage] = apiGatewayArnPart.split("/");
-
-        // Grant access to all admin endpoints
-        const wildcardResource = `arn:aws:execute-api:${region}:${accountId}:${apiId}/${stage}/*`;
         console.log("🎯 Granting access to admin resource:", wildcardResource);
 
-        const policy = generatePolicy(
+        const policy = AuthorizerUtil.generatePolicy(
           userValidation.user.userId,
           "Allow",
           wildcardResource,
@@ -136,6 +80,6 @@ export const handler = async (
     console.error("AdminOnlyAuthorizer: Authorization failed", error);
 
     // Return explicit deny policy
-    return generatePolicy("unauthorized", "Deny", event.methodArn);
+    return AuthorizerUtil.generatePolicy("unauthorized", "Deny", event.methodArn);
   }
 };

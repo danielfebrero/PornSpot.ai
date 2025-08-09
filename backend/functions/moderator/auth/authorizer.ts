@@ -2,36 +2,7 @@ import {
   APIGatewayRequestAuthorizerEvent,
   APIGatewayAuthorizerResult,
 } from "aws-lambda";
-import { UserAuthMiddleware } from "@shared/auth/user-middleware";
-import { PlanUtil } from "@shared/utils/plan";
-
-// Helper function to generate an IAM policy
-const generatePolicy = (
-  principalId: string,
-  effect: "Allow" | "Deny",
-  resource: string,
-  context?: { [key: string]: any }
-): APIGatewayAuthorizerResult => {
-  const authResponse: any = {
-    principalId,
-    policyDocument: {
-      Version: "2012-10-17",
-      Statement: [
-        {
-          Action: "execute-api:Invoke",
-          Effect: effect,
-          Resource: resource,
-        },
-      ],
-    },
-  };
-
-  if (context) {
-    authResponse.context = context;
-  }
-
-  return authResponse;
-};
+import { AuthorizerUtil } from "@shared/utils/authorizer";
 
 /**
  * Moderator Authorizer - Allows admin and moderator roles
@@ -45,14 +16,11 @@ export const handler = async (
 
   // Allow OPTIONS requests to pass through without authentication (CORS preflight)
   if (event.httpMethod === "OPTIONS") {
-    console.log("OPTIONS request detected, allowing without authentication");
-    return generatePolicy("anonymous", "Allow", event.methodArn, {
-      requestType: "OPTIONS",
-    });
+    return AuthorizerUtil.handleOptionsRequest(event);
   }
 
   try {
-    const cookieHeader = event.headers?.["Cookie"] || event.headers?.["cookie"];
+    const cookieHeader = AuthorizerUtil.getCookieHeader(event);
     console.log("🍪 Cookie header found:", !!cookieHeader);
 
     if (!cookieHeader) {
@@ -60,32 +28,16 @@ export const handler = async (
       throw new Error("No authentication cookie found");
     }
 
-    console.log("🔧 Creating mock event for session validation...");
-    const mockEvent: any = {
-      headers: {
-        Cookie: cookieHeader,
-      },
-    };
-
-    console.log("⚡ Calling UserAuthMiddleware.validateSession...");
-    const userValidation = await UserAuthMiddleware.validateSession(mockEvent);
-    console.log("📊 User validation result:", {
-      isValid: userValidation.isValid,
-      hasUser: !!userValidation.user,
-      userId: userValidation.user?.userId,
-      email: userValidation.user?.email,
-    });
+    const userValidation = await AuthorizerUtil.validateUserSession(cookieHeader);
 
     if (userValidation.isValid && userValidation.user) {
       console.log("✅ User session is valid. Checking role...");
 
       // Get user role
-      const userRole = await PlanUtil.getUserRole(
+      const userRole = await AuthorizerUtil.getUserRole(
         userValidation.user.userId,
         userValidation.user.email
       );
-
-      console.log("👤 User role:", userRole);
 
       // Check if user has admin or moderator role
       if (userRole === "admin" || userRole === "moderator") {
@@ -98,7 +50,7 @@ export const handler = async (
           sessionId: userValidation.session?.sessionId || "",
         };
 
-        return generatePolicy(
+        return AuthorizerUtil.generatePolicy(
           userValidation.user.userId,
           "Allow",
           event.methodArn,
@@ -116,6 +68,6 @@ export const handler = async (
     console.error("ModeratorAuthorizer: Authorization failed", error);
 
     // Return explicit deny policy
-    return generatePolicy("unauthorized", "Deny", event.methodArn);
+    return AuthorizerUtil.generatePolicy("unauthorized", "Deny", event.methodArn);
   }
 };

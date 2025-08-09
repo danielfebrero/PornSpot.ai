@@ -3,6 +3,8 @@ import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { UserAuthUtil } from "@shared/utils/user-auth";
 import { UserProfileInsights } from "@shared";
+import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
+import { ValidationUtil } from "@shared/utils/validation";
 
 interface PublicUserProfile {
   userId: string;
@@ -33,17 +35,11 @@ interface GetPublicProfileResponse {
   user: PublicUserProfile;
 }
 
-export const handler = async (
-  event: APIGatewayProxyEvent
+const handleGetUserProfile = async (
+  event: APIGatewayProxyEvent,
+  auth: AuthResult
 ): Promise<APIGatewayProxyResult> => {
   console.log("🔍 /user/profile/get handler called");
-  console.log("📋 Event method:", event.httpMethod);
-
-  // Handle CORS preflight requests
-  if (event.httpMethod === "OPTIONS") {
-    console.log("⚡ Handling OPTIONS request");
-    return ResponseUtil.noContent(event);
-  }
 
   // Only allow GET method
   if (event.httpMethod !== "GET") {
@@ -51,76 +47,62 @@ export const handler = async (
     return ResponseUtil.methodNotAllowed(event, "Only GET method allowed");
   }
 
-  try {
-    // Extract user authentication using centralized utility
-    const authResult = await UserAuthUtil.requireAuth(event);
+  const currentUserId = auth.userId;
+  console.log("✅ Authenticated user:", currentUserId);
 
-    // Handle error response from authentication
-    if (UserAuthUtil.isErrorResponse(authResult)) {
-      return authResult;
-    }
+  // Get username from query parameter
+  const username = ValidationUtil.validateRequiredString(
+    event.queryStringParameters?.["username"],
+    "username"
+  );
 
-    const currentUserId = authResult.userId!;
-    console.log("✅ Authenticated user:", currentUserId);
+  console.log("🔍 Looking up user by username:", username);
 
-    // Get username from query parameter
-    const username = event.queryStringParameters?.["username"];
-    if (!username) {
-      console.log("❌ Missing username parameter");
-      return ResponseUtil.badRequest(event, "Username parameter is required");
-    }
-
-    console.log("🔍 Looking up user by username:", username);
-
-    // Get user by username
-    const userEntity = await DynamoDBService.getUserByUsername(username);
-    if (!userEntity) {
-      console.log("❌ User not found with username:", username);
-      return ResponseUtil.notFound(event, "User not found");
-    }
-
-    // Check if user is active
-    if (!userEntity.isActive) {
-      console.log("❌ User is inactive:", username);
-      return ResponseUtil.notFound(event, "User not found");
-    }
-
-    console.log("✅ Found user:", userEntity.userId, userEntity.email);
-
-    // Prepare public profile response (excluding sensitive information)
-    const publicProfile: PublicUserProfile = {
-      userId: userEntity.userId,
-      username: userEntity.username,
-      createdAt: userEntity.createdAt,
-      ...(userEntity.lastActive && { lastActive: userEntity.lastActive }),
-      isActive: userEntity.isActive,
-      isEmailVerified: userEntity.isEmailVerified,
-      ...(userEntity.lastLoginAt && { lastLoginAt: userEntity.lastLoginAt }),
-      ...(userEntity.bio && { bio: userEntity.bio }),
-      ...(userEntity.location && { location: userEntity.location }),
-      ...(userEntity.website && { website: userEntity.website }),
-      ...(userEntity.avatarUrl && { avatarUrl: userEntity.avatarUrl }),
-      ...(userEntity.avatarThumbnails && {
-        avatarThumbnails: userEntity.avatarThumbnails,
-      }),
-      ...(userEntity.profileInsights && {
-        profileInsights: userEntity.profileInsights,
-      }),
-    };
-
-    console.log("✅ Returning public profile for user:", username);
-
-    const response: GetPublicProfileResponse = {
-      user: publicProfile,
-    };
-
-    return ResponseUtil.success(event, response);
-  } catch (error) {
-    console.error("💥 Get public profile error:", error);
-    console.error(
-      "💥 Error stack:",
-      error instanceof Error ? error.stack : "No stack trace"
-    );
-    return ResponseUtil.internalError(event, "Failed to get user profile");
+  // Get user by username
+  const userEntity = await DynamoDBService.getUserByUsername(username);
+  if (!userEntity) {
+    console.log("❌ User not found with username:", username);
+    return ResponseUtil.notFound(event, "User not found");
   }
+
+  // Check if user is active
+  if (!userEntity.isActive) {
+    console.log("❌ User is inactive:", username);
+    return ResponseUtil.notFound(event, "User not found");
+  }
+
+  console.log("✅ Found user:", userEntity.userId, userEntity.email);
+
+  // Prepare public profile response (excluding sensitive information)
+  const publicProfile: PublicUserProfile = {
+    userId: userEntity.userId,
+    username: userEntity.username,
+    createdAt: userEntity.createdAt,
+    ...(userEntity.lastActive && { lastActive: userEntity.lastActive }),
+    isActive: userEntity.isActive,
+    isEmailVerified: userEntity.isEmailVerified,
+    ...(userEntity.lastLoginAt && { lastLoginAt: userEntity.lastLoginAt }),
+    ...(userEntity.bio && { bio: userEntity.bio }),
+    ...(userEntity.location && { location: userEntity.location }),
+    ...(userEntity.website && { website: userEntity.website }),
+    ...(userEntity.avatarUrl && { avatarUrl: userEntity.avatarUrl }),
+    ...(userEntity.avatarThumbnails && {
+      avatarThumbnails: userEntity.avatarThumbnails,
+    }),
+    ...(userEntity.profileInsights && {
+      profileInsights: userEntity.profileInsights,
+    }),
+  };
+
+  console.log("✅ Returning public profile for user:", username);
+
+  const response: GetPublicProfileResponse = {
+    user: publicProfile,
+  };
+
+  return ResponseUtil.success(event, response);
 };
+
+export const handler = LambdaHandlerUtil.withAuth(handleGetUserProfile, {
+  validateQueryParams: ['username']
+});

@@ -2,41 +2,35 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { AuthMiddleware } from "@shared/auth/admin-middleware";
+import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 
-export const handler = async (
+const handleAdminLogout = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-  if (event.httpMethod === "OPTIONS") {
-    return ResponseUtil.noContent(event);
+  // Extract session from cookie and delete it, even if expired
+  const cookieHeader =
+    event.headers["Cookie"] || event.headers["cookie"] || "";
+  const sessionId = AuthMiddleware.extractSessionFromCookies(cookieHeader);
+
+  if (sessionId) {
+    // Delete the session from database, ignoring if it doesn't exist
+    await DynamoDBService.deleteSession(sessionId);
+    console.log(`🔓 Admin logout for session: ${sessionId}`);
   }
 
-  try {
-    // Extract session from cookie and delete it, even if expired
-    const cookieHeader =
-      event.headers["Cookie"] || event.headers["cookie"] || "";
-    const sessionId = AuthMiddleware.extractSessionFromCookies(cookieHeader);
+  // Create clear session cookie
+  const clearCookie = AuthMiddleware.createClearSessionCookie();
 
-    if (sessionId) {
-      // Delete the session from database, ignoring if it doesn't exist
-      await DynamoDBService.deleteSession(sessionId);
-      console.log(`Admin logout for session: ${sessionId}`);
-    }
+  const successResponse = ResponseUtil.success(event, {
+    message: "Logged out successfully",
+  });
 
-    // Create clear session cookie
-    const clearCookie = AuthMiddleware.createClearSessionCookie();
+  successResponse.headers = {
+    ...successResponse.headers,
+    "Set-Cookie": clearCookie,
+  };
 
-    const successResponse = ResponseUtil.success(event, {
-      message: "Logged out successfully",
-    });
-
-    successResponse.headers = {
-      ...successResponse.headers,
-      "Set-Cookie": clearCookie,
-    };
-
-    return successResponse;
-  } catch (error) {
-    console.error("Logout error:", error);
-    return ResponseUtil.internalError(event, "Logout failed");
-  }
+  return successResponse;
 };
+
+export const handler = LambdaHandlerUtil.withoutAuth(handleAdminLogout);

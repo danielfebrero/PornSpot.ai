@@ -25,6 +25,7 @@ import {
   UserInteractionEntity,
   UserInteraction,
 } from "@pornspot-ai/shared-types";
+import { CounterUtil } from "./counter";
 
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
 
@@ -440,119 +441,47 @@ export class DynamoDBService {
     return response;
   }
 
-  // Album counter operations
+  // Album counter operations - delegate to CounterUtil
   static async incrementAlbumLikeCount(
     albumId: string,
     increment: number = 1
   ): Promise<void> {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `ALBUM#${albumId}`,
-          SK: "METADATA",
-        },
-        UpdateExpression: "ADD likeCount :inc",
-        ExpressionAttributeValues: {
-          ":inc": increment,
-        },
-      })
-    );
+    return CounterUtil.incrementAlbumLikeCount(albumId, increment);
   }
 
   static async incrementMediaLikeCount(
     mediaId: string,
     increment: number = 1
   ): Promise<void> {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `MEDIA#${mediaId}`,
-          SK: "METADATA",
-        },
-        UpdateExpression: "ADD likeCount :inc",
-        ExpressionAttributeValues: {
-          ":inc": increment,
-        },
-      })
-    );
+    return CounterUtil.incrementMediaLikeCount(mediaId, increment);
   }
 
   static async incrementAlbumBookmarkCount(
     albumId: string,
     increment: number = 1
   ): Promise<void> {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `ALBUM#${albumId}`,
-          SK: "METADATA",
-        },
-        UpdateExpression: "ADD bookmarkCount :inc",
-        ExpressionAttributeValues: {
-          ":inc": increment,
-        },
-      })
-    );
+    return CounterUtil.incrementAlbumBookmarkCount(albumId, increment);
   }
 
   static async incrementMediaBookmarkCount(
     mediaId: string,
     increment: number = 1
   ): Promise<void> {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `MEDIA#${mediaId}`,
-          SK: "METADATA",
-        },
-        UpdateExpression: "ADD bookmarkCount :inc",
-        ExpressionAttributeValues: {
-          ":inc": increment,
-        },
-      })
-    );
+    return CounterUtil.incrementMediaBookmarkCount(mediaId, increment);
   }
 
   static async incrementAlbumViewCount(
     albumId: string,
     increment: number = 1
   ): Promise<void> {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `ALBUM#${albumId}`,
-          SK: "METADATA",
-        },
-        UpdateExpression: "ADD viewCount :inc",
-        ExpressionAttributeValues: {
-          ":inc": increment,
-        },
-      })
-    );
+    return CounterUtil.incrementAlbumViewCount(albumId, increment);
   }
 
   static async incrementMediaViewCount(
     mediaId: string,
     increment: number = 1
   ): Promise<void> {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `MEDIA#${mediaId}`,
-          SK: "METADATA",
-        },
-        UpdateExpression: "ADD viewCount :inc",
-        ExpressionAttributeValues: {
-          ":inc": increment,
-        },
-      })
-    );
+    return CounterUtil.incrementMediaViewCount(mediaId, increment);
   }
 
   // Media operations - NEW DESIGN: Media can belong to multiple albums
@@ -1053,37 +982,11 @@ export class DynamoDBService {
   }
 
   static async incrementAlbumMediaCount(albumId: string): Promise<void> {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `ALBUM#${albumId}`,
-          SK: "METADATA",
-        },
-        UpdateExpression: "ADD mediaCount :inc SET updatedAt = :updatedAt",
-        ExpressionAttributeValues: {
-          ":inc": 1,
-          ":updatedAt": new Date().toISOString(),
-        },
-      })
-    );
+    return CounterUtil.incrementAlbumMediaCount(albumId);
   }
 
   static async decrementAlbumMediaCount(albumId: string): Promise<void> {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `ALBUM#${albumId}`,
-          SK: "METADATA",
-        },
-        UpdateExpression: "ADD mediaCount :dec SET updatedAt = :updatedAt",
-        ExpressionAttributeValues: {
-          ":dec": -1,
-          ":updatedAt": new Date().toISOString(),
-        },
-      })
-    );
+    return CounterUtil.decrementAlbumMediaCount(albumId);
   }
 
   // Admin operations
@@ -2431,57 +2334,21 @@ export class DynamoDBService {
     albumId: string,
     increment: number = 1
   ): Promise<void> {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `ALBUM#${albumId}`,
-          SK: "METADATA",
-        },
-        UpdateExpression: "ADD commentCount :inc",
-        ExpressionAttributeValues: {
-          ":inc": increment,
-        },
-      })
-    );
+    return CounterUtil.incrementAlbumCommentCount(albumId, increment);
   }
 
   static async incrementMediaCommentCount(
     mediaId: string,
     increment: number = 1
   ): Promise<void> {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `MEDIA#${mediaId}`,
-          SK: "METADATA",
-        },
-        UpdateExpression: "ADD commentCount :inc",
-        ExpressionAttributeValues: {
-          ":inc": increment,
-        },
-      })
-    );
+    return CounterUtil.incrementMediaCommentCount(mediaId, increment);
   }
 
   static async incrementCommentLikeCount(
     commentId: string,
     increment: number = 1
   ): Promise<void> {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `COMMENT#${commentId}`,
-          SK: "METADATA",
-        },
-        UpdateExpression: "ADD likeCount :inc",
-        ExpressionAttributeValues: {
-          ":inc": increment,
-        },
-      })
-    );
+    return CounterUtil.incrementCommentLikeCount(commentId, increment);
   }
 
   // Comment interaction operations

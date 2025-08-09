@@ -11,51 +11,22 @@ import {
   CommentResponse,
   CommentListResponse,
 } from "@/types";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_URL) {
-  throw new Error("NEXT_PUBLIC_API_URL is not set");
-}
+import { ApiUtil } from "../api-util";
 
 // User Interaction API Functions
 export const interactionApi = {
   // Like/Unlike content
   like: async (request: InteractionRequest): Promise<InteractionResponse> => {
-    const response = await fetch(`${API_URL}/user/interactions/like`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Like action failed: ${response.statusText}`);
-    }
-
-    return response.json();
+    const response = await ApiUtil.post<InteractionResponse>("/user/interactions/like", request);
+    return ApiUtil.extractData(response);
   },
 
   // Bookmark/Unbookmark content
   bookmark: async (
     request: InteractionRequest
   ): Promise<InteractionResponse> => {
-    const response = await fetch(`${API_URL}/user/interactions/bookmark`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Bookmark action failed: ${response.statusText}`);
-    }
-
-    return response.json();
+    const response = await ApiUtil.post<InteractionResponse>("/user/interactions/bookmark", request);
+    return ApiUtil.extractData(response);
   },
 
   // Track view
@@ -63,21 +34,15 @@ export const interactionApi = {
     targetType: "album" | "media" | "profile";
     targetId: string;
   }): Promise<{ success: boolean }> => {
-    const response = await fetch(`${API_URL}/user/interactions/view`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
+    try {
+      const response = await ApiUtil.post<{ success: boolean }>("/user/interactions/view", request);
+      ApiUtil.extractData(response);
+      return { success: true };
+    } catch (error) {
       // Don't throw error for view tracking - it's not critical
-      console.warn(`View tracking failed: ${response.statusText}`);
+      console.warn(`View tracking failed:`, error);
       return { success: false };
     }
-
-    return { success: true };
   },
 
   // Get user's likes - NEW UNIFIED FORMAT
@@ -85,27 +50,11 @@ export const interactionApi = {
     limit: number = 20,
     cursor?: string
   ): Promise<UnifiedUserInteractionsResponse> => {
-    const params = new URLSearchParams({
-      limit: limit.toString(),
-    });
-
-    if (cursor) {
-      params.append("cursor", cursor);
-    }
-
-    const response = await fetch(
-      `${API_URL}/user/interactions/likes?${params}`,
-      {
-        method: "GET",
-        credentials: "include",
-      }
+    const response = await ApiUtil.get<UnifiedUserInteractionsResponse>(
+      "/user/interactions/likes", 
+      { limit, cursor }
     );
-
-    if (!response.ok) {
-      throw new Error(`Failed to get likes: ${response.statusText}`);
-    }
-
-    return response.json();
+    return ApiUtil.extractData(response);
   },
 
   // Get likes by username (for profile views) - NEW UNIFIED FORMAT
@@ -114,28 +63,11 @@ export const interactionApi = {
     limit: number = 20,
     cursor?: string
   ): Promise<UnifiedUserInteractionsResponse> => {
-    const params = new URLSearchParams({
-      user: username,
-      limit: limit.toString(),
-    });
-
-    if (cursor) {
-      params.append("cursor", cursor);
-    }
-
-    const response = await fetch(
-      `${API_URL}/user/interactions/likes?${params}`,
-      {
-        method: "GET",
-        credentials: "include",
-      }
+    const response = await ApiUtil.get<UnifiedUserInteractionsResponse>(
+      "/user/interactions/likes", 
+      { user: username, limit, cursor }
     );
-
-    if (!response.ok) {
-      throw new Error(`Failed to get likes for user: ${response.statusText}`);
-    }
-
-    return response.json();
+    return ApiUtil.extractData(response);
   },
 
   // Get user's bookmarks - NEW UNIFIED FORMAT
@@ -143,27 +75,11 @@ export const interactionApi = {
     limit: number = 20,
     cursor?: string
   ): Promise<UnifiedUserInteractionsResponse> => {
-    const params = new URLSearchParams({
-      limit: limit.toString(),
-    });
-
-    if (cursor) {
-      params.append("cursor", cursor);
-    }
-
-    const response = await fetch(
-      `${API_URL}/user/interactions/bookmarks?${params}`,
-      {
-        method: "GET",
-        credentials: "include",
-      }
+    const response = await ApiUtil.get<UnifiedUserInteractionsResponse>(
+      "/user/interactions/bookmarks", 
+      { limit, cursor }
     );
-
-    if (!response.ok) {
-      throw new Error(`Failed to get bookmarks: ${response.statusText}`);
-    }
-
-    return response.json();
+    return ApiUtil.extractData(response);
   },
 
   // Get user interaction status for multiple targets (optimized replacement for getCounts)
@@ -185,22 +101,8 @@ export const interactionApi = {
       }>;
     };
   }> => {
-    const response = await fetch(`${API_URL}/user/interactions/status`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ targets }),
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to get interaction status: ${response.statusText}`
-      );
-    }
-
-    return response.json();
+    const response = await ApiUtil.post<any>("/user/interactions/status", { targets });
+    return response; // This already returns the full response structure
   },
 
   // Comment operations
@@ -210,27 +112,11 @@ export const interactionApi = {
     limit: number = 20,
     cursor?: string
   ): Promise<CommentListResponse> => {
-    const params = new URLSearchParams({
-      limit: limit.toString(),
-    });
-
-    if (cursor) {
-      params.append("cursor", cursor);
-    }
-
-    const response = await fetch(
-      `${API_URL}/user/interactions/comments/${targetType}/${targetId}?${params}`,
-      {
-        method: "GET",
-        credentials: "include",
-      }
+    const response = await ApiUtil.get<CommentListResponse>(
+      `/user/interactions/comments/${targetType}/${targetId}`, 
+      { limit, cursor }
     );
-
-    if (!response.ok) {
-      throw new Error(`Failed to get comments: ${response.statusText}`);
-    }
-
-    return response.json();
+    return ApiUtil.extractData(response);
   },
 
   // Get comments by username (for profile views) - NEW UNIFIED FORMAT
@@ -239,87 +125,35 @@ export const interactionApi = {
     limit: number = 20,
     cursor?: string
   ): Promise<UnifiedCommentsResponse> => {
-    const params = new URLSearchParams({
-      user: username,
-      limit: limit.toString(),
-    });
-
-    if (cursor) {
-      params.append("cursor", cursor);
-    }
-
-    const response = await fetch(
-      `${API_URL}/user/interactions/comments?${params}`,
-      {
-        method: "GET",
-        credentials: "include",
-      }
+    const response = await ApiUtil.get<UnifiedCommentsResponse>(
+      "/user/interactions/comments", 
+      { user: username, limit, cursor }
     );
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to get comments for user: ${response.statusText}`
-      );
-    }
-
-    return response.json();
+    return ApiUtil.extractData(response);
   },
 
   createComment: async (
     request: CreateCommentRequest
   ): Promise<CommentResponse> => {
-    const response = await fetch(`${API_URL}/user/interactions/comment`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to create comment: ${response.statusText}`);
-    }
-
-    return response.json();
+    const response = await ApiUtil.post<CommentResponse>("/user/interactions/comment", request);
+    return ApiUtil.extractData(response);
   },
 
   updateComment: async (
     commentId: string,
     request: UpdateCommentRequest
   ): Promise<CommentResponse> => {
-    const response = await fetch(
-      `${API_URL}/user/interactions/comment/${commentId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(request),
-      }
+    const response = await ApiUtil.put<CommentResponse>(
+      `/user/interactions/comment/${commentId}`, 
+      request
     );
-
-    if (!response.ok) {
-      throw new Error(`Failed to update comment: ${response.statusText}`);
-    }
-
-    return response.json();
+    return ApiUtil.extractData(response);
   },
 
   deleteComment: async (commentId: string): Promise<{ success: boolean }> => {
-    const response = await fetch(
-      `${API_URL}/user/interactions/comment/${commentId}`,
-      {
-        method: "DELETE",
-        credentials: "include",
-      }
+    const response = await ApiUtil.delete<{ success: boolean }>(
+      `/user/interactions/comment/${commentId}`
     );
-
-    if (!response.ok) {
-      throw new Error(`Failed to delete comment: ${response.statusText}`);
-    }
-
-    return response.json();
+    return ApiUtil.extractData(response);
   },
 };

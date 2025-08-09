@@ -1,6 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
-import { UserAuthUtil } from "@shared/utils/user-auth";
 import { ResponseUtil } from "@shared/utils/response";
 import { RevalidationService } from "@shared/utils/revalidation";
 import {
@@ -9,43 +8,27 @@ import {
   CommentEntity,
 } from "@shared";
 import { v4 as uuidv4 } from "uuid";
+import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
+import { ValidationUtil } from "@shared/utils/validation";
 
-export const handler = async (
-  event: APIGatewayProxyEvent
+const handleComment = async (
+  event: APIGatewayProxyEvent,
+  auth: AuthResult
 ): Promise<APIGatewayProxyResult> => {
   console.log("🔄 Comment function called");
-  console.log("📝 Event:", JSON.stringify(event, null, 2));
 
-  try {
-    // Handle preflight requests
-    if (event.httpMethod === "OPTIONS") {
-      return ResponseUtil.noContent(event);
-    }
+  const userId = auth.userId;
 
-    // Extract user authentication using centralized utility
-    const authResult = await UserAuthUtil.requireAuth(event);
-
-    // Handle error response from authentication
-    if (UserAuthUtil.isErrorResponse(authResult)) {
-      return authResult;
-    }
-
-    const userId = authResult.userId!;
-
-    // Route to appropriate handler based on HTTP method
-    switch (event.httpMethod) {
-      case "POST":
-        return await createComment(event, userId);
-      case "PUT":
-        return await updateComment(event, userId);
-      case "DELETE":
-        return await deleteComment(event, userId);
-      default:
-        return ResponseUtil.error(event, "Method not allowed", 405);
-    }
-  } catch (error) {
-    console.error("❌ Error in comment function:", error);
-    return ResponseUtil.internalError(event, "Internal server error");
+  // Route to appropriate handler based on HTTP method
+  switch (event.httpMethod) {
+    case "POST":
+      return await createComment(event, userId);
+    case "PUT":
+      return await updateComment(event, userId);
+    case "DELETE":
+      return await deleteComment(event, userId);
+    default:
+      return ResponseUtil.error(event, "Method not allowed", 405);
   }
 };
 
@@ -53,21 +36,12 @@ async function createComment(
   event: APIGatewayProxyEvent,
   userId: string
 ): Promise<APIGatewayProxyResult> {
-  // Parse request body
-  if (!event.body) {
-    return ResponseUtil.badRequest(event, "Request body is required");
-  }
-
-  const body: CreateCommentRequest = JSON.parse(event.body);
-  const { targetType, targetId, content } = body;
-
-  // Validate input
-  if (!targetType || !targetId || !content) {
-    return ResponseUtil.badRequest(
-      event,
-      "targetType, targetId, and content are required"
-    );
-  }
+  const request: CreateCommentRequest = LambdaHandlerUtil.parseJsonBody(event);
+  
+  // Validate input using shared utilities
+  const targetType = ValidationUtil.validateRequiredString(request.targetType, "targetType");
+  const targetId = ValidationUtil.validateRequiredString(request.targetId, "targetId");
+  const content = ValidationUtil.validateRequiredString(request.content, "content");
 
   if (!["album", "media"].includes(targetType)) {
     return ResponseUtil.badRequest(
@@ -168,23 +142,15 @@ async function updateComment(
   userId: string
 ): Promise<APIGatewayProxyResult> {
   // Get comment ID from path parameters
-  const commentId = event.pathParameters?.["commentId"];
-  if (!commentId) {
-    return ResponseUtil.badRequest(event, "Comment ID is required");
-  }
+  const commentId = ValidationUtil.validateRequiredString(
+    event.pathParameters?.["commentId"],
+    "commentId"
+  );
 
-  // Parse request body
-  if (!event.body) {
-    return ResponseUtil.badRequest(event, "Request body is required");
-  }
-
-  const body: UpdateCommentRequest = JSON.parse(event.body);
-  const { content } = body;
-
-  // Validate input
-  if (!content) {
-    return ResponseUtil.badRequest(event, "Content is required");
-  }
+  const request: UpdateCommentRequest = LambdaHandlerUtil.parseJsonBody(event);
+  
+  // Validate input using shared utilities
+  const content = ValidationUtil.validateRequiredString(request.content, "content");
 
   if (content.trim().length === 0) {
     return ResponseUtil.badRequest(event, "Comment content cannot be empty");
@@ -251,10 +217,10 @@ async function deleteComment(
   userId: string
 ): Promise<APIGatewayProxyResult> {
   // Get comment ID from path parameters
-  const commentId = event.pathParameters?.["commentId"];
-  if (!commentId) {
-    return ResponseUtil.badRequest(event, "Comment ID is required");
-  }
+  const commentId = ValidationUtil.validateRequiredString(
+    event.pathParameters?.["commentId"],
+    "commentId"
+  );
 
   // Get existing comment
   const existingComment = await DynamoDBService.getComment(commentId);
@@ -300,3 +266,9 @@ async function deleteComment(
     message: "Comment deleted successfully",
   });
 }
+
+export const handler = LambdaHandlerUtil.withAuth(handleComment, {
+  requireBody: ["POST", "PUT"],
+  validatePathParams: ["PUT", "DELETE"],
+  pathParamNames: ["commentId"]
+});

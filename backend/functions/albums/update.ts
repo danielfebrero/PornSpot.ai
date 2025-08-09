@@ -3,64 +3,40 @@ import { ResponseUtil } from "@shared/utils/response";
 import { RevalidationService } from "@shared/utils/revalidation";
 import { UpdateAlbumRequest } from "@shared";
 import { UserAuthUtil } from "@shared/utils/user-auth";
+import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
+import { ValidationUtil } from "@shared/utils/validation";
 
-export const handler = async (
-  event: APIGatewayProxyEvent
+const handleUpdateAlbum = async (
+  event: APIGatewayProxyEvent,
+  auth: AuthResult
 ): Promise<APIGatewayProxyResult> => {
-  // Handle OPTIONS requests immediately before importing any heavy dependencies
-  if (event.httpMethod === "OPTIONS") {
-    return ResponseUtil.noContent(event);
-  }
-
   // Import heavy dependencies only when needed (after OPTIONS check)
   const { DynamoDBService } = await import("@shared/utils/dynamodb");
   const { CoverThumbnailUtil } = await import("@shared/utils/cover-thumbnail");
 
-  try {
-    const albumId = event.pathParameters?.["albumId"];
-    if (!albumId) {
-      return ResponseUtil.badRequest(event, "Album ID is required");
-    }
+  const { userId, userRole = "user" } = auth;
 
-    if (!event.body) {
-      return ResponseUtil.badRequest(event, "Request body is required");
-    }
+  const albumId = LambdaHandlerUtil.getPathParam(event, "albumId");
+  const request: UpdateAlbumRequest = LambdaHandlerUtil.parseJsonBody(event);
 
-    // Extract user authentication with role information using centralized utility
-    const authResult = await UserAuthUtil.requireAuth(event, {
-      includeRole: true,
-    });
+  // Validate request using shared utilities
+  const title = request.title !== undefined ? 
+    ValidationUtil.validateAlbumTitle(request.title) : undefined;
+  
+  const tags = request.tags ? ValidationUtil.validateTags(request.tags) : undefined;
 
-    // Handle error response from authentication
-    if (UserAuthUtil.isErrorResponse(authResult)) {
-      return authResult;
-    }
+  // Check if album exists
+  const existingAlbum = await DynamoDBService.getAlbumEntity(albumId);
+  if (!existingAlbum) {
+    return ResponseUtil.notFound(event, "Album not found");
+  }
 
-    const userId = authResult.userId!;
-    const userRole = authResult.userRole || "user";
+  // Check if user owns the album (or is admin)
+  if (!LambdaHandlerUtil.checkOwnershipOrAdmin(existingAlbum.createdBy, userId, userRole)) {
+    return ResponseUtil.forbidden(event, "You can only edit your own albums");
+  }
 
-    console.log("✅ Authenticated user:", userId);
-    console.log("🎭 User role:", userRole);
-
-    const request: UpdateAlbumRequest = JSON.parse(event.body);
-
-    // Validate request
-    if (request.title !== undefined && request.title.trim().length === 0) {
-      return ResponseUtil.badRequest(event, "Album title cannot be empty");
-    }
-
-    // Check if album exists
-    const existingAlbum = await DynamoDBService.getAlbumEntity(albumId);
-    if (!existingAlbum) {
-      return ResponseUtil.notFound(event, "Album not found");
-    }
-
-    // Check if user owns the album (or is admin)
-    if (existingAlbum.createdBy !== userId && userRole !== "admin") {
-      return ResponseUtil.forbidden(event, "You can only edit your own albums");
-    }
-
-    // Prepare updates
+  // Prepare updates
     const updates: Partial<typeof existingAlbum> = {
       updatedAt: new Date().toISOString(),
     };
@@ -102,24 +78,21 @@ export const handler = async (
       }
     }
 
-    // Update album
+    // Apply updates
     await DynamoDBService.updateAlbum(albumId, updates);
 
-    // Get updated album
+    // Fetch and return updated album
     const updatedAlbum = await DynamoDBService.getAlbum(albumId);
-    if (!updatedAlbum) {
-      return ResponseUtil.internalError(
-        event,
-        "Failed to retrieve updated album"
-      );
-    }
 
     // Trigger revalidation
-    await RevalidationService.revalidateAlbum(albumId);
+    await RevalidationService.revalidateAlbums();
 
     return ResponseUtil.success(event, updatedAlbum);
-  } catch (error) {
-    console.error("Error updating album:", error);
-    return ResponseUtil.internalError(event, "Failed to update album");
-  }
 };
+
+// Export the wrapped handler using the new utility
+export const handler = LambdaHandlerUtil.withAuth(handleUpdateAlbum, {
+  requireBody: true,
+  includeRole: true,
+  validatePathParams: ['albumId'],
+});

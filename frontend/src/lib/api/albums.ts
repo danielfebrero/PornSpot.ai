@@ -1,11 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_URL) {
-  throw new Error("NEXT_PUBLIC_API_URL is not set");
-}
-
-// Import the new unified types
 import { UnifiedAlbumsResponse } from "@/types";
+import { ApiUtil, PaginationParams } from "../api-util";
 
 // Albums API Functions
 export const albumsApi = {
@@ -17,43 +11,17 @@ export const albumsApi = {
     cursor?: string;
     tag?: string;
   }): Promise<UnifiedAlbumsResponse> => {
-    const searchParams = new URLSearchParams();
-
-    if (params?.user) searchParams.set("user", params.user);
-    if (params?.isPublic !== undefined)
-      searchParams.set("isPublic", params.isPublic.toString());
-    if (params?.limit) searchParams.set("limit", params.limit.toString());
-    if (params?.cursor) searchParams.set("cursor", params.cursor);
-    if (params?.tag) searchParams.set("tag", params.tag);
-
-    const response = await fetch(
-      `${API_URL}/albums?${searchParams.toString()}`,
-      {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch albums: ${response.statusText}`);
-    }
-
-    return response.json();
+    const response = await ApiUtil.get<UnifiedAlbumsResponse>("/albums", params);
+    return ApiUtil.extractData(response);
   },
 
   // Get user's albums (convenience method)
-  getUserAlbums: async (params?: {
-    limit?: number;
-    cursor?: string;
+  getUserAlbums: async (params?: PaginationParams & {
     tag?: string;
   }): Promise<UnifiedAlbumsResponse> => {
     // Fetch current user's albums via session (no user parameter = session-based lookup)
-    return albumsApi.getAlbums({
-      ...params,
-    });
+    const response = await ApiUtil.get<UnifiedAlbumsResponse>("/albums", params);
+    return ApiUtil.extractData(response);
   },
 
   // Create a new album
@@ -64,34 +32,8 @@ export const albumsApi = {
     mediaIds?: string[];
     coverImageId?: string;
   }): Promise<any> => {
-    const response = await fetch(`${API_URL}/albums`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(albumData),
-    });
-
-    if (!response.ok) {
-      let errorData = null;
-      try {
-        errorData = await response.json();
-      } catch {
-        // response body is not JSON
-      }
-      const errorMessage =
-        (errorData && (errorData.error || errorData.message)) ||
-        `Failed to create album: ${response.statusText}`;
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
-    if (data.success) {
-      return data.data;
-    } else {
-      throw new Error(data.message || "Failed to create album");
-    }
+    const response = await ApiUtil.post<any>("/albums", albumData);
+    return ApiUtil.extractData(response);
   },
 
   // Update an album
@@ -104,90 +46,20 @@ export const albumsApi = {
       coverImageUrl?: string;
     }
   ): Promise<any> => {
-    const response = await fetch(`${API_URL}/albums/${albumId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(updates),
-    });
-
-    if (!response.ok) {
-      let errorData = null;
-      try {
-        errorData = await response.json();
-      } catch {
-        // response body is not JSON
-      }
-      const errorMessage =
-        (errorData && (errorData.error || errorData.message)) ||
-        `Failed to update album: ${response.statusText}`;
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
-    if (data.success) {
-      return data.data;
-    } else {
-      throw new Error(data.message || "Failed to update album");
-    }
+    const response = await ApiUtil.put<any>(`/albums/${albumId}`, updates);
+    return ApiUtil.extractData(response);
   },
 
   // Delete an album
   deleteAlbum: async (albumId: string): Promise<void> => {
-    const response = await fetch(`${API_URL}/albums/${albumId}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      let errorData = null;
-      try {
-        errorData = await response.json();
-      } catch {
-        // response body is not JSON
-      }
-      const errorMessage =
-        (errorData && (errorData.error || errorData.message)) ||
-        `Failed to delete album: ${response.statusText}`;
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
-    if (!data.success) {
-      throw new Error(data.message || "Failed to delete album");
-    }
+    const response = await ApiUtil.delete<any>(`/albums/${albumId}`);
+    ApiUtil.extractData(response); // Throws if not successful
   },
 
   // Add existing media to album (single)
   addMediaToAlbum: async (albumId: string, mediaId: string): Promise<void> => {
-    const response = await fetch(`${API_URL}/albums/${albumId}/media`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ mediaId }),
-    });
-
-    if (!response.ok) {
-      let errorData = null;
-      try {
-        errorData = await response.json();
-      } catch {
-        // response body is not JSON
-      }
-      const errorMessage =
-        (errorData && (errorData.error || errorData.message)) ||
-        `Failed to add media to album: ${response.statusText}`;
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
-    if (!data.success) {
-      throw new Error(data.message || "Failed to add media to album");
-    }
+    const response = await ApiUtil.post<any>(`/albums/${albumId}/media`, { mediaId });
+    ApiUtil.extractData(response); // Throws if not successful
   },
 
   // Add multiple existing media to album (bulk)
@@ -201,34 +73,8 @@ export const albumsApi = {
     successCount: number;
     failureCount: number;
   }> => {
-    const response = await fetch(`${API_URL}/albums/${albumId}/media`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ mediaIds }),
-    });
-
-    if (!response.ok) {
-      let errorData = null;
-      try {
-        errorData = await response.json();
-      } catch {
-        // response body is not JSON
-      }
-      const errorMessage =
-        (errorData && (errorData.error || errorData.message)) ||
-        `Failed to bulk add media to album: ${response.statusText}`;
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
-    if (!data.success) {
-      throw new Error(data.message || "Failed to bulk add media to album");
-    }
-
-    return data.data.results;
+    const response = await ApiUtil.post<any>(`/albums/${albumId}/media`, { mediaIds });
+    return ApiUtil.extractData(response).results;
   },
 
   // Remove media from album
@@ -236,31 +82,8 @@ export const albumsApi = {
     albumId: string,
     mediaId: string
   ): Promise<void> => {
-    const response = await fetch(
-      `${API_URL}/albums/${albumId}/media/${mediaId}`,
-      {
-        method: "DELETE",
-        credentials: "include",
-      }
-    );
-
-    if (!response.ok) {
-      let errorData = null;
-      try {
-        errorData = await response.json();
-      } catch {
-        // response body is not JSON
-      }
-      const errorMessage =
-        (errorData && (errorData.error || errorData.message)) ||
-        `Failed to remove media from album: ${response.statusText}`;
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
-    if (!data.success) {
-      throw new Error(data.message || "Failed to remove media from album");
-    }
+    const response = await ApiUtil.delete<any>(`/albums/${albumId}/media/${mediaId}`);
+    ApiUtil.extractData(response); // Throws if not successful
   },
 
   // Remove multiple media from album (bulk)
@@ -274,55 +97,13 @@ export const albumsApi = {
     successCount: number;
     failureCount: number;
   }> => {
-    const response = await fetch(
-      `${API_URL}/albums/${albumId}/media/bulk-remove`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ mediaIds }),
-      }
-    );
-
-    if (!response.ok) {
-      let errorData = null;
-      try {
-        errorData = await response.json();
-      } catch {
-        // response body is not JSON
-      }
-      const errorMessage =
-        (errorData && (errorData.error || errorData.message)) ||
-        `Failed to bulk remove media from album: ${response.statusText}`;
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
-    if (!data.success) {
-      throw new Error(data.message || "Failed to bulk remove media from album");
-    }
-
-    return data.data.results;
+    const response = await ApiUtil.delete<any>(`/albums/${albumId}/media/bulk-remove`, { mediaIds });
+    return ApiUtil.extractData(response).results;
   },
 
   // Get a single album
   getAlbum: async (albumId: string): Promise<any> => {
-    const response = await fetch(`${API_URL}/albums/${albumId}`, {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch album: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    if (data.success) {
-      return data.data;
-    } else {
-      throw new Error(data.error || "Failed to fetch album");
-    }
+    const response = await ApiUtil.get<any>(`/albums/${albumId}`);
+    return ApiUtil.extractData(response);
   },
 };
