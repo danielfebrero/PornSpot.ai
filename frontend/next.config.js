@@ -1,3 +1,4 @@
+const path = require("path");
 const withNextIntl = require("next-intl/plugin")(
   // This is the default path to your i18n config file
   "./src/i18n.ts"
@@ -89,6 +90,15 @@ const nextConfig = {
         fs: false,
       };
     }
+
+    // Ensure monorepo local package resolves to source during build (Vercel friendly)
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@pornspot-ai/shared-types": path.resolve(
+        __dirname,
+        "../shared-types/src"
+      ),
+    };
     return config;
   },
 
@@ -96,6 +106,8 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react"],
     outputFileTracingRoot: __dirname,
+    // Allow importing from directories outside of the app (monorepo setup)
+    externalDir: true,
   },
 
   // Enable static optimization and ISR
