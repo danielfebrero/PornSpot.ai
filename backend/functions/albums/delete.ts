@@ -1,3 +1,11 @@
+/*
+File objective: Delete an album owned by the authenticated user (or admin).
+Auth: Requires user/admin via LambdaHandlerUtil.withAuth (includeRole).
+Special notes:
+- Verifies ownership; removes media links from album without deleting media files
+- Deletes all album comments and related interactions
+- Decrements creator's totalAlbums and triggers revalidation
+*/
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

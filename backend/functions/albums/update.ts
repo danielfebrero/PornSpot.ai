@@ -1,3 +1,11 @@
+/*
+File objective: Update album metadata (title, tags, visibility, cover image).
+Auth: Requires user/admin via LambdaHandlerUtil.withAuth (includeRole).
+Special notes:
+- Verifies ownership or admin role before updates
+- Regenerates cover thumbnails on cover change; clears when removed
+- Triggers revalidation after update
+*/
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { RevalidationService } from "@shared/utils/revalidation";

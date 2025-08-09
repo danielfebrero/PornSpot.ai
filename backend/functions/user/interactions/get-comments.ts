@@ -1,3 +1,12 @@
+/*
+File objective: Retrieve comments for a target (album/media) or by user, with cursor pagination.
+Auth: Public endpoint via LambdaHandlerUtil.withoutAuth (reads only).
+Special notes:
+- Supports two modes: target-based (/comments/{targetType}/{targetId}) and user-based (?user=username)
+- Validates target existence; uses PaginationUtil with DEFAULT/MAX limits and LastEvaluatedKey cursors
+- Enriches user-based results with lightweight target details when available
+- Returns consistent paginated payload structure
+*/
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

@@ -1,3 +1,12 @@
+/*
+File objective: Generate AI images based on a prompt, enforcing plan-based limits and features.
+Auth: Requires user session via LambdaHandlerUtil.withAuth.
+Special notes:
+- Validates prompt and optional parameters (negative prompt, size, batch, LoRAs)
+- Enforces plan permissions (max batch, LoRA usage, negative prompts, custom sizes)
+- Simulates generation with placeholder images (integration TODO); updates usage stats
+- Returns metadata including generationId and estimatedTime
+*/
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
@@ -65,7 +74,10 @@ const handleGenerate = async (
   } = requestBody;
 
   // Validate required fields using shared validation
-  const validatedPrompt = ValidationUtil.validateRequiredString(prompt, "Prompt");
+  const validatedPrompt = ValidationUtil.validateRequiredString(
+    prompt,
+    "Prompt"
+  );
 
   if (validatedPrompt.length > 1000) {
     return ResponseUtil.badRequest(
@@ -107,18 +119,12 @@ const handleGenerate = async (
     negativePrompt.trim().length > 0 &&
     !permissions.canUseNegativePrompt
   ) {
-    return ResponseUtil.forbidden(
-      event,
-      "Negative prompts require a Pro plan"
-    );
+    return ResponseUtil.forbidden(event, "Negative prompts require a Pro plan");
   }
 
   // Validate custom image size
   if (imageSize === "custom" && !permissions.canUseCustomSize) {
-    return ResponseUtil.forbidden(
-      event,
-      "Custom image sizes require Pro plan"
-    );
+    return ResponseUtil.forbidden(event, "Custom image sizes require Pro plan");
   }
 
   // Check generation limits
@@ -166,9 +172,7 @@ const handleGenerate = async (
       metadata: {
         prompt: validatedPrompt.trim(),
         imageSize:
-          imageSize === "custom"
-            ? `${customWidth}x${customHeight}`
-            : imageSize,
+          imageSize === "custom" ? `${customWidth}x${customHeight}` : imageSize,
         batchCount,
         generationId,
         estimatedTime: Math.round(estimatedTime),
@@ -185,7 +189,10 @@ const handleGenerate = async (
     await PlanUtil.updateUserUsageStats(auth.userId);
     console.log(`📊 Updated usage stats for user ${auth.userId}`);
   } catch (error) {
-    console.error(`Failed to update usage stats for user ${auth.userId}:`, error);
+    console.error(
+      `Failed to update usage stats for user ${auth.userId}:`,
+      error
+    );
     // Don't fail the generation if usage tracking fails
   }
 

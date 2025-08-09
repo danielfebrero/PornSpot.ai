@@ -1,10 +1,22 @@
+/*
+File objective: Batch resolve a user's like/bookmark status and counts for targets.
+Auth: Requires user session via LambdaHandlerUtil.withAuth.
+Special notes:
+- Accepts up to 50 targets; supports album, media, and comment types
+- Aggregates user interactions and target counters in parallel for efficiency
+- For comments: only like status/count is relevant (no bookmarks)
+- Returns per-target object with userLiked, userBookmarked, likeCount, bookmarkCount
+*/
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 
-const handleGetInteractionStatus = async (event: APIGatewayProxyEvent, auth: AuthResult): Promise<APIGatewayProxyResult> => {
+const handleGetInteractionStatus = async (
+  event: APIGatewayProxyEvent,
+  auth: AuthResult
+): Promise<APIGatewayProxyResult> => {
   console.log("🔄 Get user interaction status function called");
 
   const userId = auth.userId;

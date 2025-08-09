@@ -4,8 +4,13 @@ import { ApiUtil, PaginationParams } from "../api-util";
 // Media API Functions
 export const mediaApi = {
   // Get user's media - NEW UNIFIED FORMAT
-  getUserMedia: async (params?: PaginationParams): Promise<UnifiedMediaResponse> => {
-    const response = await ApiUtil.get<UnifiedMediaResponse>("/user/media", params);
+  getUserMedia: async (
+    params?: PaginationParams
+  ): Promise<UnifiedMediaResponse> => {
+    const response = await ApiUtil.get<UnifiedMediaResponse>(
+      "/user/media",
+      params
+    );
     return ApiUtil.extractData(response);
   },
 
@@ -15,7 +20,7 @@ export const mediaApi = {
     params?: PaginationParams
   ): Promise<UnifiedMediaResponse> => {
     const response = await ApiUtil.get<UnifiedMediaResponse>(
-      `/albums/${albumId}/media`, 
+      `/albums/${albumId}/media`,
       params
     );
     return ApiUtil.extractData(response);
@@ -23,7 +28,7 @@ export const mediaApi = {
 
   // Get media by ID
   getMediaById: async (mediaId: string): Promise<Media> => {
-    const response = await ApiUtil.get<{ data: Media }>(`/media/${mediaId}`);
+    const response = await ApiUtil.get<Media>(`/media/${mediaId}`);
     return ApiUtil.extractData(response);
   },
 
@@ -42,12 +47,10 @@ export const mediaApi = {
     expiresIn: number;
   }> => {
     const response = await ApiUtil.post<{
-      data: {
-        mediaId: string;
-        uploadUrl: string;
-        key: string;
-        expiresIn: number;
-      }
+      mediaId: string;
+      uploadUrl: string;
+      key: string;
+      expiresIn: number;
     }>(`/albums/${albumId}/media`, mediaData);
     return ApiUtil.extractData(response);
   },

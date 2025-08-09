@@ -1,3 +1,12 @@
+/*
+File objective: Authenticate user via email/password and create a session cookie.
+Auth: Public endpoint (no session) via LambdaHandlerUtil.withoutAuth; sets authenticated session on success.
+Special notes:
+- Validates email/password, checks user active and email verified
+- Rejects OAuth-only accounts for password login
+- Uses bcrypt to compare password, adds small delay for timing attack mitigation on missing users
+- Delegates cookie/session creation to SessionUtil.createUserSessionResponse
+*/
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import * as bcrypt from "bcrypt";
 import { DynamoDBService } from "@shared/utils/dynamodb";

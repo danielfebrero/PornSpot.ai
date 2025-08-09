@@ -35,6 +35,7 @@ export const contentApi = {
       body: { targets },
       credentials: "omit", // No credentials needed for public view count endpoint
     });
-    return response;
+
+    return ApiUtil.extractData(response);
   },
 };

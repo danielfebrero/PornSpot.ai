@@ -1,3 +1,13 @@
+/*
+File objective: S3 event processor to generate thumbnails and persist metadata for uploads.
+Trigger: S3 (not API Gateway). Handles avatar and album media uploads; skips existing thumbnails.
+Special notes:
+- Dynamically imports Sharp (platform-specific) with explicit error if unavailable
+- LocalStack-aware S3 client configuration (endpoint, forcePathStyle)
+- Avatar uploads: generate avatar thumbnails and update user entity
+- Media uploads: convert to WebP when appropriate, create multi-size thumbnails, persist Media entity, revalidate caches
+- Robust logging with per-record isolation; continues on per-record failures
+*/
 import { S3Event, S3EventRecord } from "aws-lambda";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { DynamoDBService } from "@shared/utils/dynamodb";

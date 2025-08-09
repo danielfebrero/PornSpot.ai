@@ -34,14 +34,6 @@ export const adminAlbumsApi = {
     const response = await ApiUtil.post<any>("/albums", albumData);
     return ApiUtil.extractData(response);
   },
-    if (data.success) {
-      return data.data;
-    } else {
-      return data.data;
-    } else {
-      throw new Error(data.error || "Failed to create album");
-    }
-  },
 
   // Update an album (admin)
   updateAlbum: async (
@@ -53,7 +45,10 @@ export const adminAlbumsApi = {
       coverImageUrl?: string;
     }
   ): Promise<any> => {
-    const response = await ApiUtil.put<any>(`/admin/albums/${albumId}`, updates);
+    const response = await ApiUtil.put<any>(
+      `/admin/albums/${albumId}`,
+      updates
+    );
     return ApiUtil.extractData(response);
   },
 

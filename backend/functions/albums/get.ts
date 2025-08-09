@@ -1,3 +1,11 @@
+/*
+File objective: List public albums with optional tag filter and profile views.
+Auth: Public endpoint; supports anonymous and authenticated users (no difference in visibility unless querying own data elsewhere).
+Special notes:
+- Supports username-based profile filter (?user=username) and tag filter (?tag=)
+- Cursor-based pagination via PaginationUtil and DynamoDB GSIs
+- Ensures only public albums are returned in public/profile contexts
+*/
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";

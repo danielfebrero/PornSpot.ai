@@ -1,10 +1,22 @@
+/*
+File objective: Provide platform-wide aggregate stats for admin dashboard.
+Auth: Requires admin auth via LambdaHandlerUtil.withAdminAuth.
+Special notes:
+- Uses DynamoDB GSI1 to count albums; sums mediaCount across albums (paginated)
+- Calculates public album count via FilterExpression
+- Optionally computes S3 storage usage with ListObjectsV2; tolerant to S3 errors
+- LocalStack-aware client configuration for local development
+*/
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
-import { LambdaHandlerUtil, AdminAuthResult } from "@shared/utils/lambda-handler";
+import {
+  LambdaHandlerUtil,
+  AdminAuthResult,
+} from "@shared/utils/lambda-handler";
 
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
 
@@ -149,7 +161,9 @@ const handleGetStats = async (
     storageUsedBytes: storageUsed,
   };
 
-  console.log(`📊 Admin ${auth.username} retrieved platform stats: ${totalAlbums} albums, ${totalMedia} media`);
+  console.log(
+    `📊 Admin ${auth.username} retrieved platform stats: ${totalAlbums} albums, ${totalMedia} media`
+  );
 
   return ResponseUtil.success(event, stats);
 };

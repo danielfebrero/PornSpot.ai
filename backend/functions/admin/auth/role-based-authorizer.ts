@@ -1,3 +1,11 @@
+/*
+File objective: Custom API Gateway request authorizer allowing admin and moderator roles.
+Auth: Executed by API Gateway before target lambdas; not a standard REST handler.
+Special notes:
+- Validates session from cookies, resolves role, and issues IAM policy (Allow/Deny) with wildcard resource
+- Permits CORS preflight (OPTIONS) without authentication
+- Adds user context (userId, email, role) into authorizer context on Allow
+*/
 import {
   APIGatewayRequestAuthorizerEvent,
   APIGatewayAuthorizerResult,
@@ -26,10 +34,16 @@ export const handler = async (
 
     if (!cookieHeader) {
       console.log("❌ No cookie header found, denying access.");
-      return AuthorizerUtil.generatePolicy("anonymous", "Deny", event.methodArn);
+      return AuthorizerUtil.generatePolicy(
+        "anonymous",
+        "Deny",
+        event.methodArn
+      );
     }
 
-    const userValidation = await AuthorizerUtil.validateUserSession(cookieHeader);
+    const userValidation = await AuthorizerUtil.validateUserSession(
+      cookieHeader
+    );
 
     if (userValidation.isValid && userValidation.user) {
       console.log("✅ User session is valid. Checking role...");
@@ -51,7 +65,9 @@ export const handler = async (
         };
 
         // Grant access to all admin endpoints
-        const wildcardResource = AuthorizerUtil.generateWildcardResource(event.methodArn);
+        const wildcardResource = AuthorizerUtil.generateWildcardResource(
+          event.methodArn
+        );
 
         if (!wildcardResource) {
           console.error("Could not parse method ARN, denying access.");

@@ -1,3 +1,10 @@
+/*
+File objective: List media items within a given album using cursor pagination.
+Auth: Public endpoint via LambdaHandlerUtil.withoutAuth.
+Special notes:
+- Validates album existence before listing
+- Uses PaginationUtil with DEFAULT/MAX limits; returns paginated payload with next cursor
+*/
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

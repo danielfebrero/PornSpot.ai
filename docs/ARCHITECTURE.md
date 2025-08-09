@@ -198,5 +198,18 @@ pornspot.ai is built using a modern serverless architecture that provides scalab
 
 - GitHub Actions (recommended)
 - Automated testing
+
+## Conventions
+
+### Lambda file headers
+
+To improve navigability, each Lambda handler file begins with a concise header block describing:
+
+- File objective: one-liner of what the Lambda does
+- Auth: which handler wrapper is used (withAuth, withoutAuth, withAdminAuth) and the implication
+- Special notes: bullets for validation, pagination/cursors, side effects (counters, revalidation), rate/size limits, local/dev specifics (LocalStack)
+
+This convention reduces onboarding time and clarifies non-obvious behavior at a glance.
+
 - Security scanning
 - Multi-environment deployment

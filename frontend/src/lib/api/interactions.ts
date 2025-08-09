@@ -3,7 +3,6 @@ import {
   InteractionResponse,
   UnifiedUserInteractionsResponse,
   UnifiedCommentsResponse,
-  UserInteractionStatsResponse,
 } from "@/types/user";
 import {
   CreateCommentRequest,
@@ -17,7 +16,10 @@ import { ApiUtil } from "../api-util";
 export const interactionApi = {
   // Like/Unlike content
   like: async (request: InteractionRequest): Promise<InteractionResponse> => {
-    const response = await ApiUtil.post<InteractionResponse>("/user/interactions/like", request);
+    const response = await ApiUtil.post<InteractionResponse>(
+      "/user/interactions/like",
+      request
+    );
     return ApiUtil.extractData(response);
   },
 
@@ -25,7 +27,10 @@ export const interactionApi = {
   bookmark: async (
     request: InteractionRequest
   ): Promise<InteractionResponse> => {
-    const response = await ApiUtil.post<InteractionResponse>("/user/interactions/bookmark", request);
+    const response = await ApiUtil.post<InteractionResponse>(
+      "/user/interactions/bookmark",
+      request
+    );
     return ApiUtil.extractData(response);
   },
 
@@ -35,7 +40,10 @@ export const interactionApi = {
     targetId: string;
   }): Promise<{ success: boolean }> => {
     try {
-      const response = await ApiUtil.post<{ success: boolean }>("/user/interactions/view", request);
+      const response = await ApiUtil.post<{ success: boolean }>(
+        "/user/interactions/view",
+        request
+      );
       ApiUtil.extractData(response);
       return { success: true };
     } catch (error) {
@@ -51,7 +59,7 @@ export const interactionApi = {
     cursor?: string
   ): Promise<UnifiedUserInteractionsResponse> => {
     const response = await ApiUtil.get<UnifiedUserInteractionsResponse>(
-      "/user/interactions/likes", 
+      "/user/interactions/likes",
       { limit, cursor }
     );
     return ApiUtil.extractData(response);
@@ -64,7 +72,7 @@ export const interactionApi = {
     cursor?: string
   ): Promise<UnifiedUserInteractionsResponse> => {
     const response = await ApiUtil.get<UnifiedUserInteractionsResponse>(
-      "/user/interactions/likes", 
+      "/user/interactions/likes",
       { user: username, limit, cursor }
     );
     return ApiUtil.extractData(response);
@@ -76,7 +84,7 @@ export const interactionApi = {
     cursor?: string
   ): Promise<UnifiedUserInteractionsResponse> => {
     const response = await ApiUtil.get<UnifiedUserInteractionsResponse>(
-      "/user/interactions/bookmarks", 
+      "/user/interactions/bookmarks",
       { limit, cursor }
     );
     return ApiUtil.extractData(response);
@@ -101,8 +109,20 @@ export const interactionApi = {
       }>;
     };
   }> => {
-    const response = await ApiUtil.post<any>("/user/interactions/status", { targets });
-    return response; // This already returns the full response structure
+    const response = await ApiUtil.post<{
+      success: boolean;
+      data: {
+        statuses: Array<{
+          targetType: "album" | "media" | "comment";
+          targetId: string;
+          userLiked: boolean;
+          userBookmarked: boolean;
+          likeCount: number;
+          bookmarkCount: number;
+        }>;
+      };
+    }>("/user/interactions/status", { targets });
+    return ApiUtil.extractData(response);
   },
 
   // Comment operations
@@ -113,7 +133,7 @@ export const interactionApi = {
     cursor?: string
   ): Promise<CommentListResponse> => {
     const response = await ApiUtil.get<CommentListResponse>(
-      `/user/interactions/comments/${targetType}/${targetId}`, 
+      `/user/interactions/comments/${targetType}/${targetId}`,
       { limit, cursor }
     );
     return ApiUtil.extractData(response);
@@ -126,7 +146,7 @@ export const interactionApi = {
     cursor?: string
   ): Promise<UnifiedCommentsResponse> => {
     const response = await ApiUtil.get<UnifiedCommentsResponse>(
-      "/user/interactions/comments", 
+      "/user/interactions/comments",
       { user: username, limit, cursor }
     );
     return ApiUtil.extractData(response);
@@ -135,7 +155,10 @@ export const interactionApi = {
   createComment: async (
     request: CreateCommentRequest
   ): Promise<CommentResponse> => {
-    const response = await ApiUtil.post<CommentResponse>("/user/interactions/comment", request);
+    const response = await ApiUtil.post<CommentResponse>(
+      "/user/interactions/comment",
+      request
+    );
     return ApiUtil.extractData(response);
   },
 
@@ -144,7 +167,7 @@ export const interactionApi = {
     request: UpdateCommentRequest
   ): Promise<CommentResponse> => {
     const response = await ApiUtil.put<CommentResponse>(
-      `/user/interactions/comment/${commentId}`, 
+      `/user/interactions/comment/${commentId}`,
       request
     );
     return ApiUtil.extractData(response);

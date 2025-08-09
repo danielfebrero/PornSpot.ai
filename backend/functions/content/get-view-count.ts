@@ -1,10 +1,20 @@
+/*
+File objective: Bulk-fetch view counts for albums and media by IDs.
+Auth: Public endpoint via LambdaHandlerUtil.withoutAuth.
+Special notes:
+- Accepts up to 100 targets in request body; validates each target
+- Reads current viewCount for each item; returns 0 on per-item failure instead of failing request
+- Designed for client-side batching to reduce round-trips
+*/
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 
-const handleGetViewCount = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+const handleGetViewCount = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   console.log("🔄 Get view count function called");
 
   // Parse request body for bulk view count fetch

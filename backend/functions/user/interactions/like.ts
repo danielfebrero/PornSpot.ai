@@ -1,3 +1,12 @@
+/*
+File objective: Add or remove a like interaction on album, media, or comment.
+Auth: Requires user session via LambdaHandlerUtil.withAuth.
+Special notes:
+- Validates action ('add'|'remove') and target type; verifies target existence
+- Uses single-table interaction entities; distinct SK pattern for comment likes
+- Updates per-target like counters and increments/decrements creator's totalLikesReceived
+- Idempotency: returns 409 on duplicate like attempts
+*/
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

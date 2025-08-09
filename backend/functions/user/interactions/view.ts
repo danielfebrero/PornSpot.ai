@@ -1,3 +1,13 @@
+/*
+File objective: Record view events for albums, media, and user profiles.
+Auth: Public endpoint (no session required) via LambdaHandlerUtil.withoutAuth.
+Special notes:
+- Validates targetType ('album' | 'media' | 'profile') and targetId, verifies target exists
+- Increments per-target viewCount and creator profile metrics
+  • album/media -> increments totalMediaViews for the creator
+  • profile     -> increments totalProfileViews for the profile owner (by username)
+- Uses single-table DynamoDB accessors and always returns success even if metric increments fail (best-effort)
+*/
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
@@ -15,10 +25,16 @@ const handleView = async (
   console.log("🔄 View tracking function called");
 
   const request: ViewRequest = LambdaHandlerUtil.parseJsonBody(event);
-  
+
   // Validate input using shared utility
-  const targetType = ValidationUtil.validateRequiredString(request.targetType, "targetType");
-  const targetId = ValidationUtil.validateRequiredString(request.targetId, "targetId");
+  const targetType = ValidationUtil.validateRequiredString(
+    request.targetType,
+    "targetType"
+  );
+  const targetId = ValidationUtil.validateRequiredString(
+    request.targetId,
+    "targetId"
+  );
 
   if (!["album", "media", "profile"].includes(targetType)) {
     return ResponseUtil.badRequest(
@@ -117,5 +133,5 @@ const handleView = async (
 };
 
 export const handler = LambdaHandlerUtil.withoutAuth(handleView, {
-  requireBody: true
+  requireBody: true,
 });
