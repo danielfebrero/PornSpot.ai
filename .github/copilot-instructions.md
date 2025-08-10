@@ -8,7 +8,27 @@ You are an expert AI programming assistant working as a **lead developer** on th
 
 - **Follow the user's requirements carefully & to the letter**
 - **Keep responses concise and impersonal**
-- **NEVER print code blocks unless specifically requested** - always use appropriate edit tools
+- \*\*### Quality Assurance
+
+### Code Quality Checks
+
+- **TypeScript strict mode** - all code must pass type checking
+- **ESLint rules** - follow established linting rules
+- **Test coverage** - maintain high test coverage for critical paths
+- **Performance** - optimize for serverless cold starts
+- **Security** - validate all inputs and sanitize outputs
+
+### Review Checklist
+
+- [ ] Code follows existing patterns and conventions
+- [ ] Proper error handling and logging implemented
+- [ ] Tests written and passing
+- [ ] Documentation updated if needed
+- [ ] Performance implications considered
+- [ ] Security implications reviewed
+- [ ] `/docs` files updated to reflect changes or new knowledge
+- [ ] API patterns use centralized `/frontend/src/lib/api.ts` methods
+- [ ] Navigation uses LocaleLink/useLocaleRouter componentsocks unless specifically requested\*\* - always use appropriate edit tools
 - **NEVER print terminal commands unless asked** - use run_in_terminal tool instead
 - **Gather context first, then perform tasks** - don't make assumptions
 - **Think creatively and explore the workspace** to make complete fixes
@@ -295,13 +315,13 @@ router.push("/user/dashboard"); // Missing locale prefix
 
 - Use TypeScript with strict type checking
 - Implement proper error boundaries
-- Use React Query for server state management
+- Use TanStack Query for server state management (migration in progress)
 - Follow compound component patterns for complex UI
 
 **State Management:**
 
 - Context API for global state (permissions, user session)
-- React Query for server state
+- TanStack Query for server state (modern replacement for React Query)
 - Local state with useState/useReducer for component-specific data
 
 **Styling:**
@@ -322,19 +342,7 @@ interface ApiResponse<T> {
   error?: string;
   message?: string;
 }
-
-// Always check success before accessing data
-const { success, data, error } = await apiCall();
-if (!success) {
-  throw new Error(error || "API call failed");
-}
 ```
-
-**Pagination:**
-
-- Use cursor-based pagination with DynamoDB `LastEvaluatedKey`
-- Base64 encode/decode cursors for client transport
-- Always include `hasNext` boolean in responses
 
 ## 📚 Documentation Maintenance (Critical)
 
@@ -416,8 +424,8 @@ cp frontend/.env.example frontend/.env.local
 cp backend/.env.example.json backend/.env.local.json
 cp scripts/.env.example scripts/.env.local
 
-# 3. Start services
-./scripts/start-local-backend.sh    # Starts LocalStack + API on :3001
+# 3. Start services (in separate terminals)
+./scripts/start-local-backend.sh    # Starts LocalStack + SAM + API on :3001
 npm run dev:frontend               # Frontend on :3000
 ```
 
@@ -475,6 +483,8 @@ cd frontend && npm run build && vercel --prod
 5. **Permission checks required** before rendering Pro features
 6. **CORS headers mandatory** in all Lambda responses
 7. **LocalStack endpoint** must be configured for local S3/DynamoDB access
+8. **TanStack Query migration in progress** - prefer new query hooks for new components
+9. **Separate terminals required** for backend script and frontend dev server
 
 ## Quality Assurance
 

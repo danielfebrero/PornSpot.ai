@@ -14,6 +14,8 @@ import { PlanUtil } from "@shared/utils/plan";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 import { getGenerationPermissions } from "@shared/utils/permissions";
+import { Media } from "@shared";
+import { saveGeneratedMediaToDatabase, createGenerationId } from "./utils";
 
 interface GenerationRequest {
   prompt: string;
@@ -26,18 +28,7 @@ interface GenerationRequest {
 }
 
 interface GenerationResponse {
-  success: boolean;
-  data?: {
-    images: string[];
-    metadata: {
-      prompt: string;
-      imageSize: string;
-      batchCount: number;
-      generationId: string;
-      estimatedTime: number;
-    };
-  };
-  error?: string;
+  images: Media[];
 }
 
 const handleGenerate = async (
@@ -142,13 +133,11 @@ const handleGenerate = async (
   }
 
   // Generate unique generation ID
-  const generationId = `gen_${Date.now()}_${Math.random()
-    .toString(36)
-    .substr(2, 9)}`;
+  const generationId = createGenerationId();
 
   // For now, simulate image generation with placeholder images
   // TODO: Integrate with actual AI image generation service
-  const mockImages = Array(batchCount)
+  const mockUrls = Array(batchCount)
     .fill(null)
     .map((_, index) => {
       const width =
@@ -162,29 +151,32 @@ const handleGenerate = async (
       return `https://picsum.photos/${width}/${height}?random=${generationId}_${index}`;
     });
 
-  // Simulate processing time
-  const estimatedTime = batchCount * 2000 + Math.random() * 1000; // 2-3 seconds per image
+  // Save generated media to database
+  const saveResult = await saveGeneratedMediaToDatabase({
+    userId: auth.userId,
+    generationId,
+    batchCount,
+    prompt: validatedPrompt.trim(),
+    negativePrompt,
+    imageSize: imageSize === "custom" ? `${customWidth}x${customHeight}` : imageSize,
+    selectedLoras,
+    mockUrls,
+  });
+
+  // Check if any saves failed
+  if (saveResult.errors.length > 0) {
+    console.warn(`⚠️ Some media failed to save:`, saveResult.errors);
+  }
 
   const response: GenerationResponse = {
-    success: true,
-    data: {
-      images: mockImages,
-      metadata: {
-        prompt: validatedPrompt.trim(),
-        imageSize:
-          imageSize === "custom" ? `${customWidth}x${customHeight}` : imageSize,
-        batchCount,
-        generationId,
-        estimatedTime: Math.round(estimatedTime),
-      },
-    },
+    images: saveResult.mediaEntities,
   };
 
   console.log(
-    `✅ User ${auth.userId} generated ${batchCount} image(s), plan: ${userPlan}`
+    `✅ User ${auth.userId} generated and saved ${saveResult.savedCount}/${batchCount} image(s) to database, plan: ${userPlan}`
   );
 
-  // Update user usage statistics
+  // Update user usage statistics (handled by the utility function for totalGeneratedMedias)
   try {
     await PlanUtil.updateUserUsageStats(auth.userId);
     console.log(`📊 Updated usage stats for user ${auth.userId}`);
@@ -196,7 +188,7 @@ const handleGenerate = async (
     // Don't fail the generation if usage tracking fails
   }
 
-  return ResponseUtil.success(event, response.data);
+  return ResponseUtil.success(event, response);
 };
 
 // Helper function to check generation limits
