@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import * as bcrypt from "bcrypt";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
-import { LoginRequest, AdminSessionEntity } from "@shared";
+import { LoginRequest, UserSessionEntity } from "@shared";
 import { AuthMiddleware } from "@shared/auth/admin-middleware";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
@@ -19,65 +19,86 @@ const handleAdminLogin = async (
   const username = ValidationUtil.validateRequiredString(request.username, "Username");
   const password = ValidationUtil.validateRequiredString(request.password, "Password");
 
-  const adminEntity = await DynamoDBService.getAdminByUsername(username);
+  // Look for user by username (admins are now users with role="admin")
+  const userEntity = await DynamoDBService.getUserByUsername(username);
 
-  if (!adminEntity) {
+  if (!userEntity) {
+    // Also try by email as fallback
+    const userByEmail = await DynamoDBService.getUserByEmail(username);
+    if (!userByEmail) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      return ResponseUtil.unauthorized(event, "Invalid username or password");
+    }
+  }
+
+  const user = userEntity || await DynamoDBService.getUserByEmail(username);
+
+  if (!user) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     return ResponseUtil.unauthorized(event, "Invalid username or password");
   }
 
-  if (!adminEntity.isActive) {
+  if (!user.isActive) {
     return ResponseUtil.forbidden(event, "Account is disabled");
   }
 
-  const isPasswordValid = await bcrypt.compare(
-    password,
-    adminEntity.passwordHash
-  );
+  // Check if user has admin role
+  if (user.role !== "admin") {
+    return ResponseUtil.forbidden(event, "Admin access required");
+  }
+
+  // Check password (users should have passwordHash for admin login)
+  if (!user.passwordHash) {
+    return ResponseUtil.unauthorized(event, "Invalid login method");
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
   if (!isPasswordValid) {
     return ResponseUtil.unauthorized(event, "Invalid username or password");
   }
 
+  // Create user session instead of admin session
   const sessionId = uuidv4();
   const now = new Date();
   const expiresAt = new Date(
     now.getTime() + SESSION_DURATION_HOURS * 60 * 60 * 1000
   );
 
-  const sessionEntity: AdminSessionEntity = {
+  const sessionEntity: UserSessionEntity = {
     PK: `SESSION#${sessionId}`,
     SK: "METADATA",
-    GSI1PK: "SESSION_EXPIRY",
+    GSI1PK: "USER_SESSION_EXPIRY",
     GSI1SK: `${expiresAt.toISOString()}#${sessionId}`,
-    EntityType: "AdminSession",
+    EntityType: "UserSession",
     sessionId,
-    adminId: adminEntity.adminId,
-    adminUsername: adminEntity.username,
+    userId: user.userId,
+    userEmail: user.email,
     createdAt: now.toISOString(),
     expiresAt: expiresAt.toISOString(),
     lastAccessedAt: now.toISOString(),
     ttl: Math.floor(expiresAt.getTime() / 1000), // Unix timestamp for TTL
   };
 
-  await DynamoDBService.createSession(sessionEntity);
+  await DynamoDBService.createUserSession(sessionEntity);
 
   const responseData = {
     admin: {
-      adminId: adminEntity.adminId,
-      username: adminEntity.username,
-      createdAt: adminEntity.createdAt,
-      isActive: adminEntity.isActive,
+      adminId: user.userId,
+      username: user.username || user.email,
+      createdAt: user.createdAt,
+      isActive: user.isActive,
     },
     sessionId,
   };
 
+  // Use user session cookie instead of admin session cookie
   const sessionCookie = AuthMiddleware.createSessionCookie(
     sessionId,
     expiresAt.toISOString()
   );
 
-  console.log(`🔑 Admin ${username} logged in successfully`);
+  console.log(`🔑 Admin ${username} logged in successfully (role: ${user.role})`);
 
   const successResponse = ResponseUtil.success(event, responseData);
   successResponse.headers = {
