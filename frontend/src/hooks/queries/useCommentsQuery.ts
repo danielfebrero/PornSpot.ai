@@ -28,8 +28,8 @@ export function useCommentsQuery(params: CommentsQueryParams) {
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage: CommentsResponse) => {
-      return lastPage.data.pagination.hasNext
-        ? lastPage.data.pagination.cursor
+      return lastPage.pagination.hasNext
+        ? lastPage.pagination.cursor
         : undefined;
     },
     enabled: !!username,

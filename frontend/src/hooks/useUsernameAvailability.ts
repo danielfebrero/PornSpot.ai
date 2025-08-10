@@ -66,25 +66,20 @@ export function useUsernameAvailability(): UseUsernameAvailabilityReturn {
       try {
         const response = await userApi.checkUsernameAvailability({ username });
 
-        if (response.success && response.data) {
-          if (response.data.available) {
-            setUsernameStatus("available");
-            setUsernameMessage(tAuth("messages.usernameAvailable"));
-          } else {
-            setUsernameStatus("taken");
-            setUsernameMessage(
-              response.data.message || tAuth("messages.usernameAlreadyTaken")
-            );
-          }
+        if (response.available) {
+          setUsernameStatus("available");
+          setUsernameMessage(tAuth("messages.usernameAvailable"));
         } else {
-          setUsernameStatus("error");
+          setUsernameStatus("taken");
           setUsernameMessage(
-            response.error || "Failed to check username availability"
+            response.message || tAuth("messages.usernameAlreadyTaken")
           );
         }
       } catch (error) {
         setUsernameStatus("error");
-        setUsernameMessage("Failed to check username availability");
+        setUsernameMessage(
+          error instanceof Error ? error.message : "Failed to check username availability"
+        );
       }
     },
     [tAuth]

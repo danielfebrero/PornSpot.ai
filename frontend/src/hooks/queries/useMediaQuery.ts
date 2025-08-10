@@ -38,8 +38,8 @@ export function useUserMedia(params: MediaQueryParams = {}) {
     },
     initialPageParam: undefined,
     getNextPageParam: (lastPage: MediaResponse) => {
-      return lastPage.data.pagination?.hasNext
-        ? lastPage.data.pagination.cursor
+      return lastPage.pagination?.hasNext
+        ? lastPage.pagination.cursor
         : undefined;
     },
     // Keep media fresh for 2 minutes
@@ -63,8 +63,8 @@ export function useAlbumMedia(params: AlbumMediaQueryParams) {
     },
     initialPageParam: undefined,
     getNextPageParam: (lastPage: MediaResponse) => {
-      return lastPage.data.pagination?.hasNext
-        ? lastPage.data.pagination.cursor
+      return lastPage.pagination?.hasNext
+        ? lastPage.pagination.cursor
         : undefined;
     },
     enabled: !!albumId,
@@ -159,13 +159,10 @@ export function useAddMediaToAlbum() {
 
             // Add to first page to show it immediately
             const newPages = [...old.pages];
-            if (newPages[0]?.data?.media) {
+            if (newPages[0]?.media) {
               newPages[0] = {
                 ...newPages[0],
-                data: {
-                  ...newPages[0].data,
-                  media: [mediaItem, ...newPages[0].data.media],
-                },
+                media: [mediaItem, ...newPages[0].media],
               };
             }
 
@@ -257,13 +254,10 @@ export function useBulkAddMediaToAlbum() {
 
             // Add to first page to show immediately
             const newPages = [...old.pages];
-            if (newPages[0]?.data?.media) {
+            if (newPages[0]?.media) {
               newPages[0] = {
                 ...newPages[0],
-                data: {
-                  ...newPages[0].data,
-                  media: [...mediaItems, ...newPages[0].data.media],
-                },
+                media: [...mediaItems, ...newPages[0].media],
               };
             }
 

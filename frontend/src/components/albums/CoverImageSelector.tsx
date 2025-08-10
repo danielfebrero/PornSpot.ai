@@ -32,7 +32,7 @@ export function CoverImageSelector({
   } = useAlbumMedia({ albumId });
 
   // Extract media from the paginated response
-  const media = mediaData?.pages?.[0]?.data?.media || [];
+  const media = mediaData?.pages?.[0]?.media || [];
 
   const selectedCoverUrl = currentCoverUrl || "";
 

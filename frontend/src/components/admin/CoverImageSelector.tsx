@@ -33,7 +33,7 @@ export function CoverImageSelector({
   } = useAdminAlbumMedia(albumId);
 
   // Extract media from the response
-  const media = mediaData?.data?.media || [];
+  const media = mediaData?.media || [];
 
   const [selectedCoverUrl, setSelectedCoverUrl] = useState<string | undefined>(
     currentCoverUrl

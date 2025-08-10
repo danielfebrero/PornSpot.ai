@@ -37,7 +37,7 @@ export default function UserAlbumsPage() {
 
   // Extract all albums from paginated data
   const albums = useMemo(() => {
-    return albumsData?.pages.flatMap((page) => page.data.albums) || [];
+    return albumsData?.pages.flatMap((page) => page.albums) || [];
   }, [albumsData]);
 
   const hasNext = hasNextPage || false;

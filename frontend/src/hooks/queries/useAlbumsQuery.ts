@@ -51,14 +51,11 @@ export function useAlbums(params: AlbumsQueryParams = {}) {
     ? {
         pages: [
           {
-            success: true,
-            data: {
-              albums: initialData.albums,
-              pagination: {
-                hasNext: initialData.pagination?.hasNext || false,
-                cursor: initialData.pagination?.cursor || null,
-                limit: limit, // Include the limit field
-              },
+            albums: initialData.albums,
+            pagination: {
+              hasNext: initialData.pagination?.hasNext || false,
+              cursor: initialData.pagination?.cursor || null,
+              limit: limit, // Include the limit field
             },
           },
         ],
@@ -79,8 +76,8 @@ export function useAlbums(params: AlbumsQueryParams = {}) {
     // Use initial data from SSG/ISR if provided
     initialData: transformedInitialData,
     getNextPageParam: (lastPage: AlbumsResponse) => {
-      return lastPage.data.pagination?.hasNext
-        ? lastPage.data.pagination.cursor
+      return lastPage.pagination?.hasNext
+        ? lastPage.pagination.cursor
         : undefined;
     },
     getPreviousPageParam: () => undefined, // We don't support backward pagination

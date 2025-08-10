@@ -256,8 +256,7 @@ export default function ProfileComponent({
   } = useCommentsQuery({ username: currentUser.username || "", limit: 3 });
 
   // Extract recent comments from paginated data (only need first page for profile preview)
-  const recentComments: CommentType[] = (commentsData?.pages[0]?.data
-    .comments || []) as unknown as CommentType[];
+  const recentComments: CommentType[] = (commentsData?.pages[0]?.comments || []) as unknown as CommentType[];
 
   // Get real recent albums using TanStack Query
   const {
@@ -271,7 +270,7 @@ export default function ProfileComponent({
   });
 
   // Extract albums from paginated data (only need first page for profile preview)
-  const recentAlbums = albumsData?.pages[0]?.data.albums || [];
+  const recentAlbums = albumsData?.pages[0]?.albums || [];
 
   // Check if user is online (last active less than 5 minutes ago)
   const isUserOnline = useMemo(() => {

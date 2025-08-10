@@ -256,7 +256,7 @@ export class ApiUtil {
   /**
    * Helper for extracting data from API response
    */
-  static extractData<T>(response: ApiResponse<T>): ApiResponse<T> {
+  static extractData<T>(response: ApiResponse<T>): T {
     if (!response.success) {
       throw new Error(response.error || "API request failed");
     }
@@ -265,7 +265,7 @@ export class ApiUtil {
       throw new Error("No data in successful response");
     }
 
-    return response;
+    return response.data;
   }
 
   /**

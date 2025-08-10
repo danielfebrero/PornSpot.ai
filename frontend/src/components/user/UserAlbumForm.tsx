@@ -70,7 +70,7 @@ export function UserAlbumForm({
       try {
         const response = await mediaApi.getUserMedia({ limit: 100 });
 
-        const mediaWithSelection = response.data.media.map((media: Media) => ({
+        const mediaWithSelection = response.media.map((media: Media) => ({
           ...media,
           selected: false,
         }));
