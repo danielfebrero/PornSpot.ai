@@ -15,7 +15,11 @@
     "sourceMap": true,
     "removeComments": true,
     "moduleResolution": "node",
-    "composite": true
+    "composite": true,
+    "typeRoots": [],
+    "types": [],
+    "noResolve": false,
+    "isolatedModules": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]

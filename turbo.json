@@ -10,11 +10,7 @@
         "!.env*.example",
         "!.env.local.json"
       ],
-      "outputs": [
-        "dist/**",
-        ".next/**",
-        "!.next/cache/**"
-      ],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
       "env": [
         "NODE_ENV",
         "NEXT_PUBLIC_API_URL",
@@ -25,11 +21,7 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env*",
-        "!.env*.example"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "!.env*.example"]
     },
     "test": {
       "dependsOn": ["build"],
@@ -40,54 +32,27 @@
         "playwright.config.*",
         ".env.test*"
       ],
-      "outputs": [
-        "coverage/**",
-        "test-results/**",
-        "playwright-report/**"
-      ]
+      "outputs": ["coverage/**", "test-results/**", "playwright-report/**"]
     },
     "test:unit": {
       "dependsOn": ["build"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "jest.config.*",
-        "jest.setup.*"
-      ],
-      "outputs": [
-        "coverage/**"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", "jest.config.*", "jest.setup.*"],
+      "outputs": ["coverage/**"]
     },
     "test:integration": {
       "dependsOn": ["build"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "jest.config.*",
-        "jest.setup.*"
-      ],
-      "outputs": [
-        "coverage/**"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", "jest.config.*", "jest.setup.*"],
+      "outputs": ["coverage/**"]
     },
     "test:e2e": {
       "dependsOn": ["build"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "playwright.config.*"
-      ],
-      "outputs": [
-        "playwright-report/**",
-        "test-results/**"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", "playwright.config.*"],
+      "outputs": ["playwright-report/**", "test-results/**"]
     },
     "test:coverage": {
       "dependsOn": ["build"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "jest.config.*"
-      ],
-      "outputs": [
-        "coverage/**"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", "jest.config.*"],
+      "outputs": ["coverage/**"]
     },
     "lint": {
       "inputs": [
@@ -110,13 +75,8 @@
     },
     "type-check": {
       "dependsOn": ["^build"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "tsconfig.json"
-      ],
-      "outputs": [
-        "*.tsbuildinfo"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json"],
+      "outputs": ["*.tsbuildinfo"]
     },
     "clean": {
       "cache": false,
@@ -124,24 +84,13 @@
       "outputs": []
     },
     "build:layer": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "layers/**",
-        "shared/**"
-      ],
-      "outputs": [
-        "dist/**",
-        "layers/shared/nodejs/node_modules/@shared/**"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", "layers/**", "shared/**"],
+      "outputs": ["dist/**", "layers/shared/nodejs/node_modules/@shared/**"]
     },
     "deploy": {
       "dependsOn": ["build", "test"],
       "cache": false,
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "template.yaml",
-        "samconfig.toml"
-      ],
+      "inputs": ["$TURBO_DEFAULT$", "template.yaml", "samconfig.toml"],
       "outputs": []
     },
     "start": {
@@ -150,11 +99,7 @@
       "persistent": true
     }
   },
-  "globalDependencies": [
-    "package.json",
-    "turbo.json",
-    ".gitignore"
-  ],
+  "globalDependencies": ["package.json", "turbo.json", ".gitignore"],
   "globalEnv": [
     "NODE_ENV",
     "AWS_REGION",
