@@ -98,12 +98,8 @@ export interface ResendVerificationResponse {
 
 // Frontend-specific username availability (with data wrapper)
 export interface UsernameAvailabilityResponse {
-  success: boolean;
-  data?: {
-    available: boolean;
-    message?: string;
-  };
-  error?: string;
+  available: boolean;
+  message?: string;
 }
 
 // Frontend-specific authentication form types
@@ -258,29 +254,21 @@ export interface GetPublicProfileResponse {
 
 // Frontend-specific unified response types for user interactions
 export interface UnifiedUserInteractionsResponse {
-  success: boolean;
-  data: {
-    interactions: UserInteraction[];
-    pagination: {
-      hasNext: boolean;
-      cursor: string | null;
-      limit: number;
-    };
+  interactions: UserInteraction[];
+  pagination: {
+    hasNext: boolean;
+    cursor: string | null;
+    limit: number;
   };
-  error?: string;
 }
 
 export interface UnifiedCommentsResponse {
-  success: boolean;
-  data: {
-    comments: CommentWithTarget[];
-    pagination: {
-      hasNext: boolean;
-      cursor: string | null;
-      limit: number;
-    };
+  comments: CommentWithTarget[];
+  pagination: {
+    hasNext: boolean;
+    cursor: string | null;
+    limit: number;
   };
-  error?: string;
 }
 
 // (duplicate removed)

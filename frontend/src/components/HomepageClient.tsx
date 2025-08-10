@@ -34,7 +34,7 @@ export function DiscoverClient({
   });
 
   // Extract all albums from paginated data
-  const albums = albumsData?.pages.flatMap((page) => page.data.albums) || [];
+  const albums = albumsData?.pages.flatMap((page) => page.albums) || [];
 
   // Use initial error if no albums were loaded initially
   const displayError =

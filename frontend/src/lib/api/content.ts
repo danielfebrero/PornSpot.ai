@@ -9,27 +9,19 @@ export const contentApi = {
       targetId: string;
     }>
   ): Promise<{
-    success: boolean;
-    data: {
+    viewCounts: Array<{
+      targetType: "album" | "media";
+      targetId: string;
+      viewCount: number;
+    }>;
+  }> => {
+    // Use custom config to disable credentials for this public endpoint
+    const response = await ApiUtil.request<{
       viewCounts: Array<{
         targetType: "album" | "media";
         targetId: string;
         viewCount: number;
       }>;
-    };
-    error?: string;
-  }> => {
-    // Use custom config to disable credentials for this public endpoint
-    const response = await ApiUtil.request<{
-      success: boolean;
-      data: {
-        viewCounts: Array<{
-          targetType: "album" | "media";
-          targetId: string;
-          viewCount: number;
-        }>;
-      };
-      error?: string;
     }>("/content/view-count", {
       method: "POST",
       body: { targets },

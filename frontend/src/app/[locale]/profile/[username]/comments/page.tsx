@@ -34,7 +34,7 @@ export default function UserCommentsPage() {
 
   // Extract comments from paginated data and explicitly type them
   const extractedComments =
-    commentsData?.pages.flatMap((page) => page.data.comments) || [];
+    commentsData?.pages.flatMap((page) => page.comments) || [];
   const comments: CommentType[] = extractedComments as unknown as CommentType[];
   const totalCount = comments.length; // TanStack Query doesn't provide total count in unified pagination
 

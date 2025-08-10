@@ -24,7 +24,7 @@ export function ViewCount({
 
   const targets = [{ targetType, targetId }];
   const { data } = useViewCountsFromCache(targets);
-  const cachedCount = data?.data?.viewCounts?.[0]?.viewCount;
+  const cachedCount = data?.viewCounts?.[0]?.viewCount;
 
   if (!isHydrated) {
     // 👇 Prevent React from rendering anything until hydration

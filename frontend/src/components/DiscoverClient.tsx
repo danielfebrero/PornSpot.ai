@@ -65,7 +65,7 @@ export function DiscoverClient({
 
   // Flatten all pages into a single albums array
   const albums = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data?.albums || []) || [];
+    return data?.pages.flatMap((page) => page.albums || []) || [];
   }, [data]);
 
   // Bulk prefetch view counts for all albums (for SSG pages)

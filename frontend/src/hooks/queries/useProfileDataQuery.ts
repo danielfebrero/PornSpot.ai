@@ -35,12 +35,8 @@ export function useProfileDataQuery(options: UseProfileDataOptions) {
         response = await interactionApi.getLikes(limit);
       }
 
-      if (!response.success) {
-        throw new Error(response.error || "Failed to fetch profile data");
-      }
-
       return {
-        recentLikes: response.data?.interactions,
+        recentLikes: response.interactions,
       };
     },
     enabled: enabled && (!!username || isOwner),

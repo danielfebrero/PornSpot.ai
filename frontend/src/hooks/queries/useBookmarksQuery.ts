@@ -22,8 +22,8 @@ export function useBookmarksQuery(params: BookmarksQueryParams = {}) {
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage: BookmarksResponse) => {
-      return lastPage.data.pagination.hasNext
-        ? lastPage.data.pagination.cursor
+      return lastPage.pagination.hasNext
+        ? lastPage.pagination.cursor
         : undefined;
     },
     // Keep bookmarks fresh for 1 minute

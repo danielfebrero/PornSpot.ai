@@ -29,7 +29,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({
 
   // Extract all media from paginated data
   const allMedia = useMemo(() => {
-    return mediaData?.pages.flatMap((page) => page.data.media || []) || [];
+    return mediaData?.pages.flatMap((page) => page.media || []) || [];
   }, [mediaData]);
 
   // Manage error state
