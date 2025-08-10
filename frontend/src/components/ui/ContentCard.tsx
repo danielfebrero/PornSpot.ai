@@ -1,7 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocaleRouter } from "@/lib/navigation";
 import { useNavigationLoading } from "@/contexts/NavigationLoadingContext";
-import { FrontendMedia as Media, Album, ThumbnailContext, ThumbnailSize } from "@/types";
+import {
+  FrontendMedia as Media,
+  Album,
+  ThumbnailContext,
+  ThumbnailSize,
+} from "@/types";
 import { LikeButton } from "@/components/user/LikeButton";
 import { BookmarkButton } from "@/components/user/BookmarkButton";
 import { AddToAlbumDialog } from "@/components/user/AddToAlbumDialog";
@@ -146,7 +151,6 @@ export function ContentCard({
   const { isMobileInterface } = useDevice();
   const cardRef = useRef<HTMLDivElement>(null);
 
-  console.log("Rendering ContentCard for item:", item);
   const isMedia = item.type === "media";
   const media = isMedia ? (item as Media) : null;
   const album = !isMedia ? (item as Album) : null;

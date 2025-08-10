@@ -6,6 +6,12 @@ import { locales } from "@/i18n";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { generateAlbumMetadata } from "@/lib/opengraph";
+import {
+  HydrationBoundary,
+  dehydrate,
+  QueryClient,
+} from "@tanstack/react-query";
+import { mediaApi } from "@/lib/api";
 
 type AlbumDetailPageProps = {
   params: {
@@ -72,5 +78,25 @@ export default async function AlbumDetailPage({
 
   const album = albumResult.data;
 
-  return <AlbumDetailClient album={album} />;
+  // Prefetch first page of album media for SSG hydration (matches useAlbumMedia)
+  const queryClient = new QueryClient();
+  const limit = 20; // keep in sync with MediaGallery/useAlbumMedia default
+  try {
+    const firstPage = await mediaApi.getAlbumMedia(albumId, { limit });
+    queryClient.setQueryData(["media", "album", albumId, { limit }], {
+      pages: [firstPage],
+      pageParams: [undefined],
+    });
+  } catch (e) {
+    // Non-blocking: if prefetch fails, client will fetch on mount
+    console.error("Album media prefetch failed", e);
+  }
+
+  const dehydratedState = dehydrate(queryClient);
+
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <AlbumDetailClient album={album} />
+    </HydrationBoundary>
+  );
 }
