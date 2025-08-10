@@ -862,7 +862,7 @@ export function ContentCard({
 
                   {dropdownOpen && (
                     <div
-                      className="absolute right-0 top-full mt-1 w-32 bg-card border border-border rounded-lg shadow-lg py-1 z-20 backdrop-blur-sm"
+                      className="absolute right-0 top-full mt-1 min-w-max bg-card border border-border rounded-lg shadow-lg py-1 z-20 backdrop-blur-sm"
                       data-dropdown-content
                     >
                       {customActions.map((action, index) => (
@@ -875,7 +875,7 @@ export function ContentCard({
                             setDropdownOpen(false);
                           }}
                           className={cn(
-                            "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors",
+                            "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors whitespace-nowrap",
                             action.variant === "destructive"
                               ? "text-destructive"
                               : "text-foreground"
