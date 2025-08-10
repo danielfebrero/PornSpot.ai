@@ -107,3 +107,6 @@ dist
 # Temporary folders
 tmp/
 temp/
+
+# backups files
+backups/

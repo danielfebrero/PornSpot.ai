@@ -1,6 +1,6 @@
 // Main exports for the shared layer
 // Re-export types from shared-types package
-export * from "shared-types";
+export * from "@shared/shared-types";
 
 // Export backend-specific utilities
 export * from "./utils/dynamodb";

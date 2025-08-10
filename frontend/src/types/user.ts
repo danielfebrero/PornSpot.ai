@@ -7,8 +7,8 @@ import type {
   Comment as SharedComment,
   UserLoginRequest,
   UserRegistrationRequest,
-} from "shared-types";
-import type { UserInteraction as BaseUserInteraction } from "shared-types";
+} from "@/types/shared-types";
+import type { UserInteraction as BaseUserInteraction } from "@/types/shared-types";
 
 // Frontend-specific interaction request (with albumId and action for frontend usage)
 export interface InteractionRequest {
@@ -307,4 +307,4 @@ export type {
   ApiResponse,
   UsernameAvailabilityRequest,
   Comment,
-} from "../../../packages/shared-types";
+} from "./shared-types";

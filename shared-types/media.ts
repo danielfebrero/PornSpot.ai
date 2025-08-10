@@ -1,5 +1,5 @@
 // Media-related types
-import type { ThumbnailUrls, Metadata, CreatorType, MediaStatus, TargetType } from "./core";
+import type { ThumbnailUrls, Metadata, CreatorType, MediaStatus } from "./core";
 
 export interface Media {
   id: string;

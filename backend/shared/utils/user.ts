@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import * as bcrypt from "bcrypt";
 import { DynamoDBService } from "./dynamodb";
-import { UserEntity, EmailVerificationTokenEntity } from "shared-types";
+import { UserEntity, EmailVerificationTokenEntity } from "@shared/shared-types";
 
 const SALT_ROUNDS = 12;
 const EMAIL_VERIFICATION_EXPIRY_HOURS = 24;

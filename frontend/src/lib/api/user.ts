@@ -13,7 +13,7 @@ import {
   UserProfileUpdateResponse,
   GetPublicProfileResponse,
 } from "@/types";
-import { User as BaseUser } from "shared-types";
+import { User as BaseUser } from "@/types/shared-types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 

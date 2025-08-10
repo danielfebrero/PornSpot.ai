@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from "aws-lambda";
-import { ApiResponse } from "shared-types";
+import { ApiResponse } from "@shared/shared-types";
 
 const allowedOrigins = [
   "http://localhost:3000",

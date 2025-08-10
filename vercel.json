@@ -6,11 +6,6 @@
       "use": "@vercel/next"
     }
   ],
-  "functions": {
-    "frontend/**": {
-      "includeFiles": "frontend/**"
-    }
-  },
   "installCommand": "npm install",
   "buildCommand": "turbo run build",
   "outputDirectory": "frontend/.next"

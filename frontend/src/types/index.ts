@@ -1,8 +1,8 @@
-import type { Album, ApiResponse, Media } from "shared-types";
-export type { Album, ApiResponse, Media } from "shared-types";
+import type { Album, ApiResponse, Media } from "@/types/shared-types";
+export type { Album, ApiResponse, Media } from "@/types/shared-types";
 
 // Re-export shared types from the shared types package
-export * from "shared-types";
+export * from "@/types/shared-types";
 // Frontend-specific pagination types that extend the base types
 export interface UnifiedPaginationMeta {
   hasNext: boolean; // Whether more pages exist

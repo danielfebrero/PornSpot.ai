@@ -4,10 +4,10 @@
   "description": "Backend Lambda functions for pornspot.ai gallery",
   "main": "index.js",
   "scripts": {
-    "build": "npm run build:layer",
-    "build:layer": "tsc && npm run copy:templates && cd ../packages/shared-types && npm run build && npm run install-bcrypt-dev && npm run copy:layer",
+    "build": "cd ../ && npm run copy:shared-types && cd backend && npm run build:layer",
+    "build:layer": "tsc && npm run copy:templates && npm run install-bcrypt-dev && npm run copy:layer",
     "build:watch": "tsc --watch",
-    "copy:templates": "node -e \"const fs=require('fs'); const path=require('path'); function copyRecursiveSync(src, dest) { const exists = fs.existsSync(src); const stats = exists && fs.statSync(src); const isDirectory = exists && stats.isDirectory(); if (isDirectory) { if (!fs.existsSync(dest)) fs.mkdirSync(dest, {recursive: true}); } else { const destDir = path.dirname(dest); if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, {recursive: true}); } if (isDirectory) { fs.readdirSync(src).forEach(childItemName => { copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName)); }); } else { fs.copyFileSync(src, dest); } } copyRecursiveSync('shared/email_templates', 'dist/shared/email_templates');\"",
+    "copy:templates": "node -e \"const fs=require('fs'); const path=require('path'); function copyRecursiveSync(src, dest) { const exists = fs.existsSync(src); const stats = exists && fs.statSync(src); const isDirectory = exists && stats.isDirectory(); if (isDirectory) { if (!fs.existsSync(dest)) fs.mkdirSync(dest, {recursive: true}); } else { const destDir = path.dirname(dest); if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, {recursive: true}); } if (isDirectory) { fs.readdirSync(src).forEach(childItemName => { copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName)); }); } else { fs.copyFileSync(src, dest); } } copyRecursiveSync('shared/email_templates', 'dist/shared/email_templates'); copyRecursiveSync('shared/shared-types', 'dist/shared/shared-types');\"",
     "build:lambda": "npm run build && npm run install:layer-lambda && npm run install-native-lambda && npm run copy:layer",
     "build:sam": "npm run build:layer && cd .. && sam build",
     "copy:layer": "node -e \"const fs=require('fs'); const path=require('path'); function copyRecursiveSync(src, dest) { const exists = fs.existsSync(src); const stats = exists && fs.statSync(src); const isDirectory = exists && stats.isDirectory(); if (isDirectory) { if (!fs.existsSync(dest)) fs.mkdirSync(dest, {recursive: true}); fs.readdirSync(src).forEach(childItemName => { copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName)); }); } else { fs.copyFileSync(src, dest); } } copyRecursiveSync('dist/shared', 'layers/shared/nodejs/node_modules/@shared');\"",
@@ -35,7 +35,6 @@
     "migrate:gsi4-albums:dry-run": "npm run build && node dist/scripts/backfill-gsi4-albums.js --dry-run"
   },
   "dependencies": {
-    "shared-types": "*",
     "@aws-sdk/client-dynamodb": "^3.450.0",
     "@aws-sdk/client-s3": "^3.450.0",
     "@aws-sdk/client-ssm": "^3.450.0",

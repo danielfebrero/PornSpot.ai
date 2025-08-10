@@ -18,14 +18,14 @@ import {
   AdminUserEntity,
   AdminSessionEntity,
   CommentEntity,
-} from "shared-types";
+} from "@shared/shared-types";
 import {
   UserEntity,
   UserSessionEntity,
   EmailVerificationTokenEntity,
   UserInteractionEntity,
   UserInteraction,
-} from "shared-types";
+} from "@shared/shared-types";
 import { CounterUtil } from "./counter";
 
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
@@ -959,7 +959,7 @@ export class DynamoDBService {
         })
       );
 
-      const publicAlbums = ((result.Items as unknown) as AlbumEntity[]) || [];
+      const publicAlbums = (result.Items as unknown as AlbumEntity[]) || [];
 
       // For each public album, get all its media IDs
       for (const album of publicAlbums) {
@@ -980,7 +980,7 @@ export class DynamoDBService {
           );
 
           const albumMediaRelationships =
-            ((mediaResult.Items as unknown) as AlbumMediaEntity[]) || [];
+            (mediaResult.Items as unknown as AlbumMediaEntity[]) || [];
           albumMediaRelationships.forEach((rel) =>
             allMediaIds.add(rel.mediaId)
           );
@@ -2446,7 +2446,9 @@ export class DynamoDBService {
       }
 
       // Extract comment IDs for cleaning up likes
-      const commentIds = allComments.map((comment: Record<string, unknown>) => comment["id"] as string);
+      const commentIds = allComments.map(
+        (comment: Record<string, unknown>) => comment["id"] as string
+      );
 
       // Delete all comment likes for these comments
       if (commentIds.length > 0) {

@@ -33,6 +33,7 @@
     "cleanup:thumbnails:db": "node scripts/cleanup-thumbnails-db.js",
     "cleanup:thumbnails:all": "node scripts/cleanup-thumbnails-all.js",
     "delete:comments": "node scripts/delete-all-comments.js",
+    "copy:shared-types": "rm -rf frontend/src/types/shared-types/* backend/shared/shared-types/* && mkdir -p frontend/src/types/shared-types backend/shared/shared-types && cp -r shared-types/* frontend/src/types/shared-types && cp -r shared-types/* backend/shared/shared-types/",
     "deploy": "./scripts/deploy.sh",
     "deploy:guided": "./scripts/deploy.sh --guided",
     "sam:build": "sam build",
@@ -73,8 +74,7 @@
   },
   "workspaces": [
     "backend",
-    "frontend",
-    "packages/*"
+    "frontend"
   ],
   "keywords": [
     "gallery",

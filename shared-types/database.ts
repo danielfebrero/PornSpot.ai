@@ -1,5 +1,16 @@
 // DynamoDB Entity Types
-import type { EntityType, CreatorType, MediaStatus, ThumbnailUrls, Metadata, TargetType, CommentTargetType, InteractionType, AuthProvider, SubscriptionStatus } from "./core";
+import type {
+  EntityType,
+  CreatorType,
+  MediaStatus,
+  ThumbnailUrls,
+  Metadata,
+  TargetType,
+  CommentTargetType,
+  InteractionType,
+  AuthProvider,
+  SubscriptionStatus,
+} from "./core";
 import type { UserProfileInsights } from "./user";
 
 // DynamoDB Entity base interface
