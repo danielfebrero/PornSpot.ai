@@ -101,10 +101,11 @@ const handleAddMedia = async (
           },
           albumId,
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Error in bulk add media to album:", error);
-        if (error.message?.includes("not found")) {
-          return ResponseUtil.notFound(event, error.message);
+        const errorObj = error as Error & { message?: string };
+        if (errorObj.message?.includes("not found")) {
+          return ResponseUtil.notFound(event, errorObj.message);
         }
         throw error;
       }
@@ -126,9 +127,10 @@ const handleAddMedia = async (
       // Add media to album
       try {
         await DynamoDBService.addMediaToAlbum(albumId, mediaId, userId);
-      } catch (error: any) {
-        if (error.message?.includes("already in album")) {
-          return ResponseUtil.badRequest(event, error.message);
+      } catch (error: unknown) {
+        const errorObj = error as Error & { message?: string };
+        if (errorObj.message?.includes("already in album")) {
+          return ResponseUtil.badRequest(event, errorObj.message);
         }
         throw error;
       }

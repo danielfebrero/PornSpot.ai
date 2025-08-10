@@ -1,6 +1,11 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { mediaApi } from "@/lib/api";
 import { queryKeys, queryClient, invalidateQueries } from "@/lib/queryClient";
+import { Media } from "@/types";
+
+interface AlbumMediaData {
+  media: Media[];
+}
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -159,11 +164,11 @@ export function useAdminDeleteMedia() {
       // Optimistically remove the media
       queryClient.setQueryData(
         ["admin", "media", "album", albumId],
-        (old: any) => {
+        (old: AlbumMediaData | undefined) => {
           if (!old?.media) return old;
           return {
             ...old,
-            media: old.media.filter((m: any) => m.id !== mediaId),
+            media: old.media.filter((m: Media) => m.id !== mediaId),
           };
         }
       );

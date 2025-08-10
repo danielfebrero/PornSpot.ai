@@ -110,10 +110,11 @@ const handleBulkRemoveMedia = async (
       },
       albumId,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in bulk remove media from album:", error);
-    if (error.message?.includes("not found")) {
-      return ResponseUtil.notFound(event, error.message);
+    const errorObj = error as Error & { message?: string };
+    if (errorObj.message?.includes("not found")) {
+      return ResponseUtil.notFound(event, errorObj.message);
     }
     throw error;
   }

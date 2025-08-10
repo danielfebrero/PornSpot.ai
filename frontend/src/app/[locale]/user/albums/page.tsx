@@ -15,7 +15,7 @@ import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { EditAlbumDialog } from "@/components/albums/EditAlbumDialog";
 import { DeleteAlbumDialog } from "@/components/albums/DeleteAlbumDialog";
-import { Album } from "@/types";
+import { Album, UnifiedAlbumsResponse } from "@/types";
 
 const UserAlbumsPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -45,13 +45,13 @@ const UserAlbumsPage: React.FC = () => {
   // Extract albums from infinite query data
   const allAlbums = useMemo(() => {
     return (
-      albumsData?.pages.flatMap((page: any) => page.data?.albums || []) || []
+      albumsData?.pages.flatMap((page: UnifiedAlbumsResponse) => page.albums || []) || []
     );
   }, [albumsData]);
 
   // Filter out invalid albums before counting
   const albums = useMemo(() => {
-    return allAlbums.filter((album: any) => album && album.id);
+    return allAlbums.filter((album: Album) => album && album.id);
   }, [allAlbums]);
 
   const totalCount = albums.length;

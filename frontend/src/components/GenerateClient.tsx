@@ -138,7 +138,7 @@ export function GenerateClient() {
   const canUseLoras = canUseLoRAModels();
   const canUseNegativePrompts = canUseNegativePrompt();
 
-  const updateSettings = (key: keyof GenerationSettings, value: any) => {
+  const updateSettings = (key: keyof GenerationSettings, value: unknown) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
 
     // If the prompt is being changed manually, clear the optimization cache

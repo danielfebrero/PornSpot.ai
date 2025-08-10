@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getAlbums } from "@/lib/data";
-import { Album } from "@/types";
+import { Album, UnifiedPaginationMeta } from "@/types";
 import { DiscoverClient } from "@/components/DiscoverClient";
 import { locales } from "@/i18n";
 import { generateHomepageMetadata } from "@/lib/opengraph";
@@ -46,7 +46,7 @@ export default async function DiscoverPage({
 
   const tag = searchParams.tag;
   let albums: Album[] = [];
-  let pagination: any = null;
+  let pagination: UnifiedPaginationMeta | null = null;
   let error: string | null = null;
 
   try {

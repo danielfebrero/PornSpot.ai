@@ -98,7 +98,7 @@ export function truncateText(text: string, maxLength: number): string {
   return text.slice(0, maxLength) + "...";
 }
 
-export function debounce<T extends (..._args: any[]) => any>(
+export function debounce<T extends (..._args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
@@ -109,7 +109,7 @@ export function debounce<T extends (..._args: any[]) => any>(
   };
 }
 
-export function throttle<T extends (..._args: any[]) => any>(
+export function throttle<T extends (..._args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {

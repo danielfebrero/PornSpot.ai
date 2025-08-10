@@ -201,7 +201,7 @@ export function useTrackView() {
           return {
             ...oldData,
 
-            viewCounts: oldData.viewCounts.map((item: any) => {
+            viewCounts: oldData.viewCounts.map((item: ViewCountItem) => {
               if (
                 item.targetType === targetType &&
                 item.targetId === targetId
@@ -238,7 +238,7 @@ export function useTrackView() {
           // Update existing cache entries
           return {
             ...oldData,
-            viewCounts: oldData.viewCounts.map((item: any) => {
+            viewCounts: oldData.viewCounts.map((item: ViewCountItem) => {
               if (
                 item.targetType === targetType &&
                 item.targetId === targetId
@@ -360,7 +360,7 @@ function updateViewCountInCaches(
 
       return {
         ...oldData,
-        viewCounts: oldData.viewCounts.map((item: any) => {
+        viewCounts: oldData.viewCounts.map((item: ViewCountItem) => {
           if (item.targetType === targetType && item.targetId === targetId) {
             return {
               ...item,

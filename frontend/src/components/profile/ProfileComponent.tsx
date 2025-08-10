@@ -10,7 +10,7 @@ import LocaleLink from "@/components/ui/LocaleLink";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { HorizontalScroll } from "@/components/ui/HorizontalScroll";
 import { Avatar } from "@/components/ui/Avatar";
-import { FrontendMedia as Media, CommentWithTarget as CommentType } from "@/types";
+import { FrontendMedia as Media, CommentWithTarget as CommentType, ThumbnailUrls } from "@/types";
 import { useProfileDataQuery } from "@/hooks/queries/useProfileDataQuery";
 import { useAlbums } from "@/hooks/queries/useAlbumsQuery";
 import { useCommentsQuery } from "@/hooks/queries/useCommentsQuery";
@@ -206,7 +206,7 @@ export default function ProfileComponent({
   ): Promise<{
     success: boolean;
     avatarUrl?: string;
-    avatarThumbnails?: any;
+    avatarThumbnails?: ThumbnailUrls;
   }> => {
     try {
       setIsUploadingAvatar(true);

@@ -45,7 +45,7 @@ export default function UserLikesPage() {
   // Prefetch interaction status for all liked items
   useEffect(() => {
     if (likes.length > 0) {
-      const targets = likes.map((like: any) => ({
+      const targets = likes.map((like: UserInteraction) => ({
         targetType: like.targetType as "album" | "media",
         targetId: like.targetId,
       }));

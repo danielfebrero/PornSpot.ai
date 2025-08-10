@@ -72,7 +72,7 @@ export default function AdminMediaPage() {
         const media = allMedia.find((m) => m.id === mediaId);
         if (media) {
           const album = albums.find((a) =>
-            a.media?.some((m: any) => m.id === mediaId)
+            a.media?.some((m: Media) => m.id === mediaId)
           );
           if (album) {
             if (!mediaByAlbum.has(album.id)) {
@@ -279,7 +279,7 @@ export default function AdminMediaPage() {
               description: "No media items match your current filters.",
             }}
             contentCardProps={{
-              customActions: (item: any) => [
+              customActions: (item: Media) => [
                 {
                   label: selectedMedia.has(item.id) ? "Deselect" : "Select",
                   icon: (

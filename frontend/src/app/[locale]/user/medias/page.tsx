@@ -7,6 +7,7 @@ import LocaleLink from "@/components/ui/LocaleLink";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import { useUserMedia } from "@/hooks/queries/useMediaQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
+import { Media, UnifiedMediaResponse } from "@/types";
 
 const UserMediasPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -26,13 +27,13 @@ const UserMediasPage: React.FC = () => {
   // Extract media from infinite query data
   const allMedias = useMemo(() => {
     return (
-      mediaData?.pages.flatMap((page: any) => page.data?.media || []) || []
+      mediaData?.pages.flatMap((page: UnifiedMediaResponse) => page.media || []) || []
     );
   }, [mediaData]);
 
   // Filter out invalid media before counting
   const medias = useMemo(() => {
-    return allMedias.filter((media: any) => media && media.id);
+    return allMedias.filter((media: Media) => media && media.id);
   }, [allMedias]);
 
   const totalCount = medias.length;

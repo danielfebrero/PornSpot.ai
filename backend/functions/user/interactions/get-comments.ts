@@ -209,7 +209,7 @@ async function getUserComments(
       }
 
       // Convert CommentEntity to Comment format with target details
-      const enrichedComment: Comment & { target?: any } = {
+      const enrichedComment: Comment & { target?: Record<string, unknown> } = {
         id: comment.id,
         content: comment.content,
         targetType: comment.targetType,
