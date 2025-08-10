@@ -19,7 +19,6 @@ import { Album, UnifiedAlbumsResponse } from "@/types";
 
 const UserAlbumsPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [searchTerm, setSearchTerm] = useState("");
   const [editingAlbum, setEditingAlbum] = useState<Album | null>(null);
   const [deletingAlbum, setDeletingAlbum] = useState<Album | null>(null);
 
@@ -108,16 +107,19 @@ const UserAlbumsPage: React.FC = () => {
   );
 
   // Handle album deletion
-  const handleConfirmDelete = useCallback(async () => {
+  const handleConfirmDelete = useCallback(() => {
     if (!deletingAlbum) return;
 
-    try {
-      await deleteAlbumMutation.mutateAsync(deletingAlbum.id);
-      setDeletingAlbum(null);
-    } catch (error) {
-      console.error("Failed to delete album:", error);
-      throw error;
-    }
+    // Close dialog immediately for better UX
+    setDeletingAlbum(null);
+
+    // Trigger the mutation (optimistic update will handle UI changes)
+    deleteAlbumMutation.mutate(deletingAlbum.id, {
+      onError: (error) => {
+        console.error("Failed to delete album:", error);
+        // Note: onError in useDeleteAlbum hook will handle rollback
+      },
+    });
   }, [deletingAlbum, deleteAlbumMutation]);
 
   if (isLoading) {
@@ -326,10 +328,9 @@ const UserAlbumsPage: React.FC = () => {
               <FolderOpen className="h-10 w-10 text-admin-primary" />
             </div>
           ),
-          title: searchTerm ? "No matching albums found" : "No albums yet",
-          description: searchTerm
-            ? `Try adjusting your search for "${searchTerm}"`
-            : "Create your first album to organize your content and start building your collection!",
+          title: "No albums yet",
+          description:
+            "Create your first album to organize your content and start building your collection!",
           action: (
             <div className="flex justify-center space-x-4">
               <LocaleLink href="/user/albums/create">
@@ -363,7 +364,7 @@ const UserAlbumsPage: React.FC = () => {
         open={!!deletingAlbum}
         onClose={() => setDeletingAlbum(null)}
         onConfirm={handleConfirmDelete}
-        loading={deleteAlbumMutation.isPending}
+        loading={false}
       />
     </div>
   );

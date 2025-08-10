@@ -102,8 +102,9 @@ Users can now edit and delete their own albums from the `/user/albums` page. Thi
 1. User clicks "Delete" from album actions menu
 2. Confirmation dialog shows album title and warning
 3. User must confirm the destructive action
-4. Delete API call removes album and all media
-5. Success removes album from UI and shows updated count
+4. **Optimistic UI Update**: Album disappears immediately from the list for better UX
+5. Confirmation dialog closes instantly while API call proceeds in background
+6. If deletion fails, album is restored to the list automatically
 
 ## Responsive Design
 
@@ -163,10 +164,14 @@ Users can now edit and delete their own albums from the `/user/albums` page. Thi
 
 ## Performance Considerations
 
-1. **Optimistic Updates**: UI updates immediately before API calls
+1. **Optimistic Updates**:
+   - **Edit operations**: UI updates immediately before API calls
+   - **Delete operations**: Album disappears from UI instantly, confirmation dialog closes immediately
+   - **Error Recovery**: Failed operations automatically restore previous state
 2. **Lazy Loading**: Heavy dependencies loaded only when needed
 3. **Thumbnail Generation**: Asynchronous with graceful failure
 4. **Caching**: Revalidation triggers for updated content
+5. **Non-blocking UX**: Delete operations don't block the user interface
 
 ## Future Enhancements
 

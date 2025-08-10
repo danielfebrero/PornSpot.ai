@@ -22,10 +22,6 @@ When hovering or tapping on an album card, the thumbnail should change to anothe
 
 I suggest to delete all the tests and write new ones. The current tests are not up to date and do not cover all the functionality. We should write tests for all the components, hooks, and utilities. Both frontend and backend should have tests.
 
-### Never use any
-
-We should avoid using `any` type in TypeScript. Instead, we should define proper types for our data structures.
-
 ## UI/UX
 
 ### Rework Welcome email
@@ -59,10 +55,6 @@ Make sure the album page return all albums, not just the ones created by the use
 ### Delete album tooltip in dropdown should appear on one line
 
 The tooltip for deleting an album in the dropdown menu should be displayed on a single line for better readability and user experience.
-
-### Deleting an album should not wait for api response
-
-When deleting an album, the UI should immediately reflect the deletion without waiting for the API response. This will improve user experience by making the application feel more responsive.
 
 ### Edit an album should update optimistically
 

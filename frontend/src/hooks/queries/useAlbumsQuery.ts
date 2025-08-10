@@ -183,9 +183,12 @@ export function useUpdateAlbum() {
       );
 
       // Optimistically update the cache
-      queryClient.setQueryData(queryKeys.albums.detail(albumId), (old: Album | undefined) => {
-        return old ? { ...old, ...data } : old;
-      });
+      queryClient.setQueryData(
+        queryKeys.albums.detail(albumId),
+        (old: Album | undefined) => {
+          return old ? { ...old, ...data } : old;
+        }
+      );
 
       // Also update in lists
       updateCache.albumInLists({ id: albumId, ...data }, "update");
@@ -231,8 +234,38 @@ export function useDeleteAlbum() {
         queryKeys.albums.detail(albumId)
       );
 
-      // Optimistically remove from lists
-      updateCache.albumInLists({ id: albumId }, "remove");
+      // Optimistically remove from ALL album lists (not just generic lists)
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.albums.lists() },
+        (oldData: any) => {
+          if (!oldData) return oldData;
+
+          // Handle infinite query format
+          if (oldData.pages) {
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page: any) => ({
+                ...page,
+                albums:
+                  page.albums?.filter((album: Album) => album.id !== albumId) ||
+                  [],
+              })),
+            };
+          }
+
+          // Handle regular query format
+          if (oldData.albums) {
+            return {
+              ...oldData,
+              albums: oldData.albums.filter(
+                (album: Album) => album.id !== albumId
+              ),
+            };
+          }
+
+          return oldData;
+        }
+      );
 
       // Remove from detail cache
       queryClient.removeQueries({ queryKey: queryKeys.albums.detail(albumId) });
@@ -247,8 +280,37 @@ export function useDeleteAlbum() {
           queryKeys.albums.detail(albumId),
           context.previousAlbum
         );
+
+        // Restore album to all lists
+        queryClient.setQueriesData(
+          { queryKey: queryKeys.albums.lists() },
+          (oldData: any) => {
+            if (!oldData) return oldData;
+
+            // Handle infinite query format
+            if (oldData.pages) {
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page: any) => ({
+                  ...page,
+                  albums: [context.previousAlbum, ...(page.albums || [])],
+                })),
+              };
+            }
+
+            // Handle regular query format
+            if (oldData.albums) {
+              return {
+                ...oldData,
+                albums: [context.previousAlbum, ...oldData.albums],
+              };
+            }
+
+            return oldData;
+          }
+        );
       }
-      // Invalidate to refetch correct data
+      // Invalidate to refetch correct data as fallback
       invalidateQueries.albumsLists();
     },
     onSuccess: (albumId) => {
