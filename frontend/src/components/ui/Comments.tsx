@@ -58,7 +58,7 @@ export function Comments({
   useEffect(() => {
     if (additionalCommentsData?.pages) {
       const newComments = additionalCommentsData.pages.flatMap(
-        (page) => page.data?.comments || []
+        (page) => page.comments || []
       );
       if (newComments.length > 0) {
         // Filter out comments we already have to avoid duplicates
@@ -75,7 +75,7 @@ export function Comments({
             additionalCommentsData.pages[
               additionalCommentsData.pages.length - 1
             ];
-          setHasMore(!!lastPage.data?.pagination?.hasNext);
+          setHasMore(!!lastPage.pagination?.hasNext);
         }
       }
     }
@@ -103,8 +103,8 @@ export function Comments({
     const statusMap: Record<string, { isLiked: boolean; likeCount: number }> =
       {};
 
-    if (interactionStatusData?.data?.statuses) {
-      interactionStatusData.data.statuses.forEach((status) => {
+    if (interactionStatusData?.statuses) {
+      interactionStatusData.statuses.forEach((status) => {
         if (status.targetType === "comment") {
           statusMap[status.targetId] = {
             isLiked: status.userLiked,
@@ -136,10 +136,7 @@ export function Comments({
       });
 
       // Add new comment to local state
-      if (result.success && result.data) {
-        setComments((prev) => [result.data!, ...prev]);
-      }
-
+      setComments((prev) => [result, ...prev]);
       setNewComment("");
     } catch (err) {
       console.error("Error creating comment:", err);
@@ -155,13 +152,9 @@ export function Comments({
       });
 
       // Update comment in local state
-      if (result.success && result.data) {
-        setComments((prev) =>
-          prev.map((comment) =>
-            comment.id === commentId ? result.data! : comment
-          )
-        );
-      }
+      setComments((prev) =>
+        prev.map((comment) => (comment.id === commentId ? result : comment))
+      );
     } catch (err) {
       console.error("Error updating comment:", err);
     }

@@ -18,7 +18,7 @@ import { ContentCard } from "@/components/ui/ContentCard";
 import { GradientTextarea } from "@/components/ui/GradientTextarea";
 import { MagicText, MagicTextHandle } from "@/components/ui/MagicText";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
-import { FrontendMedia } from "@/types/user";
+import { Media } from "@/types";
 import {
   ImageIcon,
   Crown,
@@ -261,21 +261,16 @@ export function GenerateClient() {
   };
 
   // Convert image URLs to Media objects for the Lightbox component
-  const createMediaFromUrl = (url: string, index: number): FrontendMedia => ({
+  const createMediaFromUrl = (url: string, index: number): Media => ({
     id: `generated-${Date.now()}-${index}`,
     filename: `generated-image-${index + 1}.jpg`,
     originalFilename: `generated-image-${index + 1}.jpg`, // Required by Media interface
     type: "media",
-    originalName: `Generated Image ${index + 1}`, // Frontend convenience field
     url: url,
     mimeType: "image/jpeg",
     size: 0,
-    albumId: "generated", // Frontend-specific field
-    userId: "current-user", // Frontend-specific field
-    uploadedAt: new Date().toISOString(), // Frontend-specific field
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    isPublic: false, // Frontend-specific field
   });
 
   // Open lightbox for thumbnail (from all generated images)

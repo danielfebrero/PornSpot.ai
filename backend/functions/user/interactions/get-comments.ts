@@ -220,7 +220,7 @@ async function getUserComments(
         updatedAt: comment.updatedAt,
         likeCount: comment.likeCount || 0,
         isEdited: comment.isEdited || false,
-        target: targetDetails,
+        target: targetDetails ? targetDetails : undefined,
       };
 
       return enrichedComment;

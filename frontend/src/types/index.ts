@@ -50,7 +50,6 @@ export * from "./permissions";
 
 // Re-export frontend-specific user types
 export type {
-  FrontendMedia,
   CommentWithTarget,
   InteractionRequest,
   UserInteraction,

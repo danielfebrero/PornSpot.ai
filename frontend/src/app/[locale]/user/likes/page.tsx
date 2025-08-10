@@ -6,13 +6,11 @@ import { useLikesQuery } from "@/hooks/queries/useLikesQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { Button } from "@/components/ui/Button";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
-import type { UserInteraction } from "@/types";
+import type { Album, Media, UserInteraction } from "@/types";
 
 // Types for the component
 interface LikesPageData {
-  data?: {
-    interactions: UserInteraction[];
-  };
+  interactions: UserInteraction[];
 }
 
 /**
@@ -52,8 +50,9 @@ const UserLikesPage: React.FC = () => {
   // Extract likes from infinite query data
   const allLikes = useMemo(() => {
     return (
-      likesData?.pages.flatMap((page: LikesPageData) => page.data?.interactions || []) ||
-      []
+      likesData?.pages.flatMap(
+        (page: LikesPageData) => page?.interactions || []
+      ) || []
     );
   }, [likesData]);
 
@@ -178,7 +177,9 @@ const UserLikesPage: React.FC = () => {
 
         {/* Content */}
         <VirtualizedGrid
-          items={likes.map((like) => like.target).filter((item): item is Album | Media => Boolean(item))}
+          items={likes
+            .map((like) => like.target)
+            .filter((item): item is Album | Media => Boolean(item))}
           viewMode={viewMode}
           isLoading={isLoading}
           hasNextPage={hasMore}
@@ -195,7 +196,12 @@ const UserLikesPage: React.FC = () => {
             showCounts: true,
             preferredThumbnailSize: viewMode === "grid" ? "medium" : "large",
           }}
-          mediaList={likes.filter((like) => like.targetType === "media").map((like) => like.target).filter((item): item is Media => Boolean(item) && item.type === "media")}
+          mediaList={likes
+            .filter((like) => like.targetType === "media")
+            .map((like) => like.target)
+            .filter(
+              (item): item is Media => Boolean(item) && item.type === "media"
+            )}
           emptyState={{
             icon: (
               <div className="w-20 h-20 bg-gradient-to-br from-red-500/20 to-pink-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6">

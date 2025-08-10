@@ -87,7 +87,10 @@ export function UserAlbumForm({
     fetchUserMedia();
   }, [tForm]);
 
-  const handleInputChange = (field: keyof UserAlbumFormData, value: string | boolean | string[]) => {
+  const handleInputChange = (
+    field: keyof UserAlbumFormData,
+    value: string | boolean | string[]
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
@@ -138,6 +141,7 @@ export function UserAlbumForm({
   };
 
   const handleCoverSelect = (coverImageId?: string) => {
+    if (!coverImageId) return;
     handleInputChange("coverImageId", coverImageId);
   };
 

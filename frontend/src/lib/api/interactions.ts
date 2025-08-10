@@ -1,22 +1,19 @@
 import {
   InteractionRequest,
-  InteractionResponse,
   UnifiedUserInteractionsResponse,
   UnifiedCommentsResponse,
+  CommentWithTarget,
 } from "@/types/user";
-import {
-  CreateCommentRequest,
-  UpdateCommentRequest,
-  CommentResponse,
-  CommentListResponse,
-} from "@/types";
+import { CreateCommentRequest, UpdateCommentRequest } from "@/types";
 import { ApiUtil } from "../api-util";
 
 // User Interaction API Functions
 export const interactionApi = {
   // Like/Unlike content
-  like: async (request: InteractionRequest): Promise<InteractionResponse> => {
-    const response = await ApiUtil.post<InteractionResponse>(
+  like: async (
+    request: InteractionRequest
+  ): Promise<UnifiedUserInteractionsResponse> => {
+    const response = await ApiUtil.post<UnifiedUserInteractionsResponse>(
       "/user/interactions/like",
       request
     );
@@ -26,8 +23,8 @@ export const interactionApi = {
   // Bookmark/Unbookmark content
   bookmark: async (
     request: InteractionRequest
-  ): Promise<InteractionResponse> => {
-    const response = await ApiUtil.post<InteractionResponse>(
+  ): Promise<UnifiedUserInteractionsResponse> => {
+    const response = await ApiUtil.post<UnifiedUserInteractionsResponse>(
       "/user/interactions/bookmark",
       request
     );
@@ -97,8 +94,16 @@ export const interactionApi = {
       targetId: string;
     }>
   ): Promise<{
-    success: boolean;
-    data: {
+    statuses: Array<{
+      targetType: "album" | "media" | "comment";
+      targetId: string;
+      userLiked: boolean;
+      userBookmarked: boolean;
+      likeCount: number;
+      bookmarkCount: number;
+    }>;
+  }> => {
+    const response = await ApiUtil.post<{
       statuses: Array<{
         targetType: "album" | "media" | "comment";
         targetId: string;
@@ -107,20 +112,6 @@ export const interactionApi = {
         likeCount: number;
         bookmarkCount: number;
       }>;
-    };
-  }> => {
-    const response = await ApiUtil.post<{
-      success: boolean;
-      data: {
-        statuses: Array<{
-          targetType: "album" | "media" | "comment";
-          targetId: string;
-          userLiked: boolean;
-          userBookmarked: boolean;
-          likeCount: number;
-          bookmarkCount: number;
-        }>;
-      };
     }>("/user/interactions/status", { targets });
     return ApiUtil.extractData(response);
   },
@@ -131,8 +122,8 @@ export const interactionApi = {
     targetId: string,
     limit: number = 20,
     cursor?: string
-  ): Promise<CommentListResponse> => {
-    const response = await ApiUtil.get<CommentListResponse>(
+  ): Promise<UnifiedCommentsResponse> => {
+    const response = await ApiUtil.get<UnifiedCommentsResponse>(
       `/user/interactions/comments/${targetType}/${targetId}`,
       { limit, cursor }
     );
@@ -154,8 +145,8 @@ export const interactionApi = {
 
   createComment: async (
     request: CreateCommentRequest
-  ): Promise<CommentResponse> => {
-    const response = await ApiUtil.post<CommentResponse>(
+  ): Promise<CommentWithTarget> => {
+    const response = await ApiUtil.post<CommentWithTarget>(
       "/user/interactions/comment",
       request
     );
@@ -165,8 +156,8 @@ export const interactionApi = {
   updateComment: async (
     commentId: string,
     request: UpdateCommentRequest
-  ): Promise<CommentResponse> => {
-    const response = await ApiUtil.put<CommentResponse>(
+  ): Promise<CommentWithTarget> => {
+    const response = await ApiUtil.put<CommentWithTarget>(
       `/user/interactions/comment/${commentId}`,
       request
     );

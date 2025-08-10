@@ -47,7 +47,7 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
     useToggleLike();
 
   // Extract status from query data
-  const currentStatus = interactionData?.data?.statuses?.[0];
+  const currentStatus = interactionData?.statuses?.[0];
   const isLiked = currentStatus?.userLiked ?? false;
   const likeCount = currentStatus?.likeCount ?? 0;
 

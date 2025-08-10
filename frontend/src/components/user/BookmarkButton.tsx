@@ -46,7 +46,7 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
     useToggleBookmark();
 
   // Extract status from query data
-  const currentStatus = interactionData?.data?.statuses?.[0];
+  const currentStatus = interactionData?.statuses?.[0];
   const isBookmarked = currentStatus?.userBookmarked ?? false;
   const bookmarkCount = currentStatus?.bookmarkCount ?? 0;
 

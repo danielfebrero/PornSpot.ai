@@ -7,7 +7,6 @@ import type {
   Comment as SharedComment,
   UserLoginRequest,
   UserRegistrationRequest,
-  GenerationMetadata,
 } from "shared-types";
 import type { UserInteraction as BaseUserInteraction } from "shared-types";
 
@@ -21,22 +20,12 @@ export interface InteractionRequest {
 
 // Frontend-specific user interaction (with target enrichment, extends all base properties)
 export interface UserInteraction extends BaseUserInteraction {
-  target?: Media | Album; // Added for enriched interactions
-}
-
-// Frontend-specific Media type with additional fields for generated content
-export interface FrontendMedia extends Media {
-  albumId?: string; // For generated images or media belonging to specific albums
-  originalName?: string; // Alternative to originalFilename for generated content
-  uploadedAt?: string; // For generated content timing
-  userId?: string; // For user-generated content
-  isPublic?: boolean; // For generated content visibility
-  metadata?: GenerationMetadata; // Override with more specific metadata type
+  target: Media | Album; // Added for enriched interactions
 }
 
 // Comment type with target enrichment for frontend display
 export interface CommentWithTarget extends SharedComment {
-  target?: Media | Album; // Added for enriched comments from getUserComments API
+  target: Media | Album; // Added for enriched comments from getUserComments API
 }
 
 // Frontend-specific authentication response types (with error field)
@@ -255,6 +244,15 @@ export interface GetPublicProfileResponse {
 // Frontend-specific unified response types for user interactions
 export interface UnifiedUserInteractionsResponse {
   interactions: UserInteraction[];
+  pagination: {
+    hasNext: boolean;
+    cursor: string | null;
+    limit: number;
+  };
+}
+
+export interface UnifiedCommentsResponse {
+  comments: CommentWithTarget[];
   pagination: {
     hasNext: boolean;
     cursor: string | null;

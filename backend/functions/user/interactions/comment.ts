@@ -77,14 +77,16 @@ async function createComment(
     return ResponseUtil.unauthorized(event, "User not found or inactive");
   }
 
+  let album, media;
+
   // Verify target exists
   if (targetType === "album") {
-    const album = await DynamoDBService.getAlbum(targetId);
+    album = await DynamoDBService.getAlbum(targetId);
     if (!album) {
       return ResponseUtil.notFound(event, "Album not found");
     }
   } else {
-    const media = await DynamoDBService.getMedia(targetId);
+    media = await DynamoDBService.getMedia(targetId);
     if (!media) {
       return ResponseUtil.notFound(event, "Media not found");
     }
@@ -136,6 +138,7 @@ async function createComment(
   return ResponseUtil.success(event, {
     id: commentId,
     content: commentEntity.content,
+    target: targetType === "album" ? album : media,
     targetType,
     targetId,
     userId: user.userId,

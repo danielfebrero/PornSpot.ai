@@ -10,7 +10,11 @@ import LocaleLink from "@/components/ui/LocaleLink";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { HorizontalScroll } from "@/components/ui/HorizontalScroll";
 import { Avatar } from "@/components/ui/Avatar";
-import { FrontendMedia as Media, CommentWithTarget as CommentType, ThumbnailUrls } from "@/types";
+import {
+  Media,
+  CommentWithTarget as CommentType,
+  ThumbnailUrls,
+} from "@/types";
 import { useProfileDataQuery } from "@/hooks/queries/useProfileDataQuery";
 import { useAlbums } from "@/hooks/queries/useAlbumsQuery";
 import { useCommentsQuery } from "@/hooks/queries/useCommentsQuery";
@@ -130,8 +134,8 @@ export default function ProfileComponent({
   useEffect(() => {
     if (recentLikes.length > 0 && loggedInUser) {
       const targets = recentLikes.map((item) => ({
-        targetType: item.type as "album" | "media",
-        targetId: item.id,
+        targetType: item.targetType as "album" | "media",
+        targetId: item.targetId,
       }));
 
       // Preload the current logged-in user's statuses for these items
@@ -256,7 +260,8 @@ export default function ProfileComponent({
   } = useCommentsQuery({ username: currentUser.username || "", limit: 3 });
 
   // Extract recent comments from paginated data (only need first page for profile preview)
-  const recentComments: CommentType[] = (commentsData?.pages[0]?.comments || []) as unknown as CommentType[];
+  const recentComments: CommentType[] = (commentsData?.pages[0]?.comments ||
+    []) as unknown as CommentType[];
 
   // Get real recent albums using TanStack Query
   const {
@@ -1088,13 +1093,13 @@ export default function ProfileComponent({
                   >
                     {recentLikes.map((item) => (
                       <ContentCard
-                        key={item.id}
-                        item={item}
+                        key={item.targetId}
+                        item={item.target}
                         showTags={false}
                         context="albums"
                         className="w-full"
-                        canAddToAlbum={item.type !== "album"} // Disable for albums
-                        canFullscreen={item.type !== "album"} // Disable for albums
+                        canAddToAlbum={item.targetType !== "album"} // Disable for albums
+                        canFullscreen={item.targetType !== "album"} // Disable for albums
                       />
                     ))}
                   </HorizontalScroll>

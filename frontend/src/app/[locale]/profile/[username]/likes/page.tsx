@@ -11,7 +11,7 @@ import LocaleLink from "@/components/ui/LocaleLink";
 import { useLikesQuery } from "@/hooks/queries/useLikesQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { cn } from "@/lib/utils";
-import { Media } from "@/types";
+import { Media, UserInteraction } from "@/types";
 import { useDevice } from "@/contexts/DeviceContext";
 
 export default function UserLikesPage() {

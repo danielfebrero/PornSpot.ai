@@ -20,7 +20,7 @@ import {
   Bot,
   Hash,
 } from "lucide-react";
-import { FrontendMedia as Media } from "@/types";
+import { Media } from "@/types";
 import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { useNavigationLoading } from "@/contexts/NavigationLoadingContext";
@@ -183,13 +183,8 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
     const targets: Array<{ targetType: "album" | "media"; targetId: string }> =
       [{ targetType: "media", targetId: media.id }];
 
-    // Add album target if media has albumId
-    if (media.albumId) {
-      targets.push({ targetType: "album", targetId: media.albumId });
-    }
-
     return targets;
-  }, [media.id, media.albumId]);
+  }, [media.id]);
 
   // Prefetch view counts in the background
   useBulkViewCounts(viewCountTargets, { enabled: viewCountTargets.length > 0 });
@@ -408,7 +403,10 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                 icon={<Bot className="w-5 h-5" />}
                 title="Generation Parameters"
               >
-                <GenerationPrompt title="Prompt" prompt={String(metadata.prompt)} />
+                <GenerationPrompt
+                  title="Prompt"
+                  prompt={String(metadata.prompt)}
+                />
                 {metadata.negativePrompt && (
                   <GenerationPrompt
                     title="Negative Prompt"
@@ -418,59 +416,62 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
               </MetaSection>
             )}
 
-            {Array.isArray(metadata.loraModels) && metadata.loraModels.length > 0 && (
-              <MetaSection
-                icon={<Palette className="w-5 h-5" />}
-                title="LoRA Models"
-              >
-                <div className="space-y-2">
-                  {metadata.loraModels.map((lora: string, index: number) => (
-                    <InfoPill
-                      key={index}
-                      icon={<Hash className="w-4 h-4" />}
-                      label={lora}
-                      value={
-                        typeof metadata.loraStrengths === 'object' && metadata.loraStrengths
-                          ? String(metadata.loraStrengths[lora] || "N/A")
-                          : "N/A"
-                      }
-                      isTag
-                    />
-                  ))}
-                </div>
-              </MetaSection>
-            )}
-
-            {Array.isArray(metadata.bulkSiblings) && metadata.bulkSiblings.length > 0 && (
-              <MetaSection
-                icon={<Layers className="w-5 h-5" />}
-                title="Related Images"
-              >
-                <HorizontalScroll
-                  itemWidth="150px"
-                  gap="small"
-                  showArrows={true}
-                  className="w-full"
+            {/* {Array.isArray(metadata.loraModels) &&
+              metadata.loraModels.length > 0 && (
+                <MetaSection
+                  icon={<Palette className="w-5 h-5" />}
+                  title="LoRA Models"
                 >
-                  {metadata.bulkSiblings.map(
-                    (siblingId: string, index: number) => (
-                      <button
-                        key={siblingId}
-                        onClick={() => {
-                          startNavigation("media");
-                          router.push(`/media/${siblingId}`);
-                        }}
-                        className="aspect-square bg-muted/50 rounded-lg overflow-hidden hover:ring-2 hover:ring-primary transition-all hover:scale-[1.02] w-full"
-                      >
-                        <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
-                          Image {index + 1}
-                        </div>
-                      </button>
-                    )
-                  )}
-                </HorizontalScroll>
-              </MetaSection>
-            )}
+                  <div className="space-y-2">
+                    {metadata.loraModels.map((lora: string, index: number) => (
+                      <InfoPill
+                        key={index}
+                        icon={<Hash className="w-4 h-4" />}
+                        label={lora}
+                        value={
+                          typeof metadata.loraStrengths === "object" &&
+                          metadata.loraStrengths
+                            ? String(metadata.loraStrengths[lora] || "N/A")
+                            : "N/A"
+                        }
+                        isTag
+                      />
+                    ))}
+                  </div>
+                </MetaSection>
+              )} */}
+
+            {Array.isArray(metadata.bulkSiblings) &&
+              metadata.bulkSiblings.length > 0 && (
+                <MetaSection
+                  icon={<Layers className="w-5 h-5" />}
+                  title="Related Images"
+                >
+                  <HorizontalScroll
+                    itemWidth="150px"
+                    gap="small"
+                    showArrows={true}
+                    className="w-full"
+                  >
+                    {metadata.bulkSiblings.map(
+                      (siblingId: string, index: number) => (
+                        <button
+                          key={siblingId}
+                          onClick={() => {
+                            startNavigation("media");
+                            router.push(`/media/${siblingId}`);
+                          }}
+                          className="aspect-square bg-muted/50 rounded-lg overflow-hidden hover:ring-2 hover:ring-primary transition-all hover:scale-[1.02] w-full"
+                        >
+                          <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                            Image {index + 1}
+                          </div>
+                        </button>
+                      )
+                    )}
+                  </HorizontalScroll>
+                </MetaSection>
+              )}
 
             <MetaSection
               icon={<FolderOpen className="w-5 h-5" />}

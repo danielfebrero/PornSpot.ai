@@ -7,8 +7,12 @@ import {
   updateCache,
   invalidateQueries,
 } from "@/lib/queryClient";
-import { InteractionRequest, UnifiedUserInteractionsResponse, UnifiedCommentsResponse } from "@/types/user";
-import { CommentListResponse } from "@/types"; 
+import {
+  InteractionRequest,
+  UnifiedUserInteractionsResponse,
+  UnifiedCommentsResponse,
+} from "@/types/user";
+import { CommentListResponse } from "@/types";
 import { usePrefetchContext } from "@/contexts/PrefetchContext";
 import { useUserContext } from "@/contexts/UserContext";
 
@@ -28,11 +32,7 @@ interface InteractionTarget {
 }
 
 interface InteractionStatusResponse {
-  success: boolean;
-  data: {
-    statuses: InteractionStatus[];
-  };
-  error?: string;
+  statuses: InteractionStatus[];
 }
 
 // Hook for fetching user interaction status (like/bookmark status for items)
@@ -56,7 +56,7 @@ export function useInteractionStatus(
     queryKey: queryKeys.user.interactions.status(targets),
     queryFn: async () => {
       if (targets.length === 0) {
-        return { data: { statuses: [] } };
+        return { statuses: [] };
       }
 
       // If prefetching is in progress, wait for it to complete
@@ -94,7 +94,7 @@ export function useInteractionStatusFromCache(targets: InteractionTarget[]) {
     queryKey: queryKeys.user.interactions.status(targets),
     queryFn: async () => {
       // This should never be called since enabled is false, but just in case
-      return { success: true, data: { statuses: [] } };
+      return { statuses: [] };
     },
     enabled: false, // Never fetch - only read from cache
     // Return cached data immediately if available
@@ -123,8 +123,8 @@ export function useBookmarks(params: { limit?: number } = {}) {
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage: UnifiedUserInteractionsResponse) => {
-      return lastPage.data?.pagination?.hasNext
-        ? lastPage.data.pagination.cursor
+      return lastPage.pagination?.hasNext
+        ? lastPage.pagination.cursor
         : undefined;
     },
     // Keep bookmarks fresh for 1 minute
@@ -153,8 +153,8 @@ export function useLikes(targetUser?: string, params: { limit?: number } = {}) {
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage: UnifiedUserInteractionsResponse) => {
-      return lastPage.data?.pagination?.hasNext
-        ? lastPage.data.pagination.cursor
+      return lastPage.pagination?.hasNext
+        ? lastPage.pagination.cursor
         : undefined;
     },
     enabled: !!targetUser || true, // Always enabled for own likes, enabled only if targetUser provided for others
@@ -180,8 +180,8 @@ export function useComments(username: string, params: { limit?: number } = {}) {
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage: UnifiedCommentsResponse) => {
-      return lastPage.data?.pagination?.hasNext
-        ? lastPage.data.pagination.cursor
+      return lastPage.pagination?.hasNext
+        ? lastPage.pagination.cursor
         : undefined;
     },
     enabled: !!username,
@@ -209,9 +209,9 @@ export function useTargetComments(
       );
     },
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage: CommentListResponse) => {
+    getNextPageParam: (lastPage: UnifiedCommentsResponse) => {
       // Check if using cursor-based or page-based pagination based on response
-      if (lastPage.data?.pagination?.hasNext) {
+      if (lastPage.pagination?.hasNext) {
         // If it's actually using cursor-based (as suggested by the cursor param)
         // we need to return a cursor, but CommentListResponse doesn't have it
         // For now, return undefined to disable infinite scrolling until fixed
@@ -273,45 +273,41 @@ export function useToggleLike() {
         queryKeys.user.interactions.status(targets),
         (oldData: InteractionStatusResponse | undefined) => {
           // If there's no existing data, create the structure with the optimistic update
-          if (!oldData?.data?.statuses) {
+          if (!oldData?.statuses) {
             return {
               success: true,
-              data: {
-                statuses: [
-                  {
-                    targetType,
-                    targetId,
-                    userLiked: newLikedState,
-                    userBookmarked: false,
-                    likeCount: newLikedState ? 1 : 0,
-                    bookmarkCount: 0,
-                  },
-                ],
-              },
+              statuses: [
+                {
+                  targetType,
+                  targetId,
+                  userLiked: newLikedState,
+                  userBookmarked: false,
+                  likeCount: newLikedState ? 1 : 0,
+                  bookmarkCount: 0,
+                },
+              ],
             };
           }
 
           return {
             ...oldData,
-            data: {
-              ...oldData.data,
-              statuses: oldData.data.statuses.map((status) => {
-                if (
-                  status.targetType === targetType &&
-                  status.targetId === targetId
-                ) {
-                  return {
-                    ...status,
-                    userLiked: newLikedState,
-                    likeCount: Math.max(
-                      0,
-                      (status.likeCount || 0) + countIncrement
-                    ),
-                  };
-                }
-                return status;
-              }),
-            },
+            ...oldData,
+            statuses: oldData.statuses.map((status) => {
+              if (
+                status.targetType === targetType &&
+                status.targetId === targetId
+              ) {
+                return {
+                  ...status,
+                  userLiked: newLikedState,
+                  likeCount: Math.max(
+                    0,
+                    (status.likeCount || 0) + countIncrement
+                  ),
+                };
+              }
+              return status;
+            }),
           };
         }
       );
@@ -430,45 +426,39 @@ export function useToggleBookmark() {
         queryKeys.user.interactions.status(targets),
         (oldData: InteractionStatusResponse | undefined) => {
           // If there's no existing data, create the structure with the optimistic update
-          if (!oldData?.data?.statuses) {
+          if (!oldData?.statuses) {
             return {
-              success: true,
-              data: {
-                statuses: [
-                  {
-                    targetType,
-                    targetId,
-                    userLiked: false,
-                    userBookmarked: newBookmarkedState,
-                    likeCount: 0,
-                    bookmarkCount: newBookmarkedState ? 1 : 0,
-                  },
-                ],
-              },
+              statuses: [
+                {
+                  targetType,
+                  targetId,
+                  userLiked: false,
+                  userBookmarked: newBookmarkedState,
+                  likeCount: 0,
+                  bookmarkCount: newBookmarkedState ? 1 : 0,
+                },
+              ],
             };
           }
 
           return {
             ...oldData,
-            data: {
-              ...oldData.data,
-              statuses: oldData.data.statuses.map((status) => {
-                if (
-                  status.targetType === targetType &&
-                  status.targetId === targetId
-                ) {
-                  return {
-                    ...status,
-                    userBookmarked: newBookmarkedState,
-                    bookmarkCount: Math.max(
-                      0,
-                      (status.bookmarkCount || 0) + countIncrement
-                    ),
-                  };
-                }
-                return status;
-              }),
-            },
+            statuses: oldData.statuses.map((status) => {
+              if (
+                status.targetType === targetType &&
+                status.targetId === targetId
+              ) {
+                return {
+                  ...status,
+                  userBookmarked: newBookmarkedState,
+                  bookmarkCount: Math.max(
+                    0,
+                    (status.bookmarkCount || 0) + countIncrement
+                  ),
+                };
+              }
+              return status;
+            }),
           };
         }
       );
@@ -585,9 +575,9 @@ export function usePrefetchInteractionStatus() {
               queryKeys.user.interactions.status(singleTarget)
             ) as InteractionStatusResponse | undefined;
 
-            if (cachedData?.data?.statuses?.[0]) {
+            if (cachedData?.statuses?.[0]) {
               // Use cached data for this target
-              cachedStatuses.push(cachedData.data.statuses[0]);
+              cachedStatuses.push(cachedData.statuses[0]);
             } else {
               // Need to fetch this target
               targetsNeedingFetch.push(target);
@@ -602,8 +592,8 @@ export function usePrefetchInteractionStatus() {
               targetsNeedingFetch
             );
 
-            if (result.data?.statuses) {
-              fetchedStatuses = result.data.statuses;
+            if (result?.statuses) {
+              fetchedStatuses = result.statuses;
 
               // Populate individual query caches from bulk response
               fetchedStatuses.forEach((status) => {
@@ -617,9 +607,7 @@ export function usePrefetchInteractionStatus() {
                 queryClient.setQueryData(
                   queryKeys.user.interactions.status(singleTarget),
                   {
-                    data: {
-                      statuses: [status],
-                    },
+                    statuses: [status],
                   }
                 );
               });
@@ -630,9 +618,7 @@ export function usePrefetchInteractionStatus() {
           const allStatuses = [...cachedStatuses, ...fetchedStatuses];
 
           return {
-            data: {
-              statuses: allStatuses,
-            },
+            statuses: allStatuses,
           };
         },
         staleTime: 30 * 1000, // 30 seconds

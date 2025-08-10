@@ -10,16 +10,13 @@ interface CommentsQueryParams {
   limit?: number;
 }
 
-// Use the new unified response type
-type CommentsResponse = UnifiedCommentsResponse;
-
 // Hook for fetching user's comments with infinite scroll
 export function useCommentsQuery(params: CommentsQueryParams) {
   const { username, limit = 20 } = params;
 
   return useInfiniteQuery({
     queryKey: queryKeys.user.interactions.comments({ username, limit }),
-    queryFn: async ({ pageParam }): Promise<CommentsResponse> => {
+    queryFn: async ({ pageParam }): Promise<UnifiedCommentsResponse> => {
       return await interactionApi.getCommentsByUsername(
         username,
         limit,
@@ -27,7 +24,7 @@ export function useCommentsQuery(params: CommentsQueryParams) {
       );
     },
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage: CommentsResponse) => {
+    getNextPageParam: (lastPage: UnifiedCommentsResponse) => {
       return lastPage.pagination.hasNext
         ? lastPage.pagination.cursor
         : undefined;
@@ -59,9 +56,9 @@ export function useTargetComments(
       );
     },
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage: CommentsResponse) => {
-      return lastPage.data?.pagination?.hasNext
-        ? lastPage.data.pagination.cursor
+    getNextPageParam: (lastPage: UnifiedCommentsResponse) => {
+      return lastPage?.pagination?.hasNext
+        ? lastPage.pagination.cursor
         : undefined;
     },
     enabled: enabled && !!targetType && !!targetId,
@@ -77,14 +74,12 @@ export function useCreateComment() {
       return await interactionApi.createComment(request);
     },
     onSuccess: (response, variables) => {
-      if (response.success && response.data) {
-        const { targetType, targetId } = variables;
+      const { targetType, targetId } = variables;
 
-        // Invalidate target comments query to ensure consistency if used elsewhere
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.comments.byTarget(targetType, targetId),
-        });
-      }
+      // Invalidate target comments query to ensure consistency if used elsewhere
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.comments.byTarget(targetType, targetId),
+      });
     },
   });
 }
@@ -97,12 +92,10 @@ export function useUpdateComment() {
       });
     },
     onSuccess: (response) => {
-      if (response.success && response.data) {
-        // Invalidate all comment queries to ensure consistency
-        queryClient.invalidateQueries({
-          queryKey: ["comments"],
-        });
-      }
+      // Invalidate all comment queries to ensure consistency
+      queryClient.invalidateQueries({
+        queryKey: ["comments"],
+      });
     },
   });
 }

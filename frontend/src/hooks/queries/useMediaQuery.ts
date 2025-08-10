@@ -263,7 +263,7 @@ export function useBulkAddMediaToAlbum() {
             if (newPages[0]?.media) {
               newPages[0] = {
                 ...newPages[0],
-                media: [...mediaItems as Media[], ...newPages[0].media],
+                media: [...(mediaItems as Media[]), ...newPages[0].media],
               };
             }
 
@@ -345,10 +345,7 @@ export function useRemoveMediaFromAlbum() {
 
           const newPages = old.pages.map((page) => ({
             ...page,
-            data: {
-              ...page.data,
-              media: page.data.media.filter((m) => m.id !== mediaId),
-            },
+            media: page.media.filter((m) => m.id !== mediaId),
           }));
 
           return {
@@ -424,12 +421,7 @@ export function useBulkRemoveMediaFromAlbum() {
 
           const newPages = old.pages.map((page) => ({
             ...page,
-            data: {
-              ...page.data,
-              media: page.data.media.filter(
-                (m) => !mediaIds.includes(m.id)
-              ),
-            },
+            media: page.media.filter((m) => !mediaIds.includes(m.id)),
           }));
 
           return {
@@ -497,22 +489,22 @@ export function useDeleteMedia() {
       // Optimistically remove the media from all album media infinite queries
       albumMediaQueries.forEach(([queryKey, data]) => {
         if (data) {
-          queryClient.setQueryData(queryKey, (old: InfiniteMediaQueryData | undefined) => {
-            if (!old?.pages) return old;
+          queryClient.setQueryData(
+            queryKey,
+            (old: InfiniteMediaQueryData | undefined) => {
+              if (!old?.pages) return old;
 
-            const newPages = old.pages.map((page) => ({
-              ...page,
-              data: {
-                ...page.data,
-                media: page.data.media.filter((m) => m.id !== mediaId),
-              },
-            }));
+              const newPages = old.pages.map((page) => ({
+                ...page,
+                media: page.media.filter((m) => m.id !== mediaId),
+              }));
 
-            return {
-              ...old,
-              pages: newPages,
-            };
-          });
+              return {
+                ...old,
+                pages: newPages,
+              };
+            }
+          );
         }
       });
 
@@ -524,10 +516,7 @@ export function useDeleteMedia() {
 
           const newPages = old.pages.map((page) => ({
             ...page,
-            data: {
-              ...page.data,
-              media: page.data.media.filter((m) => m.id !== mediaId),
-            },
+            media: page.media.filter((m) => m.id !== mediaId),
           }));
 
           return {
