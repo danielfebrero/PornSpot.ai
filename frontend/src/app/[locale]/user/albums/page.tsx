@@ -83,7 +83,7 @@ const UserAlbumsPage: React.FC = () => {
 
   // Handle album update
   const handleUpdateAlbum = useCallback(
-    async (
+    (
       albumId: string,
       data: {
         title?: string;
@@ -92,16 +92,22 @@ const UserAlbumsPage: React.FC = () => {
         coverImageUrl?: string;
       }
     ) => {
-      try {
-        await updateAlbumMutation.mutateAsync({
+      // Close dialog immediately for better UX
+      setEditingAlbum(null);
+
+      // Trigger the mutation (optimistic update will handle UI changes)
+      updateAlbumMutation.mutate(
+        {
           albumId,
           data,
-        });
-        setEditingAlbum(null);
-      } catch (error) {
-        console.error("Failed to update album:", error);
-        throw error;
-      }
+        },
+        {
+          onError: (error) => {
+            console.error("Failed to update album:", error);
+            // Note: onError in useUpdateAlbum hook will handle rollback
+          },
+        }
+      );
     },
     [updateAlbumMutation]
   );
@@ -355,7 +361,7 @@ const UserAlbumsPage: React.FC = () => {
         open={!!editingAlbum}
         onClose={() => setEditingAlbum(null)}
         onSave={handleUpdateAlbum}
-        loading={updateAlbumMutation.isPending}
+        loading={false}
       />
 
       {/* Delete Album Dialog */}

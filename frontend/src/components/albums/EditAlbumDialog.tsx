@@ -43,7 +43,7 @@ interface EditAlbumDialogProps {
       isPublic?: boolean;
       coverImageUrl?: string;
     }
-  ) => Promise<void>;
+  ) => void;
   loading?: boolean;
 }
 
@@ -106,14 +106,16 @@ export function EditAlbumDialog({
       );
 
       // Sort media so that images already in the album appear first
-      const sortedMedia = mediaWithSelection.sort((a: MediaWithSelection, b: MediaWithSelection) => {
-        // If a is selected and b is not, a comes first
-        if (a.selected && !b.selected) return -1;
-        // If b is selected and a is not, b comes first
-        if (b.selected && !a.selected) return 1;
-        // If both have the same selection status, maintain original order
-        return 0;
-      });
+      const sortedMedia = mediaWithSelection.sort(
+        (a: MediaWithSelection, b: MediaWithSelection) => {
+          // If a is selected and b is not, a comes first
+          if (a.selected && !b.selected) return -1;
+          // If b is selected and a is not, b comes first
+          if (b.selected && !a.selected) return 1;
+          // If both have the same selection status, maintain original order
+          return 0;
+        }
+      );
 
       setUserMedia(sortedMedia);
     } catch (err) {
@@ -236,16 +238,17 @@ export function EditAlbumDialog({
     setSaving(true);
     try {
       // Apply media changes first
-      await applyMediaChanges();
+      applyMediaChanges();
 
       // Then update album details
-      await onSave(album.id, {
+      onSave(album.id, {
         title: title.trim(),
         tags,
         isPublic,
         coverImageUrl: coverImageUrl.trim() || undefined,
       });
-      onClose();
+      // Note: Don't call onClose() here as the parent component
+      // handles closing the dialog immediately for better UX
     } catch (error) {
       console.error("Failed to save album:", error);
     } finally {

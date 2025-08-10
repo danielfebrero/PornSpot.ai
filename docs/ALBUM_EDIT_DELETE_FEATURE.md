@@ -94,8 +94,9 @@ Users can now edit and delete their own albums from the `/user/albums` page. Thi
 2. Modal dialog opens with current album data pre-populated
 3. User can modify title, tags, visibility, and cover image
 4. Form validation ensures title is not empty
-5. Save triggers API call and updates local state
-6. Success closes dialog and shows updated album
+5. **Optimistic UI Update**: Changes appear immediately in the UI
+6. Dialog closes instantly while API call proceeds in background
+7. If update fails, changes are automatically reverted
 
 ### Delete Flow
 
@@ -165,9 +166,10 @@ Users can now edit and delete their own albums from the `/user/albums` page. Thi
 ## Performance Considerations
 
 1. **Optimistic Updates**:
-   - **Edit operations**: UI updates immediately before API calls
+   - **Edit operations**: Changes appear immediately in UI across all album lists
    - **Delete operations**: Album disappears from UI instantly, confirmation dialog closes immediately
-   - **Error Recovery**: Failed operations automatically restore previous state
+   - **Error Recovery**: Failed operations automatically restore previous state across all relevant caches
+   - **Cache Strategy**: Updates all album list queries (user-specific, public lists, etc.) simultaneously
 2. **Lazy Loading**: Heavy dependencies loaded only when needed
 3. **Thumbnail Generation**: Asynchronous with graceful failure
 4. **Caching**: Revalidation triggers for updated content

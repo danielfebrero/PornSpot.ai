@@ -182,7 +182,7 @@ export function useUpdateAlbum() {
         queryKeys.albums.detail(albumId)
       );
 
-      // Optimistically update the cache
+      // Optimistically update the detail cache
       queryClient.setQueryData(
         queryKeys.albums.detail(albumId),
         (old: Album | undefined) => {
@@ -190,8 +190,39 @@ export function useUpdateAlbum() {
         }
       );
 
-      // Also update in lists
-      updateCache.albumInLists({ id: albumId, ...data }, "update");
+      // Optimistically update ALL album lists (not just generic lists)
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.albums.lists() },
+        (oldData: any) => {
+          if (!oldData) return oldData;
+
+          // Handle infinite query format
+          if (oldData.pages) {
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page: any) => ({
+                ...page,
+                albums:
+                  page.albums?.map((album: Album) =>
+                    album.id === albumId ? { ...album, ...data } : album
+                  ) || [],
+              })),
+            };
+          }
+
+          // Handle regular query format
+          if (oldData.albums) {
+            return {
+              ...oldData,
+              albums: oldData.albums.map((album: Album) =>
+                album.id === albumId ? { ...album, ...data } : album
+              ),
+            };
+          }
+
+          return oldData;
+        }
+      );
 
       // Return context with previous data for rollback
       return { previousAlbum, albumId };
@@ -203,15 +234,84 @@ export function useUpdateAlbum() {
           queryKeys.albums.detail(context.albumId),
           context.previousAlbum
         );
+
+        // Restore previous album state in all lists
+        queryClient.setQueriesData(
+          { queryKey: queryKeys.albums.lists() },
+          (oldData: any) => {
+            if (!oldData) return oldData;
+
+            // Handle infinite query format
+            if (oldData.pages) {
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page: any) => ({
+                  ...page,
+                  albums:
+                    page.albums?.map((album: Album) =>
+                      album.id === context.albumId
+                        ? context.previousAlbum
+                        : album
+                    ) || [],
+                })),
+              };
+            }
+
+            // Handle regular query format
+            if (oldData.albums) {
+              return {
+                ...oldData,
+                albums: oldData.albums.map((album: Album) =>
+                  album.id === context.albumId ? context.previousAlbum : album
+                ),
+              };
+            }
+
+            return oldData;
+          }
+        );
       }
-      // Invalidate to refetch correct data
+      // Invalidate to refetch correct data as fallback
       invalidateQueries.album(variables.albumId);
       invalidateQueries.albumsLists();
     },
     onSuccess: (updatedAlbum, { albumId }) => {
       // Ensure the cache is up to date with server response
       queryClient.setQueryData(queryKeys.albums.detail(albumId), updatedAlbum);
-      updateCache.albumInLists(updatedAlbum, "update");
+
+      // Update the album in all lists with server response
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.albums.lists() },
+        (oldData: any) => {
+          if (!oldData) return oldData;
+
+          // Handle infinite query format
+          if (oldData.pages) {
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page: any) => ({
+                ...page,
+                albums:
+                  page.albums?.map((album: Album) =>
+                    album.id === albumId ? updatedAlbum : album
+                  ) || [],
+              })),
+            };
+          }
+
+          // Handle regular query format
+          if (oldData.albums) {
+            return {
+              ...oldData,
+              albums: oldData.albums.map((album: Album) =>
+                album.id === albumId ? updatedAlbum : album
+              ),
+            };
+          }
+
+          return oldData;
+        }
+      );
     },
   });
 }
