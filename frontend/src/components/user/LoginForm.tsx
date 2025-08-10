@@ -17,7 +17,7 @@ import { useReturnUrl } from "@/contexts/ReturnUrlContext";
 import { useUserContext } from "@/contexts/UserContext";
 
 // Validation schema with internationalization
-const createLoginSchema = (tAuth: any) =>
+const createLoginSchema = (tAuth: (key: string) => string) =>
   z.object({
     email: z
       .string()

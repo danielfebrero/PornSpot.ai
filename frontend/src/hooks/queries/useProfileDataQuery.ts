@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { interactionApi } from "@/lib/api";
-import { UnifiedUserInteractionsResponse } from "@/types/user";
+import { UnifiedUserInteractionsResponse, UserInteraction } from "@/types/user";
 
 // Types
 interface UseProfileDataOptions {
@@ -11,7 +11,7 @@ interface UseProfileDataOptions {
 }
 
 interface ProfileData {
-  recentLikes: any[];
+  recentLikes: UserInteraction[];
 }
 
 // Hook for fetching profile data including recent likes and statistics

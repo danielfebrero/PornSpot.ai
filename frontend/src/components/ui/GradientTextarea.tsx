@@ -4,13 +4,12 @@ import React, { useRef, useEffect, useCallback } from "react";
 import { Textarea } from "@/components/ui/Textarea";
 import { cn } from "@/lib/utils";
 
-interface GradientTextareaProps {
+interface GradientTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
-  [key: string]: any; // Allow other textarea props
 }
 
 export const GradientTextarea: React.FC<GradientTextareaProps> = ({
