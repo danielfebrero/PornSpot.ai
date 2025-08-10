@@ -6,52 +6,78 @@ import { useBookmarksQuery } from "@/hooks/queries/useBookmarksQuery";
 import { Button } from "@/components/ui/Button";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
+import type { UserInteraction, Album, Media } from "@/types";
+
+// Types for the component
+interface BookmarkPageData {
+  data?: {
+    interactions: UserInteraction[];
+  };
+}
+
+interface BookmarkItem extends UserInteraction {
+  target?: Album | Media;
+}
 
 const UserBookmarksPage: React.FC = () => {
   // Create media items for ContentCard from bookmarks
-  const createMediaFromBookmark = useCallback((bookmark: any) => {
+  const createMediaFromBookmark = useCallback((bookmark: BookmarkItem): Media | null => {
     if (!bookmark || !bookmark.targetType) {
       return null;
     }
     if (bookmark.targetType === "media") {
+      const target = bookmark.target as Media | undefined;
       return {
         id: bookmark.targetId,
-        albumId: bookmark.target?.albumId || bookmark.albumId || "",
+        filename: target?.filename || "",
+        originalFilename: target?.originalFilename || "",
         type: "media",
-        filename: bookmark.target?.title || "",
-        originalFilename: bookmark.target?.title || "",
-        mimeType: bookmark.target?.mimeType || "image/jpeg",
-        size: bookmark.target?.size || 0,
-        url: bookmark.target?.url || "",
-        thumbnailUrl: bookmark.target?.thumbnailUrls?.medium || "",
-        thumbnailUrls: bookmark.target?.thumbnailUrls,
-        viewCount: bookmark.target?.viewCount || 0,
+        mimeType: target?.mimeType || "image/jpeg",
+        size: target?.size || 0,
+        width: target?.width,
+        height: target?.height,
+        url: target?.url || "",
+        thumbnailUrl: target?.thumbnailUrl || "",
+        thumbnailUrls: target?.thumbnailUrls,
+        status: target?.status,
         createdAt: bookmark.createdAt,
         updatedAt: bookmark.createdAt,
+        likeCount: target?.likeCount,
+        bookmarkCount: target?.bookmarkCount,
+        viewCount: target?.viewCount || 0,
+        commentCount: target?.commentCount,
+        metadata: target?.metadata,
+        createdBy: target?.createdBy,
+        createdByType: target?.createdByType,
       };
     }
     return null;
   }, []);
 
   // Create album items for ContentCard from bookmarks
-  const createAlbumFromBookmark = useCallback((bookmark: any) => {
+  const createAlbumFromBookmark = useCallback((bookmark: BookmarkItem): Album | null => {
     if (!bookmark || !bookmark.targetType) {
       return null;
     }
     if (bookmark.targetType === "album") {
+      const target = bookmark.target as Album | undefined;
       return {
         id: bookmark.targetId,
-        title: bookmark.target?.title || `Album ${bookmark.targetId}`,
+        title: target?.title || `Album ${bookmark.targetId}`,
         type: "album",
-        description: "",
-        coverImageUrl: bookmark.target?.coverImageUrl || "",
-        thumbnailUrls: bookmark.target?.thumbnailUrls,
-        mediaCount: bookmark.target?.mediaCount || 0,
-        tags: [],
-        isPublic: bookmark.target?.isPublic || false,
-        viewCount: bookmark.target?.viewCount || 0,
+        coverImageUrl: target?.coverImageUrl || "",
+        thumbnailUrls: target?.thumbnailUrls,
+        mediaCount: target?.mediaCount || 0,
+        tags: target?.tags || [],
+        isPublic: target?.isPublic || false,
+        viewCount: target?.viewCount || 0,
+        likeCount: target?.likeCount,
+        bookmarkCount: target?.bookmarkCount,
+        commentCount: target?.commentCount,
         createdAt: bookmark.createdAt,
         updatedAt: bookmark.createdAt,
+        createdBy: target?.createdBy,
+        createdByType: target?.createdByType,
       };
     }
     return null;
@@ -73,38 +99,29 @@ const UserBookmarksPage: React.FC = () => {
   // Extract bookmarks from infinite query data
   const allBookmarks =
     bookmarksData?.pages.flatMap(
-      (page: any) => page.data?.interactions || []
+      (page: BookmarkPageData) => page.data?.interactions || []
     ) || [];
 
   // Filter out invalid bookmarks before counting
   const bookmarks = allBookmarks.filter(
-    (bookmark: any) => bookmark && bookmark.targetType
+    (bookmark): bookmark is BookmarkItem => bookmark && bookmark.targetType !== undefined
   );
 
   // Extract bookmarks and create consistent items for VirtualizedGrid with type information
-  const allBookmarkItems = useMemo(() => {
+  const allBookmarkItems = useMemo((): (Album | Media)[] => {
     return bookmarks
-      .map((bookmark: any) => {
+      .map((bookmark: BookmarkItem) => {
         const media = createMediaFromBookmark(bookmark);
         const album = createAlbumFromBookmark(bookmark);
-        const item = media || album;
-
-        if (item) {
-          // Add type information to help VirtualizedGrid determine the correct type
-          return {
-            ...item,
-            _contentType: bookmark.targetType === "media" ? "media" : "album", // Store type for dynamic rendering
-          };
-        }
-        return null;
+        return media || album;
       })
-      .filter((item: any): item is any => item !== null);
+      .filter((item): item is Album | Media => item !== null);
   }, [bookmarks, createMediaFromBookmark, createAlbumFromBookmark]);
 
   // Prefetch interaction status for all bookmarked items
   useEffect(() => {
     if (bookmarks.length > 0) {
-      const targets = bookmarks.map((bookmark: any) => ({
+      const targets = bookmarks.map((bookmark: BookmarkItem) => ({
         targetType: bookmark.targetType as "album" | "media",
         targetId: bookmark.targetId,
       }));
@@ -223,7 +240,7 @@ const UserBookmarksPage: React.FC = () => {
             canDownload: true,
             canDelete: false,
           }}
-          mediaList={bookmarks}
+          mediaList={allBookmarkItems.filter((item): item is Media => item.type === "media")}
           emptyState={{
             icon: (
               <Bookmark className="h-16 w-16 text-muted-foreground mx-auto mb-4" />

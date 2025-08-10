@@ -1,6 +1,7 @@
 import { useQuery, useQueries, useMutation } from "@tanstack/react-query";
 import { contentApi, interactionApi } from "@/lib/api";
 import { queryKeys, queryClient } from "@/lib/queryClient";
+import type { Album, Media } from "@/types";
 
 // Types
 interface ViewCountTarget {
@@ -8,15 +9,28 @@ interface ViewCountTarget {
   targetId: string;
 }
 
+interface ViewCountItem {
+  targetType: "album" | "media";
+  targetId: string;
+  viewCount: number;
+}
+
 interface ViewCountResponse {
+  success?: boolean;
   data: {
-    viewCounts: Array<{
-      targetType: "album" | "media";
-      targetId: string;
-      viewCount: number;
-    }>;
+    viewCounts: ViewCountItem[];
   };
 }
+
+// Cache data structures
+interface AlbumsListData {
+  albums: Album[];
+  pagination?: unknown;
+}
+
+type DetailData = (Album | Media) & {
+  viewCount?: number;
+};
 
 // Hook for fetching view counts for multiple targets (bulk fetch)
 export function useViewCounts(
@@ -175,7 +189,7 @@ export function useTrackView() {
       // Optimistically increment the view count
       queryClient.setQueryData(
         queryKeys.content.viewCounts(targets),
-        (oldData: any) => {
+        (oldData: ViewCountResponse | undefined) => {
           // If no existing data, create initial structure
           if (!oldData?.data?.viewCounts) {
             return {
@@ -195,7 +209,7 @@ export function useTrackView() {
             ...oldData,
             data: {
               ...oldData.data,
-              viewCounts: oldData.data.viewCounts.map((item: any) => {
+              viewCounts: oldData.data.viewCounts.map((item) => {
                 if (
                   item.targetType === targetType &&
                   item.targetId === targetId
@@ -216,7 +230,7 @@ export function useTrackView() {
       // This ensures ViewCount components update even if they started with no data
       queryClient.setQueriesData(
         { queryKey: queryKeys.content.viewCounts },
-        (oldData: any) => {
+        (oldData: ViewCountResponse | undefined) => {
           if (!oldData?.data?.viewCounts) {
             // Create cache entry for this specific target
             return {
@@ -237,7 +251,7 @@ export function useTrackView() {
             ...oldData,
             data: {
               ...oldData.data,
-              viewCounts: oldData.data.viewCounts.map((item: any) => {
+              viewCounts: oldData.data.viewCounts.map((item) => {
                 if (
                   item.targetType === targetType &&
                   item.targetId === targetId
@@ -319,7 +333,7 @@ function updateViewCountInCaches(
       ? queryKeys.albums.detail(targetId)
       : queryKeys.media.detail(targetId);
 
-  queryClient.setQueryData(detailQueryKey, (oldData: any) => {
+  queryClient.setQueryData(detailQueryKey, (oldData: DetailData | undefined) => {
     if (!oldData) return oldData;
 
     return {
@@ -332,12 +346,12 @@ function updateViewCountInCaches(
   if (targetType === "album") {
     queryClient.setQueriesData(
       { queryKey: queryKeys.albums.lists() },
-      (oldData: any) => {
+      (oldData: AlbumsListData | undefined) => {
         if (!oldData?.albums) return oldData;
 
         return {
           ...oldData,
-          albums: oldData.albums.map((album: any) => {
+          albums: oldData.albums.map((album) => {
             if (album.id === targetId) {
               return {
                 ...album,
@@ -354,14 +368,14 @@ function updateViewCountInCaches(
   // Update in bulk view counts caches
   queryClient.setQueriesData(
     { queryKey: queryKeys.content.viewCounts },
-    (oldData: any) => {
+    (oldData: ViewCountResponse | undefined) => {
       if (!oldData?.data?.viewCounts) return oldData;
 
       return {
         ...oldData,
         data: {
           ...oldData.data,
-          viewCounts: oldData.data.viewCounts.map((item: any) => {
+          viewCounts: oldData.data.viewCounts.map((item) => {
             if (item.targetType === targetType && item.targetId === targetId) {
               return {
                 ...item,
