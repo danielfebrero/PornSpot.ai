@@ -29,7 +29,7 @@ export default function MediaManagementPage({
   const [error, setError] = useState<string | null>(null);
 
   const loading = albumLoading || mediaLoading;
-  const media = mediaData?.data?.media || [];
+  const media = mediaData?.media || [];
 
   const handleBack = () => {
     router.push("/admin/albums");

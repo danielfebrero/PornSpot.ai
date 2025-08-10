@@ -157,8 +157,8 @@ npm ERR! code EUNSUPPORTEDPROTOCOL
 npm ERR! Unsupported URL Type "workspace:": workspace:*
 ```
 
-To avoid this, internal dependency `@pornspot-ai/shared-types` is referenced via a local file link instead of `workspace:*` in both `frontend/package.json` and `backend/package.json`:
+To avoid this, internal dependency `shared-types` is referenced via a local file link instead of `workspace:*` in both `frontend/package.json` and `backend/package.json`:
 
-- `"@pornspot-ai/shared-types": "file:../shared-types"`
+- `"shared-types": "file:../shared-types"`
 
 The `shared-types` package includes a `prepare` script to build on install so consumers receive compiled `dist/` when installing from `file:`. If you edit types locally, either rebuild `shared-types` or reinstall the frontend/backend to pick up changes.

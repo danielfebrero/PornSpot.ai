@@ -31,8 +31,8 @@ export function useLikesQuery(params: LikesQueryParams = {}) {
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage: LikesResponse) => {
-      return lastPage.data.pagination.hasNext
-        ? lastPage.data.pagination.cursor
+      return lastPage.pagination.hasNext
+        ? lastPage.pagination.cursor
         : undefined;
     },
     enabled: !targetUser || !!targetUser, // Always enabled for own likes, enabled only if targetUser provided for others

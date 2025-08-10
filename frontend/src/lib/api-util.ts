@@ -37,7 +37,7 @@ export class ApiUtil {
    */
   static buildUrl(endpoint: string, params?: Record<string, string | number | boolean | undefined>): string {
     const url = new URL(`${API_URL}${endpoint}`);
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -45,7 +45,7 @@ export class ApiUtil {
         }
       });
     }
-    
+
     return url.toString();
   }
 
@@ -78,17 +78,20 @@ export class ApiUtil {
     };
 
     if (body && method !== "GET") {
-      requestConfig.body = typeof body === "string" ? body : JSON.stringify(body);
+      requestConfig.body =
+        typeof body === "string" ? body : JSON.stringify(body);
     }
 
     try {
       const response = await fetch(url, requestConfig);
-      
+
       if (!response.ok) {
         // Try to parse error response
         try {
           const errorData = await response.json();
-          throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+          throw new Error(
+            errorData.error || `HTTP ${response.status}: ${response.statusText}`
+          );
         } catch {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
@@ -181,17 +184,17 @@ export class ApiUtil {
    */
   static buildSearchParams(params: Record<string, any>): URLSearchParams {
     const searchParams = new URLSearchParams();
-    
+
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
-          value.forEach(item => searchParams.append(key, String(item)));
+          value.forEach((item) => searchParams.append(key, String(item)));
         } else {
           searchParams.set(key, String(value));
         }
       }
     });
-    
+
     return searchParams;
   }
 
@@ -215,7 +218,9 @@ export class ApiUtil {
       if (!response.ok) {
         try {
           const errorData = await response.json();
-          throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+          throw new Error(
+            errorData.error || `HTTP ${response.status}: ${response.statusText}`
+          );
         } catch {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
@@ -236,15 +241,15 @@ export class ApiUtil {
     if (error instanceof Error) {
       return error.message;
     }
-    
+
     if (typeof error === "string") {
       return error;
     }
-    
+
     if (error && typeof error === "object" && "error" in error && typeof error.error === "string") {
       return error.error;
     }
-    
+
     return "An unexpected error occurred";
   }
 
@@ -255,11 +260,11 @@ export class ApiUtil {
     if (!response.success) {
       throw new Error(response.error || "API request failed");
     }
-    
+
     if (response.data === undefined) {
       throw new Error("No data in successful response");
     }
-    
+
     return response.data;
   }
 
@@ -271,13 +276,13 @@ export class ApiUtil {
     batchSize: number = 5
   ): Promise<T[]> {
     const results: T[] = [];
-    
+
     for (let i = 0; i < requests.length; i += batchSize) {
       const batch = requests.slice(i, i + batchSize);
-      const batchResults = await Promise.all(batch.map(request => request()));
+      const batchResults = await Promise.all(batch.map((request) => request()));
       results.push(...batchResults);
     }
-    
+
     return results;
   }
 
@@ -290,22 +295,24 @@ export class ApiUtil {
     delayMs: number = 1000
   ): Promise<T> {
     let lastError: unknown;
-    
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         return await operation();
       } catch (error) {
         lastError = error;
-        
+
         if (attempt === maxRetries) {
           break;
         }
-        
+
         // Wait before retrying
-        await new Promise(resolve => setTimeout(resolve, delayMs * Math.pow(2, attempt)));
+        await new Promise((resolve) =>
+          setTimeout(resolve, delayMs * Math.pow(2, attempt))
+        );
       }
     }
-    
+
     throw lastError;
   }
 }

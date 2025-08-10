@@ -78,10 +78,6 @@ We should extract all hardcoded strings in the application and replace them with
 
 We should optimize our use of TanStack to leverage Static Site Generation (SSG) data effectively. This will improve performance and reduce the load on our servers.
 
-### Share types between frontend and backend
-
-We should ensure that the types used in the frontend and backend for shared data structures are consistent. This will help avoid type mismatches and improve code maintainability.
-
 ## Comments
 
 ## Infrastructure

@@ -18,18 +18,14 @@ export interface UnifiedPaginatedResponse<T = any> extends ApiResponse {
 }
 
 // Specific unified response types for type safety
-export interface UnifiedAlbumsResponse extends ApiResponse {
-  data: {
-    albums: Album[];
-    pagination: UnifiedPaginationMeta;
-  };
+export interface UnifiedAlbumsResponse {
+  albums: Album[];
+  pagination: UnifiedPaginationMeta;
 }
 
-export interface UnifiedMediaResponse extends ApiResponse {
-  data: {
-    media: Media[];
-    pagination: UnifiedPaginationMeta;
-  };
+export interface UnifiedMediaResponse {
+  media: Media[];
+  pagination: UnifiedPaginationMeta;
 }
 
 // Frontend-specific thumbnail system types

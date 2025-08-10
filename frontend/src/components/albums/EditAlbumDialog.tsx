@@ -89,12 +89,12 @@ export function EditAlbumDialog({
 
       // Track which media are currently in the album
       const albumMediaIds = new Set(
-        albumMediaResponse.data.media.map((m: Media) => m.id)
+        albumMediaResponse.media.map((m: Media) => m.id)
       );
       setInitiallySelectedMediaIds(albumMediaIds);
 
       // Mark user media as selected if they're in the album
-      const mediaWithSelection = userMediaResponse.data.media.map(
+      const mediaWithSelection = userMediaResponse.media.map(
         (media: Media) => ({
           ...media,
           selected: albumMediaIds.has(media.id),

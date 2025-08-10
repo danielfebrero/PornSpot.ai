@@ -1315,6 +1315,14 @@ Resources:
             Method: GET
             Auth:
               Authorizer: UserAuthorizer
+        OptionsMe:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/me
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable

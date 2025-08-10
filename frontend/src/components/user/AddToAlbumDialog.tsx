@@ -43,7 +43,7 @@ export function AddToAlbumDialog({
   });
 
   // Extract albums from paginated data
-  const albums = albumsData?.pages[0]?.data.albums || [];
+  const albums = albumsData?.pages[0]?.albums || [];
 
   // Use the create album mutation
   const { mutateAsync: createAlbumHook } = useCreateAlbum();

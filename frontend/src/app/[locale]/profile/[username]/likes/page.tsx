@@ -39,7 +39,7 @@ export default function UserLikesPage() {
 
   // Extract likes from paginated data
   const likes = useMemo(() => {
-    return likesData?.pages.flatMap((page) => page.data.interactions) || [];
+    return likesData?.pages.flatMap((page) => page.interactions) || [];
   }, [likesData]);
 
   // Prefetch interaction status for all liked items

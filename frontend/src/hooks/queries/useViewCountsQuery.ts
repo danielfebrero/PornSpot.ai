@@ -16,10 +16,7 @@ interface ViewCountItem {
 }
 
 interface ViewCountResponse {
-  success?: boolean;
-  data: {
-    viewCounts: ViewCountItem[];
-  };
+  viewCounts: ViewCountItem[];
 }
 
 // Cache data structures
@@ -43,7 +40,7 @@ export function useViewCounts(
     queryKey: queryKeys.content.viewCounts(targets),
     queryFn: async () => {
       if (targets.length === 0) {
-        return { data: { viewCounts: [] } };
+        return { viewCounts: [] };
       }
 
       return await contentApi.getViewCounts(targets);
@@ -74,7 +71,7 @@ export function useViewCount(
   const targets = [{ targetType, targetId }];
   const { data, ...rest } = useViewCounts(targets, options);
 
-  const viewCount = data?.data?.viewCounts?.[0]?.viewCount ?? 0;
+  const viewCount = data?.viewCounts?.[0]?.viewCount ?? 0;
 
   return {
     data: viewCount,
@@ -102,7 +99,7 @@ export function useBulkViewCounts(
       queryKey: queryKeys.content.viewCounts(chunk),
       queryFn: async () => {
         if (chunk.length === 0) {
-          return { data: { viewCounts: [] } };
+          return { viewCounts: [] };
         }
         return await contentApi.getViewCounts(chunk);
       },
@@ -119,7 +116,7 @@ export function useBulkViewCounts(
 
   const viewCounts = queries
     .filter((query) => query.data)
-    .flatMap((query) => query.data!.data.viewCounts);
+    .flatMap((query) => query.data!.viewCounts);
 
   // Update individual target caches with the bulk-fetched data
   // This ensures that individual useViewCount hooks can benefit from bulk fetching
@@ -131,9 +128,7 @@ export function useBulkViewCounts(
 
     // Set cache data for individual targets
     queryClient.setQueryData(singleTargetQueryKey, {
-      data: {
-        viewCounts: [item],
-      },
+      viewCounts: [item],
     });
   });
 
@@ -191,37 +186,33 @@ export function useTrackView() {
         queryKeys.content.viewCounts(targets),
         (oldData: ViewCountResponse | undefined) => {
           // If no existing data, create initial structure
-          if (!oldData?.data?.viewCounts) {
+          if (!oldData?.viewCounts) {
             return {
-              data: {
-                viewCounts: [
-                  {
-                    targetType,
-                    targetId,
-                    viewCount: 1,
-                  },
-                ],
-              },
+              viewCounts: [
+                {
+                  targetType,
+                  targetId,
+                  viewCount: 1,
+                },
+              ],
             };
           }
 
           return {
             ...oldData,
-            data: {
-              ...oldData.data,
-              viewCounts: oldData.data.viewCounts.map((item) => {
-                if (
-                  item.targetType === targetType &&
-                  item.targetId === targetId
-                ) {
-                  return {
-                    ...item,
-                    viewCount: (item.viewCount || 0) + 1,
-                  };
-                }
-                return item;
-              }),
-            },
+
+            viewCounts: oldData.viewCounts.map((item: any) => {
+              if (
+                item.targetType === targetType &&
+                item.targetId === targetId
+              ) {
+                return {
+                  ...item,
+                  viewCount: (item.viewCount || 0) + 1,
+                };
+              }
+              return item;
+            }),
           };
         }
       );
@@ -231,39 +222,34 @@ export function useTrackView() {
       queryClient.setQueriesData(
         { queryKey: queryKeys.content.viewCounts },
         (oldData: ViewCountResponse | undefined) => {
-          if (!oldData?.data?.viewCounts) {
+          if (!oldData?.viewCounts) {
             // Create cache entry for this specific target
             return {
-              data: {
-                viewCounts: [
-                  {
-                    targetType,
-                    targetId,
-                    viewCount: 1,
-                  },
-                ],
-              },
+              viewCounts: [
+                {
+                  targetType,
+                  targetId,
+                  viewCount: 1,
+                },
+              ],
             };
           }
 
           // Update existing cache entries
           return {
             ...oldData,
-            data: {
-              ...oldData.data,
-              viewCounts: oldData.data.viewCounts.map((item) => {
-                if (
-                  item.targetType === targetType &&
-                  item.targetId === targetId
-                ) {
-                  return {
-                    ...item,
-                    viewCount: (item.viewCount || 0) + 1,
-                  };
-                }
-                return item;
-              }),
-            },
+            viewCounts: oldData.viewCounts.map((item: any) => {
+              if (
+                item.targetType === targetType &&
+                item.targetId === targetId
+              ) {
+                return {
+                  ...item,
+                  viewCount: (item.viewCount || 0) + 1,
+                };
+              }
+              return item;
+            }),
           };
         }
       );
@@ -368,23 +354,21 @@ function updateViewCountInCaches(
   // Update in bulk view counts caches
   queryClient.setQueriesData(
     { queryKey: queryKeys.content.viewCounts },
+
     (oldData: ViewCountResponse | undefined) => {
-      if (!oldData?.data?.viewCounts) return oldData;
+      if (!oldData?.viewCounts) return oldData;
 
       return {
         ...oldData,
-        data: {
-          ...oldData.data,
-          viewCounts: oldData.data.viewCounts.map((item) => {
-            if (item.targetType === targetType && item.targetId === targetId) {
-              return {
-                ...item,
-                viewCount: Math.max(0, (item.viewCount || 0) + increment),
-              };
-            }
-            return item;
-          }),
-        },
+        viewCounts: oldData.viewCounts.map((item: any) => {
+          if (item.targetType === targetType && item.targetId === targetId) {
+            return {
+              ...item,
+              viewCount: Math.max(0, (item.viewCount || 0) + increment),
+            };
+          }
+          return item;
+        }),
       };
     }
   );
