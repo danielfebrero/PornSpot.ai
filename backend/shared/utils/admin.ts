@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import * as bcrypt from "bcrypt";
 import { DynamoDBService } from "./dynamodb";
-import { AdminUserEntity } from "@pornspot-ai/shared-types";
+import { AdminUserEntity } from "shared-types";
 
 const SALT_ROUNDS = 12;
 

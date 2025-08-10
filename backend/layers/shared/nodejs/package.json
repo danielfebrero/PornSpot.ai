@@ -1,5 +1,5 @@
 {
-  "name": "@pornspot-ai/shared-layer",
+  "name": "shared-layer",
   "version": "1.0.0",
   "description": "AWS Lambda Layer containing shared utilities, types, and services for PornSpot.ai backend",
   "main": "node_modules/@shared/index.js",

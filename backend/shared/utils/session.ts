@@ -3,7 +3,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "./dynamodb";
 import { UserUtil } from "./user";
 import { ResponseUtil } from "./response";
-import { UserSessionEntity } from "@pornspot-ai/shared-types";
+import { UserSessionEntity } from "shared-types";
 import { UserAuthMiddleware } from "../auth/user-middleware";
 
 const SESSION_DURATION_DAYS = 30; // Same duration as regular login
