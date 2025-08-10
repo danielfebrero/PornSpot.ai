@@ -4,6 +4,7 @@ import {
   GetCommand,
   PutCommand,
   QueryCommand,
+  QueryCommandInput,
   UpdateCommand,
   DeleteCommand,
   BatchWriteCommand,
@@ -39,6 +40,13 @@ interface DynamoDBClientConfig {
 }
 
 const clientConfig: DynamoDBClientConfig = {};
+
+interface DynamoDBQueryResult {
+  Items?: Record<string, unknown>[];
+  LastEvaluatedKey?: Record<string, unknown>;
+  Count?: number;
+  ScannedCount?: number;
+}
 
 if (isLocal) {
   clientConfig.endpoint = "http://pornspot-local-aws:4566";
@@ -284,7 +292,7 @@ export class DynamoDBService {
     console.log("🔍 Query parameters:", { limit, lastEvaluatedKey, tag });
 
     // Build query parameters
-    const queryParams: any = {
+    const queryParams: QueryCommandInput = {
       TableName: TABLE_NAME,
       IndexName: "GSI1",
       KeyConditionExpression: "GSI1PK = :gsi1pk",
@@ -302,7 +310,7 @@ export class DynamoDBService {
       queryParams.ExpressionAttributeNames = {
         "#tags": "tags",
       };
-      queryParams.ExpressionAttributeValues[":tag"] = tag;
+      queryParams.ExpressionAttributeValues![":tag"] = tag;
     }
 
     const result = await docClient.send(new QueryCommand(queryParams));
@@ -328,16 +336,16 @@ export class DynamoDBService {
   static async listAlbumsByPublicStatus(
     isPublic: boolean,
     limit: number = 20,
-    lastEvaluatedKey?: Record<string, any>,
+    lastEvaluatedKey?: Record<string, unknown>,
     tag?: string
   ): Promise<{
     albums: Album[];
-    lastEvaluatedKey?: Record<string, any>;
+    lastEvaluatedKey?: Record<string, unknown>;
   }> {
     const isPublicString = isPublic.toString();
 
     // Build query parameters
-    const queryParams: any = {
+    const queryParams: QueryCommandInput = {
       TableName: TABLE_NAME,
       IndexName: "isPublic-createdAt-index",
       KeyConditionExpression: "#isPublic = :isPublic",
@@ -355,8 +363,8 @@ export class DynamoDBService {
     // Add tag filtering if specified
     if (tag) {
       queryParams.FilterExpression = "contains(#tags, :tag)";
-      queryParams.ExpressionAttributeNames["#tags"] = "tags";
-      queryParams.ExpressionAttributeValues[":tag"] = tag;
+      queryParams.ExpressionAttributeNames!["#tags"] = "tags";
+      queryParams.ExpressionAttributeValues![":tag"] = tag;
     }
 
     const result = await docClient.send(new QueryCommand(queryParams));
@@ -402,7 +410,7 @@ export class DynamoDBService {
       lastEvaluatedKey: lastEvaluatedKey ? "present" : "none",
     });
 
-    const queryParams: any = {
+    const queryParams: QueryCommandInput = {
       TableName: TABLE_NAME,
       IndexName: "GSI4",
       KeyConditionExpression:
@@ -423,8 +431,8 @@ export class DynamoDBService {
     // Add tag filtering if specified
     if (tag) {
       queryParams.FilterExpression = "contains(#tags, :tag)";
-      queryParams.ExpressionAttributeNames["#tags"] = "tags";
-      queryParams.ExpressionAttributeValues[":tag"] = tag;
+      queryParams.ExpressionAttributeNames!["#tags"] = "tags";
+      queryParams.ExpressionAttributeValues![":tag"] = tag;
     }
 
     const result = await docClient.send(new QueryCommand(queryParams));
@@ -675,11 +683,12 @@ export class DynamoDBService {
 
       // Update album media count
       await this.incrementAlbumMediaCount(albumId);
-    } catch (error: any) {
-      if (error.name === "ConditionalCheckFailedException") {
+    } catch (error: unknown) {
+      const errorObj = error as Error & { name?: string };
+      if (errorObj.name === "ConditionalCheckFailedException") {
         throw new Error(`Media ${mediaId} is already in album ${albumId}`);
       }
-      throw error;
+      throw errorObj;
     }
   }
 
@@ -717,8 +726,9 @@ export class DynamoDBService {
         console.log(
           `✅ Successfully added media ${mediaId} to album ${albumId}`
         );
-      } catch (error: any) {
-        const errorMessage = error.message || "Unknown error";
+      } catch (error: unknown) {
+        const errorObj = error as Error;
+        const errorMessage = errorObj.message || "Unknown error";
         results.failed.push({
           mediaId,
           error: errorMessage,
@@ -787,8 +797,9 @@ export class DynamoDBService {
         console.log(
           `✅ Successfully removed media ${mediaId} from album ${albumId}`
         );
-      } catch (error: any) {
-        const errorMessage = error.message || "Unknown error";
+      } catch (error: unknown) {
+        const errorObj = error as Error;
+        const errorMessage = errorObj.message || "Unknown error";
         results.failed.push({
           mediaId,
           error: errorMessage,
@@ -880,7 +891,7 @@ export class DynamoDBService {
 
     const response: {
       media: Media[];
-      lastEvaluatedKey?: Record<string, any>;
+      lastEvaluatedKey?: Record<string, unknown>;
     } = { media };
 
     if (relationshipsResult.LastEvaluatedKey) {
@@ -929,10 +940,10 @@ export class DynamoDBService {
   static async getAllPublicMedia(): Promise<Media[]> {
     // Get all public albums first
     const allMediaIds = new Set<string>();
-    let lastEvaluatedKey: Record<string, any> | undefined = undefined;
+    let lastEvaluatedKey: Record<string, unknown> | undefined = undefined;
 
     do {
-      const result: any = await docClient.send(
+      const result: DynamoDBQueryResult = await docClient.send(
         new QueryCommand({
           TableName: TABLE_NAME,
           IndexName: "isPublic-createdAt-index",
@@ -948,14 +959,14 @@ export class DynamoDBService {
         })
       );
 
-      const publicAlbums = (result.Items as AlbumEntity[]) || [];
+      const publicAlbums = ((result.Items as unknown) as AlbumEntity[]) || [];
 
       // For each public album, get all its media IDs
       for (const album of publicAlbums) {
-        let mediaLastKey: Record<string, any> | undefined = undefined;
+        let mediaLastKey: Record<string, unknown> | undefined = undefined;
 
         do {
-          const mediaResult: any = await docClient.send(
+          const mediaResult: DynamoDBQueryResult = await docClient.send(
             new QueryCommand({
               TableName: TABLE_NAME,
               KeyConditionExpression:
@@ -969,7 +980,7 @@ export class DynamoDBService {
           );
 
           const albumMediaRelationships =
-            (mediaResult.Items as AlbumMediaEntity[]) || [];
+            ((mediaResult.Items as unknown) as AlbumMediaEntity[]) || [];
           albumMediaRelationships.forEach((rel) =>
             allMediaIds.add(rel.mediaId)
           );
@@ -1651,8 +1662,8 @@ export class DynamoDBService {
     );
 
     const userAlbums = userAlbumsResult.Items || [];
-    const albumIds = userAlbums.map((album: any) =>
-      album["SK"].replace("ALBUM#", "")
+    const albumIds = userAlbums.map((album: Record<string, unknown>) =>
+      (album["SK"] as string).replace("ALBUM#", "")
     );
 
     if (albumIds.length === 0) {
@@ -1701,8 +1712,8 @@ export class DynamoDBService {
     );
 
     const userAlbums = userAlbumsResult.Items || [];
-    const albumIds = userAlbums.map((album: any) =>
-      album["SK"].replace("ALBUM#", "")
+    const albumIds = userAlbums.map((album: Record<string, unknown>) =>
+      (album["SK"] as string).replace("ALBUM#", "")
     );
 
     if (albumIds.length === 0) {
@@ -1993,9 +2004,10 @@ export class DynamoDBService {
       );
 
       console.log(`✅ Incremented ${metric} for user ${userId}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorObj = error as Error & { name?: string };
       // If profileInsights doesn't exist, initialize it with the increment
-      if (error.name === "ConditionalCheckFailedException") {
+      if (errorObj.name === "ConditionalCheckFailedException") {
         console.log(
           `⚠️ Profile insights not initialized for user ${userId}, initializing with increment...`
         );
@@ -2035,8 +2047,9 @@ export class DynamoDBService {
           console.log(
             `✅ Initialized and incremented ${metric} for user ${userId}`
           );
-        } catch (initError: any) {
-          if (initError.name === "ConditionalCheckFailedException") {
+        } catch (initError: unknown) {
+          const initErrorObj = initError as Error & { name?: string };
+          if (initErrorObj.name === "ConditionalCheckFailedException") {
             // profileInsights was created by another process, retry the original increment
             console.log(
               `🔄 Profile insights was created concurrently for user ${userId}, retrying increment...`
@@ -2166,7 +2179,7 @@ export class DynamoDBService {
       for (let i = 0; i < result.Items.length; i += batchSize) {
         const batch = result.Items.slice(i, i + batchSize);
 
-        const deleteRequests = batch.map((item: any) => ({
+        const deleteRequests = batch.map((item: Record<string, unknown>) => ({
           DeleteRequest: {
             Key: {
               PK: item["PK"],
@@ -2433,7 +2446,7 @@ export class DynamoDBService {
       }
 
       // Extract comment IDs for cleaning up likes
-      const commentIds = allComments.map((comment: any) => comment.id);
+      const commentIds = allComments.map((comment: Record<string, unknown>) => comment["id"] as string);
 
       // Delete all comment likes for these comments
       if (commentIds.length > 0) {
@@ -2445,7 +2458,7 @@ export class DynamoDBService {
       for (let i = 0; i < allComments.length; i += batchSize) {
         const batch = allComments.slice(i, i + batchSize);
 
-        const deleteRequests = batch.map((item: any) => ({
+        const deleteRequests = batch.map((item: Record<string, unknown>) => ({
           DeleteRequest: {
             Key: {
               PK: item["PK"],
@@ -2498,10 +2511,10 @@ export class DynamoDBService {
         );
 
         const commentLikes = likesResult.Items || [];
-        commentLikes.forEach((like: any) => {
+        commentLikes.forEach((like: Record<string, unknown>) => {
           allLikesToDelete.push({
-            PK: like.PK,
-            SK: like.SK,
+            PK: like["PK"] as string,
+            SK: like["SK"] as string,
           });
         });
       }

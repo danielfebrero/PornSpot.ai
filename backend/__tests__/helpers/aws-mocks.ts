@@ -23,7 +23,7 @@ export const mockDynamoDBQueryItems = (
 ) => {
   const response: Record<string, unknown> = { Items: items };
   if (lastEvaluatedKey) {
-    response.LastEvaluatedKey = lastEvaluatedKey;
+    response["LastEvaluatedKey"] = lastEvaluatedKey;
   }
   return mockDynamoDBSuccess(response);
 };

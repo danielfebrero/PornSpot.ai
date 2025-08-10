@@ -109,6 +109,7 @@ export class S3Service {
 interface SignedUrlOptions {
   expiresIn: number;
   signableHeaders: Set<string>;
+  unsignableHeaders?: Set<string>;
 }
 
     const signedUrlOptions: SignedUrlOptions = {

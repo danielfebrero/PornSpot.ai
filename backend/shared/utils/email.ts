@@ -81,7 +81,7 @@ export class EmailService {
     } catch (error: unknown) {
       const errorObj = error as Error & { response?: { body: unknown } };
       console.error("Failed to send email:", {
-        error: errorObj.message,
+        error: errorObj.message || "Unknown error",
         response: errorObj.response?.body,
         to: options.to,
         subject: options.template.subject,
@@ -89,7 +89,7 @@ export class EmailService {
 
       return {
         success: false,
-        error: error.message,
+        error: errorObj.message || "Unknown email error",
       };
     }
   }

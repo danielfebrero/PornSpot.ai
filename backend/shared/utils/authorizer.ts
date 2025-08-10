@@ -1,6 +1,7 @@
 import {
   APIGatewayRequestAuthorizerEvent,
   APIGatewayAuthorizerResult,
+  APIGatewayProxyEvent,
 } from "aws-lambda";
 import { UserAuthMiddleware } from "../auth/user-middleware";
 import { PlanUtil } from "./plan";
@@ -91,14 +92,14 @@ export class AuthorizerUtil {
    */
   static async validateUserSession(cookieHeader: string) {
     console.log("🔧 Creating mock event for session validation...");
-    const mockEvent: { headers: { Cookie: string } } = {
+    const mockEvent: Partial<APIGatewayProxyEvent> = {
       headers: {
         Cookie: cookieHeader,
       },
     };
 
     console.log("⚡ Calling UserAuthMiddleware.validateSession...");
-    const userValidation = await UserAuthMiddleware.validateSession(mockEvent);
+    const userValidation = await UserAuthMiddleware.validateSession(mockEvent as APIGatewayProxyEvent);
     console.log("📊 User validation result:", {
       isValid: userValidation.isValid,
       hasUser: !!userValidation.user,

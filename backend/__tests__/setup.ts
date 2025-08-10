@@ -92,6 +92,7 @@ export const createMockAPIGatewayEvent = (overrides: Partial<APIGatewayProxyEven
       apiKey: null,
       apiKeyId: null,
       caller: null,
+      clientCert: null,
       cognitoAuthenticationProvider: null,
       cognitoAuthenticationType: null,
       cognitoIdentityId: null,
