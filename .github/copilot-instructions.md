@@ -180,6 +180,30 @@ const response = await fetch(`${API_URL}/albums`, {
 - Better type safety and IntelliSense
 - Reduces code duplication and maintenance burden
 
+### Shared Types Management (Critical)
+
+**NEVER edit shared types directly in backend or frontend directories.** All shared type modifications must be done through the centralized system:
+
+```bash
+# ✅ CORRECT - Edit types in the root shared-types directory
+# Then copy to both backend and frontend:
+npm run copy:shared-types
+```
+
+**Wrong Pattern:**
+
+```bash
+# ❌ WRONG - Never edit these directly:
+backend/shared/shared-types/
+frontend/src/types/shared-types/
+```
+
+**Correct Workflow:**
+
+1. Edit types in `/shared-types/` at project root
+2. Run `npm run copy:shared-types` to sync to backend and frontend
+3. This ensures type consistency across the entire application
+
 ### Backend Lambda Patterns
 
 ```typescript
