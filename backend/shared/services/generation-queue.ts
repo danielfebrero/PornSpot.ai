@@ -300,6 +300,32 @@ export class GenerationQueueService {
   }
 
   /**
+   * Find queue entry by ComfyUI prompt ID
+   */
+  async findQueueEntryByPromptId(promptId: string): Promise<QueueEntry | null> {
+    // Use scan operation to find by comfyPromptId
+    // Note: In production, consider adding a GSI for better performance
+    const result = await this.dynamoDB.send(
+      new ScanCommand({
+        TableName: this.tableName,
+        FilterExpression:
+          "begins_with(PK, :pkPrefix) AND comfyPromptId = :promptId",
+        ExpressionAttributeValues: {
+          ":pkPrefix": "QUEUE#",
+          ":promptId": promptId,
+        },
+        Limit: 1,
+      })
+    );
+
+    if (!result.Items || result.Items.length === 0) {
+      return null;
+    }
+
+    return result.Items[0] as QueueEntry;
+  }
+
+  /**
    * Get user's queue entries
    */
   async getUserQueueEntries(userId: string): Promise<QueueEntry[]> {

@@ -1,0 +1,275 @@
+# ComfyUI Monitor for RunPod
+
+This Python script monitors ComfyUI WebSocket events in real-time and publishes structured events to AWS EventBridge, enabling an event-driven serverless architecture for image generation.
+
+## Features
+
+- **Real-time Monitoring**: Connects to ComfyUI WebSocket API for instant event detection
+- **Event Publishing**: Publishes structured events to AWS EventBridge with retry logic
+- **Prompt Mapping**: Maps ComfyUI prompt_ids to application queue_ids
+- **Robust Connection**: Handles reconnection and error scenarios
+- **Service Integration**: Runs as a systemd service for reliability
+- **Comprehensive Logging**: Structured logging for debugging and monitoring
+
+## Architecture
+
+```
+ComfyUI WebSocket → Python Monitor → AWS EventBridge → Lambda Functions
+```
+
+## Event Types Published
+
+1. **Monitor Started/Stopped** - Lifecycle events
+2. **Queue Status Updated** - ComfyUI queue information
+3. **Job Started** - When generation begins
+4. **Progress Update** - Real-time progress during generation
+5. **Node Executing** - Individual node execution events
+6. **Images Generated** - When images are produced
+7. **Job Completed** - When generation finishes
+
+## Installation
+
+### Prerequisites
+
+- Python 3.8+
+- AWS credentials configured (IAM role or access keys)
+- ComfyUI running on localhost:8188
+- Access to AWS EventBridge
+
+### Setup on RunPod
+
+1. **Copy files to RunPod instance:**
+
+   ```bash
+   # Upload the runpod-monitor directory to /workspace/comfyui-monitor
+   ```
+
+2. **Run setup script:**
+
+   ```bash
+   cd /workspace/comfyui-monitor
+   chmod +x setup.sh
+   ./setup.sh
+   ```
+
+3. **Configure environment:**
+
+   ```bash
+   cp .env.example .env
+   nano .env  # Update AWS credentials and region
+   ```
+
+4. **Test the monitor:**
+
+   ```bash
+   source venv/bin/activate
+   python test_monitor.py
+   ```
+
+5. **Start the service:**
+   ```bash
+   systemctl daemon-reload
+   systemctl enable comfyui-monitor
+   systemctl start comfyui-monitor
+   ```
+
+## Configuration
+
+### Environment Variables
+
+| Variable                | Description                            | Default          |
+| ----------------------- | -------------------------------------- | ---------------- |
+| `COMFYUI_HOST`          | ComfyUI server host                    | `localhost`      |
+| `COMFYUI_PORT`          | ComfyUI server port                    | `8188`           |
+| `AWS_REGION`            | AWS region for EventBridge             | `us-east-1`      |
+| `EVENTBRIDGE_BUS_NAME`  | EventBridge custom bus name            | `comfyui-events` |
+| `AWS_ACCESS_KEY_ID`     | AWS access key (if not using IAM role) | -                |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret key (if not using IAM role) | -                |
+
+### AWS IAM Permissions
+
+The monitor requires the following IAM permissions:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["events:PutEvents"],
+      "Resource": ["arn:aws:events:*:*:event-bus/comfyui-events"]
+    }
+  ]
+}
+```
+
+## Usage
+
+### Starting/Stopping the Service
+
+```bash
+# Start service
+systemctl start comfyui-monitor
+
+# Stop service
+systemctl stop comfyui-monitor
+
+# Check status
+systemctl status comfyui-monitor
+
+# View logs
+journalctl -u comfyui-monitor -f
+```
+
+### Registering Prompt Mappings
+
+The monitor needs to know which ComfyUI prompt_id corresponds to which application queue_id. This is typically done when submitting a generation request:
+
+```python
+# In your Lambda function that submits to ComfyUI
+import requests
+
+# Submit prompt to ComfyUI
+response = requests.post('http://runpod-host:8188/prompt', json=prompt_data)
+prompt_id = response.json()['prompt_id']
+
+# Register mapping with monitor (via HTTP endpoint or EventBridge)
+requests.post('http://runpod-host:9000/register', json={
+    'prompt_id': prompt_id,
+    'queue_id': your_queue_id
+})
+```
+
+### Event Examples
+
+**Job Started Event:**
+
+```json
+{
+  "Source": "comfyui.monitor",
+  "DetailType": "Job Started",
+  "Detail": {
+    "prompt_id": "abc123",
+    "queue_id": "xyz789",
+    "timestamp": "2024-01-01T10:00:00Z",
+    "client_id": "monitor-uuid"
+  }
+}
+```
+
+**Progress Update Event:**
+
+```json
+{
+  "Source": "comfyui.monitor",
+  "DetailType": "Progress Update",
+  "Detail": {
+    "prompt_id": "abc123",
+    "queue_id": "xyz789",
+    "progress": 15,
+    "max_progress": 20,
+    "current_node": "ksampler",
+    "percentage": 75.0,
+    "timestamp": "2024-01-01T10:01:00Z"
+  }
+}
+```
+
+**Job Completed Event:**
+
+```json
+{
+  "Source": "comfyui.monitor",
+  "DetailType": "Job Completed",
+  "Detail": {
+    "prompt_id": "abc123",
+    "queue_id": "xyz789",
+    "timestamp": "2024-01-01T10:02:00Z"
+  }
+}
+```
+
+## Testing
+
+Run the test suite to verify functionality:
+
+```bash
+source venv/bin/activate
+python test_monitor.py
+```
+
+The test suite will:
+
+- Test message parsing logic
+- Test EventBridge connectivity
+- Test WebSocket connection to ComfyUI
+- Run an integration test with mock data
+
+## Troubleshooting
+
+### Common Issues
+
+1. **WebSocket Connection Failed**
+
+   - Ensure ComfyUI is running on localhost:8188
+   - Check firewall settings
+   - Verify ComfyUI WebSocket endpoint is accessible
+
+2. **EventBridge Publish Failed**
+
+   - Check AWS credentials configuration
+   - Verify IAM permissions
+   - Ensure EventBridge bus exists
+   - Check network connectivity to AWS
+
+3. **Service Won't Start**
+   - Check systemd service file: `/etc/systemd/system/comfyui-monitor.service`
+   - Verify Python virtual environment path
+   - Check file permissions
+
+### Logs
+
+- **Service logs**: `journalctl -u comfyui-monitor -f`
+- **Application logs**: `/tmp/comfyui-monitor.log`
+- **System logs**: `/var/log/syslog`
+
+### Debugging
+
+Enable debug logging:
+
+```bash
+# In .env file
+LOG_LEVEL=DEBUG
+```
+
+Run monitor in foreground for debugging:
+
+```bash
+source venv/bin/activate
+python comfyui_monitor.py
+```
+
+## Development
+
+### File Structure
+
+```
+runpod-monitor/
+├── comfyui_monitor.py    # Main monitor script
+├── test_monitor.py       # Test suite
+├── requirements.txt      # Python dependencies
+├── setup.sh             # Setup script
+├── .env.example         # Environment template
+└── README.md           # This file
+```
+
+### Contributing
+
+1. Test your changes with `python test_monitor.py`
+2. Ensure proper error handling and logging
+3. Update documentation as needed
+4. Follow Python best practices and async/await patterns
+
+## License
+
+MIT License - see LICENSE file for details.

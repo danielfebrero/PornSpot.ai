@@ -18,6 +18,7 @@ import { Media } from "@shared";
 import { getRateLimitingService } from "@shared/services/rate-limiting";
 import { broadcastToPromptSubscribers } from "../websocket/route";
 import { GenerationQueueService } from "@shared/services/generation-queue";
+import { EventBridge } from "aws-sdk";
 
 interface GenerationRequest {
   prompt: string;
@@ -204,6 +205,17 @@ const handleGenerate = async (
       `📋 Added generation request to queue: ${queueEntry.queueId} for user ${auth.userId}, position: ${queueEntry.queuePosition}`
     );
 
+    // Publish queue submission event to EventBridge for immediate processing
+    try {
+      await publishQueueSubmissionEvent(queueEntry.queueId, priority);
+      console.log(
+        `🚀 Published queue submission event for ${queueEntry.queueId}`
+      );
+    } catch (eventError) {
+      console.error("Failed to publish queue submission event:", eventError);
+      // Continue processing - the scheduled processor will pick it up as fallback
+    }
+
     const response: GenerationResponse = {
       queueId: queueEntry.queueId,
       queuePosition: queueEntry.queuePosition || 1,
@@ -297,6 +309,32 @@ function checkGenerationLimits(
   }
 
   return { allowed: true, remaining: "unlimited" };
+}
+
+async function publishQueueSubmissionEvent(
+  queueId: string,
+  priority: number
+): Promise<void> {
+  const eventBridge = new EventBridge();
+  const EVENT_BUS_NAME =
+    process.env["EVENTBRIDGE_BUS_NAME"] || "comfyui-events";
+
+  await eventBridge
+    .putEvents({
+      Entries: [
+        {
+          Source: "comfyui.queue",
+          DetailType: "Queue Item Submission",
+          Detail: JSON.stringify({
+            queueId,
+            priority,
+            retryCount: 0,
+          }),
+          EventBusName: EVENT_BUS_NAME,
+        },
+      ],
+    })
+    .promise();
 }
 
 export const handler = LambdaHandlerUtil.withAuth(handleGenerate, {
