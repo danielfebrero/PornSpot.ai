@@ -165,7 +165,7 @@ export function AuthSuccessClient() {
         </button>
       </div>
 
-  {/* Confetti keyframes are global; apply per-item inline timing/colors */}
+      {/* Confetti keyframes are global; apply per-item inline timing/colors */}
 
       {/* Confetti Elements */}
       {isAnimated && isNewUser && (

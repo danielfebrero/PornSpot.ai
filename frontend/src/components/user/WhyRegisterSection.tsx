@@ -115,8 +115,6 @@ export function WhyRegisterSection() {
           </div>
         </div>
       </div>
-
-
     </div>
   );
 }
