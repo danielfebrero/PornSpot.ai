@@ -146,8 +146,9 @@ export default function SettingsPage() {
           router.push(`/${languageCode}/settings`);
         }
       }
-    } catch (error: any) {
-      alert(error.message || "Failed to update language preference");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to update language preference";
+      alert(errorMessage);
     } finally {
       setIsChangingLanguage(false);
     }
@@ -183,8 +184,9 @@ export default function SettingsPage() {
       });
 
       alert(tSettings("security.changePassword.success"));
-    } catch (error: any) {
-      alert(error.message || tSettings("messages.updateError"));
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : tSettings("messages.updateError");
+      alert(errorMessage);
     } finally {
       setIsChangingPassword(false);
     }
@@ -202,8 +204,9 @@ export default function SettingsPage() {
       await userApi.deleteAccount();
       // Redirect to home page after deletion
       router.push("/");
-    } catch (error: any) {
-      alert(error.message || tSettings("messages.updateError"));
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : tSettings("messages.updateError");
+      alert(errorMessage);
     } finally {
       setIsDeletingAccount(false);
     }
@@ -218,8 +221,9 @@ export default function SettingsPage() {
       setShowCancelSubscription(false);
       // Refresh user data
       window.location.reload();
-    } catch (error: any) {
-      alert(error.message || tSettings("messages.updateError"));
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : tSettings("messages.updateError");
+      alert(errorMessage);
     } finally {
       setIsUpdating(false);
     }
