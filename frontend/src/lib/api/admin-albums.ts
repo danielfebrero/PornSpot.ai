@@ -1,4 +1,5 @@
 import { ApiUtil } from "../api-util";
+import { Album } from "@/types";
 
 // Admin Albums API Functions
 export const adminAlbumsApi = {
@@ -7,7 +8,7 @@ export const adminAlbumsApi = {
     limit?: number;
     cursor?: string;
   }): Promise<{
-    albums: any[];
+    albums: Album[];
     pagination: {
       hasNext: boolean;
       cursor: string | null;
@@ -15,7 +16,7 @@ export const adminAlbumsApi = {
     };
   }> => {
     const response = await ApiUtil.get<{
-      albums: any[];
+      albums: Album[];
       pagination: {
         hasNext: boolean;
         cursor: string | null;

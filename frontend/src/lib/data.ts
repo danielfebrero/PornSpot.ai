@@ -1,4 +1,4 @@
-import { Album, Media } from "@/types";
+import { Album, Media, UnifiedPaginationMeta } from "@/types";
 import API_URL from "./api";
 
 // Helper function to handle API responses
@@ -47,7 +47,7 @@ export async function getAlbums(
     },
     // Remove cache: force-cache since we're using revalidate
   });
-  return handleResponse<{ albums: Album[]; pagination: any }>(response);
+  return handleResponse<{ albums: Album[]; pagination: UnifiedPaginationMeta }>(response);
 }
 // Fetch all public albums, handling pagination
 export async function fetchAllPublicAlbums(): Promise<Album[]> {
@@ -69,7 +69,7 @@ export async function fetchAllPublicAlbums(): Promise<Album[]> {
 
       if (response.data) {
         allAlbums = allAlbums.concat(response.data.albums);
-        cursor = response.data.pagination?.cursor;
+        cursor = response.data.pagination?.cursor || undefined;
         hasNextPage = !!cursor;
       } else {
         hasNextPage = false;
@@ -115,7 +115,7 @@ export async function getMediaForAlbum(
     // Remove cache: force-cache since we're using revalidate
   });
 
-  const result = await handleResponse<{ media: Media[]; pagination: any }>(
+  const result = await handleResponse<{ media: Media[]; pagination: UnifiedPaginationMeta }>(
     response
   );
 
