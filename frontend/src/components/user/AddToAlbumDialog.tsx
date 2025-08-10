@@ -29,7 +29,7 @@ export function AddToAlbumDialog({
   const tCommon = useTranslations("common");
   const { canCreatePrivateContent } = usePermissions();
   const { data: userProfile } = useUserProfile();
-  const user = userProfile?.data?.user || null;
+  const user = userProfile?.user || null;
 
   // Use TanStack Query hooks for albums and creation
   const {

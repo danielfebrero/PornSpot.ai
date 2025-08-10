@@ -95,7 +95,7 @@ export function LoginForm() {
         password: data.password,
       });
 
-      if (response.success) {
+      if (!!response) {
         // Clear stored return URL since we're about to use it
         clearReturnUrl();
 
@@ -105,12 +105,10 @@ export function LoginForm() {
         // Redirect to returnTo URL if provided, otherwise to home page
         const redirectUrl = returnTo || "/";
         router.push(redirectUrl);
-      } else if (response.error === "Email verification required") {
-        setEmailVerificationRequired(true);
       } else {
         setFormError("root", {
           type: "manual",
-          message: response.error || tAuth("errors.loginFailed"),
+          message: tAuth("errors.loginFailed"),
         });
       }
     } catch (err) {

@@ -24,10 +24,9 @@ interface AlbumDetailClientProps {
 
 export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
   const router = useRouter();
-  const { data: userResponse } = useUserProfile();
+  const { data } = useUserProfile();
 
-  // Extract user from the API response structure
-  const user = userResponse?.data?.user;
+  const user = data?.user;
 
   return (
     <div className="min-h-screen bg-background text-foreground">

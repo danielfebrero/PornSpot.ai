@@ -38,7 +38,7 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
     setSuccess(null);
     try {
       const response = await userApi.verifyEmail(data.code);
-      if (response.success && response.data?.user) {
+      if (response.user) {
         setSuccess(
           "Email verified successfully! You're now signed in. Redirecting to profile..."
         );

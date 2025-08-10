@@ -118,7 +118,9 @@ export function RegisterForm() {
       } catch (error) {
         setUsernameStatus("error");
         setUsernameMessage(
-          error instanceof Error ? error.message : "Failed to check username availability"
+          error instanceof Error
+            ? error.message
+            : "Failed to check username availability"
         );
       }
     },
@@ -163,7 +165,7 @@ export function RegisterForm() {
         username: data.username,
       });
 
-      if (result.success) {
+      if (!!result) {
         setRegistrationSuccess(true);
       } else {
         setFormError("root", {

@@ -22,14 +22,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
 
       const response = await userApi.me();
-
-      if (response.success && response.data?.user) {
-        // Store the raw user data for now
-        // The PermissionsWrapper will handle adding permissions
-        setUser(response.data.user);
-      } else {
+      if (!response) {
         setUser(null);
       }
+
+      setUser(response.user);
     } catch (err) {
       // Silent fail for auth check - user is simply not authenticated
       setUser(null);

@@ -28,7 +28,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const logoutMutation = useLogout();
   const checkAuthMutation = useCheckAuth();
 
-  const user = userProfile?.data?.user as UserWithPlanInfo | null;
+  const user = userProfile?.user as UserWithPlanInfo | null;
   const isAdmin = user?.role === "admin";
   const isModerator = user?.role === "moderator";
   const hasAdminAccess = isAdmin || isModerator;
@@ -48,7 +48,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       null,
     login: async (credentials: { email: string; password: string }) => {
       const result = await loginMutation.mutateAsync(credentials);
-      return result.success;
+      return !!result;
     },
     logout: async () => {
       await logoutMutation.mutateAsync();

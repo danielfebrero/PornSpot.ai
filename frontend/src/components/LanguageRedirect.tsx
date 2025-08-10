@@ -11,7 +11,7 @@ import { useLocaleRouter } from "@/lib/navigation";
  */
 export function LanguageRedirect() {
   const { data: userProfile, isLoading: loading } = useUserProfile();
-  const user = userProfile?.data?.user || null;
+  const user = userProfile?.user || null;
   const params = useParams();
   const router = useLocaleRouter();
   const currentLocale = params.locale as string;

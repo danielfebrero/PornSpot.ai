@@ -31,31 +31,37 @@ export interface CommentWithTarget extends SharedComment {
 // Frontend-specific authentication response types (with error field)
 export interface UserLoginResponse {
   success: boolean;
-  data?: {
-    user: BaseUser;
-    sessionId: string;
-  };
+  data?: ExtractedUserLoginResponse;
   error?: string;
   message?: string;
 }
 
+export interface ExtractedUserLoginResponse {
+  user: BaseUser;
+  sessionId: string;
+}
+
 export interface UserRegistrationResponse {
   success: boolean;
-  data?: {
-    userId: string;
-    email: string;
-    username: string;
-    message: string;
-  };
+  data?: ExtractedUserRegistrationResponse;
   error?: string;
+}
+
+export interface ExtractedUserRegistrationResponse {
+  userId: string;
+  email: string;
+  username: string;
+  message: string;
 }
 
 export interface UserMeResponse {
   success: boolean;
-  data?: {
-    user: BaseUser;
-  };
+  data?: ExtractedUserMeResponse;
   error?: string;
+}
+
+export interface ExtractedUserMeResponse {
+  user: BaseUser;
 }
 
 // Email verification types (not in backend shared types)
@@ -65,11 +71,13 @@ export interface EmailVerificationRequest {
 
 export interface EmailVerificationResponse {
   success: boolean;
-  data?: {
-    message: string;
-    user?: BaseUser;
-  };
+  data?: ExtractedVerificationResponse;
   error?: string;
+}
+
+export interface ExtractedVerificationResponse {
+  message: string;
+  user?: BaseUser;
 }
 
 export interface ResendVerificationRequest {
@@ -78,11 +86,13 @@ export interface ResendVerificationRequest {
 
 export interface ResendVerificationResponse {
   success: boolean;
-  data?: {
-    message: string;
-    email: string;
-  };
+  data?: ExtractedResendVerificationResponse;
   error?: string;
+}
+
+export interface ExtractedResendVerificationResponse {
+  message: string;
+  email: string;
 }
 
 // Frontend-specific username availability (with data wrapper)
@@ -143,11 +153,13 @@ export interface GoogleOAuthState {
 // Frontend-specific Google OAuth response (with data wrapper)
 export interface GoogleOAuthResponse {
   success: boolean;
-  data?: {
-    user: BaseUser;
-    redirectUrl: string;
-  };
+  data?: ExtractedGoogleOAuthResponse;
   error?: string;
+}
+
+export interface ExtractedGoogleOAuthResponse {
+  user: BaseUser;
+  redirectUrl: string;
 }
 
 // Extended user with plan information - frontend specific
@@ -182,30 +194,32 @@ export interface UserProfileUpdateRequest {
 
 export interface UserProfileUpdateResponse {
   success: boolean;
-  data?: {
-    message: string;
-    user?: {
-      userId: string;
-      email: string;
-      username: string;
-      bio?: string;
-      location?: string;
-      website?: string;
-      preferredLanguage?: string;
-      createdAt: string;
-      lastLoginAt?: string;
+  data?: ExtractedUserProfileUpdateResponse;
+  error?: string;
+}
 
-      // Avatar information
-      avatarUrl?: string;
-      avatarThumbnails?: {
-        originalSize?: string;
-        small?: string;
-        medium?: string;
-        large?: string;
-      };
+export interface ExtractedUserProfileUpdateResponse {
+  message: string;
+  user?: {
+    userId: string;
+    email: string;
+    username: string;
+    bio?: string;
+    location?: string;
+    website?: string;
+    preferredLanguage?: string;
+    createdAt: string;
+    lastLoginAt?: string;
+
+    // Avatar information
+    avatarUrl?: string;
+    avatarThumbnails?: {
+      originalSize?: string;
+      small?: string;
+      medium?: string;
+      large?: string;
     };
   };
-  error?: string;
 }
 
 // Public profile types - frontend specific

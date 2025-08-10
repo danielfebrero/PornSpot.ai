@@ -16,7 +16,7 @@ export function VerifyEmailClient() {
   const [state, setState] = useState<VerificationState>("loading");
   const [message, setMessage] = useState("");
   const { data: userProfile } = useUserProfile();
-  const user = userProfile?.data?.user || null;
+  const user = userProfile?.user || null;
   const verifyEmailMutation = useVerifyEmail();
   const checkAuthMutation = useCheckAuth();
   const searchParams = useSearchParams();
@@ -34,21 +34,18 @@ export function VerifyEmailClient() {
     const performVerification = async () => {
       try {
         const result = await verifyEmailMutation.mutateAsync(token);
-
-        if (result.success) {
-          setState("success");
+        if (!result) {
           setMessage(
-            "Your email has been successfully verified and you're now signed in!"
-          );
-          // Refresh user data to get updated verification status and authentication
-          await checkAuthMutation.mutateAsync();
-        } else {
-          setState("error");
-          setMessage(
-            result.error ||
-              "Email verification failed. The link may be expired or invalid."
+            "Email verification failed. The link may be expired or invalid."
           );
         }
+
+        setState("success");
+        setMessage(
+          "Your email has been successfully verified and you're now signed in!"
+        );
+
+        await checkAuthMutation.mutateAsync();
       } catch (err) {
         setState("error");
         setMessage(

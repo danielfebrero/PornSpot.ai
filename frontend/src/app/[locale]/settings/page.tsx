@@ -44,7 +44,7 @@ const languageOptions: LanguageOption[] = [
 
 export default function SettingsPage() {
   const { data: userProfile, isLoading: loading } = useUserProfile();
-  const user = userProfile?.data?.user || null;
+  const user = userProfile?.user || null;
   const userPermissions = useUserPermissions();
   const t = useTranslations();
   const tSettings = useTranslations("user.settings");
@@ -147,7 +147,10 @@ export default function SettingsPage() {
         }
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to update language preference";
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to update language preference";
       alert(errorMessage);
     } finally {
       setIsChangingLanguage(false);
@@ -185,7 +188,10 @@ export default function SettingsPage() {
 
       alert(tSettings("security.changePassword.success"));
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : tSettings("messages.updateError");
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : tSettings("messages.updateError");
       alert(errorMessage);
     } finally {
       setIsChangingPassword(false);
@@ -205,7 +211,10 @@ export default function SettingsPage() {
       // Redirect to home page after deletion
       router.push("/");
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : tSettings("messages.updateError");
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : tSettings("messages.updateError");
       alert(errorMessage);
     } finally {
       setIsDeletingAccount(false);
@@ -222,7 +231,10 @@ export default function SettingsPage() {
       // Refresh user data
       window.location.reload();
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : tSettings("messages.updateError");
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : tSettings("messages.updateError");
       alert(errorMessage);
     } finally {
       setIsUpdating(false);

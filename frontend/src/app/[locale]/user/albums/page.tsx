@@ -25,7 +25,7 @@ const UserAlbumsPage: React.FC = () => {
 
   // Get current user info
   const { data: userResponse } = useUserProfile();
-  const user = userResponse?.data?.user;
+  const user = userResponse?.user;
 
   // Use TanStack Query hooks for album operations
   const {
@@ -45,7 +45,9 @@ const UserAlbumsPage: React.FC = () => {
   // Extract albums from infinite query data
   const allAlbums = useMemo(() => {
     return (
-      albumsData?.pages.flatMap((page: UnifiedAlbumsResponse) => page.albums || []) || []
+      albumsData?.pages.flatMap(
+        (page: UnifiedAlbumsResponse) => page.albums || []
+      ) || []
     );
   }, [albumsData]);
 

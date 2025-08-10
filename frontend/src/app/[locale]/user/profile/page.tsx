@@ -5,7 +5,7 @@ import ProfileComponent from "@/components/profile/ProfileComponent";
 
 export default function ProfilePage() {
   const { data: userResponse, isLoading: loading } = useUserProfile();
-  const user = userResponse?.data?.user;
+  const user = userResponse?.user;
 
   // No user state
   if (!user && !loading) {

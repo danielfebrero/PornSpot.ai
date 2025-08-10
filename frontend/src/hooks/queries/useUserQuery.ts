@@ -2,7 +2,12 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { userApi } from "@/lib/api";
 import { queryKeys, queryClient, invalidateQueries } from "@/lib/queryClient";
 import { useUserContext } from "@/contexts/UserContext";
-import { UserLoginRequest, UserRegistrationRequest, UserProfileUpdateRequest, UserMeResponse } from "@/types";
+import {
+  UserLoginRequest,
+  UserRegistrationRequest,
+  UserProfileUpdateRequest,
+  UserMeResponse,
+} from "@/types";
 
 // Hook for fetching current user profile
 export function useUserProfile() {
@@ -41,12 +46,7 @@ export function useUserProfile() {
       return true;
     })(),
     // If UserContext already has user data, initialize the cache with it
-    initialData: userContext?.user
-      ? {
-          success: true,
-          data: { user: userContext.user },
-        }
-      : undefined,
+    initialData: userContext?.user ? { user: userContext.user } : undefined,
   });
 }
 
@@ -66,9 +66,12 @@ export function useUpdateUserProfile() {
       );
 
       // Optimistically update the cache
-      queryClient.setQueryData(queryKeys.user.profile(), (old: UserMeResponse | undefined) => {
-        return old ? { ...old, ...updates } : old;
-      });
+      queryClient.setQueryData(
+        queryKeys.user.profile(),
+        (old: UserMeResponse | undefined) => {
+          return old ? { ...old, ...updates } : old;
+        }
+      );
 
       return { previousProfile };
     },
@@ -189,9 +192,7 @@ export function useCheckAuth() {
     },
     onSuccess: (data) => {
       // Update cache with fresh user data
-      if (data.success && data.data?.user) {
-        queryClient.setQueryData(queryKeys.user.profile(), data);
-      }
+      queryClient.setQueryData(queryKeys.user.profile(), data);
     },
   });
 }

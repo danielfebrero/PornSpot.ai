@@ -17,7 +17,7 @@ interface PermissionsWrapperProps {
 
 export function PermissionsWrapper({ children }: PermissionsWrapperProps) {
   const { data: userResponse, isLoading: loading } = useUserProfile();
-  const user = userResponse?.data?.user || null;
+  const user = userResponse?.user || null;
   const [userWithPermissions, setUserWithPermissions] =
     useState<UserWithPlan | null>(null);
   const [lastProcessedUserId, setLastProcessedUserId] = useState<string | null>(

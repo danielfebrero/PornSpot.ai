@@ -32,7 +32,7 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   className,
 }) => {
   const { data: userProfile } = useUserProfile();
-  const user = userProfile?.data?.user || null;
+  const user = userProfile?.user || null;
   const { redirectToLogin } = useAuthRedirect();
 
   const t = useTranslations("common");

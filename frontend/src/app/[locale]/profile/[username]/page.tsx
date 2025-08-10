@@ -12,7 +12,7 @@ export default function PublicProfilePage() {
 
   // Get current user authentication status
   const { data: currentUserData, isLoading: authLoading } = useUserProfile();
-  const currentUser = currentUserData?.data?.user;
+  const currentUser = currentUserData?.user;
 
   // Fetch public profile data using TanStack Query
   const {

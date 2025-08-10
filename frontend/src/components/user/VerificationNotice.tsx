@@ -29,7 +29,7 @@ export function VerificationNotice({
 
       const result = await resendVerification(email);
 
-      if (result.success) {
+      if (!!result) {
         setResendSuccess(true);
       }
     } catch (err) {

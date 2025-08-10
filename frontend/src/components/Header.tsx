@@ -18,7 +18,7 @@ export function Header() {
   const tSite = useTranslations("site");
 
   // Extract user from the API response structure
-  const user = userResponse?.data?.user;
+  const user = userResponse?.user;
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);

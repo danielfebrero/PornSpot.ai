@@ -101,7 +101,7 @@ export default function ProfileComponent({
   const t = useTranslations("common");
   const { isMobile } = useDevice();
   const { data: userProfile } = useUserProfile();
-  const loggedInUser = userProfile?.data?.user || null;
+  const loggedInUser = userProfile?.user || null;
 
   // Use the abstracted username availability hook
   const {

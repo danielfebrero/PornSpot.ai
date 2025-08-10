@@ -131,7 +131,7 @@ export function ContentCard({
   const router = useLocaleRouter();
   const { startNavigation } = useNavigationLoading();
   const { data: userProfile } = useUserProfile();
-  const user = userProfile?.data?.user || null;
+  const user = userProfile?.user || null;
   const { redirectToLogin } = useAuthRedirect();
   const removeFromAlbumMutation = useRemoveMediaFromAlbum();
   const deleteMediaMutation = useDeleteMedia();

@@ -176,7 +176,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
   const { prefetch } = usePrefetchInteractionStatus();
 
   // Extract user from the API response structure
-  const user = userResponse?.data?.user;
+  const user = userResponse?.user;
 
   // Bulk prefetch view counts for the media
   const viewCountTargets = useMemo(() => {

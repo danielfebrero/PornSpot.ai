@@ -28,7 +28,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({
 }) => {
   const { data: userResponse, isLoading: loading } = useUserProfile();
   const userContext = useUserContext();
-  const user = userResponse?.data?.user;
+  const user = userResponse?.user;
   const router = useLocaleRouter();
   const t = useTranslations("navigation");
 

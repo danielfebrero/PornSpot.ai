@@ -21,12 +21,25 @@ if (!API_URL) {
   throw new Error("NEXT_PUBLIC_API_URL is not set");
 }
 import { ApiUtil } from "../api-util";
+import {
+  ExtractedGoogleOAuthResponse,
+  ExtractedResendVerificationResponse,
+  ExtractedUserLoginResponse,
+  ExtractedUserMeResponse,
+  ExtractedUserRegistrationResponse,
+  ExtractedVerificationResponse,
+} from "@/types/user";
 
 // User Authentication API Functions
 export const userApi = {
   // User login
-  login: async (credentials: UserLoginRequest): Promise<UserLoginResponse> => {
-    const response = await ApiUtil.post<UserLoginResponse>("/user/login", credentials);
+  login: async (
+    credentials: UserLoginRequest
+  ): Promise<ExtractedUserLoginResponse> => {
+    const response = await ApiUtil.post<ExtractedUserLoginResponse>(
+      "/user/login",
+      credentials
+    );
     return ApiUtil.extractData(response);
   },
 
@@ -34,15 +47,21 @@ export const userApi = {
   checkUsernameAvailability: async (
     request: UsernameAvailabilityRequest
   ): Promise<UsernameAvailabilityResponse> => {
-    const response = await ApiUtil.post<UsernameAvailabilityResponse>("/user/auth/check-username", request);
+    const response = await ApiUtil.post<UsernameAvailabilityResponse>(
+      "/user/auth/check-username",
+      request
+    );
     return ApiUtil.extractData(response);
   },
 
   // User registration
   register: async (
     userData: UserRegistrationRequest
-  ): Promise<UserRegistrationResponse> => {
-    const response = await ApiUtil.post<UserRegistrationResponse>("/user/register", userData);
+  ): Promise<ExtractedUserRegistrationResponse> => {
+    const response = await ApiUtil.post<ExtractedUserRegistrationResponse>(
+      "/user/register",
+      userData
+    );
     return ApiUtil.extractData(response);
   },
 
@@ -52,22 +71,30 @@ export const userApi = {
   },
 
   // Get current user
-  me: async (): Promise<UserMeResponse> => {
-    const response = await ApiUtil.get<UserMeResponse>("/user/me");
+  me: async (): Promise<ExtractedUserMeResponse> => {
+    const response = await ApiUtil.get<ExtractedUserMeResponse>("/user/me");
     return ApiUtil.extractData(response);
   },
 
   // Verify email
-  verifyEmail: async (token: string): Promise<EmailVerificationResponse> => {
-    const response = await ApiUtil.post<EmailVerificationResponse>("/user/verify-email", { token });
+  verifyEmail: async (
+    token: string
+  ): Promise<ExtractedVerificationResponse> => {
+    const response = await ApiUtil.post<ExtractedVerificationResponse>(
+      "/user/verify-email",
+      { token }
+    );
     return ApiUtil.extractData(response);
   },
 
   // Resend verification email
   resendVerification: async (
     email: string
-  ): Promise<ResendVerificationResponse> => {
-    const response = await ApiUtil.post<ResendVerificationResponse>("/user/resend-verification", { email });
+  ): Promise<ExtractedResendVerificationResponse> => {
+    const response = await ApiUtil.post<ExtractedResendVerificationResponse>(
+      "/user/resend-verification",
+      { email }
+    );
     return ApiUtil.extractData(response);
   },
 
@@ -75,8 +102,11 @@ export const userApi = {
   googleOAuthCallback: async (
     code: string,
     state?: string
-  ): Promise<GoogleOAuthResponse> => {
-    const response = await ApiUtil.post<GoogleOAuthResponse>("/auth/oauth/callback", { code, state });
+  ): Promise<ExtractedGoogleOAuthResponse> => {
+    const response = await ApiUtil.post<ExtractedGoogleOAuthResponse>(
+      "/auth/oauth/callback",
+      { code, state }
+    );
     return ApiUtil.extractData(response);
   },
 
@@ -84,7 +114,10 @@ export const userApi = {
   updateProfile: async (
     profileData: UserProfileUpdateRequest
   ): Promise<UserProfileUpdateResponse> => {
-    const response = await ApiUtil.put<UserProfileUpdateResponse>("/user/profile/edit", profileData);
+    const response = await ApiUtil.put<UserProfileUpdateResponse>(
+      "/user/profile/edit",
+      profileData
+    );
     return ApiUtil.extractData(response);
   },
 
@@ -93,13 +126,19 @@ export const userApi = {
     currentPassword: string;
     newPassword: string;
   }): Promise<{ success: boolean; message: string }> => {
-    const response = await ApiUtil.post<{ success: boolean; message: string }>("/user/auth/change-password", passwordData);
+    const response = await ApiUtil.post<{ success: boolean; message: string }>(
+      "/user/auth/change-password",
+      passwordData
+    );
     return ApiUtil.extractData(response);
   },
 
   // Delete account
   deleteAccount: async (): Promise<{ success: boolean; message: string }> => {
-    const response = await ApiUtil.delete<{ success: boolean; message: string }>("/user/account/delete");
+    const response = await ApiUtil.delete<{
+      success: boolean;
+      message: string;
+    }>("/user/account/delete");
     return ApiUtil.extractData(response);
   },
 
@@ -135,7 +174,10 @@ export const userApi = {
   getPublicProfile: async (
     username: string
   ): Promise<GetPublicProfileResponse> => {
-    const response = await ApiUtil.get<GetPublicProfileResponse>("/user/profile/get", { username });
+    const response = await ApiUtil.get<GetPublicProfileResponse>(
+      "/user/profile/get",
+      { username }
+    );
     return ApiUtil.extractData(response);
   },
 

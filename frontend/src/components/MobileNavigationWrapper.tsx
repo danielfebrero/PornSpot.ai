@@ -21,7 +21,7 @@ export function MobileNavigationWrapper() {
   const tNav = useTranslations("navigation");
 
   // Extract user from the API response structure
-  const user = userResponse?.data?.user;
+  const user = userResponse?.user;
 
   // Don't show on admin pages
   const isAdminPage = pathname.includes("/admin");

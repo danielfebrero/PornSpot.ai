@@ -117,7 +117,7 @@ function OAuthCallbackContent() {
           stateParam || undefined
         );
 
-        if (response.success && response.data?.user) {
+        if (response.user) {
           setState("success");
           setMessage("Successfully signed in with Google!");
 
@@ -145,11 +145,11 @@ function OAuthCallbackContent() {
 
           // Redirect to stored return URL or backend suggested URL or default success page
           const redirectUrl =
-            storedReturnTo || response.data?.redirectUrl || "/auth/success";
+            storedReturnTo || response?.redirectUrl || "/auth/success";
           router.push(redirectUrl);
         } else {
           setState("error");
-          setMessage(response.error || "OAuth authentication failed.");
+          setMessage("OAuth authentication failed.");
           hasProcessedRef.current = true;
 
           // Mark as processed with error
