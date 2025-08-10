@@ -100,6 +100,8 @@ const nextConfig = {
     externalDir: true,
   },
 
+  transpilePackages: ["shared-types"],
+
   // Enable static optimization and ISR
   output: "standalone", // or 'export' for full static export
 

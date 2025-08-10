@@ -1,5 +1,5 @@
 {
-  "name": "@pornspot-ai/shared-types",
+  "name": "shared-types",
   "version": "1.0.0",
   "description": "Shared TypeScript types for PornSpot.ai frontend and backend",
   "main": "dist/index.js",
