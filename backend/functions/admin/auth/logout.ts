@@ -13,8 +13,8 @@ const handleAdminLogout = async (
   const sessionId = AuthMiddleware.extractSessionFromCookies(cookieHeader);
 
   if (sessionId) {
-    // Delete the session from database, ignoring if it doesn't exist
-    await DynamoDBService.deleteSession(sessionId);
+    // Delete the user session from database (admins now use user sessions)
+    await DynamoDBService.deleteUserSession(sessionId);
     console.log(`🔓 Admin logout for session: ${sessionId}`);
   }
 

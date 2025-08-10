@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "./response";
 import { UserAuthUtil } from "./user-auth";
-import { AuthMiddleware } from "../auth/admin-middleware";
+import { DynamoDBService } from "./dynamodb";
 
 export interface AuthResult {
   userId: string;
@@ -307,55 +307,37 @@ export class LambdaHandlerUtil {
           }
         }
 
-        // Prefer API Gateway authorizer context (prod) and fallback to session (local dev)
-        const authorizer = event.requestContext.authorizer || {};
-        const userId = (authorizer["userId"] as string) || undefined;
-        // Support both 'role' and 'userRole' keys depending on authorizer implementation
-        const userRole =
-          (authorizer["role"] as string) ||
-          (authorizer["userRole"] as string) ||
-          undefined;
-        const email = (authorizer["email"] as string) || undefined;
+        // Use user authentication with role checking for admin access
+        const authResult = await UserAuthUtil.requireAuth(event, {
+          includeRole: true,
+        });
 
-        if (userId) {
-          console.log("🔐 Authorizer context found for admin:", {
-            userId,
-            ...(userRole && { userRole }),
-          });
-
-          // Note: Authorizer already enforced access; we just pass identity to handler
-          const auth: AdminAuthResult = {
-            adminId: userId,
-            // Use email if present; otherwise a stable identifier
-            username: email || userId,
-          };
-
-          console.log("✅ Authenticated admin via authorizer:", auth.username);
-          return await handler(event, auth);
+        if (UserAuthUtil.isErrorResponse(authResult)) {
+          return authResult;
         }
 
-        // Fallback: local dev without authorizers → validate admin session cookie
-        console.log(
-          "🔁 No authorizer context. Falling back to session validation..."
-        );
-        const sessionResult = await AuthMiddleware.validateSession(event);
-
-        if (!sessionResult.isValid || !sessionResult.admin) {
-          console.log(
-            "❌ Admin authentication failed (no authorizer and invalid session)"
-          );
-          return ResponseUtil.unauthorized(
+        // Check if user has admin role
+        if (authResult.userRole !== "admin") {
+          console.log(`❌ Access denied: User role '${authResult.userRole}' is not admin`);
+          return ResponseUtil.forbidden(
             event,
-            "Admin authentication required"
+            "Admin access required"
           );
+        }
+
+        // Get user details for admin context
+        const userEntity = await DynamoDBService.getUserById(authResult.userId!);
+        if (!userEntity) {
+          console.log("❌ Admin user not found in database");
+          return ResponseUtil.unauthorized(event, "Admin user not found");
         }
 
         const auth: AdminAuthResult = {
-          adminId: sessionResult.admin.adminId,
-          username: sessionResult.admin.username,
+          adminId: userEntity.userId, // Use userId as adminId for compatibility
+          username: userEntity.username || userEntity.email, // Use username or email as fallback
         };
 
-        console.log("✅ Authenticated admin via session:", auth.username);
+        console.log("✅ Authenticated admin via user role:", auth.username);
 
         // Call the actual handler
         return await handler(event, auth);
