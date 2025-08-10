@@ -165,86 +165,37 @@ export function AuthSuccessClient() {
         </button>
       </div>
 
-      {/* Celebratory Confetti Effect (CSS Animation) */}
-      <style jsx>{`
-        @keyframes confetti-fall {
-          0% {
-            transform: translateY(-100vh) rotate(0deg);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(100vh) rotate(360deg);
-            opacity: 0;
-          }
-        }
-
-        .confetti {
-          position: fixed;
-          top: -10px;
-          z-index: 1;
-          pointer-events: none;
-        }
-
-        .confetti:nth-child(1) {
-          left: 10%;
-          animation: confetti-fall 3s linear infinite;
-          background: #ff6b6b;
-        }
-        .confetti:nth-child(2) {
-          left: 20%;
-          animation: confetti-fall 3.2s linear infinite 0.2s;
-          background: #4ecdc4;
-        }
-        .confetti:nth-child(3) {
-          left: 30%;
-          animation: confetti-fall 2.8s linear infinite 0.4s;
-          background: #ffe66d;
-        }
-        .confetti:nth-child(4) {
-          left: 40%;
-          animation: confetti-fall 3.1s linear infinite 0.6s;
-          background: #ff6b6b;
-        }
-        .confetti:nth-child(5) {
-          left: 50%;
-          animation: confetti-fall 2.9s linear infinite 0.8s;
-          background: #a8e6cf;
-        }
-        .confetti:nth-child(6) {
-          left: 60%;
-          animation: confetti-fall 3.3s linear infinite 1s;
-          background: #ffd93d;
-        }
-        .confetti:nth-child(7) {
-          left: 70%;
-          animation: confetti-fall 2.7s linear infinite 1.2s;
-          background: #6bcf7f;
-        }
-        .confetti:nth-child(8) {
-          left: 80%;
-          animation: confetti-fall 3.2s linear infinite 1.4s;
-          background: #4d79ff;
-        }
-        .confetti:nth-child(9) {
-          left: 90%;
-          animation: confetti-fall 2.8s linear infinite 1.6s;
-          background: #ff6b9d;
-        }
-      `}</style>
+  {/* Confetti keyframes are global; apply per-item inline timing/colors */}
 
       {/* Confetti Elements */}
       {isAnimated && isNewUser && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          {[...Array(9)].map((_, i) => (
-            <div
-              key={i}
-              className="confetti w-2 h-2 absolute"
-              style={{
-                left: `${10 + i * 10}%`,
-                animationDelay: `${i * 0.2}s`,
-              }}
-            />
-          ))}
+          {(() => {
+            const colors = [
+              "#ff6b6b",
+              "#4ecdc4",
+              "#ffe66d",
+              "#ff6b6b",
+              "#a8e6cf",
+              "#ffd93d",
+              "#6bcf7f",
+              "#4d79ff",
+              "#ff6b9d",
+            ];
+            const durations = [3, 3.2, 2.8, 3.1, 2.9, 3.3, 2.7, 3.2, 2.8];
+            return [...Array(9)].map((_, i) => (
+              <div
+                key={i}
+                className="confetti w-2 h-2 absolute"
+                style={{
+                  left: `${10 + i * 10}%`,
+                  background: colors[i],
+                  animationDuration: `${durations[i]}s`,
+                  animationDelay: `${i * 0.2}s`,
+                }}
+              />
+            ));
+          })()}
         </div>
       )}
     </div>

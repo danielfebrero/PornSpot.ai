@@ -170,6 +170,11 @@ export const GradientTextarea: React.FC<GradientTextareaProps> = ({
         style={{
           caretColor: "hsl(var(--primary))",
           color: "transparent",
+          // Hide scrollbars where possible without styled-jsx
+          // Firefox
+          scrollbarWidth: "none",
+          // IE/Edge (legacy)
+          msOverflowStyle: "none",
         }}
         {...props}
       />
@@ -209,12 +214,6 @@ export const GradientTextarea: React.FC<GradientTextareaProps> = ({
         </div>
       </div>
 
-      {/* Custom CSS to hide webkit scrollbars */}
-      <style jsx>{`
-        div::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </div>
   );
 };
