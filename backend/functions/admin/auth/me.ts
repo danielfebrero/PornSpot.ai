@@ -43,8 +43,7 @@ const handleAdminMe = async (
   }
 
   // Get user role (admin or moderator)
-  const role =
-    userRole || (await PlanUtil.getUserRole(userId, userEntity.email));
+  const role = userRole || (await PlanUtil.getUserRole(userId));
 
   // Verify user has admin privileges
   if (role !== "admin" && role !== "moderator") {

@@ -6,7 +6,6 @@ export * from "@shared/shared-types";
 export * from "./utils/dynamodb";
 export * from "./utils/s3";
 export * from "./utils/response";
-export * from "./utils/admin";
 export * from "./utils/user";
 export * from "./utils/thumbnail";
 export * from "./utils/email";

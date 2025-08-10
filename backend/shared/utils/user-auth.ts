@@ -106,7 +106,7 @@ export class UserAuthUtil {
 
         // Get user role if requested and not already available
         if (includeRole && !userRole) {
-          userRole = await PlanUtil.getUserRole(userId, userEmail!);
+          userRole = await PlanUtil.getUserRole(userId);
           console.log("✅ User role from PlanUtil:", userRole);
         }
       } else if (includeRole && !userRole) {
@@ -115,7 +115,7 @@ export class UserAuthUtil {
         const validation = await UserAuthMiddleware.validateSession(event);
         if (validation.isValid && validation.user) {
           userEmail = validation.user.email;
-          userRole = await PlanUtil.getUserRole(userId, userEmail);
+          userRole = await PlanUtil.getUserRole(userId);
           console.log(
             "✅ User role from PlanUtil (authorizer fallback):",
             userRole

@@ -15,8 +15,6 @@ import {
   AlbumEntity,
   MediaEntity,
   AlbumMediaEntity,
-  AdminUserEntity,
-  AdminSessionEntity,
   CommentEntity,
 } from "@shared/shared-types";
 import {
@@ -1007,76 +1005,6 @@ export class DynamoDBService {
 
   static async decrementAlbumMediaCount(albumId: string): Promise<void> {
     return CounterUtil.decrementAlbumMediaCount(albumId);
-  }
-
-  // Admin operations
-  static async createAdminUser(admin: AdminUserEntity): Promise<void> {
-    await docClient.send(
-      new PutCommand({
-        TableName: TABLE_NAME,
-        Item: admin,
-        ConditionExpression: "attribute_not_exists(PK)",
-      })
-    );
-  }
-
-  static async getAdminByUsername(
-    username: string
-  ): Promise<AdminUserEntity | null> {
-    // Query using GSI1 to find admin by username
-    const result = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI1",
-        KeyConditionExpression: "GSI1PK = :gsi1pk AND GSI1SK = :gsi1sk",
-        ExpressionAttributeValues: {
-          ":gsi1pk": "ADMIN_USERNAME",
-          ":gsi1sk": username,
-        },
-        Limit: 1,
-      })
-    );
-
-    return (result.Items?.[0] as AdminUserEntity) || null;
-  }
-
-  static async getAdminById(adminId: string): Promise<AdminUserEntity | null> {
-    const result = await docClient.send(
-      new GetCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `ADMIN#${adminId}`,
-          SK: "METADATA",
-        },
-      })
-    );
-
-    return (result.Item as AdminUserEntity) || null;
-  }
-
-  static async createSession(session: AdminSessionEntity): Promise<void> {
-    await docClient.send(
-      new PutCommand({
-        TableName: TABLE_NAME,
-        Item: session,
-      })
-    );
-  }
-
-  static async getSession(
-    sessionId: string
-  ): Promise<AdminSessionEntity | null> {
-    const result = await docClient.send(
-      new GetCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `SESSION#${sessionId}`,
-          SK: "METADATA",
-        },
-      })
-    );
-
-    return (result.Item as AdminSessionEntity) || null;
   }
 
   static async deleteSession(sessionId: string): Promise<void> {

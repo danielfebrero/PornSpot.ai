@@ -50,8 +50,7 @@ export const handler = async (
 
       // Get user role
       const userRole = await AuthorizerUtil.getUserRole(
-        userValidation.user.userId,
-        userValidation.user.email
+        userValidation.user.userId
       );
 
       // Check if user has admin or moderator role

@@ -212,34 +212,3 @@ export interface EmailVerificationTokenEntity extends BaseEntity {
   expiresAt: string;
   ttl: number; // For DynamoDB TTL
 }
-
-// Admin User Entity
-export interface AdminUserEntity extends BaseEntity {
-  PK: string; // ADMIN#{adminId}
-  SK: string; // METADATA
-  GSI1PK: string; // ADMIN_USERNAME
-  GSI1SK: string; // {username}
-  EntityType: "AdminUser";
-  adminId: string;
-  username: string;
-  passwordHash: string;
-  salt: string;
-  createdAt: string;
-  isActive: boolean;
-}
-
-// Admin Session Entity
-export interface AdminSessionEntity extends BaseEntity {
-  PK: string; // SESSION#{sessionId}
-  SK: string; // METADATA
-  GSI1PK: string; // SESSION_EXPIRY
-  GSI1SK: string; // {expiresAt}#{sessionId}
-  EntityType: "AdminSession";
-  sessionId: string;
-  adminId: string;
-  adminUsername: string;
-  createdAt: string;
-  expiresAt: string;
-  lastAccessedAt: string;
-  ttl: number; // For DynamoDB TTL
-}
