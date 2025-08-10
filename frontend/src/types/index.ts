@@ -1,4 +1,5 @@
-import { Album, ApiResponse, Media } from "shared-types";
+import type { Album, ApiResponse, Media } from "shared-types";
+export type { Album, ApiResponse, Media } from "shared-types";
 
 // Re-export shared types from the shared types package
 export * from "shared-types";
