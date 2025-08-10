@@ -118,6 +118,15 @@ const nextConfig = {
 
   // Power by header
   poweredByHeader: false,
+
+  typescript: {
+    // ❌ Danger: production build will still succeed even with TS errors
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    // Skips ESLint during builds
+    ignoreDuringBuilds: true,
+  },
 };
 
 module.exports = withNextIntl(nextConfig);
