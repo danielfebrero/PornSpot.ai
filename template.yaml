@@ -1628,7 +1628,8 @@ Resources:
             RestApiId: !Ref ApiGateway
             Path: /auth/oauth/callback
             Method: OPTIONS
-            Auth: { Authorizer: NONE }
+            Auth:
+              Authorizer: NONE
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable

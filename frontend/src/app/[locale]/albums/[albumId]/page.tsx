@@ -82,10 +82,11 @@ export default async function AlbumDetailPage({
   const queryClient = new QueryClient();
   const limit = 20; // keep in sync with MediaGallery/useAlbumMedia default
   try {
-    const firstPage = await mediaApi.getAlbumMedia(albumId, { limit });
-    queryClient.setQueryData(["media", "album", albumId, { limit }], {
-      pages: [firstPage],
-      pageParams: [undefined],
+    await queryClient.prefetchInfiniteQuery({
+      queryKey: ["media", "album", albumId, { limit }],
+      queryFn: async ({ pageParam }) =>
+        mediaApi.getAlbumMedia(albumId, { limit, cursor: pageParam }),
+      initialPageParam: undefined,
     });
   } catch (e) {
     // Non-blocking: if prefetch fails, client will fetch on mount
