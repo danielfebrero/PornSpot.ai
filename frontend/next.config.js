@@ -90,6 +90,8 @@ const nextConfig = {
         fs: false,
       };
     }
+
+    return config;
   },
 
   // Performance optimizations
