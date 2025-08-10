@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -18,6 +18,7 @@ import { ContentCard } from "@/components/ui/ContentCard";
 import { GradientTextarea } from "@/components/ui/GradientTextarea";
 import { MagicText, MagicTextHandle } from "@/components/ui/MagicText";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
+import { useGeneration } from "@/hooks/useGeneration";
 import { Media } from "@/types";
 import {
   ImageIcon,
@@ -28,6 +29,10 @@ import {
   MinusCircle,
   Sparkles,
   RotateCcw,
+  Clock,
+  Users,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocaleRouter } from "@/lib/navigation";
@@ -103,9 +108,7 @@ export function GenerateClient() {
     optimizePrompt: true,
   });
 
-  const [isGenerating, setIsGenerating] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [allGeneratedImages, setAllGeneratedImages] = useState<string[]>([]);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -118,6 +121,21 @@ export function GenerateClient() {
     originalPromptBeforeOptimization,
     setOriginalPromptBeforeOptimization,
   ] = useState<string>("");
+
+  // Use the new generation hook with WebSocket support
+  const {
+    isGenerating,
+    queueStatus,
+    generatedImages,
+    error,
+    progress,
+    maxProgress,
+    currentMessage,
+    retryCount,
+    isRetrying,
+    generateImages,
+    clearResults,
+  } = useGeneration();
 
   const {
     canGenerateImages,
@@ -323,34 +341,30 @@ export function GenerateClient() {
       }
     }
 
-    setIsGenerating(true);
+    // Clear any previous results
+    clearResults();
 
-    // Simulate generation process
-    const promises = Array(settings.batchCount)
-      .fill(null)
-      .map(
-        (_, i) =>
-          new Promise<string>((resolve) => {
-            setTimeout(() => {
-              resolve(
-                `https://picsum.photos/${settings.customWidth}/${
-                  settings.customHeight
-                }?random=${Date.now()}_${i}`
-              );
-            }, 2000 + Math.random() * 1000);
-          })
-      );
-
-    try {
-      const images = await Promise.all(promises);
-      setGeneratedImages(images);
-      setAllGeneratedImages((prev) => [...images, ...prev]);
-    } catch (error) {
-      console.error("Generation failed:", error);
-    } finally {
-      setIsGenerating(false);
-    }
+    // Submit to generation queue
+    await generateImages({
+      prompt: finalPrompt,
+      negativePrompt: settings.negativePrompt || undefined,
+      imageSize: settings.imageSize,
+      customWidth: settings.customWidth,
+      customHeight: settings.customHeight,
+      batchCount: settings.batchCount,
+      selectedLoras: settings.selectedLoras,
+    });
   };
+
+  // Update allGeneratedImages when new images are generated
+  React.useEffect(() => {
+    if (generatedImages.length > 0) {
+      setAllGeneratedImages((prev) => [
+        ...generatedImages.map((img) => img.url),
+        ...prev,
+      ]);
+    }
+  }, [generatedImages]);
 
   const handleCastSpell = (newText: string) => {
     if (magicTextRef.current) {
@@ -421,25 +435,126 @@ export function GenerateClient() {
             </div>
           )}
 
-          {/* Generation Results / Loading */}
+          {/* Generation Results / Loading / Queue Status */}
           {(isGenerating || generatedImages.length > 0) && (
             <div className="text-center space-y-6">
               {isGenerating ? (
                 <div className="relative">
-                  <div className="w-full max-w-md mx-auto aspect-square bg-gradient-to-br from-muted/50 to-muted/30 border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center shadow-lg">
-                    <div className="relative">
-                      <div className="w-16 h-16 bg-gradient-to-br from-primary to-purple-600 rounded-full flex items-center justify-center mb-6 shadow-xl">
-                        <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-full max-w-md mx-auto bg-gradient-to-br from-muted/50 to-muted/30 border-2 border-border rounded-2xl p-6 shadow-lg">
+                    {/* Queue Status */}
+                    {queueStatus && (
+                      <div className="mb-6 space-y-4">
+                        {queueStatus.status === "pending" && (
+                          <div className="flex items-center justify-center gap-3">
+                            <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center">
+                              <Clock className="h-4 w-4 text-white" />
+                            </div>
+                            <div className="text-left">
+                              <h3 className="text-lg font-semibold text-foreground">
+                                Queued for Generation
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                Position #{queueStatus.queuePosition} in queue
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {queueStatus.status === "processing" && (
+                          <div className="flex items-center justify-center gap-3">
+                            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                              <Zap className="h-4 w-4 text-white animate-pulse" />
+                            </div>
+                            <div className="text-left">
+                              <h3 className="text-lg font-semibold text-foreground">
+                                {isRetrying
+                                  ? "Retrying Generation"
+                                  : "Generating Your Masterpiece"}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                {isRetrying
+                                  ? `Attempt ${retryCount}/3 - AI is working its magic...`
+                                  : "AI is working its magic..."}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Retry Status - Show when retrying but not processing yet */}
+                        {isRetrying && queueStatus?.status === "pending" && (
+                          <div className="flex items-center justify-center gap-3">
+                            <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center">
+                              <RotateCcw className="h-4 w-4 text-white animate-spin" />
+                            </div>
+                            <div className="text-left">
+                              <h3 className="text-lg font-semibold text-foreground">
+                                Retrying Generation
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                Attempt {retryCount}/3 - Previous attempt
+                                failed, retrying...
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Progress Bar */}
+                        {progress > 0 && maxProgress > 0 && (
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">
+                                Progress
+                              </span>
+                              <span className="text-foreground font-medium">
+                                {Math.round((progress / maxProgress) * 100)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-muted rounded-full h-2">
+                              <div
+                                className="bg-primary h-2 rounded-full transition-all duration-300"
+                                style={{
+                                  width: `${(progress / maxProgress) * 100}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Current Message */}
+                        {currentMessage && (
+                          <p className="text-sm text-muted-foreground">
+                            {currentMessage}
+                          </p>
+                        )}
+
+                        {/* Estimated Wait Time */}
+                        {queueStatus.status === "pending" &&
+                          queueStatus.estimatedWaitTime > 0 && (
+                            <div className="text-xs text-muted-foreground">
+                              Estimated wait: ~
+                              {Math.round(
+                                queueStatus.estimatedWaitTime / 1000 / 60
+                              )}{" "}
+                              minutes
+                            </div>
+                          )}
                       </div>
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-semibold text-foreground">
-                        Generating Your Masterpiece
-                      </h3>
-                      <p className="text-muted-foreground">
-                        Creating magic with AI... This may take a few moments
-                      </p>
-                    </div>
+                    )}
+
+                    {/* Error Display */}
+                    {error && (
+                      <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
+                        <div className="flex items-center gap-2 text-destructive">
+                          <AlertCircle className="h-4 w-4" />
+                          <span className="text-sm font-medium">
+                            Generation Failed
+                          </span>
+                        </div>
+                        <p className="text-xs text-destructive/80 mt-1">
+                          {error}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : settings.batchCount === 1 ? (
@@ -452,7 +567,7 @@ export function GenerateClient() {
                   </div>
                   <div className="w-full max-w-md mx-auto">
                     <ContentCard
-                      item={createMediaFromUrl(generatedImages[0], 0)}
+                      item={createMediaFromUrl(generatedImages[0].url, 0)}
                       aspectRatio="square"
                       canLike={false}
                       canBookmark={false}
@@ -460,8 +575,8 @@ export function GenerateClient() {
                       canAddToAlbum={true}
                       canDownload={true}
                       canDelete={true}
-                      mediaList={generatedImages.map((url, index) =>
-                        createMediaFromUrl(url, index)
+                      mediaList={generatedImages.map((image, index) =>
+                        createMediaFromUrl(image.url, index)
                       )}
                       currentIndex={0}
                     />
@@ -479,7 +594,7 @@ export function GenerateClient() {
                     {generatedImages.map((image, index) => (
                       <ContentCard
                         key={index}
-                        item={createMediaFromUrl(image, index)}
+                        item={image}
                         aspectRatio="square"
                         canLike={false}
                         canBookmark={false}
@@ -487,9 +602,7 @@ export function GenerateClient() {
                         canAddToAlbum={true}
                         canDownload={true}
                         canDelete={true}
-                        mediaList={generatedImages.map((url, idx) =>
-                          createMediaFromUrl(url, idx)
-                        )}
+                        mediaList={generatedImages}
                         currentIndex={index}
                       />
                     ))}

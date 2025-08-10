@@ -35,6 +35,7 @@
     "migrate:gsi4-albums:dry-run": "npm run build && node dist/scripts/backfill-gsi4-albums.js --dry-run"
   },
   "dependencies": {
+    "@aws-sdk/client-apigatewaymanagementapi": "^3.450.0",
     "@aws-sdk/client-dynamodb": "^3.450.0",
     "@aws-sdk/client-s3": "^3.450.0",
     "@aws-sdk/client-ssm": "^3.450.0",
@@ -48,15 +49,19 @@
     "google-auth-library": "^9.6.3",
     "googleapis": "^134.0.0",
     "mime-types": "^2.1.35",
+    "node-fetch": "^3.3.2",
     "sharp": "^0.34.3",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "ws": "^8.14.2"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.126",
     "@types/jest": "^29.5.8",
     "@types/mime-types": "^2.1.4",
     "@types/node": "^20.9.0",
+    "@types/node-fetch": "^2.6.9",
     "@types/uuid": "^9.0.8",
+    "@types/ws": "^8.5.9",
     "@typescript-eslint/eslint-plugin": "^6.11.0",
     "@typescript-eslint/parser": "^6.11.0",
     "aws-sdk-client-mock": "^3.0.0",

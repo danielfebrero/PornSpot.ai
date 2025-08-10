@@ -207,7 +207,7 @@ DYNAMODB_ENDPOINT=http://localhost:8000
 DYNAMODB_TABLE_PREFIX=test_
 
 # S3 Configuration
-S3_BUCKET_NAME=test-pornspot-ai
+S3_BUCKET=test-pornspot-ai
 S3_ENDPOINT=http://localhost:4566
 
 # API Configuration

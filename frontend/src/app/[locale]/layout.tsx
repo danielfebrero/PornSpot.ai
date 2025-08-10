@@ -9,6 +9,7 @@ import { UserProvider } from "@/contexts/UserContext";
 import { NavigationLoadingProvider } from "@/contexts/NavigationLoadingContext";
 import { DeviceProvider } from "@/contexts/DeviceContext";
 import { ReturnUrlProvider } from "@/contexts/ReturnUrlContext";
+import { WebSocketProvider } from "@/contexts/WebSocketContext";
 
 import { Header } from "@/components/Header";
 import { PermissionsWrapper } from "@/components/PermissionsWrapper";
@@ -114,45 +115,49 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
       <QueryProvider>
-        <PrefetchProvider>
-          <PageErrorBoundary context={`Locale Layout (${locale})`}>
-            <DeviceProvider initialDeviceInfo={deviceInfo}>
-              <ReturnUrlProvider>
-                <UserProvider>
-                  <PermissionsWrapper>
-                    <AdminProvider>
-                      <NavigationLoadingProvider>
-                        <LanguageRedirect />
-                        <div className="min-h-screen bg-background flex flex-col">
-                          <SectionErrorBoundary context="Header">
-                            <Header />
-                          </SectionErrorBoundary>
-                          <SectionErrorBoundary context="Main Content">
-                            <MainContentWrapper>{children}</MainContentWrapper>
-                          </SectionErrorBoundary>
-                          <SectionErrorBoundary context="Footer">
-                            <footer className="border-t border-border mt-16 pb-[55px] lg:pb-0">
-                              <div className="container mx-auto py-4">
-                                <div className="text-center">
-                                  <p className="text-muted-foreground">
-                                    &copy; 2024 PornSpot.ai. All rights
-                                    reserved.
-                                  </p>
+        <WebSocketProvider>
+          <PrefetchProvider>
+            <PageErrorBoundary context={`Locale Layout (${locale})`}>
+              <DeviceProvider initialDeviceInfo={deviceInfo}>
+                <ReturnUrlProvider>
+                  <UserProvider>
+                    <PermissionsWrapper>
+                      <AdminProvider>
+                        <NavigationLoadingProvider>
+                          <LanguageRedirect />
+                          <div className="min-h-screen bg-background flex flex-col">
+                            <SectionErrorBoundary context="Header">
+                              <Header />
+                            </SectionErrorBoundary>
+                            <SectionErrorBoundary context="Main Content">
+                              <MainContentWrapper>
+                                {children}
+                              </MainContentWrapper>
+                            </SectionErrorBoundary>
+                            <SectionErrorBoundary context="Footer">
+                              <footer className="border-t border-border mt-16 pb-[55px] lg:pb-0">
+                                <div className="container mx-auto py-4">
+                                  <div className="text-center">
+                                    <p className="text-muted-foreground">
+                                      &copy; 2024 PornSpot.ai. All rights
+                                      reserved.
+                                    </p>
+                                  </div>
                                 </div>
-                              </div>
-                            </footer>
-                          </SectionErrorBoundary>
-                        </div>
-                        <NavigationLoadingOverlay />
-                        <MobileNavigationWrapper />
-                      </NavigationLoadingProvider>
-                    </AdminProvider>
-                  </PermissionsWrapper>
-                </UserProvider>
-              </ReturnUrlProvider>
-            </DeviceProvider>
-          </PageErrorBoundary>
-        </PrefetchProvider>
+                              </footer>
+                            </SectionErrorBoundary>
+                          </div>
+                          <NavigationLoadingOverlay />
+                          <MobileNavigationWrapper />
+                        </NavigationLoadingProvider>
+                      </AdminProvider>
+                    </PermissionsWrapper>
+                  </UserProvider>
+                </ReturnUrlProvider>
+              </DeviceProvider>
+            </PageErrorBoundary>
+          </PrefetchProvider>
+        </WebSocketProvider>
       </QueryProvider>
     </NextIntlClientProvider>
   );

@@ -15,7 +15,9 @@ import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 import { getGenerationPermissions } from "@shared/utils/permissions";
 import { Media } from "@shared";
-import { saveGeneratedMediaToDatabase, createGenerationId } from "./utils";
+import { getRateLimitingService } from "@shared/services/rate-limiting";
+import { broadcastToPromptSubscribers } from "../websocket/route";
+import { GenerationQueueService } from "@shared/services/generation-queue";
 
 interface GenerationRequest {
   prompt: string;
@@ -28,7 +30,12 @@ interface GenerationRequest {
 }
 
 interface GenerationResponse {
-  images: Media[];
+  queueId: string;
+  queuePosition: number;
+  estimatedWaitTime: number;
+  status: "pending" | "processing" | "completed" | "failed";
+  message: string;
+  images?: Media[];
 }
 
 const handleGenerate = async (
@@ -132,64 +139,103 @@ const handleGenerate = async (
     );
   }
 
-  // Generate unique generation ID
-  const generationId = createGenerationId();
-
-  // For now, simulate image generation with placeholder images
-  // TODO: Integrate with actual AI image generation service
-  const mockUrls = Array(batchCount)
-    .fill(null)
-    .map((_, index) => {
-      const width =
-        imageSize === "custom"
-          ? customWidth
-          : parseInt(imageSize?.split("x")[0] || "1024");
-      const height =
-        imageSize === "custom"
-          ? customHeight
-          : parseInt(imageSize?.split("x")[1] || "1024");
-      return `https://picsum.photos/${width}/${height}?random=${generationId}_${index}`;
-    });
-
-  // Save generated media to database
-  const saveResult = await saveGeneratedMediaToDatabase({
-    userId: auth.userId,
-    generationId,
-    batchCount,
-    prompt: validatedPrompt.trim(),
-    negativePrompt,
-    imageSize:
-      imageSize === "custom" ? `${customWidth}x${customHeight}` : imageSize,
-    selectedLoras,
-    mockUrls,
-  });
-
-  // Check if any saves failed
-  if (saveResult.errors.length > 0) {
-    console.warn(`⚠️ Some media failed to save:`, saveResult.errors);
-  }
-
-  const response: GenerationResponse = {
-    images: saveResult.mediaEntities,
-  };
-
-  console.log(
-    `✅ User ${auth.userId} generated and saved ${saveResult.savedCount}/${batchCount} image(s) to database, plan: ${userPlan}`
+  // Check rate limits with ComfyUI-specific rate limiting
+  const rateLimitingService = getRateLimitingService();
+  const rateLimitResult = await rateLimitingService.checkRateLimit(
+    auth.userId,
+    userPlan
   );
 
-  // Update user usage statistics (handled by the utility function for totalGeneratedMedias)
-  try {
-    await PlanUtil.updateUserUsageStats(auth.userId);
-    console.log(`📊 Updated usage stats for user ${auth.userId}`);
-  } catch (error) {
-    console.error(
-      `Failed to update usage stats for user ${auth.userId}:`,
-      error
+  if (!rateLimitResult.allowed) {
+    return ResponseUtil.forbidden(
+      event,
+      rateLimitResult.reason || "Rate limit exceeded"
     );
-    // Don't fail the generation if usage tracking fails
   }
 
-  return ResponseUtil.success(event, response);
+  // Create workflow parameters for queue entry
+  const workflowParams = {
+    width:
+      imageSize === "custom"
+        ? customWidth
+        : parseInt(imageSize?.split("x")[0] || "1024"),
+    height:
+      imageSize === "custom"
+        ? customHeight
+        : parseInt(imageSize?.split("x")[1] || "1024"),
+    steps: 20, // Default steps
+    cfg_scale: 7.0, // Default CFG scale
+    batch_size: batchCount,
+  };
+
+  // Get queue service and add request to queue
+  const queueService = GenerationQueueService.getInstance();
+
+  // Determine priority based on user plan
+  let priority = 1000; // Default priority
+  switch (userPlan) {
+    case "unlimited":
+      priority = 0; // Highest priority
+      break;
+    case "pro":
+      priority = 100;
+      break;
+    case "starter":
+      priority = 500;
+      break;
+    case "free":
+      priority = 1000;
+      break;
+  }
+
+  // Add to queue with WebSocket connection ID if available
+  const connectionId = event.requestContext?.connectionId;
+
+  try {
+    const queueEntry = await queueService.addToQueue(
+      auth.userId,
+      validatedPrompt.trim(),
+      workflowParams,
+      connectionId,
+      priority
+    );
+
+    console.log(
+      `📋 Added generation request to queue: ${queueEntry.queueId} for user ${auth.userId}, position: ${queueEntry.queuePosition}`
+    );
+
+    const response: GenerationResponse = {
+      queueId: queueEntry.queueId,
+      queuePosition: queueEntry.queuePosition || 1,
+      estimatedWaitTime: queueEntry.estimatedWaitTime || 0,
+      status: "pending",
+      message: `Your request has been added to the queue. Position: ${
+        queueEntry.queuePosition || 1
+      }`,
+    };
+
+    // Broadcast queue status to WebSocket if connection available
+    if (connectionId) {
+      try {
+        await broadcastToPromptSubscribers(queueEntry.queueId, {
+          type: "queued",
+          queuePosition: queueEntry.queuePosition,
+          estimatedWaitTime: queueEntry.estimatedWaitTime,
+          message: response.message,
+        });
+      } catch (broadcastError) {
+        console.error("Failed to broadcast queue status:", broadcastError);
+      }
+    }
+
+    return ResponseUtil.success(event, response);
+  } catch (queueError) {
+    console.error("Failed to add request to queue:", queueError);
+    return ResponseUtil.internalError(
+      event,
+      "Failed to process generation request"
+    );
+  }
 };
 
 // Helper function to check generation limits
