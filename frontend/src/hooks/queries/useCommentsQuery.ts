@@ -59,7 +59,7 @@ export function useTargetComments(
       );
     },
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage: any) => {
+    getNextPageParam: (lastPage: CommentsResponse) => {
       return lastPage.data?.pagination?.hasNext
         ? lastPage.data.pagination.cursor
         : undefined;

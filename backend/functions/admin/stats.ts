@@ -20,8 +20,27 @@ import {
 
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
 
+interface DynamoDBClientConfig {
+  endpoint?: string;
+  region?: string;
+  credentials?: {
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
+}
+
+interface S3ClientConfig {
+  endpoint?: string;
+  region?: string;
+  credentials?: {
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
+  forcePathStyle?: boolean;
+}
+
 // DynamoDB client setup
-const clientConfig: any = {};
+const clientConfig: DynamoDBClientConfig = {};
 if (isLocal) {
   clientConfig.endpoint = "http://pornspot-local-aws:4566";
   clientConfig.region = "us-east-1";
@@ -35,7 +54,7 @@ const client = new DynamoDBClient(clientConfig);
 const docClient = DynamoDBDocumentClient.from(client);
 
 // S3 client setup
-let s3Config: any = {};
+let s3Config: S3ClientConfig = {};
 if (isLocal) {
   s3Config = {
     endpoint: "http://pornspot-local-aws:4566",

@@ -1,6 +1,7 @@
 import {
   APIGatewayRequestAuthorizerEvent,
   APIGatewayAuthorizerResult,
+  APIGatewayProxyEvent,
 } from "aws-lambda";
 import { UserAuthMiddleware } from "../auth/user-middleware";
 import { PlanUtil } from "./plan";
@@ -16,9 +17,9 @@ export class AuthorizerUtil {
     principalId: string,
     effect: "Allow" | "Deny",
     resource: string,
-    context?: { [key: string]: any }
+    context?: { [key: string]: string | number | boolean }
   ): APIGatewayAuthorizerResult {
-    const authResponse: any = {
+    const authResponse: APIGatewayAuthorizerResult = {
       principalId,
       policyDocument: {
         Version: "2012-10-17",
@@ -91,14 +92,14 @@ export class AuthorizerUtil {
    */
   static async validateUserSession(cookieHeader: string) {
     console.log("🔧 Creating mock event for session validation...");
-    const mockEvent: any = {
+    const mockEvent: Partial<APIGatewayProxyEvent> = {
       headers: {
         Cookie: cookieHeader,
       },
     };
 
     console.log("⚡ Calling UserAuthMiddleware.validateSession...");
-    const userValidation = await UserAuthMiddleware.validateSession(mockEvent);
+    const userValidation = await UserAuthMiddleware.validateSession(mockEvent as APIGatewayProxyEvent);
     console.log("📊 User validation result:", {
       isValid: userValidation.isValid,
       hasUser: !!userValidation.user,

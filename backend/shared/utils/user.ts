@@ -298,7 +298,16 @@ export class UserUtil {
     lastLoginAt?: string;
     lastActive?: string;
   } {
-    const response: any = {
+    const response: {
+      userId: string;
+      email: string;
+      username: string;
+      createdAt: string;
+      isActive: boolean;
+      isEmailVerified: boolean;
+      lastLoginAt?: string;
+      lastActive?: string;
+    } = {
       userId: userEntity.userId,
       email: userEntity.email,
       username: userEntity.username,

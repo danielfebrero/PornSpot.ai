@@ -1,4 +1,5 @@
 import React from "react";
+import { Album } from "@/types";
 import { render, screen, waitFor, user } from "../utils/test-utils";
 import { server } from "../mocks/server";
 import { http, HttpResponse } from "msw";
@@ -36,7 +37,7 @@ const AlbumsList = () => {
 
   return (
     <div data-testid="albums-list">
-      {albums.map((album: any) => (
+      {albums.map((album: Album) => (
         <div key={album.id} data-testid={`album-${album.id}`}>
           <h3>{album.title}</h3>
           <div>
@@ -280,7 +281,7 @@ describe("API Integration Tests", () => {
 
         return (
           <div data-testid="public-albums-list">
-            {albums.map((album: any) => (
+            {albums.map((album: Album) => (
               <div key={album.id} data-testid={`album-${album.id}`}>
                 {album.title}
               </div>
@@ -341,7 +342,7 @@ describe("API Integration Tests", () => {
         return (
           <div>
             <div data-testid="albums-list">
-              {albums.map((album: any) => (
+              {albums.map((album: Album) => (
                 <div key={album.id} data-testid={`album-${album.id}`}>
                   {album.title}
                 </div>

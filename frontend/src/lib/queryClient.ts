@@ -1,4 +1,51 @@
 import { QueryClient } from "@tanstack/react-query";
+import type { 
+  ApiResponse, 
+  Album, 
+  Media, 
+  UserInteraction,
+  UnifiedAlbumsResponse,
+  UnifiedMediaResponse,
+  UnifiedPaginationMeta 
+} from "@/types";
+
+// Error type for React Query retry function
+interface QueryError {
+  response?: {
+    status: number;
+  };
+  message?: string;
+}
+
+// Cache data types for optimistic updates
+interface InteractionStatusData {
+  success: boolean;
+  data: {
+    statuses: Array<{
+      targetType: "album" | "media" | "comment";
+      targetId: string;
+      userLiked: boolean;
+      userBookmarked: boolean;
+      likeCount: number;
+      bookmarkCount: number;
+    }>;
+  };
+}
+
+interface AlbumsListData {
+  albums: Album[];
+  pagination?: UnifiedPaginationMeta;
+}
+
+interface InfiniteQueryPage<T> {
+  data: T;
+  pagination?: UnifiedPaginationMeta;
+}
+
+interface InfiniteQueryData<T> {
+  pages: InfiniteQueryPage<T>[];
+  pageParams: unknown[];
+}
 
 // Default query options that apply to all queries
 const defaultQueryOptions = {
@@ -8,9 +55,12 @@ const defaultQueryOptions = {
     // Keep data in cache for 30 minutes even if unused
     gcTime: 30 * 60 * 1000,
     // Retry failed requests up to 3 times with exponential backoff
-    retry: (failureCount: number, error: any) => {
+    retry: (failureCount: number, error: unknown) => {
+      const queryError = error as QueryError;
       // Don't retry 4xx errors (client errors)
-      if (error?.response?.status >= 400 && error?.response?.status < 500) {
+      if (queryError?.response?.status != null && 
+          queryError.response.status >= 400 && 
+          queryError.response.status < 500) {
         return false;
       }
       // Retry up to 3 times for other errors
@@ -108,12 +158,12 @@ export const queryKeys = {
     profile: () => ["admin", "profile"] as const,
     albums: {
       all: () => ["admin", "albums"] as const,
-      list: (params?: any) => ["admin", "albums", "list", params] as const,
+      list: (params?: Record<string, unknown>) => ["admin", "albums", "list", params] as const,
     },
     stats: () => ["admin", "stats"] as const,
     users: {
       all: () => ["admin", "users"] as const,
-      list: (params?: any) => ["admin", "users", "list", params] as const,
+      list: (params?: Record<string, unknown>) => ["admin", "users", "list", params] as const,
       detail: (userId: string) => ["admin", "users", "detail", userId] as const,
     },
   },
@@ -186,7 +236,7 @@ export const updateCache = {
     const targets = [{ targetType, targetId }];
     const queryKey = queryKeys.user.interactions.status(targets);
 
-    queryClient.setQueryData(queryKey, (oldData: any) => {
+    queryClient.setQueryData(queryKey, (oldData: InteractionStatusData | undefined) => {
       // If there's no existing data, create the structure with the optimistic update
       if (!oldData?.data?.statuses) {
         return {
@@ -210,7 +260,7 @@ export const updateCache = {
         ...oldData,
         data: {
           ...oldData.data,
-          statuses: oldData.data.statuses.map((status: any) => {
+          statuses: oldData.data.statuses.map((status) => {
             if (
               status.targetType === targetType &&
               status.targetId === targetId
@@ -225,22 +275,22 @@ export const updateCache = {
   },
 
   // Update album in lists after creation/update
-  albumInLists: (album: any, action: "add" | "update" | "remove") => {
+  albumInLists: (album: Partial<Album> & { id: string }, action: "add" | "update" | "remove") => {
     queryClient.setQueriesData(
       { queryKey: queryKeys.albums.lists() },
-      (oldData: any) => {
+      (oldData: AlbumsListData | undefined) => {
         if (!oldData?.albums) return oldData;
 
         switch (action) {
           case "add":
             return {
               ...oldData,
-              albums: [album, ...oldData.albums],
+              albums: [album as Album, ...oldData.albums],
             };
           case "update":
             return {
               ...oldData,
-              albums: oldData.albums.map((existingAlbum: any) =>
+              albums: oldData.albums.map((existingAlbum) =>
                 existingAlbum.id === album.id
                   ? { ...existingAlbum, ...album }
                   : existingAlbum
@@ -250,7 +300,7 @@ export const updateCache = {
             return {
               ...oldData,
               albums: oldData.albums.filter(
-                (existingAlbum: any) => existingAlbum.id !== album.id
+                (existingAlbum) => existingAlbum.id !== album.id
               ),
             };
           default:
@@ -272,7 +322,7 @@ export const updateCache = {
       const targets = [{ targetType, targetId }];
       const statusQueryKey = queryKeys.user.interactions.status(targets);
 
-      queryClient.setQueryData(statusQueryKey, (oldData: any) => {
+      queryClient.setQueryData(statusQueryKey, (oldData: InteractionStatusData | undefined) => {
         const countField = type === "like" ? "likeCount" : "bookmarkCount";
 
         // If there's no existing data, create it with the count update
@@ -299,7 +349,7 @@ export const updateCache = {
           ...oldData,
           data: {
             ...oldData.data,
-            statuses: oldData.data.statuses.map((status: any) => {
+            statuses: oldData.data.statuses.map((status) => {
               if (
                 status.targetType === targetType &&
                 status.targetId === targetId
@@ -326,7 +376,7 @@ export const updateCache = {
         ? queryKeys.albums.detail(targetId)
         : queryKeys.media.detail(targetId);
 
-    queryClient.setQueryData(detailQueryKey, (oldData: any) => {
+    queryClient.setQueryData(detailQueryKey, (oldData: Album | Media | undefined) => {
       if (!oldData) return oldData;
 
       const countField = type === "like" ? "likeCount" : "bookmarkCount";
@@ -339,12 +389,12 @@ export const updateCache = {
     // Also update in any album lists that might contain this item
     queryClient.setQueriesData(
       { queryKey: queryKeys.albums.lists() },
-      (oldData: any) => {
+      (oldData: AlbumsListData | undefined) => {
         if (!oldData?.albums) return oldData;
 
         return {
           ...oldData,
-          albums: oldData.albums.map((album: any) => {
+          albums: oldData.albums.map((album) => {
             if (album.id === targetId) {
               const countField =
                 type === "like" ? "likeCount" : "bookmarkCount";

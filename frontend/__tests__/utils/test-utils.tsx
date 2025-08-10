@@ -108,7 +108,7 @@ export const mockCreateObjectURL = () => {
 };
 
 // Helper to mock fetch responses
-export const mockFetch = (response: any, status = 200) => {
+export const mockFetch = (response: unknown, status = 200) => {
   global.fetch = jest.fn(() =>
     Promise.resolve({
       ok: status >= 200 && status < 300,

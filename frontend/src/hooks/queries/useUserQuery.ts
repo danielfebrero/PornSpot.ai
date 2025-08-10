@@ -2,7 +2,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { userApi } from "@/lib/api";
 import { queryKeys, queryClient, invalidateQueries } from "@/lib/queryClient";
 import { useUserContext } from "@/contexts/UserContext";
-import { UserLoginRequest, UserRegistrationRequest } from "@/types";
+import { UserLoginRequest, UserRegistrationRequest, UserProfileUpdateRequest, UserMeResponse } from "@/types";
 
 // Hook for fetching current user profile
 export function useUserProfile() {
@@ -53,7 +53,7 @@ export function useUserProfile() {
 // Hook for updating user profile
 export function useUpdateUserProfile() {
   return useMutation({
-    mutationFn: async (updates: any) => {
+    mutationFn: async (updates: UserProfileUpdateRequest) => {
       return await userApi.updateProfile(updates);
     },
     onMutate: async (updates) => {
@@ -66,7 +66,7 @@ export function useUpdateUserProfile() {
       );
 
       // Optimistically update the cache
-      queryClient.setQueryData(queryKeys.user.profile(), (old: any) => {
+      queryClient.setQueryData(queryKeys.user.profile(), (old: UserMeResponse | undefined) => {
         return old ? { ...old, ...updates } : old;
       });
 

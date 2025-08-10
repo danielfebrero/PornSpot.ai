@@ -13,6 +13,7 @@ import {
   UserProfileUpdateResponse,
   GetPublicProfileResponse,
 } from "@/types";
+import { User as BaseUser } from "shared-types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -120,12 +121,12 @@ export const userApi = {
   ): Promise<{
     success: boolean;
     message: string;
-    user?: any;
+    user?: BaseUser;
   }> => {
     const response = await ApiUtil.put<{
       success: boolean;
       message: string;
-      user?: any;
+      user?: BaseUser;
     }>("/user/profile/edit", { preferredLanguage: languageCode });
     return ApiUtil.extractData(response);
   },

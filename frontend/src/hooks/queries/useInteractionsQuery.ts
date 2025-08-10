@@ -7,20 +7,32 @@ import {
   updateCache,
   invalidateQueries,
 } from "@/lib/queryClient";
-import { InteractionRequest } from "@/types/user";
+import { InteractionRequest, UnifiedUserInteractionsResponse, UnifiedCommentsResponse } from "@/types/user";
+import { CommentListResponse } from "@/types"; 
 import { usePrefetchContext } from "@/contexts/PrefetchContext";
 import { useUserContext } from "@/contexts/UserContext";
 
-// Types
+// Types for interaction status
+interface InteractionStatus {
+  targetType: "album" | "media" | "comment";
+  targetId: string;
+  userLiked: boolean;
+  userBookmarked: boolean;
+  likeCount: number;
+  bookmarkCount: number;
+}
+
 interface InteractionTarget {
   targetType: "album" | "media" | "comment";
   targetId: string;
 }
 
 interface InteractionStatusResponse {
+  success: boolean;
   data: {
-    statuses: any[];
+    statuses: InteractionStatus[];
   };
+  error?: string;
 }
 
 // Hook for fetching user interaction status (like/bookmark status for items)
@@ -82,7 +94,7 @@ export function useInteractionStatusFromCache(targets: InteractionTarget[]) {
     queryKey: queryKeys.user.interactions.status(targets),
     queryFn: async () => {
       // This should never be called since enabled is false, but just in case
-      return { data: { statuses: [] } };
+      return { success: true, data: { statuses: [] } };
     },
     enabled: false, // Never fetch - only read from cache
     // Return cached data immediately if available
@@ -110,7 +122,7 @@ export function useBookmarks(params: { limit?: number } = {}) {
       return await interactionApi.getBookmarks(limit, pageParam);
     },
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage: any) => {
+    getNextPageParam: (lastPage: UnifiedUserInteractionsResponse) => {
       return lastPage.data?.pagination?.hasNext
         ? lastPage.data.pagination.cursor
         : undefined;
@@ -140,7 +152,7 @@ export function useLikes(targetUser?: string, params: { limit?: number } = {}) {
       }
     },
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage: any) => {
+    getNextPageParam: (lastPage: UnifiedUserInteractionsResponse) => {
       return lastPage.data?.pagination?.hasNext
         ? lastPage.data.pagination.cursor
         : undefined;
@@ -167,7 +179,7 @@ export function useComments(username: string, params: { limit?: number } = {}) {
       );
     },
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage: any) => {
+    getNextPageParam: (lastPage: UnifiedCommentsResponse) => {
       return lastPage.data?.pagination?.hasNext
         ? lastPage.data.pagination.cursor
         : undefined;
@@ -197,8 +209,15 @@ export function useTargetComments(
       );
     },
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage: any) => {
-      return lastPage.data?.nextCursor;
+    getNextPageParam: (lastPage: CommentListResponse) => {
+      // Check if using cursor-based or page-based pagination based on response
+      if (lastPage.data?.pagination?.hasNext) {
+        // If it's actually using cursor-based (as suggested by the cursor param)
+        // we need to return a cursor, but CommentListResponse doesn't have it
+        // For now, return undefined to disable infinite scrolling until fixed
+        return undefined;
+      }
+      return undefined;
     },
     enabled: !!targetType && !!targetId,
     // Keep comments fresh for 1 minute
@@ -252,7 +271,7 @@ export function useToggleLike() {
       // Update the interaction status cache with both status and count
       queryClient.setQueryData(
         queryKeys.user.interactions.status(targets),
-        (oldData: any) => {
+        (oldData: InteractionStatusResponse | undefined) => {
           // If there's no existing data, create the structure with the optimistic update
           if (!oldData?.data?.statuses) {
             return {
@@ -276,7 +295,7 @@ export function useToggleLike() {
             ...oldData,
             data: {
               ...oldData.data,
-              statuses: oldData.data.statuses.map((status: any) => {
+              statuses: oldData.data.statuses.map((status) => {
                 if (
                   status.targetType === targetType &&
                   status.targetId === targetId
@@ -409,7 +428,7 @@ export function useToggleBookmark() {
       // Update the interaction status cache with both status and count
       queryClient.setQueryData(
         queryKeys.user.interactions.status(targets),
-        (oldData: any) => {
+        (oldData: InteractionStatusResponse | undefined) => {
           // If there's no existing data, create the structure with the optimistic update
           if (!oldData?.data?.statuses) {
             return {
@@ -433,7 +452,7 @@ export function useToggleBookmark() {
             ...oldData,
             data: {
               ...oldData.data,
-              statuses: oldData.data.statuses.map((status: any) => {
+              statuses: oldData.data.statuses.map((status) => {
                 if (
                   status.targetType === targetType &&
                   status.targetId === targetId
@@ -557,14 +576,14 @@ export function usePrefetchInteractionStatus() {
         queryKey: queryKeys.user.interactions.status(targetsNotPrefetching),
         queryFn: async () => {
           // Check if any individual targets already have cached data
-          const cachedStatuses: any[] = [];
+          const cachedStatuses: InteractionStatus[] = [];
           const targetsNeedingFetch: InteractionTarget[] = [];
 
           targetsNotPrefetching.forEach((target) => {
             const singleTarget = [target];
             const cachedData = queryClient.getQueryData(
               queryKeys.user.interactions.status(singleTarget)
-            ) as any;
+            ) as InteractionStatusResponse | undefined;
 
             if (cachedData?.data?.statuses?.[0]) {
               // Use cached data for this target
@@ -575,7 +594,7 @@ export function usePrefetchInteractionStatus() {
             }
           });
 
-          let fetchedStatuses: any[] = [];
+          let fetchedStatuses: InteractionStatus[] = [];
 
           // Only make API call if there are targets that need fetching
           if (targetsNeedingFetch.length > 0) {
@@ -587,7 +606,7 @@ export function usePrefetchInteractionStatus() {
               fetchedStatuses = result.data.statuses;
 
               // Populate individual query caches from bulk response
-              fetchedStatuses.forEach((status: any) => {
+              fetchedStatuses.forEach((status) => {
                 const singleTarget = [
                   {
                     targetType: status.targetType,

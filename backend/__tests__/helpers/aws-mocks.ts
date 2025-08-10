@@ -1,5 +1,5 @@
 // DynamoDB Mock Helpers
-export const mockDynamoDBSuccess = (mockImplementation: any) => {
+export const mockDynamoDBSuccess = (mockImplementation: unknown) => {
   const mockSend = jest.fn().mockResolvedValue(mockImplementation);
   return mockSend;
 };
@@ -9,7 +9,7 @@ export const mockDynamoDBError = (error: Error) => {
   return mockSend;
 };
 
-export const mockDynamoDBGetItem = (item: any) => {
+export const mockDynamoDBGetItem = (item: Record<string, unknown>) => {
   return mockDynamoDBSuccess({ Item: item });
 };
 
@@ -18,12 +18,12 @@ export const mockDynamoDBPutItem = () => {
 };
 
 export const mockDynamoDBQueryItems = (
-  items: any[],
-  lastEvaluatedKey?: any
+  items: Record<string, unknown>[],
+  lastEvaluatedKey?: Record<string, unknown>
 ) => {
-  const response: any = { Items: items };
+  const response: Record<string, unknown> = { Items: items };
   if (lastEvaluatedKey) {
-    response.LastEvaluatedKey = lastEvaluatedKey;
+    response["LastEvaluatedKey"] = lastEvaluatedKey;
   }
   return mockDynamoDBSuccess(response);
 };
@@ -37,7 +37,7 @@ export const mockDynamoDBDeleteItem = () => {
 };
 
 // S3 Mock Helpers
-export const mockS3Success = (mockImplementation: any) => {
+export const mockS3Success = (mockImplementation: unknown) => {
   const mockSend = jest.fn().mockResolvedValue(mockImplementation);
   return mockSend;
 };
@@ -55,7 +55,7 @@ export const mockS3DeleteObject = () => {
   return mockS3Success({});
 };
 
-export const mockS3GetObject = (body: any) => {
+export const mockS3GetObject = (body: unknown) => {
   return mockS3Success({ Body: body });
 };
 
@@ -67,8 +67,8 @@ export const mockPresignedUrl = (url: string) => {
 // Command verification helpers
 export const expectDynamoDBCommand = (
   mockSend: jest.Mock,
-  commandType: any,
-  expectedParams: any
+  commandType: unknown,
+  expectedParams: Record<string, unknown>
 ) => {
   expect(mockSend).toHaveBeenCalledWith(
     expect.objectContaining({
@@ -80,8 +80,8 @@ export const expectDynamoDBCommand = (
 
 export const expectS3Command = (
   mockSend: jest.Mock,
-  commandType: any,
-  expectedParams: any
+  commandType: unknown,
+  expectedParams: Record<string, unknown>
 ) => {
   expect(mockSend).toHaveBeenCalledWith(
     expect.objectContaining({
@@ -93,14 +93,14 @@ export const expectS3Command = (
 
 // Error factories
 export const createDynamoDBError = (code: string, message: string) => {
-  const error = new Error(message);
-  (error as any).name = code;
+  const error = new Error(message) as Error & { name: string };
+  error.name = code;
   return error;
 };
 
 export const createS3Error = (code: string, message: string) => {
-  const error = new Error(message);
-  (error as any).name = code;
+  const error = new Error(message) as Error & { name: string };
+  error.name = code;
   return error;
 };
 

@@ -7,6 +7,10 @@ import { Switch } from "@/components/ui/Switch";
 import { TagManager } from "@/components/ui/TagManager";
 import { Crown } from "lucide-react";
 import { Album, Media } from "@/types";
+
+interface MediaWithSelection extends Media {
+  selected: boolean;
+}
 import { usePermissions } from "@/contexts/PermissionsContext";
 import { CoverImageSelector } from "./CoverImageSelector";
 import ResponsivePicture from "@/components/ui/ResponsivePicture";
@@ -102,7 +106,7 @@ export function EditAlbumDialog({
       );
 
       // Sort media so that images already in the album appear first
-      const sortedMedia = mediaWithSelection.sort((a: any, b: any) => {
+      const sortedMedia = mediaWithSelection.sort((a: MediaWithSelection, b: MediaWithSelection) => {
         // If a is selected and b is not, a comes first
         if (a.selected && !b.selected) return -1;
         // If b is selected and a is not, b comes first

@@ -200,8 +200,18 @@ const handleGenerate = async (
 };
 
 // Helper function to check generation limits
+interface UserWithPlanInfo {
+  planInfo: {
+    plan: string;
+  };
+  usageStats: {
+    imagesGeneratedThisMonth: number;
+    imagesGeneratedToday: number;
+  };
+}
+
 function checkGenerationLimits(
-  user: any,
+  user: UserWithPlanInfo,
   requestedCount: number
 ): { allowed: boolean; remaining: number | "unlimited" } {
   const plan: string = user.planInfo.plan;

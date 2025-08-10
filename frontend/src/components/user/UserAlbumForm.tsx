@@ -87,7 +87,7 @@ export function UserAlbumForm({
     fetchUserMedia();
   }, [tForm]);
 
-  const handleInputChange = (field: keyof UserAlbumFormData, value: any) => {
+  const handleInputChange = (field: keyof UserAlbumFormData, value: string | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {

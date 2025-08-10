@@ -62,11 +62,12 @@ const handleRegister = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     };
 
     return ResponseUtil.created(event, responseData);
-  } catch (error: any) {
-    if (error.message === "Email already exists") {
+  } catch (error: unknown) {
+    const errorObj = error as Error & { name?: string };
+    if (errorObj.message === "Email already exists") {
       return ResponseUtil.badRequest(event, "Email is already registered");
     }
-    if (error.message === "Username already exists") {
+    if (errorObj.message === "Username already exists") {
       return ResponseUtil.badRequest(event, "Username is already taken");
     }
     throw error;

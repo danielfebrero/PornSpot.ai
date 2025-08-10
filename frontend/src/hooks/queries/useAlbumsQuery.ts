@@ -6,7 +6,7 @@ import {
   updateCache,
   invalidateQueries,
 } from "@/lib/queryClient";
-import { Album, UnifiedAlbumsResponse } from "@/types";
+import { Album, UnifiedAlbumsResponse, Media } from "@/types";
 
 // Types
 interface CreateAlbumData {
@@ -15,6 +15,12 @@ interface CreateAlbumData {
   isPublic: boolean;
   mediaIds?: string[];
   coverImageId?: string;
+}
+
+interface AlbumMediaResponse {
+  media: Media[];
+  nextCursor: string | undefined;
+  hasNext: boolean;
 }
 
 interface UpdateAlbumData {
@@ -121,7 +127,7 @@ export function useAlbumMedia(
       };
     },
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage: any) => {
+    getNextPageParam: (lastPage: AlbumMediaResponse) => {
       return lastPage.hasNext ? lastPage.nextCursor : undefined;
     },
     enabled: !!albumId && options?.enabled !== false,
@@ -177,7 +183,7 @@ export function useUpdateAlbum() {
       );
 
       // Optimistically update the cache
-      queryClient.setQueryData(queryKeys.albums.detail(albumId), (old: any) => {
+      queryClient.setQueryData(queryKeys.albums.detail(albumId), (old: Album | undefined) => {
         return old ? { ...old, ...data } : old;
       });
 

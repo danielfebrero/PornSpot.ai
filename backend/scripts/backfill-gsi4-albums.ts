@@ -27,7 +27,16 @@ import {
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
 const isDryRun = process.argv.includes("--dry-run");
 
-const clientConfig: any = {};
+interface DynamoDBClientConfig {
+  endpoint?: string;
+  region?: string;
+  credentials?: {
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
+}
+
+const clientConfig: DynamoDBClientConfig = {};
 
 if (isLocal) {
   clientConfig.endpoint = "http://pornspot-local-aws:4566";

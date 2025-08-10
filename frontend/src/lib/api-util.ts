@@ -24,7 +24,7 @@ export interface ApiRequestConfig {
   method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   headers?: Record<string, string>;
   params?: Record<string, string | number | boolean | undefined>;
-  body?: any;
+  body?: unknown;
   credentials?: RequestCredentials;
 }
 
@@ -35,7 +35,7 @@ export class ApiUtil {
   /**
    * Build URL with query parameters
    */
-  static buildUrl(endpoint: string, params?: Record<string, any>): string {
+  static buildUrl(endpoint: string, params?: Record<string, string | number | boolean | undefined>): string {
     const url = new URL(`${API_URL}${endpoint}`);
 
     if (params) {
@@ -123,10 +123,10 @@ export class ApiUtil {
   /**
    * POST request helper
    */
-  static async post<T = any>(
+  static async post<T = unknown>(
     endpoint: string,
-    body?: any,
-    params?: Record<string, any>
+    body?: unknown,
+    params?: Record<string, string | number | boolean | undefined>
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: "POST", body, params });
   }
@@ -134,10 +134,10 @@ export class ApiUtil {
   /**
    * PUT request helper
    */
-  static async put<T = any>(
+  static async put<T = unknown>(
     endpoint: string,
-    body?: any,
-    params?: Record<string, any>
+    body?: unknown,
+    params?: Record<string, string | number | boolean | undefined>
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: "PUT", body, params });
   }
@@ -155,10 +155,10 @@ export class ApiUtil {
   /**
    * PATCH request helper
    */
-  static async patch<T = any>(
+  static async patch<T = unknown>(
     endpoint: string,
-    body?: any,
-    params?: Record<string, any>
+    body?: unknown,
+    params?: Record<string, string | number | boolean | undefined>
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: "PATCH", body, params });
   }
@@ -166,10 +166,10 @@ export class ApiUtil {
   /**
    * Helper for paginated requests
    */
-  static async getPaginated<T = any>(
+  static async getPaginated<T = unknown>(
     endpoint: string,
     paginationParams?: PaginationParams,
-    additionalParams?: Record<string, any>
+    additionalParams?: Record<string, unknown>
   ): Promise<ApiResponse<T>> {
     const params = {
       ...additionalParams,
@@ -237,7 +237,7 @@ export class ApiUtil {
   /**
    * Helper for handling common error scenarios
    */
-  static handleApiError(error: any): string {
+  static handleApiError(error: unknown): string {
     if (error instanceof Error) {
       return error.message;
     }
@@ -246,7 +246,7 @@ export class ApiUtil {
       return error;
     }
 
-    if (error?.error) {
+    if (error && typeof error === "object" && "error" in error && typeof error.error === "string") {
       return error.error;
     }
 
@@ -294,9 +294,9 @@ export class ApiUtil {
     maxRetries: number = 3,
     delayMs: number = 1000
   ): Promise<T> {
-    let lastError: any;
+    let lastError: unknown;
 
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         return await operation();
       } catch (error) {

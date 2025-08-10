@@ -17,6 +17,9 @@ interface SwipeState {
   direction: "left" | "right" | null;
 }
 
+// Framer Motion event type for pan handlers
+type MotionEvent = MouseEvent | TouchEvent | PointerEvent;
+
 /**
  * Hook for handling swipe gestures in the Lightbox
  * Provides smooth swipe detection with preview functionality
@@ -43,7 +46,7 @@ export function useSwipeGesture({
   }, []);
 
   const handleDrag = useCallback(
-    (event: any, info: PanInfo) => {
+    (event: MotionEvent, info: PanInfo) => {
       const offset = info.offset.x;
       let direction: "left" | "right" | null = null;
 
@@ -62,7 +65,7 @@ export function useSwipeGesture({
   );
 
   const handleDragEnd = useCallback(
-    (event: any, info: PanInfo) => {
+    (event: MotionEvent, info: PanInfo) => {
       const { offset, velocity } = info;
       const shouldTriggerSwipe =
         Math.abs(offset.x) > swipeThreshold ||

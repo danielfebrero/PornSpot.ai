@@ -173,9 +173,10 @@ const handleCreateAlbum = async (
     for (const mediaId of request.mediaIds) {
       try {
         await DynamoDBService.addMediaToAlbum(albumId, mediaId, userId);
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Skip duplicates silently during album creation (shouldn't happen but defensive)
-        if (!error.message?.includes("already in album")) {
+        const errorObj = error as Error & { message?: string };
+        if (!errorObj.message?.includes("already in album")) {
           throw error;
         }
       }

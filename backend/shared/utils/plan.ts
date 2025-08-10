@@ -162,7 +162,7 @@ export class PlanUtil {
   /**
    * Convert a regular user entity to enhanced user with plan information
    */
-  static async enhanceUser(userEntity: any): Promise<EnhancedUser> {
+  static async enhanceUser(userEntity: UserEntity): Promise<EnhancedUser> {
     const planInfo = await this.getUserPlanInfo(userEntity.userId);
     const role = await this.getUserRole(userEntity.userId, userEntity.email);
     const usageStats = await this.getUserUsageStats(userEntity);

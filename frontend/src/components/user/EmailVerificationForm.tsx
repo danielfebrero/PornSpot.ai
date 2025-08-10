@@ -44,8 +44,9 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
         );
         router.push("/user/profile");
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Invalid verification code.");
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      setError(error.response?.data?.error || "Invalid verification code.");
     }
   };
 
@@ -56,9 +57,10 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
     try {
       await userApi.resendVerification(email);
       setSuccess("A new verification email has been sent.");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
       setError(
-        err.response?.data?.error || "Failed to resend verification email."
+        error.response?.data?.error || "Failed to resend verification email."
       );
     } finally {
       setIsResending(false);
