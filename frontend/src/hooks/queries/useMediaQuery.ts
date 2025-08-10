@@ -1,7 +1,13 @@
 import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { mediaApi } from "@/lib/api";
 import { queryKeys, queryClient, invalidateQueries } from "@/lib/queryClient";
-import { UnifiedMediaResponse } from "@/types";
+import { UnifiedMediaResponse, Media } from "@/types";
+
+// Types for infinite query data structure
+interface InfiniteMediaQueryData {
+  pages: MediaResponse[];
+  pageParams: unknown[];
+}
 
 // Types
 interface UploadMediaData {
@@ -154,7 +160,7 @@ export function useAddMediaToAlbum() {
       if (mediaItem) {
         queryClient.setQueriesData(
           { queryKey: ["media", "album", albumId] },
-          (old: any) => {
+          (old: InfiniteMediaQueryData | undefined) => {
             if (!old?.pages) return old;
 
             // Add to first page to show it immediately
@@ -164,7 +170,7 @@ export function useAddMediaToAlbum() {
                 ...newPages[0],
                 data: {
                   ...newPages[0].data,
-                  media: [mediaItem, ...newPages[0].data.media],
+                  media: [mediaItem as Media, ...newPages[0].data.media],
                 },
               };
             }
@@ -252,7 +258,7 @@ export function useBulkAddMediaToAlbum() {
       if (mediaItems.length > 0) {
         queryClient.setQueriesData(
           { queryKey: ["media", "album", albumId] },
-          (old: any) => {
+          (old: InfiniteMediaQueryData | undefined) => {
             if (!old?.pages) return old;
 
             // Add to first page to show immediately
@@ -262,7 +268,7 @@ export function useBulkAddMediaToAlbum() {
                 ...newPages[0],
                 data: {
                   ...newPages[0].data,
-                  media: [...mediaItems, ...newPages[0].data.media],
+                  media: [...mediaItems as Media[], ...newPages[0].data.media],
                 },
               };
             }
@@ -340,14 +346,14 @@ export function useRemoveMediaFromAlbum() {
       // Optimistically remove the media from album media infinite query
       queryClient.setQueriesData(
         { queryKey: ["media", "album", albumId] },
-        (old: any) => {
+        (old: InfiniteMediaQueryData | undefined) => {
           if (!old?.pages) return old;
 
-          const newPages = old.pages.map((page: any) => ({
+          const newPages = old.pages.map((page) => ({
             ...page,
             data: {
               ...page.data,
-              media: page.data.media.filter((m: any) => m.id !== mediaId),
+              media: page.data.media.filter((m) => m.id !== mediaId),
             },
           }));
 
@@ -419,15 +425,15 @@ export function useBulkRemoveMediaFromAlbum() {
       // Optimistically remove the media from album media infinite query
       queryClient.setQueriesData(
         { queryKey: ["media", "album", albumId] },
-        (old: any) => {
+        (old: InfiniteMediaQueryData | undefined) => {
           if (!old?.pages) return old;
 
-          const newPages = old.pages.map((page: any) => ({
+          const newPages = old.pages.map((page) => ({
             ...page,
             data: {
               ...page.data,
               media: page.data.media.filter(
-                (m: any) => !mediaIds.includes(m.id)
+                (m) => !mediaIds.includes(m.id)
               ),
             },
           }));
@@ -497,14 +503,14 @@ export function useDeleteMedia() {
       // Optimistically remove the media from all album media infinite queries
       albumMediaQueries.forEach(([queryKey, data]) => {
         if (data) {
-          queryClient.setQueryData(queryKey, (old: any) => {
+          queryClient.setQueryData(queryKey, (old: InfiniteMediaQueryData | undefined) => {
             if (!old?.pages) return old;
 
-            const newPages = old.pages.map((page: any) => ({
+            const newPages = old.pages.map((page) => ({
               ...page,
               data: {
                 ...page.data,
-                media: page.data.media.filter((m: any) => m.id !== mediaId),
+                media: page.data.media.filter((m) => m.id !== mediaId),
               },
             }));
 
@@ -519,14 +525,14 @@ export function useDeleteMedia() {
       // Optimistically remove from user media infinite queries
       queryClient.setQueriesData(
         { queryKey: ["media", "user"] },
-        (old: any) => {
+        (old: InfiniteMediaQueryData | undefined) => {
           if (!old?.pages) return old;
 
-          const newPages = old.pages.map((page: any) => ({
+          const newPages = old.pages.map((page) => ({
             ...page,
             data: {
               ...page.data,
-              media: page.data.media.filter((m: any) => m.id !== mediaId),
+              media: page.data.media.filter((m) => m.id !== mediaId),
             },
           }));
 
