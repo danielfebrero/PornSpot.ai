@@ -8,8 +8,8 @@ import type {
   UserLoginRequest,
   UserRegistrationRequest,
   GenerationMetadata,
-} from "@pornspot-ai/shared-types";
-import type { UserInteraction as BaseUserInteraction } from "@pornspot-ai/shared-types";
+} from "../../../shared-types";
+import type { UserInteraction as BaseUserInteraction } from "../../../shared-types";
 
 // Frontend-specific interaction request (with albumId and action for frontend usage)
 export interface InteractionRequest {
@@ -307,4 +307,4 @@ export type {
   ApiResponse,
   UsernameAvailabilityRequest,
   Comment,
-} from "@pornspot-ai/shared-types";
+} from "../../..//shared-types";

@@ -90,16 +90,6 @@ const nextConfig = {
         fs: false,
       };
     }
-
-    // Ensure monorepo local package resolves to source during build (Vercel friendly)
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      "@pornspot-ai/shared-types": path.resolve(
-        __dirname,
-        "../shared-types/src"
-      ),
-    };
-    return config;
   },
 
   // Performance optimizations
