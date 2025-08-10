@@ -16,9 +16,9 @@ export class AuthorizerUtil {
     principalId: string,
     effect: "Allow" | "Deny",
     resource: string,
-    context?: { [key: string]: any }
+    context?: { [key: string]: string | number | boolean }
   ): APIGatewayAuthorizerResult {
-    const authResponse: any = {
+    const authResponse: APIGatewayAuthorizerResult = {
       principalId,
       policyDocument: {
         Version: "2012-10-17",
@@ -91,7 +91,7 @@ export class AuthorizerUtil {
    */
   static async validateUserSession(cookieHeader: string) {
     console.log("🔧 Creating mock event for session validation...");
-    const mockEvent: any = {
+    const mockEvent: { headers: { Cookie: string } } = {
       headers: {
         Cookie: cookieHeader,
       },

@@ -296,13 +296,13 @@ export class ValidationUtil {
   static validateObject<T>(
     value: unknown,
     fieldName: string,
-    validator: (obj: any) => T
+    validator: (obj: Record<string, unknown>) => T
   ): T {
     if (!value || typeof value !== "object" || Array.isArray(value)) {
       throw new Error(`${fieldName} must be an object`);
     }
     
-    return validator(value);
+    return validator(value as Record<string, unknown>);
   }
 
   /**

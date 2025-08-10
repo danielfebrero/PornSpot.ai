@@ -1,6 +1,16 @@
 /**
  * Shared utilities for DynamoDB counter operations to reduce duplication
  */
+
+interface DynamoDBClientConfig {
+  endpoint?: string;
+  region?: string;
+  credentials?: {
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
+}
+
 export class CounterUtil {
   /**
    * Generic increment operation for any entity counter
@@ -15,7 +25,7 @@ export class CounterUtil {
     const { DynamoDBClient } = await import("@aws-sdk/client-dynamodb");
     
     const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
-    const clientConfig: any = {};
+    const clientConfig: DynamoDBClientConfig = {};
     
     if (isLocal) {
       clientConfig.endpoint = "http://pornspot-local-aws:4566";
@@ -101,7 +111,7 @@ export class CounterUtil {
     const { DynamoDBClient } = await import("@aws-sdk/client-dynamodb");
     
     const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
-    const clientConfig: any = {};
+    const clientConfig: DynamoDBClientConfig = {};
     
     if (isLocal) {
       clientConfig.endpoint = "http://pornspot-local-aws:4566";

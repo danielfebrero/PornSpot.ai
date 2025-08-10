@@ -78,10 +78,11 @@ export class EmailService {
         success: true,
         messageId: response[0].headers["x-message-id"] as string,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorObj = error as Error & { response?: { body: unknown } };
       console.error("Failed to send email:", {
-        error: error.message,
-        response: error.response?.body,
+        error: errorObj.message,
+        response: errorObj.response?.body,
         to: options.to,
         subject: options.template.subject,
       });

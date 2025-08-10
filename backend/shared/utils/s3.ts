@@ -106,7 +106,12 @@ export class S3Service {
       }
     );
 
-    const signedUrlOptions: any = {
+interface SignedUrlOptions {
+  expiresIn: number;
+  signableHeaders: Set<string>;
+}
+
+    const signedUrlOptions: SignedUrlOptions = {
       expiresIn,
       signableHeaders: new Set([
         "host",

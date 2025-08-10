@@ -66,7 +66,7 @@ export const createGetAlbumByIdEvent = (
     pathParameters: { albumId },
   });
 
-export const createCreateAlbumEvent = (body: any): APIGatewayProxyEvent =>
+export const createCreateAlbumEvent = (body: unknown): APIGatewayProxyEvent =>
   createAPIGatewayEvent({
     httpMethod: "POST",
     path: "/albums",
@@ -87,7 +87,7 @@ export const createGetMediaEvent = (
 
 export const createUploadMediaEvent = (
   albumId: string,
-  body: any
+  body: unknown
 ): APIGatewayProxyEvent =>
   createAPIGatewayEvent({
     httpMethod: "POST",
@@ -160,8 +160,8 @@ export const expectCreatedResponse = (response: APIGatewayProxyResult) =>
   expectSuccessResponse(response, 201);
 
 // Pagination helpers
-export const createCursor = (lastEvaluatedKey: any): string =>
+export const createCursor = (lastEvaluatedKey: Record<string, unknown>): string =>
   Buffer.from(JSON.stringify(lastEvaluatedKey)).toString("base64");
 
-export const parseCursor = (cursor: string): any =>
+export const parseCursor = (cursor: string): Record<string, unknown> =>
   JSON.parse(Buffer.from(cursor, "base64").toString());

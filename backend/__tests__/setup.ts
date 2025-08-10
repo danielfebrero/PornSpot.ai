@@ -59,7 +59,7 @@ afterEach(() => {
 // Global test utilities
 export const mockDate = (isoString: string) => {
   const mockDate = new Date(isoString);
-  jest.spyOn(global, "Date").mockImplementation(() => mockDate as any);
+  jest.spyOn(global, "Date").mockImplementation(() => mockDate as Date);
   return mockDate;
 };
 
@@ -67,8 +67,10 @@ export const restoreDate = () => {
   jest.restoreAllMocks();
 };
 
+import { APIGatewayProxyEvent } from "aws-lambda";
+
 // Helper to create mock API Gateway events
-export const createMockAPIGatewayEvent = (overrides: any = {}) => ({
+export const createMockAPIGatewayEvent = (overrides: Partial<APIGatewayProxyEvent> = {}): APIGatewayProxyEvent => ({
   body: null,
   headers: {},
   multiValueHeaders: {},

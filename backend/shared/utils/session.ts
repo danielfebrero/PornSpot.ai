@@ -18,7 +18,16 @@ export interface CreateUserSessionResult {
   sessionId: string;
   sessionCookie: string;
   responseData: {
-    user: any; // Sanitized user object
+    user: {
+      userId: string;
+      email: string;
+      username: string;
+      createdAt: string;
+      isActive: boolean;
+      isEmailVerified: boolean;
+      lastLoginAt?: string;
+      lastActive?: string;
+    };
     sessionId: string;
   };
 }
