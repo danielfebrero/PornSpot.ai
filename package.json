@@ -109,7 +109,7 @@
     "js-yaml": "^4.1.0",
     "lcov-result-merger": "^3.3.0",
     "lint-staged": "^15.1.0",
-    "turbo": "^2.3.1"
+    "turbo": "^2.5.5"
   },
   "dependencies": {
     "styled-jsx": "^5.1.1"
