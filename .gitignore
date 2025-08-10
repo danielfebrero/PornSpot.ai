@@ -192,3 +192,6 @@ scripts/.env.dev
 
 # Backups
 backups/
+
+# Turbo cache
+.turbo/

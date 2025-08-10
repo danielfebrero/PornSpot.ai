@@ -7,6 +7,10 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "lint": "echo 'No linting configured for shared-types'",
+    "lint:fix": "echo 'No linting configured for shared-types'",
+    "test": "echo 'No tests configured for shared-types'",
     "prepublishOnly": "npm run build",
     "prepare": "npm run build"
   },
