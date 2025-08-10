@@ -105,7 +105,7 @@ export class PlanUtil {
   /**
    * Get user role from database
    */
-  static async getUserRole(userId: string, _email: string): Promise<UserRole> {
+  static async getUserRole(userId: string): Promise<UserRole> {
     try {
       const userEntity = await DynamoDBService.getUserById(userId);
 
@@ -164,7 +164,7 @@ export class PlanUtil {
    */
   static async enhanceUser(userEntity: UserEntity): Promise<EnhancedUser> {
     const planInfo = await this.getUserPlanInfo(userEntity.userId);
-    const role = await this.getUserRole(userEntity.userId, userEntity.email);
+    const role = await this.getUserRole(userEntity.userId);
     const usageStats = await this.getUserUsageStats(userEntity);
 
     return {

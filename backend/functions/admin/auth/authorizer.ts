@@ -28,15 +28,16 @@ export const handler = async (
       throw new Error("No authentication cookie found");
     }
 
-    const userValidation = await AuthorizerUtil.validateUserSession(cookieHeader);
+    const userValidation = await AuthorizerUtil.validateUserSession(
+      cookieHeader
+    );
 
     if (userValidation.isValid && userValidation.user) {
       console.log("✅ User session is valid. Checking role...");
 
       // Get user role
       const userRole = await AuthorizerUtil.getUserRole(
-        userValidation.user.userId,
-        userValidation.user.email
+        userValidation.user.userId
       );
 
       // Check if user has admin role ONLY
@@ -51,7 +52,9 @@ export const handler = async (
         };
 
         // Grant access to all admin endpoints
-        const wildcardResource = AuthorizerUtil.generateWildcardResource(event.methodArn);
+        const wildcardResource = AuthorizerUtil.generateWildcardResource(
+          event.methodArn
+        );
 
         if (!wildcardResource) {
           console.error("Could not parse method ARN, denying access.");
@@ -80,6 +83,10 @@ export const handler = async (
     console.error("AdminOnlyAuthorizer: Authorization failed", error);
 
     // Return explicit deny policy
-    return AuthorizerUtil.generatePolicy("unauthorized", "Deny", event.methodArn);
+    return AuthorizerUtil.generatePolicy(
+      "unauthorized",
+      "Deny",
+      event.methodArn
+    );
   }
 };

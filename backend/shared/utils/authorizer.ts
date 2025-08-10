@@ -47,7 +47,7 @@ export class AuthorizerUtil {
     event: APIGatewayRequestAuthorizerEvent
   ): APIGatewayAuthorizerResult {
     console.log("OPTIONS request detected, allowing without authentication");
-    
+
     try {
       const { methodArn } = event;
       const parts = methodArn.split(":");
@@ -83,7 +83,9 @@ export class AuthorizerUtil {
   /**
    * Get cookie header from event (handles case-insensitive header names)
    */
-  static getCookieHeader(event: APIGatewayRequestAuthorizerEvent): string | undefined {
+  static getCookieHeader(
+    event: APIGatewayRequestAuthorizerEvent
+  ): string | undefined {
     return event.headers?.["Cookie"] || event.headers?.["cookie"];
   }
 
@@ -99,7 +101,9 @@ export class AuthorizerUtil {
     };
 
     console.log("⚡ Calling UserAuthMiddleware.validateSession...");
-    const userValidation = await UserAuthMiddleware.validateSession(mockEvent as APIGatewayProxyEvent);
+    const userValidation = await UserAuthMiddleware.validateSession(
+      mockEvent as APIGatewayProxyEvent
+    );
     console.log("📊 User validation result:", {
       isValid: userValidation.isValid,
       hasUser: !!userValidation.user,
@@ -113,8 +117,8 @@ export class AuthorizerUtil {
   /**
    * Get user role for authorization checks
    */
-  static async getUserRole(userId: string, email: string): Promise<string> {
-    const userRole = await PlanUtil.getUserRole(userId, email);
+  static async getUserRole(userId: string): Promise<string> {
+    const userRole = await PlanUtil.getUserRole(userId);
     console.log("👤 User role:", userRole);
     return userRole;
   }
