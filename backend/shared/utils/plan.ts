@@ -1,6 +1,6 @@
 // Plan and subscription utilities
 import { DynamoDBService } from "./dynamodb";
-import { UserEntity, UserProfileInsights } from "@pornspot-ai/shared-types";
+import { UserEntity, UserProfileInsights } from "shared-types";
 
 export type UserPlan = "free" | "starter" | "unlimited" | "pro";
 export type UserRole = "user" | "admin" | "moderator";

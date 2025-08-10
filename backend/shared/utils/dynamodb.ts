@@ -17,14 +17,14 @@ import {
   AdminUserEntity,
   AdminSessionEntity,
   CommentEntity,
-} from "@pornspot-ai/shared-types";
+} from "shared-types";
 import {
   UserEntity,
   UserSessionEntity,
   EmailVerificationTokenEntity,
   UserInteractionEntity,
   UserInteraction,
-} from "@pornspot-ai/shared-types";
+} from "shared-types";
 import { CounterUtil } from "./counter";
 
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
