@@ -1,9 +1,0 @@
-{
-  "framework": "nextjs",
-  "buildCommand": "npm run build:frontend",
-  "installCommand": "npm run install:frontend",
-  "env": {
-    "NODE_OPTIONS": "--max_old_space_size=4096"
-  },
-  "external": ["shared-types"]
-}
