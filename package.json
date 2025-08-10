@@ -90,12 +90,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/pornspot-ai.git"
+    "url": "https://github.com/danielfebrero/PornSpot.ai.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/pornspot-ai/issues"
+    "url": "https://github.com/danielfebrero/PornSpot.ai/issues"
   },
-  "homepage": "https://pornspot.ai",
+  "homepage": "https://PornSpot.ai",
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
