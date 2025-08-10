@@ -56,10 +56,6 @@ Make sure the album page return all albums, not just the ones created by the use
 
 The tooltip for deleting an album in the dropdown menu should be displayed on a single line for better readability and user experience.
 
-### Edit an album should update optimistically
-
-When editing an album, the changes should be reflected immediately in the UI without waiting for the server response. This will improve user experience by making the application feel more responsive. Speaking of title, item count, etc.
-
 ## Optimization
 
 ### Translate all hardcoded strings
