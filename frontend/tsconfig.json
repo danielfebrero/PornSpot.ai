@@ -20,9 +20,7 @@
     ],
     "baseUrl": "src",
     "paths": {
-      "@/*": ["./*"],
-      "shared-types/*": ["packages/shared-types/src/*"],
-      "shared-types": ["packages/shared-types/src/index.ts"]
+      "@/*": ["./*"]
     },
     "forceConsistentCasingInFileNames": true
   },
