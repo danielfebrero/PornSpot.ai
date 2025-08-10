@@ -154,10 +154,7 @@ export async function saveGeneratedMediaToDatabase(
         `📈 Incremented totalGeneratedMedias by ${result.savedCount} for user: ${userId}`
       );
     } catch (error) {
-      console.warn(
-        `⚠️ Failed to update user metrics for ${userId}:`,
-        error
-      );
+      console.warn(`⚠️ Failed to update user metrics for ${userId}:`, error);
       // Don't fail the entire operation if metrics update fails
     }
   }

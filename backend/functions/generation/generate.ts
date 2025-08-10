@@ -158,7 +158,8 @@ const handleGenerate = async (
     batchCount,
     prompt: validatedPrompt.trim(),
     negativePrompt,
-    imageSize: imageSize === "custom" ? `${customWidth}x${customHeight}` : imageSize,
+    imageSize:
+      imageSize === "custom" ? `${customWidth}x${customHeight}` : imageSize,
     selectedLoras,
     mockUrls,
   });
