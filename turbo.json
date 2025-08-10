@@ -15,7 +15,8 @@
         "NODE_ENV",
         "NEXT_PUBLIC_API_URL",
         "NEXT_PUBLIC_CDN_URL",
-        "NEXT_PUBLIC_SITE_URL"
+        "NEXT_PUBLIC_SITE_URL",
+        "REVALIDATE_SECRET"
       ]
     },
     "dev": {
