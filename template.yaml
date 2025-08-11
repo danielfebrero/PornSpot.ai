@@ -2139,7 +2139,6 @@ Resources:
       Environment:
         Variables:
           WEBSOCKET_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
-          COMFYUI_ENDPOINT: "http://localhost:8188"
       Events:
         GeneratePost:
           Type: Api
@@ -2305,7 +2304,6 @@ Resources:
       Environment:
         Variables:
           WEBSOCKET_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
-          COMFYUI_ENDPOINT: "http://localhost:8188"
           EVENTBRIDGE_BUS_NAME: !Ref ComfyUIEventBus
       Policies:
         - DynamoDBReadPolicy:

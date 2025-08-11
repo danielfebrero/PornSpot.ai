@@ -16,7 +16,6 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { ResponseUtil } from "@shared/utils/response";
 
 // Initialize DynamoDB client
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
@@ -44,7 +43,10 @@ export const handler = async (
     const connectionId = event.requestContext.connectionId;
     if (!connectionId) {
       console.error("❌ No connection ID provided");
-      return ResponseUtil.error(event, "No connection ID", 400);
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "No connection ID" }),
+      };
     }
 
     // Try to get connection info before deleting

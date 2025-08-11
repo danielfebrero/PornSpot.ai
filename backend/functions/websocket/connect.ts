@@ -10,7 +10,6 @@ Special notes:
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { ResponseUtil } from "@shared/utils/response";
 
 interface ConnectionEntity {
   PK: string; // CONNECTION#{connectionId}
@@ -51,7 +50,10 @@ export const handler = async (
     const connectionId = event.requestContext.connectionId;
     if (!connectionId) {
       console.error("❌ No connection ID provided");
-      return ResponseUtil.error(event, "No connection ID", 400);
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "No connection ID" }),
+      };
     }
 
     // Extract user info from query parameters or headers if available
@@ -102,6 +104,9 @@ export const handler = async (
     };
   } catch (error) {
     console.error("❌ WebSocket connect error:", error);
-    return ResponseUtil.error(event, "Connection failed", 500);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Connection failed" }),
+    };
   }
 };

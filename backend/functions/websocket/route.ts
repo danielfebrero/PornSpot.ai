@@ -21,7 +21,6 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { ResponseUtil } from "@shared/utils/response";
 
 interface WebSocketMessage {
   action: string;
@@ -73,7 +72,10 @@ export const handler = async (
     const connectionId = event.requestContext.connectionId;
     if (!connectionId) {
       console.error("❌ No connection ID provided");
-      return ResponseUtil.error(event, "No connection ID", 400);
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "No connection ID" }),
+      };
     }
 
     // Parse message body
@@ -83,7 +85,10 @@ export const handler = async (
     } catch (error) {
       console.error("❌ Invalid JSON in message body:", error);
       await sendErrorToConnection(connectionId, "Invalid JSON format");
-      return ResponseUtil.success(event, { message: "Invalid JSON" });
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ message: "Invalid JSON handled" }),
+      };
     }
 
     console.log(`📥 Received message for connection ${connectionId}:`, message);
@@ -112,10 +117,16 @@ export const handler = async (
         break;
     }
 
-    return ResponseUtil.success(event, { message: "Message processed" });
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: "Message processed" }),
+    };
   } catch (error) {
     console.error("❌ WebSocket route error:", error);
-    return ResponseUtil.error(event, "Message processing failed", 500);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Message processing failed" }),
+    };
   }
 };
 

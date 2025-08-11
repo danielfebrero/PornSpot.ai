@@ -42,6 +42,7 @@ export function useGeneration(): UseGenerationReturn {
       console.log("🎨 Generation update received:", message);
 
       switch (message.type) {
+        case "queue_update":
         case "queued":
           setQueueStatus({
             queueId: message.queueId!,

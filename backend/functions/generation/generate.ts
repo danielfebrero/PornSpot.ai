@@ -15,7 +15,6 @@ import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 import { getGenerationPermissions } from "@shared/utils/permissions";
 import { getRateLimitingService } from "@shared/services/rate-limiting";
-import { broadcastToPromptSubscribers } from "../websocket/route";
 import { GenerationQueueService } from "@shared/services/generation-queue";
 import { EventBridge } from "aws-sdk";
 import type {
@@ -232,19 +231,8 @@ const handleGenerate = async (
       }`,
     };
 
-    // Broadcast queue status to WebSocket if connection available
-    if (connectionId) {
-      try {
-        await broadcastToPromptSubscribers(queueEntry.queueId, {
-          type: "queued",
-          queuePosition: queueEntry.queuePosition,
-          estimatedWaitTime: queueEntry.estimatedWaitTime,
-          message: response.message,
-        });
-      } catch (broadcastError) {
-        console.error("Failed to broadcast queue status:", broadcastError);
-      }
-    }
+    // Note: WebSocket communication will be handled by EventBridge when
+    // the queue processing begins and events are published
 
     return ResponseUtil.success(event, response);
   } catch (queueError) {
