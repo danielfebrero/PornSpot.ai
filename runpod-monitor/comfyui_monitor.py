@@ -27,6 +27,7 @@ import signal
 # Try to load .env file if available
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     # dotenv not available, continue without it
@@ -36,23 +37,24 @@ import websockets
 import boto3
 from botocore.exceptions import ClientError, BotoCoreError
 
+
 # Configure logging
 def setup_logging():
     """Setup logging configuration with error handling"""
     log_level = os.getenv("LOG_LEVEL", "INFO").upper()
     log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    
+
     # Validate log level
     if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
         log_level = "INFO"
-    
+
     handlers = []
-    
+
     # Console handler (always add)
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(logging.Formatter(log_format))
     handlers.append(console_handler)
-    
+
     # File handler (with error handling)
     log_file = os.getenv("LOG_FILE", "/tmp/comfyui-monitor.log")
     try:
@@ -60,7 +62,7 @@ def setup_logging():
         log_dir = os.path.dirname(log_file)
         if log_dir and not os.path.exists(log_dir):
             os.makedirs(log_dir, exist_ok=True)
-            
+
         file_handler = logging.FileHandler(log_file)
         file_handler.setFormatter(logging.Formatter(log_format))
         handlers.append(file_handler)
@@ -68,13 +70,14 @@ def setup_logging():
         # If we can't create the log file, just use console logging
         print(f"Warning: Could not create log file {log_file}: {e}")
         print("Continuing with console logging only...")
-    
+
     logging.basicConfig(
         level=getattr(logging, log_level),
         format=log_format,
         handlers=handlers,
-        force=True  # Override any existing logging configuration
+        force=True,  # Override any existing logging configuration
     )
+
 
 # Setup logging before creating logger
 setup_logging()
@@ -89,7 +92,9 @@ class ComfyUIMonitor:
         self.comfyui_host = os.getenv("COMFYUI_HOST", "localhost")
         self.comfyui_port = self._validate_port(os.getenv("COMFYUI_PORT", "8188"))
         self.aws_region = os.getenv("AWS_REGION", "us-east-1")
-        self.eventbridge_bus_name = os.getenv("EVENTBRIDGE_BUS_NAME", "comfyui-events")
+        self.eventbridge_bus_name = os.getenv(
+            "EVENTBRIDGE_BUS_NAME", "prod-comfyui-events"
+        )
 
         # Validate required configuration
         self._validate_configuration()
@@ -110,11 +115,14 @@ class ComfyUIMonitor:
         try:
             # Test AWS credentials availability
             import boto3.session
+
             session = boto3.session.Session()
             credentials = session.get_credentials()
-            
+
             if not credentials:
-                logger.warning("⚠️  No AWS credentials found. EventBridge publishing will be disabled.")
+                logger.warning(
+                    "⚠️  No AWS credentials found. EventBridge publishing will be disabled."
+                )
                 self.eventbridge = None
             else:
                 self.eventbridge = boto3.client("events", region_name=self.aws_region)
@@ -165,16 +173,16 @@ class ComfyUIMonitor:
     def _validate_configuration(self):
         """Validate essential configuration"""
         errors = []
-        
+
         if not self.comfyui_host:
             errors.append("COMFYUI_HOST cannot be empty")
-        
+
         if not self.aws_region:
             errors.append("AWS_REGION cannot be empty")
-            
+
         if not self.eventbridge_bus_name:
             errors.append("EVENTBRIDGE_BUS_NAME cannot be empty")
-            
+
         if errors:
             error_msg = "Configuration validation failed: " + ", ".join(errors)
             logger.error(f"❌ {error_msg}")
@@ -476,7 +484,7 @@ class ComfyUIMonitor:
             self.websocket = await websockets.connect(
                 self.websocket_url,
                 ping_interval=ping_interval,  # Send ping every N seconds
-                ping_timeout=ping_timeout,    # Wait N seconds for pong
+                ping_timeout=ping_timeout,  # Wait N seconds for pong
                 close_timeout=close_timeout,  # Wait N seconds for close
             )
 
@@ -540,9 +548,10 @@ class ComfyUIMonitor:
         base_delay = self.reconnect_delay * (2 ** (self.reconnect_attempts - 1))
         # Add some jitter to avoid thundering herd
         import random
+
         jitter = random.uniform(0.1, 0.5) * base_delay
         delay = min(base_delay + jitter, 60)
-        
+
         logger.info(
             f"🔄 Reconnecting in {delay:.1f} seconds (attempt {self.reconnect_attempts}/{self.max_reconnect_attempts})"
         )
@@ -627,16 +636,16 @@ async def main():
 
     try:
         monitor = ComfyUIMonitor()
-        
+
         # Start monitoring in a task
         monitor_task = asyncio.create_task(monitor.start_monitoring())
-        
+
         # Wait for either monitoring to complete or shutdown signal
         done, pending = await asyncio.wait(
             [monitor_task, asyncio.create_task(shutdown_event.wait())],
-            return_when=asyncio.FIRST_COMPLETED
+            return_when=asyncio.FIRST_COMPLETED,
         )
-        
+
         # Cancel any pending tasks
         for task in pending:
             task.cancel()
@@ -644,7 +653,7 @@ async def main():
                 await task
             except asyncio.CancelledError:
                 pass
-                
+
     except KeyboardInterrupt:
         logger.info("🔻 Interrupted by user")
     except Exception as e:
