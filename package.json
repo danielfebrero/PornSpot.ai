@@ -5,9 +5,10 @@
   "private": true,
   "packageManager": "npm@10.0.0",
   "scripts": {
-    "install:all": "npm run install:backend && npm run install:frontend",
+    "install:all": "npm run install:backend && npm run install:frontend && npm run install:shared-layer",
     "install:backend": "cd backend && npm install",
     "install:frontend": "cd frontend && npm install",
+    "install:shared-layer": "cd backend/layers/shared/nodejs && npm install",
     "build": "turbo build",
     "build:backend": "turbo build --filter=pornspot-ai-backend",
     "build:frontend": "turbo build --filter=pornspot-ai-frontend",
@@ -72,10 +73,6 @@
     "type-check:backend": "turbo type-check --filter=pornspot-ai-backend",
     "type-check:frontend": "turbo type-check --filter=pornspot-ai-frontend"
   },
-  "workspaces": [
-    "backend",
-    "frontend"
-  ],
   "keywords": [
     "gallery",
     "art",

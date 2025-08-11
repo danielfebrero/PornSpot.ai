@@ -214,39 +214,52 @@ Resources:
               StringEquals:
                 AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
 
-  # Lambda Shared Layer
-  SharedLayer:
-    Type: AWS::Serverless::LayerVersion
+  # Container image repository for Lambda functions (replaces layers)
+  LambdaContainerImage:
+    Type: AWS::ECR::Repository
     Properties:
-      LayerName: !Sub "${Environment}-pornspot-shared-layer"
-      Description: Shared utilities and types for PornSpot Lambda functions (without Sharp)
-      ContentUri: backend/layers/shared/
-      CompatibleRuntimes:
-        - nodejs20.x
-      RetentionPolicy: Retain
+      RepositoryName: !Sub "${Environment}-pornspot-lambda"
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "sinceImagePushed",
+                  "countUnit": "days",
+                  "countNumber": 7
+                },
+                "action": {
+                  "type": "expire"
+                }
+              },
+              {
+                "rulePriority": 2,
+                "selection": {
+                  "tagStatus": "tagged",
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 10
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }
 
-  # Sharp Layer for image processing (pH200/sharp-layer)
-  SharpLayer:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-      LayerName: !Sub "${Environment}-pornspot-sharp-layer"
-      ContentUri: backend/layers/sharp/release-x64.zip
-      CompatibleArchitectures:
-        - x86_64
-      CompatibleRuntimes:
-        - nodejs18.x
-        - nodejs20.x
-      Description: Sharp image processing library v0.34.3
-
-  # Authorizer Functions - defined before API Gateway
+  # Authorizer Functions - Container-based approach
   UserAuthorizerFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-authorizer"
-      CodeUri: backend/dist/functions/user/auth/
-      Handler: authorizer.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/auth/authorizer.handler"]
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
@@ -257,10 +270,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-admin-authorizer"
-      CodeUri: backend/dist/functions/admin/auth/
-      Handler: authorizer.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/admin/auth/authorizer.handler"]
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
@@ -272,10 +285,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-moderator-authorizer"
-      CodeUri: backend/dist/functions/moderator/auth/
-      Handler: authorizer.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/moderator/auth/authorizer.handler"]
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
@@ -333,10 +346,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-websocket-connect"
-      CodeUri: backend/dist/functions/websocket/
-      Handler: connect.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/websocket/connect.handler"]
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
@@ -347,10 +360,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-websocket-disconnect"
-      CodeUri: backend/dist/functions/websocket/
-      Handler: disconnect.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/websocket/disconnect.handler"]
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
@@ -361,10 +374,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-websocket-route"
-      CodeUri: backend/dist/functions/websocket/
-      Handler: route.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/websocket/route.handler"]
       Environment:
         Variables:
           WEBSOCKET_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
@@ -453,10 +466,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-get-albums"
-      CodeUri: backend/dist/functions/albums/
-      Handler: get.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/albums/get.handler"]
       Events:
         Api:
           Type: Api
@@ -474,10 +487,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-create-album"
-      CodeUri: backend/dist/functions/albums/
-      Handler: create.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/albums/create.handler"]
       Events:
         PostCreateAlbum:
           Type: Api
@@ -512,10 +525,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-get-album"
-      CodeUri: backend/dist/functions/albums/
-      Handler: getById.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/albums/getById.handler"]
       Events:
         Api:
           Type: Api
@@ -533,11 +546,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-update-album"
-      CodeUri: backend/dist/functions/albums/
-      Handler: update.handler
-      Layers:
-        - !Ref SharedLayer
-        - !Ref SharpLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/albums/update.handler"]
       MemorySize: 1024
       Timeout: 60
       Events:
@@ -578,10 +590,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-delete-album"
-      CodeUri: backend/dist/functions/albums/
-      Handler: delete.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/albums/delete.handler"]
       Events:
         DeleteAlbum:
           Type: Api
@@ -613,10 +625,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-upload-media"
-      CodeUri: backend/dist/functions/media/
-      Handler: add.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/media/add.handler"]
       Events:
         PostUploadMedia:
           Type: Api
@@ -646,10 +658,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-get-media"
-      CodeUri: backend/dist/functions/media/
-      Handler: get.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/media/get.handler"]
       Events:
         Api:
           Type: Api
@@ -667,10 +679,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-get-media-by-id"
-      CodeUri: backend/dist/functions/media/
-      Handler: get-by-id.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/media/get-by-id.handler"]
       Events:
         Api:
           Type: Api
@@ -688,10 +700,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-remove-media-from-album"
-      CodeUri: backend/dist/functions/media/
-      Handler: remove.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/media/remove.handler"]
       Events:
         DeleteMediaFromAlbum:
           Type: Api
@@ -726,10 +738,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-delete-media"
-      CodeUri: backend/dist/functions/media/
-      Handler: delete.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/media/delete.handler"]
       Events:
         DeleteMedia:
           Type: Api
@@ -771,10 +783,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-bulk-remove-media"
-      CodeUri: backend/dist/functions/media/
-      Handler: bulk-remove.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/media/bulk-remove.handler"]
       Timeout: 300 # 5 minutes for bulk operations
       MemorySize: 512 # More memory for bulk processing
       Events:
@@ -811,10 +823,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-get-all-media"
-      CodeUri: backend/dist/functions/media/
-      Handler: get-all.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/media/get-all.handler"]
       Timeout: 60
       MemorySize: 512
       Events:
@@ -834,10 +846,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-media-list"
-      CodeUri: backend/dist/functions/user/media/
-      Handler: list.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/media/list.handler"]
       Events:
         GetUserMedia:
           Type: Api
@@ -863,11 +875,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-process-upload"
-      CodeUri: backend/dist/functions/media/
-      Handler: process-upload.handler
-      Layers:
-        - !Ref SharedLayer
-        - !Ref SharpLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/media/process-upload.handler"]
       MemorySize: 1024
       Timeout: 120
       Environment:
@@ -943,10 +954,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-get-permissions-config"
-      CodeUri: backend/dist/functions/config/
-      Handler: permissions.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/config/permissions.handler"]
       Events:
         GetPermissions:
           Type: Api
@@ -970,10 +981,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-admin-login"
-      CodeUri: backend/dist/functions/admin/auth/
-      Handler: login.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/admin/auth/login.handler"]
       Events:
         PostLogin:
           Type: Api
@@ -1001,10 +1012,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-check-username"
-      CodeUri: backend/dist/functions/user/auth/
-      Handler: check-username.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/auth/check-username.handler"]
       Events:
         PostCheckUsername:
           Type: Api
@@ -1030,10 +1041,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-admin-logout"
-      CodeUri: backend/dist/functions/admin/auth/
-      Handler: logout.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/admin/auth/logout.handler"]
       Events:
         PostLogout:
           Type: Api
@@ -1066,10 +1077,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-admin-me"
-      CodeUri: backend/dist/functions/admin/auth/
-      Handler: me.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/admin/auth/me.handler"]
       Events:
         Api:
           Type: Api
@@ -1086,10 +1097,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-login"
-      CodeUri: backend/dist/functions/user/auth/
-      Handler: login.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/auth/login.handler"]
       Events:
         PostLogin:
           Type: Api
@@ -1117,11 +1128,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-admin-update-album"
-      CodeUri: backend/dist/functions/admin/albums/
-      Handler: update.handler
-      Layers:
-        - !Ref SharedLayer
-        - !Ref SharpLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/admin/albums/update.handler"]
       MemorySize: 1024
       Timeout: 60
       Events:
@@ -1162,10 +1172,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-admin-delete-album"
-      CodeUri: backend/dist/functions/admin/albums/
-      Handler: delete.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/admin/albums/delete.handler"]
       Events:
         DeleteAlbum:
           Type: Api
@@ -1201,10 +1211,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-admin-bulk-delete-albums"
-      CodeUri: backend/dist/functions/admin/albums/
-      Handler: bulk-delete.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/admin/albums/bulk-delete.handler"]
       Timeout: 300 # 5 minutes for bulk operations
       MemorySize: 512 # More memory for bulk processing
       Events:
@@ -1249,10 +1259,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-admin-list-albums"
-      CodeUri: backend/dist/functions/admin/albums/
-      Handler: list.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/admin/albums/list.handler"]
       Events:
         GetAlbums:
           Type: Api
@@ -1278,10 +1288,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-admin-delete-media"
-      CodeUri: backend/dist/functions/admin/media/
-      Handler: delete.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/admin/media/delete.handler"]
       Events:
         DeleteMedia:
           Type: Api
@@ -1332,10 +1342,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-admin-stats"
-      CodeUri: backend/dist/functions/admin/
-      Handler: stats.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/admin/stats.handler"]
       Events:
         GetStats:
           Type: Api
@@ -1364,10 +1374,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-register"
-      CodeUri: backend/dist/functions/user/auth/
-      Handler: register.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/auth/register.handler"]
       Events:
         PostRegister:
           Type: Api
@@ -1402,10 +1412,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-logout"
-      CodeUri: backend/dist/functions/user/auth/
-      Handler: logout.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/auth/logout.handler"]
       Events:
         PostLogout:
           Type: Api
@@ -1438,10 +1448,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-me"
-      CodeUri: backend/dist/functions/user/auth/
-      Handler: me.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/auth/me.handler"]
       Events:
         GetMe:
           Type: Api
@@ -1467,10 +1477,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-profile-edit"
-      CodeUri: backend/dist/functions/user/profile/
-      Handler: edit.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/profile/edit.handler"]
       Events:
         PutProfileEdit:
           Type: Api
@@ -1498,10 +1508,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-profile-get"
-      CodeUri: backend/dist/functions/user/profile/
-      Handler: get.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/profile/get.handler"]
       Events:
         GetProfile:
           Type: Api
@@ -1529,10 +1539,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-avatar-upload"
-      CodeUri: backend/dist/functions/user/profile/avatar/
-      Handler: upload.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/profile/avatar/upload.handler"]
       Events:
         PostAvatarUpload:
           Type: Api
@@ -1567,10 +1577,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-change-password"
-      CodeUri: backend/dist/functions/user/auth/
-      Handler: change-password.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/auth/change-password.handler"]
       Events:
         PostChangePassword:
           Type: Api
@@ -1598,10 +1608,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-delete-account"
-      CodeUri: backend/dist/functions/user/account/
-      Handler: delete.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/account/delete.handler"]
       Events:
         DeleteAccount:
           Type: Api
@@ -1629,10 +1639,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-cancel-subscription"
-      CodeUri: backend/dist/functions/user/subscription/
-      Handler: cancel.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/subscription/cancel.handler"]
       Events:
         PostCancelSubscription:
           Type: Api
@@ -1660,10 +1670,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-verify-email"
-      CodeUri: backend/dist/functions/user/auth/
-      Handler: verify-email.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/auth/verify-email.handler"]
       Events:
         PostVerifyEmail:
           Type: Api
@@ -1699,10 +1709,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-resend-verification"
-      CodeUri: backend/dist/functions/user/auth/
-      Handler: resend-verification.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/auth/resend-verification.handler"]
       Events:
         PostResendVerification:
           Type: Api
@@ -1737,7 +1747,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-oauth-google"
-      CodeUri: backend/dist/functions/user/auth/
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/auth/oauth-google.handler"]
       Handler: oauth-google.handler
       Layers:
         - !Ref SharedLayer
@@ -1785,10 +1798,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-like"
-      CodeUri: backend/dist/functions/user/interactions/
-      Handler: like.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/interactions/like.handler"]
       Events:
         PostLike:
           Type: Api
@@ -1821,10 +1834,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-bookmark"
-      CodeUri: backend/dist/functions/user/interactions/
-      Handler: bookmark.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/interactions/bookmark.handler"]
       Events:
         PostBookmark:
           Type: Api
@@ -1857,10 +1870,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-view"
-      CodeUri: backend/dist/functions/user/interactions/
-      Handler: view.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/interactions/view.handler"]
       Events:
         PostView:
           Type: Api
@@ -1888,10 +1901,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-get-likes"
-      CodeUri: backend/dist/functions/user/interactions/
-      Handler: get-likes.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/interactions/get-likes.handler"]
       Events:
         GetLikes:
           Type: Api
@@ -1917,10 +1930,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-get-bookmarks"
-      CodeUri: backend/dist/functions/user/interactions/
-      Handler: get-bookmarks.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/interactions/get-bookmarks.handler"]
       Events:
         GetBookmarks:
           Type: Api
@@ -1946,10 +1959,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-get-interaction-status"
-      CodeUri: backend/dist/functions/user/interactions/
-      Handler: get-interaction-status.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/interactions/get-interaction-status.handler"]
       Events:
         GetInteractionStatus:
           Type: Api
@@ -1976,10 +1989,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-content-get-view-count"
-      CodeUri: backend/dist/functions/content/
-      Handler: get-view-count.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/content/get-view-count.handler"]
       Events:
         GetViewCount:
           Type: Api
@@ -2006,10 +2019,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-comment"
-      CodeUri: backend/dist/functions/user/interactions/
-      Handler: comment.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/interactions/comment.handler"]
       Events:
         PostComment:
           Type: Api
@@ -2073,10 +2086,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-target-get-comments"
-      CodeUri: backend/dist/functions/user/interactions/
-      Handler: get-comments.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/interactions/get-comments.handler"]
       Events:
         GetComments:
           Type: Api
@@ -2102,10 +2115,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-user-get-comments"
-      CodeUri: backend/dist/functions/user/interactions/
-      Handler: get-comments.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/user/interactions/get-comments.handler"]
       Events:
         GetComments:
           Type: Api
@@ -2132,10 +2145,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-generation-create"
-      CodeUri: backend/dist/functions/generation/
-      Handler: generate.handler
-      Layers:
-        - !Ref SharedLayer
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/generation/generate.handler"]
       Environment:
         Variables:
           WEBSOCKET_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
@@ -2296,11 +2309,11 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-queue-item-submit"
-      CodeUri: backend/dist/functions/events/
-      Handler: queue-item-submit.handler
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/events/queue-item-submit.handler"]
       Timeout: 300 # 5 minutes
-      Layers:
-        - !Ref SharedLayer
       Environment:
         Variables:
           WEBSOCKET_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
@@ -2320,11 +2333,11 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-job-start"
-      CodeUri: backend/dist/functions/events/
-      Handler: job-start.handler
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/events/job-start.handler"]
       Timeout: 60
-      Layers:
-        - !Ref SharedLayer
       Environment:
         Variables:
           WEBSOCKET_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
@@ -2343,11 +2356,11 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-job-progress"
-      CodeUri: backend/dist/functions/events/
-      Handler: job-progress.handler
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/events/job-progress.handler"]
       Timeout: 60
-      Layers:
-        - !Ref SharedLayer
       Environment:
         Variables:
           WEBSOCKET_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
@@ -2366,12 +2379,12 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-job-completion"
-      CodeUri: backend/dist/functions/events/
-      Handler: job-completion.handler
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/events/job-completion.handler"]
       Timeout: 600 # 10 minutes for image download/upload
       MemorySize: 512
-      Layers:
-        - !Ref SharedLayer
       Environment:
         Variables:
           WEBSOCKET_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
@@ -2396,11 +2409,11 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-job-failure"
-      CodeUri: backend/dist/functions/events/
-      Handler: job-failure.handler
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/events/job-failure.handler"]
       Timeout: 120
-      Layers:
-        - !Ref SharedLayer
       Environment:
         Variables:
           WEBSOCKET_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
@@ -2424,11 +2437,11 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-job-queue"
-      CodeUri: backend/dist/functions/events/
-      Handler: job-queue.handler
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
+      ImageConfig:
+        Command: ["functions/events/job-queue.handler"]
       Timeout: 60
-      Layers:
-        - !Ref SharedLayer
       Environment:
         Variables:
           WEBSOCKET_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
