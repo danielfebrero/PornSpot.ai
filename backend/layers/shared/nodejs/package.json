@@ -25,6 +25,7 @@
     "@aws-sdk/s3-request-presigner": "^3.450.0",
     "@aws-sdk/types": "^3.450.0",
     "@sendgrid/mail": "^8.1.5",
+    "bcrypt": "^6.0.0",
     "google-auth-library": "^9.6.3",
     "googleapis": "^134.0.0",
     "mime-types": "^2.1.35",
