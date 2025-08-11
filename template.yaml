@@ -2407,17 +2407,6 @@ Resources:
       SourceArn: !GetAtt JobProgressRule.Arn
 
   JobCompletionRulePermission:
-ComfyUIEventBusName:
-    Description: ComfyUI EventBridge custom bus name
-    Value: !Ref ComfyUIEventBus
-    Export:
-      Name: !Sub "${Environment}-comfyui-event-bus"
-
-  ComfyUIEventBusArn:
-    Description: ComfyUI EventBridge custom bus ARN
-    Value: !GetAtt ComfyUIEventBus.Arn
-    Export:
-      Name: !Sub "${Environment}-comfyui-event-bus-arn"
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !Ref JobCompletionFunction
@@ -2428,11 +2417,10 @@ ComfyUIEventBusName:
   JobFailureRulePermission:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !Ref JobFailureFunction
+      FunctionName: !Ref JobCompletionFunction
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
-      SourceArn: !GetAtt JobFailureRule.Arn
-              Resource: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/${Environment}/POST/@connections/*"
+      SourceArn: !GetAtt JobCompletionRule.Arn
 
 Outputs:
   ApiGatewayUrl:
@@ -2464,3 +2452,15 @@ Outputs:
     Value: !Sub "wss://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
     Export:
       Name: !Sub "${Environment}-pornspot-websocket-url"
+
+  ComfyUIEventBusName:
+    Description: ComfyUI EventBridge custom bus name
+    Value: !Ref ComfyUIEventBus
+    Export:
+      Name: !Sub "${Environment}-comfyui-event-bus"
+
+  ComfyUIEventBusArn:
+    Description: ComfyUI EventBridge custom bus ARN
+    Value: !GetAtt ComfyUIEventBus.Arn
+    Export:
+      Name: !Sub "${Environment}-comfyui-event-bus-arn"
