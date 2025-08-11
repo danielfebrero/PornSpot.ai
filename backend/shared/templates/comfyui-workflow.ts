@@ -29,6 +29,9 @@ export interface ComfyUIWorkflow {
   [nodeId: string]: {
     class_type: string;
     inputs: Record<string, any>;
+    _meta?: {
+      title: string;
+    };
   };
 }
 
@@ -42,51 +45,63 @@ export function createComfyUIWorkflow(
   const {
     prompt,
     negativePrompt = "",
-    width = 1024,
-    height = 1024,
+    width = 1504,
+    height = 1504,
     batchSize = 1,
     seed = Math.floor(Math.random() * 1000000),
-    steps = 20,
-    cfgScale = 7.0,
-    sampler = "euler",
-    scheduler = "normal",
+    steps = 55,
+    cfgScale = 6.0,
+    sampler = "dpmpp_3m_sde_gpu",
+    scheduler = "exponential",
   } = params;
 
   // Base workflow template for SDXL text-to-image generation
   const workflow: ComfyUIWorkflow = {
-    // Checkpoint loader
-    "4": {
+    // Load Checkpoint
+    "11": {
       class_type: "CheckpointLoaderSimple",
       inputs: {
-        ckpt_name: "sd_xl_base_1.0.safetensors", // Default SDXL model
+        ckpt_name: "lustifySDXLNSFW_oltFIXEDTEXTURES.safetensors",
+      },
+      _meta: {
+        title: "Load Checkpoint",
       },
     },
 
-    // Positive prompt text encode
+    // CLIP Text Encode (Positive Prompt)
     "6": {
       class_type: "CLIPTextEncode",
       inputs: {
         text: prompt,
-        clip: ["4", 1],
+        clip: ["11", 1],
+      },
+      _meta: {
+        title: "CLIP Text Encode (Prompt)",
       },
     },
 
-    // Negative prompt text encode
+    // CLIP Text Encode (Negative Prompt)
     "7": {
       class_type: "CLIPTextEncode",
       inputs: {
         text: negativePrompt,
-        clip: ["4", 1],
+        clip: ["11", 1],
+      },
+      _meta: {
+        title: "CLIP Text Encode (Prompt)",
       },
     },
 
-    // Empty latent image
+    // Empty Latent Image
     "5": {
       class_type: "EmptyLatentImage",
       inputs: {
         width: width,
         height: height,
         batch_size: batchSize,
+      },
+      _meta: {
+        title: "Empty Latent Image",
       },
     },
 
@@ -100,19 +115,25 @@ export function createComfyUIWorkflow(
         sampler_name: sampler,
         scheduler: scheduler,
         denoise: 1.0,
-        model: ["4", 0],
+        model: ["11", 0],
         positive: ["6", 0],
         negative: ["7", 0],
         latent_image: ["5", 0],
       },
+      _meta: {
+        title: "KSampler",
+      },
     },
 
-    // VAE Decoder
+    // VAE Decode
     "8": {
       class_type: "VAEDecode",
       inputs: {
         samples: ["3", 0],
-        vae: ["4", 2],
+        vae: ["11", 2],
+      },
+      _meta: {
+        title: "VAE Decode",
       },
     },
 
@@ -123,6 +144,9 @@ export function createComfyUIWorkflow(
         filename_prefix: "ComfyUI_Generated",
         images: ["8", 0],
       },
+      _meta: {
+        title: "Save Image",
+      },
     },
   };
 
@@ -131,15 +155,18 @@ export function createComfyUIWorkflow(
     // For each LoRA, we need to modify the workflow
     // This is a simplified implementation - in practice you'd chain LoRA loaders
     params.selectedLoras.forEach((lora, index) => {
-      const loraNodeId = `lora_${index + 10}`;
+      const loraNodeId = `lora_${index + 12}`;
       workflow[loraNodeId] = {
         class_type: "LoraLoader",
         inputs: {
           lora_name: `${lora.name}.safetensors`,
           strength_model: lora.strength,
           strength_clip: lora.strength,
-          model: index === 0 ? ["4", 0] : [`lora_${index + 9}`, 0],
-          clip: index === 0 ? ["4", 1] : [`lora_${index + 9}`, 1],
+          model: index === 0 ? ["11", 0] : [`lora_${index + 11}`, 0],
+          clip: index === 0 ? ["11", 1] : [`lora_${index + 11}`, 1],
+        },
+        _meta: {
+          title: `LoRA Loader ${index + 1}`,
         },
       };
 
@@ -234,12 +261,13 @@ export function validateWorkflowParameters(params: WorkflowParameters): {
  * Default workflow parameters
  */
 export const DEFAULT_WORKFLOW_PARAMS: Partial<WorkflowParameters> = {
-  width: 1024,
-  height: 1024,
+  width: 1504,
+  height: 1504,
   batchSize: 1,
-  steps: 20,
-  cfgScale: 7.0,
-  sampler: "euler",
-  scheduler: "normal",
-  negativePrompt: "nsfw, nude, explicit, low quality, blurry, artifacts",
+  steps: 55,
+  cfgScale: 6.0,
+  sampler: "dpmpp_3m_sde_gpu",
+  scheduler: "exponential",
+  negativePrompt:
+    "ugly,distorted bad teeth, bad hands, distorted face, missing fingers, multiple limbs, distorted arms, distorted legs, low quality, distorted fingers, weird legs, distorted eyes,pixelated, extra fingers, watermark",
 };
