@@ -14,30 +14,17 @@ import { PlanUtil } from "@shared/utils/plan";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 import { getGenerationPermissions } from "@shared/utils/permissions";
-import { Media } from "@shared";
 import { getRateLimitingService } from "@shared/services/rate-limiting";
 import { broadcastToPromptSubscribers } from "../websocket/route";
 import { GenerationQueueService } from "@shared/services/generation-queue";
 import { EventBridge } from "aws-sdk";
+import type {
+  GenerationResponse,
+  GenerationSettings,
+  WorkflowFinalParams,
+} from "@shared/shared-types";
 
-interface GenerationRequest {
-  prompt: string;
-  negativePrompt?: string;
-  imageSize?: string;
-  customWidth?: number;
-  customHeight?: number;
-  batchCount?: number;
-  selectedLoras?: string[];
-}
-
-interface GenerationResponse {
-  queueId: string;
-  queuePosition: number;
-  estimatedWaitTime: number;
-  status: "pending" | "processing" | "completed" | "failed";
-  message: string;
-  images?: Media[];
-}
+interface GenerationRequest extends GenerationSettings {}
 
 const handleGenerate = async (
   event: APIGatewayProxyEvent,
@@ -70,6 +57,9 @@ const handleGenerate = async (
     customHeight = 1024,
     batchCount = 1,
     selectedLoras = [],
+    loraStrengths = {},
+    loraSelectionMode = "auto",
+    optimizePrompt = true,
   } = requestBody;
 
   // Validate required fields using shared validation
@@ -109,6 +99,16 @@ const handleGenerate = async (
 
   // Validate LoRA usage
   if (selectedLoras.length > 0 && !permissions.canUseLoRA) {
+    return ResponseUtil.forbidden(event, "LoRA models require a Pro plan");
+  }
+
+  // Validate LoRA usage
+  if (loraSelectionMode !== "auto" && !permissions.canUseLoRA) {
+    return ResponseUtil.forbidden(event, "LoRA models require a Pro plan");
+  }
+
+  // Validate LoRA usage
+  if (Object.keys(loraStrengths).length > 0 && !permissions.canUseLoRA) {
     return ResponseUtil.forbidden(event, "LoRA models require a Pro plan");
   }
 
@@ -155,7 +155,7 @@ const handleGenerate = async (
   }
 
   // Create workflow parameters for queue entry
-  const workflowParams = {
+  const workflowParams: WorkflowFinalParams = {
     width:
       imageSize === "custom"
         ? customWidth
@@ -167,6 +167,12 @@ const handleGenerate = async (
     steps: 20, // Default steps
     cfg_scale: 7.0, // Default CFG scale
     batch_size: batchCount,
+    loraSelectionMode,
+    loraStrengths,
+    selectedLoras,
+    optimizePrompt,
+    prompt: validatedPrompt.trim(),
+    negativePrompt: negativePrompt.trim(),
   };
 
   // Get queue service and add request to queue

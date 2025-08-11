@@ -89,17 +89,6 @@ export interface Metadata {
     | null
     | undefined
     | string[]
+    | Record<string, { mode: "auto" | "manual"; value: number }>
     | { [key: string]: string | number };
-}
-
-// Specific metadata types for generated content
-export interface GenerationMetadata extends Metadata {
-  prompt?: string;
-  negativePrompt?: string;
-  creatorUsername?: string;
-  creator?: string;
-  artist?: string;
-  loraModels?: string[];
-  loraStrengths?: { [key: string]: string | number };
-  bulkSiblings?: string[];
 }

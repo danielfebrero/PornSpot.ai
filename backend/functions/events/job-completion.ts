@@ -16,6 +16,13 @@ import {
 import { ApiGatewayManagementApi } from "aws-sdk";
 import { S3StorageService } from "@shared/services/s3-storage";
 import { ParameterStoreService } from "@shared/utils/parameters";
+import { DynamoDBService } from "@shared/utils/dynamodb";
+import { S3Service } from "@shared/utils/s3";
+import { Media, MediaEntity } from "@shared";
+import {
+  createMediaEntity,
+  createGenerationMetadata,
+} from "@shared/utils/media-entity";
 import axios from "axios";
 
 interface JobCompletionEventDetail {
@@ -76,21 +83,49 @@ export const handler = async (
       console.warn(
         `No images found in completion output for prompt ${promptId}`
       );
-      await handleJobCompletion(queueEntry, []);
+      await handleJobCompletion(queueEntry, [], []);
       return;
     }
 
     console.log(`Found ${generatedImages.length} generated images`);
 
-    // Download and upload images to S3
+    // Create Media entities in DynamoDB FIRST before uploading to S3
+    const createdMediaEntities = await createMediaEntitiesFirst(
+      queueEntry,
+      generatedImages.length
+    );
+
+    if (createdMediaEntities.length === 0) {
+      throw new Error("Failed to create any media entities in DynamoDB");
+    }
+
+    console.log(
+      `Created ${createdMediaEntities.length} media entities in DynamoDB`
+    );
+
+    // Download and upload images to S3 using predictable filenames
     const uploadedImageUrls: string[] = [];
 
-    for (const image of generatedImages) {
+    for (let index = 0; index < generatedImages.length; index++) {
+      const image = generatedImages[index];
+      const mediaEntity = createdMediaEntities[index];
+
+      if (!image) {
+        console.error(`No image found at index ${index}`);
+        continue;
+      }
+
+      if (!mediaEntity) {
+        console.error(`No media entity found for image ${index}`);
+        continue;
+      }
+
       try {
         const imageUrl = await downloadAndUploadImage(
           image,
           queueEntry,
-          COMFYUI_ENDPOINT
+          COMFYUI_ENDPOINT,
+          mediaEntity.id
         );
         if (imageUrl) {
           uploadedImageUrls.push(imageUrl);
@@ -108,7 +143,11 @@ export const handler = async (
     console.log(`Successfully uploaded ${uploadedImageUrls.length} images`);
 
     // Update queue entry with completion status
-    await handleJobCompletion(queueEntry, uploadedImageUrls);
+    await handleJobCompletion(
+      queueEntry,
+      uploadedImageUrls,
+      createdMediaEntities
+    );
   } catch (error) {
     console.error("Error handling job completion event:", error);
 
@@ -156,10 +195,109 @@ function extractImagesFromOutput(
   return images;
 }
 
+async function createMediaEntitiesFirst(
+  queueEntry: QueueEntry,
+  imageCount: number
+): Promise<MediaEntity[]> {
+  const createdEntities: MediaEntity[] = [];
+
+  console.log(
+    `💾 Creating ${imageCount} media entities in DynamoDB for generation: ${queueEntry.queueId}`
+  );
+
+  for (let index = 0; index < imageCount; index++) {
+    try {
+      const mediaId = `${queueEntry.queueId}_${index}`;
+      const fileExtension = "jpg"; // Default to JPG for generated images
+      const customFilename = `${mediaId}.${fileExtension}`;
+      const s3Key = `generated/${queueEntry.queueId}/${customFilename}`;
+
+      // Generate relative URL from S3 key
+      const relativeUrl = S3Service.getRelativePath(s3Key);
+
+      // Extract dimensions from queue parameters or use defaults
+      const width = queueEntry.parameters.width || 1024;
+      const height = queueEntry.parameters.height || 1024;
+
+      // Create generation-specific metadata
+      const generationMetadata = createGenerationMetadata({
+        prompt: queueEntry.parameters.prompt || "Generated image",
+        negativePrompt: queueEntry.parameters.negativePrompt || "",
+        width,
+        height,
+        generationId: queueEntry.queueId,
+        selectedLoras: queueEntry.parameters?.selectedLoras || [],
+        batchCount: imageCount,
+        loraStrengths: queueEntry.parameters?.loraStrengths || {},
+        loraSelectionMode: queueEntry.parameters?.loraSelectionMode,
+        optimizePrompt: queueEntry.parameters?.optimizePrompt || false,
+      });
+
+      // Create MediaEntity for database storage using shared utility
+      const mediaEntity: MediaEntity = createMediaEntity({
+        mediaId,
+        userId: queueEntry.userId,
+        filename: s3Key, // Use S3 key as filename
+        originalFilename: `generated_${index + 1}.jpg`,
+        mimeType: "image/jpeg",
+        size: width * height * 3, // Rough estimate for JPEG
+        width,
+        height,
+        url: relativeUrl, // Use relative URL from S3 key
+        metadata: generationMetadata,
+        // Thumbnails will be set by process-upload worker
+        // Status defaults to "pending" and will be updated by process-upload worker
+        // Interaction counts default to 0
+        // createdByType defaults to "user"
+      });
+
+      // Save to database
+      await DynamoDBService.createMedia(mediaEntity);
+      createdEntities.push(mediaEntity);
+
+      console.log(`✅ Created media entity ${mediaId} in DynamoDB`);
+    } catch (error) {
+      const errorMessage = `Failed to create media entity ${index}: ${
+        error instanceof Error ? error.message : String(error)
+      }`;
+      console.error(`❌ ${errorMessage}`);
+      // Continue with other entities - we'll handle partial failures
+    }
+  }
+
+  // Update user metrics for generated media
+  if (createdEntities.length > 0) {
+    try {
+      // Increment totalGeneratedMedias metric for each created media
+      await DynamoDBService.incrementUserProfileMetric(
+        queueEntry.userId,
+        "totalGeneratedMedias",
+        createdEntities.length
+      );
+      console.log(
+        `📈 Incremented totalGeneratedMedias by ${createdEntities.length} for user: ${queueEntry.userId}`
+      );
+    } catch (error) {
+      console.warn(
+        `⚠️ Failed to update user metrics for ${queueEntry.userId}:`,
+        error
+      );
+      // Don't fail the entire operation if metrics update fails
+    }
+  }
+
+  console.log(
+    `💾 Created ${createdEntities.length}/${imageCount} media entities in DynamoDB`
+  );
+
+  return createdEntities;
+}
+
 async function downloadAndUploadImage(
   image: { filename: string; subfolder: string; type: string },
   queueEntry: QueueEntry,
-  comfyuiEndpoint: string
+  comfyuiEndpoint: string,
+  mediaId: string
 ): Promise<string | null> {
   try {
     // Download image from ComfyUI
@@ -184,12 +322,13 @@ async function downloadAndUploadImage(
 
     // Generate file extension for the image
     const fileExtension = image.filename.split(".").pop() || "png";
+    const customFilename = `${mediaId}.${fileExtension}`;
 
-    // Upload to S3
-    const result = await s3Service.uploadGeneratedImage(
+    // Upload to S3 with custom filename
+    const result = await s3Service.uploadGeneratedImageWithCustomFilename(
       imageBuffer,
       queueEntry.queueId,
-      0,
+      customFilename,
       `image/${fileExtension}`
     );
 
@@ -204,9 +343,19 @@ async function downloadAndUploadImage(
 
 async function handleJobCompletion(
   queueEntry: QueueEntry,
-  imageUrls: string[]
+  imageUrls: string[],
+  createdMediaEntities: MediaEntity[]
 ): Promise<void> {
   try {
+    // Convert MediaEntities to Media objects for response
+    const mediaObjects: Media[] = createdMediaEntities.map((mediaEntity) =>
+      DynamoDBService.convertMediaEntityToMedia(mediaEntity)
+    );
+
+    console.log(
+      `Using ${mediaObjects.length} already-created Media entities for job completion`
+    );
+
     // Update queue entry with completion status
     await queueService.updateQueueEntry(queueEntry.queueId, {
       status: "completed",
@@ -220,7 +369,7 @@ async function handleJobCompletion(
 
     // Broadcast completion to connected WebSocket clients
     if (WEBSOCKET_ENDPOINT && queueEntry.connectionId) {
-      await broadcastCompletion(queueEntry, imageUrls);
+      await broadcastCompletion(queueEntry, mediaObjects);
     }
   } catch (error) {
     console.error("Error handling job completion:", error);
@@ -230,7 +379,7 @@ async function handleJobCompletion(
 
 async function broadcastCompletion(
   queueEntry: QueueEntry,
-  imageUrls: string[]
+  medias: Media[]
 ): Promise<void> {
   if (!WEBSOCKET_ENDPOINT || !queueEntry.connectionId) {
     return;
@@ -242,13 +391,13 @@ async function broadcastCompletion(
     });
 
     const message = {
-      type: "job_completed",
+      type: "completed",
       queueId: queueEntry.queueId,
       promptId: queueEntry.comfyPromptId,
       timestamp: new Date().toISOString(),
       status: "completed",
-      imageUrls,
-      primaryImageUrl: imageUrls[0],
+      message: "Generation completed successfully!",
+      medias,
     };
 
     await apiGateway

@@ -8,6 +8,7 @@ export * from "./comment";
 export * from "./user";
 export * from "./admin";
 export * from "./interaction";
+export * from "./generation";
 
 // Database entities
 export * from "./database";

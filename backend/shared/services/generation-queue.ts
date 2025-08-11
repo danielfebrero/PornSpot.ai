@@ -7,6 +7,7 @@ import {
   DeleteCommand,
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
+import { WorkflowFinalParams } from "@shared/shared-types";
 import { v4 as uuidv4 } from "uuid";
 
 export interface QueueEntry {
@@ -15,14 +16,7 @@ export interface QueueEntry {
   connectionId?: string;
   status: "pending" | "processing" | "completed" | "failed" | "timeout";
   prompt: string;
-  parameters: {
-    width: number;
-    height: number;
-    steps: number;
-    cfg_scale: number;
-    seed?: number;
-    batch_size?: number;
-  };
+  parameters: WorkflowFinalParams;
   priority: number; // Lower number = higher priority (0 = highest)
   createdAt: number;
   updatedAt: number;

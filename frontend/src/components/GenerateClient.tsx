@@ -19,7 +19,7 @@ import { GradientTextarea } from "@/components/ui/GradientTextarea";
 import { MagicText, MagicTextHandle } from "@/components/ui/MagicText";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { useGeneration } from "@/hooks/useGeneration";
-import { Media } from "@/types";
+import { GenerationSettings, Media } from "@/types";
 import {
   ImageIcon,
   Crown,
@@ -36,19 +36,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocaleRouter } from "@/lib/navigation";
-
-interface GenerationSettings {
-  prompt: string;
-  negativePrompt: string;
-  imageSize: string;
-  customWidth: number;
-  customHeight: number;
-  batchCount: number;
-  selectedLoras: string[];
-  loraStrengths: Record<string, { mode: "auto" | "manual"; value: number }>;
-  loraSelectionMode: "auto" | "manual";
-  optimizePrompt: boolean;
-}
 
 const IMAGE_SIZES = [
   {
@@ -109,7 +96,7 @@ export function GenerateClient() {
   });
 
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const [allGeneratedImages, setAllGeneratedImages] = useState<string[]>([]);
+  const [allGeneratedImages, setAllGeneratedImages] = useState<Media[]>([]);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showMagicText, setShowMagicText] = useState(false);
@@ -294,7 +281,9 @@ export function GenerateClient() {
   // Open lightbox for thumbnail (from all generated images)
   const openThumbnailLightbox = (imageUrl: string) => {
     console.log("Opening lightbox for image:", imageUrl);
-    const index = allGeneratedImages.findIndex((url) => url === imageUrl);
+    const index = allGeneratedImages.findIndex(
+      (media) => media.url === imageUrl
+    );
     if (index !== -1) {
       setLightboxIndex(index);
       setLightboxOpen(true);
@@ -346,23 +335,15 @@ export function GenerateClient() {
 
     // Submit to generation queue
     await generateImages({
+      ...settings,
       prompt: finalPrompt,
-      negativePrompt: settings.negativePrompt || undefined,
-      imageSize: settings.imageSize,
-      customWidth: settings.customWidth,
-      customHeight: settings.customHeight,
-      batchCount: settings.batchCount,
-      selectedLoras: settings.selectedLoras,
     });
   };
 
   // Update allGeneratedImages when new images are generated
   React.useEffect(() => {
     if (generatedImages.length > 0) {
-      setAllGeneratedImages((prev) => [
-        ...generatedImages.map((img) => img.url),
-        ...prev,
-      ]);
+      setAllGeneratedImages((prev) => [...generatedImages, ...prev]);
     }
   }, [generatedImages]);
 
@@ -567,7 +548,7 @@ export function GenerateClient() {
                   </div>
                   <div className="w-full max-w-md mx-auto">
                     <ContentCard
-                      item={createMediaFromUrl(generatedImages[0].url, 0)}
+                      item={generatedImages[0]}
                       aspectRatio="square"
                       canLike={false}
                       canBookmark={false}
@@ -575,9 +556,7 @@ export function GenerateClient() {
                       canAddToAlbum={true}
                       canDownload={true}
                       canDelete={true}
-                      mediaList={generatedImages.map((image, index) =>
-                        createMediaFromUrl(image.url, index)
-                      )}
+                      mediaList={generatedImages}
                       currentIndex={0}
                     />
                   </div>
@@ -779,11 +758,11 @@ export function GenerateClient() {
                   <div
                     key={index}
                     className="flex-shrink-0 group"
-                    onClick={() => openThumbnailLightbox(image)}
+                    onClick={() => openThumbnailLightbox(image.url)}
                   >
                     <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-border group-hover:border-primary transition-colors cursor-pointer shadow-md hover:shadow-lg">
                       <img
-                        src={image}
+                        src={image.url}
                         alt={`Previous ${index + 1}`}
                         width={80}
                         height={80}
@@ -1372,9 +1351,7 @@ export function GenerateClient() {
 
           {/* Lightbox */}
           <Lightbox
-            media={allGeneratedImages.map((url, index) =>
-              createMediaFromUrl(url, index)
-            )}
+            media={allGeneratedImages}
             currentIndex={lightboxIndex}
             isOpen={lightboxOpen}
             canDelete={true}

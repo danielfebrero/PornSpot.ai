@@ -44,14 +44,31 @@ sequenceDiagram
 
 ### 2. **Media Processing**
 
-- **Trigger**: An S3 event is configured to trigger a Lambda function whenever a new object is created in the `media/` directory of the S3 bucket.
+- **Trigger**: An S3 event is configured to trigger a Lambda function whenever a new object is created in the S3 bucket. The function handles three types of uploads:
+  - **Album media**: `albums/{albumId}/media/{filename}`
+  - **User avatars**: `users/{userId}/avatar/{filename}`
+  - **Generated media**: `generated/{generationId}/{filename}` (AI-generated images)
 - **Lambda Handler**: [`backend/functions/media/process-upload.ts`](../backend/functions/media/process-upload.ts)
 - **Process**:
-  1.  The Lambda function is triggered by the S3 event.
-  2.  It downloads the original image from S3.
-  3.  It uses the **Sharp** library to generate multiple thumbnail sizes (see [`THUMBNAIL_SYSTEM.md`](THUMBNAIL_SYSTEM.md) for details).
-  4.  The generated thumbnails are uploaded to the `thumbnails/` directory in the same S3 bucket.
-  5.  The media record in DynamoDB is updated with the URLs of the thumbnails and the status is changed to `uploaded`.
+  1. The Lambda function is triggered by the S3 event.
+  2. It determines the upload type based on the S3 key pattern.
+  3. It downloads the original image from S3.
+  4. For images, it uses the **Sharp** library to generate multiple thumbnail sizes (see [`THUMBNAIL_SYSTEM.md`](THUMBNAIL_SYSTEM.md) for details).
+  5. The generated thumbnails are uploaded to the `thumbnails/` directory in the same S3 bucket.
+  6. For album media and generated media, the Media record in DynamoDB is updated with thumbnail URLs and status is changed to `uploaded`.
+  7. For avatars, the User entity is updated with avatar thumbnail information.
+
+### 3. **Generated Media Processing**
+
+AI-generated media follows a special workflow:
+
+- **Creation**: Generated images are created via the image generation endpoint and stored as Media entities with status `pending`.
+- **Upload**: The job completion handler downloads generated images from ComfyUI and uploads them to S3 with keys like `generated/{generationId}/{imageId}_{index}.jpg`.
+- **Processing**: The process-upload function detects the `generated/` prefix and:
+  1. Extracts the media ID from the filename pattern (`{generationId}_{index}`).
+  2. Finds the corresponding Media entity using `DynamoDBService.findMediaById()`.
+  3. Generates thumbnails and WebP display versions like regular media.
+  4. Updates the Media entity status from `pending` to `uploaded`.
 
 ## Frontend Implementation
 

@@ -9,7 +9,12 @@ Special notes:
 */
 
 import { DynamoDBService } from "@shared/utils/dynamodb";
+import { S3Service } from "@shared/utils/s3";
 import { Media, MediaEntity } from "@shared";
+import {
+  createMediaEntity,
+  createGenerationMetadata,
+} from "@shared/utils/media-entity";
 
 interface SaveGeneratedMediaOptions {
   userId: string;
@@ -17,9 +22,15 @@ interface SaveGeneratedMediaOptions {
   batchCount: number;
   prompt: string;
   negativePrompt?: string;
-  imageSize: string;
+  width: number;
+  height: number;
   selectedLoras?: string[];
-  mockUrls: string[]; // Temporary - will be replaced with actual generation service
+  s3Keys: string[]; // S3 keys for the generated images
+  loraStrengths?: Record<string, { mode: "auto" | "manual"; value: number }>;
+  loraSelectionMode?: "auto" | "manual";
+  optimizePrompt?: boolean;
+  customWidth?: number;
+  customHeight?: number;
 }
 
 interface GeneratedMediaResult {
@@ -42,9 +53,15 @@ export async function saveGeneratedMediaToDatabase(
     batchCount,
     prompt,
     negativePrompt,
-    imageSize,
+    width,
+    height,
     selectedLoras = [],
-    mockUrls,
+    s3Keys,
+    loraStrengths,
+    loraSelectionMode,
+    optimizePrompt,
+    customWidth,
+    customHeight,
   } = options;
 
   const result: GeneratedMediaResult = {
@@ -52,8 +69,6 @@ export async function saveGeneratedMediaToDatabase(
     savedCount: 0,
     errors: [],
   };
-
-  const now = new Date().toISOString();
 
   console.log(
     `💾 Saving ${batchCount} generated media items to database for user: ${userId}`
@@ -63,64 +78,49 @@ export async function saveGeneratedMediaToDatabase(
   for (let index = 0; index < batchCount; index++) {
     try {
       const mediaId = `${generationId}_${index}`;
-      const filename = `generated_${mediaId}.jpg`;
-      const mockUrl = mockUrls[index];
+      const s3Key = s3Keys[index];
 
-      // Validate that we have a URL for this index
-      if (!mockUrl) {
-        throw new Error(`Missing URL for image at index ${index}`);
+      // Validate that we have an S3 key for this index
+      if (!s3Key) {
+        throw new Error(`Missing S3 key for image at index ${index}`);
       }
 
-      // Extract dimensions from imageSize
-      const [widthStr, heightStr] = imageSize.split("x");
-      const width = parseInt(widthStr || "1024");
-      const height = parseInt(heightStr || "1024");
+      // Generate relative URL from S3 key
+      const relativeUrl = S3Service.getRelativePath(s3Key);
 
-      // Create MediaEntity for database storage
-      const mediaEntity: MediaEntity = {
-        PK: `MEDIA#${mediaId}`,
-        SK: "METADATA",
-        GSI1PK: "MEDIA_BY_CREATOR",
-        GSI1SK: `${userId}#${now}#${mediaId}`,
-        GSI2PK: "MEDIA_ID",
-        GSI2SK: mediaId,
-        EntityType: "Media" as const,
-        id: mediaId,
-        filename,
+      // Create generation-specific metadata
+      const generationMetadata = createGenerationMetadata({
+        prompt,
+        negativePrompt,
+        width,
+        height,
+        generationId,
+        selectedLoras,
+        batchCount,
+        loraStrengths,
+        loraSelectionMode,
+        optimizePrompt,
+        customWidth,
+        customHeight,
+      });
+
+      // Create MediaEntity for database storage using shared utility
+      const mediaEntity: MediaEntity = createMediaEntity({
+        mediaId,
+        userId,
+        filename: s3Key, // Use S3 key as filename
         originalFilename: `generated_${index + 1}.jpg`,
         mimeType: "image/jpeg",
         size: width * height * 3, // Rough estimate for JPEG
         width,
         height,
-        url: mockUrl, // TODO: Replace with actual generated image URL
-        thumbnailUrl: mockUrl, // For now, use same URL as thumbnail
-        thumbnailUrls: {
-          cover: mockUrl,
-          small: mockUrl,
-          medium: mockUrl,
-          large: mockUrl,
-          xlarge: mockUrl,
-          originalSize: mockUrl,
-        },
-        status: "uploaded" as const, // Generated images are immediately "uploaded"
-        createdAt: now,
-        updatedAt: now,
-        likeCount: 0,
-        bookmarkCount: 0,
-        viewCount: 0,
-        commentCount: 0,
-        metadata: {
-          prompt: prompt.trim(),
-          negativePrompt: negativePrompt || undefined,
-          imageSize,
-          generationId,
-          selectedLoras: selectedLoras.length > 0 ? selectedLoras : undefined,
-          estimatedTime: Math.round(batchCount * 2000 + Math.random() * 1000),
-          isGenerated: true, // Flag to identify AI-generated content
-        },
-        createdBy: userId,
-        createdByType: "user" as const,
-      };
+        url: relativeUrl, // Use relative URL from S3 key
+        metadata: generationMetadata,
+        // Thumbnails will be set by process-upload worker
+        // Status defaults to "pending" and will be updated by process-upload worker
+        // Interaction counts default to 0
+        // createdByType defaults to "user"
+      });
 
       // Save to database
       await DynamoDBService.createMedia(mediaEntity);
@@ -144,12 +144,11 @@ export async function saveGeneratedMediaToDatabase(
   if (result.savedCount > 0) {
     try {
       // Increment totalGeneratedMedias metric for each saved media
-      for (let i = 0; i < result.savedCount; i++) {
-        await DynamoDBService.incrementUserProfileMetric(
-          userId,
-          "totalGeneratedMedias"
-        );
-      }
+      await DynamoDBService.incrementUserProfileMetric(
+        userId,
+        "totalGeneratedMedias",
+        result.savedCount
+      );
       console.log(
         `📈 Incremented totalGeneratedMedias by ${result.savedCount} for user: ${userId}`
       );
@@ -200,12 +199,12 @@ export function validateGenerationOptions(
     errors.push("Prompt is required");
   }
 
-  if (!options.imageSize) {
-    errors.push("Image size is required");
+  if (!options.width || !options.height) {
+    errors.push("Image width and height are required");
   }
 
-  if (!options.mockUrls || options.mockUrls.length !== options.batchCount) {
-    errors.push("Mock URLs must match batch count");
+  if (!options.s3Keys || options.s3Keys.length !== options.batchCount) {
+    errors.push("S3 keys must match batch count");
   }
 
   return {

@@ -12,6 +12,10 @@ TRIGGERS = [
         "Id": "ProcessAvatarUploadTrigger",
         "Prefix": "users/",
     },
+    {
+        "Id": "ProcessGeneratedMediaUploadTrigger",
+        "Prefix": "generated/",
+    },
 ]
 TRIGGER_IDS = {trigger["Id"] for trigger in TRIGGERS}
 

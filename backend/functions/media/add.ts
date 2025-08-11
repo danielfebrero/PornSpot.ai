@@ -7,6 +7,7 @@ import { UploadMediaRequest, AddMediaToAlbumRequest } from "@shared";
 import { RevalidationService } from "@shared/utils/revalidation";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
+import { createMediaEntity } from "@shared/utils/media-entity";
 
 const handleAddMedia = async (
   event: APIGatewayProxyEvent,
@@ -169,29 +170,22 @@ const handleAddMedia = async (
   );
 
   const mediaId = uuidv4();
-  const now = new Date().toISOString();
 
-  // Create media record using new schema (independent of album)
-  const mediaEntity = {
-    PK: `MEDIA#${mediaId}`,
-    SK: "METADATA",
-    GSI1PK: "MEDIA_BY_CREATOR",
-    GSI1SK: `${userId}#${now}#${mediaId}`, // Use actual user ID
-    GSI2PK: "MEDIA_ID",
-    GSI2SK: mediaId,
-    EntityType: "Media" as const,
-    id: mediaId,
+  // Create media record using shared utility
+  const mediaEntity = createMediaEntity({
+    mediaId,
+    userId,
     filename: key,
     originalFilename: filename,
     mimeType: mimeType,
     size: uploadRequest.size || 0,
     url: S3Service.getRelativePath(key),
-    createdAt: now,
-    updatedAt: now,
-    createdBy: userId, // Use actual user ID
-    createdByType: "user" as const,
-    status: "pending" as const, // Will be updated to 'uploaded' after successful upload
-  };
+    // Optional properties use defaults:
+    // - status defaults to "pending" (updated to 'uploaded' after successful upload)
+    // - createdByType defaults to "user"
+    // - interaction counts default to 0
+    // - thumbnails will be set by process-upload worker
+  });
   console.log("Generated media relative path:", S3Service.getRelativePath(key));
 
   // Create the media entity

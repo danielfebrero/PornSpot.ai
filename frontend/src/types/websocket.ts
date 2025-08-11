@@ -17,6 +17,7 @@ export interface WebSocketMessage {
   message?: string;
   currentNode?: string;
   images?: any[];
+  medias?: any[];
   error?: string;
   errorType?: string;
   retryCount?: number;
@@ -29,6 +30,7 @@ export interface GenerationQueueStatus {
   status: "pending" | "processing" | "completed" | "failed";
   message: string;
   images?: any[];
+  medias?: any[];
 }
 
 export interface WebSocketContextType {

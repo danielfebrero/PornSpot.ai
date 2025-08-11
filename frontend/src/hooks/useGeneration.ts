@@ -3,26 +3,9 @@
 import { useState, useCallback, useRef } from "react";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import { WebSocketMessage, GenerationQueueStatus } from "@/types/websocket";
-import { Media } from "@/types";
+import { GenerationResponse, GenerationSettings, Media } from "@/types";
 
-interface GenerationRequest {
-  prompt: string;
-  negativePrompt?: string;
-  imageSize?: string;
-  customWidth?: number;
-  customHeight?: number;
-  batchCount?: number;
-  selectedLoras?: string[];
-}
-
-interface GenerationResponse {
-  queueId: string;
-  queuePosition: number;
-  estimatedWaitTime: number;
-  status: "pending" | "processing" | "completed" | "failed";
-  message: string;
-  images?: Media[];
-}
+interface GenerationRequest extends GenerationSettings {}
 
 interface UseGenerationReturn {
   isGenerating: boolean;
@@ -106,13 +89,13 @@ export function useGeneration(): UseGenerationReturn {
                   ...prev,
                   status: "completed",
                   message: message.message || "Generation completed",
-                  images: message.images,
+                  images: message.medias,
                 }
               : null
           );
 
-          if (message.images) {
-            setGeneratedImages(message.images);
+          if (message.medias) {
+            setGeneratedImages(message.medias);
           }
 
           setCurrentMessage(

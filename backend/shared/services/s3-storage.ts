@@ -85,6 +85,57 @@ export class S3StorageService {
   }
 
   /**
+   * Upload an image buffer to S3 with a custom filename
+   * Used for generated images where we want predictable filenames
+   */
+  async uploadGeneratedImageWithCustomFilename(
+    imageBuffer: Buffer,
+    generationId: string,
+    customFilename: string,
+    mimeType: string = "image/jpeg"
+  ): Promise<UploadImageResult> {
+    const key = `generated/${generationId}/${customFilename}`;
+
+    try {
+      const putCommand = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+        Body: imageBuffer,
+        ContentType: mimeType,
+        CacheControl: "public, max-age=31536000", // 1 year cache
+        Metadata: {
+          generationId,
+          customFilename,
+          uploadedAt: new Date().toISOString(),
+        },
+      });
+
+      await this.s3Client.send(putCommand);
+
+      // Generate URLs
+      const s3Url = `https://${this.bucketName}.s3.amazonaws.com/${key}`;
+      const publicUrl = this.cloudFrontDomain
+        ? `https://${this.cloudFrontDomain}/${key}`
+        : s3Url;
+
+      console.log(`✅ Image uploaded to S3 with custom filename: ${key}`);
+
+      return {
+        key,
+        url: s3Url,
+        publicUrl,
+      };
+    } catch (error) {
+      console.error(`❌ Failed to upload image to S3:`, error);
+      throw new Error(
+        `S3 upload failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  }
+
+  /**
    * Upload multiple images concurrently
    */
   async uploadGeneratedImages(
