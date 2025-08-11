@@ -38,7 +38,6 @@ Globals:
         IS_OFFLINE: ""
         USE_CUSTOM_DOMAIN: "true" # Set to "true" when using api.pornspot.ai
         SENDGRID_API_KEY: ""
-        COMFYUI_API_ENDPOINT: !Sub "{{resolve:ssm:/pornspot-ai/${Environment}/comfyui-api-endpoint:http://localhost:8188}}"
         EVENTBRIDGE_BUS_NAME: !Ref ComfyUIEventBus
 
 Resources:

@@ -10,6 +10,7 @@ Special notes:
 
 import { EventBridgeEvent, Context } from "aws-lambda";
 import { GenerationQueueService } from "@shared/services/generation-queue";
+import { ParameterStoreService } from "@shared/utils/parameters";
 import {
   getComfyUIClient,
   initializeComfyUIClient,
@@ -30,8 +31,6 @@ interface QueueSubmissionEvent {
 
 const eventBridge = new EventBridge();
 const EVENT_BUS_NAME = process.env["EVENTBRIDGE_BUS_NAME"] || "comfyui-events";
-const COMFYUI_ENDPOINT =
-  process.env["COMFYUI_API_ENDPOINT"] || "http://localhost:8188";
 
 async function publishEvent(eventType: string, detail: any): Promise<void> {
   try {
@@ -72,6 +71,8 @@ export const handler = async (
   let queueItem: any = null;
 
   try {
+    const COMFYUI_ENDPOINT =
+      await ParameterStoreService.getComfyUIApiEndpoint();
     // Get queue item from DynamoDB
     queueItem = await queueService.getQueueEntry(queueId);
     if (!queueItem) {

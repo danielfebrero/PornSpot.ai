@@ -15,6 +15,7 @@ import {
 } from "@shared/services/generation-queue";
 import { ApiGatewayManagementApi } from "aws-sdk";
 import { S3StorageService } from "@shared/services/s3-storage";
+import { ParameterStoreService } from "@shared/utils/parameters";
 import axios from "axios";
 
 interface JobCompletionEventDetail {
@@ -37,8 +38,6 @@ interface JobCompletionEventDetail {
 const queueService = GenerationQueueService.getInstance();
 const s3Service = S3StorageService.getInstance();
 const WEBSOCKET_ENDPOINT = process.env["WEBSOCKET_API_ENDPOINT"];
-const COMFYUI_ENDPOINT =
-  process.env["COMFYUI_API_ENDPOINT"] || "http://localhost:8188";
 
 export const handler = async (
   event: EventBridgeEvent<"ComfyUI Job Completion", JobCompletionEventDetail>,
@@ -48,6 +47,8 @@ export const handler = async (
 
   try {
     const { promptId, executed } = event.detail;
+    const COMFYUI_ENDPOINT =
+      await ParameterStoreService.getComfyUIApiEndpoint();
 
     if (!promptId || !executed) {
       console.error(
@@ -86,7 +87,11 @@ export const handler = async (
 
     for (const image of generatedImages) {
       try {
-        const imageUrl = await downloadAndUploadImage(image, queueEntry);
+        const imageUrl = await downloadAndUploadImage(
+          image,
+          queueEntry,
+          COMFYUI_ENDPOINT
+        );
         if (imageUrl) {
           uploadedImageUrls.push(imageUrl);
         }
@@ -153,11 +158,12 @@ function extractImagesFromOutput(
 
 async function downloadAndUploadImage(
   image: { filename: string; subfolder: string; type: string },
-  queueEntry: QueueEntry
+  queueEntry: QueueEntry,
+  comfyuiEndpoint: string
 ): Promise<string | null> {
   try {
     // Download image from ComfyUI
-    const imageUrl = `${COMFYUI_ENDPOINT}/view?filename=${encodeURIComponent(
+    const imageUrl = `${comfyuiEndpoint}/view?filename=${encodeURIComponent(
       image.filename
     )}&subfolder=${encodeURIComponent(
       image.subfolder

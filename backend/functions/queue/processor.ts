@@ -23,6 +23,7 @@ import {
   createGenerationId,
 } from "../generation/utils";
 import { S3StorageService } from "@shared/services/s3-storage";
+import { ParameterStoreService } from "@shared/utils/parameters";
 import {
   ComfyUIError,
   ComfyUIErrorType,

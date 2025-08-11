@@ -170,4 +170,29 @@ export class ParameterStoreService {
     const environment = process.env["ENVIRONMENT"] || "dev";
     return await this.getParameter(`/${environment}/sendgrid-api-key`, true);
   }
+
+  /**
+   * Get the ComfyUI API Endpoint from Parameter Store or environment variable
+   */
+  static async getComfyUIApiEndpoint(): Promise<string> {
+    // In local development, use environment variable directly
+    if (isLocal) {
+      const endpoint = process.env["COMFYUI_API_ENDPOINT"];
+      if (!endpoint) {
+        console.log(
+          "COMFYUI_API_ENDPOINT not found in environment, using default localhost endpoint"
+        );
+        return "http://localhost:8188";
+      }
+      console.log("Using local COMFYUI_API_ENDPOINT from environment variable");
+      return endpoint;
+    }
+
+    // In production, use Parameter Store
+    const environment = process.env["ENVIRONMENT"] || "dev";
+    return await this.getParameter(
+      `/${environment}/comfyui-api-endpoint`,
+      false
+    );
+  }
 }

@@ -162,13 +162,27 @@ export class ComfyUIConnectionPool extends EventEmitter {
   }
 
   /**
+   * Converts HTTP/HTTPS URL to WebSocket URL
+   */
+  private convertToWebSocketUrl(httpUrl: string): string {
+    if (httpUrl.startsWith("https://")) {
+      return httpUrl.replace("https://", "ws://");
+    } else if (httpUrl.startsWith("http://")) {
+      return httpUrl.replace("http://", "ws://");
+    }
+    // If it's already a WebSocket URL, return as-is
+    return httpUrl;
+  }
+
+  /**
    * Creates a new WebSocket connection to ComfyUI
    */
   private async createConnection(clientId: string): Promise<ComfyUIConnection> {
     const connectionId = `conn_${Date.now()}_${Math.random()
       .toString(36)
       .substr(2, 9)}`;
-    const wsUrl = `${this.comfyUIUrl}/ws?clientId=${clientId}`;
+    const webSocketBaseUrl = this.convertToWebSocketUrl(this.comfyUIUrl);
+    const wsUrl = `${webSocketBaseUrl}/ws?clientId=${clientId}`;
 
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(wsUrl);
