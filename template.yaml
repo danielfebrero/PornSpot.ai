@@ -2201,8 +2201,8 @@ Resources:
       Description: "Route job start events to Lambda"
       EventBusName: !Ref ComfyUIEventBus
       EventPattern:
-        source: ["comfyui.websocket"]
-        detail-type: ["ComfyUI Job Start"]
+        source: ["comfyui.monitor"]
+        detail-type: ["Job Started"]
       State: ENABLED
       Targets:
         - Arn: !GetAtt JobStartFunction.Arn
@@ -2215,8 +2215,8 @@ Resources:
       Description: "Route job progress events to Lambda"
       EventBusName: !Ref ComfyUIEventBus
       EventPattern:
-        source: ["comfyui.websocket"]
-        detail-type: ["ComfyUI Job Progress"]
+        source: ["comfyui.monitor"]
+        detail-type: ["Progress Update", "Node Progress Update"]
       State: ENABLED
       Targets:
         - Arn: !GetAtt JobProgressFunction.Arn
@@ -2229,8 +2229,8 @@ Resources:
       Description: "Route job completion events to Lambda"
       EventBusName: !Ref ComfyUIEventBus
       EventPattern:
-        source: ["comfyui.websocket"]
-        detail-type: ["ComfyUI Job Completion"]
+        source: ["comfyui.monitor"]
+        detail-type: ["Job Completed"]
       State: ENABLED
       Targets:
         - Arn: !GetAtt JobCompletionFunction.Arn
@@ -2243,12 +2243,54 @@ Resources:
       Description: "Route job failure events to Lambda"
       EventBusName: !Ref ComfyUIEventBus
       EventPattern:
-        source: ["comfyui.websocket"]
+        source: ["comfyui.monitor"]
         detail-type: ["ComfyUI Job Failure"]
       State: ENABLED
       Targets:
         - Arn: !GetAtt JobFailureFunction.Arn
           Id: "JobFailureTarget"
+
+  ImagesGeneratedRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "${Environment}-images-generated-rule"
+      Description: "Route images generated events to completion handler"
+      EventBusName: !Ref ComfyUIEventBus
+      EventPattern:
+        source: ["comfyui.monitor"]
+        detail-type: ["Images Generated"]
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt JobCompletionFunction.Arn
+          Id: "ImagesGeneratedTarget"
+
+  NodeExecutingRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "${Environment}-node-executing-rule"
+      Description: "Route node executing events to progress handler"
+      EventBusName: !Ref ComfyUIEventBus
+      EventPattern:
+        source: ["comfyui.monitor"]
+        detail-type: ["Node Executing"]
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt JobProgressFunction.Arn
+          Id: "NodeExecutingTarget"
+
+  QueueStatusRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "${Environment}-queue-status-rule"
+      Description: "Route queue status events to queue handler"
+      EventBusName: !Ref ComfyUIEventBus
+      EventPattern:
+        source: ["comfyui.monitor"]
+        detail-type: ["Queue Status Updated"]
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt JobQueueFunction.Arn
+          Id: "QueueStatusTarget"
 
   # Event-Driven Lambda Functions for ComfyUI Processing
   QueueItemSubmitFunction:
@@ -2380,6 +2422,29 @@ Resources:
                 - events:PutEvents
               Resource: !GetAtt ComfyUIEventBus.Arn
 
+  JobQueueFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-job-queue"
+      CodeUri: backend/dist/functions/events/
+      Handler: job-queue.handler
+      Timeout: 60
+      Layers:
+        - !Ref SharedLayer
+      Environment:
+        Variables:
+          WEBSOCKET_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - execute-api:ManageConnections
+              Resource: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/${Environment}/POST/@connections/*"
+
   # EventBridge Lambda Permissions
   QueueSubmissionRulePermission:
     Type: AWS::Lambda::Permission
@@ -2416,10 +2481,34 @@ Resources:
   JobFailureRulePermission:
     Type: AWS::Lambda::Permission
     Properties:
+      FunctionName: !Ref JobFailureFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt JobFailureRule.Arn
+
+  ImagesGeneratedRulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
       FunctionName: !Ref JobCompletionFunction
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
-      SourceArn: !GetAtt JobCompletionRule.Arn
+      SourceArn: !GetAtt ImagesGeneratedRule.Arn
+
+  NodeExecutingRulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref JobProgressFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt NodeExecutingRule.Arn
+
+  QueueStatusRulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref JobQueueFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt QueueStatusRule.Arn
 
 Outputs:
   ApiGatewayUrl:

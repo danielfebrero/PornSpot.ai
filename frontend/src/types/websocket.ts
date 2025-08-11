@@ -6,10 +6,12 @@ export interface WebSocketMessage {
     | "completed"
     | "error"
     | "retrying"
+    | "queue_update"
     | "ping";
   queueId?: string;
   queuePosition?: number;
   estimatedWaitTime?: number;
+  comfyUIQueueRemaining?: number;
   progress?: number;
   maxProgress?: number;
   message?: string;

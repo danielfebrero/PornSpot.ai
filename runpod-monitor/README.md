@@ -121,24 +121,20 @@ systemctl status comfyui-monitor
 journalctl -u comfyui-monitor -f
 ```
 
-### Registering Prompt Mappings
+### Event Publishing
 
-The monitor needs to know which ComfyUI prompt_id corresponds to which application queue_id. This is typically done when submitting a generation request:
+The monitor publishes raw ComfyUI events to AWS EventBridge with prompt_id information. Backend Lambda functions handle the mapping from prompt_id to queue_id using DynamoDB lookups.
 
-```python
-# In your Lambda function that submits to ComfyUI
-import requests
+Key events published:
 
-# Submit prompt to ComfyUI
-response = requests.post('http://runpod-host:8188/prompt', json=prompt_data)
-prompt_id = response.json()['prompt_id']
+- `Job Started` - When ComfyUI begins processing a prompt
+- `Job Completed` - When ComfyUI finishes processing
+- `Progress Update` - General progress updates
+- `Node Progress Update` - Detailed node-level progress
+- `Images Generated` - When nodes produce output images
+- `Node Executing` - When individual nodes start/complete
 
-# Register mapping with monitor (via HTTP endpoint or EventBridge)
-requests.post('http://runpod-host:9000/register', json={
-    'prompt_id': prompt_id,
-    'queue_id': your_queue_id
-})
-```
+Backend Lambda functions (like `job-start.ts`, `job-progress.ts`) receive these events and resolve prompt_id to queue_id using the `GenerationQueueService.findQueueEntryByPromptId()` method.
 
 ### Event Examples
 

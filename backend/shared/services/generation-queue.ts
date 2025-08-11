@@ -379,6 +379,29 @@ export class GenerationQueueService {
   }
 
   /**
+   * Get all pending queue entries
+   */
+  async getPendingQueueEntries(): Promise<QueueEntry[]> {
+    const pendingResult = await this.dynamoDB.send(
+      new QueryCommand({
+        TableName: this.tableName,
+        IndexName: "GSI1",
+        KeyConditionExpression: "GSI1PK = :statusKey",
+        ExpressionAttributeValues: {
+          ":statusKey": "QUEUE#STATUS#pending",
+        },
+        ScanIndexForward: true,
+      })
+    );
+
+    if (!pendingResult.Items || pendingResult.Items.length === 0) {
+      return [];
+    }
+
+    return pendingResult.Items as QueueEntry[];
+  }
+
+  /**
    * Clean up timed out entries
    */
   async cleanupTimeoutEntries(): Promise<void> {

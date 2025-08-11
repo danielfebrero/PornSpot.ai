@@ -40,6 +40,7 @@ export interface ComfyUIMessage {
   type:
     | "status"
     | "progress"
+    | "progress_state"
     | "executing"
     | "execution_start"
     | "execution_cached"
@@ -59,6 +60,20 @@ export interface ComfyUIMessageData {
   value?: number;
   max?: number;
   node?: string | null;
+
+  // Progress state message data (enhanced progress tracking)
+  nodes?: {
+    [nodeId: string]: {
+      value: number;
+      max: number;
+      state: string;
+      node_id: string;
+      prompt_id: string;
+      display_node_id: string;
+      parent_node_id: string | null;
+      real_node_id: string;
+    };
+  };
 
   // Executing message data
   prompt_id?: string;
@@ -609,6 +624,42 @@ export class ComfyUIClientService extends EventEmitter {
             maxProgress: message.data.max,
             currentNode: message.data.node || undefined,
             message: `Progress: ${message.data.value}/${message.data.max}`,
+          };
+        }
+        break;
+
+      case "progress_state":
+        // Enhanced progress update with detailed node-level state information
+        // Since nodes only appear when active, report on currently running node
+        if (message.data?.prompt_id === promptId && message.data?.nodes) {
+          const nodes = message.data.nodes;
+          const nodeEntries = Object.entries(nodes);
+
+          if (nodeEntries.length === 0) {
+            return null; // No active nodes
+          }
+
+          // Report on the first (and typically only) active node
+          const firstNodeEntry = nodeEntries[0];
+          if (!firstNodeEntry) {
+            return null;
+          }
+
+          const [nodeId, nodeInfo] = firstNodeEntry;
+          const nodePercentage =
+            nodeInfo.max > 0 ? (nodeInfo.value / nodeInfo.max) * 100 : 0;
+
+          return {
+            promptId,
+            status: "executing",
+            progress: nodeInfo.value,
+            maxProgress: nodeInfo.max,
+            currentNode: nodeInfo.display_node_id || nodeId,
+            message: `Node ${nodeInfo.display_node_id || nodeId}: ${
+              nodeInfo.value
+            }/${nodeInfo.max} (${nodePercentage.toFixed(1)}%) - ${
+              nodeInfo.state
+            }`,
           };
         }
         break;

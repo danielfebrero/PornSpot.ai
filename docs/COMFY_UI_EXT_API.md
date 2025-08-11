@@ -39,6 +39,29 @@ ComfyUI expose plusieurs points de terminaison (endpoints) pour interagir avec s
           }
         }
         ```
+    - `progress_state`: Version améliorée du message `progress` avec des informations d'état détaillées par nœud. **Nouveau type de message observé (Août 2025)**.
+      - Fournit des informations de progression granulaires pour chaque nœud de workflow en cours d'exécution
+      - Exemple de message `progress_state`:
+        ```json
+        {
+          "type": "progress_state",
+          "data": {
+            "prompt_id": "204b894c-2165-4b6d-998f-fb9aaec58117",
+            "nodes": {
+              "3": {
+                "value": 16,
+                "max": 20,
+                "state": "running",
+                "node_id": "3",
+                "prompt_id": "204b894c-2165-4b6d-998f-fb9aaec58117",
+                "display_node_id": "3",
+                "parent_node_id": null,
+                "real_node_id": "3"
+              }
+            }
+          }
+        }
+        ```
     - `executing`: Signale qu'un nœud spécifique commence son exécution ou que l'exécution du prompt est terminée. [19, 25]
       - Lorsque l'exécution d'un prompt est terminée, le message `executing` aura `node` à `null` et contiendra le `prompt_id`. [19, 25]
       - Exemple de message `executing` (début d'un nœud) :

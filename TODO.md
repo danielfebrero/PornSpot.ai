@@ -1,5 +1,11 @@
 # TODO list
 
+## Websocket
+
+### Clients should broadcast their new connectionId on page reload to conserve state updates
+
+For example, on client connection, pass the previous connectionId in parameters and on the backend, update the existing connectionId with the new one.
+
 ## User Insights
 
 ## Homepage Discover

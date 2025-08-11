@@ -7,8 +7,8 @@ and publishes structured events to AWS EventBridge for our serverless architectu
 
 Key Features:
 - Real-time WebSocket monitoring of ComfyUI events
-- Maps ComfyUI prompt_ids to our application queue_ids
-- Publishes events to AWS EventBridge with retry logic
+- Publishes raw ComfyUI events to AWS EventBridge with retry logic
+- Backend Lambda functions handle prompt_id to queue_id mapping
 - Handles reconnection and error scenarios
 - Structured logging for debugging
 """
@@ -85,7 +85,11 @@ logger = logging.getLogger("comfyui-monitor")
 
 
 class ComfyUIMonitor:
-    """Monitors ComfyUI WebSocket events and publishes to EventBridge"""
+    """Monitors ComfyUI WebSocket events and publishes to EventBridge
+
+    The monitor publishes raw ComfyUI events with prompt_id.
+    Backend Lambda functions handle the mapping from prompt_id to queue_id.
+    """
 
     def __init__(self):
         # Configuration from environment variables with validation
@@ -106,17 +110,13 @@ class ComfyUIMonitor:
         )
 
         # State management
-        self.prompt_to_queue_mapping: Dict[str, str] = {}
-        self.active_prompts: Dict[str, Dict[str, Any]] = {}
         self.running = True
         self.websocket = None
 
         # AWS EventBridge client with better error handling
         try:
             # Test AWS credentials availability
-            import boto3.session
-
-            session = boto3.session.Session()
+            session = boto3.Session()
             credentials = session.get_credentials()
 
             if not credentials:
@@ -188,22 +188,6 @@ class ComfyUIMonitor:
             logger.error(f"❌ {error_msg}")
             raise ValueError(error_msg)
 
-    async def register_prompt_mapping(self, prompt_id: str, queue_id: str):
-        """Register a mapping between ComfyUI prompt_id and our queue_id"""
-        self.prompt_to_queue_mapping[prompt_id] = queue_id
-        self.active_prompts[prompt_id] = {
-            "queue_id": queue_id,
-            "started_at": datetime.utcnow().isoformat(),
-            "status": "submitted",
-        }
-        logger.info(
-            f"📝 Registered mapping: prompt_id={prompt_id} -> queue_id={queue_id}"
-        )
-
-    def get_queue_id_for_prompt(self, prompt_id: str) -> Optional[str]:
-        """Get queue_id for a given ComfyUI prompt_id"""
-        return self.prompt_to_queue_mapping.get(prompt_id)
-
     async def publish_event(self, event_type: str, detail: Dict[str, Any]) -> bool:
         """Publish an event to AWS EventBridge"""
         if not self.eventbridge:
@@ -232,6 +216,7 @@ class ComfyUIMonitor:
                 logger.info(
                     f"📤 Published event: {event_type} - {detail.get('prompt_id', 'unknown')}"
                 )
+                logger.debug(f"Event detail: {json.dumps(detail)}")
                 return True
             else:
                 logger.error(f"❌ Failed to publish event: {response}")
@@ -268,28 +253,13 @@ class ComfyUIMonitor:
             if not prompt_id:
                 return
 
-            queue_id = self.get_queue_id_for_prompt(prompt_id)
-            if not queue_id:
-                logger.warning(
-                    f"⚠️  No queue_id mapping found for prompt_id: {prompt_id}"
-                )
-                return
+            logger.info(f"🚀 Execution started: prompt_id={prompt_id}")
 
-            # Update prompt status
-            if prompt_id in self.active_prompts:
-                self.active_prompts[prompt_id]["status"] = "executing"
-                self.active_prompts[prompt_id][
-                    "execution_started_at"
-                ] = datetime.utcnow().isoformat()
-
-            logger.info(
-                f"🚀 Execution started: prompt_id={prompt_id}, queue_id={queue_id}"
-            )
-
-            # Publish execution start event
+            # Publish execution start event with prompt_id
+            # Backend will resolve prompt_id to queue_id
             await self.publish_event(
                 "Job Started",
-                {"prompt_id": prompt_id, "queue_id": queue_id, "execution_data": data},
+                {"prompt_id": prompt_id, "execution_data": data},
             )
 
         except Exception as e:
@@ -299,36 +269,24 @@ class ComfyUIMonitor:
         """Handle progress update messages"""
         try:
             # Progress messages don't contain prompt_id directly
-            # We need to track which prompt is currently executing
+            # We'll just publish the raw progress data
             value = data.get("value", 0)
             max_value = data.get("max", 100)
             node = data.get("node")
 
-            # For now, broadcast progress for all active prompts
-            # In a more sophisticated setup, we'd track which prompt is executing
-            for prompt_id, prompt_info in self.active_prompts.items():
-                if prompt_info.get("status") == "executing":
-                    queue_id = prompt_info["queue_id"]
+            logger.debug(f"📈 Progress update: {value}/{max_value}")
 
-                    logger.debug(
-                        f"📈 Progress update: {value}/{max_value} for queue_id={queue_id}"
-                    )
-
-                    await self.publish_event(
-                        "Progress Update",
-                        {
-                            "prompt_id": prompt_id,
-                            "queue_id": queue_id,
-                            "progress": value,
-                            "max_progress": max_value,
-                            "current_node": node,
-                            "percentage": (
-                                round((value / max_value) * 100, 2)
-                                if max_value > 0
-                                else 0
-                            ),
-                        },
-                    )
+            await self.publish_event(
+                "Progress Update",
+                {
+                    "progress": value,
+                    "max_progress": max_value,
+                    "current_node": node,
+                    "percentage": (
+                        round((value / max_value) * 100, 2) if max_value > 0 else 0
+                    ),
+                },
+            )
 
         except Exception as e:
             logger.error(f"❌ Error handling progress message: {e}")
@@ -342,38 +300,17 @@ class ComfyUIMonitor:
             if not prompt_id:
                 return
 
-            queue_id = self.get_queue_id_for_prompt(prompt_id)
-            if not queue_id:
-                logger.warning(
-                    f"⚠️  No queue_id mapping found for prompt_id: {prompt_id}"
-                )
-                return
-
             if node is None:
                 # Execution completed
-                logger.info(
-                    f"✅ Execution completed: prompt_id={prompt_id}, queue_id={queue_id}"
-                )
-
-                # Update prompt status
-                if prompt_id in self.active_prompts:
-                    self.active_prompts[prompt_id]["status"] = "completed"
-                    self.active_prompts[prompt_id][
-                        "completed_at"
-                    ] = datetime.utcnow().isoformat()
+                logger.info(f"✅ Execution completed: prompt_id={prompt_id}")
 
                 await self.publish_event(
                     "Job Completed",
                     {
                         "prompt_id": prompt_id,
-                        "queue_id": queue_id,
                         "execution_data": data,
                     },
                 )
-
-                # Clean up completed prompt from active tracking
-                self.active_prompts.pop(prompt_id, None)
-                # Keep mapping for a while in case we need it for image downloads
 
             else:
                 # Node execution started
@@ -383,7 +320,6 @@ class ComfyUIMonitor:
                     "Node Executing",
                     {
                         "prompt_id": prompt_id,
-                        "queue_id": queue_id,
                         "node": node,
                         "execution_data": data,
                     },
@@ -402,25 +338,17 @@ class ComfyUIMonitor:
             if not prompt_id:
                 return
 
-            queue_id = self.get_queue_id_for_prompt(prompt_id)
-            if not queue_id:
-                logger.warning(
-                    f"⚠️  No queue_id mapping found for prompt_id: {prompt_id}"
-                )
-                return
-
             # Check if this node produced images
             images = output.get("images", [])
             if images:
                 logger.info(
-                    f"🖼️  Node {node} produced {len(images)} image(s) for queue_id={queue_id}"
+                    f"🖼️  Node {node} produced {len(images)} image(s) for prompt_id={prompt_id}"
                 )
 
                 await self.publish_event(
                     "Images Generated",
                     {
                         "prompt_id": prompt_id,
-                        "queue_id": queue_id,
                         "node": node,
                         "images": images,
                         "output": output,
@@ -434,6 +362,59 @@ class ComfyUIMonitor:
         except Exception as e:
             logger.error(f"❌ Error handling executed message: {e}")
 
+    async def handle_progress_state_message(self, data: Dict[str, Any]):
+        """Handle progress_state messages - enhanced progress tracking with node-level detail"""
+        try:
+            # progress_state has a more complex structure with prompt_id and nodes object
+            prompt_id = data.get("prompt_id")
+            nodes_data = data.get("nodes", {})
+
+            if not prompt_id:
+                logger.warning("⚠️  No prompt_id in progress_state message")
+                return
+
+            # Since nodes only appear when they start running, and typically only one node
+            # runs at a time, we'll report on the currently running node(s)
+            if not nodes_data:
+                logger.debug(
+                    f"📊 No active nodes in progress_state for prompt_id={prompt_id}"
+                )
+                return
+
+            for node_id, node_info in nodes_data.items():
+                value = node_info.get("value", 0)
+                max_value = node_info.get("max", 1)
+                state = node_info.get("state", "unknown")
+                display_node_id = node_info.get("display_node_id", node_id)
+
+                # Calculate percentage for this specific node
+                node_percentage = (
+                    round((value / max_value) * 100, 2) if max_value > 0 else 0
+                )
+
+                logger.info(
+                    f"📈 Node progress: {display_node_id} - {value}/{max_value} ({node_percentage}%) state: {state} for prompt_id={prompt_id}"
+                )
+
+                # Publish event for this specific node's progress
+                await self.publish_event(
+                    "Node Progress Update",
+                    {
+                        "prompt_id": prompt_id,
+                        "node_id": node_id,
+                        "display_node_id": display_node_id,
+                        "node_progress": value,
+                        "node_max_progress": max_value,
+                        "node_percentage": node_percentage,
+                        "node_state": state,
+                        "parent_node_id": node_info.get("parent_node_id"),
+                        "real_node_id": node_info.get("real_node_id", node_id),
+                    },
+                )
+
+        except Exception as e:
+            logger.error(f"❌ Error handling progress_state message: {e}")
+
     async def handle_websocket_message(self, message: str):
         """Parse and handle incoming WebSocket messages from ComfyUI"""
         try:
@@ -442,6 +423,7 @@ class ComfyUIMonitor:
             message_data = data.get("data", {})
 
             logger.debug(f"📨 Received message: {message_type}")
+            logger.debug(f"Message data: {json.dumps(message_data, indent=2)}")
 
             # Route message to appropriate handler
             if message_type == "status":
@@ -450,6 +432,8 @@ class ComfyUIMonitor:
                 await self.handle_execution_start_message(message_data)
             elif message_type == "progress":
                 await self.handle_progress_message(message_data)
+            elif message_type == "progress_state":
+                await self.handle_progress_state_message(message_data)
             elif message_type == "executing":
                 await self.handle_executing_message(message_data)
             elif message_type == "executed":
