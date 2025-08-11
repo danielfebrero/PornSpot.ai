@@ -265,19 +265,6 @@ export function GenerateClient() {
     return optimizedPrompt;
   };
 
-  // Convert image URLs to Media objects for the Lightbox component
-  const createMediaFromUrl = (url: string, index: number): Media => ({
-    id: `generated-${Date.now()}-${index}`,
-    filename: `generated-image-${index + 1}.jpg`,
-    originalFilename: `generated-image-${index + 1}.jpg`, // Required by Media interface
-    type: "media",
-    url: url,
-    mimeType: "image/jpeg",
-    size: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  });
-
   // Open lightbox for thumbnail (from all generated images)
   const openThumbnailLightbox = (imageUrl: string) => {
     console.log("Opening lightbox for image:", imageUrl);
