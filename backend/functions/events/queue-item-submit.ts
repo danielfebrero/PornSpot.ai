@@ -101,6 +101,9 @@ export const handler = async (
     try {
       comfyUIClient = getComfyUIClient();
     } catch {
+      console.log(
+        `🔄 Initializing ComfyUI client with baseUrl: ${COMFYUI_ENDPOINT}`
+      );
       comfyUIClient = initializeComfyUIClient(COMFYUI_ENDPOINT);
     }
 

@@ -9,7 +9,6 @@ Special notes:
 */
 
 import * as WebSocket from "ws";
-import fetch from "node-fetch";
 import { EventEmitter } from "events";
 import {
   ComfyUIConnectionPool,
@@ -721,6 +720,8 @@ export class ComfyUIClientService extends EventEmitter {
       const response = await fetch(`${this.baseUrl}/system_stats`, {
         signal: controller.signal,
       });
+
+      console.log(JSON.stringify(response, null, 2));
 
       clearTimeout(timeoutId);
       return response.ok;

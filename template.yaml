@@ -2300,6 +2300,11 @@ Resources:
               Action:
                 - events:PutEvents
               Resource: !GetAtt ComfyUIEventBus.Arn
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/comfyui-api-endpoint"
 
   JobStartFunction:
     Type: AWS::Serverless::Function
@@ -2376,6 +2381,11 @@ Resources:
               Action:
                 - execute-api:ManageConnections
               Resource: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/${Environment}/POST/@connections/*"
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/comfyui-api-endpoint"
 
   JobFailureFunction:
     Type: AWS::Serverless::Function
