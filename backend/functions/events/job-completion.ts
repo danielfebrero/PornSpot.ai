@@ -73,7 +73,7 @@ export const handler = async (
     // Create Media entities in DynamoDB FIRST before uploading to S3
     const createdMediaEntities = await createMediaEntitiesFirst(
       queueEntry,
-      images.length
+      images
     );
 
     if (createdMediaEntities.length === 0) {
@@ -162,18 +162,26 @@ export const handler = async (
 
 async function createMediaEntitiesFirst(
   queueEntry: QueueEntry,
-  imageCount: number
+  images: Array<{ filename: string; subfolder: string; type: string }>
 ): Promise<MediaEntity[]> {
   const createdEntities: MediaEntity[] = [];
 
   console.log(
-    `💾 Creating ${imageCount} media entities in DynamoDB for generation: ${queueEntry.queueId}`
+    `💾 Creating ${images.length} media entities in DynamoDB for generation: ${queueEntry.queueId}`
   );
 
-  for (let index = 0; index < imageCount; index++) {
+  for (let index = 0; index < images.length; index++) {
+    const image = images[index];
+
+    if (!image) {
+      console.error(`No image found at index ${index}`);
+      continue;
+    }
+
     try {
       const mediaId = `${queueEntry.queueId}_${index}`;
-      const fileExtension = "jpg"; // Default to JPG for generated images
+      // Extract file extension from the actual image filename
+      const fileExtension = image.filename.split(".").pop() || "jpg";
       const customFilename = `${mediaId}.${fileExtension}`;
       const s3Key = `generated/${queueEntry.queueId}/${customFilename}`;
 
@@ -192,7 +200,7 @@ async function createMediaEntitiesFirst(
         height,
         generationId: queueEntry.queueId,
         selectedLoras: queueEntry.parameters?.selectedLoras || [],
-        batchCount: imageCount,
+        batchCount: images.length,
         loraStrengths: queueEntry.parameters?.loraStrengths || {},
         loraSelectionMode: queueEntry.parameters?.loraSelectionMode,
         optimizePrompt: queueEntry.parameters?.optimizePrompt || false,
@@ -203,8 +211,8 @@ async function createMediaEntitiesFirst(
         mediaId,
         userId: queueEntry.userId,
         filename: s3Key, // Use S3 key as filename
-        originalFilename: `generated_${index + 1}.jpg`,
-        mimeType: "image/jpeg",
+        originalFilename: image.filename, // Use actual ComfyUI filename
+        mimeType: `image/${fileExtension}`, // Use actual file extension for MIME type
         width,
         height,
         url: relativeUrl, // Use relative URL from S3 key
@@ -251,7 +259,7 @@ async function createMediaEntitiesFirst(
   }
 
   console.log(
-    `💾 Created ${createdEntities.length}/${imageCount} media entities in DynamoDB`
+    `💾 Created ${createdEntities.length}/${images.length} media entities in DynamoDB`
   );
 
   return createdEntities;

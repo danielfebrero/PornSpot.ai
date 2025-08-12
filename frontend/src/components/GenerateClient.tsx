@@ -652,7 +652,7 @@ export function GenerateClient() {
                   <div
                     key={index}
                     className="flex-shrink-0 group"
-                    onClick={() => openThumbnailLightbox(image.url)}
+                    onClick={() => openThumbnailLightbox(image.url || "")}
                   >
                     <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-border group-hover:border-primary transition-colors cursor-pointer shadow-md hover:shadow-lg">
                       <img

@@ -113,6 +113,8 @@ class ComfyUIMonitor:
         self.running = True
         self.websocket = None
 
+        self.active_workflows = {}
+
         # AWS EventBridge client with better error handling
         try:
             # Test AWS credentials availability
@@ -223,6 +225,33 @@ class ComfyUIMonitor:
             logger.error(f"❌ Unexpected error publishing event: {e}")
             return False
 
+    async def fetch_prompt_info(self, prompt_id: str) -> Optional[Dict[str, Any]]:
+        """Fetch prompt information from ComfyUI API"""
+        try:
+            import aiohttp
+
+            async with aiohttp.ClientSession() as session:
+                # Get the prompt details from ComfyUI
+                url = (
+                    f"http://{self.comfyui_host}:{self.comfyui_port}/prompt/{prompt_id}"
+                )
+                async with session.get(url) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        return data
+        except Exception as e:
+            logger.error(f"Failed to fetch prompt info: {e}")
+        return None
+
+    async def get_node_title(self, prompt_id: str, node_id: str) -> str:
+        """Get the title for a node from the workflow definition"""
+        if prompt_id in self.active_workflows:
+            workflow = self.active_workflows[prompt_id]
+            node = workflow.get(node_id, {})
+            meta = node.get("_meta", {})
+            return meta.get("title", f"Node {node_id}")
+        return f"Node {node_id}"
+
     async def handle_status_message(self, data: Dict[str, Any]):
         """Handle ComfyUI status messages (queue info)"""
         try:
@@ -252,6 +281,12 @@ class ComfyUIMonitor:
             prompt_id = data.get("prompt_id")
             if not prompt_id:
                 return
+
+            # Try to fetch the workflow definition for this prompt
+            prompt_info = await self.fetch_prompt_info(prompt_id)
+            if prompt_info and "workflow" in prompt_info:
+                self.active_workflows[prompt_id] = prompt_info["workflow"]
+                logger.debug(f"Stored workflow for prompt_id={prompt_id}")
 
             logger.info(f"🚀 Execution started: prompt_id={prompt_id}")
 
@@ -299,6 +334,9 @@ class ComfyUIMonitor:
                 # Node execution started
                 logger.debug(f"🔄 Node executing: {node} for prompt_id={prompt_id}")
 
+                # Get node title
+                node_title = await self.get_node_title(prompt_id, node)
+
                 await self.publish_event(
                     "Node Executing",
                     {
@@ -307,6 +345,7 @@ class ComfyUIMonitor:
                         "clientId": self.client_id,
                         "nodeId": node,
                         "executionData": data,
+                        "nodeTitle": node_title,
                     },
                 )
 
@@ -384,6 +423,8 @@ class ComfyUIMonitor:
                 state = node_info.get("state", "unknown")
                 display_node_id = node_info.get("display_node_id", node_id)
 
+                node_title = await self.get_node_title(prompt_id, node_id)
+
                 # Calculate percentage for this specific node
                 node_percentage = (
                     round((value / max_value) * 100, 2) if max_value > 0 else 0
@@ -408,6 +449,7 @@ class ComfyUIMonitor:
                         "nodeState": state,
                         "parentNodeId": node_info.get("parent_node_id"),
                         "realNodeId": node_info.get("real_node_id", node_id),
+                        "nodeTitle": node_title,
                     },
                 )
 

@@ -1,6 +1,6 @@
 /**
  * Standardized ComfyUI Event Interfaces
- * 
+ *
  * This file defines the complete event structure used throughout the ComfyUI monitoring system.
  * All events flow from the Python monitor to backend lambdas via EventBridge and then to
  * frontend via WebSocket.
@@ -63,6 +63,7 @@ export interface NodeProgressEvent extends BaseComfyUIEvent {
   nodeState: string;
   parentNodeId?: string;
   realNodeId?: string;
+  nodeTitle?: string;
 }
 
 export interface NodeExecutingEvent extends BaseComfyUIEvent {
@@ -102,7 +103,7 @@ export interface QueueStatusEvent extends BaseComfyUIEvent {
 }
 
 // Union type for all ComfyUI events
-export type ComfyUIEvent = 
+export type ComfyUIEvent =
   | MonitorInitializedEvent
   | MonitorStoppedEvent
   | JobStartedEvent
@@ -117,13 +118,13 @@ export type ComfyUIEvent =
 // Event type constants for consistency
 export const COMFYUI_EVENT_TYPES = {
   MONITOR_INITIALIZED: "Monitor Initialized",
-  MONITOR_STOPPED: "Monitor Stopped", 
+  MONITOR_STOPPED: "Monitor Stopped",
   JOB_STARTED: "Job Started",
   JOB_COMPLETED: "Job Completed",
   JOB_FAILED: "Job Failed",
   NODE_PROGRESS: "Node Progress Update",
   NODE_EXECUTING: "Node Executing",
-  NODE_EXECUTED: "Node Executed", 
+  NODE_EXECUTED: "Node Executed",
   IMAGES_GENERATED: "Images Generated",
   QUEUE_STATUS: "Queue Status Updated",
 } as const;
@@ -193,7 +194,7 @@ export interface WebSocketJobRetry {
 }
 
 // Union type for all WebSocket messages
-export type ComfyUIWebSocketMessage = 
+export type ComfyUIWebSocketMessage =
   | WebSocketProgress
   | WebSocketJobStarted
   | WebSocketJobCompleted

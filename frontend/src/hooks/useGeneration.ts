@@ -77,24 +77,15 @@ export function useGeneration(): UseGenerationReturn {
           );
           break;
 
-        case "progress":
-          setProgress(message.progress || 0);
-          setMaxProgress(message.maxProgress || 100);
-          setCurrentMessage(
-            message.message ||
-              `Processing... ${Math.round(
-                ((message.progress || 0) / (message.maxProgress || 100)) * 100
-              )}%`
-          );
-          break;
-
         case "job_progress":
           // Handle enhanced node-level progress
           if (message.progressData) {
             const { progressData } = message;
             setProgress(progressData.value);
             setMaxProgress(progressData.max);
-            setCurrentNode(progressData.nodeName || progressData.displayNodeId || "");
+            setCurrentNode(
+              progressData.nodeName || progressData.displayNodeId || ""
+            );
             setNodeState(progressData.nodeState || "");
             setCurrentMessage(progressData.message);
           }

@@ -36,6 +36,7 @@ export const handler = async (
       nodeState,
       parentNodeId,
       realNodeId,
+      nodeTitle,
     } = event.detail;
 
     if (!promptId) {
@@ -67,7 +68,15 @@ export const handler = async (
       nodeState,
       parentNodeId,
       realNodeId,
-      message: formatProgressMessage(displayNodeId, nodeProgress, nodeMaxProgress, nodePercentage, nodeState),
+      nodeTitle: nodeTitle || displayNodeId, // Use provided title or fallback to displayNodeId
+      message: formatProgressMessage(
+        displayNodeId,
+        nodeProgress,
+        nodeMaxProgress,
+        nodePercentage,
+        nodeState,
+        nodeTitle || displayNodeId
+      ),
     };
 
     // Update queue entry with progress information
@@ -95,8 +104,8 @@ export const handler = async (
 function formatNodeName(displayNodeId: string): string {
   // Convert node IDs like "KSampler" to "K-Sampler" for better readability
   return displayNodeId
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, str => str.toUpperCase())
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase())
     .trim();
 }
 
@@ -108,23 +117,22 @@ function formatProgressMessage(
   progress: number,
   maxProgress: number,
   percentage: number,
-  state: string
+  state: string,
+  nodeTitle: string
 ): string {
-  const nodeName = formatNodeName(displayNodeId);
-  
   // Create different messages based on node type and state
-  if (displayNodeId.toLowerCase().includes('sampler')) {
-    return `Generating image using ${nodeName}: ${progress}/${maxProgress} steps (${percentage}%)`;
-  } else if (displayNodeId.toLowerCase().includes('load')) {
-    return `Loading ${nodeName}: ${percentage}%`;
-  } else if (displayNodeId.toLowerCase().includes('encode')) {
-    return `Encoding with ${nodeName}: ${progress}/${maxProgress} (${percentage}%)`;
-  } else if (displayNodeId.toLowerCase().includes('decode')) {
-    return `Decoding with ${nodeName}: ${progress}/${maxProgress} (${percentage}%)`;
-  } else if (displayNodeId.toLowerCase().includes('vae')) {
+  if (displayNodeId.toLowerCase().includes("sampler")) {
+    return `Generating image using ${nodeTitle}: ${progress}/${maxProgress} steps (${percentage}%)`;
+  } else if (displayNodeId.toLowerCase().includes("load")) {
+    return `Loading ${nodeTitle}: ${percentage}%`;
+  } else if (displayNodeId.toLowerCase().includes("encode")) {
+    return `Encoding with ${nodeTitle}: ${progress}/${maxProgress} (${percentage}%)`;
+  } else if (displayNodeId.toLowerCase().includes("decode")) {
+    return `Decoding with ${nodeTitle}: ${progress}/${maxProgress} (${percentage}%)`;
+  } else if (displayNodeId.toLowerCase().includes("vae")) {
     return `Processing with VAE: ${progress}/${maxProgress} (${percentage}%)`;
   } else {
-    return `${nodeName}: ${progress}/${maxProgress} (${percentage}%) - ${state}`;
+    return `${nodeTitle}: ${progress}/${maxProgress} (${percentage}%) - ${state}`;
   }
 }
 

@@ -7,10 +7,10 @@ export interface Media {
   originalFilename: string;
   type: "media";
   mimeType: string;
-  size: number;
+  size?: number;
   width?: number;
   height?: number;
-  url: string;
+  url?: string;
   thumbnailUrl?: string;
   thumbnailUrls?: ThumbnailUrls;
   status?: MediaStatus;
