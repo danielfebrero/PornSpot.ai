@@ -7,7 +7,7 @@
     "build": "tsc && tsc-alias",
     "build:watch": "tsc --watch",
     "build:sam": "npm run build && cd .. && sam build",
-    "deploy:prod": "npm run build && cd .. && sam build && sam deploy --config-env prod",
+    "build:docker": "./build-docker-lambdas.sh",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
