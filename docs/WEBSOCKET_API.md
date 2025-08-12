@@ -186,11 +186,13 @@ WebSocket subscriptions use **Queue ID** for consistency with the internal gener
 
 ### Subscription Storage
 
-Subscriptions are stored in DynamoDB with the following structure:
+Subscriptions are now stored directly in the queue entry's `connectionId` field instead of separate subscription entities:
 
-- **PK**: `SUBSCRIPTION#{queueId}`
-- **SK**: `CONNECTION#{connectionId}`
-- **TTL**: 6 hours automatic cleanup
+- **Queue Entry**: `connectionId` field stores the WebSocket connection ID
+- **Simplified Architecture**: One queue entry can have at most one active subscriber (the submitter)
+- **Automatic Cleanup**: Connection IDs are removed when connections are closed or become stale
+
+This approach eliminates the need for separate subscription tracking entities and simplifies the broadcast mechanism.
 
 ### Backward Compatibility
 
@@ -254,7 +256,7 @@ websocket.onmessage = (event) => {
 ```typescript
 import { broadcastToQueueSubscribers } from "./websocket/route";
 
-// Broadcast update to all subscribers of a queue
+// Broadcast update to the subscriber of a queue (if any)
 await broadcastToQueueSubscribers(queueId, {
   type: "queue_update",
   queuePosition: 2,

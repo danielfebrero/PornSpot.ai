@@ -5,7 +5,6 @@ import {
   UpdateCommand,
   QueryCommand,
   DeleteCommand,
-  ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { WorkflowFinalParams } from "@shared/shared-types";
 import { v4 as uuidv4 } from "uuid";
@@ -104,6 +103,8 @@ export class GenerationQueueService {
           SK: `ENTRY`,
           GSI1PK: `QUEUE#STATUS#${queueEntry.status}`,
           GSI1SK: `PRIORITY#${priority.toString().padStart(10, "0")}#${now}`,
+          GSI3PK: `QUEUE#USER#${userId}`,
+          GSI3SK: `${queueEntry.status}#${now}#${queueId}`,
           ...queueEntry,
           TTL: Math.floor(new Date(queueEntry.timeoutAt).getTime() / 1000), // DynamoDB TTL in seconds
         },
@@ -147,6 +148,15 @@ export class GenerationQueueService {
     const now = new Date().toISOString();
     updates.updatedAt = now;
 
+    // Get current entry to update GSI indexes properly
+    let currentEntry: QueueEntry | null = null;
+    if (updates.status || updates.comfyPromptId) {
+      currentEntry = await this.getQueueEntry(queueId);
+      if (!currentEntry) {
+        throw new Error(`Queue entry ${queueId} not found`);
+      }
+    }
+
     // Build update expression dynamically
     const updateExpressions: string[] = [];
     const expressionAttributeNames: Record<string, string> = {};
@@ -164,6 +174,21 @@ export class GenerationQueueService {
     if (updates.status) {
       updateExpressions.push(`GSI1PK = :gsi1pk`);
       expressionAttributeValues[":gsi1pk"] = `QUEUE#STATUS#${updates.status}`;
+    }
+
+    // Update GSI2 if comfyPromptId is being set
+    if (updates.comfyPromptId && currentEntry) {
+      updateExpressions.push(`GSI2PK = :gsi2pk`, `GSI2SK = :gsi2sk`);
+      expressionAttributeValues[":gsi2pk"] = "QUEUE#COMFY_PROMPT_ID";
+      expressionAttributeValues[":gsi2sk"] = updates.comfyPromptId;
+    }
+
+    // Update GSI3SK if status is being changed (to maintain sort order with new status)
+    if (updates.status && currentEntry) {
+      updateExpressions.push(`GSI3SK = :gsi3sk`);
+      expressionAttributeValues[
+        ":gsi3sk"
+      ] = `${updates.status}#${currentEntry.createdAt}#${queueId}`;
     }
 
     if (updateExpressions.length === 0) {
@@ -317,16 +342,14 @@ export class GenerationQueueService {
    * Find queue entry by ComfyUI prompt ID
    */
   async findQueueEntryByPromptId(promptId: string): Promise<QueueEntry | null> {
-    // Use scan operation to find by comfyPromptId
-    // Note: In production, consider adding a GSI for better performance
     const result = await this.dynamoDB.send(
-      new ScanCommand({
+      new QueryCommand({
         TableName: this.tableName,
-        FilterExpression:
-          "begins_with(PK, :pkPrefix) AND comfyPromptId = :promptId",
+        IndexName: "GSI2",
+        KeyConditionExpression: "GSI2PK = :gsi2pk AND GSI2SK = :gsi2sk",
         ExpressionAttributeValues: {
-          ":pkPrefix": "QUEUE#",
-          ":promptId": promptId,
+          ":gsi2pk": "QUEUE#COMFY_PROMPT_ID",
+          ":gsi2sk": promptId,
         },
         Limit: 1,
       })
@@ -344,13 +367,14 @@ export class GenerationQueueService {
    */
   async getUserQueueEntries(userId: string): Promise<QueueEntry[]> {
     const result = await this.dynamoDB.send(
-      new ScanCommand({
+      new QueryCommand({
         TableName: this.tableName,
-        FilterExpression: "begins_with(PK, :queuePrefix) AND userId = :userId",
+        IndexName: "GSI3",
+        KeyConditionExpression: "GSI3PK = :gsi3pk",
         ExpressionAttributeValues: {
-          ":queuePrefix": "QUEUE#",
-          ":userId": userId,
+          ":gsi3pk": `QUEUE#USER#${userId}`,
         },
+        ScanIndexForward: false, // Most recent first (newest status changes first)
       })
     );
 

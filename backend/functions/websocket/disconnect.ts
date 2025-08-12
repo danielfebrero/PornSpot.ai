@@ -16,6 +16,10 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { GenerationQueueService } from "@shared/services/generation-queue";
+
+// Initialize generation queue service
+const queueService = GenerationQueueService.getInstance();
 
 // Initialize DynamoDB client
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
@@ -81,6 +85,9 @@ export const handler = async (
 
     // Clean up any active generation sessions for this connection
     await cleanupActiveGenerations(connectionId);
+
+    // Clean up any queue entries that have this connection ID
+    await cleanupQueueSubscriptions(connectionId);
 
     const userId = connectionInfo?.["userId"];
     console.log(
@@ -157,6 +164,55 @@ async function cleanupActiveGenerations(connectionId: string): Promise<void> {
   } catch (error) {
     console.error(
       `❌ Failed to cleanup active generations for ${connectionId}:`,
+      error
+    );
+    // Don't throw error as disconnection should still succeed
+  }
+}
+
+/**
+ * Clean up any queue entries that have this connection ID
+ */
+async function cleanupQueueSubscriptions(connectionId: string): Promise<void> {
+  try {
+    // Query for any pending/processing queue entries with this connection ID
+    // We need to check multiple statuses as the queue entry might be in different states
+    const statuses = ["pending", "processing"];
+
+    for (const status of statuses) {
+      const queryResult = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI1",
+          KeyConditionExpression: "GSI1PK = :statusKey",
+          FilterExpression: "connectionId = :connectionId",
+          ExpressionAttributeValues: {
+            ":statusKey": `QUEUE#STATUS#${status}`,
+            ":connectionId": connectionId,
+          },
+        })
+      );
+
+      // Remove connection ID from matching queue entries
+      const updatePromises = (queryResult.Items || []).map(
+        async (queueItem: any) => {
+          const queueId = queueItem.queueId;
+          if (queueId) {
+            await queueService.updateQueueEntry(queueId, {
+              connectionId: undefined,
+            });
+            console.log(
+              `🧹 Removed connection ${connectionId} from queue ${queueId}`
+            );
+          }
+        }
+      );
+
+      await Promise.allSettled(updatePromises);
+    }
+  } catch (error) {
+    console.error(
+      `❌ Failed to cleanup queue subscriptions for ${connectionId}:`,
       error
     );
     // Don't throw error as disconnection should still succeed

@@ -23,7 +23,7 @@ import {
   createMediaEntity,
   createGenerationMetadata,
 } from "@shared/utils/media-entity";
-import { JobCompletedEvent } from "@shared/shared-types/comfyui-events";
+import { ImagesGeneratedEvent } from "@shared/shared-types/comfyui-events";
 import axios from "axios";
 
 const queueService = GenerationQueueService.getInstance();
@@ -31,20 +31,18 @@ const s3Service = S3StorageService.getInstance();
 const WEBSOCKET_ENDPOINT = process.env["WEBSOCKET_API_ENDPOINT"];
 
 export const handler = async (
-  event: EventBridgeEvent<"Job Completed", JobCompletedEvent>,
+  event: EventBridgeEvent<"Image Generated", ImagesGeneratedEvent>,
   _context: Context
 ): Promise<void> => {
   console.log("Received job completion event:", JSON.stringify(event, null, 2));
 
   try {
-    const { promptId, executionData } = event.detail;
+    const { promptId, images } = event.detail;
     const COMFYUI_ENDPOINT =
       await ParameterStoreService.getComfyUIApiEndpoint();
 
-    if (!promptId || !executionData) {
-      console.error(
-        "Missing prompt ID or execution data in job completion event"
-      );
+    if (!promptId || !images) {
+      console.error("Missing prompt ID or images in job completion event");
       return;
     }
 
@@ -61,7 +59,7 @@ export const handler = async (
     );
 
     // Extract generated images from output
-    const generatedImages = extractImagesFromOutput(executionData.output);
+    const generatedImages = extractImagesFromOutput(images);
 
     if (generatedImages.length === 0) {
       console.warn(

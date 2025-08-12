@@ -15,9 +15,7 @@ import {
 import {
   DynamoDBDocumentClient,
   GetCommand,
-  PutCommand,
   DeleteCommand,
-  QueryCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
@@ -29,18 +27,7 @@ interface WebSocketMessage {
   requestId?: string;
 }
 
-interface SubscriptionEntity {
-  PK: string; // SUBSCRIPTION#{queueId}
-  SK: string; // CONNECTION#{connectionId}
-  GSI1PK: string; // CONNECTION_SUBSCRIPTIONS
-  GSI1SK: string; // {connectionId}#{queueId}
-  EntityType: "WebSocketSubscription";
-  connectionId: string;
-  queueId: string;
-  userId?: string;
-  subscribedAt: string;
-  ttl: number; // TTL for automatic cleanup
-}
+// Removed SubscriptionEntity interface - using queue entry connectionId instead
 
 // Initialize DynamoDB client
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
@@ -171,31 +158,21 @@ async function handleSubscribe(
       return;
     }
 
-    const now = new Date();
-    const nowString = now.toISOString();
-    const ttl = Math.floor(now.getTime() / 1000) + 6 * 60 * 60; // 6 hours TTL
+    // Verify queue entry exists
+    const queueEntry = await queueService.getQueueEntry(queueId);
+    if (!queueEntry) {
+      await sendErrorToConnection(
+        connectionId,
+        "Queue entry not found",
+        message.requestId
+      );
+      return;
+    }
 
-    // Create subscription entity
-    const subscriptionEntity: SubscriptionEntity = {
-      PK: `SUBSCRIPTION#${queueId}`,
-      SK: `CONNECTION#${connectionId}`,
-      GSI1PK: "CONNECTION_SUBSCRIPTIONS",
-      GSI1SK: `${connectionId}#${queueId}`,
-      EntityType: "WebSocketSubscription",
-      connectionId,
-      queueId,
-      userId: getConnectionResult.Item["userId"],
-      subscribedAt: nowString,
-      ttl,
-    };
-
-    // Store subscription
-    await docClient.send(
-      new PutCommand({
-        TableName: TABLE_NAME,
-        Item: subscriptionEntity,
-      })
-    );
+    // Update queue entry with connection ID
+    await queueService.updateQueueEntry(queueId, {
+      connectionId: connectionId,
+    });
 
     // Send confirmation
     await sendMessageToConnection(connectionId, {
@@ -234,16 +211,23 @@ async function handleUnsubscribe(
       return;
     }
 
-    // Delete subscription
-    await docClient.send(
-      new DeleteCommand({
-        TableName: TABLE_NAME,
-        Key: {
-          PK: `SUBSCRIPTION#${queueId}`,
-          SK: `CONNECTION#${connectionId}`,
-        },
-      })
-    );
+    // Verify queue entry exists and connection matches
+    const queueEntry = await queueService.getQueueEntry(queueId);
+    if (!queueEntry) {
+      await sendErrorToConnection(
+        connectionId,
+        "Queue entry not found",
+        message.requestId
+      );
+      return;
+    }
+
+    // Only remove connection ID if it matches the current connection
+    if (queueEntry.connectionId === connectionId) {
+      await queueService.updateQueueEntry(queueId, {
+        connectionId: undefined,
+      });
+    }
 
     // Send confirmation
     await sendMessageToConnection(connectionId, {
@@ -366,50 +350,60 @@ async function sendErrorToConnection(
 }
 
 /**
- * Broadcast a message to all subscribers of a queue
+ * Broadcast a message to the subscriber of a queue (using queue entry connectionId)
  */
 export async function broadcastToQueueSubscribers(
   queueId: string,
   data: any
 ): Promise<void> {
   try {
-    // Get all subscribers for this queue
-    const queryResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        KeyConditionExpression: "PK = :pk",
-        ExpressionAttributeValues: {
-          ":pk": `SUBSCRIPTION#${queueId}`,
-        },
-      })
-    );
+    // Get the queue entry to find the connection ID
+    const queueEntry = await queueService.getQueueEntry(queueId);
 
-    if (!queryResult.Items || queryResult.Items.length === 0) {
-      console.log(`📭 No subscribers found for queue ${queueId}`);
+    if (!queueEntry || !queueEntry.connectionId) {
+      console.log(`📭 No subscriber found for queue ${queueId}`);
       return;
     }
 
-    // Send message to each subscriber
-    const sendPromises = queryResult.Items.map(async (subscription: any) => {
-      try {
-        await sendMessageToConnection(subscription.connectionId, {
-          type: "generation_update",
-          queueId,
-          data,
-          timestamp: new Date().toISOString(),
-        });
-      } catch (error) {
-        console.error(
-          `❌ Failed to send to subscriber ${subscription.connectionId}:`,
-          error
-        );
-      }
-    });
+    // Send message to the subscriber
+    try {
+      await sendMessageToConnection(queueEntry.connectionId, {
+        type: "generation_update",
+        queueId,
+        data,
+        timestamp: new Date().toISOString(),
+      });
+      console.log(
+        `📢 Broadcast message to subscriber ${queueEntry.connectionId} of queue ${queueId}`
+      );
+    } catch (error) {
+      console.error(
+        `❌ Failed to send to subscriber ${queueEntry.connectionId}:`,
+        error
+      );
 
-    await Promise.allSettled(sendPromises);
-    console.log(
-      `📢 Broadcast message to ${queryResult.Items.length} subscribers of queue ${queueId}`
-    );
+      // If connection is gone, remove it from the queue entry
+      if (
+        error &&
+        typeof error === "object" &&
+        "name" in error &&
+        error.name === "GoneException"
+      ) {
+        console.log(
+          `🧹 Removing stale connection ${queueEntry.connectionId} from queue ${queueId}`
+        );
+        try {
+          await queueService.updateQueueEntry(queueId, {
+            connectionId: undefined,
+          });
+        } catch (cleanupError) {
+          console.error(
+            `❌ Failed to cleanup connection from queue ${queueId}:`,
+            cleanupError
+          );
+        }
+      }
+    }
   } catch (error) {
     console.error(`❌ Failed to broadcast to queue ${queueId}:`, error);
     throw error;

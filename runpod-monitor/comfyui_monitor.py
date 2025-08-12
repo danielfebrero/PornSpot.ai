@@ -198,13 +198,7 @@ class ComfyUIMonitor:
             event = {
                 "Source": "comfyui.monitor",
                 "DetailType": event_type,
-                "Detail": json.dumps(
-                    {
-                        **detail,
-                        "timestamp": datetime.utcnow().isoformat(),
-                        "client_id": self.client_id,
-                    }
-                ),
+                "Detail": json.dumps(detail),
                 "EventBusName": self.eventbridge_bus_name,
             }
 
@@ -288,18 +282,18 @@ class ComfyUIMonitor:
                 # Execution completed
                 logger.info(f"✅ Execution completed: prompt_id={prompt_id}")
 
-                await self.publish_event(
-                    "Job Completed",
-                    {
-                        "promptId": prompt_id,
-                        "timestamp": datetime.utcnow().isoformat(),
-                        "clientId": self.client_id,
-                        "executionData": {
-                            "promptId": prompt_id,
-                            "output": data.get("output", {}),
-                        },
-                    },
-                )
+                # await self.publish_event(
+                #     "Job Completed",
+                #     {
+                #         "promptId": prompt_id,
+                #         "timestamp": datetime.utcnow().isoformat(),
+                #         "clientId": self.client_id,
+                #         "executionData": {
+                #             "promptId": prompt_id,
+                #             "output": data.get("output", {}),
+                #         },
+                #     },
+                # )
 
             else:
                 # Node execution started
@@ -362,6 +356,8 @@ class ComfyUIMonitor:
                         "output": output,
                     },
                 )
+        except Exception as e:
+            logger.error(f"❌ Error handling executed message: {e}")
 
     async def handle_progress_state_message(self, data: Dict[str, Any]):
         """Handle progress_state messages - enhanced progress tracking with node-level detail"""
@@ -430,7 +426,9 @@ class ComfyUIMonitor:
                 logger.warning("⚠️  No prompt_id in execution_error message")
                 return
 
-            logger.error(f"💥 Execution error for prompt_id={prompt_id}: {error_details}")
+            logger.error(
+                f"💥 Execution error for prompt_id={prompt_id}: {error_details}"
+            )
 
             # Extract error information
             error_type = error_details.get("type", "unknown_error")
