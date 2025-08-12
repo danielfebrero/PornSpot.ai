@@ -418,6 +418,45 @@ class ComfyUIMonitor:
         except Exception as e:
             logger.error(f"❌ Error handling progress_state message: {e}")
 
+    async def handle_execution_error_message(self, data: Dict[str, Any]):
+        """Handle execution error messages from ComfyUI"""
+        try:
+            prompt_id = data.get("prompt_id")
+            error_details = data.get("exception", {})
+            node_id = data.get("node_id")
+            node_type = data.get("node_type")
+
+            if not prompt_id:
+                logger.warning("⚠️  No prompt_id in execution_error message")
+                return
+
+            logger.error(f"💥 Execution error for prompt_id={prompt_id}: {error_details}")
+
+            # Extract error information
+            error_type = error_details.get("type", "unknown_error")
+            error_message = error_details.get("message", "Unknown execution error")
+            traceback = error_details.get("traceback", [])
+
+            # Publish job failure event with standardized structure
+            await self.publish_event(
+                "Job Failed",
+                {
+                    "promptId": prompt_id,
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "clientId": self.client_id,
+                    "error": {
+                        "type": error_type,
+                        "message": error_message,
+                        "nodeId": node_id,
+                        "nodeType": node_type,
+                        "traceback": traceback,
+                    },
+                },
+            )
+
+        except Exception as e:
+            logger.error(f"❌ Error handling execution_error message: {e}")
+
     async def handle_websocket_message(self, message: str):
         """Parse and handle incoming WebSocket messages from ComfyUI"""
         try:
@@ -442,6 +481,9 @@ class ComfyUIMonitor:
             elif message_type == "execution_cached":
                 # Node output was cached, not a critical event for our use case
                 logger.debug(f"💾 Execution cached for data: {message_data}")
+            elif message_type == "execution_error":
+                # Handle execution errors
+                await self.handle_execution_error_message(message_data)
             else:
                 logger.debug(f"🤷 Unknown message type: {message_type}")
 
