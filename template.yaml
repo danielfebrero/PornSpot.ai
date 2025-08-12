@@ -2143,6 +2143,12 @@ Resources:
         - Statement:
             - Effect: Allow
               Action:
+                - dynamodb:Query
+              Resource:
+                - !GetAtt MediaTable.Arn
+                - !Sub "${MediaTable.Arn}/index/*"
+            - Effect: Allow
+              Action:
                 - execute-api:ManageConnections
               Resource: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/${Environment}/POST/@connections/*"
             - Effect: Allow

@@ -62,6 +62,7 @@ function loadPermissionsConfig(): PermissionsConfig {
   try {
     // Try to load from shared directory (for backend functions)
     const sharedPath = path.join(__dirname, "permissions.json");
+    console.log("Loading permissions config from:", sharedPath);
     if (fs.existsSync(sharedPath)) {
       const configData = fs.readFileSync(sharedPath, "utf8");
       permissionsConfig = JSON.parse(configData);

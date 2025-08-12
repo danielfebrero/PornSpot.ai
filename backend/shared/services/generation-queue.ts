@@ -48,7 +48,7 @@ export class GenerationQueueService {
   private constructor() {
     const client = new DynamoDBClient({});
     this.dynamoDB = DynamoDBDocumentClient.from(client);
-    this.tableName = process.env["DYNAMODB_TABLE_NAME"] || "pornspot-media";
+    this.tableName = process.env["DYNAMODB_TABLE"] || "dev-pornspot-media";
   }
 
   public static getInstance(): GenerationQueueService {
