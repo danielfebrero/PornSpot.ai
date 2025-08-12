@@ -9,39 +9,33 @@ Special notes:
 
 import { EventBridgeEvent, Context } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
-
-interface MonitorInitEventDetail {
-  client_id: string;
-  timestamp: string;
-  comfyui_host: string;
-  version: string;
-}
+import { MonitorInitializedEvent } from "@shared/shared-types/comfyui-events";
 
 export const handler = async (
-  event: EventBridgeEvent<"Monitor Initialized", MonitorInitEventDetail>,
+  event: EventBridgeEvent<"Monitor Initialized", MonitorInitializedEvent>,
   _context: Context
 ): Promise<void> => {
   console.log("Received monitor init event:", JSON.stringify(event, null, 2));
 
   try {
-    const { client_id, comfyui_host, version } = event.detail;
+    const { clientId, comfyuiHost, version } = event.detail;
 
-    if (!client_id) {
-      console.error("No client_id in monitor init event");
+    if (!clientId) {
+      console.error("No clientId in monitor init event");
       return;
     }
 
-    console.log(`📡 Storing ComfyUI monitor client_id: ${client_id}`);
+    console.log(`📡 Storing ComfyUI monitor clientId: ${clientId}`);
 
-    // Store the monitor client_id in DynamoDB
-    await DynamoDBService.storeComfyUIMonitorClientId(client_id, {
-      comfyui_host,
+    // Store the monitor client_id in DynamoDB with standardized property names
+    await DynamoDBService.storeComfyUIMonitorClientId(clientId, {
+      comfyui_host: comfyuiHost,
       version,
       lastConnectedAt: new Date().toISOString(),
     });
 
     console.log(
-      `✅ ComfyUI monitor client_id stored successfully: ${client_id}`
+      `✅ ComfyUI monitor clientId stored successfully: ${clientId}`
     );
   } catch (error) {
     console.error("Error handling monitor init event:", error);

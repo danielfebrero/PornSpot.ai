@@ -19,18 +19,7 @@ import {
   ComfyUIError,
   ComfyUIErrorType,
 } from "@shared/services/comfyui-error-handler";
-
-interface JobFailureEventDetail {
-  promptId: string;
-  timestamp: string;
-  error: {
-    type: string;
-    message: string;
-    node_id?: string;
-    node_type?: string;
-    traceback?: string[];
-  };
-}
+import { JobFailedEvent } from "@shared/shared-types/comfyui-events";
 
 const queueService = GenerationQueueService.getInstance();
 const eventBridge = new EventBridge();
@@ -42,7 +31,7 @@ const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_DELAYS = [1000, 2000, 4000]; // Exponential backoff in milliseconds
 
 export const handler = async (
-  event: EventBridgeEvent<"ComfyUI Job Failure", JobFailureEventDetail>,
+  event: EventBridgeEvent<"Job Failed", JobFailedEvent>,
   _context: Context
 ): Promise<void> => {
   console.log("Received job failure event:", JSON.stringify(event, null, 2));

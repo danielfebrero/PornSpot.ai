@@ -14,24 +14,13 @@ import {
   QueueEntry,
 } from "@shared/services/generation-queue";
 import { ApiGatewayManagementApi } from "aws-sdk";
-
-interface NodeProgressEventDetail {
-  promptId: string;
-  nodeId: string;
-  displayNodeId: string;
-  nodeProgress: number;
-  nodeMaxProgress: number;
-  nodePercentage: number;
-  nodeState: string;
-  parentNodeId?: string;
-  realNodeId?: string;
-}
+import { NodeProgressEvent } from "@shared/shared-types/comfyui-events";
 
 const queueService = GenerationQueueService.getInstance();
 const WEBSOCKET_ENDPOINT = process.env["WEBSOCKET_API_ENDPOINT"];
 
 export const handler = async (
-  event: EventBridgeEvent<"Node Progress Update", NodeProgressEventDetail>,
+  event: EventBridgeEvent<"Node Progress Update", NodeProgressEvent>,
   _context: Context
 ): Promise<void> => {
   console.log("Received node progress event:", JSON.stringify(event, null, 2));
@@ -66,18 +55,19 @@ export const handler = async (
       `Found queue entry ${queueEntry.queueId} for prompt ${promptId} - Node ${displayNodeId} progress: ${nodeProgress}/${nodeMaxProgress} (${nodePercentage}%)`
     );
 
-    // Prepare detailed progress data
+    // Prepare enhanced progress data with node information
     const progressData = {
       nodeId,
       displayNodeId,
       currentNode: displayNodeId,
+      nodeName: formatNodeName(displayNodeId),
       value: nodeProgress,
       max: nodeMaxProgress,
       percentage: nodePercentage,
       nodeState,
       parentNodeId,
       realNodeId,
-      message: `${displayNodeId}: ${nodeProgress}/${nodeMaxProgress} (${nodePercentage}%) - ${nodeState}`,
+      message: formatProgressMessage(displayNodeId, nodeProgress, nodeMaxProgress, nodePercentage, nodeState),
     };
 
     // Update queue entry with progress information
@@ -89,7 +79,7 @@ export const handler = async (
       `Updated node progress for queue entry ${queueEntry.queueId}: ${displayNodeId} - ${nodePercentage}%`
     );
 
-    // Broadcast progress update to connected WebSocket clients
+    // Broadcast enhanced progress update to connected WebSocket clients
     if (WEBSOCKET_ENDPOINT && queueEntry.connectionId) {
       await broadcastProgress(queueEntry, "node_progress", progressData);
     }
@@ -98,6 +88,45 @@ export const handler = async (
     throw error;
   }
 };
+
+/**
+ * Format node name for better display
+ */
+function formatNodeName(displayNodeId: string): string {
+  // Convert node IDs like "KSampler" to "K-Sampler" for better readability
+  return displayNodeId
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, str => str.toUpperCase())
+    .trim();
+}
+
+/**
+ * Create intelligent progress message based on node state and progress
+ */
+function formatProgressMessage(
+  displayNodeId: string,
+  progress: number,
+  maxProgress: number,
+  percentage: number,
+  state: string
+): string {
+  const nodeName = formatNodeName(displayNodeId);
+  
+  // Create different messages based on node type and state
+  if (displayNodeId.toLowerCase().includes('sampler')) {
+    return `Generating image using ${nodeName}: ${progress}/${maxProgress} steps (${percentage}%)`;
+  } else if (displayNodeId.toLowerCase().includes('load')) {
+    return `Loading ${nodeName}: ${percentage}%`;
+  } else if (displayNodeId.toLowerCase().includes('encode')) {
+    return `Encoding with ${nodeName}: ${progress}/${maxProgress} (${percentage}%)`;
+  } else if (displayNodeId.toLowerCase().includes('decode')) {
+    return `Decoding with ${nodeName}: ${progress}/${maxProgress} (${percentage}%)`;
+  } else if (displayNodeId.toLowerCase().includes('vae')) {
+    return `Processing with VAE: ${progress}/${maxProgress} (${percentage}%)`;
+  } else {
+    return `${nodeName}: ${progress}/${maxProgress} (${percentage}%) - ${state}`;
+  }
+}
 
 async function broadcastProgress(
   queueEntry: QueueEntry,

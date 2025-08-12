@@ -237,10 +237,16 @@ class ComfyUIMonitor:
 
             logger.debug(f"📊 Queue status: {queue_remaining} items remaining")
 
-            # Publish queue status event
+            # Publish queue status event with standardized structure
             await self.publish_event(
                 "Queue Status Updated",
-                {"queue_remaining": queue_remaining, "exec_info": exec_info},
+                {
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "clientId": self.client_id,
+                    "promptId": "system",  # System-level event, no specific prompt
+                    "queueRemaining": queue_remaining,
+                    "execInfo": exec_info,
+                },
             )
 
         except Exception as e:
@@ -255,11 +261,15 @@ class ComfyUIMonitor:
 
             logger.info(f"🚀 Execution started: prompt_id={prompt_id}")
 
-            # Publish execution start event with prompt_id
-            # Backend will resolve prompt_id to queue_id
+            # Publish execution start event with standardized structure
+            # Backend will resolve promptId to queueId
             await self.publish_event(
                 "Job Started",
-                {"promptId": prompt_id},
+                {
+                    "promptId": prompt_id,
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "clientId": self.client_id,
+                },
             )
 
         except Exception as e:
@@ -281,8 +291,13 @@ class ComfyUIMonitor:
                 await self.publish_event(
                     "Job Completed",
                     {
-                        "prompt_id": prompt_id,
-                        "execution_data": data,
+                        "promptId": prompt_id,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
+                        "executionData": {
+                            "promptId": prompt_id,
+                            "output": data.get("output", {}),
+                        },
                     },
                 )
 
@@ -293,9 +308,11 @@ class ComfyUIMonitor:
                 await self.publish_event(
                     "Node Executing",
                     {
-                        "prompt_id": prompt_id,
-                        "node": node,
-                        "execution_data": data,
+                        "promptId": prompt_id,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
+                        "nodeId": node,
+                        "executionData": data,
                     },
                 )
 
@@ -322,8 +339,10 @@ class ComfyUIMonitor:
                 await self.publish_event(
                     "Images Generated",
                     {
-                        "prompt_id": prompt_id,
-                        "node": node,
+                        "promptId": prompt_id,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
+                        "nodeId": node,
                         "images": images,
                         "output": output,
                     },
@@ -333,8 +352,16 @@ class ComfyUIMonitor:
                     f"🔄 Node {node} executed (no images) for prompt_id={prompt_id}"
                 )
 
-        except Exception as e:
-            logger.error(f"❌ Error handling executed message: {e}")
+                await self.publish_event(
+                    "Node Executed",
+                    {
+                        "promptId": prompt_id,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
+                        "nodeId": node,
+                        "output": output,
+                    },
+                )
 
     async def handle_progress_state_message(self, data: Dict[str, Any]):
         """Handle progress_state messages - enhanced progress tracking with node-level detail"""
@@ -370,11 +397,13 @@ class ComfyUIMonitor:
                     f"📈 Node progress: {display_node_id} - {value}/{max_value} ({node_percentage}%) state: {state} for prompt_id={prompt_id}"
                 )
 
-                # Publish event for this specific node's progress
+                # Publish event for this specific node's progress with standardized structure
                 await self.publish_event(
                     "Node Progress Update",
                     {
                         "promptId": prompt_id,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
                         "nodeId": node_id,
                         "displayNodeId": display_node_id,
                         "nodeProgress": value,
@@ -388,6 +417,45 @@ class ComfyUIMonitor:
 
         except Exception as e:
             logger.error(f"❌ Error handling progress_state message: {e}")
+
+    async def handle_execution_error_message(self, data: Dict[str, Any]):
+        """Handle execution error messages from ComfyUI"""
+        try:
+            prompt_id = data.get("prompt_id")
+            error_details = data.get("exception", {})
+            node_id = data.get("node_id")
+            node_type = data.get("node_type")
+
+            if not prompt_id:
+                logger.warning("⚠️  No prompt_id in execution_error message")
+                return
+
+            logger.error(f"💥 Execution error for prompt_id={prompt_id}: {error_details}")
+
+            # Extract error information
+            error_type = error_details.get("type", "unknown_error")
+            error_message = error_details.get("message", "Unknown execution error")
+            traceback = error_details.get("traceback", [])
+
+            # Publish job failure event with standardized structure
+            await self.publish_event(
+                "Job Failed",
+                {
+                    "promptId": prompt_id,
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "clientId": self.client_id,
+                    "error": {
+                        "type": error_type,
+                        "message": error_message,
+                        "nodeId": node_id,
+                        "nodeType": node_type,
+                        "traceback": traceback,
+                    },
+                },
+            )
+
+        except Exception as e:
+            logger.error(f"❌ Error handling execution_error message: {e}")
 
     async def handle_websocket_message(self, message: str):
         """Parse and handle incoming WebSocket messages from ComfyUI"""
@@ -413,6 +481,9 @@ class ComfyUIMonitor:
             elif message_type == "execution_cached":
                 # Node output was cached, not a critical event for our use case
                 logger.debug(f"💾 Execution cached for data: {message_data}")
+            elif message_type == "execution_error":
+                # Handle execution errors
+                await self.handle_execution_error_message(message_data)
             else:
                 logger.debug(f"🤷 Unknown message type: {message_type}")
 
@@ -518,14 +589,16 @@ class ComfyUIMonitor:
         """Start the monitoring process"""
         logger.info("🚀 Starting ComfyUI monitoring...")
 
-        # Test EventBridge connection
+        # Publish startup event with standardized structure
         if self.eventbridge:
             try:
                 await self.publish_event(
                     "Monitor Initialized",
                     {
-                        "client_id": self.client_id,
-                        "comfyui_host": self.comfyui_host,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
+                        "promptId": "system",  # System-level event
+                        "comfyuiHost": self.comfyui_host,
                         "version": "1.0.0",
                     },
                 )
@@ -552,12 +625,17 @@ class ComfyUIMonitor:
             finally:
                 self.websocket = None
 
-        # Publish shutdown event
+        # Publish shutdown event with standardized structure
         if self.eventbridge:
             try:
                 await self.publish_event(
                     "Monitor Stopped",
-                    {"client_id": self.client_id, "reason": "graceful_shutdown"},
+                    {
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
+                        "promptId": "system",  # System-level event
+                        "reason": "graceful_shutdown",
+                    },
                 )
             except Exception as e:
                 logger.warning(f"⚠️  Could not publish shutdown event: {e}")
