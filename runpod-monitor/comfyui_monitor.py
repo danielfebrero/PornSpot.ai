@@ -237,10 +237,16 @@ class ComfyUIMonitor:
 
             logger.debug(f"📊 Queue status: {queue_remaining} items remaining")
 
-            # Publish queue status event
+            # Publish queue status event with standardized structure
             await self.publish_event(
                 "Queue Status Updated",
-                {"queue_remaining": queue_remaining, "exec_info": exec_info},
+                {
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "clientId": self.client_id,
+                    "promptId": "system",  # System-level event, no specific prompt
+                    "queueRemaining": queue_remaining,
+                    "execInfo": exec_info,
+                },
             )
 
         except Exception as e:
@@ -255,11 +261,15 @@ class ComfyUIMonitor:
 
             logger.info(f"🚀 Execution started: prompt_id={prompt_id}")
 
-            # Publish execution start event with prompt_id
-            # Backend will resolve prompt_id to queue_id
+            # Publish execution start event with standardized structure
+            # Backend will resolve promptId to queueId
             await self.publish_event(
                 "Job Started",
-                {"promptId": prompt_id},
+                {
+                    "promptId": prompt_id,
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "clientId": self.client_id,
+                },
             )
 
         except Exception as e:
@@ -281,8 +291,13 @@ class ComfyUIMonitor:
                 await self.publish_event(
                     "Job Completed",
                     {
-                        "prompt_id": prompt_id,
-                        "execution_data": data,
+                        "promptId": prompt_id,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
+                        "executionData": {
+                            "promptId": prompt_id,
+                            "output": data.get("output", {}),
+                        },
                     },
                 )
 
@@ -293,9 +308,11 @@ class ComfyUIMonitor:
                 await self.publish_event(
                     "Node Executing",
                     {
-                        "prompt_id": prompt_id,
-                        "node": node,
-                        "execution_data": data,
+                        "promptId": prompt_id,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
+                        "nodeId": node,
+                        "executionData": data,
                     },
                 )
 
@@ -322,8 +339,10 @@ class ComfyUIMonitor:
                 await self.publish_event(
                     "Images Generated",
                     {
-                        "prompt_id": prompt_id,
-                        "node": node,
+                        "promptId": prompt_id,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
+                        "nodeId": node,
                         "images": images,
                         "output": output,
                     },
@@ -333,8 +352,16 @@ class ComfyUIMonitor:
                     f"🔄 Node {node} executed (no images) for prompt_id={prompt_id}"
                 )
 
-        except Exception as e:
-            logger.error(f"❌ Error handling executed message: {e}")
+                await self.publish_event(
+                    "Node Executed",
+                    {
+                        "promptId": prompt_id,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
+                        "nodeId": node,
+                        "output": output,
+                    },
+                )
 
     async def handle_progress_state_message(self, data: Dict[str, Any]):
         """Handle progress_state messages - enhanced progress tracking with node-level detail"""
@@ -370,11 +397,13 @@ class ComfyUIMonitor:
                     f"📈 Node progress: {display_node_id} - {value}/{max_value} ({node_percentage}%) state: {state} for prompt_id={prompt_id}"
                 )
 
-                # Publish event for this specific node's progress
+                # Publish event for this specific node's progress with standardized structure
                 await self.publish_event(
                     "Node Progress Update",
                     {
                         "promptId": prompt_id,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
                         "nodeId": node_id,
                         "displayNodeId": display_node_id,
                         "nodeProgress": value,
@@ -518,14 +547,16 @@ class ComfyUIMonitor:
         """Start the monitoring process"""
         logger.info("🚀 Starting ComfyUI monitoring...")
 
-        # Test EventBridge connection
+        # Publish startup event with standardized structure
         if self.eventbridge:
             try:
                 await self.publish_event(
                     "Monitor Initialized",
                     {
-                        "client_id": self.client_id,
-                        "comfyui_host": self.comfyui_host,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
+                        "promptId": "system",  # System-level event
+                        "comfyuiHost": self.comfyui_host,
                         "version": "1.0.0",
                     },
                 )
@@ -552,12 +583,17 @@ class ComfyUIMonitor:
             finally:
                 self.websocket = None
 
-        # Publish shutdown event
+        # Publish shutdown event with standardized structure
         if self.eventbridge:
             try:
                 await self.publish_event(
                     "Monitor Stopped",
-                    {"client_id": self.client_id, "reason": "graceful_shutdown"},
+                    {
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "clientId": self.client_id,
+                        "promptId": "system",  # System-level event
+                        "reason": "graceful_shutdown",
+                    },
                 )
             except Exception as e:
                 logger.warning(f"⚠️  Could not publish shutdown event: {e}")

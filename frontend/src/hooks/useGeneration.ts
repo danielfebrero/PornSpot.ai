@@ -16,6 +16,8 @@ interface UseGenerationReturn {
   progress: number;
   maxProgress: number;
   currentMessage: string;
+  currentNode: string;
+  nodeState: string;
   retryCount: number;
   isRetrying: boolean;
   generateImages: (request: GenerationRequest) => Promise<void>;
@@ -32,6 +34,8 @@ export function useGeneration(): UseGenerationReturn {
   const [progress, setProgress] = useState(0);
   const [maxProgress, setMaxProgress] = useState(100);
   const [currentMessage, setCurrentMessage] = useState("");
+  const [currentNode, setCurrentNode] = useState("");
+  const [nodeState, setNodeState] = useState("");
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
 
@@ -84,6 +88,18 @@ export function useGeneration(): UseGenerationReturn {
           );
           break;
 
+        case "job_progress":
+          // Handle enhanced node-level progress
+          if (message.progressData) {
+            const { progressData } = message;
+            setProgress(progressData.value);
+            setMaxProgress(progressData.max);
+            setCurrentNode(progressData.nodeName || progressData.displayNodeId || "");
+            setNodeState(progressData.nodeState || "");
+            setCurrentMessage(progressData.message);
+          }
+          break;
+
         case "completed":
           setQueueStatus((prev) =>
             prev
@@ -131,6 +147,8 @@ export function useGeneration(): UseGenerationReturn {
               `Retrying generation... (attempt ${message.retryCount || 1}/3)`
           );
           setProgress(0); // Reset progress for retry
+          setCurrentNode(""); // Reset node info for retry
+          setNodeState("");
           break;
 
         case "error":
@@ -223,6 +241,8 @@ export function useGeneration(): UseGenerationReturn {
     setProgress(0);
     setMaxProgress(100);
     setCurrentMessage("");
+    setCurrentNode("");
+    setNodeState("");
     setQueueStatus(null);
     setRetryCount(0);
     setIsRetrying(false);
@@ -242,6 +262,8 @@ export function useGeneration(): UseGenerationReturn {
     progress,
     maxProgress,
     currentMessage,
+    currentNode,
+    nodeState,
     retryCount,
     isRetrying,
     generateImages,

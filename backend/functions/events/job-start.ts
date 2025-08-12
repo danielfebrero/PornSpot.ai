@@ -13,20 +13,13 @@ import {
   QueueEntry,
 } from "@shared/services/generation-queue";
 import { ApiGatewayManagementApi } from "aws-sdk";
-
-interface JobStartEventDetail {
-  promptId: string;
-  timestamp: string;
-  executionStart: {
-    promptId: string;
-  };
-}
+import { JobStartedEvent } from "@shared/shared-types/comfyui-events";
 
 const queueService = GenerationQueueService.getInstance();
 const WEBSOCKET_ENDPOINT = process.env["WEBSOCKET_API_ENDPOINT"];
 
 export const handler = async (
-  event: EventBridgeEvent<"ComfyUI Job Start", JobStartEventDetail>,
+  event: EventBridgeEvent<"Job Started", JobStartedEvent>,
   _context: Context
 ): Promise<void> => {
   console.log("Received job start event:", JSON.stringify(event, null, 2));

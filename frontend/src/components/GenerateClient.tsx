@@ -33,6 +33,7 @@ import {
   Users,
   CheckCircle,
   AlertCircle,
+  Cpu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocaleRouter } from "@/lib/navigation";
@@ -118,6 +119,8 @@ export function GenerateClient() {
     progress,
     maxProgress,
     currentMessage,
+    currentNode,
+    nodeState,
     retryCount,
     isRetrying,
     generateImages,
@@ -466,20 +469,47 @@ export function GenerateClient() {
                           </div>
                         )}
 
-                        {/* Progress Bar */}
+                        {/* Progress Bar with Node Information */}
                         {progress > 0 && maxProgress > 0 && (
-                          <div className="space-y-2">
+                          <div className="space-y-3">
+                            {/* Current Node Display */}
+                            {currentNode && (
+                              <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                                  <span className="text-sm font-medium text-primary">
+                                    Currently Processing
+                                  </span>
+                                </div>
+                                <div className="mt-1">
+                                  <div className="text-sm font-semibold text-foreground">
+                                    {currentNode}
+                                  </div>
+                                  {nodeState && (
+                                    <div className="text-xs text-muted-foreground capitalize">
+                                      State: {nodeState}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                            
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">
-                                Progress
+                                {currentNode ? "Step Progress" : "Progress"}
                               </span>
                               <span className="text-foreground font-medium">
                                 {Math.round((progress / maxProgress) * 100)}%
+                                {maxProgress > 1 && (
+                                  <span className="text-muted-foreground ml-1">
+                                    ({progress}/{maxProgress})
+                                  </span>
+                                )}
                               </span>
                             </div>
-                            <div className="w-full bg-muted rounded-full h-2">
+                            <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
                               <div
-                                className="bg-primary h-2 rounded-full transition-all duration-300"
+                                className="bg-gradient-to-r from-primary to-purple-600 h-3 rounded-full transition-all duration-500 ease-out"
                                 style={{
                                   width: `${(progress / maxProgress) * 100}%`,
                                 }}
