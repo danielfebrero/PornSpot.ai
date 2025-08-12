@@ -59,9 +59,8 @@ export const handler = async (
     );
 
     // Extract generated images from output
-    const generatedImages = extractImagesFromOutput(images);
 
-    if (generatedImages.length === 0) {
+    if (images.length === 0) {
       console.warn(
         `No images found in completion output for prompt ${promptId}`
       );
@@ -69,12 +68,12 @@ export const handler = async (
       return;
     }
 
-    console.log(`Found ${generatedImages.length} generated images`);
+    console.log(`Found ${images.length} generated images`);
 
     // Create Media entities in DynamoDB FIRST before uploading to S3
     const createdMediaEntities = await createMediaEntitiesFirst(
       queueEntry,
-      generatedImages.length
+      images.length
     );
 
     if (createdMediaEntities.length === 0) {
@@ -88,8 +87,8 @@ export const handler = async (
     // Download and upload images to S3 using predictable filenames
     const uploadedImageUrls: string[] = [];
 
-    for (let index = 0; index < generatedImages.length; index++) {
-      const image = generatedImages[index];
+    for (let index = 0; index < images.length; index++) {
+      const image = images[index];
       const mediaEntity = createdMediaEntities[index];
 
       if (!image) {
@@ -160,22 +159,6 @@ export const handler = async (
     throw error;
   }
 };
-
-function extractImagesFromOutput(
-  output: any
-): Array<{ filename: string; subfolder: string; type: string }> {
-  const images: Array<{ filename: string; subfolder: string; type: string }> =
-    [];
-
-  for (const nodeId in output) {
-    const nodeOutput = output[nodeId];
-    if (nodeOutput.images && Array.isArray(nodeOutput.images)) {
-      images.push(...nodeOutput.images);
-    }
-  }
-
-  return images;
-}
 
 async function createMediaEntitiesFirst(
   queueEntry: QueueEntry,

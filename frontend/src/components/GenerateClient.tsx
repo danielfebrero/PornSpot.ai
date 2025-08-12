@@ -29,14 +29,10 @@ import {
   MinusCircle,
   Sparkles,
   RotateCcw,
-  Clock,
-  Users,
-  CheckCircle,
-  AlertCircle,
-  Cpu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocaleRouter } from "@/lib/navigation";
+import { GenerationProgressCard } from "./ui/GenerationProgressCard";
 
 const IMAGE_SIZES = [
   {
@@ -101,6 +97,7 @@ export function GenerateClient() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showMagicText, setShowMagicText] = useState(false);
+  const [showProgressCard, setShowProgressCard] = useState(false);
 
   // Track optimization state to prevent re-optimizing the same prompt
   const [lastOptimizedPrompt, setLastOptimizedPrompt] = useState<string>("");
@@ -283,6 +280,9 @@ export function GenerateClient() {
   const handleGenerate = async () => {
     if (!canGenerateImages() || !allowed || !settings.prompt.trim()) return;
 
+    // Show progress card immediately on click
+    setShowProgressCard(true);
+
     let finalPrompt = settings.prompt;
 
     // Optimize prompt if enabled
@@ -330,12 +330,23 @@ export function GenerateClient() {
     });
   };
 
-  // Update allGeneratedImages when new images are generated
+  // Update allGeneratedImages when new images are generated and hide progress card
   React.useEffect(() => {
     if (generatedImages.length > 0) {
       setAllGeneratedImages((prev) => [...generatedImages, ...prev]);
+      setShowProgressCard(false); // Hide progress card when images are received
     }
   }, [generatedImages]);
+
+  // Also hide progress card if generation fails
+  React.useEffect(() => {
+    if (error && !isGenerating) {
+      // Keep the progress card visible for a moment to show the error, then hide
+      setTimeout(() => {
+        setShowProgressCard(false);
+      }, 3000);
+    }
+  }, [error, isGenerating]);
 
   const handleCastSpell = (newText: string) => {
     if (magicTextRef.current) {
@@ -357,7 +368,7 @@ export function GenerateClient() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Hero Header */}
-          {!isGenerating && generatedImages.length === 0 && (
+          {!showProgressCard && generatedImages.length === 0 && (
             <div className="text-center space-y-6">
               <div className="relative inline-block">
                 <div className="absolute -inset-1 bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full blur opacity-30 animate-pulse"></div>
@@ -407,154 +418,20 @@ export function GenerateClient() {
           )}
 
           {/* Generation Results / Loading / Queue Status */}
-          {(isGenerating || generatedImages.length > 0) && (
+          {(showProgressCard || generatedImages.length > 0) && (
             <div className="text-center space-y-6">
-              {isGenerating ? (
-                <div className="relative">
-                  <div className="w-full max-w-md mx-auto bg-gradient-to-br from-muted/50 to-muted/30 border-2 border-border rounded-2xl p-6 shadow-lg">
-                    {/* Queue Status */}
-                    {queueStatus && (
-                      <div className="mb-6 space-y-4">
-                        {queueStatus.status === "pending" && (
-                          <div className="flex items-center justify-center gap-3">
-                            <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center">
-                              <Clock className="h-4 w-4 text-white" />
-                            </div>
-                            <div className="text-left">
-                              <h3 className="text-lg font-semibold text-foreground">
-                                Queued for Generation
-                              </h3>
-                              <p className="text-sm text-muted-foreground">
-                                Position #{queueStatus.queuePosition} in queue
-                              </p>
-                            </div>
-                          </div>
-                        )}
-
-                        {queueStatus.status === "processing" && (
-                          <div className="flex items-center justify-center gap-3">
-                            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                              <Zap className="h-4 w-4 text-white animate-pulse" />
-                            </div>
-                            <div className="text-left">
-                              <h3 className="text-lg font-semibold text-foreground">
-                                {isRetrying
-                                  ? "Retrying Generation"
-                                  : "Generating Your Masterpiece"}
-                              </h3>
-                              <p className="text-sm text-muted-foreground">
-                                {isRetrying
-                                  ? `Attempt ${retryCount}/3 - AI is working its magic...`
-                                  : "AI is working its magic..."}
-                              </p>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Retry Status - Show when retrying but not processing yet */}
-                        {isRetrying && queueStatus?.status === "pending" && (
-                          <div className="flex items-center justify-center gap-3">
-                            <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center">
-                              <RotateCcw className="h-4 w-4 text-white animate-spin" />
-                            </div>
-                            <div className="text-left">
-                              <h3 className="text-lg font-semibold text-foreground">
-                                Retrying Generation
-                              </h3>
-                              <p className="text-sm text-muted-foreground">
-                                Attempt {retryCount}/3 - Previous attempt
-                                failed, retrying...
-                              </p>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Progress Bar with Node Information */}
-                        {progress > 0 && maxProgress > 0 && (
-                          <div className="space-y-3">
-                            {/* Current Node Display */}
-                            {currentNode && (
-                              <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                                  <span className="text-sm font-medium text-primary">
-                                    Currently Processing
-                                  </span>
-                                </div>
-                                <div className="mt-1">
-                                  <div className="text-sm font-semibold text-foreground">
-                                    {currentNode}
-                                  </div>
-                                  {nodeState && (
-                                    <div className="text-xs text-muted-foreground capitalize">
-                                      State: {nodeState}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                            
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">
-                                {currentNode ? "Step Progress" : "Progress"}
-                              </span>
-                              <span className="text-foreground font-medium">
-                                {Math.round((progress / maxProgress) * 100)}%
-                                {maxProgress > 1 && (
-                                  <span className="text-muted-foreground ml-1">
-                                    ({progress}/{maxProgress})
-                                  </span>
-                                )}
-                              </span>
-                            </div>
-                            <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
-                              <div
-                                className="bg-gradient-to-r from-primary to-purple-600 h-3 rounded-full transition-all duration-500 ease-out"
-                                style={{
-                                  width: `${(progress / maxProgress) * 100}%`,
-                                }}
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Current Message */}
-                        {currentMessage && (
-                          <p className="text-sm text-muted-foreground">
-                            {currentMessage}
-                          </p>
-                        )}
-
-                        {/* Estimated Wait Time */}
-                        {queueStatus.status === "pending" &&
-                          queueStatus.estimatedWaitTime > 0 && (
-                            <div className="text-xs text-muted-foreground">
-                              Estimated wait: ~
-                              {Math.round(
-                                queueStatus.estimatedWaitTime / 1000 / 60
-                              )}{" "}
-                              minutes
-                            </div>
-                          )}
-                      </div>
-                    )}
-
-                    {/* Error Display */}
-                    {error && (
-                      <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
-                        <div className="flex items-center gap-2 text-destructive">
-                          <AlertCircle className="h-4 w-4" />
-                          <span className="text-sm font-medium">
-                            Generation Failed
-                          </span>
-                        </div>
-                        <p className="text-xs text-destructive/80 mt-1">
-                          {error}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
+              {showProgressCard ? (
+                <GenerationProgressCard
+                  queueStatus={queueStatus}
+                  progress={progress}
+                  maxProgress={maxProgress}
+                  currentMessage={currentMessage}
+                  currentNode={currentNode}
+                  nodeState={nodeState}
+                  retryCount={retryCount}
+                  isRetrying={isRetrying}
+                  error={error}
+                />
               ) : settings.batchCount === 1 ? (
                 <div className="space-y-4">
                   <div className="flex items-center justify-center gap-2 mb-4">
@@ -797,7 +674,8 @@ export function GenerateClient() {
             </div>
           )}
 
-          {/* Advanced Features */}
+          {/* Advanced Features - Rest of the component stays the same */}
+          {/* ... (keeping all the advanced controls sections unchanged) ... */}
           <div className="space-y-6">
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-semibold text-foreground">
@@ -966,12 +844,6 @@ export function GenerateClient() {
                     </Button>
                   ))}
                 </div>
-
-                {/* {settings.batchCount > 1 && (
-                  <p className="text-xs text-muted-foreground mt-3 text-center">
-                    Uses {settings.batchCount} of your generation quota
-                  </p>
-                )} */}
               </div>
             </div>
 
