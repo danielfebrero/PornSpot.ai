@@ -123,12 +123,18 @@ Once subscribed to a queue, clients will receive real-time updates:
   "status": "processing",
   "progressType": "node_progress",
   "progressData": {
+    "nodeId": "3",
+    "displayNodeId": "KSampler",
     "currentNode": "KSampler",
     "value": 15,
     "max": 20,
     "percentage": 75,
-    "message": "Processing KSampler: 75%"
+    "nodeState": "running",
+    "parentNodeId": "2",
+    "realNodeId": "3",
+    "message": "KSampler: 15/20 (75%) - running"
   }
+}
 }
 ```
 

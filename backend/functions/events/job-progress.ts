@@ -1,10 +1,11 @@
 /*
-File objective: Lambda function to handle ComfyUI job progress events from EventBridge
+File objective: Lambda function to handle ComfyUI node progress events from EventBridge
 Auth: Triggered by EventBridge - no direct user auth required
 Special notes:
-- Updates queue entry with progress information
+- Handles "Node Progress Update" events from ComfyUI monitor
+- Updates queue entry with detailed node-level progress information
 - Broadcasts progress updates to connected WebSocket clients
-- Handles real-time progress tracking for frontend
+- Provides real-time progress tracking with enhanced node details
 */
 
 import { EventBridgeEvent, Context } from "aws-lambda";
@@ -14,39 +15,42 @@ import {
 } from "@shared/services/generation-queue";
 import { ApiGatewayManagementApi } from "aws-sdk";
 
-interface JobProgressEventDetail {
+interface NodeProgressEventDetail {
   promptId: string;
-  timestamp: string;
-  executionCached?: {
-    promptId: string;
-    nodes: string[];
-  };
-  executing?: {
-    promptId: string;
-    node: string;
-  };
-  progress?: {
-    promptId: string;
-    node: string;
-    value: number;
-    max: number;
-  };
+  nodeId: string;
+  displayNodeId: string;
+  nodeProgress: number;
+  nodeMaxProgress: number;
+  nodePercentage: number;
+  nodeState: string;
+  parentNodeId?: string;
+  realNodeId?: string;
 }
 
 const queueService = GenerationQueueService.getInstance();
 const WEBSOCKET_ENDPOINT = process.env["WEBSOCKET_API_ENDPOINT"];
 
 export const handler = async (
-  event: EventBridgeEvent<"ComfyUI Job Progress", JobProgressEventDetail>,
+  event: EventBridgeEvent<"Node Progress Update", NodeProgressEventDetail>,
   _context: Context
 ): Promise<void> => {
-  console.log("Received job progress event:", JSON.stringify(event, null, 2));
+  console.log("Received node progress event:", JSON.stringify(event, null, 2));
 
   try {
-    const { promptId, executionCached, executing, progress } = event.detail;
+    const {
+      promptId,
+      nodeId,
+      displayNodeId,
+      nodeProgress,
+      nodeMaxProgress,
+      nodePercentage,
+      nodeState,
+      parentNodeId,
+      realNodeId,
+    } = event.detail;
 
     if (!promptId) {
-      console.error("No prompt ID in job progress event");
+      console.error("No prompt ID in node progress event");
       return;
     }
 
@@ -59,39 +63,22 @@ export const handler = async (
     }
 
     console.log(
-      `Found queue entry ${queueEntry.queueId} for prompt ${promptId}`
+      `Found queue entry ${queueEntry.queueId} for prompt ${promptId} - Node ${displayNodeId} progress: ${nodeProgress}/${nodeMaxProgress} (${nodePercentage}%)`
     );
 
-    // Determine progress information
-    let progressData: any = {};
-    let progressType = "unknown";
-
-    if (executionCached) {
-      progressType = "cached";
-      progressData = {
-        cachedNodes: executionCached.nodes,
-        message: `Cached execution for ${executionCached.nodes.length} nodes`,
-      };
-    } else if (executing) {
-      progressType = "executing";
-      progressData = {
-        currentNode: executing.node,
-        message: `Executing node: ${executing.node}`,
-      };
-    } else if (progress) {
-      progressType = "progress";
-      const percentage =
-        progress.max > 0
-          ? Math.round((progress.value / progress.max) * 100)
-          : 0;
-      progressData = {
-        currentNode: progress.node,
-        value: progress.value,
-        max: progress.max,
-        percentage,
-        message: `Processing ${progress.node}: ${percentage}%`,
-      };
-    }
+    // Prepare detailed progress data
+    const progressData = {
+      nodeId,
+      displayNodeId,
+      currentNode: displayNodeId,
+      value: nodeProgress,
+      max: nodeMaxProgress,
+      percentage: nodePercentage,
+      nodeState,
+      parentNodeId,
+      realNodeId,
+      message: `${displayNodeId}: ${nodeProgress}/${nodeMaxProgress} (${nodePercentage}%) - ${nodeState}`,
+    };
 
     // Update queue entry with progress information
     await queueService.updateQueueEntry(queueEntry.queueId, {
@@ -99,15 +86,15 @@ export const handler = async (
     });
 
     console.log(
-      `Updated progress for queue entry ${queueEntry.queueId}: ${progressType}`
+      `Updated node progress for queue entry ${queueEntry.queueId}: ${displayNodeId} - ${nodePercentage}%`
     );
 
     // Broadcast progress update to connected WebSocket clients
     if (WEBSOCKET_ENDPOINT && queueEntry.connectionId) {
-      await broadcastProgress(queueEntry, progressType, progressData);
+      await broadcastProgress(queueEntry, "node_progress", progressData);
     }
   } catch (error) {
-    console.error("Error handling job progress event:", error);
+    console.error("Error handling node progress event:", error);
     throw error;
   }
 };

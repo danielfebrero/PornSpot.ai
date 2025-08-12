@@ -2210,11 +2210,11 @@ Resources:
     Type: AWS::Events::Rule
     Properties:
       Name: !Sub "${Environment}-job-progress-rule"
-      Description: "Route job progress events to Lambda"
+      Description: "Route node progress events to Lambda"
       EventBusName: !Ref ComfyUIEventBus
       EventPattern:
         source: ["comfyui.monitor"]
-        detail-type: ["Progress Update", "Node Progress Update"]
+        detail-type: ["Node Progress Update"]
       State: ENABLED
       Targets:
         - Arn: !GetAtt JobProgressFunction.Arn
