@@ -90,7 +90,7 @@ export const handler = async (
     // Mark as processing
     await queueService.updateQueueEntry(queueId, {
       status: "processing",
-      startedAt: Date.now(),
+      startedAt: Date.now().toString(),
       retryCount,
     });
 
@@ -206,7 +206,7 @@ export const handler = async (
       // Mark as permanently failed
       await queueService.updateQueueEntry(queueId, {
         status: "failed",
-        completedAt: Date.now(),
+        completedAt: Date.now().toString(),
         errorMessage: comfyError.message,
         errorType: comfyError.type,
       });

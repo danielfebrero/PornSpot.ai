@@ -164,7 +164,7 @@ export const handler = async (
               error instanceof Error
                 ? error.message
                 : "Unknown completion error",
-            completedAt: Date.now(),
+            completedAt: Date.now().toString(),
           });
         }
       } catch (updateError) {
@@ -360,7 +360,7 @@ async function handleJobCompletion(
     await queueService.updateQueueEntry(queueEntry.queueId, {
       status: "completed",
       resultImageUrl: imageUrls[0] || undefined, // Primary image URL
-      completedAt: Date.now(),
+      completedAt: Date.now().toString(),
     });
 
     console.log(

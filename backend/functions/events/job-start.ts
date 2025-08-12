@@ -54,7 +54,7 @@ export const handler = async (
     // Update queue entry status to indicate job has started
     await queueService.updateQueueEntry(queueEntry.queueId, {
       status: "processing",
-      startedAt: Date.now(),
+      startedAt: Date.now().toString(),
     });
 
     console.log(

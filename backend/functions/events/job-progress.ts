@@ -95,7 +95,7 @@ export const handler = async (
 
     // Update queue entry with progress information
     await queueService.updateQueueEntry(queueEntry.queueId, {
-      updatedAt: Date.now(),
+      updatedAt: Date.now().toString(),
     });
 
     console.log(

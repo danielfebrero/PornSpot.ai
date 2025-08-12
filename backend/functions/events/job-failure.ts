@@ -156,7 +156,7 @@ async function handleRetry(
       retryCount: nextRetryCount,
       errorType: error.type,
       lastErrorMessage: error.message,
-      updatedAt: Date.now(),
+      updatedAt: Date.now().toString(),
     });
 
     console.log(
@@ -187,7 +187,7 @@ async function handleFinalFailure(
       status: "failed",
       errorMessage: error.message,
       errorType: error.type,
-      completedAt: Date.now(),
+      completedAt: Date.now().toString(),
     });
 
     console.log(`Updated queue entry ${queueEntry.queueId} status to failed`);

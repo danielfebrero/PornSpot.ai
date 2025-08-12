@@ -4,6 +4,7 @@ import { useState, useCallback, useRef } from "react";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import { WebSocketMessage, GenerationQueueStatus } from "@/types/websocket";
 import { GenerationResponse, GenerationSettings, Media } from "@/types";
+import { generateApi } from "@/lib/api/generate";
 
 interface GenerationRequest extends GenerationSettings {}
 
@@ -177,30 +178,8 @@ export function useGeneration(): UseGenerationReturn {
         setCurrentMessage("Submitting request...");
         setQueueStatus(null);
 
-        // Get API URL from environment
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL || "https://your-api-gateway-url";
+        const result = await generateApi.generate(request);
 
-        console.log("🚀 Submitting generation request:", request);
-
-        const response = await fetch(`${apiUrl}/generation/generate`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include", // Include cookies for authentication
-          body: JSON.stringify(request),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.message ||
-              `HTTP ${response.status}: ${response.statusText}`
-          );
-        }
-
-        const result: GenerationResponse = await response.json();
         console.log("✅ Generation request submitted:", result);
 
         // Store the queue ID for WebSocket subscription

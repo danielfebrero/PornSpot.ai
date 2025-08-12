@@ -148,7 +148,9 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
         wsRef.current.send(
           JSON.stringify({
             action: "subscribe",
-            queueId: queueId,
+            data: {
+              queueId: queueId,
+            },
           })
         );
       }
@@ -165,7 +167,9 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       wsRef.current.send(
         JSON.stringify({
           action: "unsubscribe",
-          queueId: queueId,
+          data: {
+            queueId: queueId,
+          },
         })
       );
     }

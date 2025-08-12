@@ -1,0 +1,267 @@
+# WebSocket API Documentation
+
+## Overview
+
+The PornSpot.ai platform provides real-time updates for generation progress through WebSocket connections. This document outlines the WebSocket message format and subscription patterns.
+
+## Connection
+
+WebSocket connections are managed through AWS API Gateway WebSocket API. Clients connect and authenticate before subscribing to queue updates.
+
+## Message Format
+
+All WebSocket messages follow this structure:
+
+```json
+{
+  "action": "subscribe|unsubscribe|ping",
+  "data": {
+    "queueId": "string"
+  },
+  "requestId": "optional-string"
+}
+```
+
+## Subscription Management
+
+### Subscribe to Queue Updates
+
+Subscribe to receive real-time updates for a specific generation queue:
+
+```json
+{
+  "action": "subscribe",
+  "data": {
+    "queueId": "uuid-of-queue-entry"
+  },
+  "requestId": "optional-request-id"
+}
+```
+
+**Response:**
+
+```json
+{
+  "type": "subscription_confirmed",
+  "queueId": "uuid-of-queue-entry",
+  "requestId": "optional-request-id"
+}
+```
+
+### Unsubscribe from Queue Updates
+
+Stop receiving updates for a specific queue:
+
+```json
+{
+  "action": "unsubscribe",
+  "data": {
+    "queueId": "uuid-of-queue-entry"
+  },
+  "requestId": "optional-request-id"
+}
+```
+
+**Response:**
+
+```json
+{
+  "type": "unsubscription_confirmed",
+  "queueId": "uuid-of-queue-entry",
+  "requestId": "optional-request-id"
+}
+```
+
+### Health Check
+
+Send a ping to maintain connection health:
+
+```json
+{
+  "action": "ping",
+  "requestId": "optional-request-id"
+}
+```
+
+**Response:**
+
+```json
+{
+  "type": "pong",
+  "timestamp": "2025-08-12T10:30:00.000Z",
+  "requestId": "optional-request-id"
+}
+```
+
+## Generation Update Messages
+
+Once subscribed to a queue, clients will receive real-time updates:
+
+### Queue Status Update
+
+```json
+{
+  "type": "queue_update",
+  "queueId": "uuid-of-queue-entry",
+  "queuePosition": 3,
+  "estimatedWaitTime": 120000,
+  "comfyUIQueueRemaining": 5,
+  "timestamp": "2025-08-12T10:30:00.000Z",
+  "status": "pending",
+  "message": "Queue position: 3 (ComfyUI: 5 remaining)"
+}
+```
+
+### Job Progress Update
+
+```json
+{
+  "type": "job_progress",
+  "queueId": "uuid-of-queue-entry",
+  "promptId": "comfyui-prompt-id",
+  "timestamp": "2025-08-12T10:30:00.000Z",
+  "status": "processing",
+  "progressType": "node_progress",
+  "progressData": {
+    "currentNode": "KSampler",
+    "value": 15,
+    "max": 20,
+    "percentage": 75,
+    "message": "Processing KSampler: 75%"
+  }
+}
+```
+
+### Generation Completion
+
+```json
+{
+  "type": "completed",
+  "queueId": "uuid-of-queue-entry",
+  "promptId": "comfyui-prompt-id",
+  "timestamp": "2025-08-12T10:30:00.000Z",
+  "status": "completed",
+  "message": "Generation completed successfully!",
+  "medias": [
+    {
+      "mediaId": "generated-media-id",
+      "url": "relative/path/to/image.jpg",
+      "thumbnails": {
+        "xs": "relative/path/to/thumb_xs.webp",
+        "sm": "relative/path/to/thumb_sm.webp",
+        "md": "relative/path/to/thumb_md.webp",
+        "lg": "relative/path/to/thumb_lg.webp",
+        "xl": "relative/path/to/thumb_xl.webp"
+      }
+    }
+  ]
+}
+```
+
+### Error Messages
+
+```json
+{
+  "type": "error",
+  "error": "Error message description",
+  "requestId": "optional-request-id",
+  "timestamp": "2025-08-12T10:30:00.000Z"
+}
+```
+
+## Implementation Notes
+
+### Queue ID vs Prompt ID
+
+- **Queue ID**: Unique identifier for the generation request in our internal queue system
+- **Prompt ID**: ComfyUI's internal identifier for the submitted prompt
+
+WebSocket subscriptions use **Queue ID** for consistency with the internal generation queue system. The prompt ID is included in updates for reference but should not be used for subscriptions.
+
+### Subscription Storage
+
+Subscriptions are stored in DynamoDB with the following structure:
+
+- **PK**: `SUBSCRIPTION#{queueId}`
+- **SK**: `CONNECTION#{connectionId}`
+- **TTL**: 6 hours automatic cleanup
+
+### Backward Compatibility
+
+The system provides a helper function `broadcastToQueueSubscribersByPromptId()` for existing job handlers that work with ComfyUI prompt IDs. This function:
+
+1. Looks up the queue entry by prompt ID
+2. Retrieves the corresponding queue ID
+3. Broadcasts to all queue subscribers
+
+## Error Handling
+
+### Connection Errors
+
+- Stale connections (410 error) are automatically cleaned up
+- Failed message deliveries are logged but don't stop broadcasting to other subscribers
+
+### Invalid Requests
+
+- Missing `queueId` in subscription requests returns an error
+- Unknown actions are rejected with an error message
+- Connection validation is performed before processing requests
+
+## Usage Examples
+
+### Frontend Integration
+
+```typescript
+// Subscribe to queue updates
+const subscribe = (queueId: string) => {
+  websocket.send(
+    JSON.stringify({
+      action: "subscribe",
+      data: { queueId },
+    })
+  );
+};
+
+// Handle incoming messages
+websocket.onmessage = (event) => {
+  const message = JSON.parse(event.data);
+
+  switch (message.type) {
+    case "queue_update":
+      updateQueuePosition(message.queuePosition);
+      break;
+    case "job_progress":
+      updateProgress(message.progressData);
+      break;
+    case "completed":
+      showResults(message.medias);
+      break;
+    case "error":
+      handleError(message.error);
+      break;
+  }
+};
+```
+
+### Backend Broadcasting
+
+```typescript
+import { broadcastToQueueSubscribers } from "./websocket/route";
+
+// Broadcast update to all subscribers of a queue
+await broadcastToQueueSubscribers(queueId, {
+  type: "queue_update",
+  queuePosition: 2,
+  estimatedWaitTime: 60000,
+});
+```
+
+## Migration from Prompt ID
+
+Previous implementations used `promptId` for subscriptions. The migration involves:
+
+1. **Frontend**: Already updated to use `queueId`
+2. **Backend**: Updated subscription logic to use `queueId`
+3. **Compatibility**: Helper functions maintain compatibility with existing prompt-based handlers
+
+This change improves consistency across the generation system and aligns WebSocket subscriptions with the internal queue management.

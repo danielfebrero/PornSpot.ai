@@ -18,10 +18,10 @@ export interface QueueEntry {
   prompt: string;
   parameters: WorkflowFinalParams;
   priority: number; // Lower number = higher priority (0 = highest)
-  createdAt: number;
-  updatedAt: number;
-  startedAt?: number;
-  completedAt?: number;
+  createdAt: string; // ISO 8601 string to match DynamoDB index type
+  updatedAt: string; // ISO 8601 string for consistency
+  startedAt?: string; // ISO 8601 string for consistency
+  completedAt?: string; // ISO 8601 string for consistency
   estimatedWaitTime?: number;
   queuePosition?: number;
   comfyPromptId?: string;
@@ -30,13 +30,13 @@ export interface QueueEntry {
   errorType?: string; // ComfyUI error type for better debugging
   retryCount?: number; // Number of retry attempts
   lastErrorMessage?: string; // Last error message for retry tracking
-  timeoutAt: number; // TTL timestamp
+  timeoutAt: string; // ISO 8601 string for consistency
 }
 
 export interface QueueStats {
   totalInQueue: number;
   processingCount: number;
-  averageProcessingTime: number;
+  averageProcessingTime: number; // Average processing time per image (not per batch)
   estimatedWaitTime: number;
 }
 
@@ -69,8 +69,9 @@ export class GenerationQueueService {
     priority: number = 1000 // Default priority for regular users
   ): Promise<QueueEntry> {
     const queueId = uuidv4();
-    const now = Date.now();
+    const now = new Date().toISOString();
     const timeoutDuration = 30 * 60 * 1000; // 30 minutes timeout
+    const timeoutAt = new Date(Date.now() + timeoutDuration).toISOString();
 
     const queueEntry: QueueEntry = {
       queueId,
@@ -82,13 +83,18 @@ export class GenerationQueueService {
       priority,
       createdAt: now,
       updatedAt: now,
-      timeoutAt: now + timeoutDuration,
+      timeoutAt,
     };
 
     // Calculate queue position and estimated wait time
     const stats = await this.getQueueStats();
     queueEntry.queuePosition = stats.totalInQueue + 1;
-    queueEntry.estimatedWaitTime = stats.estimatedWaitTime;
+
+    // For initial estimate, we'll use a simplified calculation
+    // The actual wait time will be more accurate when updateQueuePositions() is called
+    const currentBatchSize = parameters.batch_size || 1;
+    queueEntry.estimatedWaitTime =
+      stats.totalInQueue * stats.averageProcessingTime * currentBatchSize;
 
     await this.dynamoDB.send(
       new PutCommand({
@@ -99,7 +105,7 @@ export class GenerationQueueService {
           GSI1PK: `QUEUE#STATUS#${queueEntry.status}`,
           GSI1SK: `PRIORITY#${priority.toString().padStart(10, "0")}#${now}`,
           ...queueEntry,
-          TTL: Math.floor(queueEntry.timeoutAt / 1000), // DynamoDB TTL in seconds
+          TTL: Math.floor(new Date(queueEntry.timeoutAt).getTime() / 1000), // DynamoDB TTL in seconds
         },
       })
     );
@@ -138,7 +144,7 @@ export class GenerationQueueService {
     queueId: string,
     updates: Partial<QueueEntry>
   ): Promise<void> {
-    const now = Date.now();
+    const now = new Date().toISOString();
     updates.updatedAt = now;
 
     // Build update expression dynamically
@@ -217,6 +223,11 @@ export class GenerationQueueService {
 
   /**
    * Get queue statistics
+   *
+   * This method calculates batch-aware processing times by:
+   * - Analyzing recent completed generations
+   * - Dividing total processing time by batch size to get per-image processing time
+   * - Providing more accurate wait time estimates based on actual image generation counts
    */
   async getQueueStats(): Promise<QueueStats> {
     // Get pending count
@@ -246,8 +257,8 @@ export class GenerationQueueService {
     );
 
     // Get recently completed items to calculate average processing time
-    const now = Date.now();
-    const oneHourAgo = now - 60 * 60 * 1000;
+    const now = new Date();
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000).toISOString();
 
     const completedResult = await this.dynamoDB.send(
       new QueryCommand({
@@ -270,11 +281,18 @@ export class GenerationQueueService {
     let averageProcessingTime = 120000; // Default 2 minutes
     if (completedResult.Items && completedResult.Items.length > 0) {
       const processingTimes = completedResult.Items.filter(
-        (item) => item["startedAt"] && item["completedAt"]
-      ).map(
-        (item) =>
-          (item["completedAt"] as number) - (item["startedAt"] as number)
-      );
+        (item) => item["startedAt"] && item["completedAt"] && item["parameters"]
+      ).map((item) => {
+        const startedAt = new Date(item["startedAt"] as string).getTime();
+        const completedAt = new Date(item["completedAt"] as string).getTime();
+        const totalProcessingTime = completedAt - startedAt;
+
+        // Get batch size from parameters to calculate per-image processing time
+        const batchSize = (item["parameters"] as any)?.batch_size || 1;
+        const perImageProcessingTime = totalProcessingTime / batchSize;
+
+        return perImageProcessingTime;
+      });
 
       if (processingTimes.length > 0) {
         averageProcessingTime =
@@ -283,6 +301,8 @@ export class GenerationQueueService {
     }
 
     // Estimate wait time based on queue position and processing time
+    // For a more accurate estimate, we should consider the batch sizes of items ahead in queue
+    // However, for simplicity, we'll use the total queue count multiplied by average processing time
     const estimatedWaitTime = totalInQueue * averageProcessingTime;
 
     return {
@@ -339,6 +359,11 @@ export class GenerationQueueService {
 
   /**
    * Update queue positions for all pending entries
+   *
+   * This method provides accurate wait time estimates by:
+   * - Considering the batch size of each item ahead in the queue
+   * - Calculating cumulative image count for more precise time estimates
+   * - Accounting for the fact that 8-image batches take ~8x longer than 1-image batches
    */
   async updateQueuePositions(): Promise<void> {
     const pendingResult = await this.dynamoDB.send(
@@ -359,16 +384,25 @@ export class GenerationQueueService {
 
     const stats = await this.getQueueStats();
 
-    // Update positions for all pending items
+    // Update positions for all pending items with more accurate wait time estimation
+    let cumulativeImageCount = 0;
+
     for (let i = 0; i < pendingResult.Items.length; i++) {
       const item = pendingResult.Items[i] as QueueEntry;
       const position = i + 1;
-      const estimatedWaitTime = position * stats.averageProcessingTime;
+
+      // Calculate estimated wait time based on cumulative image count ahead in queue
+      const batchSize = item.parameters?.batch_size || 1;
+      const estimatedWaitTime =
+        cumulativeImageCount * stats.averageProcessingTime;
 
       await this.updateQueueEntry(item.queueId, {
         queuePosition: position,
         estimatedWaitTime,
       });
+
+      // Add this item's batch size to cumulative count for next items
+      cumulativeImageCount += batchSize;
     }
   }
 
@@ -399,7 +433,7 @@ export class GenerationQueueService {
    * Clean up timed out entries
    */
   async cleanupTimeoutEntries(): Promise<void> {
-    const now = Date.now();
+    const now = new Date().toISOString();
 
     // Find processing entries that have timed out
     const processingResult = await this.dynamoDB.send(

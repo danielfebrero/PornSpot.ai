@@ -3,7 +3,7 @@ File objective: Handle WebSocket message routing and subscription management
 Auth: Connection-based (validates connection exists)
 Special notes:
 - Routes different message types (subscribe, unsubscribe, etc.)
-- Manages subscriptions to generation updates
+- Manages subscriptions to generation updates by queueId
 - Sends responses back through WebSocket connection
 */
 
@@ -21,6 +21,7 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { GenerationQueueService } from "@shared/services/generation-queue";
 
 interface WebSocketMessage {
   action: string;
@@ -29,13 +30,13 @@ interface WebSocketMessage {
 }
 
 interface SubscriptionEntity {
-  PK: string; // SUBSCRIPTION#{promptId}
+  PK: string; // SUBSCRIPTION#{queueId}
   SK: string; // CONNECTION#{connectionId}
   GSI1PK: string; // CONNECTION_SUBSCRIPTIONS
-  GSI1SK: string; // {connectionId}#{promptId}
+  GSI1SK: string; // {connectionId}#{queueId}
   EntityType: "WebSocketSubscription";
   connectionId: string;
-  promptId: string;
+  queueId: string;
   userId?: string;
   subscribedAt: string;
   ttl: number; // TTL for automatic cleanup
@@ -57,6 +58,7 @@ if (isLocal) {
 const dynamoClient = new DynamoDBClient(clientConfig);
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
 const TABLE_NAME = process.env["DYNAMODB_TABLE"]!;
+const queueService = GenerationQueueService.getInstance();
 
 // Initialize API Gateway Management API client
 const apiGatewayClient = new ApiGatewayManagementApiClient({
@@ -138,12 +140,12 @@ async function handleSubscribe(
   message: WebSocketMessage
 ): Promise<void> {
   try {
-    const { promptId, userId } = message.data || {};
+    const { queueId } = message.data || {};
 
-    if (!promptId) {
+    if (!queueId) {
       await sendErrorToConnection(
         connectionId,
-        "promptId is required for subscription",
+        "queueId is required for subscription",
         message.requestId
       );
       return;
@@ -175,14 +177,14 @@ async function handleSubscribe(
 
     // Create subscription entity
     const subscriptionEntity: SubscriptionEntity = {
-      PK: `SUBSCRIPTION#${promptId}`,
+      PK: `SUBSCRIPTION#${queueId}`,
       SK: `CONNECTION#${connectionId}`,
       GSI1PK: "CONNECTION_SUBSCRIPTIONS",
-      GSI1SK: `${connectionId}#${promptId}`,
+      GSI1SK: `${connectionId}#${queueId}`,
       EntityType: "WebSocketSubscription",
       connectionId,
-      promptId,
-      userId: userId || getConnectionResult.Item["userId"],
+      queueId,
+      userId: getConnectionResult.Item["userId"],
       subscribedAt: nowString,
       ttl,
     };
@@ -198,13 +200,11 @@ async function handleSubscribe(
     // Send confirmation
     await sendMessageToConnection(connectionId, {
       type: "subscription_confirmed",
-      promptId,
+      queueId,
       requestId: message.requestId,
     });
 
-    console.log(
-      `✅ Subscribed connection ${connectionId} to prompt ${promptId}`
-    );
+    console.log(`✅ Subscribed connection ${connectionId} to queue ${queueId}`);
   } catch (error) {
     console.error(`❌ Subscribe error for ${connectionId}:`, error);
     await sendErrorToConnection(
@@ -223,12 +223,12 @@ async function handleUnsubscribe(
   message: WebSocketMessage
 ): Promise<void> {
   try {
-    const { promptId } = message.data || {};
+    const { queueId } = message.data || {};
 
-    if (!promptId) {
+    if (!queueId) {
       await sendErrorToConnection(
         connectionId,
-        "promptId is required for unsubscription",
+        "queueId is required for unsubscription",
         message.requestId
       );
       return;
@@ -239,7 +239,7 @@ async function handleUnsubscribe(
       new DeleteCommand({
         TableName: TABLE_NAME,
         Key: {
-          PK: `SUBSCRIPTION#${promptId}`,
+          PK: `SUBSCRIPTION#${queueId}`,
           SK: `CONNECTION#${connectionId}`,
         },
       })
@@ -248,12 +248,12 @@ async function handleUnsubscribe(
     // Send confirmation
     await sendMessageToConnection(connectionId, {
       type: "unsubscription_confirmed",
-      promptId,
+      queueId,
       requestId: message.requestId,
     });
 
     console.log(
-      `✅ Unsubscribed connection ${connectionId} from prompt ${promptId}`
+      `✅ Unsubscribed connection ${connectionId} from queue ${queueId}`
     );
   } catch (error) {
     console.error(`❌ Unsubscribe error for ${connectionId}:`, error);
@@ -366,26 +366,26 @@ async function sendErrorToConnection(
 }
 
 /**
- * Broadcast a message to all subscribers of a prompt
+ * Broadcast a message to all subscribers of a queue
  */
-export async function broadcastToPromptSubscribers(
-  promptId: string,
+export async function broadcastToQueueSubscribers(
+  queueId: string,
   data: any
 ): Promise<void> {
   try {
-    // Get all subscribers for this prompt
+    // Get all subscribers for this queue
     const queryResult = await docClient.send(
       new QueryCommand({
         TableName: TABLE_NAME,
         KeyConditionExpression: "PK = :pk",
         ExpressionAttributeValues: {
-          ":pk": `SUBSCRIPTION#${promptId}`,
+          ":pk": `SUBSCRIPTION#${queueId}`,
         },
       })
     );
 
     if (!queryResult.Items || queryResult.Items.length === 0) {
-      console.log(`📭 No subscribers found for prompt ${promptId}`);
+      console.log(`📭 No subscribers found for queue ${queueId}`);
       return;
     }
 
@@ -394,7 +394,7 @@ export async function broadcastToPromptSubscribers(
       try {
         await sendMessageToConnection(subscription.connectionId, {
           type: "generation_update",
-          promptId,
+          queueId,
           data,
           timestamp: new Date().toISOString(),
         });
@@ -408,10 +408,38 @@ export async function broadcastToPromptSubscribers(
 
     await Promise.allSettled(sendPromises);
     console.log(
-      `📢 Broadcast message to ${queryResult.Items.length} subscribers of prompt ${promptId}`
+      `📢 Broadcast message to ${queryResult.Items.length} subscribers of queue ${queueId}`
     );
   } catch (error) {
-    console.error(`❌ Failed to broadcast to prompt ${promptId}:`, error);
+    console.error(`❌ Failed to broadcast to queue ${queueId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Broadcast a message to all subscribers of a queue by looking up the queue from ComfyUI prompt ID
+ * This is a helper function for compatibility with existing job handlers that use promptId
+ */
+export async function broadcastToQueueSubscribersByPromptId(
+  promptId: string,
+  data: any
+): Promise<void> {
+  try {
+    // Find the queue entry by ComfyUI prompt ID
+    const queueEntry = await queueService.findQueueEntryByPromptId(promptId);
+
+    if (!queueEntry) {
+      console.warn(`No queue entry found for prompt ID: ${promptId}`);
+      return;
+    }
+
+    // Use the found queueId to broadcast to subscribers
+    await broadcastToQueueSubscribers(queueEntry.queueId, data);
+  } catch (error) {
+    console.error(
+      `❌ Failed to broadcast to queue subscribers by prompt ID ${promptId}:`,
+      error
+    );
     throw error;
   }
 }
