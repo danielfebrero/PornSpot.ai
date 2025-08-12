@@ -10,7 +10,7 @@ region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 parameter_overrides = "Environment=dev"
-image_repositories = []
+resolve_image_repos = true
 
 [default.build]
 [default.build.parameters]
@@ -51,6 +51,7 @@ region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 parameter_overrides = "Environment=dev"
+resolve_image_repos = true
 
 [dev.deploy]
 [dev.deploy.parameters]
@@ -69,6 +70,7 @@ region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 parameter_overrides = "Environment=staging"
+resolve_image_repos = true
 
 [staging.deploy]
 [staging.deploy.parameters]
@@ -87,6 +89,7 @@ region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 parameter_overrides = "Environment=prod"
+resolve_image_repos = true
 
 [prod.deploy]
 [prod.deploy.parameters]

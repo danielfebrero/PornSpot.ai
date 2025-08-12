@@ -63,13 +63,6 @@ export interface UsernameAvailabilityResponse {
   error?: string;
 }
 
-export interface UsernameAvailabilityResponse {
-  success: boolean;
-  available: boolean;
-  message?: string;
-  error?: string;
-}
-
 // Google OAuth Types
 export interface GoogleOAuthUserInfo {
   googleId: string;
@@ -97,6 +90,14 @@ export interface GoogleTokenResponse {
   token_type: string;
   scope: string;
   refresh_token?: string;
+}
+
+export interface GoogleTokenInfoResponse {
+  audience: string;
+  user_id: string;
+  scope: string;
+  expires_in: number;
+  access_type?: string;
 }
 
 // User profile insights/metrics types

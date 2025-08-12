@@ -5,7 +5,11 @@ import { ResponseUtil } from "@shared/utils/response";
 import { OAuthUserUtil } from "@shared/utils/oauth-user";
 import { ParameterStoreService } from "@shared/utils/parameters";
 import { SessionUtil } from "@shared/utils/session";
-import { GoogleTokenResponse, GoogleOAuthUserInfo } from "@shared";
+import {
+  GoogleTokenResponse,
+  GoogleOAuthUserInfo,
+  GoogleTokenInfoResponse,
+} from "@shared";
 import { ValidationUtil } from "@shared/utils/validation";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 
@@ -201,7 +205,7 @@ export const validateGoogleAccessToken = async (
       return false;
     }
 
-    const tokenInfo = await response.json();
+    const tokenInfo = (await response.json()) as GoogleTokenInfoResponse;
 
     // Verify the token is for our application
     return tokenInfo.audience === GOOGLE_CLIENT_ID;

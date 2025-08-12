@@ -19,8 +19,9 @@ Parameters:
 Globals:
   Function:
     Timeout: 30
-    Runtime: nodejs20.x
     MemorySize: 256
+    Architectures:
+      - x86_64
     Environment:
       Variables:
         ENVIRONMENT: !Ref Environment
@@ -214,50 +215,17 @@ Resources:
               StringEquals:
                 AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
 
-  # Container image repository for Lambda functions (replaces layers)
-  LambdaContainerImage:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: !Sub "${Environment}-pornspot-lambda"
-      ImageScanningConfiguration:
-        ScanOnPush: true
-      LifecyclePolicy:
-        LifecyclePolicyText: |
-          {
-            "rules": [
-              {
-                "rulePriority": 1,
-                "selection": {
-                  "tagStatus": "untagged",
-                  "countType": "sinceImagePushed",
-                  "countUnit": "days",
-                  "countNumber": 7
-                },
-                "action": {
-                  "type": "expire"
-                }
-              },
-              {
-                "rulePriority": 2,
-                "selection": {
-                  "tagStatus": "tagged",
-                  "countType": "imageCountMoreThan",
-                  "countNumber": 10
-                },
-                "action": {
-                  "type": "expire"
-                }
-              }
-            ]
-          }
-
   # Authorizer Functions - Container-based approach
   UserAuthorizerFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-authorizer"
+      FunctionName: !Sub "${Environment}-pornspot-user-authorizer-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/auth/authorizer.handler"]
       Policies:
@@ -268,10 +236,14 @@ Resources:
 
   AdminAuthorizerFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-admin-authorizer"
+      FunctionName: !Sub "${Environment}-pornspot-admin-authorizer-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/admin/auth/authorizer.handler"]
       Policies:
@@ -283,10 +255,14 @@ Resources:
   # Moderator authorizer - allows admin and moderator roles
   ModeratorAuthorizerFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-moderator-authorizer"
+      FunctionName: !Sub "${Environment}-pornspot-moderator-authorizer-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/moderator/auth/authorizer.handler"]
       Policies:
@@ -344,10 +320,14 @@ Resources:
   # WebSocket Lambda Functions
   WebSocketConnectFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-websocket-connect"
+      FunctionName: !Sub "${Environment}-pornspot-websocket-connect-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/websocket/connect.handler"]
       Policies:
@@ -358,10 +338,14 @@ Resources:
 
   WebSocketDisconnectFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-websocket-disconnect"
+      FunctionName: !Sub "${Environment}-pornspot-websocket-disconnect-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/websocket/disconnect.handler"]
       Policies:
@@ -372,10 +356,14 @@ Resources:
 
   WebSocketRouteFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-websocket-route"
+      FunctionName: !Sub "${Environment}-pornspot-websocket-route-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/websocket/route.handler"]
       Environment:
@@ -464,10 +452,14 @@ Resources:
   # Lambda Functions
   GetAlbumsFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-get-albums"
+      FunctionName: !Sub "${Environment}-pornspot-get-albums-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/albums/get.handler"]
       Events:
@@ -485,10 +477,14 @@ Resources:
 
   CreateAlbumFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-create-album"
+      FunctionName: !Sub "${Environment}-pornspot-create-album-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/albums/create.handler"]
       Events:
@@ -523,10 +519,14 @@ Resources:
 
   GetAlbumFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-get-album"
+      FunctionName: !Sub "${Environment}-pornspot-get-album-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/albums/getById.handler"]
       Events:
@@ -544,10 +544,14 @@ Resources:
 
   UpdateAlbumFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-update-album"
+      FunctionName: !Sub "${Environment}-pornspot-update-album-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/albums/update.handler"]
       MemorySize: 1024
@@ -588,10 +592,14 @@ Resources:
 
   DeleteAlbumFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-delete-album"
+      FunctionName: !Sub "${Environment}-pornspot-delete-album-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/albums/delete.handler"]
       Events:
@@ -623,10 +631,14 @@ Resources:
 
   UploadMediaFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-upload-media"
+      FunctionName: !Sub "${Environment}-pornspot-upload-media-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/media/add.handler"]
       Events:
@@ -656,10 +668,14 @@ Resources:
 
   GetMediaFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-get-media"
+      FunctionName: !Sub "${Environment}-pornspot-get-media-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/media/get.handler"]
       Events:
@@ -677,10 +693,14 @@ Resources:
 
   GetMediaByIdFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-get-media-by-id"
+      FunctionName: !Sub "${Environment}-pornspot-get-media-by-id-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/media/get-by-id.handler"]
       Events:
@@ -698,10 +718,14 @@ Resources:
 
   RemoveMediaFromAlbumFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-remove-media-from-album"
+      FunctionName: !Sub "${Environment}-pornspot-remove-media-from-album-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/media/remove.handler"]
       Events:
@@ -736,10 +760,14 @@ Resources:
 
   DeleteMediaFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-delete-media"
+      FunctionName: !Sub "${Environment}-pornspot-delete-media-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/media/delete.handler"]
       Events:
@@ -781,10 +809,14 @@ Resources:
 
   BulkRemoveMediaFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-bulk-remove-media"
+      FunctionName: !Sub "${Environment}-pornspot-bulk-remove-media-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/media/bulk-remove.handler"]
       Timeout: 300 # 5 minutes for bulk operations
@@ -821,10 +853,14 @@ Resources:
 
   GetAllMediaFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-get-all-media"
+      FunctionName: !Sub "${Environment}-pornspot-get-all-media-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/media/get-all.handler"]
       Timeout: 60
@@ -844,10 +880,14 @@ Resources:
 
   UserMediaListFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-media-list"
+      FunctionName: !Sub "${Environment}-pornspot-user-media-list-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/media/list.handler"]
       Events:
@@ -873,10 +913,14 @@ Resources:
 
   ProcessUploadFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-process-upload"
+      FunctionName: !Sub "${Environment}-pornspot-process-upload-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/media/process-upload.handler"]
       MemorySize: 1024
@@ -943,7 +987,7 @@ Resources:
       BucketName: !Sub "${Environment}-pornspot-media-${AWS::AccountId}"
       FunctionArn: !GetAtt ProcessUploadFunction.Arn
       # Force update by changing this timestamp when needed
-      Version: "2025-08-03-003"
+      Version: "2025-08-11"
       # Ensure permission exists before configuring notification
       LambdaPermissionId: !Ref ProcessUploadFunctionS3Permission
     DependsOn:
@@ -952,10 +996,14 @@ Resources:
   # Configuration API Functions
   GetPermissionsConfigFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-get-permissions-config"
+      FunctionName: !Sub "${Environment}-pornspot-get-permissions-config-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/config/permissions.handler"]
       Events:
@@ -979,10 +1027,14 @@ Resources:
   # Admin Authentication Functions
   AdminLoginFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-admin-login"
+      FunctionName: !Sub "${Environment}-pornspot-admin-login-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/admin/auth/login.handler"]
       Events:
@@ -1010,10 +1062,14 @@ Resources:
 
   CheckUsernameFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-check-username"
+      FunctionName: !Sub "${Environment}-pornspot-check-username-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/auth/check-username.handler"]
       Events:
@@ -1039,10 +1095,14 @@ Resources:
 
   AdminLogoutFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-admin-logout"
+      FunctionName: !Sub "${Environment}-pornspot-admin-logout-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/admin/auth/logout.handler"]
       Events:
@@ -1075,10 +1135,14 @@ Resources:
 
   AdminMeFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-admin-me"
+      FunctionName: !Sub "${Environment}-pornspot-admin-me-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/admin/auth/me.handler"]
       Events:
@@ -1095,10 +1159,14 @@ Resources:
             TableName: !Ref MediaTable
   UserLoginFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-login"
+      FunctionName: !Sub "${Environment}-pornspot-user-login-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/auth/login.handler"]
       Events:
@@ -1126,10 +1194,14 @@ Resources:
   # Admin Album Management Functions
   AdminUpdateAlbumFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-admin-update-album"
+      FunctionName: !Sub "${Environment}-pornspot-admin-update-album-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/admin/albums/update.handler"]
       MemorySize: 1024
@@ -1170,10 +1242,14 @@ Resources:
 
   AdminDeleteAlbumFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-admin-delete-album"
+      FunctionName: !Sub "${Environment}-pornspot-admin-delete-album-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/admin/albums/delete.handler"]
       Events:
@@ -1209,10 +1285,14 @@ Resources:
 
   AdminBulkDeleteAlbumsFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-admin-bulk-delete-albums"
+      FunctionName: !Sub "${Environment}-pornspot-admin-bulk-delete-albums-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/admin/albums/bulk-delete.handler"]
       Timeout: 300 # 5 minutes for bulk operations
@@ -1257,10 +1337,14 @@ Resources:
 
   AdminListAlbumsFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-admin-list-albums"
+      FunctionName: !Sub "${Environment}-pornspot-admin-list-albums-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/admin/albums/list.handler"]
       Events:
@@ -1286,10 +1370,14 @@ Resources:
 
   AdminDeleteMediaFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-admin-delete-media"
+      FunctionName: !Sub "${Environment}-pornspot-admin-delete-media-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/admin/media/delete.handler"]
       Events:
@@ -1340,10 +1428,14 @@ Resources:
 
   AdminStatsFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-admin-stats"
+      FunctionName: !Sub "${Environment}-pornspot-admin-stats-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/admin/stats.handler"]
       Events:
@@ -1372,10 +1464,14 @@ Resources:
   # User Authentication Functions
   UserRegisterFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-register"
+      FunctionName: !Sub "${Environment}-pornspot-user-register-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/auth/register.handler"]
       Events:
@@ -1410,10 +1506,14 @@ Resources:
 
   UserLogoutFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-logout"
+      FunctionName: !Sub "${Environment}-pornspot-user-logout-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/auth/logout.handler"]
       Events:
@@ -1446,10 +1546,14 @@ Resources:
 
   UserMeFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-me"
+      FunctionName: !Sub "${Environment}-pornspot-user-me-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/auth/me.handler"]
       Events:
@@ -1475,10 +1579,14 @@ Resources:
 
   UserProfileEditFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-profile-edit"
+      FunctionName: !Sub "${Environment}-pornspot-user-profile-edit-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/profile/edit.handler"]
       Events:
@@ -1506,10 +1614,14 @@ Resources:
 
   UserProfileGetFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-profile-get"
+      FunctionName: !Sub "${Environment}-pornspot-user-profile-get-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/profile/get.handler"]
       Events:
@@ -1537,10 +1649,14 @@ Resources:
 
   UserAvatarUploadFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-avatar-upload"
+      FunctionName: !Sub "${Environment}-pornspot-user-avatar-upload-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/profile/avatar/upload.handler"]
       Events:
@@ -1575,10 +1691,14 @@ Resources:
 
   UserChangePasswordFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-change-password"
+      FunctionName: !Sub "${Environment}-pornspot-user-change-password-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/auth/change-password.handler"]
       Events:
@@ -1606,10 +1726,14 @@ Resources:
 
   UserDeleteAccountFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-delete-account"
+      FunctionName: !Sub "${Environment}-pornspot-user-delete-account-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/account/delete.handler"]
       Events:
@@ -1637,10 +1761,14 @@ Resources:
 
   UserCancelSubscriptionFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-cancel-subscription"
+      FunctionName: !Sub "${Environment}-pornspot-user-cancel-subscription-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/subscription/cancel.handler"]
       Events:
@@ -1668,10 +1796,14 @@ Resources:
 
   UserVerifyEmailFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-verify-email"
+      FunctionName: !Sub "${Environment}-pornspot-user-verify-email-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/auth/verify-email.handler"]
       Events:
@@ -1707,10 +1839,14 @@ Resources:
 
   UserResendVerificationFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-resend-verification"
+      FunctionName: !Sub "${Environment}-pornspot-user-resend-verification-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/auth/resend-verification.handler"]
       Events:
@@ -1745,15 +1881,16 @@ Resources:
 
   UserOAuthGoogleFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-oauth-google"
+      FunctionName: !Sub "${Environment}-pornspot-user-oauth-google-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/auth/oauth-google.handler"]
-      Handler: oauth-google.handler
-      Layers:
-        - !Ref SharedLayer
       Events:
         PostOAuthCallback:
           Type: Api
@@ -1796,10 +1933,14 @@ Resources:
   # User Interaction Functions
   UserLikeFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-like"
+      FunctionName: !Sub "${Environment}-pornspot-user-like-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/interactions/like.handler"]
       Events:
@@ -1832,10 +1973,14 @@ Resources:
 
   UserBookmarkFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-bookmark"
+      FunctionName: !Sub "${Environment}-pornspot-user-bookmark-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/interactions/bookmark.handler"]
       Events:
@@ -1868,10 +2013,14 @@ Resources:
 
   UserViewFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-view"
+      FunctionName: !Sub "${Environment}-pornspot-user-view-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/interactions/view.handler"]
       Events:
@@ -1899,10 +2048,14 @@ Resources:
 
   UserGetLikesFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-get-likes"
+      FunctionName: !Sub "${Environment}-pornspot-user-get-likes-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/interactions/get-likes.handler"]
       Events:
@@ -1928,10 +2081,14 @@ Resources:
 
   UserGetBookmarksFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-get-bookmarks"
+      FunctionName: !Sub "${Environment}-pornspot-user-get-bookmarks-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/interactions/get-bookmarks.handler"]
       Events:
@@ -1957,10 +2114,14 @@ Resources:
 
   UserGetInteractionStatusFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-get-interaction-status"
+      FunctionName: !Sub "${Environment}-pornspot-user-get-interaction-status-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/interactions/get-interaction-status.handler"]
       Events:
@@ -1987,10 +2148,14 @@ Resources:
   # View Count Functions
   ContentGetViewCountFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-content-get-view-count"
+      FunctionName: !Sub "${Environment}-pornspot-content-get-view-count-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/content/get-view-count.handler"]
       Events:
@@ -2017,10 +2182,14 @@ Resources:
   # Comment Functions
   UserCommentFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-comment"
+      FunctionName: !Sub "${Environment}-pornspot-user-comment-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/interactions/comment.handler"]
       Events:
@@ -2084,10 +2253,14 @@ Resources:
 
   TargetGetCommentsFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-target-get-comments"
+      FunctionName: !Sub "${Environment}-pornspot-target-get-comments-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/interactions/get-comments.handler"]
       Events:
@@ -2113,10 +2286,14 @@ Resources:
 
   UserGetCommentsFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-user-get-comments"
+      FunctionName: !Sub "${Environment}-pornspot-user-get-comments-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/user/interactions/get-comments.handler"]
       Events:
@@ -2143,10 +2320,14 @@ Resources:
   # AI Generation Functions
   GenerationCreateFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-generation-create"
+      FunctionName: !Sub "${Environment}-pornspot-generation-create-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/generation/generate.handler"]
       Environment:
@@ -2307,10 +2488,14 @@ Resources:
   # Event-Driven Lambda Functions for ComfyUI Processing
   QueueItemSubmitFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-queue-item-submit"
+      FunctionName: !Sub "${Environment}-pornspot-queue-item-submit-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/events/queue-item-submit.handler"]
       Timeout: 300 # 5 minutes
@@ -2331,10 +2516,14 @@ Resources:
 
   JobStartFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-job-start"
+      FunctionName: !Sub "${Environment}-pornspot-job-start-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/events/job-start.handler"]
       Timeout: 60
@@ -2354,10 +2543,14 @@ Resources:
 
   JobProgressFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-job-progress"
+      FunctionName: !Sub "${Environment}-pornspot-job-progress-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/events/job-progress.handler"]
       Timeout: 60
@@ -2377,10 +2570,14 @@ Resources:
 
   JobCompletionFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-job-completion"
+      FunctionName: !Sub "${Environment}-pornspot-job-completion-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/events/job-completion.handler"]
       Timeout: 600 # 10 minutes for image download/upload
@@ -2407,10 +2604,14 @@ Resources:
 
   JobFailureFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-job-failure"
+      FunctionName: !Sub "${Environment}-pornspot-job-failure-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/events/job-failure.handler"]
       Timeout: 120
@@ -2435,10 +2636,14 @@ Resources:
 
   JobQueueFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: docker
+      DockerContext: backend/
+      Dockerfile: Dockerfile
+      DockerTag: latest
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-job-queue"
+      FunctionName: !Sub "${Environment}-pornspot-job-queue-v2"
       PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImage}:latest"
       ImageConfig:
         Command: ["functions/events/job-queue.handler"]
       Timeout: 60

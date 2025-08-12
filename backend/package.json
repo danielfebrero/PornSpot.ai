@@ -4,14 +4,10 @@
   "description": "Backend Lambda functions for pornspot.ai gallery",
   "main": "index.js",
   "scripts": {
-    "build": "cd ../ && npm run copy:shared-types && cd backend && npm run build:typescript",
-    "build:typescript": "tsc",
+    "build": "tsc && tsc-alias",
     "build:watch": "tsc --watch",
-    "build:docker": "./build-docker-lambdas.sh",
-    "build:containers": "npm run build:typescript && npm run build:docker",
-    "copy:templates": "node -e \"const fs=require('fs'); const path=require('path'); function copyRecursiveSync(src, dest) { const exists = fs.existsSync(src); const stats = exists && fs.statSync(src); const isDirectory = exists && stats.isDirectory(); if (isDirectory) { if (!fs.existsSync(dest)) fs.mkdirSync(dest, {recursive: true}); } else { const destDir = path.dirname(dest); if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, {recursive: true}); } if (isDirectory) { fs.readdirSync(src).forEach(childItemName => { copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName)); }); } else { fs.copyFileSync(src, dest); } } copyRecursiveSync('shared/email_templates', 'dist/shared/email_templates'); copyRecursiveSync('shared/shared-types', 'dist/shared/shared-types');\"",
-    "build:sam": "npm run build:containers && cd .. && sam build",
-    "deploy:prod": "npm run build:containers && cd .. && sam build && sam deploy --config-env prod",
+    "build:sam": "npm run build && cd .. && sam build",
+    "deploy:prod": "npm run build && cd .. && sam build && sam deploy --config-env prod",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -61,6 +57,7 @@
     "eslint": "^8.53.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.2.2"
   },
   "keywords": [

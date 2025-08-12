@@ -33,7 +33,7 @@ AWS_REGION=${AWS_REGION:-us-east-1}
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 ENVIRONMENT=${ENVIRONMENT:-dev}
-IMAGE_NAME="pornspot-ai-lambda"
+IMAGE_NAME="${ENVIRONMENT}-pornspot-lambda"
 IMAGE_TAG="${ENVIRONMENT}-$(date +%Y%m%d-%H%M%S)"
 
 print_status "Building Lambda container images..."
@@ -48,8 +48,8 @@ aws ecr describe-repositories --repository-names "$IMAGE_NAME" --region "$AWS_RE
 }
 
 # Build the Docker image
-print_status "Building Docker image..."
-if docker build -t "$IMAGE_NAME:$IMAGE_TAG" -t "$IMAGE_NAME:latest" .; then
+print_status "Building Docker image for x86_64 architecture..."
+if docker buildx build --platform linux/amd64 -t "$IMAGE_NAME:$IMAGE_TAG" -t "$IMAGE_NAME:latest" --load .; then
     print_success "Docker image built successfully"
 else
     print_error "Failed to build Docker image"
