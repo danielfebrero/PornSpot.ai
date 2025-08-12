@@ -102,6 +102,46 @@ pornspot.ai is built using a modern serverless architecture that provides scalab
   - `/albums` - Album management
   - `/albums/{albumId}/media` - Media management
 
+### ComfyUI Integration (Event-Driven Architecture)
+
+The platform integrates with ComfyUI for AI image generation using an event-driven serverless architecture:
+
+#### Architecture Flow
+
+```text
+ComfyUI Monitor (Python) → EventBridge → Lambda Functions → DynamoDB/WebSocket
+```
+
+#### Integration Components
+
+**ComfyUI Monitor**:
+
+- Python script that connects to ComfyUI WebSocket API
+- Generates unique `client_id` on startup
+- Publishes initialization event to EventBridge
+
+**Monitor Initialization Flow**:
+
+1. Monitor starts and generates UUID `client_id`
+2. Publishes "Monitor Initialized" event with `client_id` to EventBridge
+3. `comfyui-monitor-init` Lambda stores `client_id` in DynamoDB (`SYSTEM#COMFYUI_MONITOR`)
+4. Backend can now retrieve stored `client_id` for prompt submissions
+
+**Generation Flow**:
+
+1. User submits generation request via frontend
+2. `queue-item-submit` Lambda retrieves stored monitor `client_id` from DynamoDB
+3. Submits prompt to ComfyUI using monitor's `client_id` (not queue ID)
+4. Monitor receives real-time events via WebSocket and publishes to EventBridge
+5. Event-driven Lambda functions handle progress updates and completion
+
+**Key Benefits**:
+
+- Real-time progress tracking via WebSocket connection
+- Decoupled architecture using EventBridge
+- Automatic client_id management and mapping
+- Resilient to monitor restarts and reconnections
+
 ## Security
 
 ### Authentication & Authorization

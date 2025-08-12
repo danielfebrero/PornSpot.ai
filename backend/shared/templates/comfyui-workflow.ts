@@ -197,16 +197,10 @@ export function createPromptRequest(
 ): {
   prompt: ComfyUIWorkflow;
   client_id: string;
-  extra_data?: Record<string, any>;
 } {
   return {
     prompt: workflow,
     client_id: clientId,
-    extra_data: {
-      extra_pnginfo: {
-        workflow: workflow,
-      },
-    },
   };
 }
 

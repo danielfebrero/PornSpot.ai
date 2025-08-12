@@ -259,37 +259,11 @@ class ComfyUIMonitor:
             # Backend will resolve prompt_id to queue_id
             await self.publish_event(
                 "Job Started",
-                {"prompt_id": prompt_id, "execution_data": data},
+                {"promptId": prompt_id},
             )
 
         except Exception as e:
             logger.error(f"❌ Error handling execution start message: {e}")
-
-    async def handle_progress_message(self, data: Dict[str, Any]):
-        """Handle progress update messages"""
-        try:
-            # Progress messages don't contain prompt_id directly
-            # We'll just publish the raw progress data
-            value = data.get("value", 0)
-            max_value = data.get("max", 100)
-            node = data.get("node")
-
-            logger.debug(f"📈 Progress update: {value}/{max_value}")
-
-            await self.publish_event(
-                "Progress Update",
-                {
-                    "progress": value,
-                    "max_progress": max_value,
-                    "current_node": node,
-                    "percentage": (
-                        round((value / max_value) * 100, 2) if max_value > 0 else 0
-                    ),
-                },
-            )
-
-        except Exception as e:
-            logger.error(f"❌ Error handling progress message: {e}")
 
     async def handle_executing_message(self, data: Dict[str, Any]):
         """Handle executing messages (node start/prompt completion)"""
@@ -400,15 +374,15 @@ class ComfyUIMonitor:
                 await self.publish_event(
                     "Node Progress Update",
                     {
-                        "prompt_id": prompt_id,
-                        "node_id": node_id,
-                        "display_node_id": display_node_id,
-                        "node_progress": value,
-                        "node_max_progress": max_value,
-                        "node_percentage": node_percentage,
-                        "node_state": state,
-                        "parent_node_id": node_info.get("parent_node_id"),
-                        "real_node_id": node_info.get("real_node_id", node_id),
+                        "promptId": prompt_id,
+                        "nodeId": node_id,
+                        "displayNodeId": display_node_id,
+                        "nodeProgress": value,
+                        "nodeMaxProgress": max_value,
+                        "nodePercentage": node_percentage,
+                        "nodeState": state,
+                        "parentNodeId": node_info.get("parent_node_id"),
+                        "realNodeId": node_info.get("real_node_id", node_id),
                     },
                 )
 
@@ -430,8 +404,6 @@ class ComfyUIMonitor:
                 await self.handle_status_message(message_data)
             elif message_type == "execution_start":
                 await self.handle_execution_start_message(message_data)
-            elif message_type == "progress":
-                await self.handle_progress_message(message_data)
             elif message_type == "progress_state":
                 await self.handle_progress_state_message(message_data)
             elif message_type == "executing":
@@ -550,7 +522,7 @@ class ComfyUIMonitor:
         if self.eventbridge:
             try:
                 await self.publish_event(
-                    "Monitor Started",
+                    "Monitor Initialized",
                     {
                         "client_id": self.client_id,
                         "comfyui_host": self.comfyui_host,

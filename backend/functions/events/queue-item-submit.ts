@@ -11,6 +11,7 @@ Special notes:
 import { EventBridgeEvent, Context } from "aws-lambda";
 import { GenerationQueueService } from "@shared/services/generation-queue";
 import { ParameterStoreService } from "@shared/utils/parameters";
+import { DynamoDBService } from "@shared/utils/dynamodb";
 import {
   getComfyUIClient,
   initializeComfyUIClient,
@@ -132,10 +133,23 @@ export const handler = async (
       selectedLoras: undefined,
     };
 
+    // Get the ComfyUI monitor client_id from DynamoDB
+    const monitorClientId = await DynamoDBService.getComfyUIMonitorClientId();
+
+    if (!monitorClientId) {
+      throw new ComfyUIError(
+        ComfyUIErrorType.CONNECTION_FAILED,
+        "ComfyUI monitor client_id not found. Monitor may not be connected.",
+        { promptId: queueId, retryable: true }
+      );
+    }
+
+    console.log(`🔗 Using ComfyUI monitor client_id: ${monitorClientId}`);
+
     // Submit prompt to ComfyUI
     const submitResult = await comfyUIClient.submitPrompt(
       workflowParams,
-      queueId // Use queueId as clientId for mapping
+      monitorClientId // Use monitor client_id instead of queueId
     );
 
     const comfyPromptId = submitResult.promptId;

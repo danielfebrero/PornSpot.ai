@@ -286,6 +286,24 @@ Represents a user's interaction with a media item (e.g., a like or a bookmark).
 | `interactionType` | `string` | The type of interaction (e.g., `like`, `bookmark`). |
 | `createdAt`       | `string` | The ISO 8601 timestamp of the interaction.          |
 
+### ComfyUI Monitor Entity
+
+Represents the system configuration for the ComfyUI monitor client connection.
+
+- **PK**: `SYSTEM#COMFYUI_MONITOR`
+- **SK**: `METADATA`
+- **EntityType**: `ComfyUIMonitor`
+
+| Attribute         | Type     | Description                                            |
+| ----------------- | -------- | ------------------------------------------------------ |
+| `clientId`        | `string` | The WebSocket client ID of the ComfyUI monitor.        |
+| `comfyui_host`    | `string` | The hostname of the ComfyUI server being monitored.    |
+| `version`         | `string` | The version of the monitor script.                     |
+| `lastConnectedAt` | `string` | The ISO 8601 timestamp of the last monitor connection. |
+| `updatedAt`       | `string` | The ISO 8601 timestamp of the last update.             |
+
+**Purpose**: This entity stores the client_id used by the ComfyUI monitor WebSocket connection. The backend retrieves this client_id when submitting prompts to ComfyUI, ensuring that the monitor receives real-time updates for queued jobs.
+
 ## Entity Relationship Diagram
 
 ```mermaid

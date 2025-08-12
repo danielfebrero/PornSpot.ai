@@ -1320,6 +1320,60 @@ export class DynamoDBService {
     }
   }
 
+  // ComfyUI Monitor operations
+  static async storeComfyUIMonitorClientId(
+    clientId: string,
+    metadata: {
+      comfyui_host: string;
+      version: string;
+      lastConnectedAt: string;
+    }
+  ): Promise<void> {
+    const monitorRecord = {
+      PK: "SYSTEM#COMFYUI_MONITOR",
+      SK: "METADATA",
+      EntityType: "ComfyUIMonitor",
+      clientId,
+      comfyui_host: metadata.comfyui_host,
+      version: metadata.version,
+      lastConnectedAt: metadata.lastConnectedAt,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: monitorRecord,
+      })
+    );
+  }
+
+  static async getComfyUIMonitorClientId(): Promise<string | null> {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: "SYSTEM#COMFYUI_MONITOR",
+          SK: "METADATA",
+        },
+      })
+    );
+
+    return result.Item?.["clientId"] || null;
+  }
+
+  static async deleteComfyUIMonitorClientId(): Promise<void> {
+    await docClient.send(
+      new DeleteCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: "SYSTEM#COMFYUI_MONITOR",
+          SK: "METADATA",
+        },
+      })
+    );
+  }
+
   // Email verification token operations (for Phase 2)
   static async createEmailVerificationToken(
     token: EmailVerificationTokenEntity

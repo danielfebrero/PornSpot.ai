@@ -2192,6 +2192,20 @@ Resources:
         - Arn: !GetAtt JobStartFunction.Arn
           Id: "JobStartTarget"
 
+  MonitorInitRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "${Environment}-monitor-init-rule"
+      Description: "Route monitor initialization events to Lambda"
+      EventBusName: !Ref ComfyUIEventBus
+      EventPattern:
+        source: ["comfyui.monitor"]
+        detail-type: ["Monitor Initialized"]
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt ComfyUIMonitorInitFunction.Arn
+          Id: "MonitorInitTarget"
+
   JobProgressRule:
     Type: AWS::Events::Rule
     Properties:
@@ -2329,6 +2343,19 @@ Resources:
                 - execute-api:ManageConnections
               Resource: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/${Environment}/POST/@connections/*"
 
+  ComfyUIMonitorInitFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-comfyui-monitor-init-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/events/comfyui-monitor-init.handler"]
+      Timeout: 60
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+
   JobProgressFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -2454,6 +2481,14 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt JobStartRule.Arn
+
+  MonitorInitRulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ComfyUIMonitorInitFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt MonitorInitRule.Arn
 
   JobProgressRulePermission:
     Type: AWS::Lambda::Permission
