@@ -17,8 +17,8 @@ export interface CreateMediaEntityOptions {
   filename: string; // S3 key for generated, display filename for uploads
   originalFilename: string;
   mimeType: string;
-  size: number;
-  url: string; // Relative URL from S3Service.getRelativePath()
+  size?: number;
+  url?: string; // Relative URL from S3Service.getRelativePath()
 
   // Optional dimensions
   width?: number;

@@ -62,7 +62,11 @@ console.log(
 console.log("🌍 AWS_SAM_LOCAL env var:", process.env["AWS_SAM_LOCAL"]);
 
 const client = new DynamoDBClient(clientConfig);
-const docClient = DynamoDBDocumentClient.from(client);
+const docClient = DynamoDBDocumentClient.from(client, {
+  marshallOptions: {
+    removeUndefinedValues: true, // Automatically remove undefined values
+  },
+});
 
 const TABLE_NAME = process.env["DYNAMODB_TABLE"]!;
 console.log("📋 Table name from env:", TABLE_NAME);
@@ -138,11 +142,17 @@ export class DynamoDBService {
       type: "media",
       originalFilename: entity.originalFilename,
       mimeType: entity.mimeType,
-      size: entity.size,
-      url: entity.url,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };
+
+    if (entity.size !== undefined) {
+      media.size = entity.size;
+    }
+
+    if (entity.url !== undefined) {
+      media.url = entity.url;
+    }
 
     // Add optional fields if they exist
     if (entity.width !== undefined) {

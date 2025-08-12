@@ -205,7 +205,6 @@ async function createMediaEntitiesFirst(
         filename: s3Key, // Use S3 key as filename
         originalFilename: `generated_${index + 1}.jpg`,
         mimeType: "image/jpeg",
-        size: width * height * 3, // Rough estimate for JPEG
         width,
         height,
         url: relativeUrl, // Use relative URL from S3 key
