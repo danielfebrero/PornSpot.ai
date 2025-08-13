@@ -255,9 +255,19 @@ npm run local:init         # Initialize local AWS resources
 
 ## Testing
 
-⚠️ **Note: Testing implementation is currently a work in progress. Some features may not be fully functional.**
+⚠️ **CRITICAL: Testing infrastructure is currently broken and requires significant work.**
 
-This project includes a comprehensive testing infrastructure with 99%+ code coverage across backend and frontend components.
+**Current Status:**
+- Backend tests fail with compilation errors and missing dependencies
+- Frontend tests have not been validated yet  
+- Test coverage claims in documentation are inaccurate
+- Test infrastructure needs major refactoring before it can be used
+
+**Known Issues:**
+- Import path errors in test files
+- Type mismatches between test mocks and actual types
+- Missing shared utilities in test environment
+- Test setup scripts exist but functionality is unverified
 
 ### Prerequisites for Testing
 
@@ -287,27 +297,26 @@ npm run test:coverage:combined
 - **Performance Tests**: Lighthouse CI performance monitoring
 - **Security Tests**: Dependency and vulnerability scanning
 
-### Test Commands
+### Testing Commands (⚠️ Currently Broken)
+
+**The following commands are documented but currently non-functional:**
 
 ```bash
-# Backend tests
-npm run test:backend              # All backend tests
-npm run test:backend:unit         # Unit tests only
-npm run test:backend:integration  # Integration tests only
-npm run test:backend:coverage     # With coverage
+# These commands WILL FAIL until testing infrastructure is fixed:
+npm run test:all                  # ❌ BROKEN
+npm run test:backend              # ❌ BROKEN
+npm run test:frontend             # ❌ BROKEN  
+npm run test:coverage:combined    # ❌ BROKEN
 
-# Frontend tests
-npm run test:frontend             # All frontend tests
-npm run test:frontend:unit        # Unit tests only
-npm run test:frontend:e2e         # E2E tests only
-npm run test:frontend:coverage    # With coverage
-
-# Combined testing
-npm run test:all                  # All tests across projects
-npm run test:ci                   # CI-optimized test run
-npm run test:coverage:combined    # Combined coverage report
-npm run test:summary              # Generate test summary
+# Use these commands to check what needs to be fixed:
+cd backend && npm run test        # See backend test errors
+cd frontend && npm run test       # Check frontend test status
 ```
+
+**What Works:**
+- Basic build and type checking: ✅ `npm run type-check`
+- Linting: ✅ `npm run lint` (with workspace fix applied)
+- Individual workspace builds: ✅ `npm run build`
 
 ### Test Environment Setup
 
@@ -325,31 +334,30 @@ npm run test:summary              # Generate test summary
 ./scripts/test-cleanup.sh
 ```
 
-### Coverage Reports
+### Coverage Reports (⚠️ Not Available)
 
-- **Backend**: 99%+ coverage with Jest
-- **Frontend**: 95%+ coverage with Jest + React Testing Library
+**Current Status:** Coverage reporting is not functional due to broken test infrastructure.
+
+**When Fixed, Coverage Will Be Available At:**
+- **Backend**: `backend/coverage/lcov-report/index.html`
+- **Frontend**: `frontend/coverage/lcov-report/index.html`  
+- **Combined**: `coverage/lcov-report/index.html`
+
+**Target Coverage Goals (When Functional):**
+- **Backend**: 90%+ coverage with Jest
+- **Frontend**: 85%+ coverage with Jest + React Testing Library
 - **E2E**: Critical user paths with Playwright
-- **Combined**: Aggregated coverage across all projects
 
-View coverage reports:
+### CI/CD Pipeline (⚠️ Testing Disabled)
 
-```bash
-# Generate and open coverage report
-npm run test:coverage:combined
-open coverage/lcov-report/index.html
-```
+**Current Status:** Automated testing is disabled in CI/CD due to broken test infrastructure.
 
-### CI/CD Pipeline
-
-Tests run automatically on:
-
+**When Testing Is Fixed, Pipeline Will Include:**
 - Push to `main` or `develop` branches
-- Pull requests
+- Pull requests  
 - Manual workflow dispatch
 
-Quality gates:
-
+**Target Quality Gates (When Functional):**
 - ✅ 85%+ code coverage
 - ✅ 95%+ test pass rate
 - ✅ Security vulnerability scanning
@@ -486,9 +494,9 @@ PornSpot.ai/
 
 ### Development & Testing
 
-- [`TESTING.md`](./TESTING.md) - Comprehensive testing guide
 - [`docs/LOCAL_DEVELOPMENT.md`](docs/LOCAL_DEVELOPMENT.md) - Local development setup
 - [`docs/ENVIRONMENT_CONFIGURATION.md`](docs/ENVIRONMENT_CONFIGURATION.md) - Environment variables and configuration
+- [`docs/TESTING.md`](docs/TESTING.md) - Testing guide ⚠️ **Outdated - tests currently broken**
 
 ### User & Admin Management
 

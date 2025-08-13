@@ -821,7 +821,7 @@ The frontend automatically selects optimal thumbnail sizes based on:
 Authenticate a user and create a session.
 
 ```http
-POST /user/auth/login
+POST /user/login
 Content-Type: application/json
 
 {
@@ -852,7 +852,7 @@ Content-Type: application/json
 Create a new user account.
 
 ```http
-POST /user/auth/register
+POST /user/register
 Content-Type: application/json
 
 {
@@ -867,7 +867,7 @@ Content-Type: application/json
 End the current user session.
 
 ```http
-POST /user/auth/logout
+POST /user/logout
 Cookie: sessionId=session-token-here
 ```
 
@@ -947,7 +947,7 @@ Content-Type: application/json
 Get the currently authenticated user's information.
 
 ```http
-GET /user/auth/me
+GET /user/me
 Cookie: sessionId=session-token-here
 ```
 
@@ -1337,7 +1337,7 @@ Cookie: sessionId=session-token-here
 #### Admin Login
 
 ```http
-POST /admin/auth/login
+POST /admin/login
 Content-Type: application/json
 
 {
@@ -1538,7 +1538,7 @@ if (success && data.media) {
 }
 
 // User authentication example
-const loginResponse = await fetch("https://api-gateway-url/user/auth/login", {
+const loginResponse = await fetch("https://api-gateway-url/user/login", {
   method: "POST",
   credentials: "include",
   headers: {
@@ -1571,7 +1571,7 @@ curl -c cookies.txt \
      -X POST \
      -H "Content-Type: application/json" \
      -d '{"email":"user@example.com","password":"password"}' \
-     "https://api-gateway-url/user/auth/login"
+     "https://api-gateway-url/user/login"
 
 # List user's bookmarks (requires authentication)
 curl -b cookies.txt \
@@ -1582,7 +1582,7 @@ curl -c admin-cookies.txt \
      -X POST \
      -H "Content-Type: application/json" \
      -d '{"username":"admin","password":"adminpassword"}' \
-     "https://api-gateway-url/admin/auth/login"
+     "https://api-gateway-url/admin/login"
 
 # Get admin stats
 curl -b admin-cookies.txt \
@@ -1624,13 +1624,13 @@ curl -b admin-cookies.txt \
 
 **New Endpoints:**
 
-- `POST /user/auth/login` - User authentication
+- `POST /user/login` - User authentication
 - `GET /user/interactions/likes` - User's liked media
 - `GET /user/interactions/bookmarks` - User's bookmarked media
 - `POST /user/interactions/like` - Like/unlike media
 - `POST /user/interactions/bookmark` - Bookmark/unbookmark media
 - `GET /admin/stats` - System statistics
-- `POST /admin/auth/login` - Admin authentication
+- `POST /admin/login` - Admin authentication
 
 ### Best Practices
 
