@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import { WebSocketMessage, GenerationQueueStatus } from "@/types/websocket";
 import { GenerationResponse, GenerationSettings, Media } from "@/types";
@@ -142,7 +142,12 @@ export function useGeneration(): UseGenerationReturn {
               const nodeIndex = workflowNodes.findIndex(
                 (n) => n.nodeId === nodeId
               );
-              console.log({ nodeId, nodeIndex, currentNodeIndex });
+              console.log({
+                nodeId,
+                nodeIndex,
+                currentNodeIndex,
+                workflowNodes,
+              });
               if (nodeIndex >= 0 && nodeIndex > currentNodeIndex) {
                 setCurrentNodeIndex(nodeIndex);
               }
@@ -323,6 +328,10 @@ export function useGeneration(): UseGenerationReturn {
       currentQueueIdRef.current = null;
     }
   }, [unsubscribe]);
+
+  useEffect(() => {
+    console.log("workflow nodes changed:", { workflowNodes });
+  }, [workflowNodes]);
 
   return {
     isGenerating,
