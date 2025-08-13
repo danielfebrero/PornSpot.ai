@@ -61,7 +61,7 @@ export const handler = async (
       nodeId,
       displayNodeId,
       currentNode: displayNodeId,
-      nodeName: formatNodeName(displayNodeId),
+      nodeName: formatNodeName(displayNodeId, nodeTitle),
       value: nodeProgress,
       max: nodeMaxProgress,
       percentage: nodePercentage,
@@ -75,7 +75,7 @@ export const handler = async (
         nodeMaxProgress,
         nodePercentage,
         nodeState,
-        nodeTitle || displayNodeId
+        nodeTitle
       ),
     };
 
@@ -101,7 +101,12 @@ export const handler = async (
 /**
  * Format node name for better display
  */
-function formatNodeName(displayNodeId: string): string {
+function formatNodeName(displayNodeId: string, nodeTitle?: string): string {
+  // Use nodeTitle if available, otherwise format displayNodeId
+  if (nodeTitle && nodeTitle !== displayNodeId) {
+    return nodeTitle;
+  }
+  
   // Convert node IDs like "KSampler" to "K-Sampler" for better readability
   return displayNodeId
     .replace(/([A-Z])/g, " $1")
@@ -118,21 +123,23 @@ function formatProgressMessage(
   maxProgress: number,
   percentage: number,
   state: string,
-  nodeTitle: string
+  nodeTitle?: string
 ): string {
+  const finalNodeTitle = nodeTitle || displayNodeId;
+  
   // Create different messages based on node type and state
   if (displayNodeId.toLowerCase().includes("sampler")) {
-    return `Generating image using ${nodeTitle}: ${progress}/${maxProgress} steps (${percentage}%)`;
+    return `Generating image using ${finalNodeTitle}: ${progress}/${maxProgress} steps (${percentage}%)`;
   } else if (displayNodeId.toLowerCase().includes("load")) {
-    return `Loading ${nodeTitle}: ${percentage}%`;
+    return `Loading ${finalNodeTitle}: ${percentage}%`;
   } else if (displayNodeId.toLowerCase().includes("encode")) {
-    return `Encoding with ${nodeTitle}: ${progress}/${maxProgress} (${percentage}%)`;
+    return `Encoding with ${finalNodeTitle}: ${progress}/${maxProgress} (${percentage}%)`;
   } else if (displayNodeId.toLowerCase().includes("decode")) {
-    return `Decoding with ${nodeTitle}: ${progress}/${maxProgress} (${percentage}%)`;
+    return `Decoding with ${finalNodeTitle}: ${progress}/${maxProgress} (${percentage}%)`;
   } else if (displayNodeId.toLowerCase().includes("vae")) {
     return `Processing with VAE: ${progress}/${maxProgress} (${percentage}%)`;
   } else {
-    return `${nodeTitle}: ${progress}/${maxProgress} (${percentage}%) - ${state}`;
+    return `${finalNodeTitle}: ${progress}/${maxProgress} (${percentage}%) - ${state}`;
   }
 }
 

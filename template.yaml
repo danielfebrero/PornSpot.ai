@@ -2220,6 +2220,20 @@ Resources:
         - Arn: !GetAtt JobProgressFunction.Arn
           Id: "JobProgressTarget"
 
+  WorkflowNodesRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "${Environment}-workflow-nodes-rule"
+      Description: "Route workflow nodes events to Lambda"
+      EventBusName: !Ref ComfyUIEventBus
+      EventPattern:
+        source: ["comfyui.monitor"]
+        detail-type: ["Workflow Nodes"]
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt WorkflowNodesFunction.Arn
+          Id: "WorkflowNodesTarget"
+
   JobCompletionRule:
     Type: AWS::Events::Rule
     Properties:
@@ -2379,6 +2393,29 @@ Resources:
                 - execute-api:ManageConnections
               Resource: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/${Environment}/POST/@connections/*"
 
+  WorkflowNodesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-workflow-nodes-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/events/workflow-nodes.handler"]
+      Timeout: 60
+      Environment:
+        Variables:
+          WEBSOCKET_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - execute-api:ManageConnections
+              Resource: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/${Environment}/POST/@connections/*"
+
   JobCompletionFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -2497,6 +2534,14 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt JobProgressRule.Arn
+
+  WorkflowNodesRulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref WorkflowNodesFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt WorkflowNodesRule.Arn
 
   JobCompletionRulePermission:
     Type: AWS::Lambda::Permission
