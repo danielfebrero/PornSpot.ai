@@ -60,20 +60,35 @@ export function useGeneration(): UseGenerationReturn {
   const { subscribe, unsubscribe, isConnected } = useWebSocket();
   const currentQueueIdRef = useRef<string | null>(null);
 
+  // Use refs to store latest values for WebSocket callback access
+  const workflowNodesRef = useRef(workflowNodes);
+  const currentNodeIndexRef = useRef(currentNodeIndex);
+
+  // Update refs when state changes
+  useEffect(() => {
+    workflowNodesRef.current = workflowNodes;
+  }, [workflowNodes]);
+
+  useEffect(() => {
+    currentNodeIndexRef.current = currentNodeIndex;
+  }, [currentNodeIndex]);
+
   // Helper function to determine if a node progress should be shown
   const shouldShowNodeProgress = useCallback(
-    (nodeId: string): boolean => {
-      if (workflowNodes.length === 0) return true; // Show if no workflow info yet
+    (
+      nodeId: string,
+      nodes: typeof workflowNodes,
+      nodeIndex: number
+    ): boolean => {
+      if (nodes.length === 0) return true; // Show if no workflow info yet
 
-      const nodeIndex = workflowNodes.findIndex(
-        (node) => node.nodeId === nodeId
-      );
-      if (nodeIndex === -1) return true; // Show if node not found in workflow
+      const foundNodeIndex = nodes.findIndex((node) => node.nodeId === nodeId);
+      if (foundNodeIndex === -1) return true; // Show if node not found in workflow
 
       // Only show progress for current node or later nodes, not past nodes
-      return nodeIndex >= currentNodeIndex;
+      return foundNodeIndex >= nodeIndex;
     },
-    [workflowNodes, currentNodeIndex]
+    []
   );
 
   const handleWebSocketMessage = useCallback(
@@ -119,15 +134,27 @@ export function useGeneration(): UseGenerationReturn {
             const nodeId =
               progressData.nodeId || progressData.displayNodeId || "";
             console.log({ nodeId });
+
+            // Get current values from refs to avoid stale closure
+            const currentWorkflowNodes = workflowNodesRef.current;
+            const currentNodeIdx = currentNodeIndexRef.current;
+
             // Only update progress if this node should be shown (not past nodes)
-            if (shouldShowNodeProgress(nodeId)) {
+            if (
+              shouldShowNodeProgress(
+                nodeId,
+                currentWorkflowNodes,
+                currentNodeIdx
+              )
+            ) {
               console.log("Should show node progress:", nodeId);
               setProgress(progressData.value);
               setMaxProgress(progressData.max);
 
               // Use nodeTitle from workflow or fallback to nodeName
               const nodeTitle =
-                workflowNodes.find((n) => n.nodeId === nodeId)?.nodeTitle ||
+                currentWorkflowNodes.find((n) => n.nodeId === nodeId)
+                  ?.nodeTitle ||
                 progressData.nodeName ||
                 progressData.displayNodeId ||
                 nodeId;
@@ -139,23 +166,23 @@ export function useGeneration(): UseGenerationReturn {
               setCurrentMessage(progressData.message);
 
               // Update current node index in workflow
-              const nodeIndex = workflowNodes.findIndex(
+              const nodeIndex = currentWorkflowNodes.findIndex(
                 (n) => n.nodeId === nodeId
               );
               console.log({
                 nodeId,
                 nodeIndex,
-                currentNodeIndex,
-                workflowNodes,
+                currentNodeIndex: currentNodeIdx,
+                workflowNodes: currentWorkflowNodes,
               });
-              if (nodeIndex >= 0 && nodeIndex > currentNodeIndex) {
+              if (nodeIndex >= 0 && nodeIndex > currentNodeIdx) {
                 setCurrentNodeIndex(nodeIndex);
               }
             } else {
               console.log(
-                `🚫 Skipping progress for past node: ${nodeId} (workflow position: ${workflowNodes.findIndex(
+                `🚫 Skipping progress for past node: ${nodeId} (workflow position: ${currentWorkflowNodes.findIndex(
                   (n) => n.nodeId === nodeId
-                )}, current: ${currentNodeIndex})`
+                )}, current: ${currentNodeIdx})`
               );
             }
           }
@@ -238,7 +265,7 @@ export function useGeneration(): UseGenerationReturn {
           break;
       }
     },
-    [unsubscribe, shouldShowNodeProgress, workflowNodes, currentNodeIndex]
+    [unsubscribe, shouldShowNodeProgress]
   );
 
   const generateImages = useCallback(
