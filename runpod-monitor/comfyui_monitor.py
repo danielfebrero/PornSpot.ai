@@ -113,8 +113,6 @@ class ComfyUIMonitor:
         self.running = True
         self.websocket = None
 
-        self.active_workflows = {}
-
         # AWS EventBridge client with better error handling
         try:
             # Test AWS credentials availability
@@ -225,111 +223,10 @@ class ComfyUIMonitor:
             logger.error(f"❌ Unexpected error publishing event: {e}")
             return False
 
-    async def fetch_prompt_info(self, prompt_id: str) -> Optional[Dict[str, Any]]:
-        """Fetch prompt information from ComfyUI API"""
-        try:
-            import aiohttp
-
-            async with aiohttp.ClientSession() as session:
-                # Get the prompt details from ComfyUI
-                url = (
-                    f"http://{self.comfyui_host}:{self.comfyui_port}/prompt/{prompt_id}"
-                )
-                async with session.get(url) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        return data
-        except Exception as e:
-            logger.error(f"Failed to fetch prompt info: {e}")
-        return None
-
-    def get_sorted_workflow_nodes(self, workflow: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Extract and sort workflow nodes by execution order"""
-        try:
-            nodes = []
-            node_dependencies = {}
-            
-            # First pass: collect all nodes and their input dependencies
-            for node_id, node_data in workflow.items():
-                if isinstance(node_data, dict) and "class_type" in node_data:
-                    inputs = node_data.get("inputs", {})
-                    dependencies = []
-                    
-                    # Find input dependencies (nodes that this node depends on)
-                    for input_key, input_value in inputs.items():
-                        if isinstance(input_value, list) and len(input_value) >= 2:
-                            # Format: [node_id, output_slot] - this node depends on node_id
-                            dep_node_id = str(input_value[0])
-                            if dep_node_id in workflow:
-                                dependencies.append(dep_node_id)
-                    
-                    node_info = {
-                        "nodeId": node_id,
-                        "classType": node_data["class_type"],
-                        "nodeTitle": node_data.get("_meta", {}).get("title", node_data["class_type"]),
-                        "dependencies": dependencies
-                    }
-                    nodes.append(node_info)
-                    node_dependencies[node_id] = dependencies
-            
-            # Topological sort to get execution order
-            sorted_nodes = []
-            visited = set()
-            temp_visited = set()
-            
-            def visit_node(node_id: str):
-                if node_id in temp_visited:
-                    # Circular dependency - use current order
-                    return
-                if node_id in visited:
-                    return
-                
-                temp_visited.add(node_id)
-                
-                # Visit dependencies first
-                for dep_id in node_dependencies.get(node_id, []):
-                    if dep_id in node_dependencies:  # Ensure dependency exists
-                        visit_node(dep_id)
-                
-                temp_visited.remove(node_id)
-                visited.add(node_id)
-                
-                # Find the node info and add to sorted list
-                for node in nodes:
-                    if node["nodeId"] == node_id:
-                        sorted_nodes.append(node)
-                        break
-            
-            # Start with nodes that have no dependencies or are entry points
-            node_ids = list(node_dependencies.keys())
-            for node_id in sorted(node_ids):  # Sort for consistency
-                if node_id not in visited:
-                    visit_node(node_id)
-            
-            logger.info(f"Sorted workflow with {len(sorted_nodes)} nodes: {[n['nodeId'] for n in sorted_nodes]}")
-            return sorted_nodes
-            
-        except Exception as e:
-            logger.error(f"Failed to sort workflow nodes: {e}")
-            # Return unsorted nodes as fallback
-            fallback_nodes = []
-            for node_id, node_data in workflow.items():
-                if isinstance(node_data, dict) and "class_type" in node_data:
-                    fallback_nodes.append({
-                        "nodeId": node_id,
-                        "classType": node_data["class_type"],
-                        "nodeTitle": node_data.get("_meta", {}).get("title", node_data["class_type"]),
-                        "dependencies": []
-                    })
-            return fallback_nodes
-
     async def get_node_title(self, prompt_id: str, node_id: str) -> str:
         """Get the title for a node from the workflow definition"""
-        if prompt_id in self.active_workflows:
-            workflow = self.active_workflows[prompt_id]
-            node = workflow.get(node_id, {})
-            meta = node.get("_meta", {})
-            return meta.get("title", f"Node {node_id}")
+        # Since we no longer fetch and store workflow definitions,
+        # we'll use a simple fallback
         return f"Node {node_id}"
 
     async def handle_status_message(self, data: Dict[str, Any]):
@@ -361,30 +258,6 @@ class ComfyUIMonitor:
             prompt_id = data.get("prompt_id")
             if not prompt_id:
                 return
-
-            # Try to fetch the workflow definition for this prompt
-            prompt_info = await self.fetch_prompt_info(prompt_id)
-            if prompt_info and "workflow" in prompt_info:
-                workflow = prompt_info["workflow"]
-                self.active_workflows[prompt_id] = workflow
-                logger.debug(f"Stored workflow for prompt_id={prompt_id}")
-                
-                # Extract and sort workflow nodes
-                sorted_nodes = self.get_sorted_workflow_nodes(workflow)
-                
-                if sorted_nodes:
-                    logger.info(f"Publishing workflow nodes for prompt_id={prompt_id}: {len(sorted_nodes)} nodes")
-                    # Publish workflow nodes event
-                    await self.publish_event(
-                        "Workflow Nodes",
-                        {
-                            "promptId": prompt_id,
-                            "timestamp": datetime.utcnow().isoformat(),
-                            "clientId": self.client_id,
-                            "workflowNodes": sorted_nodes,
-                            "totalNodes": len(sorted_nodes),
-                        },
-                    )
 
             logger.info(f"🚀 Execution started: prompt_id={prompt_id}")
 

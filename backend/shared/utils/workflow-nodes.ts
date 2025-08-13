@@ -66,7 +66,8 @@ export function getSortedWorkflowNodes(workflow: ComfyUIWorkflow): WorkflowNode[
     const visited = new Set<string>();
     const tempVisited = new Set<string>();
     
-    function visitNode(nodeId: string): void {
+    // Define visitNode function
+    const visitNode = (nodeId: string): void => {
       if (tempVisited.has(nodeId)) {
         // Circular dependency - use current order
         return;
@@ -92,7 +93,7 @@ export function getSortedWorkflowNodes(workflow: ComfyUIWorkflow): WorkflowNode[
       if (nodeInfo) {
         sortedNodes.push(nodeInfo);
       }
-    }
+    };
     
     // Start with nodes that have no dependencies or are entry points
     const nodeIds = Object.keys(nodeDependencies).sort(); // Sort for consistency
