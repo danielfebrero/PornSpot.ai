@@ -94,6 +94,7 @@ export function useGeneration(): UseGenerationReturn {
       nodeIndex: number
     ): { overallProgress: number; overallMaxProgress: number } => {
       if (nodes.length === 0) {
+        console.log("📊 No nodes available, using raw progress");
         return {
           overallProgress: currentNodeProgress,
           overallMaxProgress: currentNodeMaxProgress,
@@ -106,9 +107,16 @@ export function useGeneration(): UseGenerationReturn {
         0
       );
 
+      // Find the actual index of the currently processing node
+      const actualCurrentNodeIndex = nodes.findIndex(
+        (node) => node.nodeId === currentNodeId
+      );
+      const useNodeIndex =
+        actualCurrentNodeIndex >= 0 ? actualCurrentNodeIndex : nodeIndex;
+
       // Calculate completed estTimeUnits (nodes before current node)
       let completedEstTimeUnits = 0;
-      for (let i = 0; i < nodeIndex && i < nodes.length; i++) {
+      for (let i = 0; i < useNodeIndex && i < nodes.length; i++) {
         completedEstTimeUnits += nodes[i].estTimeUnits;
       }
 
@@ -136,6 +144,24 @@ export function useGeneration(): UseGenerationReturn {
         totalEstTimeUnits > 0
           ? Math.round((totalCompletedEstTimeUnits / totalEstTimeUnits) * 100)
           : 0;
+
+      console.log("📊 Overall progress calculation:", {
+        currentNodeId,
+        currentNodeProgress,
+        currentNodeMaxProgress,
+        actualCurrentNodeIndex,
+        useNodeIndex,
+        totalEstTimeUnits,
+        completedEstTimeUnits,
+        currentNodeEstTimeUnits,
+        totalCompletedEstTimeUnits,
+        overallProgress,
+        nodes: nodes.map((n) => ({
+          id: n.nodeId,
+          title: n.nodeTitle,
+          estTime: n.estTimeUnits,
+        })),
+      });
 
       return {
         overallProgress,
@@ -224,7 +250,18 @@ export function useGeneration(): UseGenerationReturn {
                 progressData.displayNodeId ||
                 nodeId;
 
-              console.log({ nodeTitle, overallProgress, overallMaxProgress });
+              console.log("📊 Progress update:", {
+                nodeTitle,
+                nodeId,
+                actualNodeIndex: currentWorkflowNodes.findIndex(
+                  (n) => n.nodeId === nodeId
+                ),
+                currentNodeIdx,
+                rawProgress: progressData.value,
+                rawMax: progressData.max,
+                overallProgress,
+                overallMaxProgress,
+              });
 
               setCurrentNode(nodeTitle);
               setNodeState(progressData.nodeState || "");
