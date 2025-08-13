@@ -120,6 +120,8 @@ export function GenerateClient() {
     nodeState,
     retryCount,
     isRetrying,
+    workflowNodes,
+    currentNodeIndex,
     generateImages,
     clearResults,
   } = useGeneration();
@@ -431,6 +433,8 @@ export function GenerateClient() {
                   retryCount={retryCount}
                   isRetrying={isRetrying}
                   error={error}
+                  workflowNodes={workflowNodes}
+                  currentNodeIndex={currentNodeIndex}
                 />
               ) : settings.batchCount === 1 ? (
                 <div className="space-y-4">

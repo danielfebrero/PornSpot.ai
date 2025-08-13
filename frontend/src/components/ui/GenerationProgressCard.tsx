@@ -1,4 +1,4 @@
-import { AlertCircle, Clock, Cpu, RotateCcw, Zap } from "lucide-react";
+import { AlertCircle, Clock, Cpu, RotateCcw, Zap, ArrowRight } from "lucide-react";
 
 // Custom Generation Progress Card Component
 export function GenerationProgressCard({
@@ -11,6 +11,8 @@ export function GenerationProgressCard({
   retryCount,
   isRetrying,
   error,
+  workflowNodes,
+  currentNodeIndex,
 }: {
   queueStatus: any;
   progress: number;
@@ -21,6 +23,13 @@ export function GenerationProgressCard({
   retryCount: number;
   isRetrying: boolean;
   error: string | null;
+  workflowNodes: Array<{
+    nodeId: string;
+    classType: string;
+    nodeTitle: string;
+    dependencies: string[];
+  }>;
+  currentNodeIndex: number;
 }) {
   return (
     <div className="w-full max-w-md mx-auto">
@@ -118,13 +127,13 @@ export function GenerationProgressCard({
                 </div>
               )}
 
-              {/* Current Node Display */}
+              {/* Current Node Display - Enhanced with nodeTitle */}
               {currentNode && (
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-1">
                     <Cpu className="w-3 h-3 text-primary animate-pulse" />
                     <span className="text-xs font-medium text-primary">
-                      Processing Node
+                      Currently Processing
                     </span>
                   </div>
                   <div className="text-sm font-semibold text-foreground">
@@ -135,6 +144,75 @@ export function GenerationProgressCard({
                       State: {nodeState}
                     </div>
                   )}
+                  
+                  {/* Workflow Progress Indicator */}
+                  {workflowNodes.length > 0 && (
+                    <div className="mt-2 pt-2 border-t border-primary/10">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Workflow Progress</span>
+                        <span className="text-foreground font-medium">
+                          {currentNodeIndex + 1} of {workflowNodes.length}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex items-center gap-1">
+                        {workflowNodes.map((node, index) => (
+                          <div key={node.nodeId} className="flex items-center">
+                            <div
+                              className={`w-2 h-2 rounded-full transition-colors ${
+                                index < currentNodeIndex
+                                  ? "bg-green-500"
+                                  : index === currentNodeIndex
+                                  ? "bg-primary animate-pulse"
+                                  : "bg-muted"
+                              }`}
+                              title={node.nodeTitle}
+                            />
+                            {index < workflowNodes.length - 1 && (
+                              <ArrowRight className="w-2 h-2 text-muted-foreground mx-0.5" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Workflow Steps Preview - Show when no current node but have workflow */}
+              {!currentNode && workflowNodes.length > 0 && queueStatus?.status === "processing" && (
+                <div className="bg-muted/5 border border-muted/20 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="w-3 h-3 text-muted-foreground" />
+                    <span className="text-xs font-medium text-muted-foreground">
+                      Workflow Steps
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    {workflowNodes.slice(0, 3).map((node, index) => (
+                      <div
+                        key={node.nodeId}
+                        className="flex items-center gap-2 text-xs"
+                      >
+                        <div
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            index < currentNodeIndex
+                              ? "bg-green-500"
+                              : index === currentNodeIndex
+                              ? "bg-primary"
+                              : "bg-muted"
+                          }`}
+                        />
+                        <span className="text-muted-foreground truncate">
+                          {node.nodeTitle}
+                        </span>
+                      </div>
+                    ))}
+                    {workflowNodes.length > 3 && (
+                      <div className="text-xs text-muted-foreground pl-3.5">
+                        ... and {workflowNodes.length - 3} more steps
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 

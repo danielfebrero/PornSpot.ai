@@ -30,6 +30,7 @@ export interface QueueEntry {
   retryCount?: number; // Number of retry attempts
   lastErrorMessage?: string; // Last error message for retry tracking
   timeoutAt: string; // ISO 8601 string for consistency
+  workflowData?: string; // JSON string containing workflow nodes and execution order
 }
 
 export interface QueueStats {

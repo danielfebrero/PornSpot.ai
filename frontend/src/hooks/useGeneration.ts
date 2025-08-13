@@ -20,6 +20,13 @@ interface UseGenerationReturn {
   nodeState: string;
   retryCount: number;
   isRetrying: boolean;
+  workflowNodes: Array<{
+    nodeId: string;
+    classType: string;
+    nodeTitle: string;
+    dependencies: string[];
+  }>;
+  currentNodeIndex: number;
   generateImages: (request: GenerationRequest) => Promise<void>;
   clearResults: () => void;
 }
@@ -38,15 +45,45 @@ export function useGeneration(): UseGenerationReturn {
   const [nodeState, setNodeState] = useState("");
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
+  
+  // New workflow state
+  const [workflowNodes, setWorkflowNodes] = useState<Array<{
+    nodeId: string;
+    classType: string;
+    nodeTitle: string;
+    dependencies: string[];
+  }>>([]);
+  const [currentNodeIndex, setCurrentNodeIndex] = useState(0);
 
   const { subscribe, unsubscribe, isConnected } = useWebSocket();
   const currentQueueIdRef = useRef<string | null>(null);
+
+  // Helper function to determine if a node progress should be shown
+  const shouldShowNodeProgress = useCallback((nodeId: string): boolean => {
+    if (workflowNodes.length === 0) return true; // Show if no workflow info yet
+    
+    const nodeIndex = workflowNodes.findIndex(node => node.nodeId === nodeId);
+    if (nodeIndex === -1) return true; // Show if node not found in workflow
+    
+    // Only show progress for current node or later nodes, not past nodes
+    return nodeIndex >= currentNodeIndex;
+  }, [workflowNodes, currentNodeIndex]);
 
   const handleWebSocketMessage = useCallback(
     (message: WebSocketMessage) => {
       console.log("🎨 Generation update received:", message);
 
       switch (message.type) {
+        case "workflow_nodes":
+          // Store workflow nodes for intelligent progress filtering
+          if (message.workflowData) {
+            setWorkflowNodes(message.workflowData.nodes);
+            setCurrentNodeIndex(message.workflowData.currentNodeIndex);
+            console.log("📋 Workflow nodes received:", 
+              message.workflowData.nodes.map(n => `${n.nodeId}(${n.nodeTitle})`).join(" → "));
+          }
+          break;
+
         case "queue_update":
         case "queued":
           setQueueStatus({
@@ -78,16 +115,34 @@ export function useGeneration(): UseGenerationReturn {
           break;
 
         case "job_progress":
-          // Handle enhanced node-level progress
+          // Handle enhanced node-level progress with intelligent filtering
           if (message.progressData) {
             const { progressData } = message;
-            setProgress(progressData.value);
-            setMaxProgress(progressData.max);
-            setCurrentNode(
-              progressData.nodeName || progressData.displayNodeId || ""
-            );
-            setNodeState(progressData.nodeState || "");
-            setCurrentMessage(progressData.message);
+            const nodeId = progressData.nodeId || progressData.displayNodeId || "";
+            
+            // Only update progress if this node should be shown (not past nodes)
+            if (shouldShowNodeProgress(nodeId)) {
+              setProgress(progressData.value);
+              setMaxProgress(progressData.max);
+              
+              // Use nodeTitle from workflow or fallback to nodeName
+              const nodeTitle = workflowNodes.find(n => n.nodeId === nodeId)?.nodeTitle 
+                || progressData.nodeName 
+                || progressData.displayNodeId 
+                || nodeId;
+              
+              setCurrentNode(nodeTitle);
+              setNodeState(progressData.nodeState || "");
+              setCurrentMessage(progressData.message);
+              
+              // Update current node index in workflow
+              const nodeIndex = workflowNodes.findIndex(n => n.nodeId === nodeId);
+              if (nodeIndex >= 0 && nodeIndex > currentNodeIndex) {
+                setCurrentNodeIndex(nodeIndex);
+              }
+            } else {
+              console.log(`🚫 Skipping progress for past node: ${nodeId} (workflow position: ${workflowNodes.findIndex(n => n.nodeId === nodeId)}, current: ${currentNodeIndex})`);
+            }
           }
           break;
 
@@ -168,7 +223,7 @@ export function useGeneration(): UseGenerationReturn {
           break;
       }
     },
-    [unsubscribe]
+    [unsubscribe, shouldShowNodeProgress, workflowNodes, currentNodeIndex]
   );
 
   const generateImages = useCallback(
@@ -237,6 +292,8 @@ export function useGeneration(): UseGenerationReturn {
     setQueueStatus(null);
     setRetryCount(0);
     setIsRetrying(false);
+    setWorkflowNodes([]);
+    setCurrentNodeIndex(0);
 
     // Unsubscribe from any active subscriptions
     if (currentQueueIdRef.current) {
@@ -257,6 +314,8 @@ export function useGeneration(): UseGenerationReturn {
     nodeState,
     retryCount,
     isRetrying,
+    workflowNodes,
+    currentNodeIndex,
     generateImages,
     clearResults,
   };

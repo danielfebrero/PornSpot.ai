@@ -113,7 +113,21 @@ export type ComfyUIEvent =
   | NodeExecutingEvent
   | NodeExecutedEvent
   | ImagesGeneratedEvent
-  | QueueStatusEvent;
+  | QueueStatusEvent
+  | WorkflowNodesEvent;
+
+// Workflow events
+export interface WorkflowNode {
+  nodeId: string;
+  classType: string;
+  nodeTitle: string;
+  dependencies: string[];
+}
+
+export interface WorkflowNodesEvent extends BaseComfyUIEvent {
+  workflowNodes: WorkflowNode[];
+  totalNodes: number;
+}
 
 // Event type constants for consistency
 export const COMFYUI_EVENT_TYPES = {
@@ -127,6 +141,7 @@ export const COMFYUI_EVENT_TYPES = {
   NODE_EXECUTED: "Node Executed",
   IMAGES_GENERATED: "Images Generated",
   QUEUE_STATUS: "Queue Status Updated",
+  WORKFLOW_NODES: "Workflow Nodes",
 } as const;
 
 // WebSocket message types sent to frontend
@@ -193,10 +208,24 @@ export interface WebSocketJobRetry {
   message: string;
 }
 
+export interface WebSocketWorkflowNodes {
+  type: "workflow_nodes";
+  queueId: string;
+  promptId: string;
+  timestamp: string;
+  workflowData: {
+    nodes: WorkflowNode[];
+    totalNodes: number;
+    currentNodeIndex: number;
+    nodeOrder: string[];
+  };
+}
+
 // Union type for all WebSocket messages
 export type ComfyUIWebSocketMessage =
   | WebSocketProgress
   | WebSocketJobStarted
   | WebSocketJobCompleted
   | WebSocketJobFailed
-  | WebSocketJobRetry;
+  | WebSocketJobRetry
+  | WebSocketWorkflowNodes;
