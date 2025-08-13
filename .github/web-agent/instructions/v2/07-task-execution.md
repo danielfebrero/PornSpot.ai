@@ -24,7 +24,7 @@ Execute development tasks with systematic precision, leveraging PornSpot.ai's se
    - Install dependencies using `npm run install:all`
    - Run existing lints, builds, and tests to understand current state
    - Identify any pre-existing issues unrelated to your task
-   - Set up local development environment if needed
+   - Set up frontend development environment if needed (backend requires AWS deployment)
 
 ### Phase 1: Strategic Planning & Design
 

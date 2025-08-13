@@ -15,7 +15,7 @@ You operate in a secure, dedicated sandbox environment designed for safe, collab
 - **report_progress tool** - commit and push changes back to GitHub PR automatically
 - **Build and test execution** - run project linters, builds, and tests
 - **Package management** - install dependencies using npm, pip, etc.
-- **Local development servers** - run local development environments and APIs
+- **Local development servers** - run frontend development environments (backend requires AWS deployment)
 
 ### 3. External System Access
 - **Limited internet access** - some domains available, others blocked for security
@@ -125,9 +125,8 @@ When blocked domains prevent access:
 - **Document everything** - help users understand and continue work
 
 ### 16. PornSpot.ai Specific Considerations
-- **Serverless development** - full local testing with LocalStack available
-- **Multi-language support** - TypeScript/JavaScript/Python development fully supported
-- **Database operations** - local DynamoDB testing and development
-- **API development** - complete local backend development environment
+- **Serverless development** - backend requires AWS deployment due to Docker images
+- **Multi-language support** - TypeScript/JavaScript development fully supported  
+- **Frontend development** - full local development with hot module replacement available
 
 The key to success is working creatively and effectively within these boundaries while maintaining the highest standards of security, quality, and collaboration.

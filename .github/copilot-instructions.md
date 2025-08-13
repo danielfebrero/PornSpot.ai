@@ -20,7 +20,7 @@ This document provides comprehensive guidance for development on the PornSpot.ai
 
 ### Testing & Quality ([Full Details](.github/web-agent/instructions/v2/03-linting-building-testing.md))
 - **Dependency Management** - Always use `npm run install:all` (never workspace npm install)
-- **Development Workflow** - Backend: `./scripts/start-local-backend.sh`, Frontend: `npm run dev:frontend`
+- **Development Workflow** - Frontend: `npm run dev:frontend` (backend requires AWS deployment)
 - **Quality Commands** - `npm run test:ci`, `npm run lint:fix`, `npm run type-check`
 - **Coverage Standards** - Maintain high test coverage with comprehensive validation
 
@@ -29,6 +29,18 @@ This document provides comprehensive guidance for development on the PornSpot.ai
 - **Structured Tracking** - Use markdown checklists with consistent structure
 - **Quality Commits** - Review committed files, exclude build artifacts, clear commit messages
 - **PornSpot.ai Categories** - Architecture & Setup, Analysis & Planning, Implementation, Quality Assurance
+
+### Advanced Knowledge ([Full Details](.github/web-agent/instructions/v2/08-implicit-training-knowledge.md))
+- **AI-Enhanced Development** - Leverage training knowledge for sophisticated solutions
+- **Serverless Excellence** - Cold start optimization, event-driven architecture patterns
+- **Security & Privacy** - Content platform security, compliance, and privacy protection
+- **Performance Optimization** - Media-heavy application optimization strategies
+
+### Comprehensive Practices ([Full Details](.github/web-agent/instructions/v2/09-comprehensive-development-practices.md))
+- **Advanced Debugging** - Distributed tracing, CloudWatch insights, cross-service debugging
+- **Sophisticated Architecture** - Domain-driven design, microservice boundaries, event sourcing
+- **Platform Mastery** - DynamoDB optimization, Lambda excellence, Next.js optimization
+- **Innovation Excellence** - Emerging technology evaluation, accessibility, cross-platform strategy
 
 ## 🏗️ Architecture Overview
 
@@ -57,11 +69,10 @@ This is a serverless adult content gallery platform with Next.js frontend and AW
 # Dependencies (required order)
 npm run install:all  # Never use npm install in workspaces directly
 
-# Local development (separate terminals)
-./scripts/start-local-backend.sh    # Starts LocalStack + SAM + API on :3001
+# Local development
 npm run dev:frontend               # Frontend on :3000
 
-# Key facts: Backend changes require full restart, Frontend has HMR
+# Key facts: Backend requires AWS deployment due to Docker images, Frontend has HMR
 ```
 
 ### Permission System (Critical)
@@ -204,12 +215,12 @@ npm run install:all
 
 # 2. Environment files (copy examples)
 cp frontend/.env.example frontend/.env.local
-cp backend/.env.example.json backend/.env.local.json
-cp scripts/.env.example scripts/.env.local
 
-# 3. Start services (separate terminals)
-./scripts/start-local-backend.sh    # Starts LocalStack + SAM + API on :3001
+# 3. Start frontend development
 npm run dev:frontend               # Frontend on :3000
+
+# Note: Backend API requires AWS deployment due to Docker images
+# Local backend development is not supported with current Docker-based functions
 ```
 
 ### Deployment Process
@@ -229,14 +240,13 @@ cd frontend && npm run build && vercel --prod
 - **SAM Template:** `/template.yaml` (infrastructure as code)
 
 ## ⚠️ Common Gotchas
-1. **Backend changes require full restart** - no hot module replacement
+1. **Backend requires AWS deployment** - no local backend development due to Docker images
 2. **Always use `npm run install:all`** instead of workspace npm install
 3. **DynamoDB queries must use GSIs** for non-key lookups
 4. **Thumbnail URLs need composition** via `urlUtils.composeThumbnailUrls()`
 5. **Permission checks required** before rendering Pro features
 6. **CORS headers mandatory** in all Lambda responses
-7. **LocalStack endpoint** must be configured for local S3/DynamoDB access
-8. **Separate terminals required** for backend script and frontend dev server
+7. **Frontend only for local development** - backend must be deployed to AWS for testing
 
 ## 🛡️ Environment & Limitations ([Full Details](.github/web-agent/instructions/v2/05-environment-limitations.md))
 
@@ -277,3 +287,5 @@ For detailed guidance on any aspect, refer to the specialized instruction files:
 - [Environment Limitations](.github/web-agent/instructions/v2/05-environment-limitations.md)
 - [Tool Usage](.github/web-agent/instructions/v2/06-tool-usage.md)
 - [Task Execution](.github/web-agent/instructions/v2/07-task-execution.md)
+- [Implicit Training Knowledge](.github/web-agent/instructions/v2/08-implicit-training-knowledge.md)
+- [Comprehensive Development Practices](.github/web-agent/instructions/v2/09-comprehensive-development-practices.md)

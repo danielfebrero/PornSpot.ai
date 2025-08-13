@@ -24,12 +24,11 @@ Maintain the highest code quality standards through comprehensive testing, linti
 # Dependency installation (correct order)
 npm run install:all  # Never use npm install in workspaces directly
 
-# Development workflow
-./scripts/start-local-backend.sh    # LocalStack + SAM + API on :3001
-npm run dev:frontend               # Frontend on :3000 - separate terminal
+# Development workflow (frontend only)
+npm run dev:frontend               # Frontend on :3000
 
-# Backend changes require full restart (no hot reload)
-# Frontend has HMR enabled
+# Note: Backend API requires AWS deployment due to Docker images
+# Local backend development is not supported with current Docker-based functions
 ```
 
 ### 4. Testing Commands
@@ -107,11 +106,11 @@ npm run sam:local               # Local SAM API
 
 ## Environment-Specific Considerations
 
-### 9. Local Development Testing
-- **LocalStack testing** - S3/DynamoDB with `--endpoint-url http://localhost:4566`
-- **API testing** - Use `http://localhost:3001/{endpoint}` for local backend
-- **Database testing** - DynamoDB local via LocalStack
-- **File uploads** - S3 local testing via LocalStack
+### 9. Development Testing
+- **Frontend testing** - Full local development and testing available
+- **Backend testing** - Requires AWS deployment due to Docker images  
+- **Database testing** - Access via deployed AWS resources
+- **File uploads** - S3 testing via deployed environment
 
 ### 10. Common Gotchas
 - **Backend changes require full restart** - no hot module replacement
@@ -125,4 +124,4 @@ npm run sam:local               # Local SAM API
 2. **Iterative testing** - test each change immediately after implementation
 3. **Comprehensive validation** - run full test suite before completion
 4. **Coverage analysis** - ensure new code has appropriate test coverage
-5. **Performance validation** - verify serverless optimization compliance
+5. **Performance validation** - verify serverless optimization complianceess optimization compliance

@@ -37,12 +37,12 @@ Leverage the comprehensive tool ecosystem effectively to maximize development ef
 # Use async=false for long-running operations (2+ minutes)
 npm run build                    # timeout: 300, async: false
 npm run test:ci                  # timeout: 200, async: false  
-./scripts/start-local-backend.sh # timeout: 180, async: false
 
 # Use async=true for interactive tools and daemons
 npm run dev:frontend            # async: true for ongoing development
-sam local start-api             # async: true for interactive debugging
 node --inspect debugging.js     # async: true for debugging sessions
+
+# Note: Local backend API not supported due to Docker images
 ```
 
 **Interactive Tool Mastery:**
@@ -126,12 +126,10 @@ npm run install:all
 cp frontend/.env.example frontend/.env.local
 cp backend/.env.example.json backend/.env.local.json
 
-# Multi-terminal development
-# Terminal 1: Backend
-./scripts/start-local-backend.sh
-
-# Terminal 2: Frontend  
+# Frontend development only
 npm run dev:frontend
+
+# Note: Backend requires AWS deployment due to Docker images
 ```
 
 **Type Management:**
@@ -161,8 +159,11 @@ npm run build
 npm run db:setup
 npm run local:start
 
-# Development with LocalStack
-sam local start-api --port 3001 --endpoint-url http://localhost:4566
+# Frontend deployment and testing
+npm run build:frontend
+npm run test:frontend
+
+# Note: Backend development requires AWS deployment
 ```
 
 **Permission System Integration:**
