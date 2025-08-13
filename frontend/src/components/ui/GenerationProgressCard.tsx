@@ -106,18 +106,22 @@ export function GenerationProgressCard({
               {/* Status Header */}
               {queueStatus && (
                 <div className="text-center space-y-2">
-                  {queueStatus.status === "pending" && (
-                    <>
-                      <h3 className="text-lg font-semibold text-foreground">
-                        Queued for Generation
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Position #{queueStatus.queuePosition} in queue
-                      </p>
-                    </>
-                  )}
+                  {queueStatus.status === "pending" &&
+                    !currentNode &&
+                    (progress === 0 || maxProgress === 0) && (
+                      <>
+                        <h3 className="text-lg font-semibold text-foreground">
+                          Queued for Generation
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Position #{queueStatus.queuePosition} in queue
+                        </p>
+                      </>
+                    )}
 
-                  {queueStatus.status === "processing" && (
+                  {(queueStatus.status === "processing" ||
+                    currentNode ||
+                    (progress > 0 && maxProgress > 0)) && (
                     <>
                       <h3 className="text-lg font-semibold text-foreground">
                         {isRetrying
