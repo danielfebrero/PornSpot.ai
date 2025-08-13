@@ -1,5 +1,23 @@
 # Testing Guide for pornspot.ai
 
+⚠️ **CRITICAL NOTICE: Testing infrastructure is currently broken and requires significant refactoring work.**
+
+**Current Status:**
+- Backend tests fail with compilation errors and import issues
+- Test coverage claims in this document are aspirational, not current reality
+- Test infrastructure exists but is non-functional
+- Significant development work is needed to make tests operational
+
+**Known Issues:**
+- Import path errors in test files
+- Type mismatches between test mocks and actual types  
+- Missing shared utilities in test environment
+- Jest configuration issues with module resolution
+
+**This document describes the intended testing architecture, but the implementation is currently broken.**
+
+---
+
 This comprehensive guide covers the complete testing infrastructure for the pornspot.ai project, including setup, execution, and best practices for both backend and frontend testing.
 
 ## Table of Contents
@@ -19,14 +37,18 @@ This comprehensive guide covers the complete testing infrastructure for the porn
 
 ## Overview
 
-The pornspot.ai project implements a comprehensive testing strategy that includes:
+**⚠️ IMPORTANT: The testing infrastructure described below is currently non-functional.**
 
-- **Backend Testing**: Unit and integration tests for AWS Lambda functions using Jest
-- **Frontend Testing**: Component, integration, and accessibility tests using Jest + React Testing Library
-- **End-to-End Testing**: Full application testing using Playwright
-- **Visual Regression Testing**: Automated screenshot comparison
-- **Performance Testing**: Lighthouse CI integration
-- **Security Testing**: Dependency scanning and vulnerability assessment
+The pornspot.ai project *intends to implement* a comprehensive testing strategy that includes:
+
+- **Backend Testing**: Unit and integration tests for AWS Lambda functions using Jest (❌ Currently broken)
+- **Frontend Testing**: Component, integration, and accessibility tests using Jest + React Testing Library (❌ Status unknown)
+- **End-to-End Testing**: Full application testing using Playwright (❌ Status unknown)
+- **Visual Regression Testing**: Automated screenshot comparison (❌ Not implemented)
+- **Performance Testing**: Lighthouse CI integration (❌ Not implemented)
+- **Security Testing**: Dependency scanning and vulnerability assessment (❌ Status unknown)
+
+**Reality Check:** The backend tests have numerous compilation errors and import failures. This documentation describes the intended architecture but should not be considered a working implementation guide.
 
 ### Testing Pyramid
 

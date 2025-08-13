@@ -821,7 +821,7 @@ The frontend automatically selects optimal thumbnail sizes based on:
 Authenticate a user and create a session.
 
 ```http
-POST /user/auth/login
+POST /user/login
 Content-Type: application/json
 
 {
@@ -852,7 +852,7 @@ Content-Type: application/json
 Create a new user account.
 
 ```http
-POST /user/auth/register
+POST /user/register
 Content-Type: application/json
 
 {
@@ -867,7 +867,7 @@ Content-Type: application/json
 End the current user session.
 
 ```http
-POST /user/auth/logout
+POST /user/logout
 Cookie: sessionId=session-token-here
 ```
 
@@ -947,7 +947,7 @@ Content-Type: application/json
 Get the currently authenticated user's information.
 
 ```http
-GET /user/auth/me
+GET /user/me
 Cookie: sessionId=session-token-here
 ```
 
@@ -1001,6 +1001,57 @@ All fields are optional. Only provided fields will be updated.
 - `400 Bad Request`: Validation errors (username taken, invalid format, etc.)
 - `401 Unauthorized`: User session required
 - `405 Method Not Allowed`: Only PUT method allowed
+- `500 Internal Server Error`: Server error
+
+### Upload Profile Avatar
+
+Upload or update the user's profile avatar image.
+
+```http
+POST /user/profile/avatar/upload
+Content-Type: application/json
+Authorization: User session required
+
+{
+  "filename": "avatar.jpg",
+  "mimeType": "image/jpeg",
+  "size": 524288
+}
+```
+
+**Request Body:**
+
+| Field      | Type   | Required | Description                    |
+| ---------- | ------ | -------- | ------------------------------ |
+| `filename` | string | Yes      | Original filename              |
+| `mimeType` | string | Yes      | Image MIME type                |
+| `size`     | number | Yes      | File size in bytes (max 5MB)  |
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "uploadUrl": "https://s3.amazonaws.com/bucket/presigned-upload-url",
+    "avatarId": "avatar-123",
+    "expiresAt": "2024-01-15T17:00:00.000Z"
+  }
+}
+```
+
+**Upload Flow:**
+
+1. **Request upload URL** - POST to `/user/profile/avatar/upload`
+2. **Upload file** - PUT to the returned `uploadUrl`
+3. **Automatic processing** - Avatar is resized and optimized
+4. **Profile update** - User profile updated with new avatar URL
+
+**Error Responses:**
+
+- `400 Bad Request`: Invalid file type or size
+- `401 Unauthorized`: User session required
+- `413 Payload Too Large`: File exceeds 5MB limit
 - `500 Internal Server Error`: Server error
 
 ### Get Public User Profile
@@ -1070,6 +1121,52 @@ Cookie: sessionId=session-token-here
 - `404 Not Found`: User not found or inactive
 - `405 Method Not Allowed`: Only GET method allowed
 - `500 Internal Server Error`: Server error
+
+## AI Image Generation API
+
+### Generate Images
+
+Generate AI images using the ComfyUI integration.
+
+```http
+POST /generation/generate
+Content-Type: application/json
+Cookie: sessionId=session-token-here
+
+{
+  "prompt": "A beautiful landscape with mountains",
+  "negativePrompt": "blurry, low quality",
+  "width": 512,
+  "height": 512,
+  "model": "stable-diffusion-xl"
+}
+```
+
+**Request Body:**
+
+| Field             | Type   | Required | Description                           |
+| ----------------- | ------ | -------- | ------------------------------------- |
+| `prompt`          | string | Yes      | Text description of desired image     |
+| `negativePrompt`  | string | No       | What to exclude from generation (Pro) |
+| `width`           | number | No       | Image width (Pro only for custom)    |
+| `height`          | number | No       | Image height (Pro only for custom)   |
+| `model`           | string | No       | AI model to use                       |
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "jobId": "gen-123456",
+    "status": "queued",
+    "estimatedTime": "30-60 seconds"
+  }
+}
+```
+
+**Authentication:** Required - User session with generation permissions
+**Plan Restrictions:** Features limited by subscription plan
 
 ## User Account Management API
 
@@ -1337,7 +1434,7 @@ Cookie: sessionId=session-token-here
 #### Admin Login
 
 ```http
-POST /admin/auth/login
+POST /admin/login
 Content-Type: application/json
 
 {
@@ -1538,7 +1635,7 @@ if (success && data.media) {
 }
 
 // User authentication example
-const loginResponse = await fetch("https://api-gateway-url/user/auth/login", {
+const loginResponse = await fetch("https://api-gateway-url/user/login", {
   method: "POST",
   credentials: "include",
   headers: {
@@ -1571,7 +1668,7 @@ curl -c cookies.txt \
      -X POST \
      -H "Content-Type: application/json" \
      -d '{"email":"user@example.com","password":"password"}' \
-     "https://api-gateway-url/user/auth/login"
+     "https://api-gateway-url/user/login"
 
 # List user's bookmarks (requires authentication)
 curl -b cookies.txt \
@@ -1582,7 +1679,7 @@ curl -c admin-cookies.txt \
      -X POST \
      -H "Content-Type: application/json" \
      -d '{"username":"admin","password":"adminpassword"}' \
-     "https://api-gateway-url/admin/auth/login"
+     "https://api-gateway-url/admin/login"
 
 # Get admin stats
 curl -b admin-cookies.txt \
@@ -1624,13 +1721,13 @@ curl -b admin-cookies.txt \
 
 **New Endpoints:**
 
-- `POST /user/auth/login` - User authentication
+- `POST /user/login` - User authentication
 - `GET /user/interactions/likes` - User's liked media
 - `GET /user/interactions/bookmarks` - User's bookmarked media
 - `POST /user/interactions/like` - Like/unlike media
 - `POST /user/interactions/bookmark` - Bookmark/unbookmark media
 - `GET /admin/stats` - System statistics
-- `POST /admin/auth/login` - Admin authentication
+- `POST /admin/login` - Admin authentication
 
 ### Best Practices
 
