@@ -20,6 +20,7 @@ export interface WorkflowNode {
   classType: string;
   nodeTitle: string;
   dependencies: string[];
+  estTimeUnits: number;
 }
 
 export interface WorkflowData {

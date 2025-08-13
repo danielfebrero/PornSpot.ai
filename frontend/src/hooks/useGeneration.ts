@@ -3,7 +3,12 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import { WebSocketMessage, GenerationQueueStatus } from "@/types/websocket";
-import { GenerationResponse, GenerationSettings, Media } from "@/types";
+import {
+  GenerationResponse,
+  GenerationSettings,
+  Media,
+  WorkflowNode,
+} from "@/types";
 import { generateApi } from "@/lib/api/generate";
 
 interface GenerationRequest extends GenerationSettings {}
@@ -20,12 +25,7 @@ interface UseGenerationReturn {
   nodeState: string;
   retryCount: number;
   isRetrying: boolean;
-  workflowNodes: Array<{
-    nodeId: string;
-    classType: string;
-    nodeTitle: string;
-    dependencies: string[];
-  }>;
+  workflowNodes: WorkflowNode[];
   currentNodeIndex: number;
   generateImages: (request: GenerationRequest) => Promise<void>;
   clearResults: () => void;
@@ -47,14 +47,7 @@ export function useGeneration(): UseGenerationReturn {
   const [isRetrying, setIsRetrying] = useState(false);
 
   // New workflow state
-  const [workflowNodes, setWorkflowNodes] = useState<
-    Array<{
-      nodeId: string;
-      classType: string;
-      nodeTitle: string;
-      dependencies: string[];
-    }>
-  >([]);
+  const [workflowNodes, setWorkflowNodes] = useState<WorkflowNode[]>([]);
   const [currentNodeIndex, setCurrentNodeIndex] = useState(0);
 
   const { subscribe, unsubscribe, isConnected } = useWebSocket();
@@ -87,6 +80,67 @@ export function useGeneration(): UseGenerationReturn {
 
       // Only show progress for current node or later nodes, not past nodes
       return foundNodeIndex >= nodeIndex;
+    },
+    []
+  );
+
+  // Helper function to calculate overall progress based on estTimeUnits
+  const calculateOverallProgress = useCallback(
+    (
+      currentNodeId: string,
+      currentNodeProgress: number,
+      currentNodeMaxProgress: number,
+      nodes: typeof workflowNodes,
+      nodeIndex: number
+    ): { overallProgress: number; overallMaxProgress: number } => {
+      if (nodes.length === 0) {
+        return {
+          overallProgress: currentNodeProgress,
+          overallMaxProgress: currentNodeMaxProgress,
+        };
+      }
+
+      // Calculate total estTimeUnits across all nodes
+      const totalEstTimeUnits = nodes.reduce(
+        (sum, node) => sum + node.estTimeUnits,
+        0
+      );
+
+      // Calculate completed estTimeUnits (nodes before current node)
+      let completedEstTimeUnits = 0;
+      for (let i = 0; i < nodeIndex && i < nodes.length; i++) {
+        completedEstTimeUnits += nodes[i].estTimeUnits;
+      }
+
+      // Add progress from current node if it's processing
+      let currentNodeEstTimeUnits = 0;
+      if (
+        currentNodeId &&
+        currentNodeProgress > 0 &&
+        currentNodeMaxProgress > 0
+      ) {
+        const currentNode = nodes.find((node) => node.nodeId === currentNodeId);
+        if (currentNode) {
+          const nodeProgressRatio =
+            currentNodeProgress / currentNodeMaxProgress;
+          currentNodeEstTimeUnits =
+            currentNode.estTimeUnits * nodeProgressRatio;
+        }
+      }
+
+      const totalCompletedEstTimeUnits =
+        completedEstTimeUnits + currentNodeEstTimeUnits;
+
+      // Calculate overall progress as percentage
+      const overallProgress =
+        totalEstTimeUnits > 0
+          ? Math.round((totalCompletedEstTimeUnits / totalEstTimeUnits) * 100)
+          : 0;
+
+      return {
+        overallProgress,
+        overallMaxProgress: 100,
+      };
     },
     []
   );
@@ -127,7 +181,7 @@ export function useGeneration(): UseGenerationReturn {
           break;
 
         case "job_progress":
-          // Handle enhanced node-level progress with intelligent filtering
+          // Handle enhanced node-level progress with overall progress calculation
           if (message.progressData) {
             console.log({ message });
             const { progressData } = message;
@@ -148,8 +202,19 @@ export function useGeneration(): UseGenerationReturn {
               )
             ) {
               console.log("Should show node progress:", nodeId);
-              setProgress(progressData.value);
-              setMaxProgress(progressData.max);
+
+              // Calculate overall progress based on estTimeUnits
+              const { overallProgress, overallMaxProgress } =
+                calculateOverallProgress(
+                  nodeId,
+                  progressData.value,
+                  progressData.max,
+                  currentWorkflowNodes,
+                  currentNodeIdx
+                );
+
+              setProgress(overallProgress);
+              setMaxProgress(overallMaxProgress);
 
               // Use nodeTitle from workflow or fallback to nodeName
               const nodeTitle =
@@ -159,7 +224,7 @@ export function useGeneration(): UseGenerationReturn {
                 progressData.displayNodeId ||
                 nodeId;
 
-              console.log({ nodeTitle });
+              console.log({ nodeTitle, overallProgress, overallMaxProgress });
 
               setCurrentNode(nodeTitle);
               setNodeState(progressData.nodeState || "");
@@ -265,7 +330,7 @@ export function useGeneration(): UseGenerationReturn {
           break;
       }
     },
-    [unsubscribe, shouldShowNodeProgress]
+    [unsubscribe, shouldShowNodeProgress, calculateOverallProgress]
   );
 
   const generateImages = useCallback(

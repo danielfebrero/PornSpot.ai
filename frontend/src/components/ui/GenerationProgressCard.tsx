@@ -64,9 +64,7 @@ export function GenerationProgressCard({
     if (isQueued)
       return {
         title: "Queued for Generation",
-        subtitle: queueStatus?.queuePosition
-          ? `Position #${queueStatus.queuePosition} in queue`
-          : "Waiting to start",
+        subtitle: "Waiting to start",
       };
     if (isRetrying)
       return {

@@ -31,6 +31,7 @@ export interface ComfyUIWorkflow {
     inputs: Record<string, any>;
     _meta?: {
       title: string;
+      estTimeUnits: number;
     };
   };
 }
@@ -65,6 +66,7 @@ export function createComfyUIWorkflow(
       },
       _meta: {
         title: "Load Checkpoint",
+        estTimeUnits: 1,
       },
     },
 
@@ -77,6 +79,7 @@ export function createComfyUIWorkflow(
       },
       _meta: {
         title: "CLIP Text Encode (Prompt)",
+        estTimeUnits: 2,
       },
     },
 
@@ -88,7 +91,8 @@ export function createComfyUIWorkflow(
         clip: ["11", 1],
       },
       _meta: {
-        title: "CLIP Text Encode (Prompt)",
+        title: "CLIP Text Encode (Negative Prompt)",
+        estTimeUnits: 2,
       },
     },
 
@@ -102,6 +106,7 @@ export function createComfyUIWorkflow(
       },
       _meta: {
         title: "Empty Latent Image",
+        estTimeUnits: 1,
       },
     },
 
@@ -122,6 +127,7 @@ export function createComfyUIWorkflow(
       },
       _meta: {
         title: "KSampler",
+        estTimeUnits: 100,
       },
     },
 
@@ -134,6 +140,7 @@ export function createComfyUIWorkflow(
       },
       _meta: {
         title: "VAE Decode",
+        estTimeUnits: 2,
       },
     },
 
@@ -146,6 +153,7 @@ export function createComfyUIWorkflow(
       },
       _meta: {
         title: "Save Image",
+        estTimeUnits: 5,
       },
     },
   };
@@ -167,6 +175,7 @@ export function createComfyUIWorkflow(
         },
         _meta: {
           title: `LoRA Loader ${index + 1}`,
+          estTimeUnits: 10,
         },
       };
 
