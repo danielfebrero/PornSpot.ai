@@ -21,6 +21,25 @@ export interface InteractionResponse {
   error?: string;
 }
 
+// Interaction status for UI components
+export interface InteractionStatus {
+  targetType: TargetType;
+  targetId: string;
+  userLiked: boolean;
+  userBookmarked: boolean;
+  likeCount: number;
+  bookmarkCount: number;
+}
+
+export interface InteractionTarget {
+  targetType: TargetType;
+  targetId: string;
+}
+
+export interface InteractionStatusResponse {
+  statuses: InteractionStatus[];
+}
+
 export interface InteractionCountsResponse {
   success: boolean;
   data?: {

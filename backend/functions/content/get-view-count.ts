@@ -11,6 +11,7 @@ import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
+import { ViewCountTarget, ViewCountResponse } from "@shared";
 
 const handleGetViewCount = async (
   event: APIGatewayProxyEvent
@@ -18,10 +19,7 @@ const handleGetViewCount = async (
   console.log("🔄 Get view count function called");
 
   // Parse request body for bulk view count fetch
-  let targets: Array<{
-    targetType: "album" | "media";
-    targetId: string;
-  }> = [];
+  let targets: ViewCountTarget[] = [];
 
   if (event.body) {
     const body = JSON.parse(event.body);
@@ -106,7 +104,7 @@ const handleGetViewCount = async (
 
   return ResponseUtil.success(event, {
     viewCounts,
-  });
+  } as ViewCountResponse);
 };
 
 export const handler = LambdaHandlerUtil.withoutAuth(handleGetViewCount, {

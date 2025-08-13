@@ -20,12 +20,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { GenerationQueueService } from "@shared/services/generation-queue";
-
-interface WebSocketMessage {
-  action: string;
-  data?: any;
-  requestId?: string;
-}
+import { WebSocketMessage } from "@shared/shared-types/websocket";
 
 // Removed SubscriptionEntity interface - using queue entry connectionId instead
 

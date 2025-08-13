@@ -19,11 +19,9 @@ import { GenerationQueueService } from "@shared/services/generation-queue";
 import { EventBridge } from "aws-sdk";
 import type {
   GenerationResponse,
-  GenerationSettings,
+  GenerationRequest,
   WorkflowFinalParams,
 } from "@shared/shared-types";
-
-interface GenerationRequest extends GenerationSettings {}
 
 const handleGenerate = async (
   event: APIGatewayProxyEvent,
@@ -87,27 +85,25 @@ const handleGenerate = async (
   const permissions = getGenerationPermissions(userPlan);
 
   // Validate batch count
-  if (batchCount > permissions.maxBatch) {
+  if (batchCount > 1 && !permissions.canUseBulkGeneration) {
     return ResponseUtil.forbidden(
       event,
-      `Your plan allows maximum ${permissions.maxBatch} image${
-        permissions.maxBatch === 1 ? "" : "s"
-      } per batch`
+      `Your plan allows maximum 1 image per batch`
     );
   }
 
   // Validate LoRA usage
-  if (selectedLoras.length > 0 && !permissions.canUseLoRA) {
+  if (selectedLoras.length > 0 && !permissions.canUseLoRAModels) {
     return ResponseUtil.forbidden(event, "LoRA models require a Pro plan");
   }
 
   // Validate LoRA usage
-  if (loraSelectionMode !== "auto" && !permissions.canUseLoRA) {
+  if (loraSelectionMode !== "auto" && !permissions.canUseLoRAModels) {
     return ResponseUtil.forbidden(event, "LoRA models require a Pro plan");
   }
 
   // Validate LoRA usage
-  if (Object.keys(loraStrengths).length > 0 && !permissions.canUseLoRA) {
+  if (Object.keys(loraStrengths).length > 0 && !permissions.canUseLoRAModels) {
     return ResponseUtil.forbidden(event, "LoRA models require a Pro plan");
   }
 
@@ -121,7 +117,7 @@ const handleGenerate = async (
   }
 
   // Validate custom image size
-  if (imageSize === "custom" && !permissions.canUseCustomSize) {
+  if (imageSize === "custom" && !permissions.canSelectImageSizes) {
     return ResponseUtil.forbidden(event, "Custom image sizes require Pro plan");
   }
 

@@ -1,31 +1,24 @@
-// User Plan and Permission System Types
+// User Plan and Permission System Types - now imported from shared-types
 
-export type UserPlan = "free" | "starter" | "unlimited" | "pro";
+// Import shared permission types
+import type {
+  UserPlan,
+  UserRole,
+  PlanPermissions,
+  RolePermissions,
+  PermissionContext,
+} from "@/types/shared-types";
 
-export type UserRole = "user" | "admin" | "moderator";
+// Re-export for convenience
+export type {
+  UserPlan,
+  UserRole,
+  PlanPermissions,
+  RolePermissions,
+  PermissionContext,
+};
 
-// Specific permissions for different features
-export interface PlanPermissions {
-  // Image generation limits
-  imagesPerMonth: number | "unlimited";
-  imagesPerDay: number | "unlimited";
-
-  // Core features
-  canGenerateImages: boolean;
-  canUseNegativePrompt: boolean;
-  canUseBulkGeneration: boolean;
-  canUseLoRAModels: boolean;
-  canSelectImageSizes: boolean;
-
-  // Content management
-  canCreatePrivateContent: boolean;
-
-  // Community features
-  canBookmark: boolean;
-  canLike: boolean;
-  canComment: boolean;
-  canShare: boolean;
-}
+// Additional frontend-specific user types
 export interface UserPlanInfo {
   plan: UserPlan;
   isActive: boolean;
@@ -37,7 +30,20 @@ export interface UserPlanInfo {
   permissions: PlanPermissions;
 }
 
-export interface UserWithPlan extends User {
+export interface UserWithPlan {
+  // Base user properties (without importing User to avoid circular dependency)
+  userId: string;
+  email: string;
+  username?: string;
+  createdAt: string;
+  isActive: boolean;
+  isEmailVerified: boolean;
+  lastLoginAt?: string;
+  bio?: string;
+  location?: string;
+  website?: string;
+
+  // Plan-specific properties
   role: UserRole;
   planInfo: UserPlanInfo;
   // Usage tracking
@@ -51,27 +57,5 @@ export interface UserWithPlan extends User {
 // Plan definitions - these will be loaded dynamically now
 // export const PLAN_DEFINITIONS: Record<UserPlan, PlanPermissions> = permissionsConfig.planPermissions;
 
-// Role-based permissions (for admin functions)
-export interface RolePermissions {
-  canAccessAdmin: boolean;
-  canManageUsers: boolean;
-  canManageContent: boolean;
-  canViewAnalytics: boolean;
-  canModerateContent: boolean;
-  canManageReports: boolean;
-  canManageSubscriptions: boolean;
-  canAccessSystemSettings: boolean;
-}
-
 // Role-based permissions - these will also be loaded dynamically now
 // export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = permissionsConfig.rolePermissions;
-
-// Permission check helper types
-export interface PermissionContext {
-  feature: string;
-  action: string;
-  resource?: string;
-}
-
-// Import the base User interface
-import { User } from "@/types";

@@ -1,21 +1,16 @@
 import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { adminAlbumsApi } from "@/lib/api";
 import { queryKeys, queryClient, invalidateQueries } from "@/lib/queryClient";
-import type { Album, UnifiedPaginationMeta } from "@/types";
+import type {
+  Album,
+  UnifiedPaginationMeta,
+  CreateAdminAlbumRequest,
+  UpdateAdminAlbumRequest,
+} from "@/types";
 
-// Types for admin album operations
-interface CreateAdminAlbumData {
-  title: string;
-  description?: string;
-  isPublic: boolean;
-}
-
-interface UpdateAdminAlbumData {
-  title?: string;
-  tags?: string[];
-  isPublic?: boolean;
-  coverImageUrl?: string;
-}
+// Types for admin album operations - using shared types
+type CreateAdminAlbumData = CreateAdminAlbumRequest;
+type UpdateAdminAlbumData = UpdateAdminAlbumRequest;
 
 interface AdminAlbumsResponse {
   albums: Album[];
@@ -33,9 +28,7 @@ export function useAdminAlbumsQuery(params: { limit?: number } = {}) {
 
   return useInfiniteQuery({
     queryKey: queryKeys.admin.albums.all(),
-    queryFn: async ({
-      pageParam,
-    }): Promise<AdminAlbumsResponse> => {
+    queryFn: async ({ pageParam }): Promise<AdminAlbumsResponse> => {
       return await adminAlbumsApi.getAlbums({
         limit,
         cursor: pageParam,
@@ -133,10 +126,13 @@ export function useUpdateAdminAlbum() {
       );
 
       // Optimistically update the album
-      queryClient.setQueryData(queryKeys.albums.detail(albumId), (old: Album | undefined) => {
-        if (!old) return old;
-        return { ...old, ...updates };
-      });
+      queryClient.setQueryData(
+        queryKeys.albums.detail(albumId),
+        (old: Album | undefined) => {
+          if (!old) return old;
+          return { ...old, ...updates };
+        }
+      );
 
       // Return context for rollback
       return { previousAlbum, albumId };
@@ -186,17 +182,20 @@ export function useDeleteAdminAlbum() {
       );
 
       // Optimistically remove the album from admin list
-      queryClient.setQueryData(queryKeys.admin.albums.all(), (old: InfiniteAdminAlbumsData | undefined) => {
-        if (!old?.pages) return old;
+      queryClient.setQueryData(
+        queryKeys.admin.albums.all(),
+        (old: InfiniteAdminAlbumsData | undefined) => {
+          if (!old?.pages) return old;
 
-        return {
-          ...old,
-          pages: old.pages.map((page) => ({
-            ...page,
-            albums: page.albums.filter((album) => album.id !== albumId),
-          })),
-        };
-      });
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              albums: page.albums.filter((album) => album.id !== albumId),
+            })),
+          };
+        }
+      );
 
       // Return context for rollback
       return { previousAlbums, albumId };
@@ -245,19 +244,22 @@ export function useBulkDeleteAdminAlbums() {
       );
 
       // Optimistically remove the albums from admin list
-      queryClient.setQueryData(queryKeys.admin.albums.all(), (old: InfiniteAdminAlbumsData | undefined) => {
-        if (!old?.pages) return old;
+      queryClient.setQueryData(
+        queryKeys.admin.albums.all(),
+        (old: InfiniteAdminAlbumsData | undefined) => {
+          if (!old?.pages) return old;
 
-        return {
-          ...old,
-          pages: old.pages.map((page) => ({
-            ...page,
-            albums: page.albums.filter(
-              (album) => !albumIds.includes(album.id)
-            ),
-          })),
-        };
-      });
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              albums: page.albums.filter(
+                (album) => !albumIds.includes(album.id)
+              ),
+            })),
+          };
+        }
+      );
 
       // Return context for rollback
       return { previousAlbums, albumIds };

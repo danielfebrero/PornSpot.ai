@@ -1,23 +1,13 @@
 import { useQuery, useQueries, useMutation } from "@tanstack/react-query";
 import { contentApi, interactionApi } from "@/lib/api";
 import { queryKeys, queryClient } from "@/lib/queryClient";
-import type { Album, Media } from "@/types";
-
-// Types
-interface ViewCountTarget {
-  targetType: "album" | "media";
-  targetId: string;
-}
-
-interface ViewCountItem {
-  targetType: "album" | "media";
-  targetId: string;
-  viewCount: number;
-}
-
-interface ViewCountResponse {
-  viewCounts: ViewCountItem[];
-}
+import type {
+  Album,
+  Media,
+  ViewCountTarget,
+  ViewCountItem,
+  ViewCountResponse,
+} from "@/types";
 
 // Cache data structures
 interface AlbumsListData {
@@ -319,14 +309,17 @@ function updateViewCountInCaches(
       ? queryKeys.albums.detail(targetId)
       : queryKeys.media.detail(targetId);
 
-  queryClient.setQueryData(detailQueryKey, (oldData: DetailData | undefined) => {
-    if (!oldData) return oldData;
+  queryClient.setQueryData(
+    detailQueryKey,
+    (oldData: DetailData | undefined) => {
+      if (!oldData) return oldData;
 
-    return {
-      ...oldData,
-      viewCount: Math.max(0, (oldData.viewCount || 0) + increment),
-    };
-  });
+      return {
+        ...oldData,
+        viewCount: Math.max(0, (oldData.viewCount || 0) + increment),
+      };
+    }
+  );
 
   // Update in album lists (for albums)
   if (targetType === "album") {

@@ -1,4 +1,4 @@
-import { Media, UnifiedMediaResponse } from "@/types";
+import { Media, UnifiedMediaResponse, UploadMediaRequest } from "@/types";
 import { ApiUtil, PaginationParams } from "../api-util";
 
 // Media API Functions
@@ -35,11 +35,7 @@ export const mediaApi = {
   // Upload media to album
   uploadMedia: async (
     albumId: string,
-    mediaData: {
-      filename: string;
-      mimeType: string;
-      size: number;
-    }
+    mediaData: UploadMediaRequest
   ): Promise<{
     mediaId: string;
     uploadUrl: string;

@@ -1,7 +1,12 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { mediaApi } from "@/lib/api";
 import { queryKeys, queryClient, invalidateQueries } from "@/lib/queryClient";
-import { Media } from "@/types";
+import {
+  Media,
+  UploadMediaRequest,
+  AdminUploadMediaResponse,
+  AdminDeleteMediaRequest,
+} from "@/types";
 
 interface AlbumMediaData {
   media: Media[];
@@ -47,17 +52,8 @@ const adminMediaApi = {
   // Upload media (admin - uses existing media API endpoint)
   uploadMedia: async (
     albumId: string,
-    mediaData: {
-      filename: string;
-      mimeType: string;
-      size: number;
-    }
-  ): Promise<{
-    mediaId: string;
-    uploadUrl: string;
-    key: string;
-    expiresIn: number;
-  }> => {
+    mediaData: UploadMediaRequest
+  ): Promise<AdminUploadMediaResponse> => {
     const response = await fetch(`${API_URL}/albums/${albumId}/media`, {
       method: "POST",
       headers: {

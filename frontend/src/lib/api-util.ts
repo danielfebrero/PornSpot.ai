@@ -2,23 +2,16 @@
  * Shared API utilities to reduce duplication in frontend API calls
  */
 
+import { ApiResponse, PaginationRequest } from "@/types/shared-types";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 if (!API_URL) {
   throw new Error("NEXT_PUBLIC_API_URL is not set");
 }
 
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
-export interface PaginationParams {
-  limit?: number;
-  cursor?: string;
-}
+// Use PaginationRequest from shared-types but alias for clearer naming in this context
+export type PaginationParams = PaginationRequest;
 
 export interface ApiRequestConfig {
   method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
@@ -35,7 +28,10 @@ export class ApiUtil {
   /**
    * Build URL with query parameters
    */
-  static buildUrl(endpoint: string, params?: Record<string, string | number | boolean | undefined>): string {
+  static buildUrl(
+    endpoint: string,
+    params?: Record<string, string | number | boolean | undefined>
+  ): string {
     const url = new URL(`${API_URL}${endpoint}`);
 
     if (params) {
@@ -246,7 +242,12 @@ export class ApiUtil {
       return error;
     }
 
-    if (error && typeof error === "object" && "error" in error && typeof error.error === "string") {
+    if (
+      error &&
+      typeof error === "object" &&
+      "error" in error &&
+      typeof error.error === "string"
+    ) {
       return error.error;
     }
 
@@ -296,7 +297,7 @@ export class ApiUtil {
   ): Promise<T> {
     let lastError: unknown;
 
-      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         return await operation();
       } catch (error) {

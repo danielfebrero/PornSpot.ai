@@ -46,6 +46,35 @@ export interface UserLoginResponse {
   sessionId: string;
 }
 
+export interface UserProfileUpdateRequest {
+  username?: string;
+  bio?: string;
+  location?: string;
+  website?: string;
+  preferredLanguage?: string;
+}
+
+export interface UserProfileUpdateResponse {
+  message: string;
+  user?: {
+    userId: string;
+    email: string;
+    username?: string;
+    bio?: string;
+    location?: string;
+    website?: string;
+    preferredLanguage?: string;
+    createdAt: string;
+    lastLoginAt?: string;
+    avatarUrl?: string;
+    avatarThumbnails?: ThumbnailUrls;
+  };
+}
+
+export interface CancelSubscriptionResponse {
+  message: string;
+}
+
 export interface UserSessionValidationResult {
   isValid: boolean;
   user?: User;

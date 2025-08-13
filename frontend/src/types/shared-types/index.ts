@@ -9,6 +9,7 @@ export * from "./user";
 export * from "./admin";
 export * from "./interaction";
 export * from "./generation";
+export * from "./permissions";
 
 // Database entities
 export * from "./database";

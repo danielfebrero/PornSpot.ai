@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { mediaApi } from "@/lib/api";
 import { queryKeys, queryClient, invalidateQueries } from "@/lib/queryClient";
-import { UnifiedMediaResponse, Media } from "@/types";
+import { UnifiedMediaResponse, Media, UploadMediaRequest } from "@/types";
 
 // Types for infinite query data structure
 interface InfiniteMediaQueryData {
@@ -9,12 +9,8 @@ interface InfiniteMediaQueryData {
   pageParams: unknown[];
 }
 
-// Types
-interface UploadMediaData {
-  filename: string;
-  mimeType: string;
-  size: number;
-}
+// Types - using shared types
+type UploadMediaData = UploadMediaRequest;
 
 interface MediaQueryParams {
   limit?: number;

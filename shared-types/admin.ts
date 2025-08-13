@@ -33,6 +33,33 @@ export interface SessionValidationResult {
   session?: AdminSession;
 }
 
+// Admin Album Management Types
+export interface CreateAdminAlbumRequest {
+  title: string;
+  description?: string;
+  isPublic: boolean;
+}
+
+export interface UpdateAdminAlbumRequest {
+  title?: string;
+  tags?: string[];
+  isPublic?: boolean;
+  coverImageUrl?: string;
+}
+
+// Admin Media Management Types
+export interface AdminUploadMediaResponse {
+  mediaId: string;
+  uploadUrl: string;
+  key: string;
+  expiresIn: number;
+}
+
+export interface AdminDeleteMediaRequest {
+  albumId: string;
+  mediaId: string;
+}
+
 // Admin Statistics Types
 export interface AdminStats {
   totalAlbums: number;

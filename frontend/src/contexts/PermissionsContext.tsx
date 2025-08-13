@@ -66,13 +66,17 @@ export function PermissionsProvider({
         canManageReports: user.role === "admin" || user.role === "moderator",
         canManageSubscriptions: user.role === "admin",
         canAccessSystemSettings: user.role === "admin",
+        // Backend-specific permissions
+        canDeleteAnyContent: user.role === "admin" || user.role === "moderator",
+        canBanUsers: user.role === "admin",
+        canManageSystem: user.role === "admin",
       }
     : null;
 
   // Plan-based permission checks
   const canGenerateImages = (): boolean => {
     if (!user || !planPermissions) return false;
-    return planPermissions.canGenerateImages && user.planInfo.isActive;
+    return user.planInfo.isActive;
   };
 
   const canGenerateImagesCount = (

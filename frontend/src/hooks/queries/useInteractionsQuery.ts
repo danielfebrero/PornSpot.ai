@@ -12,28 +12,13 @@ import {
   UnifiedUserInteractionsResponse,
   UnifiedCommentsResponse,
 } from "@/types/user";
-import { CommentListResponse } from "@/types";
+import {
+  InteractionStatus,
+  InteractionTarget,
+  InteractionStatusResponse,
+} from "@/types";
 import { usePrefetchContext } from "@/contexts/PrefetchContext";
 import { useUserContext } from "@/contexts/UserContext";
-
-// Types for interaction status
-interface InteractionStatus {
-  targetType: "album" | "media" | "comment";
-  targetId: string;
-  userLiked: boolean;
-  userBookmarked: boolean;
-  likeCount: number;
-  bookmarkCount: number;
-}
-
-interface InteractionTarget {
-  targetType: "album" | "media" | "comment";
-  targetId: string;
-}
-
-interface InteractionStatusResponse {
-  statuses: InteractionStatus[];
-}
 
 // Hook for fetching user interaction status (like/bookmark status for items)
 export function useInteractionStatus(

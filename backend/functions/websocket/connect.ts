@@ -10,19 +10,7 @@ Special notes:
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-
-interface ConnectionEntity {
-  PK: string; // CONNECTION#{connectionId}
-  SK: string; // METADATA
-  GSI1PK: string; // WEBSOCKET_CONNECTIONS
-  GSI1SK: string; // {userId}#{connectionId} or ANONYMOUS#{connectionId}
-  EntityType: "WebSocketConnection";
-  connectionId: string;
-  userId?: string;
-  connectedAt: string;
-  lastActivity: string;
-  ttl: number; // TTL for automatic cleanup after 24 hours
-}
+import { ConnectionEntity } from "@shared/shared-types/websocket";
 
 // Initialize DynamoDB client
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
