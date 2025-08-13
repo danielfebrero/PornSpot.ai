@@ -331,6 +331,30 @@ Context window is becoming full.
 
 ## 🔄 Adaptive Execution & Error Recovery
 
+### Dynamic Plan Adjustment
+**When initial plans prove insufficient:**
+- **Use think tool** to analyze what changed and why
+- **Review git diff** to understand scope of changes made
+- **Check for over-deletion** - `git checkout <file>` if too much was removed
+- **Reassess requirements** - may have uncovered hidden complexity
+- **Communicate changes** clearly in progress reports
+
+### Change Impact Analysis
+```bash
+# Validate change scope
+git diff --numstat
+# Check lines deleted vs inserted per file
+# Deleted lines should be < 2x inserted lines for most changes
+
+# Review actual changes
+git --no-pager diff --color=always | head -100
+
+# Validate no regressions
+npm run test:ci
+npm run lint
+npm run type-check
+```
+
 ### Scope Discovery Protocol
 When you discover additional scope during implementation:
 
