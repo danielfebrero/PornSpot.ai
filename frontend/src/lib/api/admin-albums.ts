@@ -1,5 +1,9 @@
 import { ApiUtil } from "../api-util";
-import { Album } from "@/types";
+import {
+  Album,
+  CreateAdminAlbumRequest,
+  UpdateAdminAlbumRequest,
+} from "@/types";
 
 // Admin Albums API Functions
 export const adminAlbumsApi = {
@@ -27,11 +31,7 @@ export const adminAlbumsApi = {
   },
 
   // Create a new album (admin)
-  createAlbum: async (albumData: {
-    title: string;
-    description?: string;
-    isPublic: boolean;
-  }): Promise<any> => {
+  createAlbum: async (albumData: CreateAdminAlbumRequest): Promise<any> => {
     const response = await ApiUtil.post<any>("/albums", albumData);
     return ApiUtil.extractData(response);
   },
@@ -39,12 +39,7 @@ export const adminAlbumsApi = {
   // Update an album (admin)
   updateAlbum: async (
     albumId: string,
-    updates: {
-      title?: string;
-      tags?: string[];
-      isPublic?: boolean;
-      coverImageUrl?: string;
-    }
+    updates: UpdateAdminAlbumRequest
   ): Promise<any> => {
     const response = await ApiUtil.put<any>(
       `/admin/albums/${albumId}`,

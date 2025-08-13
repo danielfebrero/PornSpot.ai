@@ -26,7 +26,7 @@ export interface Album {
 export interface CreateAlbumRequest {
   title: string;
   tags?: string[];
-  isPublic?: boolean;
+  isPublic?: boolean; // Made optional to match frontend usage
   mediaIds?: string[]; // For user album creation with selected media
   coverImageId?: string; // Media ID to use as cover image
 }

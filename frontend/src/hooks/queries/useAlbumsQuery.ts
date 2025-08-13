@@ -6,28 +6,22 @@ import {
   updateCache,
   invalidateQueries,
 } from "@/lib/queryClient";
-import { Album, UnifiedAlbumsResponse, Media } from "@/types";
+import {
+  Album,
+  UnifiedAlbumsResponse,
+  Media,
+  CreateAlbumRequest,
+  UpdateAlbumRequest,
+} from "@/types";
 
-// Types
-interface CreateAlbumData {
-  title: string;
-  tags?: string[];
-  isPublic: boolean;
-  mediaIds?: string[];
-  coverImageId?: string;
-}
+// Types - using shared request types
+type CreateAlbumData = CreateAlbumRequest;
+type UpdateAlbumData = UpdateAlbumRequest;
 
 interface AlbumMediaResponse {
   media: Media[];
   nextCursor: string | undefined;
   hasNext: boolean;
-}
-
-interface UpdateAlbumData {
-  title?: string;
-  tags?: string[];
-  isPublic?: boolean;
-  coverImageUrl?: string;
 }
 
 interface AlbumsQueryParams {
@@ -141,9 +135,13 @@ export function useCreateAlbum() {
     mutationFn: async (data: CreateAlbumData) => {
       return await albumsApi.createAlbum(data);
     },
-    onSuccess: (newAlbum) => {
-      // Optimistically update the cache
-      updateCache.albumInLists(newAlbum, "add");
+    onSuccess: (response) => {
+      // Extract album data from API response
+      const newAlbum = response.data?.album;
+      if (newAlbum) {
+        // Optimistically update the cache
+        updateCache.albumInLists(newAlbum, "add");
+      }
 
       // Invalidate albums lists to ensure fresh data
       invalidateQueries.albumsLists();
@@ -275,43 +273,50 @@ export function useUpdateAlbum() {
       invalidateQueries.album(variables.albumId);
       invalidateQueries.albumsLists();
     },
-    onSuccess: (updatedAlbum, { albumId }) => {
-      // Ensure the cache is up to date with server response
-      queryClient.setQueryData(queryKeys.albums.detail(albumId), updatedAlbum);
+    onSuccess: (response, { albumId }) => {
+      // Extract album data from API response
+      const updatedAlbum = response.data?.album;
+      if (updatedAlbum) {
+        // Ensure the cache is up to date with server response
+        queryClient.setQueryData(
+          queryKeys.albums.detail(albumId),
+          updatedAlbum
+        );
 
-      // Update the album in all lists with server response
-      queryClient.setQueriesData(
-        { queryKey: queryKeys.albums.lists() },
-        (oldData: any) => {
-          if (!oldData) return oldData;
+        // Update the album in all lists with server response
+        queryClient.setQueriesData(
+          { queryKey: queryKeys.albums.lists() },
+          (oldData: any) => {
+            if (!oldData) return oldData;
 
-          // Handle infinite query format
-          if (oldData.pages) {
-            return {
-              ...oldData,
-              pages: oldData.pages.map((page: any) => ({
-                ...page,
-                albums:
-                  page.albums?.map((album: Album) =>
-                    album.id === albumId ? updatedAlbum : album
-                  ) || [],
-              })),
-            };
+            // Handle infinite query format
+            if (oldData.pages) {
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page: any) => ({
+                  ...page,
+                  albums:
+                    page.albums?.map((album: Album) =>
+                      album.id === albumId ? updatedAlbum : album
+                    ) || [],
+                })),
+              };
+            }
+
+            // Handle regular query format
+            if (oldData.albums) {
+              return {
+                ...oldData,
+                albums: oldData.albums.map((album: Album) =>
+                  album.id === albumId ? updatedAlbum : album
+                ),
+              };
+            }
+
+            return oldData;
           }
-
-          // Handle regular query format
-          if (oldData.albums) {
-            return {
-              ...oldData,
-              albums: oldData.albums.map((album: Album) =>
-                album.id === albumId ? updatedAlbum : album
-              ),
-            };
-          }
-
-          return oldData;
-        }
-      );
+        );
+      }
     },
   });
 }

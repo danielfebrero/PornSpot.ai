@@ -2,10 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
-
-interface CancelSubscriptionResponse {
-  message: string;
-}
+import { CancelSubscriptionResponse } from "@shared/shared-types/user";
 
 const handleCancelSubscription = async (
   event: APIGatewayProxyEvent,

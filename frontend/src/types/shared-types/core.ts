@@ -92,3 +92,25 @@ export interface Metadata {
     | Record<string, { mode: "auto" | "manual"; value: number }>
     | { [key: string]: string | number };
 }
+
+// View count types for content analytics
+export interface ViewCountTarget {
+  targetType: "album" | "media";
+  targetId: string;
+}
+
+export interface ViewCountItem {
+  targetType: "album" | "media";
+  targetId: string;
+  viewCount: number;
+}
+
+export interface ViewCountResponse {
+  viewCounts: ViewCountItem[];
+}
+
+// View tracking types (includes profile views)
+export interface ViewTrackingRequest {
+  targetType: "album" | "media" | "profile";
+  targetId: string;
+}

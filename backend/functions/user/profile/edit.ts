@@ -1,41 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
-import { UserEntity } from "@shared";
+import {
+  UserEntity,
+  UserProfileUpdateRequest,
+  UserProfileUpdateResponse,
+} from "@shared";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
-
-interface UpdateProfileRequest {
-  username?: string;
-  bio?: string;
-  location?: string;
-  website?: string;
-  preferredLanguage?: string;
-}
-
-interface UpdateProfileResponse {
-  message: string;
-  user?: {
-    userId: string;
-    email: string;
-    username: string;
-    bio?: string;
-    location?: string;
-    website?: string;
-    preferredLanguage?: string;
-    createdAt: string;
-    lastLoginAt?: string;
-
-    // Avatar information
-    avatarUrl?: string;
-    avatarThumbnails?: {
-      originalSize?: string;
-      small?: string;
-      medium?: string;
-      large?: string;
-    };
-  };
-}
 
 const handleEditProfile = async (
   event: APIGatewayProxyEvent,
@@ -60,7 +32,7 @@ const handleEditProfile = async (
   }
 
   // Parse request body
-  const updateData: UpdateProfileRequest = JSON.parse(event.body!);
+  const updateData: UserProfileUpdateRequest = JSON.parse(event.body!);
   console.log("📝 Profile update data:", updateData);
 
   // Validate input data using shared validation utilities
@@ -233,7 +205,7 @@ const handleEditProfile = async (
   // Only proceed if there are actually changes to make
   if (Object.keys(updates).length === 0) {
     console.log("ℹ️ No changes to apply");
-    const response: UpdateProfileResponse = {
+    const response: UserProfileUpdateResponse = {
       message: "No changes to apply",
       user: {
         userId: currentUserEntity.userId,
@@ -279,7 +251,7 @@ const handleEditProfile = async (
   console.log("✅ Profile updated successfully");
 
   // Return the updated user data using ResponseUtil.success
-  const response: UpdateProfileResponse = {
+  const response: UserProfileUpdateResponse = {
     message: "Profile updated successfully",
     user: {
       userId: updatedUser.userId,

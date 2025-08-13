@@ -13,6 +13,8 @@ export interface GenerationSettings {
   optimizePrompt: boolean;
 }
 
+export interface GenerationRequest extends GenerationSettings {}
+
 export interface GenerationResponse {
   queueId: string;
   queuePosition: number;

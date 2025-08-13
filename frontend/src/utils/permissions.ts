@@ -8,21 +8,9 @@ import {
   RolePermissions,
   UserPlan,
   UserRole,
-} from "../types/permissions";
-
-export interface FeatureDefinition {
-  name: string;
-  description: string;
-  requiredPlans: UserPlan[];
-  category: string;
-  icon: string;
-}
-
-export interface PermissionsConfig {
-  planPermissions: Record<UserPlan, PlanPermissions>;
-  rolePermissions: Record<UserRole, RolePermissions>;
-  features?: Record<string, FeatureDefinition>;
-}
+  FeatureDefinition,
+  PermissionsConfig,
+} from "@/types";
 
 let permissionsConfigCache: PermissionsConfig | null = null;
 let configPromise: Promise<PermissionsConfig> | null = null;
@@ -103,7 +91,6 @@ function getFallbackPermissions(): PermissionsConfig {
       free: {
         imagesPerMonth: 30,
         imagesPerDay: 1,
-        canGenerateImages: true,
         canUseNegativePrompt: false,
         canUseBulkGeneration: false,
         canUseLoRAModels: false,
@@ -117,7 +104,6 @@ function getFallbackPermissions(): PermissionsConfig {
       starter: {
         imagesPerMonth: 300,
         imagesPerDay: 20,
-        canGenerateImages: true,
         canUseNegativePrompt: false,
         canUseBulkGeneration: false,
         canUseLoRAModels: false,
@@ -131,7 +117,6 @@ function getFallbackPermissions(): PermissionsConfig {
       unlimited: {
         imagesPerMonth: "unlimited",
         imagesPerDay: "unlimited",
-        canGenerateImages: true,
         canUseNegativePrompt: false,
         canUseBulkGeneration: false,
         canUseLoRAModels: false,
@@ -145,7 +130,6 @@ function getFallbackPermissions(): PermissionsConfig {
       pro: {
         imagesPerMonth: "unlimited",
         imagesPerDay: "unlimited",
-        canGenerateImages: true,
         canUseNegativePrompt: true,
         canUseBulkGeneration: true,
         canUseLoRAModels: true,
@@ -167,6 +151,10 @@ function getFallbackPermissions(): PermissionsConfig {
         canManageReports: false,
         canManageSubscriptions: false,
         canAccessSystemSettings: false,
+        // Backend-specific permissions (set to false for users)
+        canDeleteAnyContent: false,
+        canBanUsers: false,
+        canManageSystem: false,
       },
       moderator: {
         canAccessAdmin: true,
@@ -177,6 +165,10 @@ function getFallbackPermissions(): PermissionsConfig {
         canManageReports: true,
         canManageSubscriptions: false,
         canAccessSystemSettings: false,
+        // Backend-specific permissions (moderate level)
+        canDeleteAnyContent: true,
+        canBanUsers: false,
+        canManageSystem: false,
       },
       admin: {
         canAccessAdmin: true,
@@ -187,6 +179,10 @@ function getFallbackPermissions(): PermissionsConfig {
         canManageReports: true,
         canManageSubscriptions: true,
         canAccessSystemSettings: true,
+        // Backend-specific permissions (full access)
+        canDeleteAnyContent: true,
+        canBanUsers: true,
+        canManageSystem: true,
       },
     },
   };

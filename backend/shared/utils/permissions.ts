@@ -6,43 +6,23 @@
 const fs = require("fs");
 const path = require("path");
 
-// User plan and role types
-export type UserPlan = "free" | "starter" | "unlimited" | "pro";
-export type UserRole = "user" | "admin" | "moderator";
+// Import shared permission types instead of defining them locally
+import type {
+  UserPlan,
+  UserRole,
+  PlanPermissions,
+  RolePermissions,
+  GenerationPermissions,
+} from "@shared/shared-types";
 
-export interface PlanPermissions {
-  imagesPerMonth: number | "unlimited";
-  imagesPerDay: number | "unlimited";
-  canGenerateImages: boolean;
-  canUseNegativePrompt: boolean;
-  canUseBulkGeneration: boolean;
-  canUseLoRAModels: boolean;
-  canSelectImageSizes: boolean;
-  canCreatePrivateContent: boolean;
-  canBookmark: boolean;
-  canLike: boolean;
-  canComment: boolean;
-  canShare: boolean;
-}
-
-export interface RolePermissions {
-  canAccessAdmin: boolean;
-  canManageUsers: boolean;
-  canManageContent: boolean;
-  canDeleteAnyContent: boolean;
-  canBanUsers: boolean;
-  canViewAnalytics: boolean;
-  canManageSystem: boolean;
-  canModerateContent: boolean;
-  canManageReports: boolean;
-}
-
-export interface GenerationPermissions {
-  maxBatch: number;
-  canUseLoRA: boolean;
-  canUseCustomSize: boolean;
-  canUseNegativePrompt: boolean;
-}
+// Re-export for backward compatibility
+export type {
+  UserPlan,
+  UserRole,
+  PlanPermissions,
+  RolePermissions,
+  GenerationPermissions,
+};
 
 export interface PermissionsConfig {
   planPermissions: Record<UserPlan, PlanPermissions>;
@@ -78,7 +58,6 @@ function loadPermissionsConfig(): PermissionsConfig {
         free: {
           imagesPerMonth: 30,
           imagesPerDay: 1,
-          canGenerateImages: true,
           canUseNegativePrompt: false,
           canUseBulkGeneration: false,
           canUseLoRAModels: false,
@@ -92,7 +71,6 @@ function loadPermissionsConfig(): PermissionsConfig {
         starter: {
           imagesPerMonth: 300,
           imagesPerDay: 20,
-          canGenerateImages: true,
           canUseNegativePrompt: false,
           canUseBulkGeneration: false,
           canUseLoRAModels: false,
@@ -106,7 +84,6 @@ function loadPermissionsConfig(): PermissionsConfig {
         unlimited: {
           imagesPerMonth: "unlimited",
           imagesPerDay: "unlimited",
-          canGenerateImages: true,
           canUseNegativePrompt: false,
           canUseBulkGeneration: false,
           canUseLoRAModels: false,
@@ -120,7 +97,6 @@ function loadPermissionsConfig(): PermissionsConfig {
         pro: {
           imagesPerMonth: "unlimited",
           imagesPerDay: "unlimited",
-          canGenerateImages: true,
           canUseNegativePrompt: true,
           canUseBulkGeneration: true,
           canUseLoRAModels: true,
@@ -143,6 +119,8 @@ function loadPermissionsConfig(): PermissionsConfig {
           canManageSystem: false,
           canModerateContent: false,
           canManageReports: false,
+          canManageSubscriptions: false,
+          canAccessSystemSettings: false,
         },
         moderator: {
           canAccessAdmin: true,
@@ -154,6 +132,8 @@ function loadPermissionsConfig(): PermissionsConfig {
           canManageSystem: false,
           canModerateContent: true,
           canManageReports: true,
+          canManageSubscriptions: false,
+          canAccessSystemSettings: false,
         },
         admin: {
           canAccessAdmin: true,
@@ -165,6 +145,8 @@ function loadPermissionsConfig(): PermissionsConfig {
           canManageSystem: true,
           canModerateContent: true,
           canManageReports: true,
+          canManageSubscriptions: true,
+          canAccessSystemSettings: true,
         },
       },
     };
@@ -195,18 +177,10 @@ export function getGenerationPermissions(
 ): GenerationPermissions {
   const planPerms = getPlanPermissions(plan);
 
-  // Map plan permissions to generation permissions
-  const batchLimits: Record<UserPlan, number> = {
-    free: 1,
-    starter: 1,
-    unlimited: 1,
-    pro: 8,
-  };
-
   return {
-    maxBatch: batchLimits[plan] || 1,
-    canUseLoRA: planPerms.canUseLoRAModels,
-    canUseCustomSize: planPerms.canSelectImageSizes,
+    canUseBulkGeneration: planPerms.canUseBulkGeneration,
+    canUseLoRAModels: planPerms.canUseLoRAModels,
+    canSelectImageSizes: planPerms.canSelectImageSizes,
     canUseNegativePrompt: planPerms.canUseNegativePrompt,
   };
 }

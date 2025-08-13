@@ -4,7 +4,11 @@ import {
   UnifiedCommentsResponse,
   CommentWithTarget,
 } from "@/types/user";
-import { CreateCommentRequest, UpdateCommentRequest } from "@/types";
+import {
+  CreateCommentRequest,
+  UpdateCommentRequest,
+  ViewTrackingRequest,
+} from "@/types";
 import { ApiUtil } from "../api-util";
 
 // User Interaction API Functions
@@ -32,10 +36,9 @@ export const interactionApi = {
   },
 
   // Track view
-  trackView: async (request: {
-    targetType: "album" | "media" | "profile";
-    targetId: string;
-  }): Promise<{ success: boolean }> => {
+  trackView: async (
+    request: ViewTrackingRequest
+  ): Promise<{ success: boolean }> => {
     try {
       const response = await ApiUtil.post<{ success: boolean }>(
         "/user/interactions/view",

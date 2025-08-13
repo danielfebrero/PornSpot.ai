@@ -1,4 +1,9 @@
-import { UnifiedAlbumsResponse } from "@/types";
+import {
+  UnifiedAlbumsResponse,
+  CreateAlbumRequest,
+  UpdateAlbumRequest,
+  ApiResponse,
+} from "@/types";
 import { ApiUtil, PaginationParams } from "../api-util";
 
 // Albums API Functions
@@ -11,43 +16,40 @@ export const albumsApi = {
     cursor?: string;
     tag?: string;
   }): Promise<UnifiedAlbumsResponse> => {
-    const response = await ApiUtil.get<UnifiedAlbumsResponse>("/albums", params);
+    const response = await ApiUtil.get<UnifiedAlbumsResponse>(
+      "/albums",
+      params
+    );
     return ApiUtil.extractData(response);
   },
 
   // Get user's albums (convenience method)
-  getUserAlbums: async (params?: PaginationParams & {
-    tag?: string;
-  }): Promise<UnifiedAlbumsResponse> => {
+  getUserAlbums: async (
+    params?: PaginationParams & {
+      tag?: string;
+    }
+  ): Promise<UnifiedAlbumsResponse> => {
     // Fetch current user's albums via session (no user parameter = session-based lookup)
-    const response = await ApiUtil.get<UnifiedAlbumsResponse>("/albums", params);
+    const response = await ApiUtil.get<UnifiedAlbumsResponse>(
+      "/albums",
+      params
+    );
     return ApiUtil.extractData(response);
   },
 
-  // Create a new album
-  createAlbum: async (albumData: {
-    title: string;
-    tags?: string[];
-    isPublic: boolean;
-    mediaIds?: string[];
-    coverImageId?: string;
-  }): Promise<any> => {
-    const response = await ApiUtil.post<any>("/albums", albumData);
-    return ApiUtil.extractData(response);
+  // Create new album
+  createAlbum: async (
+    data: CreateAlbumRequest
+  ): Promise<ApiResponse<{ album: any; message: string }>> => {
+    return ApiUtil.request("/albums", { method: "POST", body: data });
   },
 
-  // Update an album
+  // Update existing album
   updateAlbum: async (
     albumId: string,
-    updates: {
-      title?: string;
-      tags?: string[];
-      isPublic?: boolean;
-      coverImageUrl?: string;
-    }
-  ): Promise<any> => {
-    const response = await ApiUtil.put<any>(`/albums/${albumId}`, updates);
-    return ApiUtil.extractData(response);
+    data: UpdateAlbumRequest
+  ): Promise<ApiResponse<{ album: any; message: string }>> => {
+    return ApiUtil.request(`/albums/${albumId}`, { method: "PUT", body: data });
   },
 
   // Delete an album
@@ -58,7 +60,9 @@ export const albumsApi = {
 
   // Add existing media to album (single)
   addMediaToAlbum: async (albumId: string, mediaId: string): Promise<void> => {
-    const response = await ApiUtil.post<any>(`/albums/${albumId}/media`, { mediaId });
+    const response = await ApiUtil.post<any>(`/albums/${albumId}/media`, {
+      mediaId,
+    });
     ApiUtil.extractData(response); // Throws if not successful
   },
 
@@ -73,7 +77,9 @@ export const albumsApi = {
     successCount: number;
     failureCount: number;
   }> => {
-    const response = await ApiUtil.post<any>(`/albums/${albumId}/media`, { mediaIds });
+    const response = await ApiUtil.post<any>(`/albums/${albumId}/media`, {
+      mediaIds,
+    });
     return ApiUtil.extractData(response).results;
   },
 
@@ -82,7 +88,9 @@ export const albumsApi = {
     albumId: string,
     mediaId: string
   ): Promise<void> => {
-    const response = await ApiUtil.delete<any>(`/albums/${albumId}/media/${mediaId}`);
+    const response = await ApiUtil.delete<any>(
+      `/albums/${albumId}/media/${mediaId}`
+    );
     ApiUtil.extractData(response); // Throws if not successful
   },
 
@@ -97,7 +105,10 @@ export const albumsApi = {
     successCount: number;
     failureCount: number;
   }> => {
-    const response = await ApiUtil.delete<any>(`/albums/${albumId}/media/bulk-remove`, { mediaIds });
+    const response = await ApiUtil.delete<any>(
+      `/albums/${albumId}/media/bulk-remove`,
+      { mediaIds }
+    );
     return ApiUtil.extractData(response).results;
   },
 
