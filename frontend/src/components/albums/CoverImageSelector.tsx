@@ -113,6 +113,7 @@ export function CoverImageSelector({
               {media.map((image) => {
                 const imageUrl = image.url;
                 const isSelected = selectedCoverUrl === imageUrl;
+                if (!imageUrl) return null;
 
                 return (
                   <div

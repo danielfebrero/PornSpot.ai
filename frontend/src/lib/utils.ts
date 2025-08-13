@@ -83,8 +83,8 @@ export function formatDateShort(date: string | Date): string {
   return `${day}/${month}/${year}`;
 }
 
-export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return "0 Bytes";
+export function formatFileSize(bytes?: number): string {
+  if (!bytes || bytes === 0) return "0 Bytes";
 
   const k = 1024;
   const sizes = ["Bytes", "KB", "MB", "GB"];
