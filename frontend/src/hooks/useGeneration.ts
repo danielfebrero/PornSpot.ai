@@ -74,16 +74,6 @@ export function useGeneration(): UseGenerationReturn {
       console.log("🎨 Generation update received:", message);
 
       switch (message.type) {
-        case "workflow_nodes":
-          // Store workflow nodes for intelligent progress filtering
-          if (message.workflowData) {
-            setWorkflowNodes(message.workflowData.nodes);
-            setCurrentNodeIndex(message.workflowData.currentNodeIndex);
-            console.log("📋 Workflow nodes received:", 
-              message.workflowData.nodes.map(n => `${n.nodeId}(${n.nodeTitle})`).join(" → "));
-          }
-          break;
-
         case "queue_update":
         case "queued":
           setQueueStatus({
@@ -248,6 +238,14 @@ export function useGeneration(): UseGenerationReturn {
 
         // Store the queue ID for WebSocket subscription
         currentQueueIdRef.current = result.queueId;
+
+        // Set workflow nodes from API response instead of WebSocket
+        if (result.workflowData) {
+          setWorkflowNodes(result.workflowData.nodes);
+          setCurrentNodeIndex(result.workflowData.currentNodeIndex);
+          console.log("📋 Workflow nodes received from API:", 
+            result.workflowData.nodes.map(n => `${n.nodeId}(${n.nodeTitle})`).join(" → "));
+        }
 
         // Set initial queue status
         setQueueStatus({
