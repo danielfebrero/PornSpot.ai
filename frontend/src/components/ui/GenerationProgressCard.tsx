@@ -1,4 +1,11 @@
-import { AlertCircle, Clock, Cpu, RotateCcw, Zap, ArrowRight } from "lucide-react";
+import {
+  AlertCircle,
+  Clock,
+  Cpu,
+  RotateCcw,
+  Zap,
+  ArrowRight,
+} from "lucide-react";
 
 // Custom Generation Progress Card Component
 export function GenerationProgressCard({
@@ -144,12 +151,14 @@ export function GenerationProgressCard({
                       State: {nodeState}
                     </div>
                   )}
-                  
+
                   {/* Workflow Progress Indicator */}
                   {workflowNodes.length > 0 && (
                     <div className="mt-2 pt-2 border-t border-primary/10">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Workflow Progress</span>
+                        <span className="text-muted-foreground">
+                          Workflow Progress
+                        </span>
                         <span className="text-foreground font-medium">
                           {currentNodeIndex + 1} of {workflowNodes.length}
                         </span>
@@ -179,62 +188,68 @@ export function GenerationProgressCard({
               )}
 
               {/* Workflow Steps Preview - Show when no current node but have workflow */}
-              {!currentNode && workflowNodes.length > 0 && queueStatus?.status === "processing" && (
-                <div className="bg-muted/5 border border-muted/20 rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Clock className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-xs font-medium text-muted-foreground">
-                      Workflow Steps
-                    </span>
-                  </div>
-                  <div className="space-y-1">
-                    {workflowNodes.slice(0, 3).map((node, index) => (
-                      <div
-                        key={node.nodeId}
-                        className="flex items-center gap-2 text-xs"
-                      >
+              {!currentNode &&
+                workflowNodes.length > 0 &&
+                queueStatus?.status === "processing" && (
+                  <div className="bg-muted/5 border border-muted/20 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-xs font-medium text-muted-foreground">
+                        Workflow Steps
+                      </span>
+                    </div>
+                    <div className="space-y-1">
+                      {workflowNodes.slice(0, 3).map((node, index) => (
                         <div
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            index < currentNodeIndex
-                              ? "bg-green-500"
-                              : index === currentNodeIndex
-                              ? "bg-primary"
-                              : "bg-muted"
-                          }`}
-                        />
-                        <span className="text-muted-foreground truncate">
-                          {node.nodeTitle}
-                        </span>
-                      </div>
-                    ))}
-                    {workflowNodes.length > 3 && (
-                      <div className="text-xs text-muted-foreground pl-3.5">
-                        ... and {workflowNodes.length - 3} more steps
-                      </div>
-                    )}
+                          key={node.nodeId}
+                          className="flex items-center gap-2 text-xs"
+                        >
+                          <div
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              index < currentNodeIndex
+                                ? "bg-green-500"
+                                : index === currentNodeIndex
+                                ? "bg-primary"
+                                : "bg-muted"
+                            }`}
+                          />
+                          <span className="text-muted-foreground truncate">
+                            {node.nodeTitle}
+                          </span>
+                        </div>
+                      ))}
+                      {workflowNodes.length > 3 && (
+                        <div className="text-xs text-muted-foreground pl-3.5">
+                          ... and {workflowNodes.length - 3} more steps
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Progress Bar */}
-              {progress > 0 && maxProgress > 0 && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Progress</span>
-                    <span className="text-foreground font-medium">
-                      {Math.round((progress / maxProgress) * 100)}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                    <div
-                      className="bg-gradient-to-r from-primary to-purple-600 h-2 rounded-full transition-all duration-500 ease-out"
-                      style={{
-                        width: `${(progress / maxProgress) * 100}%`,
-                      }}
-                    />
-                  </div>
+              {/* Progress Bar - Always visible to prevent layout shift */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Progress</span>
+                  <span className="text-foreground font-medium">
+                    {progress > 0 && maxProgress > 0
+                      ? `${Math.round((progress / maxProgress) * 100)}%`
+                      : "0%"}
+                  </span>
                 </div>
-              )}
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-primary to-purple-600 h-2 rounded-full transition-all duration-500 ease-out"
+                    style={{
+                      width: `${
+                        progress > 0 && maxProgress > 0
+                          ? (progress / maxProgress) * 100
+                          : 0
+                      }%`,
+                    }}
+                  />
+                </div>
+              </div>
 
               {/* Current Message */}
               {currentMessage && (
