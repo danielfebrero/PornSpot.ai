@@ -2,6 +2,56 @@
 
 This document provides comprehensive guidance for development on the PornSpot.ai serverless gallery platform. For detailed instruction sets, refer to the specialized instruction files in `.github/web-agent/instructions/v2/`.
 
+## ⚠️ CRITICAL: Task Completion Persistence
+
+### What Makes AI Agents Stop Working Prematurely
+
+**Common Failure Patterns:**
+- **20% Completion Syndrome** - Claiming task complete when only basic requirements addressed
+- **Context Window Pressure** - Rushing to completion when conversation gets long
+- **Overconfidence Bias** - Assuming partial work equals complete work
+- **Ambiguous Success Criteria** - Not clearly defining what "done" means
+- **Insufficient Self-Validation** - Not checking ALL requirements systematically
+
+### Mandatory Completion Criteria
+
+**A task is ONLY complete when ALL of these are verified:**
+1. ✅ **Every requirement** from problem statement addressed and working
+2. ✅ **All acceptance criteria** met and tested
+3. ✅ **No obvious next steps** or loose ends remaining
+4. ✅ **Code changes tested** and verified working as intended
+5. ✅ **Documentation updated** for any architectural changes
+6. ✅ **Quality standards maintained** (tests pass, linting clean, builds successful)
+
+### Context Management for Extensive Tasks
+
+**When context becomes full, NEVER abandon work:**
+
+```markdown
+**TASK STATUS: INCOMPLETE - [X]% Complete**
+
+**ORIGINAL REQUIREMENTS:**
+- [List every requirement with completion status]
+
+**COMPLETED WORK:**
+- [Verified completed items with test results]
+
+**REMAINING WORK:**
+- [Specific actionable items still needed]
+
+**CONTEXT HANDOFF NEEDED:** 
+This task requires continuation in fresh context.
+REQUEST: Confirm approach for completing remaining work.
+```
+
+### Continuation Protocol
+
+1. **Never claim completion prematurely** - validate ALL criteria first
+2. **Ask for scope clarification** when uncertain about requirements
+3. **Break large tasks into phases** but maintain commitment to completion
+4. **Use context handoff** when conversation gets long - don't abandon work
+5. **Request user guidance** when blocked - don't assume task is complete
+
 ## 🎯 Quick Reference
 
 ### Core Behavior ([Full Details](.github/instructions/01-core-behavior.instructions.md))
@@ -11,6 +61,7 @@ This document provides comprehensive guidance for development on the PornSpot.ai
 - **Quality & Consistency** - Maintain architectural patterns and documentation
 - **Ecosystem Integration** - Use scaffolding tools, package managers, and linters
 - **Parallel Tool Usage** - Invoke multiple tools simultaneously for efficiency
+- **⚠️ NEVER STOP UNTIL COMPLETE** - Validate ALL requirements before claiming completion
 
 ### Code Changes ([Full Details](.github/instructions/02-code-changes.instructions.md))
 
@@ -33,6 +84,7 @@ This document provides comprehensive guidance for development on the PornSpot.ai
 - **Structured Tracking** - Use markdown checklists with consistent structure
 - **Quality Commits** - Review committed files, exclude build artifacts, clear commit messages
 - **PornSpot.ai Categories** - Architecture & Setup, Analysis & Planning, Implementation, Quality Assurance
+- **⚠️ COMPLETION VALIDATION** - Never claim complete without verifying ALL requirements met
 
 ### Advanced Knowledge ([Full Details](.github/instructions/v2/08-implicit-training-knowledge.instructions.md))
 
@@ -303,6 +355,8 @@ cd frontend && npm run build && vercel --prod
 
 ## ✅ Quality Assurance Checklist
 
+- [ ] **⚠️ ALL REQUIREMENTS VERIFIED COMPLETE** - every requirement from problem statement addressed
+- [ ] **⚠️ COMPLETION VALIDATION PASSED** - systematic check of all completion criteria
 - [ ] Code follows existing patterns and conventions
 - [ ] Proper error handling and logging implemented
 - [ ] Tests written and passing (if infrastructure exists)
@@ -314,6 +368,7 @@ cd frontend && npm run build && vercel --prod
 - [ ] Navigation uses LocaleLink/useLocaleRouter components
 - [ ] TypeScript strict mode compliance
 - [ ] ESLint rules followed
+- [ ] **⚠️ NO OBVIOUS NEXT STEPS REMAINING** - task is genuinely complete
 
 ---
 
@@ -330,3 +385,4 @@ For detailed guidance on any aspect, refer to the specialized instruction files:
 - [Task Execution](.github/instructions/v2/07-task-execution.instructions.md)
 - [Implicit Training Knowledge](.github/instructions/v2/08-implicit-training-knowledge.instructions.md)
 - [Comprehensive Development Practices](.github/instructions/v2/09-comprehensive-development-practices.instructions.md)
+- [**⚠️ CRITICAL: Task Completion Persistence**](.github/instructions/10-task-completion-persistence.instructions.md)

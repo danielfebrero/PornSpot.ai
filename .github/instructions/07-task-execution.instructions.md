@@ -240,31 +240,118 @@ const queryParams = {
    - [ ] Create migration guides for future reference
    - [ ] Document lessons learned and best practices
 
+## 🔄 Task Persistence & Completion Validation
+
+### Comprehensive Completion Requirements
+**A task is ONLY complete when ALL of these criteria are met:**
+
+1. **Requirements Fulfillment**
+   - Every requirement from the problem statement is addressed
+   - All acceptance criteria are met and verified
+   - No implicit or obvious requirements are overlooked
+   - Edge cases and error scenarios are handled
+
+2. **Implementation Validation**
+   - All code changes are tested and verified working
+   - Builds pass without introducing new errors
+   - Tests pass (both existing and newly created)
+   - Manual testing confirms expected behavior
+   - Performance is acceptable
+
+3. **Quality Assurance** 
+   - Code follows project standards and conventions
+   - Security implications have been considered and addressed
+   - Documentation is updated for any architectural changes
+   - No regressions have been introduced
+
+4. **Integration Verification**
+   - Changes integrate properly with existing system
+   - Dependencies are properly managed
+   - Cross-component interactions work correctly
+   - User experience is maintained or improved
+
+### Never Stop Protocol
+**NEVER declare a task complete if ANY of these situations exist:**
+
+❌ **Incomplete Indicators:**
+- "I think this should work" (uncertainty)
+- "Most of the requirements are met" (partial completion)
+- "The main functionality is done" (ignoring details)
+- "I've addressed the primary concerns" (missing secondary requirements)
+- "This covers the basic use case" (ignoring edge cases)
+- "I've made good progress" (progress ≠ completion)
+
+✅ **True Completion Indicators:**
+- "All requirements have been verified as working"
+- "Every acceptance criterion has been tested and confirmed"
+- "No remaining work items or obvious next steps"
+- "All quality gates have been passed"
+- "Documentation accurately reflects all changes"
+
+### Context Management for Large Tasks
+When context becomes full or tasks are extensive:
+
+**Step 1: Comprehensive Status Assessment**
+```markdown
+**EXTENSIVE TASK STATUS REPORT**
+
+**ORIGINAL REQUIREMENTS:**
+- [List every requirement from original problem]
+- [Mark each as: ✅ Complete | 🔄 In Progress | ❌ Not Started]
+
+**COMPLETED WORK:**
+- [Detailed list with verification notes]
+
+**IN PROGRESS WORK:**
+- [Current state and what remains]
+
+**NOT STARTED WORK:**
+- [Specific items still needed]
+
+**DISCOVERED ADDITIONAL SCOPE:**
+- [Any requirements discovered during implementation]
+
+**OVERALL COMPLETION:** [X]% - [Specific rationale for percentage]
+```
+
+**Step 2: Context Handoff Request**
+```markdown
+**CONTEXT MANAGEMENT REQUIRED**
+
+This task requires [substantial/extensive] additional work to be complete.
+Context window is becoming full. 
+
+**REQUEST:** Should I:
+1. Continue in fresh context with the above handoff information?
+2. Prioritize specific remaining items?
+3. Break into smaller sub-tasks?
+
+**COMMITMENT:** I will NOT abandon this work - just need guidance on continuation approach.
+```
+
 ## 🔄 Adaptive Execution & Error Recovery
 
-### Dynamic Plan Adjustment
-**When initial plans prove insufficient:**
-- **Use think tool** to analyze what changed and why
-- **Review git diff** to understand scope of changes made
-- **Check for over-deletion** - `git checkout <file>` if too much was removed
-- **Reassess requirements** - may have uncovered hidden complexity
-- **Communicate changes** clearly in progress reports
+### Scope Discovery Protocol
+When you discover additional scope during implementation:
 
-### Change Impact Analysis
-```bash
-# Validate change scope
-git diff --numstat
-# Check lines deleted vs inserted per file
-# Deleted lines should be < 2x inserted lines for most changes
+1. **Acknowledge Discovery**
+   - "I have discovered additional requirements/complexity"
+   - Clearly explain what was found and why it's necessary
 
-# Review actual changes
-git --no-pager diff --color=always | head -100
+2. **Update Plan**
+   - Revise your checklist to include new items
+   - Provide updated completion estimate
+   - Explain impact on timeline/effort
 
-# Validate no regressions
-npm run test:ci
-npm run lint
-npm run type-check
-```
+3. **Continue Systematically**
+   - Don't abandon work due to scope increase
+   - Work through updated plan methodically
+   - Report progress frequently
+
+4. **Validate Scope**
+   - If scope seems excessive, ask for prioritization
+   - Confirm which requirements are must-have vs. nice-to-have
+   - Get explicit approval before reducing scope
 
 ### Quality Recovery Process
 1. **Identify the issue** - what went wrong and why
@@ -273,5 +360,6 @@ npm run type-check
 4. **Implement recovery** - make targeted fixes with validation
 5. **Validate resolution** - ensure problem is solved without new issues
 6. **Document lessons** - prevent similar issues in future
+7. **Continue toward completion** - don't stop due to setbacks
 
-The key to successful task execution is balancing thorough planning with adaptive implementation, always maintaining focus on minimal changes and maximum quality.
+The key to successful task execution is balancing thorough planning with adaptive implementation, always maintaining focus on minimal changes and maximum quality, and **NEVER stopping until ALL requirements are genuinely complete**.
