@@ -15,6 +15,20 @@ export interface GenerationSettings {
 
 export interface GenerationRequest extends GenerationSettings {}
 
+export interface WorkflowNode {
+  nodeId: string;
+  classType: string;
+  nodeTitle: string;
+  dependencies: string[];
+}
+
+export interface WorkflowData {
+  nodes: WorkflowNode[];
+  totalNodes: number;
+  currentNodeIndex: number;
+  nodeOrder: string[];
+}
+
 export interface GenerationResponse {
   queueId: string;
   queuePosition: number;
@@ -22,6 +36,7 @@ export interface GenerationResponse {
   status: "pending" | "processing" | "completed" | "failed";
   message: string;
   images?: Media[];
+  workflowData?: WorkflowData;
 }
 
 export interface WorkflowFinalParams {

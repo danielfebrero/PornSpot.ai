@@ -8,7 +8,6 @@ export interface WebSocketMessage {
     | "error"
     | "retrying"
     | "queue_update"
-    | "workflow_nodes"  // New workflow nodes type
     | "ping";
   queueId?: string;
   queuePosition?: number;
@@ -37,18 +36,6 @@ export interface WebSocketMessage {
     parentNodeId?: string;
     realNodeId?: string;
     message: string;
-  };
-  // Workflow data for workflow_nodes type
-  workflowData?: {
-    nodes: Array<{
-      nodeId: string;
-      classType: string;
-      nodeTitle: string;
-      dependencies: string[];
-    }>;
-    totalNodes: number;
-    currentNodeIndex: number;
-    nodeOrder: string[];
   };
 }
 

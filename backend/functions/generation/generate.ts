@@ -17,10 +17,13 @@ import { getGenerationPermissions } from "@shared/utils/permissions";
 import { getRateLimitingService } from "@shared/services/rate-limiting";
 import { GenerationQueueService } from "@shared/services/generation-queue";
 import { EventBridge } from "aws-sdk";
+import { createComfyUIWorkflow, DEFAULT_WORKFLOW_PARAMS } from "@shared/templates/comfyui-workflow";
+import { createWorkflowData } from "@shared/utils/workflow-nodes";
 import type {
   GenerationResponse,
   GenerationRequest,
   WorkflowFinalParams,
+  WorkflowData,
 } from "@shared/shared-types";
 
 const handleGenerate = async (
@@ -206,6 +209,9 @@ const handleGenerate = async (
       `📋 Added generation request to queue: ${queueEntry.queueId} for user ${auth.userId}, position: ${queueEntry.queuePosition}`
     );
 
+    // Generate workflow data from request parameters
+    const workflowData = generateWorkflowData(workflowParams);
+
     // Publish queue submission event to EventBridge for immediate processing
     try {
       await publishQueueSubmissionEvent(queueEntry.queueId, priority);
@@ -225,6 +231,7 @@ const handleGenerate = async (
       message: `Your request has been added to the queue. Position: ${
         queueEntry.queuePosition || 1
       }`,
+      workflowData,
     };
 
     // Note: WebSocket communication will be handled by EventBridge when
@@ -239,6 +246,49 @@ const handleGenerate = async (
     );
   }
 };
+
+// Helper function to generate workflow data from parameters
+function generateWorkflowData(params: WorkflowFinalParams): WorkflowData {
+  try {
+    // Convert WorkflowFinalParams to WorkflowParameters for createComfyUIWorkflow
+    const workflowParams = {
+      prompt: params.prompt,
+      negativePrompt: params.negativePrompt,
+      width: params.width,
+      height: params.height,
+      batchSize: params.batch_size,
+      steps: params.steps || DEFAULT_WORKFLOW_PARAMS.steps!,
+      cfgScale: params.cfg_scale || DEFAULT_WORKFLOW_PARAMS.cfgScale!,
+      sampler: DEFAULT_WORKFLOW_PARAMS.sampler,
+      scheduler: DEFAULT_WORKFLOW_PARAMS.scheduler,
+      selectedLoras: params.selectedLoras.map((loraName, index) => ({
+        id: `lora_${index}`,
+        name: loraName,
+        strength: params.loraStrengths[loraName]?.value || 1.0,
+      })),
+    };
+
+    // Generate the ComfyUI workflow
+    const workflow = createComfyUIWorkflow(workflowParams);
+    
+    // Create workflow data with sorted nodes
+    const workflowData = createWorkflowData(workflow);
+    
+    console.log(`🔧 Generated workflow data with ${workflowData.totalNodes} nodes: ${workflowData.nodeOrder.join(' → ')}`);
+    
+    return workflowData;
+  } catch (error) {
+    console.error('Failed to generate workflow data:', error);
+    
+    // Return minimal fallback workflow data
+    return {
+      nodes: [],
+      totalNodes: 0,
+      currentNodeIndex: 0,
+      nodeOrder: []
+    };
+  }
+}
 
 // Helper function to check generation limits
 interface UserWithPlanInfo {
