@@ -130,12 +130,74 @@ When plans need to change:
 - **Explain complexity discovered** during implementation
 - **Maintain stakeholder confidence** through clear communication
 
+## Task Completion Validation
+
+### 11. Completion Verification Protocol
+**CRITICAL: Never report a task as "complete" without explicit validation**
+
+Before claiming completion, you MUST verify:
+- [ ] **EVERY requirement** from original problem statement addressed
+- [ ] **ALL acceptance criteria** met and validated
+- [ ] **NO loose ends** or obvious next steps remaining
+- [ ] **ALL code changes** tested and working as intended
+- [ ] **NO regressions** introduced by changes
+- [ ] **Documentation updated** for any architectural changes
+- [ ] **Quality standards** maintained throughout
+
+### 12. Incomplete Work Declaration
+If you discover additional scope or cannot complete all requirements:
+
+**NEVER claim completion** - instead:
+```markdown
+**TASK STATUS: INCOMPLETE - [X%] Complete**
+
+**COMPLETED WORK:**
+- [Detailed list of accomplished items]
+
+**REMAINING WORK:**
+- [Specific actionable items still needed]
+- [Estimated effort for each remaining item]
+
+**BLOCKERS/QUESTIONS:**
+- [Any unclear requirements needing clarification]
+- [Dependencies or constraints affecting completion]
+
+**REQUEST:** Confirming scope and priority for remaining work items.
+```
+
+### 13. Context Management Reporting
+When context becomes full during extensive tasks:
+
+1. **Summarize comprehensively** - don't lose important context
+2. **Document ALL remaining work** - be specific and actionable  
+3. **Request continuation guidance** - don't abandon the task
+4. **Provide handoff details** - enable seamless continuation
+
+**Context Handoff Template:**
+```markdown
+**CONTEXT MANAGEMENT REQUIRED**
+
+**PROGRESS SUMMARY:**
+[Comprehensive summary of work completed]
+
+**REMAINING WORK:**
+[Detailed checklist of remaining tasks]
+
+**IMPORTANT CONTEXT:**
+[Key decisions, discoveries, or constraints]
+
+**CONTINUATION NEEDED:** This task requires additional work to be complete.
+```
+
 ## Quality Gates for Progress Reports
 Before submitting a progress report, verify:
 - [ ] Checklist accurately reflects current status
+- [ ] Completed items are genuinely 100% finished
+- [ ] Remaining work is clearly and specifically defined
 - [ ] Committed files match intended scope
 - [ ] No build artifacts or temporary files included
 - [ ] Documentation updates included where relevant
 - [ ] Commit message clearly describes the change
 - [ ] Progress is meaningful and worth reporting
 - [ ] Next steps are clearly outlined
+- [ ] **If claiming completion:** ALL completion criteria validated
