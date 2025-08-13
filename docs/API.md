@@ -1003,6 +1003,57 @@ All fields are optional. Only provided fields will be updated.
 - `405 Method Not Allowed`: Only PUT method allowed
 - `500 Internal Server Error`: Server error
 
+### Upload Profile Avatar
+
+Upload or update the user's profile avatar image.
+
+```http
+POST /user/profile/avatar/upload
+Content-Type: application/json
+Authorization: User session required
+
+{
+  "filename": "avatar.jpg",
+  "mimeType": "image/jpeg",
+  "size": 524288
+}
+```
+
+**Request Body:**
+
+| Field      | Type   | Required | Description                    |
+| ---------- | ------ | -------- | ------------------------------ |
+| `filename` | string | Yes      | Original filename              |
+| `mimeType` | string | Yes      | Image MIME type                |
+| `size`     | number | Yes      | File size in bytes (max 5MB)  |
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "uploadUrl": "https://s3.amazonaws.com/bucket/presigned-upload-url",
+    "avatarId": "avatar-123",
+    "expiresAt": "2024-01-15T17:00:00.000Z"
+  }
+}
+```
+
+**Upload Flow:**
+
+1. **Request upload URL** - POST to `/user/profile/avatar/upload`
+2. **Upload file** - PUT to the returned `uploadUrl`
+3. **Automatic processing** - Avatar is resized and optimized
+4. **Profile update** - User profile updated with new avatar URL
+
+**Error Responses:**
+
+- `400 Bad Request`: Invalid file type or size
+- `401 Unauthorized`: User session required
+- `413 Payload Too Large`: File exceeds 5MB limit
+- `500 Internal Server Error`: Server error
+
 ### Get Public User Profile
 
 Get public profile information for a user by username.
@@ -1070,6 +1121,52 @@ Cookie: sessionId=session-token-here
 - `404 Not Found`: User not found or inactive
 - `405 Method Not Allowed`: Only GET method allowed
 - `500 Internal Server Error`: Server error
+
+## AI Image Generation API
+
+### Generate Images
+
+Generate AI images using the ComfyUI integration.
+
+```http
+POST /generation/generate
+Content-Type: application/json
+Cookie: sessionId=session-token-here
+
+{
+  "prompt": "A beautiful landscape with mountains",
+  "negativePrompt": "blurry, low quality",
+  "width": 512,
+  "height": 512,
+  "model": "stable-diffusion-xl"
+}
+```
+
+**Request Body:**
+
+| Field             | Type   | Required | Description                           |
+| ----------------- | ------ | -------- | ------------------------------------- |
+| `prompt`          | string | Yes      | Text description of desired image     |
+| `negativePrompt`  | string | No       | What to exclude from generation (Pro) |
+| `width`           | number | No       | Image width (Pro only for custom)    |
+| `height`          | number | No       | Image height (Pro only for custom)   |
+| `model`           | string | No       | AI model to use                       |
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "jobId": "gen-123456",
+    "status": "queued",
+    "estimatedTime": "30-60 seconds"
+  }
+}
+```
+
+**Authentication:** Required - User session with generation permissions
+**Plan Restrictions:** Features limited by subscription plan
 
 ## User Account Management API
 
