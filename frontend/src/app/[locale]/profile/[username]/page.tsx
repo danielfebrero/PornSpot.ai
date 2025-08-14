@@ -21,7 +21,16 @@ export default function PublicProfilePage() {
     error,
   } = usePublicProfile(username);
 
-  const profileUser = profileData?.data?.user;
+  const profileUser = profileData;
+
+  // Debug logging
+  console.log("🔍 Profile Debug:", {
+    username,
+    profileData,
+    profileUser,
+    loading,
+    error,
+  });
 
   // Authentication check: require user to be logged in to view any profile
   if (!currentUser && !authLoading) {

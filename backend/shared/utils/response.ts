@@ -11,7 +11,7 @@ const allowedOrigins = [
   "https://pornspot-ai-frontend.vercel.app", // Vercel Production
 ];
 
-const getCorsHeaders = (
+export const getCorsHeaders = (
   event: APIGatewayProxyEvent
 ): { [key: string]: string | boolean } => {
   const origin = event.headers["origin"] || event.headers["Origin"];

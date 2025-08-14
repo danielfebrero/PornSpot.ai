@@ -12,6 +12,7 @@ import {
   UserProfileUpdateRequest,
   UserProfileUpdateResponse,
   GetPublicProfileResponse,
+  PublicUserProfile,
 } from "@/types";
 import { User as BaseUser } from "@/types/shared-types";
 
@@ -171,14 +172,15 @@ export const userApi = {
   },
 
   // Get public user profile by username
-  getPublicProfile: async (
-    username: string
-  ): Promise<GetPublicProfileResponse> => {
+  getPublicProfile: async (username: string): Promise<PublicUserProfile> => {
     const response = await ApiUtil.get<GetPublicProfileResponse>(
       "/user/profile/get",
       { username }
     );
-    return ApiUtil.extractData(response);
+    const data = ApiUtil.extractData(response) as unknown as {
+      user: PublicUserProfile;
+    };
+    return data.user;
   },
 
   // Upload avatar - request presigned URL

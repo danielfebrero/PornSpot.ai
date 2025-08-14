@@ -7,7 +7,7 @@ Special notes:
 - Returns Server-Sent Events for real-time updates during prompt optimization
 */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { ResponseUtil } from "@shared/utils/response";
+import { getCorsHeaders, ResponseUtil } from "@shared/utils/response";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 import { OpenRouterService } from "@shared/services/openrouter-chat";
@@ -45,13 +45,14 @@ const handleOptimizePromptStream = async (
     );
   }
 
-  // Set headers for streaming response
+  const corsHeaders = getCorsHeaders(event);
+
   const headers = {
+    ...corsHeaders,
     "Content-Type": "text/event-stream",
     "Cache-Control": "no-cache",
     Connection: "keep-alive",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "X-Accel-Buffering": "no",
   };
 
   try {
