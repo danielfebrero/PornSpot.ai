@@ -247,41 +247,78 @@ export function GenerationProgressCard({
 
               {/* Dynamic Content Area - Fixed Height Containers */}
               <div className="space-y-2.5" style={{ minHeight: "120px" }}>
-                {/* Current Node Info */}
-                {currentNode && !error && (
-                  <div className="bg-gradient-to-r from-primary/5 to-purple-600/5 border border-primary/20 rounded-xl p-3 backdrop-blur-sm">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center gap-1.5">
+                {/* Current Node Info - Always Shows */}
+                <div className={cn(
+                  "rounded-xl p-3 backdrop-blur-sm",
+                  error 
+                    ? "bg-gradient-to-r from-destructive/5 to-destructive/10 border border-destructive/20"
+                    : currentNode
+                    ? "bg-gradient-to-r from-primary/5 to-purple-600/5 border border-primary/20"
+                    : "bg-muted/10 border border-muted/20"
+                )}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      {error ? (
+                        <AlertCircle className="w-3.5 h-3.5 text-destructive" />
+                      ) : currentNode ? (
                         <Activity className="w-3.5 h-3.5 text-primary animate-pulse" />
-                        <span className="text-xs font-medium text-primary">
-                          Processing
-                        </span>
-                      </div>
-                      {nodeState && (
-                        <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full capitalize">
-                          {nodeState}
-                        </span>
+                      ) : (
+                        <Clock className="w-3.5 h-3.5 text-muted-foreground" />
                       )}
+                      <span className={cn(
+                        "text-xs font-medium",
+                        error 
+                          ? "text-destructive"
+                          : currentNode 
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                      )}>
+                        {error ? "Failed" : currentNode ? "Processing" : "Waiting"}
+                      </span>
                     </div>
-                    <div className="text-sm font-medium text-foreground truncate">
-                      {currentNode}
-                    </div>
+                    {nodeState && !error && (
+                      <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full capitalize">
+                        {nodeState}
+                      </span>
+                    )}
                   </div>
-                )}
+                  <div className="text-sm font-medium text-foreground truncate">
+                    {error 
+                      ? "Generation stopped due to error"
+                      : currentNode 
+                      ? currentNode
+                      : isQueued
+                      ? "Waiting in queue to start..."
+                      : isComplete
+                      ? "All nodes completed successfully"
+                      : "Ready to begin processing"
+                    }
+                  </div>
+                </div>
 
-                {/* Workflow Progress */}
-                {hasWorkflow && !error && (
-                  <div className="bg-muted/10 border border-muted/20 rounded-xl p-3 backdrop-blur-sm">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-muted-foreground">
-                        Workflow Pipeline
-                      </span>
-                      <span className="text-xs font-semibold text-foreground">
-                        Step{" "}
-                        {Math.min(currentNodeIndex + 1, workflowNodes.length)}{" "}
-                        of {workflowNodes.length}
-                      </span>
-                    </div>
+                {/* Workflow Progress - Always Shows */}
+                <div className="bg-muted/10 border border-muted/20 rounded-xl p-3 backdrop-blur-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      Workflow Progress
+                    </span>
+                    <span className="text-xs font-semibold text-foreground">
+                      {hasWorkflow ? (
+                        <>
+                          Step{" "}
+                          {error 
+                            ? currentNodeIndex + 1
+                            : Math.min(currentNodeIndex + 1, workflowNodes.length)
+                          }{" "}
+                          of {workflowNodes.length}
+                        </>
+                      ) : (
+                        "Initializing..."
+                      )}
+                    </span>
+                  </div>
+                  
+                  {hasWorkflow ? (
                     <div className="flex items-center gap-0.5">
                       {workflowNodes.map((node, index) => (
                         <div
@@ -292,7 +329,11 @@ export function GenerationProgressCard({
                           <div
                             className={cn(
                               "h-full transition-all duration-500",
-                              index < currentNodeIndex
+                              error && index >= currentNodeIndex
+                                ? "bg-destructive/60"
+                                : error && index < currentNodeIndex
+                                ? "bg-destructive"
+                                : index < currentNodeIndex
                                 ? "bg-green-500"
                                 : index === currentNodeIndex
                                 ? "bg-primary animate-pulse"
@@ -302,8 +343,31 @@ export function GenerationProgressCard({
                         </div>
                       ))}
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <div className="flex items-center gap-0.5">
+                      {/* Show placeholder bars when no workflow data */}
+                      {Array.from({ length: error ? 1 : 3 }).map((_, index) => (
+                        <div
+                          key={index}
+                          className="flex-1 h-1 first:rounded-l-full last:rounded-r-full overflow-hidden"
+                        >
+                          <div
+                            className={cn(
+                              "h-full transition-all duration-500",
+                              error 
+                                ? "bg-destructive animate-pulse"
+                                : isQueued
+                                ? "bg-muted/30"
+                                : isProcessing
+                                ? "bg-primary/50 animate-pulse"
+                                : "bg-muted/30"
+                            )}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 {/* Error Message */}
                 {error && (
