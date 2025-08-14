@@ -123,6 +123,7 @@ export function GenerateClient() {
     isRetrying,
     workflowNodes,
     currentNodeIndex,
+    optimizedPrompt, // Get optimized prompt from hook
     generateImages,
     clearResults,
   } = useGeneration();
@@ -254,18 +255,16 @@ export function GenerateClient() {
     }
   };
 
-  // Optimize prompt function with magical animation
-  const optimizePrompt = async (originalPrompt: string): Promise<string> => {
-    setIsOptimizing(true);
+  const handleCastSpell = (newText: string) => {
+    if (magicTextRef.current) {
+      magicTextRef.current.castSpell(newText);
+    }
+  };
 
-    // Simulate AI processing delay
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    // PLACEHOLDER: Replace with actual SDXL prompt optimization logic
-    const optimizedPrompt = `${originalPrompt}, (masterpiece:1.2), (best quality:1.2), (ultra-detailed:1.2), (realistic:1.2), (photorealistic:1.2), sharp focus, cinematic lighting, detailed textures, high resolution, professional photography, depth of field, bokeh effect, vibrant colors, perfect composition`;
-
-    setIsOptimizing(false);
-    return optimizedPrompt;
+  const handleResetMagicText = () => {
+    if (magicTextRef.current) {
+      magicTextRef.current.reset();
+    }
   };
 
   // Open lightbox for thumbnail (from all generated images)
@@ -293,9 +292,9 @@ export function GenerateClient() {
       try {
         handleResetMagicText();
         setShowMagicText(true);
+        setIsOptimizing(true);
+        
         // Check if we already have an optimized version of this exact prompt
-        // Case 1: Current prompt is the original that was optimized before
-        // Case 2: Current prompt is already the optimized version from a previous optimization
         if (
           (originalPromptBeforeOptimization &&
             settings.prompt === originalPromptBeforeOptimization &&
@@ -304,21 +303,25 @@ export function GenerateClient() {
         ) {
           // Use cached optimized prompt instead of re-optimizing
           finalPrompt = optimizedPromptCache;
+          handleCastSpell(finalPrompt);
         } else {
-          // This is a new/different prompt, optimize it
+          // This is a new/different prompt, optimize it via backend
           const originalPrompt = settings.prompt;
-          finalPrompt = await optimizePrompt(settings.prompt);
-          // Cache the optimization result
+          
+          // Cache the original prompt before optimization
           setOriginalPromptBeforeOptimization(originalPrompt);
           setLastOptimizedPrompt(originalPrompt);
-          setOptimizedPromptCache(finalPrompt);
-          // Update the settings with the optimized prompt (but avoid triggering cache clearing)
-          setSettings((prev) => ({ ...prev, prompt: finalPrompt }));
-
-          handleCastSpell(finalPrompt);
+          
+          // The backend optimization will happen during generateImages call
+          // We'll handle the magic text animation when the optimized prompt comes back
+          finalPrompt = originalPrompt; // Start with original, backend will optimize
         }
+        
+        setIsOptimizing(false);
       } catch (error) {
         console.error("Prompt optimization failed:", error);
+        setIsOptimizing(false);
+        setShowMagicText(false);
         // Continue with original prompt if optimization fails
       }
     }
@@ -326,12 +329,32 @@ export function GenerateClient() {
     // Clear any previous results
     clearResults();
 
-    // Submit to generation queue
+    // Submit to generation queue - backend will handle prompt optimization
     await generateImages({
       ...settings,
       prompt: finalPrompt,
     });
   };
+
+  // Update prompt when optimized prompt is received from backend
+  React.useEffect(() => {
+    if (optimizedPrompt && optimizedPrompt !== settings.prompt) {
+      // Cache the optimized prompt
+      setOptimizedPromptCache(optimizedPrompt);
+      
+      // If magic text is showing, animate to the new optimized prompt
+      if (showMagicText) {
+        handleCastSpell(optimizedPrompt);
+        // Update settings after a delay to let the animation play
+        setTimeout(() => {
+          setSettings((prev) => ({ ...prev, prompt: optimizedPrompt }));
+        }, 2000);
+      } else {
+        // Update the settings immediately if magic text is not showing
+        setSettings((prev) => ({ ...prev, prompt: optimizedPrompt }));
+      }
+    }
+  }, [optimizedPrompt, settings.prompt, showMagicText]);
 
   // Update allGeneratedImages when new images are generated and hide progress card
   React.useEffect(() => {
@@ -351,20 +374,8 @@ export function GenerateClient() {
     }
   }, [error, isGenerating]);
 
-  const handleCastSpell = (newText: string) => {
-    if (magicTextRef.current) {
-      magicTextRef.current.castSpell(newText); // Pass the new text here
-    }
-  };
-
-  const handleResetMagicText = () => {
-    if (magicTextRef.current) {
-      magicTextRef.current.reset();
-    }
-  };
-
   return (
-    <div
+    <div 
       className="min-h-screen bg-background"
       onClick={() => showMagicText && !isOptimizing && setShowMagicText(false)}
     >
@@ -580,6 +591,18 @@ export function GenerateClient() {
                       Revert to original
                     </button>
                   )}
+                </div>
+              )}
+
+              {/* Optimized Prompt Indicator */}
+              {optimizedPromptCache && settings.prompt === optimizedPromptCache && (
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                    <span className="text-primary">
+                      This prompt was optimized by AI
+                    </span>
+                  </div>
                 </div>
               )}
             </div>

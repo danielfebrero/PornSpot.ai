@@ -10,6 +10,7 @@ export * from "./admin";
 export * from "./interaction";
 export * from "./generation";
 export * from "./permissions";
+export * from "./openrouter";
 
 // Database entities
 export * from "./database";

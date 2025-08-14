@@ -16,3 +16,6 @@ export * from "./utils/validation";
 export * from "./utils/counter";
 export * from "./auth/admin-middleware";
 export * from "./auth/user-middleware";
+
+// Export backend services
+export * from "./services/openrouter-chat";

@@ -10,6 +10,7 @@ The following shared utilities have been created to consolidate common patterns 
 2. **ValidationUtil** - Shared validation logic
 3. **CounterUtil** - DynamoDB counter operations
 4. **ApiUtil** - Frontend API request utilities
+5. **OpenRouterService** - AI chat completion service for various functions
 
 ## Backend Utilities
 
@@ -142,6 +143,43 @@ static async incrementAlbumLikeCount(albumId: string, increment: number = 1): Pr
 - Support for all counter types (like, bookmark, view, comment, media)
 - Bulk operations support
 - Consistent error handling
+
+### OpenRouterService
+
+**Location**: `/backend/shared/services/openrouter-chat.ts`
+
+**Purpose**: Provides a unified interface for AI chat completions using OpenRouter API across various functions.
+
+**Key Features**:
+
+- **Instruction Templates**: Reusable system prompts stored as text files
+- **Variable Substitution**: Dynamic content injection (datetime, user info, etc.)
+- **Streaming Support**: Real-time response streaming for interactive features
+- **Model Flexibility**: Support for various OpenRouter models
+- **Parameter Customization**: Configurable generation parameters per request
+
+**Usage Example**:
+
+```typescript
+// Optimize user prompts for image generation
+const openRouterService = OpenRouterService.getInstance();
+
+const response = await openRouterService.chatCompletion({
+  instructionTemplate: "prompt-optimization",
+  userMessage: "beautiful landscape",
+  model: "mistralai/mistral-medium-3.1",
+  parameters: {
+    temperature: 0.7,
+    max_tokens: 1024,
+  },
+});
+
+const optimizedPrompt = response.content;
+```
+
+**Integration**: Currently integrated into the generation function to replace frontend-based prompt optimization with backend processing.
+
+**Documentation**: See [OPENROUTER_SERVICE.md](./OPENROUTER_SERVICE.md) for detailed usage instructions and examples.
 
 ## Frontend Utilities
 

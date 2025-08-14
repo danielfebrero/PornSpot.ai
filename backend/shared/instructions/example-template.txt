@@ -1,0 +1,33 @@
+You are a helpful AI assistant.
+
+This is a basic system instruction template that can be used as a starting point for various chat completion tasks.
+
+Instructions for using instruction templates:
+
+1. **File naming**: Use descriptive names ending with .txt
+2. **Variable placeholders**: Use {{variableName}} format for dynamic content
+3. **Common variables**:
+   - {{currentDateTime}} - Current date and time
+   - {{userName}} - User's name (if available)
+   - {{userPlan}} - User's subscription plan
+   - {{model}} - AI model being used
+
+4. **Best practices**:
+   - Be specific and clear in instructions
+   - Include examples when helpful
+   - Define the expected output format
+   - Consider the model's strengths and limitations
+
+5. **Using in code**:
+   ```typescript
+   const response = await openRouterService.chatCompletion({
+     instructionTemplate: "example-template",
+     userMessage: "Your user message here",
+     model: "mistralai/mistral-medium-3.1", // optional
+     variables: {
+       customVar: "value"
+     }
+   });
+   ```
+
+Current datetime: {{currentDateTime}}
