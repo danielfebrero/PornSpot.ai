@@ -93,7 +93,6 @@ export function GenerateClient() {
     optimizePrompt: true,
   });
 
-  const [isOptimizing, setIsOptimizing] = useState(false);
   const [allGeneratedImages, setAllGeneratedImages] = useState<Media[]>([]);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -124,7 +123,9 @@ export function GenerateClient() {
     workflowNodes,
     currentNodeIndex,
     optimizedPrompt, // Get optimized prompt from hook
+    isOptimizing, // Get optimization state
     generateImages,
+    optimizePrompt, // Get optimize function
     clearResults,
   } = useGeneration();
 
@@ -292,8 +293,7 @@ export function GenerateClient() {
       try {
         handleResetMagicText();
         setShowMagicText(true);
-        setIsOptimizing(true);
-        
+
         // Check if we already have an optimized version of this exact prompt
         if (
           (originalPromptBeforeOptimization &&
@@ -305,22 +305,40 @@ export function GenerateClient() {
           finalPrompt = optimizedPromptCache;
           handleCastSpell(finalPrompt);
         } else {
-          // This is a new/different prompt, optimize it via backend
+          // This is a new/different prompt, optimize it via streaming API
           const originalPrompt = settings.prompt;
-          
+
           // Cache the original prompt before optimization
           setOriginalPromptBeforeOptimization(originalPrompt);
           setLastOptimizedPrompt(originalPrompt);
-          
-          // The backend optimization will happen during generateImages call
-          // We'll handle the magic text animation when the optimized prompt comes back
-          finalPrompt = originalPrompt; // Start with original, backend will optimize
+
+          // Use the new streaming optimization
+          try {
+            finalPrompt = await optimizePrompt(
+              originalPrompt,
+              (token: string, fullText: string) => {
+                // Stream tokens to MagicText in real-time
+                if (magicTextRef.current) {
+                  magicTextRef.current.streamToken(token, fullText);
+                }
+              }
+            );
+
+            // Cache the optimized prompt
+            setOptimizedPromptCache(finalPrompt);
+
+            // Update settings after optimization completes
+            setTimeout(() => {
+              setSettings((prev) => ({ ...prev, prompt: finalPrompt }));
+            }, 2000);
+          } catch (optimizationError) {
+            console.error("Optimization failed:", optimizationError);
+            // Continue with original prompt if optimization fails
+            finalPrompt = originalPrompt;
+          }
         }
-        
-        setIsOptimizing(false);
       } catch (error) {
         console.error("Prompt optimization failed:", error);
-        setIsOptimizing(false);
         setShowMagicText(false);
         // Continue with original prompt if optimization fails
       }
@@ -329,7 +347,7 @@ export function GenerateClient() {
     // Clear any previous results
     clearResults();
 
-    // Submit to generation queue - backend will handle prompt optimization
+    // Submit to generation queue
     await generateImages({
       ...settings,
       prompt: finalPrompt,
@@ -341,7 +359,7 @@ export function GenerateClient() {
     if (optimizedPrompt && optimizedPrompt !== settings.prompt) {
       // Cache the optimized prompt
       setOptimizedPromptCache(optimizedPrompt);
-      
+
       // If magic text is showing, animate to the new optimized prompt
       if (showMagicText) {
         handleCastSpell(optimizedPrompt);
@@ -375,7 +393,7 @@ export function GenerateClient() {
   }, [error, isGenerating]);
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-background"
       onClick={() => showMagicText && !isOptimizing && setShowMagicText(false)}
     >
@@ -595,16 +613,17 @@ export function GenerateClient() {
               )}
 
               {/* Optimized Prompt Indicator */}
-              {optimizedPromptCache && settings.prompt === optimizedPromptCache && (
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-3 w-3 text-primary" />
-                    <span className="text-primary">
-                      This prompt was optimized by AI
-                    </span>
+              {optimizedPromptCache &&
+                settings.prompt === optimizedPromptCache && (
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-3 w-3 text-primary" />
+                      <span className="text-primary">
+                        This prompt was optimized by AI
+                      </span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
 

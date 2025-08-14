@@ -180,6 +180,8 @@ const handleGenerate = async (
         },
       });
 
+      console.log("Got response in generate");
+
       optimizedPrompt = response.content.trim();
       finalPrompt = optimizedPrompt;
 
@@ -191,9 +193,11 @@ const handleGenerate = async (
         "⚠️ Prompt optimization failed, using original prompt:",
         optimizationError
       );
-      // Continue with original prompt if optimization fails
+      // Continue with original prompt if optimization fails - fall through to normal flow
     }
   }
+
+  // Normal flow when optimization is not requested or failed
 
   // Create workflow parameters for queue entry
   const workflowParams: WorkflowFinalParams = {
@@ -219,6 +223,8 @@ const handleGenerate = async (
   // Get queue service and add request to queue
   const queueService = GenerationQueueService.getInstance();
 
+  console.log("got queue service");
+
   // Determine priority based on user plan
   let priority = 1000; // Default priority
   switch (userPlan) {
@@ -239,6 +245,7 @@ const handleGenerate = async (
   // Add to queue with WebSocket connection ID if available
   const connectionId = event.requestContext?.connectionId;
 
+  console.log("will add to queue");
   try {
     const queueEntry = await queueService.addToQueue(
       auth.userId,

@@ -64,6 +64,12 @@ export class OpenRouterService {
             defaultParameters: {
               temperature: 0.7,
               max_tokens: 2048,
+              reasoning: {
+                enabled: false,
+              },
+              provider: {
+                only: ["mistral"],
+              },
             },
           };
 
@@ -179,6 +185,7 @@ export class OpenRouterService {
         },
         body: JSON.stringify(requestParams),
       });
+      console.log("Got response from open router");
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -187,7 +194,11 @@ export class OpenRouterService {
         );
       }
 
+      console.log("will parse json");
+
       const data = (await response.json()) as OpenRouterChatResponse;
+
+      console.log("got json");
 
       if (!data.choices || data.choices.length === 0) {
         throw new Error("No response from OpenRouter API");

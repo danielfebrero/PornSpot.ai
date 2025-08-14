@@ -2161,6 +2161,39 @@ Resources:
               Resource:
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/openrouter-api-key"
 
+  OptimizePromptStreamFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-optimize-prompt-stream"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/generation/optimize-prompt-stream.handler"]
+      Events:
+        OptimizePromptStreamPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generation/optimize-prompt-stream
+            Method: POST
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsOptimizePromptStream:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generation/optimize-prompt-stream
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/openrouter-api-key"
+
   # EventBridge Infrastructure for ComfyUI Event-Driven Architecture
   ComfyUIEventBus:
     Type: AWS::Events::EventBus

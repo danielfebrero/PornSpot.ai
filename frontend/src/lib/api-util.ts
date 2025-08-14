@@ -316,4 +316,92 @@ export class ApiUtil {
 
     throw lastError;
   }
+
+  /**
+   * Stream data from a server-sent events endpoint
+   */
+  static async *streamRequest<T = any>(
+    endpoint: string,
+    config: ApiRequestConfig = {}
+  ): AsyncGenerator<T, void, unknown> {
+    const {
+      method = "POST",
+      headers = {},
+      params,
+      body,
+      credentials = "include",
+    } = config;
+
+    const url = this.buildUrl(endpoint, params);
+
+    const requestHeaders: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...headers,
+    };
+
+    const requestConfig: RequestInit = {
+      method,
+      headers: requestHeaders,
+      credentials,
+    };
+
+    if (body && method !== "GET") {
+      requestConfig.body =
+        typeof body === "string" ? body : JSON.stringify(body);
+    }
+
+    try {
+      const response = await fetch(url, requestConfig);
+
+      if (!response.ok) {
+        // Try to parse error response
+        try {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error || `HTTP ${response.status}: ${response.statusText}`
+          );
+        } catch {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+      }
+
+      if (!response.body) {
+        throw new Error("No response body");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split("\n");
+
+          for (const line of lines) {
+            if (line.trim() === "") continue;
+
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") return;
+
+              try {
+                const event: T = JSON.parse(data);
+                yield event;
+              } catch (parseError) {
+                console.warn("Failed to parse stream event:", parseError);
+              }
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
+    } catch (error) {
+      console.error(`Stream request failed for ${method} ${url}:`, error);
+      throw error;
+    }
+  }
 }

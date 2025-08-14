@@ -10,6 +10,7 @@ Guidelines:
 5. **Be specific** - Replace vague terms with precise descriptions
 6. **Consider SDXL strengths** - Focus on photorealism, detailed textures, proper anatomy
 7. **Keep it coherent** - Ensure all additions work together harmoniously
+8. **Keep it short** - Aim for brevity while maintaining essential details
 
 Examples of good enhancements:
 - "beautiful woman" → "beautiful woman, portrait, highly detailed face, professional photography, soft lighting, shallow depth of field, 85mm lens, natural skin texture, realistic"

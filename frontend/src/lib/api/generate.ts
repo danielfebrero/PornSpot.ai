@@ -1,6 +1,19 @@
 import { GenerationResponse, GenerationSettings } from "@/types";
 import { ApiUtil } from "../api-util";
 
+export interface OptimizePromptStreamEvent {
+  type:
+    | "optimization_start"
+    | "optimization_token"
+    | "optimization_complete"
+    | "optimization_error";
+  originalPrompt: string;
+  optimizedPrompt: string;
+  token?: string;
+  completed: boolean;
+  error?: string;
+}
+
 // Generate API Functions
 export const generateApi = {
   // Generate image
@@ -18,5 +31,19 @@ export const generateApi = {
     );
 
     return ApiUtil.extractData(response);
+  },
+
+  // Stream prompt optimization
+  optimizePromptStream: async function* (
+    prompt: string
+  ): AsyncGenerator<OptimizePromptStreamEvent, void, unknown> {
+    yield* ApiUtil.streamRequest<OptimizePromptStreamEvent>(
+      "/generation/optimize-prompt-stream",
+      {
+        method: "POST",
+        body: { prompt },
+        credentials: "include",
+      }
+    );
   },
 };

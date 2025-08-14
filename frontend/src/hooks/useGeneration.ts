@@ -9,7 +9,7 @@ import {
   Media,
   WorkflowNode,
 } from "@/types";
-import { generateApi } from "@/lib/api/generate";
+import { generateApi, OptimizePromptStreamEvent } from "@/lib/api/generate";
 
 interface GenerationRequest extends GenerationSettings {}
 
@@ -27,8 +27,14 @@ interface UseGenerationReturn {
   isRetrying: boolean;
   workflowNodes: WorkflowNode[];
   currentNodeIndex: number;
-  optimizedPrompt: string | null; // Add optimized prompt to return
+  optimizedPrompt: string | null;
+  isOptimizing: boolean; // Add optimization state
+  optimizationStream: string; // Add current optimization text
   generateImages: (request: GenerationRequest) => Promise<void>;
+  optimizePrompt: (
+    prompt: string,
+    onToken?: (token: string, fullText: string) => void
+  ) => Promise<string>;
   clearResults: () => void;
 }
 
@@ -51,6 +57,10 @@ export function useGeneration(): UseGenerationReturn {
   const [workflowNodes, setWorkflowNodes] = useState<WorkflowNode[]>([]);
   const [currentNodeIndex, setCurrentNodeIndex] = useState(0);
   const [optimizedPrompt, setOptimizedPrompt] = useState<string | null>(null);
+
+  // New optimization state
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [optimizationStream, setOptimizationStream] = useState("");
 
   const { subscribe, unsubscribe, isConnected } = useWebSocket();
   const currentQueueIdRef = useRef<string | null>(null);
@@ -445,6 +455,51 @@ export function useGeneration(): UseGenerationReturn {
     [isConnected, subscribe, handleWebSocketMessage, unsubscribe]
   );
 
+  const optimizePrompt = useCallback(
+    async (
+      prompt: string,
+      onToken?: (token: string, fullText: string) => void
+    ): Promise<string> => {
+      try {
+        setIsOptimizing(true);
+        setOptimizationStream("");
+        setError(null);
+
+        let fullOptimizedText = "";
+
+        for await (const event of generateApi.optimizePromptStream(prompt)) {
+          if (event.type === "optimization_token") {
+            fullOptimizedText = event.optimizedPrompt;
+            setOptimizationStream(fullOptimizedText);
+
+            // Call the callback with the new token and full text
+            if (onToken && event.token) {
+              onToken(event.token, fullOptimizedText);
+            }
+          } else if (event.type === "optimization_complete") {
+            fullOptimizedText = event.optimizedPrompt;
+            setOptimizedPrompt(fullOptimizedText);
+            setOptimizationStream(fullOptimizedText);
+            break;
+          } else if (event.type === "optimization_error") {
+            throw new Error(event.error || "Optimization failed");
+          }
+        }
+
+        return fullOptimizedText;
+      } catch (err) {
+        console.error("❌ Prompt optimization failed:", err);
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error occurred";
+        setError(errorMessage);
+        throw err;
+      } finally {
+        setIsOptimizing(false);
+      }
+    },
+    []
+  );
+
   const clearResults = useCallback(() => {
     setGeneratedImages([]);
     setError(null);
@@ -458,7 +513,9 @@ export function useGeneration(): UseGenerationReturn {
     setIsRetrying(false);
     setWorkflowNodes([]);
     setCurrentNodeIndex(0);
-    setOptimizedPrompt(null); // Clear optimized prompt
+    setOptimizedPrompt(null);
+    setIsOptimizing(false);
+    setOptimizationStream("");
 
     // Unsubscribe from any active subscriptions
     if (currentQueueIdRef.current) {
@@ -486,7 +543,10 @@ export function useGeneration(): UseGenerationReturn {
     workflowNodes,
     currentNodeIndex,
     optimizedPrompt,
+    isOptimizing,
+    optimizationStream,
     generateImages,
+    optimizePrompt,
     clearResults,
   };
 }

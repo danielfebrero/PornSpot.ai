@@ -13,6 +13,7 @@ interface MagicTextProps {
 
 export interface MagicTextHandle {
   castSpell: (targetText: string) => void;
+  streamToken: (token: string, fullText: string) => void;
   reset: () => void;
 }
 
@@ -85,10 +86,41 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
       [originalText, isInitial]
     );
 
+    const streamToken = useCallback(
+      (token: string, fullText: string) => {
+        if (!containerRef.current) return;
+
+        // Update the background text
+        const backgroundTextEl = containerRef.current
+          .previousElementSibling as HTMLElement;
+        if (backgroundTextEl) {
+          backgroundTextEl.textContent = fullText;
+        }
+
+        // Update the visible text content progressively
+        splitText(fullText);
+        const letters = containerRef.current.querySelectorAll(
+          ".letter"
+        ) as NodeListOf<HTMLSpanElement>;
+
+        // Add streaming effect to new letters
+        letters.forEach((letter, index) => {
+          letter.classList.add("streaming");
+          letter.style.opacity = "1";
+          letter.style.transform = "translate(0, 0) rotate(0deg)";
+
+          // Add a subtle animation delay for streaming effect
+          setTimeout(() => {
+            letter.classList.remove("streaming");
+          }, index * 20);
+        });
+      },
+      [splitText]
+    );
+
     const reset = () => {
       setIsInitial(true);
     };
-
     const castSpell = (targetText: string) => {
       if (!containerRef.current || !targetText) return;
       const letters = containerRef.current.querySelectorAll(
@@ -195,6 +227,7 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
 
     useImperativeHandle(ref, () => ({
       castSpell,
+      streamToken,
       reset,
     }));
 
@@ -274,8 +307,30 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
         -webkit-text-fill-color: transparent;
         text-shadow: 0 0 10px hsl(var(--primary));
       }
+      .letter.streaming {
+        background: linear-gradient(to right, hsl(var(--primary)), #9333ea);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 5px hsl(var(--primary));
+        animation: streamingGlow 0.5s ease-in-out;
+      }
       .letter.initial-magic {
         animation: magicalFloat 2s infinite ease-in-out;
+      }
+      @keyframes streamingGlow {
+        0% {
+          filter: drop-shadow(0 0 2px hsl(var(--primary)));
+          transform: scale(1.05);
+        }
+        50% {
+          filter: drop-shadow(0 0 8px hsl(var(--primary)));
+          transform: scale(1.1);
+        }
+        100% {
+          filter: drop-shadow(0 0 3px hsl(var(--primary)));
+          transform: scale(1);
+        }
       }
       @keyframes magicalFloat {
         0%, 100% {
