@@ -129,11 +129,15 @@ ComfyUI Monitor (Python) → EventBridge → Lambda Functions → DynamoDB/WebSo
 
 **Generation Flow**:
 
-1. User submits generation request via frontend
-2. `queue-item-submit` Lambda retrieves stored monitor `client_id` from DynamoDB
-3. Submits prompt to ComfyUI using monitor's `client_id` (not queue ID)
-4. Monitor receives real-time events via WebSocket and publishes to EventBridge
-5. Event-driven Lambda functions handle progress updates and completion
+1. User submits generation request via frontend with optional prompt optimization
+2. If optimization enabled, `generate` Lambda streams optimization via WebSocket:
+   - Uses OpenRouter API for real-time prompt enhancement  
+   - Sends `optimization_start`, `optimization_token`, and `optimization_complete` events
+   - Updates queue entry with optimized prompt
+3. `queue-item-submit` Lambda retrieves stored monitor `client_id` from DynamoDB
+4. Submits final prompt (optimized or original) to ComfyUI using monitor's `client_id`
+5. Monitor receives real-time events via WebSocket and publishes to EventBridge
+6. Event-driven Lambda functions handle progress updates and completion
 
 **Key Benefits**:
 
