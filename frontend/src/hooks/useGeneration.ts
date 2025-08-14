@@ -402,12 +402,6 @@ export function useGeneration(): UseGenerationReturn {
 
         console.log("✅ Generation request submitted:", result);
 
-        // Store optimized prompt if available
-        if (result.optimizedPrompt) {
-          setOptimizedPrompt(result.optimizedPrompt);
-          console.log("🔍 Optimized prompt received:", result.optimizedPrompt);
-        }
-
         // Store the queue ID for WebSocket subscription
         currentQueueIdRef.current = result.queueId;
 

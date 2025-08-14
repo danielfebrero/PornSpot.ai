@@ -16,7 +16,6 @@ import { ValidationUtil } from "@shared/utils/validation";
 import { getGenerationPermissions } from "@shared/utils/permissions";
 import { getRateLimitingService } from "@shared/services/rate-limiting";
 import { GenerationQueueService } from "@shared/services/generation-queue";
-import { OpenRouterService } from "@shared/services/openrouter-chat";
 import { EventBridge } from "aws-sdk";
 import {
   createComfyUIWorkflow,
@@ -156,47 +155,6 @@ const handleGenerate = async (
     );
   }
 
-  // Optimize prompt if requested and user has permission
-  let finalPrompt = validatedPrompt.trim();
-  let optimizedPrompt: string | undefined;
-
-  console.log(
-    "🔍 Optimizing prompt using OpenRouter service: ",
-    optimizePrompt
-  );
-
-  if (optimizePrompt) {
-    try {
-      console.log("🔍 Optimizing prompt using OpenRouter service");
-      const openRouterService = OpenRouterService.getInstance();
-
-      const response = await openRouterService.chatCompletion({
-        instructionTemplate: "prompt-optimization",
-        userMessage: validatedPrompt.trim(),
-        model: "mistralai/mistral-medium-3.1",
-        parameters: {
-          temperature: 0.7,
-          max_tokens: 1024,
-        },
-      });
-
-      console.log("Got response in generate");
-
-      optimizedPrompt = response.content.trim();
-      finalPrompt = optimizedPrompt;
-
-      console.log(
-        `✅ Prompt optimized: "${validatedPrompt}" → "${optimizedPrompt}"`
-      );
-    } catch (optimizationError) {
-      console.warn(
-        "⚠️ Prompt optimization failed, using original prompt:",
-        optimizationError
-      );
-      // Continue with original prompt if optimization fails - fall through to normal flow
-    }
-  }
-
   // Normal flow when optimization is not requested or failed
 
   // Create workflow parameters for queue entry
@@ -216,7 +174,7 @@ const handleGenerate = async (
     loraStrengths,
     selectedLoras,
     optimizePrompt,
-    prompt: finalPrompt,
+    prompt,
     negativePrompt: negativePrompt.trim(),
   };
 
@@ -282,7 +240,6 @@ const handleGenerate = async (
         queueEntry.queuePosition || 1
       }`,
       workflowData,
-      optimizedPrompt,
     };
 
     // Note: WebSocket communication will be handled by EventBridge when
