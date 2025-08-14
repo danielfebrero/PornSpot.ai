@@ -219,153 +219,168 @@ const handleGenerate = async (
 
       // Add to queue first to get queueId for WebSocket streaming
       const queueService = GenerationQueueService.getInstance();
-      const connectionId = event.requestContext?.connectionId;
 
-      // Determine priority based on user plan
-      let priority = 1000; // Default priority
-      switch (userPlan) {
-        case "unlimited":
-          priority = 0; // Highest priority
-          break;
-        case "pro":
-          priority = 100;
-          break;
-        case "starter":
-          priority = 500;
-          break;
-        case "free":
-          priority = 1000;
-          break;
-      }
-
-      // Create temporary workflow parameters for queue entry
-      const tempWorkflowParams: WorkflowFinalParams = {
-        width:
-          imageSize === "custom"
-            ? customWidth
-            : parseInt(imageSize?.split("x")[0] || "1024"),
-        height:
-          imageSize === "custom"
-            ? customHeight
-            : parseInt(imageSize?.split("x")[1] || "1024"),
-        steps: 20,
-        cfg_scale: 7.0,
-        batch_size: batchCount,
-        loraSelectionMode,
-        loraStrengths,
-        selectedLoras,
-        optimizePrompt,
-        prompt: finalPrompt,
-        negativePrompt: negativePrompt.trim(),
-      };
-
-      // Add to queue to get queueId for WebSocket communication
-      const queueEntry = await queueService.addToQueue(
-        auth.userId,
-        finalPrompt,
-        tempWorkflowParams,
-        connectionId,
-        priority
+      // Get active WebSocket connection for the user
+      const connectionId = await DynamoDBService.getActiveConnectionIdForUser(
+        auth.userId
       );
 
-      const queueId = queueEntry.queueId;
+      if (!connectionId) {
+        console.log(
+          "📭 No active WebSocket connection found for user, proceeding without optimization streaming"
+        );
+        // Continue with original prompt if no connection available
+        finalPrompt = validatedPrompt.trim();
+      } else {
+        // Determine priority based on user plan
+        let priority = 1000; // Default priority
+        switch (userPlan) {
+          case "unlimited":
+            priority = 0; // Highest priority
+            break;
+          case "pro":
+            priority = 100;
+            break;
+          case "starter":
+            priority = 500;
+            break;
+          case "free":
+            priority = 1000;
+            break;
+        }
 
-      // Stream optimization via WebSocket directly to connection
-      const openRouterService = OpenRouterService.getInstance();
-      let optimizedPrompt = "";
+        // Create temporary workflow parameters for queue entry
+        const tempWorkflowParams: WorkflowFinalParams = {
+          width:
+            imageSize === "custom"
+              ? customWidth
+              : parseInt(imageSize?.split("x")[0] || "1024"),
+          height:
+            imageSize === "custom"
+              ? customHeight
+              : parseInt(imageSize?.split("x")[1] || "1024"),
+          steps: 20,
+          cfg_scale: 7.0,
+          batch_size: batchCount,
+          loraSelectionMode,
+          loraStrengths,
+          selectedLoras,
+          optimizePrompt,
+          prompt: finalPrompt,
+          negativePrompt: negativePrompt.trim(),
+        };
 
-      // Send initial optimization event directly to connection
-      if (connectionId) {
-        await sendOptimizationMessageToConnection(connectionId, {
-          type: "optimization_start",
-          optimizationData: {
-            originalPrompt: finalPrompt,
-            optimizedPrompt: "",
-            completed: false,
-          },
-        });
-      }
+        // Add to queue to get queueId for WebSocket communication
+        const queueEntry = await queueService.addToQueue(
+          auth.userId,
+          finalPrompt,
+          tempWorkflowParams,
+          connectionId,
+          priority
+        );
 
-      // Get the stream from OpenRouter
-      const stream = await openRouterService.chatCompletionStream({
-        instructionTemplate: "prompt-optimization",
-        userMessage: finalPrompt,
-        model: "mistralai/mistral-medium-3.1",
-        parameters: {
-          temperature: 0.7,
-          max_tokens: 1024,
-        },
-      });
+        const queueId = queueEntry.queueId;
 
-      // Stream the optimization tokens via WebSocket directly to connection
-      for await (const token of stream) {
-        optimizedPrompt += token;
+        // Stream optimization via WebSocket directly to connection
+        const openRouterService = OpenRouterService.getInstance();
+        let optimizedPrompt = "";
+
+        // Send initial optimization event directly to connection
         if (connectionId) {
           await sendOptimizationMessageToConnection(connectionId, {
-            type: "optimization_token",
+            type: "optimization_start",
             optimizationData: {
               originalPrompt: finalPrompt,
-              optimizedPrompt,
-              token,
+              optimizedPrompt: "",
               completed: false,
             },
           });
         }
-      }
 
-      // Send completion event with final optimized prompt directly to connection
-      optimizedPromptResult = optimizedPrompt.trim();
-      finalPrompt = optimizedPromptResult;
-
-      if (connectionId) {
-        await sendOptimizationMessageToConnection(connectionId, {
-          type: "optimization_complete",
-          optimizationData: {
-            originalPrompt: validatedPrompt.trim(),
-            optimizedPrompt: optimizedPromptResult,
-            completed: true,
+        // Get the stream from OpenRouter
+        const stream = await openRouterService.chatCompletionStream({
+          instructionTemplate: "prompt-optimization",
+          userMessage: finalPrompt,
+          model: "mistralai/mistral-medium-3.1",
+          parameters: {
+            temperature: 0.7,
+            max_tokens: 1024,
           },
         });
-      }
 
-      console.log("✅ Prompt optimization completed via WebSocket");
+        // Stream the optimization tokens via WebSocket directly to connection
+        for await (const token of stream) {
+          optimizedPrompt += token;
+          if (connectionId) {
+            await sendOptimizationMessageToConnection(connectionId, {
+              type: "optimization_token",
+              optimizationData: {
+                originalPrompt: finalPrompt,
+                optimizedPrompt,
+                token,
+                completed: false,
+              },
+            });
+          }
+        }
 
-      // Update the queue entry with the optimized prompt
-      await queueService.updateQueueEntry(queueId, {
-        prompt: finalPrompt,
-        parameters: {
+        // Send completion event with final optimized prompt directly to connection
+        optimizedPromptResult = optimizedPrompt.trim();
+        finalPrompt = optimizedPromptResult;
+
+        if (connectionId) {
+          await sendOptimizationMessageToConnection(connectionId, {
+            type: "optimization_complete",
+            optimizationData: {
+              originalPrompt: validatedPrompt.trim(),
+              optimizedPrompt: optimizedPromptResult,
+              completed: true,
+            },
+          });
+        }
+
+        console.log("✅ Prompt optimization completed via WebSocket");
+
+        // Update the queue entry with the optimized prompt
+        await queueService.updateQueueEntry(queueId, {
+          prompt: finalPrompt,
+          parameters: {
+            ...tempWorkflowParams,
+            prompt: finalPrompt,
+          },
+        });
+
+        // Generate workflow data with optimized prompt
+        const workflowData = generateWorkflowData({
           ...tempWorkflowParams,
           prompt: finalPrompt,
-        },
-      });
+        });
 
-      // Generate workflow data with optimized prompt
-      const workflowData = generateWorkflowData({
-        ...tempWorkflowParams,
-        prompt: finalPrompt,
-      });
+        // Publish queue submission event for processing
+        try {
+          await publishQueueSubmissionEvent(queueId, priority);
+          console.log(`🚀 Published queue submission event for ${queueId}`);
+        } catch (eventError) {
+          console.error(
+            "Failed to publish queue submission event:",
+            eventError
+          );
+        }
 
-      // Publish queue submission event for processing
-      try {
-        await publishQueueSubmissionEvent(queueId, priority);
-        console.log(`🚀 Published queue submission event for ${queueId}`);
-      } catch (eventError) {
-        console.error("Failed to publish queue submission event:", eventError);
+        const response: GenerationResponse = {
+          queueId,
+          queuePosition: queueEntry.queuePosition || 1,
+          estimatedWaitTime: queueEntry.estimatedWaitTime || 0,
+          status: "pending",
+          message: `Your request has been added to the queue with optimized prompt. Position: ${
+            queueEntry.queuePosition || 1
+          }`,
+          workflowData,
+          optimizedPrompt: optimizedPromptResult,
+        };
+
+        return ResponseUtil.success(event, response);
       }
-
-      const response: GenerationResponse = {
-        queueId,
-        queuePosition: queueEntry.queuePosition || 1,
-        estimatedWaitTime: queueEntry.estimatedWaitTime || 0,
-        status: "pending",
-        message: `Your request has been added to the queue with optimized prompt. Position: ${
-          queueEntry.queuePosition || 1
-        }`,
-        workflowData,
-        optimizedPrompt: optimizedPromptResult,
-      };
-
-      return ResponseUtil.success(event, response);
     } catch (optimizationError) {
       console.error("❌ Prompt optimization failed:", optimizationError);
       // Continue with original prompt if optimization fails
@@ -421,7 +436,9 @@ const handleGenerate = async (
   }
 
   // Add to queue with WebSocket connection ID if available
-  const connectionId = event.requestContext?.connectionId;
+  const connectionId = await DynamoDBService.getActiveConnectionIdForUser(
+    auth.userId
+  );
 
   console.log("will add to queue");
   try {
@@ -429,7 +446,7 @@ const handleGenerate = async (
       auth.userId,
       finalPrompt,
       workflowParams,
-      connectionId,
+      connectionId || undefined,
       priority
     );
 

@@ -24,6 +24,7 @@ import {
   UserInteractionEntity,
   UserInteraction,
 } from "@shared/shared-types";
+import { ConnectionEntity } from "@shared/shared-types/websocket";
 import { CounterUtil } from "./counter";
 
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
@@ -2552,6 +2553,58 @@ export class DynamoDBService {
     } catch (error) {
       console.error(`❌ Error deleting comment likes:`, error);
       throw error;
+    }
+  }
+
+  /**
+   * Get active WebSocket connection ID for a user
+   * Returns the most recent active connection for the user
+   */
+  static async getActiveConnectionIdForUser(
+    userId: string
+  ): Promise<string | null> {
+    try {
+      console.log(`🔍 Looking for active connection for user: ${userId}`);
+
+      const result = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI1",
+          KeyConditionExpression:
+            "GSI1PK = :gsi1pk AND begins_with(GSI1SK, :gsi1sk)",
+          ExpressionAttributeValues: {
+            ":gsi1pk": "WEBSOCKET_CONNECTIONS",
+            ":gsi1sk": `${userId}#`,
+          },
+          ScanIndexForward: false, // Get most recent first
+          Limit: 1, // We only need the most recent connection
+        })
+      );
+
+      const connections = result.Items as ConnectionEntity[] | undefined;
+
+      if (!connections || connections.length === 0) {
+        console.log(`📭 No active connections found for user: ${userId}`);
+        return null;
+      }
+
+      const connection = connections[0];
+      if (!connection) {
+        console.log(`📭 No valid connection found for user: ${userId}`);
+        return null;
+      }
+
+      console.log(
+        `✅ Found active connection for user ${userId}: ${connection.connectionId}`
+      );
+
+      return connection.connectionId;
+    } catch (error) {
+      console.error(
+        `❌ Error getting active connection for user ${userId}:`,
+        error
+      );
+      return null;
     }
   }
 }
