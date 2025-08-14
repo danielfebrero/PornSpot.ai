@@ -112,6 +112,70 @@ Once subscribed to a queue, clients will receive real-time updates:
 }
 ```
 
+### Prompt Optimization Messages
+
+#### Optimization Start
+
+```json
+{
+  "type": "optimization_start",
+  "queueId": "uuid-of-queue-entry",
+  "timestamp": "2025-08-12T10:30:00.000Z",
+  "optimizationData": {
+    "originalPrompt": "a beautiful landscape",
+    "optimizedPrompt": "",
+    "completed": false
+  }
+}
+```
+
+#### Optimization Token Stream
+
+```json
+{
+  "type": "optimization_token",
+  "queueId": "uuid-of-queue-entry",
+  "timestamp": "2025-08-12T10:30:00.000Z",
+  "optimizationData": {
+    "originalPrompt": "a beautiful landscape",
+    "optimizedPrompt": "a breathtaking, stunning landscape with",
+    "token": " with",
+    "completed": false
+  }
+}
+```
+
+#### Optimization Complete
+
+```json
+{
+  "type": "optimization_complete",
+  "queueId": "uuid-of-queue-entry",
+  "timestamp": "2025-08-12T10:30:00.000Z",
+  "optimizationData": {
+    "originalPrompt": "a beautiful landscape",
+    "optimizedPrompt": "a breathtaking, stunning landscape with vibrant colors and dramatic lighting",
+    "completed": true
+  }
+}
+```
+
+#### Optimization Error
+
+```json
+{
+  "type": "optimization_error",
+  "queueId": "uuid-of-queue-entry",
+  "timestamp": "2025-08-12T10:30:00.000Z",
+  "error": "OpenRouter API error: Rate limit exceeded",
+  "optimizationData": {
+    "originalPrompt": "a beautiful landscape",
+    "optimizedPrompt": "",
+    "completed": true
+  }
+}
+```
+
 ### Job Progress Update
 
 ```json
@@ -237,6 +301,18 @@ websocket.onmessage = (event) => {
   switch (message.type) {
     case "queue_update":
       updateQueuePosition(message.queuePosition);
+      break;
+    case "optimization_start":
+      showOptimizationProgress("Starting prompt optimization...");
+      break;
+    case "optimization_token":
+      streamOptimizationToken(message.optimizationData.optimizedPrompt);
+      break;
+    case "optimization_complete":
+      finishOptimization(message.optimizationData.optimizedPrompt);
+      break;
+    case "optimization_error":
+      handleOptimizationError(message.error);
       break;
     case "job_progress":
       updateProgress(message.progressData);

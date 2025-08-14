@@ -9,7 +9,7 @@ import {
   Media,
   WorkflowNode,
 } from "@/types";
-import { generateApi, OptimizePromptStreamEvent } from "@/lib/api/generate";
+import { generateApi } from "@/lib/api/generate";
 
 interface GenerationRequest extends GenerationSettings {}
 
@@ -353,6 +353,47 @@ export function useGeneration(): UseGenerationReturn {
           setNodeState("");
           break;
 
+        case "optimization_start":
+          console.log("🎨 Starting prompt optimization");
+          setIsOptimizing(true);
+          setOptimizationStream("");
+          setError(null);
+          if (message.optimizationData) {
+            setCurrentMessage(
+              `Optimizing prompt: "${message.optimizationData.originalPrompt}"`
+            );
+          }
+          break;
+
+        case "optimization_token":
+          if (message.optimizationData) {
+            const { optimizedPrompt, token } = message.optimizationData;
+            setOptimizationStream(optimizedPrompt);
+            setCurrentMessage(`Optimizing prompt...`);
+            
+            // Call callback if available (for backward compatibility)
+            // This would be handled through the optimizationStream state now
+          }
+          break;
+
+        case "optimization_complete":
+          console.log("✅ Prompt optimization completed");
+          if (message.optimizationData) {
+            const { optimizedPrompt } = message.optimizationData;
+            setOptimizedPrompt(optimizedPrompt);
+            setOptimizationStream(optimizedPrompt);
+            setCurrentMessage(`Prompt optimized. Starting generation...`);
+          }
+          setIsOptimizing(false);
+          break;
+
+        case "optimization_error":
+          console.error("❌ Prompt optimization failed:", message.error);
+          setIsOptimizing(false);
+          setError(message.error || "Prompt optimization failed");
+          setCurrentMessage("Optimization failed, proceeding with original prompt");
+          break;
+
         case "error":
           // Check if this is a final failure or if retries are still possible
           const isRetryableError =
@@ -454,42 +495,11 @@ export function useGeneration(): UseGenerationReturn {
       prompt: string,
       onToken?: (token: string, fullText: string) => void
     ): Promise<string> => {
-      try {
-        setIsOptimizing(true);
-        setOptimizationStream("");
-        setError(null);
-
-        let fullOptimizedText = "";
-
-        for await (const event of generateApi.optimizePromptStream(prompt)) {
-          if (event.type === "optimization_token") {
-            fullOptimizedText = event.optimizedPrompt;
-            setOptimizationStream(fullOptimizedText);
-
-            // Call the callback with the new token and full text
-            if (onToken && event.token) {
-              onToken(event.token, fullOptimizedText);
-            }
-          } else if (event.type === "optimization_complete") {
-            fullOptimizedText = event.optimizedPrompt;
-            setOptimizedPrompt(fullOptimizedText);
-            setOptimizationStream(fullOptimizedText);
-            break;
-          } else if (event.type === "optimization_error") {
-            throw new Error(event.error || "Optimization failed");
-          }
-        }
-
-        return fullOptimizedText;
-      } catch (err) {
-        console.error("❌ Prompt optimization failed:", err);
-        const errorMessage =
-          err instanceof Error ? err.message : "Unknown error occurred";
-        setError(errorMessage);
-        throw err;
-      } finally {
-        setIsOptimizing(false);
-      }
+      // DEPRECATED: Prompt optimization is now handled automatically by the backend
+      // during the generateImages call when optimizePrompt: true is set.
+      // This function is kept for backward compatibility but just returns the original prompt.
+      console.warn("optimizePrompt is deprecated. Use generateImages with optimizePrompt: true instead.");
+      return prompt;
     },
     []
   );

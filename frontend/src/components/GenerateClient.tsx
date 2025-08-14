@@ -125,8 +125,8 @@ export function GenerateClient() {
     currentNodeIndex,
     optimizedPrompt, // Get optimized prompt from hook
     isOptimizing, // Get optimization state
+    optimizationStream, // Get optimization stream
     generateImages,
-    optimizePrompt, // Get optimize function
     clearResults,
   } = useGeneration();
 
@@ -288,72 +288,20 @@ export function GenerateClient() {
     // Show progress card immediately on click
     setShowProgressCard(true);
 
-    let finalPrompt = settings.prompt;
-
-    // Optimize prompt if enabled
+    // Handle magic text animation for optimization
     if (settings.optimizePrompt) {
-      try {
-        handleResetMagicText();
-        setShowMagicText(true);
-
-        // Check if we already have an optimized version of this exact prompt
-        if (
-          (originalPromptBeforeOptimization &&
-            settings.prompt === originalPromptBeforeOptimization &&
-            optimizedPromptCache) ||
-          (settings.prompt === optimizedPromptCache && optimizedPromptCache)
-        ) {
-          // Use cached optimized prompt instead of re-optimizing
-          finalPrompt = optimizedPromptCache;
-          handleCastSpell(finalPrompt);
-        } else {
-          // This is a new/different prompt, optimize it via streaming API
-          const originalPrompt = settings.prompt;
-
-          // Cache the original prompt before optimization
-          setOriginalPromptBeforeOptimization(originalPrompt);
-          setLastOptimizedPrompt(originalPrompt);
-
-          // Use the new streaming optimization
-          try {
-            finalPrompt = await optimizePrompt(
-              originalPrompt,
-              (token: string, fullText: string) => {
-                // Stream tokens to MagicText in real-time
-                if (magicTextRef.current) {
-                  magicTextRef.current.streamToken(token, fullText);
-                }
-              }
-            );
-
-            // Cache the optimized prompt
-            setOptimizedPromptCache(finalPrompt);
-
-            // Update settings after optimization completes
-            setTimeout(() => {
-              setSettings((prev) => ({ ...prev, prompt: finalPrompt }));
-            }, 2000);
-          } catch (optimizationError) {
-            console.error("Optimization failed:", optimizationError);
-            // Continue with original prompt if optimization fails
-            finalPrompt = originalPrompt;
-          }
-        }
-      } catch (error) {
-        console.error("Prompt optimization failed:", error);
-        setShowMagicText(false);
-        // Continue with original prompt if optimization fails
-      }
+      handleResetMagicText();
+      setShowMagicText(true);
+      // Store the original prompt before optimization for potential reversion
+      setOriginalPromptBeforeOptimization(settings.prompt);
+      setLastOptimizedPrompt(settings.prompt);
     }
 
     // Clear any previous results
     clearResults();
 
-    // Submit to generation queue
-    await generateImages({
-      ...settings,
-      prompt: finalPrompt,
-    });
+    // Submit to generation queue - optimization will be handled by backend if enabled
+    await generateImages(settings);
   };
 
   // Update prompt when optimized prompt is received from backend
@@ -375,6 +323,14 @@ export function GenerateClient() {
       }
     }
   }, [optimizedPrompt, settings.prompt, showMagicText]);
+
+  // Handle optimization stream for real-time MagicText updates
+  React.useEffect(() => {
+    if (isOptimizing && optimizationStream && showMagicText && magicTextRef.current) {
+      // Update MagicText with current optimization stream
+      magicTextRef.current.castSpell(optimizationStream);
+    }
+  }, [optimizationStream, isOptimizing, showMagicText]);
 
   // Update allGeneratedImages when new images are generated and hide progress card
   React.useEffect(() => {
