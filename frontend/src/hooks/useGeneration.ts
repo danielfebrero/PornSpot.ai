@@ -27,6 +27,7 @@ interface UseGenerationReturn {
   isRetrying: boolean;
   workflowNodes: WorkflowNode[];
   currentNodeIndex: number;
+  optimizedPrompt: string | null; // Add optimized prompt to return
   generateImages: (request: GenerationRequest) => Promise<void>;
   clearResults: () => void;
 }
@@ -49,6 +50,7 @@ export function useGeneration(): UseGenerationReturn {
   // New workflow state
   const [workflowNodes, setWorkflowNodes] = useState<WorkflowNode[]>([]);
   const [currentNodeIndex, setCurrentNodeIndex] = useState(0);
+  const [optimizedPrompt, setOptimizedPrompt] = useState<string | null>(null);
 
   const { subscribe, unsubscribe, isConnected } = useWebSocket();
   const currentQueueIdRef = useRef<string | null>(null);
@@ -390,6 +392,12 @@ export function useGeneration(): UseGenerationReturn {
 
         console.log("✅ Generation request submitted:", result);
 
+        // Store optimized prompt if available
+        if (result.optimizedPrompt) {
+          setOptimizedPrompt(result.optimizedPrompt);
+          console.log("🔍 Optimized prompt received:", result.optimizedPrompt);
+        }
+
         // Store the queue ID for WebSocket subscription
         currentQueueIdRef.current = result.queueId;
 
@@ -450,6 +458,7 @@ export function useGeneration(): UseGenerationReturn {
     setIsRetrying(false);
     setWorkflowNodes([]);
     setCurrentNodeIndex(0);
+    setOptimizedPrompt(null); // Clear optimized prompt
 
     // Unsubscribe from any active subscriptions
     if (currentQueueIdRef.current) {
@@ -476,6 +485,7 @@ export function useGeneration(): UseGenerationReturn {
     isRetrying,
     workflowNodes,
     currentNodeIndex,
+    optimizedPrompt,
     generateImages,
     clearResults,
   };

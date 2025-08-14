@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -16,7 +16,6 @@ import {
 import { Lightbox } from "@/components/ui/Lightbox";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { GradientTextarea } from "@/components/ui/GradientTextarea";
-import { MagicText, MagicTextHandle } from "@/components/ui/MagicText";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { useGeneration } from "@/hooks/useGeneration";
 import { GenerationSettings, Media } from "@/types";
@@ -28,7 +27,6 @@ import {
   Lock,
   MinusCircle,
   Sparkles,
-  RotateCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocaleRouter } from "@/lib/navigation";
@@ -78,7 +76,6 @@ const LORA_MODELS = [
 ];
 
 export function GenerateClient() {
-  const magicTextRef = useRef<MagicTextHandle>(null);
 
   const [settings, setSettings] = useState<GenerationSettings>({
     prompt: "",
@@ -93,20 +90,13 @@ export function GenerateClient() {
     optimizePrompt: true,
   });
 
-  const [isOptimizing, setIsOptimizing] = useState(false);
   const [allGeneratedImages, setAllGeneratedImages] = useState<Media[]>([]);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [showMagicText, setShowMagicText] = useState(false);
   const [showProgressCard, setShowProgressCard] = useState(false);
 
-  // Track optimization state to prevent re-optimizing the same prompt
-  const [lastOptimizedPrompt, setLastOptimizedPrompt] = useState<string>("");
-  const [optimizedPromptCache, setOptimizedPromptCache] = useState<string>("");
-  const [
-    originalPromptBeforeOptimization,
-    setOriginalPromptBeforeOptimization,
-  ] = useState<string>("");
+  // Track optimized prompt from backend response
+  const [currentOptimizedPrompt, setCurrentOptimizedPrompt] = useState<string>("");
 
   // Use the new generation hook with WebSocket support
   const {
@@ -123,6 +113,7 @@ export function GenerateClient() {
     isRetrying,
     workflowNodes,
     currentNodeIndex,
+    optimizedPrompt, // Get optimized prompt from hook
     generateImages,
     clearResults,
   } = useGeneration();
@@ -149,15 +140,9 @@ export function GenerateClient() {
   const updateSettings = (key: keyof GenerationSettings, value: unknown) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
 
-    // If the prompt is being changed manually, clear the optimization cache
-    // This ensures a new/modified prompt can be optimized again
+    // Clear optimized prompt when user manually changes the prompt
     if (key === "prompt") {
-      // Only clear cache if the new prompt is different from both the original and optimized versions
-      if (value !== lastOptimizedPrompt && value !== optimizedPromptCache) {
-        setLastOptimizedPrompt("");
-        setOptimizedPromptCache("");
-        setOriginalPromptBeforeOptimization("");
-      }
+      setCurrentOptimizedPrompt("");
     }
   };
 
@@ -240,34 +225,6 @@ export function GenerateClient() {
     setSettings((prev) => ({ ...prev, loraSelectionMode: mode }));
   };
 
-  // Revert to original prompt before optimization
-  const revertToOriginalPrompt = () => {
-    if (originalPromptBeforeOptimization) {
-      setSettings((prev) => ({
-        ...prev,
-        prompt: originalPromptBeforeOptimization,
-      }));
-      // Clear the optimization cache since we're reverting
-      setLastOptimizedPrompt("");
-      setOptimizedPromptCache("");
-      setOriginalPromptBeforeOptimization("");
-    }
-  };
-
-  // Optimize prompt function with magical animation
-  const optimizePrompt = async (originalPrompt: string): Promise<string> => {
-    setIsOptimizing(true);
-
-    // Simulate AI processing delay
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    // PLACEHOLDER: Replace with actual SDXL prompt optimization logic
-    const optimizedPrompt = `${originalPrompt}, (masterpiece:1.2), (best quality:1.2), (ultra-detailed:1.2), (realistic:1.2), (photorealistic:1.2), sharp focus, cinematic lighting, detailed textures, high resolution, professional photography, depth of field, bokeh effect, vibrant colors, perfect composition`;
-
-    setIsOptimizing(false);
-    return optimizedPrompt;
-  };
-
   // Open lightbox for thumbnail (from all generated images)
   const openThumbnailLightbox = (imageUrl: string) => {
     console.log("Opening lightbox for image:", imageUrl);
@@ -286,52 +243,21 @@ export function GenerateClient() {
     // Show progress card immediately on click
     setShowProgressCard(true);
 
-    let finalPrompt = settings.prompt;
-
-    // Optimize prompt if enabled
-    if (settings.optimizePrompt) {
-      try {
-        handleResetMagicText();
-        setShowMagicText(true);
-        // Check if we already have an optimized version of this exact prompt
-        // Case 1: Current prompt is the original that was optimized before
-        // Case 2: Current prompt is already the optimized version from a previous optimization
-        if (
-          (originalPromptBeforeOptimization &&
-            settings.prompt === originalPromptBeforeOptimization &&
-            optimizedPromptCache) ||
-          (settings.prompt === optimizedPromptCache && optimizedPromptCache)
-        ) {
-          // Use cached optimized prompt instead of re-optimizing
-          finalPrompt = optimizedPromptCache;
-        } else {
-          // This is a new/different prompt, optimize it
-          const originalPrompt = settings.prompt;
-          finalPrompt = await optimizePrompt(settings.prompt);
-          // Cache the optimization result
-          setOriginalPromptBeforeOptimization(originalPrompt);
-          setLastOptimizedPrompt(originalPrompt);
-          setOptimizedPromptCache(finalPrompt);
-          // Update the settings with the optimized prompt (but avoid triggering cache clearing)
-          setSettings((prev) => ({ ...prev, prompt: finalPrompt }));
-
-          handleCastSpell(finalPrompt);
-        }
-      } catch (error) {
-        console.error("Prompt optimization failed:", error);
-        // Continue with original prompt if optimization fails
-      }
-    }
-
     // Clear any previous results
     clearResults();
 
-    // Submit to generation queue
-    await generateImages({
-      ...settings,
-      prompt: finalPrompt,
-    });
+    // Submit to generation queue - backend will handle prompt optimization
+    await generateImages(settings);
   };
+
+  // Update prompt when optimized prompt is received from backend
+  React.useEffect(() => {
+    if (optimizedPrompt && optimizedPrompt !== settings.prompt) {
+      setCurrentOptimizedPrompt(optimizedPrompt);
+      // Update the settings to show the optimized prompt in the UI
+      setSettings((prev) => ({ ...prev, prompt: optimizedPrompt }));
+    }
+  }, [optimizedPrompt, settings.prompt]);
 
   // Update allGeneratedImages when new images are generated and hide progress card
   React.useEffect(() => {
@@ -351,23 +277,8 @@ export function GenerateClient() {
     }
   }, [error, isGenerating]);
 
-  const handleCastSpell = (newText: string) => {
-    if (magicTextRef.current) {
-      magicTextRef.current.castSpell(newText); // Pass the new text here
-    }
-  };
-
-  const handleResetMagicText = () => {
-    if (magicTextRef.current) {
-      magicTextRef.current.reset();
-    }
-  };
-
   return (
-    <div
-      className="min-h-screen bg-background"
-      onClick={() => showMagicText && !isOptimizing && setShowMagicText(false)}
-    >
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Hero Header */}
@@ -511,16 +422,6 @@ export function GenerateClient() {
                   }
                   className="w-full h-40 md:h-32 text-lg p-6 border-2 border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 resize-none transition-all"
                 />
-
-                {/* Magical overlay during optimization */}
-                {showMagicText && (
-                  <MagicText
-                    originalText={
-                      originalPromptBeforeOptimization || settings.prompt
-                    }
-                    ref={magicTextRef}
-                  />
-                )}
               </div>
               <div className="flex justify-between items-center">
                 <div className="text-xs text-muted-foreground">
@@ -561,25 +462,15 @@ export function GenerateClient() {
                 />
               </div>
 
-              {/* Revert to Original Prompt Button */}
-              {originalPromptBeforeOptimization && (
+              {/* Optimized Prompt Indicator */}
+              {currentOptimizedPrompt && settings.prompt === currentOptimizedPrompt && (
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <div className="flex items-center gap-2">
-                    <RotateCcw className="h-3 w-3" />
-                    <span>
-                      {settings.prompt === originalPromptBeforeOptimization
-                        ? "Viewing original prompt"
-                        : "Prompt optimized"}
+                    <Sparkles className="h-3 w-3 text-primary" />
+                    <span className="text-primary">
+                      This prompt was optimized by AI
                     </span>
                   </div>
-                  {settings.prompt !== originalPromptBeforeOptimization && (
-                    <button
-                      onClick={revertToOriginalPrompt}
-                      className="text-primary hover:text-primary/80 underline underline-offset-2 transition-colors"
-                    >
-                      Revert to original
-                    </button>
-                  )}
                 </div>
               )}
             </div>
@@ -592,26 +483,17 @@ export function GenerateClient() {
               disabled={
                 !allowed ||
                 !settings.prompt.trim() ||
-                isGenerating ||
-                isOptimizing
+                isGenerating
               }
               className={cn(
                 "w-full h-16 text-lg font-semibold rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]",
-                isGenerating || isOptimizing
+                isGenerating
                   ? "bg-gradient-to-r from-primary/80 to-purple-600/80"
                   : "bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
               )}
               size="lg"
             >
-              {isOptimizing ? (
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <Sparkles className="w-6 h-6 text-white animate-pulse" />
-                    <div className="absolute inset-0 bg-white/20 rounded-full animate-ping" />
-                  </div>
-                  <span>Optimizing Prompt...</span>
-                </div>
-              ) : isGenerating ? (
+              {isGenerating ? (
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
                   <span>Creating Magic...</span>
