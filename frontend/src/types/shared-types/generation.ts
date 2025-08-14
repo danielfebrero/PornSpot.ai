@@ -38,6 +38,7 @@ export interface GenerationResponse {
   message: string;
   images?: Media[];
   workflowData?: WorkflowData;
+  optimizedPrompt?: string;
 }
 
 export interface WorkflowFinalParams {

@@ -195,4 +195,28 @@ export class ParameterStoreService {
       false
     );
   }
+
+  /**
+   * Get the OpenRouter API Key from Parameter Store or environment variable
+   */
+  static async getOpenRouterApiKey(): Promise<string> {
+    // In local development, use environment variable directly
+    if (isLocal) {
+      const apiKey = process.env["OPENROUTER_API_KEY"];
+      if (!apiKey) {
+        throw new Error(
+          "OPENROUTER_API_KEY not found in environment variables"
+        );
+      }
+      console.log("Using local OPENROUTER_API_KEY from environment variable");
+      return apiKey;
+    }
+
+    // In production, use Parameter Store
+    const environment = process.env["ENVIRONMENT"] || "dev";
+    return await this.getParameter(
+      `/${environment}/openrouter-api-key`,
+      true
+    );
+  }
 }
