@@ -248,14 +248,16 @@ export function GenerationProgressCard({
               {/* Dynamic Content Area - Fixed Height Containers */}
               <div className="space-y-2.5" style={{ minHeight: "120px" }}>
                 {/* Current Node Info - Always Shows */}
-                <div className={cn(
-                  "rounded-xl p-3 backdrop-blur-sm",
-                  error 
-                    ? "bg-gradient-to-r from-destructive/5 to-destructive/10 border border-destructive/20"
-                    : currentNode
-                    ? "bg-gradient-to-r from-primary/5 to-purple-600/5 border border-primary/20"
-                    : "bg-muted/10 border border-muted/20"
-                )}>
+                <div
+                  className={cn(
+                    "rounded-xl p-3 backdrop-blur-sm",
+                    error
+                      ? "bg-gradient-to-r from-destructive/5 to-destructive/10 border border-destructive/20"
+                      : currentNode
+                      ? "bg-gradient-to-r from-primary/5 to-purple-600/5 border border-primary/20"
+                      : "bg-muted/10 border border-muted/20"
+                  )}
+                >
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-1.5">
                       {error ? (
@@ -265,15 +267,21 @@ export function GenerationProgressCard({
                       ) : (
                         <Clock className="w-3.5 h-3.5 text-muted-foreground" />
                       )}
-                      <span className={cn(
-                        "text-xs font-medium",
-                        error 
-                          ? "text-destructive"
-                          : currentNode 
-                          ? "text-primary"
-                          : "text-muted-foreground"
-                      )}>
-                        {error ? "Failed" : currentNode ? "Processing" : "Waiting"}
+                      <span
+                        className={cn(
+                          "text-xs font-medium",
+                          error
+                            ? "text-destructive"
+                            : currentNode
+                            ? "text-primary"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        {error
+                          ? "Failed"
+                          : currentNode
+                          ? "Processing"
+                          : "Waiting"}
                       </span>
                     </div>
                     {nodeState && !error && (
@@ -283,16 +291,15 @@ export function GenerationProgressCard({
                     )}
                   </div>
                   <div className="text-sm font-medium text-foreground truncate">
-                    {error 
+                    {error
                       ? "Generation stopped due to error"
-                      : currentNode 
+                      : currentNode
                       ? currentNode
                       : isQueued
                       ? "Waiting in queue to start..."
                       : isComplete
                       ? "All nodes completed successfully"
-                      : "Ready to begin processing"
-                    }
+                      : "Ready to begin processing"}
                   </div>
                 </div>
 
@@ -306,10 +313,12 @@ export function GenerationProgressCard({
                       {hasWorkflow ? (
                         <>
                           Step{" "}
-                          {error 
+                          {error
                             ? currentNodeIndex + 1
-                            : Math.min(currentNodeIndex + 1, workflowNodes.length)
-                          }{" "}
+                            : Math.min(
+                                currentNodeIndex + 1,
+                                workflowNodes.length
+                              )}{" "}
                           of {workflowNodes.length}
                         </>
                       ) : (
@@ -317,7 +326,7 @@ export function GenerationProgressCard({
                       )}
                     </span>
                   </div>
-                  
+
                   {hasWorkflow ? (
                     <div className="flex items-center gap-0.5">
                       {workflowNodes.map((node, index) => (
@@ -354,7 +363,7 @@ export function GenerationProgressCard({
                           <div
                             className={cn(
                               "h-full transition-all duration-500",
-                              error 
+                              error
                                 ? "bg-destructive animate-pulse"
                                 : isQueued
                                 ? "bg-muted/30"
