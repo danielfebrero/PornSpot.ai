@@ -179,6 +179,11 @@ export class DynamoDBService {
       media.status = entity.status;
     }
 
+    // Convert isPublic from string to boolean for Media interface
+    if (entity.isPublic !== undefined) {
+      media.isPublic = entity.isPublic === "true";
+    }
+
     // Add interaction counts
     if (entity.likeCount !== undefined) {
       media.likeCount = entity.likeCount;

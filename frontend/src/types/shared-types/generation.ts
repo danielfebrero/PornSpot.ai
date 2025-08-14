@@ -11,6 +11,7 @@ export interface GenerationSettings {
   loraStrengths: Record<string, { mode: "auto" | "manual"; value: number }>;
   loraSelectionMode: "auto" | "manual";
   optimizePrompt: boolean;
+  isPublic?: boolean;
 }
 
 export interface GenerationRequest extends GenerationSettings {}

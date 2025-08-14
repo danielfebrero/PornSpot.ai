@@ -16,6 +16,7 @@ export interface Media {
   status?: MediaStatus;
   createdAt: string;
   updatedAt: string;
+  isPublic?: boolean;
   likeCount?: number;
   bookmarkCount?: number;
   viewCount?: number;

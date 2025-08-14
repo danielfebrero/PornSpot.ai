@@ -69,6 +69,7 @@ export interface MediaEntity extends BaseEntity {
   status?: MediaStatus;
   createdAt: string;
   updatedAt: string;
+  isPublic?: string; // "true" or "false" - stored as string for GSI compatibility
   likeCount?: number;
   bookmarkCount?: number;
   viewCount?: number;

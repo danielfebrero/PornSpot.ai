@@ -91,6 +91,7 @@ export function GenerateClient() {
     loraStrengths: {},
     loraSelectionMode: "auto",
     optimizePrompt: true,
+    isPublic: true, // Default to public
   });
 
   const [allGeneratedImages, setAllGeneratedImages] = useState<Media[]>([]);
@@ -137,6 +138,7 @@ export function GenerateClient() {
     canUseLoRAModels,
     canUseNegativePrompt,
     canUseCustomSizes,
+    canCreatePrivateContent,
   } = useUserPermissions();
 
   const router = useLocaleRouter();
@@ -891,6 +893,66 @@ export function GenerateClient() {
                     </Button>
                   ))}
                 </div>
+              </div>
+
+              {/* Visibility Toggle */}
+              <div
+                className={cn(
+                  "bg-card border border-border rounded-2xl shadow-lg p-6 transition-all",
+                  !canCreatePrivateContent() && "opacity-50"
+                )}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center",
+                      canCreatePrivateContent()
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    <Lock className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-foreground">
+                      Visibility
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Public or private content
+                    </p>
+                  </div>
+                  {!canCreatePrivateContent() && (
+                    <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
+                      <Crown className="h-3 w-3" />
+                      <span className="text-xs font-medium">Pro</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {settings.isPublic ? "Public" : "Private"}
+                      </span>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={!settings.isPublic} // Switch is for "private" state
+                    onCheckedChange={(checked) =>
+                      canCreatePrivateContent() &&
+                      updateSettings("isPublic", !checked)
+                    }
+                    disabled={!canCreatePrivateContent()}
+                  />
+                </div>
+
+                <p className="text-xs text-muted-foreground mt-3">
+                  {settings.isPublic
+                    ? "Generated images will be visible to all users"
+                    : "Generated images will be private to your account"}
+                </p>
               </div>
             </div>
 

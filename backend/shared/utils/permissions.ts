@@ -182,6 +182,7 @@ export function getGenerationPermissions(
     canUseLoRAModels: planPerms.canUseLoRAModels,
     canSelectImageSizes: planPerms.canSelectImageSizes,
     canUseNegativePrompt: planPerms.canUseNegativePrompt,
+    canCreatePrivateContent: planPerms.canCreatePrivateContent,
   };
 }
 

@@ -27,6 +27,9 @@ export interface CreateMediaEntityOptions {
   // Optional metadata
   metadata?: Metadata;
 
+  // Optional visibility (defaults to true for public)
+  isPublic?: boolean;
+
   // Optional status (defaults to "pending")
   status?: "pending" | "uploaded" | "failed";
 
@@ -94,6 +97,10 @@ export function createMediaEntity(
     status: options.status || "pending",
     createdAt: now,
     updatedAt: now,
+
+    // Visibility (stored as string for GSI compatibility)
+    isPublic:
+      options.isPublic !== undefined ? String(options.isPublic) : "true",
 
     // Interaction counts
     likeCount: options.likeCount || 0,

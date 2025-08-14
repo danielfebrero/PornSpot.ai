@@ -31,6 +31,7 @@ interface SaveGeneratedMediaOptions {
   optimizePrompt?: boolean;
   customWidth?: number;
   customHeight?: number;
+  isPublic?: boolean;
 }
 
 interface GeneratedMediaResult {
@@ -62,6 +63,7 @@ export async function saveGeneratedMediaToDatabase(
     optimizePrompt,
     customWidth,
     customHeight,
+    isPublic = true,
   } = options;
 
   const result: GeneratedMediaResult = {
@@ -116,6 +118,7 @@ export async function saveGeneratedMediaToDatabase(
         height,
         url: relativeUrl, // Use relative URL from S3 key
         metadata: generationMetadata,
+        isPublic, // Add visibility setting
         // Thumbnails will be set by process-upload worker
         // Status defaults to "pending" and will be updated by process-upload worker
         // Interaction counts default to 0

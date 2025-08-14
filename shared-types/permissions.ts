@@ -50,6 +50,7 @@ export interface GenerationPermissions {
   canUseBulkGeneration: boolean;
   canUseLoRAModels: boolean;
   canSelectImageSizes: boolean;
+  canCreatePrivateContent: boolean;
 }
 
 // Configuration types for permissions system

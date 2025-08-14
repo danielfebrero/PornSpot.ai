@@ -41,7 +41,7 @@ export default function UserMediaPage() {
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();
 
-  const user = profileData?.data?.user;
+  const user = profileData;
 
   // For now, we'll use an empty array since there's no specific media endpoint for public profiles
   // In a real implementation, this would be replaced with a proper media API call

@@ -63,6 +63,7 @@ const handleGenerate = async (
     loraStrengths = {},
     loraSelectionMode = "auto",
     optimizePrompt = true,
+    isPublic = true,
   } = requestBody;
 
   // Validate required fields using shared validation
@@ -125,6 +126,14 @@ const handleGenerate = async (
   // Validate custom image size
   if (imageSize === "custom" && !permissions.canSelectImageSizes) {
     return ResponseUtil.forbidden(event, "Custom image sizes require Pro plan");
+  }
+
+  // Validate private content creation
+  if (!isPublic && !permissions.canCreatePrivateContent) {
+    return ResponseUtil.forbidden(
+      event,
+      "Private content creation requires a Pro plan"
+    );
   }
 
   // Check generation limits
