@@ -5,6 +5,20 @@ export interface WebSocketMessage {
   requestId?: string;
 }
 
+// Optimization event data structure for WebSocket streaming
+export interface OptimizationEventData {
+  type:
+    | "optimization_start"
+    | "optimization_token" 
+    | "optimization_complete"
+    | "optimization_error";
+  originalPrompt: string;
+  optimizedPrompt: string;
+  token?: string;
+  completed: boolean;
+  error?: string;
+}
+
 export interface ConnectionEntity {
   PK: string; // CONNECTION#{connectionId}
   SK: string; // METADATA

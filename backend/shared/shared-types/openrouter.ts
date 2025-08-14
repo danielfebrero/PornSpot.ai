@@ -17,7 +17,7 @@ export interface OpenRouterChatRequest {
     enabled: boolean;
   };
   provider?: {
-    only: string[];
+    only?: string[];
   };
 }
 

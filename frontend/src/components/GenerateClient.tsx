@@ -125,7 +125,7 @@ export function GenerateClient() {
     optimizedPrompt, // Get optimized prompt from hook
     isOptimizing, // Get optimization state
     generateImages,
-    optimizePrompt, // Get optimize function
+    setOptimizationCallback, // Get optimization callback setter
     clearResults,
   } = useGeneration();
 
@@ -304,43 +304,34 @@ export function GenerateClient() {
           // Use cached optimized prompt instead of re-optimizing
           finalPrompt = optimizedPromptCache;
           handleCastSpell(finalPrompt);
+          
+          // Clear any previous results and submit to generation queue
+          clearResults();
+          await generateImages({
+            ...settings,
+            prompt: finalPrompt,
+          });
+          return;
         } else {
-          // This is a new/different prompt, optimize it via streaming API
+          // This is a new/different prompt, set up optimization callback for MagicText
           const originalPrompt = settings.prompt;
 
           // Cache the original prompt before optimization
           setOriginalPromptBeforeOptimization(originalPrompt);
           setLastOptimizedPrompt(originalPrompt);
 
-          // Use the new streaming optimization
-          try {
-            finalPrompt = await optimizePrompt(
-              originalPrompt,
-              (token: string, fullText: string) => {
-                // Stream tokens to MagicText in real-time
-                if (magicTextRef.current) {
-                  magicTextRef.current.streamToken(token, fullText);
-                }
-              }
-            );
-
-            // Cache the optimized prompt
-            setOptimizedPromptCache(finalPrompt);
-
-            // Update settings after optimization completes
-            setTimeout(() => {
-              setSettings((prev) => ({ ...prev, prompt: finalPrompt }));
-            }, 2000);
-          } catch (optimizationError) {
-            console.error("Optimization failed:", optimizationError);
-            // Continue with original prompt if optimization fails
-            finalPrompt = originalPrompt;
-          }
+          // Set optimization callback for MagicText streaming
+          setOptimizationCallback((token: string, fullText: string) => {
+            // Stream tokens to MagicText in real-time
+            if (magicTextRef.current) {
+              magicTextRef.current.streamToken(token, fullText);
+            }
+          });
         }
       } catch (error) {
-        console.error("Prompt optimization failed:", error);
+        console.error("Prompt optimization setup failed:", error);
         setShowMagicText(false);
-        // Continue with original prompt if optimization fails
+        // Continue with original prompt if optimization setup fails
       }
     }
 
@@ -348,10 +339,7 @@ export function GenerateClient() {
     clearResults();
 
     // Submit to generation queue
-    await generateImages({
-      ...settings,
-      prompt: finalPrompt,
-    });
+    await generateImages(settings);
   };
 
   // Update prompt when optimized prompt is received from backend

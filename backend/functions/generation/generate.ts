@@ -17,6 +17,8 @@ import { getGenerationPermissions } from "@shared/utils/permissions";
 import { getRateLimitingService } from "@shared/services/rate-limiting";
 import { GenerationQueueService } from "@shared/services/generation-queue";
 import { EventBridge } from "aws-sdk";
+import { OpenRouterService } from "@shared/services/openrouter-chat";
+import { broadcastToQueueSubscribers } from "../websocket/route";
 import {
   createComfyUIWorkflow,
   DEFAULT_WORKFLOW_PARAMS,
@@ -217,6 +219,45 @@ const handleGenerate = async (
       `📋 Added generation request to queue: ${queueEntry.queueId} for user ${auth.userId}, position: ${queueEntry.queuePosition}`
     );
 
+    // Handle prompt optimization if requested
+    let finalPrompt = validatedPrompt.trim();
+    if (optimizePrompt && queueEntry.connectionId) {
+      try {
+        console.log("🎨 Starting prompt optimization streaming via WebSocket");
+        finalPrompt = await optimizePromptViaWebSocket(
+          queueEntry.queueId,
+          validatedPrompt
+        );
+        
+        // Update the queue entry with the optimized prompt
+        await queueService.updateQueueEntry(queueEntry.queueId, {
+          prompt: finalPrompt,
+        });
+        
+        console.log("✅ Prompt optimization completed and queue updated");
+      } catch (optimizationError) {
+        console.error("❌ Prompt optimization failed:", optimizationError);
+        // Send error to client via WebSocket but continue with original prompt
+        if (queueEntry.connectionId) {
+          try {
+            await broadcastToQueueSubscribers(queueEntry.queueId, {
+              type: "optimization_error",
+              optimizationData: {
+                originalPrompt: validatedPrompt,
+                optimizedPrompt: "",
+                completed: true,
+                error: optimizationError instanceof Error 
+                  ? optimizationError.message 
+                  : "Unknown optimization error",
+              },
+            });
+          } catch (broadcastError) {
+            console.error("❌ Failed to broadcast optimization error:", broadcastError);
+          }
+        }
+      }
+    }
+
     // Generate workflow data from request parameters
     const workflowData = generateWorkflowData(workflowParams);
 
@@ -379,6 +420,85 @@ async function publishQueueSubmissionEvent(
       ],
     })
     .promise();
+}
+
+/**
+ * Optimize prompt via WebSocket streaming
+ */
+async function optimizePromptViaWebSocket(
+  queueId: string,
+  originalPrompt: string
+): Promise<string> {
+  console.log(`🎨 Starting prompt optimization for queue ${queueId}`);
+
+  const openRouterService = OpenRouterService.getInstance();
+  let optimizedPrompt = "";
+
+  try {
+    // Send optimization start event
+    await broadcastToQueueSubscribers(queueId, {
+      type: "optimization_start",
+      optimizationData: {
+        originalPrompt,
+        optimizedPrompt: "",
+        completed: false,
+      },
+    });
+
+    // Get the stream from OpenRouter
+    const stream = await openRouterService.chatCompletionStream({
+      instructionTemplate: "prompt-optimization",
+      userMessage: originalPrompt,
+      model: "mistralai/mistral-medium-3.1",
+      parameters: {
+        temperature: 0.7,
+        max_tokens: 1024,
+      },
+    });
+
+    // Stream the optimization tokens via WebSocket
+    for await (const token of stream) {
+      optimizedPrompt += token;
+      
+      await broadcastToQueueSubscribers(queueId, {
+        type: "optimization_token",
+        optimizationData: {
+          originalPrompt,
+          optimizedPrompt,
+          token,
+          completed: false,
+        },
+      });
+    }
+
+    // Send completion event with final optimized prompt
+    await broadcastToQueueSubscribers(queueId, {
+      type: "optimization_complete", 
+      optimizationData: {
+        originalPrompt,
+        optimizedPrompt: optimizedPrompt.trim(),
+        completed: true,
+      },
+    });
+
+    console.log(`✅ Prompt optimization completed for queue ${queueId}`);
+    return optimizedPrompt.trim();
+  } catch (error) {
+    console.error(`❌ Prompt optimization failed for queue ${queueId}:`, error);
+    
+    // Send error event via WebSocket
+    await broadcastToQueueSubscribers(queueId, {
+      type: "optimization_error",
+      optimizationData: {
+        originalPrompt,
+        optimizedPrompt: "",
+        completed: true,
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+    });
+
+    throw error;
+  }
 }
 
 export const handler = LambdaHandlerUtil.withAuth(handleGenerate, {

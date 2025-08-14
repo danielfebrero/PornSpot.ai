@@ -9,7 +9,7 @@ import {
   Media,
   WorkflowNode,
 } from "@/types";
-import { generateApi, OptimizePromptStreamEvent } from "@/lib/api/generate";
+import { generateApi } from "@/lib/api/generate";
 
 interface GenerationRequest extends GenerationSettings {}
 
@@ -31,10 +31,7 @@ interface UseGenerationReturn {
   isOptimizing: boolean; // Add optimization state
   optimizationStream: string; // Add current optimization text
   generateImages: (request: GenerationRequest) => Promise<void>;
-  optimizePrompt: (
-    prompt: string,
-    onToken?: (token: string, fullText: string) => void
-  ) => Promise<string>;
+  setOptimizationCallback: (callback: ((token: string, fullText: string) => void) | null) => void;
   clearResults: () => void;
 }
 
@@ -64,6 +61,9 @@ export function useGeneration(): UseGenerationReturn {
 
   const { subscribe, unsubscribe, isConnected } = useWebSocket();
   const currentQueueIdRef = useRef<string | null>(null);
+  
+  // Ref to store optimization token callback
+  const optimizationCallbackRef = useRef<((token: string, fullText: string) => void) | null>(null);
 
   // Use refs to store latest values for WebSocket callback access
   const workflowNodesRef = useRef(workflowNodes);
@@ -353,6 +353,43 @@ export function useGeneration(): UseGenerationReturn {
           setNodeState("");
           break;
 
+        case "optimization_start":
+          console.log("🎨 Prompt optimization started");
+          setIsOptimizing(true);
+          setOptimizationStream("");
+          setError(null);
+          break;
+
+        case "optimization_token":
+          if (message.optimizationData) {
+            const { optimizedPrompt, token } = message.optimizationData;
+            setOptimizationStream(optimizedPrompt);
+            
+            // Call onToken callback if it exists (for MagicText streaming)
+            // Note: We'll need to store the callback ref for this to work
+            if (optimizationCallbackRef.current && token) {
+              optimizationCallbackRef.current(token, optimizedPrompt);
+            }
+          }
+          break;
+
+        case "optimization_complete":
+          if (message.optimizationData) {
+            const { optimizedPrompt } = message.optimizationData;
+            setOptimizedPrompt(optimizedPrompt);
+            setOptimizationStream(optimizedPrompt);
+          }
+          setIsOptimizing(false);
+          console.log("✅ Prompt optimization completed");
+          break;
+
+        case "optimization_error":
+          const optimizationError = message.optimizationData?.error || "Optimization failed";
+          console.error("❌ Prompt optimization failed:", optimizationError);
+          setError(optimizationError);
+          setIsOptimizing(false);
+          break;
+
         case "error":
           // Check if this is a final failure or if retries are still possible
           const isRetryableError =
@@ -449,47 +486,9 @@ export function useGeneration(): UseGenerationReturn {
     [isConnected, subscribe, handleWebSocketMessage, unsubscribe]
   );
 
-  const optimizePrompt = useCallback(
-    async (
-      prompt: string,
-      onToken?: (token: string, fullText: string) => void
-    ): Promise<string> => {
-      try {
-        setIsOptimizing(true);
-        setOptimizationStream("");
-        setError(null);
-
-        let fullOptimizedText = "";
-
-        for await (const event of generateApi.optimizePromptStream(prompt)) {
-          if (event.type === "optimization_token") {
-            fullOptimizedText = event.optimizedPrompt;
-            setOptimizationStream(fullOptimizedText);
-
-            // Call the callback with the new token and full text
-            if (onToken && event.token) {
-              onToken(event.token, fullOptimizedText);
-            }
-          } else if (event.type === "optimization_complete") {
-            fullOptimizedText = event.optimizedPrompt;
-            setOptimizedPrompt(fullOptimizedText);
-            setOptimizationStream(fullOptimizedText);
-            break;
-          } else if (event.type === "optimization_error") {
-            throw new Error(event.error || "Optimization failed");
-          }
-        }
-
-        return fullOptimizedText;
-      } catch (err) {
-        console.error("❌ Prompt optimization failed:", err);
-        const errorMessage =
-          err instanceof Error ? err.message : "Unknown error occurred";
-        setError(errorMessage);
-        throw err;
-      } finally {
-        setIsOptimizing(false);
-      }
+  const setOptimizationCallback = useCallback(
+    (callback: ((token: string, fullText: string) => void) | null) => {
+      optimizationCallbackRef.current = callback;
     },
     []
   );
@@ -540,7 +539,7 @@ export function useGeneration(): UseGenerationReturn {
     isOptimizing,
     optimizationStream,
     generateImages,
-    optimizePrompt,
+    setOptimizationCallback,
     clearResults,
   };
 }

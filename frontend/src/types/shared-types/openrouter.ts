@@ -13,6 +13,12 @@ export interface OpenRouterChatRequest {
   frequency_penalty?: number;
   presence_penalty?: number;
   stop?: string | string[];
+  reasoning?: {
+    enabled: boolean;
+  };
+  provider?: {
+    only?: string[];
+  };
 }
 
 export interface OpenRouterChatResponse {
