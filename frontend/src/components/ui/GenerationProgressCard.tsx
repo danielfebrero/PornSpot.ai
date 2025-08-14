@@ -318,13 +318,13 @@ export function GenerationProgressCard({
                 )}
 
                 {/* Current Message */}
-                {currentMessage && !error && (
+                {/* {currentMessage && !error && (
                   <div className="flex items-center justify-center py-2">
                     <p className="text-xs text-muted-foreground text-center animate-fade-in">
                       {currentMessage}
                     </p>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           </div>
