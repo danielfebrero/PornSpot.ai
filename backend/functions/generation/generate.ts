@@ -17,7 +17,10 @@ import { getGenerationPermissions } from "@shared/utils/permissions";
 import { getRateLimitingService } from "@shared/services/rate-limiting";
 import { GenerationQueueService } from "@shared/services/generation-queue";
 import { EventBridge } from "aws-sdk";
-import { createComfyUIWorkflow, DEFAULT_WORKFLOW_PARAMS } from "@shared/templates/comfyui-workflow";
+import {
+  createComfyUIWorkflow,
+  DEFAULT_WORKFLOW_PARAMS,
+} from "@shared/templates/comfyui-workflow";
 import { createWorkflowData } from "@shared/utils/workflow-nodes";
 import type {
   GenerationResponse,
@@ -270,22 +273,18 @@ function generateWorkflowData(params: WorkflowFinalParams): WorkflowData {
 
     // Generate the ComfyUI workflow
     const workflow = createComfyUIWorkflow(workflowParams);
-    
+
     // Create workflow data with sorted nodes
     const workflowData = createWorkflowData(workflow);
-    
-    console.log(`🔧 Generated workflow data with ${workflowData.totalNodes} nodes: ${workflowData.nodeOrder.join(' → ')}`);
-    
+
     return workflowData;
   } catch (error) {
-    console.error('Failed to generate workflow data:', error);
-    
     // Return minimal fallback workflow data
     return {
       nodes: [],
       totalNodes: 0,
       currentNodeIndex: 0,
-      nodeOrder: []
+      nodeOrder: [],
     };
   }
 }
