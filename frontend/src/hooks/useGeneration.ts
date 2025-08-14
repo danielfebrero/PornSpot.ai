@@ -2,13 +2,9 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useWebSocket } from "@/contexts/WebSocketContext";
-import { WebSocketMessage, GenerationQueueStatus } from "@/types/websocket";
-import {
-  GenerationResponse,
-  GenerationSettings,
-  Media,
-  WorkflowNode,
-} from "@/types";
+import { GenerationQueueStatus } from "@/types/websocket";
+import { GenerationWebSocketMessage } from "@/types/shared-types/websocket";
+import { GenerationSettings, Media, WorkflowNode } from "@/types";
 import { generateApi } from "@/lib/api/generate";
 
 interface GenerationRequest extends GenerationSettings {}
@@ -184,7 +180,7 @@ export function useGeneration(): UseGenerationReturn {
   );
 
   const handleWebSocketMessage = useCallback(
-    (message: WebSocketMessage) => {
+    (message: GenerationWebSocketMessage) => {
       console.log("🎨 Generation update received:", message);
 
       switch (message.type) {
@@ -370,7 +366,7 @@ export function useGeneration(): UseGenerationReturn {
             const { optimizedPrompt, token } = message.optimizationData;
             setOptimizationStream(optimizedPrompt);
             setCurrentMessage(`Optimizing prompt...`);
-            
+
             // Call callback if available (for backward compatibility)
             // This would be handled through the optimizationStream state now
           }
@@ -391,7 +387,9 @@ export function useGeneration(): UseGenerationReturn {
           console.error("❌ Prompt optimization failed:", message.error);
           setIsOptimizing(false);
           setError(message.error || "Prompt optimization failed");
-          setCurrentMessage("Optimization failed, proceeding with original prompt");
+          setCurrentMessage(
+            "Optimization failed, proceeding with original prompt"
+          );
           break;
 
         case "error":
@@ -498,7 +496,9 @@ export function useGeneration(): UseGenerationReturn {
       // DEPRECATED: Prompt optimization is now handled automatically by the backend
       // during the generateImages call when optimizePrompt: true is set.
       // This function is kept for backward compatibility but just returns the original prompt.
-      console.warn("optimizePrompt is deprecated. Use generateImages with optimizePrompt: true instead.");
+      console.warn(
+        "optimizePrompt is deprecated. Use generateImages with optimizePrompt: true instead."
+      );
       return prompt;
     },
     []

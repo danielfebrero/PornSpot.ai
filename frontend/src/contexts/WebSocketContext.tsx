@@ -8,7 +8,8 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import { WebSocketMessage, WebSocketContextType } from "@/types/websocket";
+import { WebSocketContextType } from "@/types/websocket";
+import { GenerationWebSocketMessage } from "@/types/shared-types/websocket";
 
 const WebSocketContext = createContext<WebSocketContextType | null>(null);
 
@@ -20,7 +21,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const subscriptionsRef = useRef<
-    Map<string, (message: WebSocketMessage) => void>
+    Map<string, (message: GenerationWebSocketMessage) => void>
   >(new Map());
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttempts = useRef(0);
@@ -63,7 +64,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
       wsRef.current.onmessage = (event) => {
         try {
-          const message: WebSocketMessage = JSON.parse(event.data);
+          const message: GenerationWebSocketMessage = JSON.parse(event.data);
           console.log("📨 WebSocket message received:", message);
 
           // Handle ping messages
@@ -139,7 +140,10 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   }, []);
 
   const subscribe = useCallback(
-    (queueId: string, callback: (message: WebSocketMessage) => void) => {
+    (
+      queueId: string,
+      callback: (message: GenerationWebSocketMessage) => void
+    ) => {
       console.log("📝 Subscribing to queue updates:", queueId);
       subscriptionsRef.current.set(queueId, callback);
 
