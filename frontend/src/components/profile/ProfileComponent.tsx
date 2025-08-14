@@ -21,6 +21,7 @@ import { useCommentsQuery } from "@/hooks/queries/useCommentsQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { useUsernameAvailability } from "@/hooks/useUsernameAvailability";
+import { useUserGeneratedMedia } from "@/hooks/queries/useMediaQuery";
 import { formatDistanceToNow } from "@/lib/dateUtils";
 import { userApi } from "@/lib/api/user";
 import {
@@ -277,6 +278,18 @@ export default function ProfileComponent({
   // Extract albums from paginated data (only need first page for profile preview)
   const recentAlbums = albumsData?.pages[0]?.albums || [];
 
+  // Get real generated media using TanStack Query
+  const {
+    data: generatedMediaData,
+    isLoading: generatedMediaLoading,
+    error: generatedMediaError,
+  } = useUserGeneratedMedia({
+    limit: 6, // Fetch 6 recent generated media for the scrollable preview
+  });
+
+  // Extract generated media from paginated data (only need first page for profile preview)
+  const recentGeneratedMedias = generatedMediaData?.pages[0]?.media || [];
+
   // Check if user is online (last active less than 5 minutes ago)
   const isUserOnline = useMemo(() => {
     if (!currentUser.lastActive) return false;
@@ -438,212 +451,6 @@ export default function ProfileComponent({
     ...currentUser,
     // Override avatarUrl with preview when editing
     ...(isEditing && previewAvatarUrl && { avatarUrl: previewAvatarUrl }),
-  };
-
-  // Mock data for content - in real app, this would be passed as props or fetched
-  const mockData = {
-    recentGeneratedMedias: [
-      {
-        id: "media4",
-        type: "media",
-        filename: "my-latest-shot.jpg",
-        originalFilename: "my-latest-shot.jpg",
-        originalName: "My Latest Shot",
-        mimeType: "image/jpeg",
-        size: 3024000,
-        width: 2560,
-        height: 1440,
-        url: "/media/media4/my-latest-shot.jpg",
-        thumbnailUrls: {
-          cover:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_cover.webp",
-          small:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_small.webp",
-          medium:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_medium.webp",
-          large:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_large.webp",
-          xlarge:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_xlarge.webp",
-        },
-        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-        updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        likeCount: 23,
-        viewCount: 87,
-        title: "My Latest Shot",
-      } as Media,
-      {
-        id: "media6",
-        filename: "street-photography.jpg",
-        originalFilename: "street-photography.jpg",
-        type: "media",
-        originalName: "Street Photography",
-        mimeType: "image/jpeg",
-        size: 2256000,
-        width: 1800,
-        height: 1200,
-        url: "/media/media6/street-photography.jpg",
-        thumbnailUrls: {
-          cover:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_cover.webp",
-          small:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_small.webp",
-          medium:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_medium.webp",
-          large:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_large.webp",
-          xlarge:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_xlarge.webp",
-        },
-        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
-        updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-        likeCount: 67,
-        viewCount: 145,
-        title: "Street Photography",
-      } as Media,
-      {
-        id: "media7",
-        filename: "ai-generated-art.jpg",
-        originalFilename: "ai-generated-art.jpg",
-        originalName: "AI Generated Art",
-        mimeType: "image/jpeg",
-        size: 1856000,
-        width: 1600,
-        height: 900,
-        type: "media",
-        url: "/media/media7/ai-generated-art.jpg",
-        thumbnailUrls: {
-          cover:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_cover.webp",
-          small:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_small.webp",
-          medium:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_medium.webp",
-          large:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_large.webp",
-          xlarge:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_xlarge.webp",
-        },
-        createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
-        updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-        likeCount: 45,
-        viewCount: 123,
-        title: "AI Generated Art",
-      } as Media,
-      {
-        id: "media8",
-        filename: "nature-landscape.jpg",
-        originalFilename: "nature-landscape.jpg",
-        originalName: "Nature Landscape",
-        mimeType: "image/jpeg",
-        size: 2856000,
-        width: 2400,
-        height: 1350,
-        url: "/media/media8/nature-landscape.jpg",
-        type: "media",
-        thumbnailUrls: {
-          cover:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_cover.webp",
-          small:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_small.webp",
-          medium:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_medium.webp",
-          large:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_large.webp",
-          xlarge:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_xlarge.webp",
-        },
-        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
-        updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        likeCount: 89,
-        viewCount: 234,
-        title: "Nature Landscape",
-      } as Media,
-      {
-        id: "media9",
-        filename: "portrait-studio.jpg",
-        originalFilename: "portrait-studio.jpg",
-        originalName: "Portrait Studio",
-        mimeType: "image/jpeg",
-        size: 2456000,
-        width: 1920,
-        height: 1280,
-        type: "media",
-        url: "/media/media9/portrait-studio.jpg",
-        thumbnailUrls: {
-          cover:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_cover.webp",
-          small:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_small.webp",
-          medium:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_medium.webp",
-          large:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_large.webp",
-          xlarge:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_xlarge.webp",
-        },
-        createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(), // 6 days ago
-        updatedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-        likeCount: 134,
-        viewCount: 378,
-        title: "Portrait Studio",
-      } as Media,
-      {
-        id: "media10",
-        filename: "macro-flowers.jpg",
-        originalFilename: "macro-flowers.jpg",
-        originalName: "Macro Flowers",
-        mimeType: "image/jpeg",
-        size: 1956000,
-        width: 1600,
-        height: 1200,
-        type: "media",
-        url: "/media/media10/macro-flowers.jpg",
-        thumbnailUrls: {
-          cover:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_cover.webp",
-          small:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_small.webp",
-          medium:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_medium.webp",
-          large:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_large.webp",
-          xlarge:
-            "/albums/57cbfb3a-178d-47be-996f-286ee0917ca3/cover/thumbnails/cover_thumb_xlarge.webp",
-        },
-        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-        updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        likeCount: 76,
-        viewCount: 198,
-        title: "Macro Flowers",
-      } as Media,
-    ],
-    recentComments: [
-      {
-        id: "comment1",
-        content: "Amazing composition and lighting!",
-        contentTitle: "Sunset Beach",
-        timestamp: "5 hours ago",
-        targetType: "media",
-        targetId: "media1",
-      },
-      {
-        id: "comment2",
-        content: "Love the colors in this series.",
-        contentTitle: "Abstract Art",
-        timestamp: "1 day ago",
-        targetType: "album",
-        targetId: "album2",
-      },
-      {
-        id: "comment3",
-        content: "Great perspective on urban life.",
-        contentTitle: "City Streets",
-        timestamp: "2 days ago",
-        targetType: "media",
-        targetId: "media3",
-      },
-    ],
   };
 
   return (
@@ -1140,22 +947,53 @@ export default function ProfileComponent({
                 </div>
               </CardHeader>
               <CardContent hidePadding={isMobile}>
-                <HorizontalScroll
-                  itemWidth="200px"
-                  gap="medium"
-                  showArrows={true}
-                  className="w-full"
-                >
-                  {mockData.recentGeneratedMedias.map((item) => (
-                    <ContentCard
-                      key={item.id}
-                      item={item}
-                      showTags={false}
-                      context="albums"
-                      className="w-full"
-                    />
-                  ))}
-                </HorizontalScroll>
+                {generatedMediaLoading ? (
+                  <HorizontalScroll
+                    itemWidth="200px"
+                    gap="medium"
+                    showArrows={true}
+                    className="w-full"
+                  >
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                      <div key={i} className="animate-pulse">
+                        <div className="aspect-square bg-muted rounded-lg"></div>
+                        <div className="mt-2 h-4 bg-muted rounded w-3/4"></div>
+                      </div>
+                    ))}
+                  </HorizontalScroll>
+                ) : generatedMediaError ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground text-sm">
+                      {generatedMediaError.message}
+                    </p>
+                  </div>
+                ) : recentGeneratedMedias.length > 0 ? (
+                  <HorizontalScroll
+                    itemWidth="200px"
+                    gap="medium"
+                    showArrows={true}
+                    className="w-full"
+                  >
+                    {recentGeneratedMedias.map((item) => (
+                      <ContentCard
+                        key={item.id}
+                        item={item}
+                        showTags={false}
+                        context="albums"
+                        className="w-full"
+                      />
+                    ))}
+                  </HorizontalScroll>
+                ) : (
+                  <div className="text-center py-8">
+                    <ImageIcon className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+                    <p className="text-muted-foreground text-sm">
+                      {isOwner
+                        ? "You haven't generated any media yet."
+                        : "This user hasn't generated any media yet."}
+                    </p>
+                  </div>
+                )}
                 <div className="text-center pt-4">
                   <LocaleLink href={`/profile/${displayName}/media`}>
                     <Button variant="outline" size="sm" className="text-xs">

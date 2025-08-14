@@ -14,6 +14,17 @@ export const mediaApi = {
     return ApiUtil.extractData(response);
   },
 
+  // Get user's generated media - NEW UNIFIED FORMAT
+  getUserGeneratedMedia: async (
+    params?: PaginationParams
+  ): Promise<UnifiedMediaResponse> => {
+    const response = await ApiUtil.get<UnifiedMediaResponse>(
+      "/user/media/generated",
+      params
+    );
+    return ApiUtil.extractData(response);
+  },
+
   // Get album media - NEW UNIFIED FORMAT
   getAlbumMedia: async (
     albumId: string,

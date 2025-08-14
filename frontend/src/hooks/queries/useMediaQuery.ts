@@ -51,6 +51,31 @@ export function useUserMedia(params: MediaQueryParams = {}) {
   });
 }
 
+// Hook for fetching user's generated media with infinite scroll support
+export function useUserGeneratedMedia(params: MediaQueryParams = {}) {
+  const { limit = 20 } = params;
+
+  return useInfiniteQuery({
+    queryKey: ["media", "user", "generated", params],
+    queryFn: async ({ pageParam }) => {
+      return await mediaApi.getUserGeneratedMedia({
+        limit,
+        cursor: pageParam,
+      });
+    },
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage: MediaResponse) => {
+      return lastPage.pagination?.hasNext
+        ? lastPage.pagination.cursor
+        : undefined;
+    },
+    // Keep generated media fresh for 2 minutes
+    staleTime: 2 * 60 * 1000,
+    // Enable background refetching
+    refetchOnWindowFocus: true,
+  });
+}
+
 // Hook for fetching album media with infinite scroll support
 export function useAlbumMedia(params: AlbumMediaQueryParams) {
   const { albumId, limit = 20 } = params;

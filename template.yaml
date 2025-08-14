@@ -840,6 +840,35 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
 
+  UserGeneratedMediaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-generated-media-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/media/generated.handler"]
+      Events:
+        GetUserGeneratedMedia:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/media/generated
+            Method: GET
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsUserGeneratedMedia:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/media/generated
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
   ProcessUploadFunction:
     Type: AWS::Serverless::Function
     Properties:

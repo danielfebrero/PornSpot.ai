@@ -644,6 +644,37 @@ export class DynamoDBService {
     };
   }
 
+  static async getUserGeneratedMedia(
+    userId: string,
+    limit: number = 50,
+    lastEvaluatedKey?: Record<string, any>
+  ): Promise<{
+    media: MediaEntity[];
+    nextKey?: Record<string, any>;
+  }> {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI1",
+        KeyConditionExpression: "GSI1PK = :gsi1pk",
+        FilterExpression: "createdBy = :userId AND metadata.isGenerated = :isGenerated",
+        ExpressionAttributeValues: {
+          ":gsi1pk": "MEDIA_BY_CREATOR",
+          ":userId": userId,
+          ":isGenerated": true,
+        },
+        Limit: limit,
+        ...(lastEvaluatedKey && { ExclusiveStartKey: lastEvaluatedKey }),
+        ScanIndexForward: false, // newest first
+      })
+    );
+
+    return {
+      media: (result.Items as MediaEntity[]) || [],
+      ...(result.LastEvaluatedKey && { nextKey: result.LastEvaluatedKey }),
+    };
+  }
+
   // Album-Media relationship operations
   static async addMediaToAlbum(
     albumId: string,
