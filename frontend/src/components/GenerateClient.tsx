@@ -33,6 +33,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useLocaleRouter } from "@/lib/navigation";
 import { GenerationProgressCard } from "./ui/GenerationProgressCard";
+import { composeMediaUrl } from "@/lib/urlUtils";
 
 const IMAGE_SIZES = [
   {
@@ -660,7 +661,7 @@ export function GenerateClient() {
                   >
                     <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-border group-hover:border-primary transition-colors cursor-pointer shadow-md hover:shadow-lg">
                       <img
-                        src={image.url}
+                        src={composeMediaUrl(image.url)}
                         alt={`Previous ${index + 1}`}
                         width={80}
                         height={80}
