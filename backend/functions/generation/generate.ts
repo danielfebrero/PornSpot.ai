@@ -18,19 +18,61 @@ import { getGenerationPermissions } from "@shared/utils/permissions";
 import { getRateLimitingService } from "@shared/services/rate-limiting";
 import { GenerationQueueService } from "@shared/services/generation-queue";
 import { OpenRouterService } from "@shared/services/openrouter-chat";
-import { broadcastToQueueSubscribers } from "../websocket/route";
 import { EventBridge } from "aws-sdk";
 import {
   createComfyUIWorkflow,
   DEFAULT_WORKFLOW_PARAMS,
 } from "@shared/templates/comfyui-workflow";
 import { createWorkflowData } from "@shared/utils/workflow-nodes";
+import {
+  ApiGatewayManagementApiClient,
+  PostToConnectionCommand,
+} from "@aws-sdk/client-apigatewaymanagementapi";
 import type {
   GenerationResponse,
   GenerationRequest,
   WorkflowFinalParams,
   WorkflowData,
 } from "@shared/shared-types";
+
+// Initialize API Gateway Management API client for direct connection messaging
+const apiGatewayClient = new ApiGatewayManagementApiClient({
+  endpoint: process.env["WEBSOCKET_API_ENDPOINT"],
+});
+
+/**
+ * Send optimization message directly to a WebSocket connection
+ */
+async function sendOptimizationMessageToConnection(
+  connectionId: string,
+  data: any
+): Promise<void> {
+  try {
+    const command = new PostToConnectionCommand({
+      ConnectionId: connectionId,
+      Data: JSON.stringify({
+        type: "optimization_update",
+        data,
+        timestamp: new Date().toISOString(),
+      }),
+    });
+
+    await apiGatewayClient.send(command);
+    console.log(`📤 Sent optimization message to connection ${connectionId}`);
+  } catch (error: any) {
+    console.error(
+      `❌ Failed to send optimization message to ${connectionId}:`,
+      error
+    );
+
+    // If connection is gone, just log it (don't throw error to avoid disrupting generation)
+    if (error.name === "GoneException") {
+      console.log(
+        `🧹 Connection ${connectionId} is gone, skipping optimization message`
+      );
+    }
+  }
+}
 
 const handleGenerate = async (
   event: APIGatewayProxyEvent,
@@ -174,11 +216,11 @@ const handleGenerate = async (
   if (optimizePrompt) {
     try {
       console.log("🎨 Starting prompt optimization via WebSocket");
-      
+
       // Add to queue first to get queueId for WebSocket streaming
       const queueService = GenerationQueueService.getInstance();
       const connectionId = event.requestContext?.connectionId;
-      
+
       // Determine priority based on user plan
       let priority = 1000; // Default priority
       switch (userPlan) {
@@ -228,19 +270,21 @@ const handleGenerate = async (
 
       const queueId = queueEntry.queueId;
 
-      // Stream optimization via WebSocket
+      // Stream optimization via WebSocket directly to connection
       const openRouterService = OpenRouterService.getInstance();
       let optimizedPrompt = "";
 
-      // Send initial optimization event
-      await broadcastToQueueSubscribers(queueId, {
-        type: "optimization_start",
-        optimizationData: {
-          originalPrompt: finalPrompt,
-          optimizedPrompt: "",
-          completed: false,
-        },
-      });
+      // Send initial optimization event directly to connection
+      if (connectionId) {
+        await sendOptimizationMessageToConnection(connectionId, {
+          type: "optimization_start",
+          optimizationData: {
+            originalPrompt: finalPrompt,
+            optimizedPrompt: "",
+            completed: false,
+          },
+        });
+      }
 
       // Get the stream from OpenRouter
       const stream = await openRouterService.chatCompletionStream({
@@ -253,32 +297,36 @@ const handleGenerate = async (
         },
       });
 
-      // Stream the optimization tokens via WebSocket
+      // Stream the optimization tokens via WebSocket directly to connection
       for await (const token of stream) {
         optimizedPrompt += token;
-        await broadcastToQueueSubscribers(queueId, {
-          type: "optimization_token",
-          optimizationData: {
-            originalPrompt: finalPrompt,
-            optimizedPrompt,
-            token,
-            completed: false,
-          },
-        });
+        if (connectionId) {
+          await sendOptimizationMessageToConnection(connectionId, {
+            type: "optimization_token",
+            optimizationData: {
+              originalPrompt: finalPrompt,
+              optimizedPrompt,
+              token,
+              completed: false,
+            },
+          });
+        }
       }
 
-      // Send completion event with final optimized prompt
+      // Send completion event with final optimized prompt directly to connection
       optimizedPromptResult = optimizedPrompt.trim();
       finalPrompt = optimizedPromptResult;
 
-      await broadcastToQueueSubscribers(queueId, {
-        type: "optimization_complete",
-        optimizationData: {
-          originalPrompt: validatedPrompt.trim(),
-          optimizedPrompt: optimizedPromptResult,
-          completed: true,
-        },
-      });
+      if (connectionId) {
+        await sendOptimizationMessageToConnection(connectionId, {
+          type: "optimization_complete",
+          optimizationData: {
+            originalPrompt: validatedPrompt.trim(),
+            optimizedPrompt: optimizedPromptResult,
+            completed: true,
+          },
+        });
+      }
 
       console.log("✅ Prompt optimization completed via WebSocket");
 
@@ -300,9 +348,7 @@ const handleGenerate = async (
       // Publish queue submission event for processing
       try {
         await publishQueueSubmissionEvent(queueId, priority);
-        console.log(
-          `🚀 Published queue submission event for ${queueId}`
-        );
+        console.log(`🚀 Published queue submission event for ${queueId}`);
       } catch (eventError) {
         console.error("Failed to publish queue submission event:", eventError);
       }
@@ -320,11 +366,12 @@ const handleGenerate = async (
       };
 
       return ResponseUtil.success(event, response);
-
     } catch (optimizationError) {
       console.error("❌ Prompt optimization failed:", optimizationError);
       // Continue with original prompt if optimization fails
-      console.log("Continuing with original prompt due to optimization failure");
+      console.log(
+        "Continuing with original prompt due to optimization failure"
+      );
     }
   }
 
