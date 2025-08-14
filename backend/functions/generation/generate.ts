@@ -159,12 +159,17 @@ const handleGenerate = async (
   // Optimize prompt if requested and user has permission
   let finalPrompt = validatedPrompt.trim();
   let optimizedPrompt: string | undefined;
-  
+
+  console.log(
+    "🔍 Optimizing prompt using OpenRouter service: ",
+    optimizePrompt
+  );
+
   if (optimizePrompt) {
     try {
       console.log("🔍 Optimizing prompt using OpenRouter service");
       const openRouterService = OpenRouterService.getInstance();
-      
+
       const response = await openRouterService.chatCompletion({
         instructionTemplate: "prompt-optimization",
         userMessage: validatedPrompt.trim(),
@@ -174,13 +179,18 @@ const handleGenerate = async (
           max_tokens: 1024,
         },
       });
-      
+
       optimizedPrompt = response.content.trim();
       finalPrompt = optimizedPrompt;
-      
-      console.log(`✅ Prompt optimized: "${validatedPrompt}" → "${optimizedPrompt}"`);
+
+      console.log(
+        `✅ Prompt optimized: "${validatedPrompt}" → "${optimizedPrompt}"`
+      );
     } catch (optimizationError) {
-      console.warn("⚠️ Prompt optimization failed, using original prompt:", optimizationError);
+      console.warn(
+        "⚠️ Prompt optimization failed, using original prompt:",
+        optimizationError
+      );
       // Continue with original prompt if optimization fails
     }
   }

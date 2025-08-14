@@ -164,7 +164,9 @@ export class OpenRouterService {
       ...request.parameters,
     };
 
-    console.log(`Making OpenRouter API request with model: ${requestParams.model}`);
+    console.log(
+      `Making OpenRouter API request with model: ${requestParams.model}`
+    );
 
     try {
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
@@ -185,7 +187,7 @@ export class OpenRouterService {
         );
       }
 
-      const data: OpenRouterChatResponse = await response.json();
+      const data = (await response.json()) as OpenRouterChatResponse;
 
       if (!data.choices || data.choices.length === 0) {
         throw new Error("No response from OpenRouter API");
@@ -250,7 +252,9 @@ export class OpenRouterService {
       ...request.parameters,
     };
 
-    console.log(`Making streaming OpenRouter API request with model: ${requestParams.model}`);
+    console.log(
+      `Making streaming OpenRouter API request with model: ${requestParams.model}`
+    );
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: "POST",

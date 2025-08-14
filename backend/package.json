@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc && tsc-alias && npm run copy:assets",
-    "copy:assets": "cp -r shared/utils/*.json dist/shared/utils/ 2>/dev/null || true",
+    "copy:assets": "cp -r shared/utils/*.json dist/shared/utils/ 2>/dev/null || true && cp -r shared/instructions/*.txt dist/shared/instructions/ 2>/dev/null || true && cp -r shared/email_templates/ dist/shared/email_templates/ 2>/dev/null || true ",
     "build:watch": "tsc --watch",
     "build:sam": "npm run build && cd .. && sam build",
     "build:docker": "./build-docker-lambdas.sh",
