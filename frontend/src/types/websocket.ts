@@ -8,7 +8,11 @@ export interface WebSocketMessage {
     | "error"
     | "retrying"
     | "queue_update"
-    | "ping";
+    | "ping"
+    | "optimization_start"
+    | "optimization_token" 
+    | "optimization_complete"
+    | "optimization_error";
   queueId?: string;
   queuePosition?: number;
   estimatedWaitTime?: number;
@@ -36,6 +40,13 @@ export interface WebSocketMessage {
     parentNodeId?: string;
     realNodeId?: string;
     message: string;
+  };
+  // Optimization data for optimization_* types
+  optimizationData?: {
+    originalPrompt: string;
+    optimizedPrompt: string;
+    token?: string;
+    completed: boolean;
   };
 }
 

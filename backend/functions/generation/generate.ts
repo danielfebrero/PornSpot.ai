@@ -6,6 +6,7 @@ Special notes:
 - Enforces plan permissions (max batch, LoRA usage, negative prompts, custom sizes)
 - Simulates generation with placeholder images (integration TODO); updates usage stats
 - Returns metadata including generationId and estimatedTime
+- Handles prompt optimization streaming via WebSocket when optimizePrompt is true
 */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
@@ -16,6 +17,8 @@ import { ValidationUtil } from "@shared/utils/validation";
 import { getGenerationPermissions } from "@shared/utils/permissions";
 import { getRateLimitingService } from "@shared/services/rate-limiting";
 import { GenerationQueueService } from "@shared/services/generation-queue";
+import { OpenRouterService } from "@shared/services/openrouter-chat";
+import { broadcastToQueueSubscribers } from "../websocket/route";
 import { EventBridge } from "aws-sdk";
 import {
   createComfyUIWorkflow,
@@ -164,6 +167,167 @@ const handleGenerate = async (
     );
   }
 
+  // Handle prompt optimization if requested
+  let finalPrompt = validatedPrompt.trim();
+  let optimizedPromptResult: string | null = null;
+
+  if (optimizePrompt) {
+    try {
+      console.log("🎨 Starting prompt optimization via WebSocket");
+      
+      // Add to queue first to get queueId for WebSocket streaming
+      const queueService = GenerationQueueService.getInstance();
+      const connectionId = event.requestContext?.connectionId;
+      
+      // Determine priority based on user plan
+      let priority = 1000; // Default priority
+      switch (userPlan) {
+        case "unlimited":
+          priority = 0; // Highest priority
+          break;
+        case "pro":
+          priority = 100;
+          break;
+        case "starter":
+          priority = 500;
+          break;
+        case "free":
+          priority = 1000;
+          break;
+      }
+
+      // Create temporary workflow parameters for queue entry
+      const tempWorkflowParams: WorkflowFinalParams = {
+        width:
+          imageSize === "custom"
+            ? customWidth
+            : parseInt(imageSize?.split("x")[0] || "1024"),
+        height:
+          imageSize === "custom"
+            ? customHeight
+            : parseInt(imageSize?.split("x")[1] || "1024"),
+        steps: 20,
+        cfg_scale: 7.0,
+        batch_size: batchCount,
+        loraSelectionMode,
+        loraStrengths,
+        selectedLoras,
+        optimizePrompt,
+        prompt: finalPrompt,
+        negativePrompt: negativePrompt.trim(),
+      };
+
+      // Add to queue to get queueId for WebSocket communication
+      const queueEntry = await queueService.addToQueue(
+        auth.userId,
+        finalPrompt,
+        tempWorkflowParams,
+        connectionId,
+        priority
+      );
+
+      const queueId = queueEntry.queueId;
+
+      // Stream optimization via WebSocket
+      const openRouterService = OpenRouterService.getInstance();
+      let optimizedPrompt = "";
+
+      // Send initial optimization event
+      await broadcastToQueueSubscribers(queueId, {
+        type: "optimization_start",
+        optimizationData: {
+          originalPrompt: finalPrompt,
+          optimizedPrompt: "",
+          completed: false,
+        },
+      });
+
+      // Get the stream from OpenRouter
+      const stream = await openRouterService.chatCompletionStream({
+        instructionTemplate: "prompt-optimization",
+        userMessage: finalPrompt,
+        model: "mistralai/mistral-medium-3.1",
+        parameters: {
+          temperature: 0.7,
+          max_tokens: 1024,
+        },
+      });
+
+      // Stream the optimization tokens via WebSocket
+      for await (const token of stream) {
+        optimizedPrompt += token;
+        await broadcastToQueueSubscribers(queueId, {
+          type: "optimization_token",
+          optimizationData: {
+            originalPrompt: finalPrompt,
+            optimizedPrompt,
+            token,
+            completed: false,
+          },
+        });
+      }
+
+      // Send completion event with final optimized prompt
+      optimizedPromptResult = optimizedPrompt.trim();
+      finalPrompt = optimizedPromptResult;
+
+      await broadcastToQueueSubscribers(queueId, {
+        type: "optimization_complete",
+        optimizationData: {
+          originalPrompt: validatedPrompt.trim(),
+          optimizedPrompt: optimizedPromptResult,
+          completed: true,
+        },
+      });
+
+      console.log("✅ Prompt optimization completed via WebSocket");
+
+      // Update the queue entry with the optimized prompt
+      await queueService.updateQueueEntry(queueId, {
+        prompt: finalPrompt,
+        parameters: {
+          ...tempWorkflowParams,
+          prompt: finalPrompt,
+        },
+      });
+
+      // Generate workflow data with optimized prompt
+      const workflowData = generateWorkflowData({
+        ...tempWorkflowParams,
+        prompt: finalPrompt,
+      });
+
+      // Publish queue submission event for processing
+      try {
+        await publishQueueSubmissionEvent(queueId, priority);
+        console.log(
+          `🚀 Published queue submission event for ${queueId}`
+        );
+      } catch (eventError) {
+        console.error("Failed to publish queue submission event:", eventError);
+      }
+
+      const response: GenerationResponse = {
+        queueId,
+        queuePosition: queueEntry.queuePosition || 1,
+        estimatedWaitTime: queueEntry.estimatedWaitTime || 0,
+        status: "pending",
+        message: `Your request has been added to the queue with optimized prompt. Position: ${
+          queueEntry.queuePosition || 1
+        }`,
+        workflowData,
+        optimizedPrompt: optimizedPromptResult,
+      };
+
+      return ResponseUtil.success(event, response);
+
+    } catch (optimizationError) {
+      console.error("❌ Prompt optimization failed:", optimizationError);
+      // Continue with original prompt if optimization fails
+      console.log("Continuing with original prompt due to optimization failure");
+    }
+  }
+
   // Normal flow when optimization is not requested or failed
 
   // Create workflow parameters for queue entry
@@ -183,7 +347,7 @@ const handleGenerate = async (
     loraStrengths,
     selectedLoras,
     optimizePrompt,
-    prompt,
+    prompt: finalPrompt,
     negativePrompt: negativePrompt.trim(),
   };
 
@@ -216,7 +380,7 @@ const handleGenerate = async (
   try {
     const queueEntry = await queueService.addToQueue(
       auth.userId,
-      validatedPrompt.trim(),
+      finalPrompt,
       workflowParams,
       connectionId,
       priority
@@ -249,6 +413,7 @@ const handleGenerate = async (
         queueEntry.queuePosition || 1
       }`,
       workflowData,
+      optimizedPrompt: optimizedPromptResult || undefined,
     };
 
     // Note: WebSocket communication will be handled by EventBridge when
