@@ -2155,6 +2155,11 @@ Resources:
               Action:
                 - events:PutEvents
               Resource: !GetAtt ComfyUIEventBus.Arn
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/openrouter-api-key"
 
   # EventBridge Infrastructure for ComfyUI Event-Driven Architecture
   ComfyUIEventBus:
