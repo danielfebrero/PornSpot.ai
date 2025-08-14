@@ -266,6 +266,68 @@ The Google OAuth integration requires the following environment variables:
   4.  If the session is valid and not expired, the authorizer generates an IAM policy that allows the request to proceed.
   5.  The authorizer also passes user context (e.g., `userId`, `email`) to the downstream Lambda function.
 
+### WebSocket Authentication
+
+WebSocket connections use a different authentication approach due to browser limitations with cookie headers:
+
+**Authentication Flow:**
+
+1. **Frontend**: Extracts `user_session` cookie value using JavaScript
+2. **Connection**: Includes session token as query parameter in WebSocket URL
+3. **Backend**: Validates session token using existing `UserAuthMiddleware`
+4. **Storage**: Stores user information in connection entity for message routing
+
+**Implementation Details:**
+
+```typescript
+// Frontend: Extract session cookie
+const getSessionCookie = () => {
+  const cookies = document.cookie.split(";");
+  const userSessionCookie = cookies.find((cookie) =>
+    cookie.trim().startsWith("user_session=")
+  );
+  return userSessionCookie ? userSessionCookie.split("=")[1] : null;
+};
+
+// Include in WebSocket URL
+const sessionToken = getSessionCookie();
+const wsUrl = sessionToken
+  ? `wss://websocket-url?sessionToken=${encodeURIComponent(sessionToken)}`
+  : `wss://websocket-url`;
+```
+
+**Backend Processing:**
+
+- **Priority Order**: Session token in query parameters takes precedence over cookie headers
+- **Validation**: Uses existing `UserAuthMiddleware.validateSession()` with modified event object
+- **Fallback**: Graceful degradation to cookie-based auth if no session token provided
+- **Anonymous Support**: Invalid/missing authentication results in anonymous connection
+- **Security**: Session tokens are logged in sanitized form for debugging
+
+**Connection Entity Storage:**
+
+```typescript
+interface ConnectionEntity {
+  PK: string; // CONNECTION#{connectionId}
+  SK: string; // METADATA
+  GSI1PK: string; // WEBSOCKET_CONNECTIONS
+  GSI1SK: string; // {userId}#{connectionId} or ANONYMOUS#{connectionId}
+  connectionId: string;
+  userId?: string; // Present for authenticated connections
+  connectedAt: string;
+  lastActivity: string;
+  ttl: number; // 24-hour automatic cleanup
+}
+```
+
+**Security Considerations:**
+
+- Session tokens transmitted as query parameters during handshake only
+- Tokens validated against same DynamoDB session store as HTTP requests
+- Failed authentication gracefully degrades to anonymous connection
+- Connection cleanup prevents stale authentication state
+- URLs with tokens are sanitized in client-side logging
+
 ### Authentication Redirects
 
 The application supports automatic redirect functionality for unauthenticated users:

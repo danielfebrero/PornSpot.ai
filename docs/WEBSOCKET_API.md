@@ -2,11 +2,60 @@
 
 ## Overview
 
-The PornSpot.ai platform provides real-time updates for generation progress through WebSocket connections. This document outlines the WebSocket message format and subscription patterns.
+The PornSpot.ai platform provides real-time updates for generation progress through WebSocket connections. This document outlines the WebSocket message format, authentication, and subscription patterns.
 
 ## Connection
 
-WebSocket connections are managed through AWS API Gateway WebSocket API. Clients connect and authenticate before subscribing to queue updates.
+WebSocket connections are managed through AWS API Gateway WebSocket API. The connection process includes:
+
+1. **Handshake**: Client initiates WebSocket connection to the API Gateway endpoint
+2. **Authentication**: Optional session token validation for authenticated users
+3. **Connection Storage**: Connection details stored in DynamoDB for message routing
+4. **Ready State**: Client can now subscribe to queue updates and receive real-time messages
+
+Connection entities are automatically cleaned up after 24 hours using DynamoDB TTL.
+
+### Authentication
+
+WebSocket connections support both authenticated and anonymous users:
+
+**Authenticated Connection:**
+
+- Include the user session token as a query parameter: `wss://your-websocket-url?sessionToken=your_session_token`
+- The session token is extracted from the `user_session` cookie in the browser
+- Authenticated users can receive personalized updates and subscribe to their own generation queues
+
+**Anonymous Connection:**
+
+- Connect without any session token: `wss://your-websocket-url`
+- Anonymous users can still receive public updates but with limited functionality
+
+**Frontend Implementation:**
+
+```typescript
+// Extract session cookie and include in WebSocket URL
+const getSessionCookie = () => {
+  const cookies = document.cookie.split(";");
+  const userSessionCookie = cookies.find((cookie) =>
+    cookie.trim().startsWith("user_session=")
+  );
+  return userSessionCookie ? userSessionCookie.split("=")[1] : null;
+};
+
+const sessionToken = getSessionCookie();
+const wsUrl = sessionToken
+  ? `wss://your-websocket-url?sessionToken=${encodeURIComponent(sessionToken)}`
+  : `wss://your-websocket-url`;
+
+const ws = new WebSocket(wsUrl);
+```
+
+**Backend Processing:**
+
+- Session tokens in query parameters take priority over cookie headers
+- Fallback to cookie-based authentication if no session token in query
+- Invalid or missing authentication results in anonymous connection
+- User information is stored in the connection entity for message routing
 
 ## Message Format
 
@@ -241,6 +290,22 @@ Once subscribed to a queue, clients will receive real-time updates:
 
 ## Implementation Notes
 
+### Authentication Architecture Changes
+
+**Version 2.0 - Session Token Authentication:**
+
+- Moved from query parameter `userId` to secure session token authentication
+- Session tokens extracted from `user_session` cookies and passed as query parameters
+- Fallback support for cookie headers when session token not available in query
+- Graceful degradation to anonymous connections for invalid/missing authentication
+
+**Connection Flow:**
+
+1. Frontend extracts `user_session` cookie value
+2. Includes session token in WebSocket URL: `?sessionToken=<token>`
+3. Backend validates token using existing `UserAuthMiddleware`
+4. Connection entity stores `userId` for authenticated users or remains anonymous
+
 ### Queue ID vs Prompt ID
 
 - **Queue ID**: Unique identifier for the generation request in our internal queue system
@@ -338,6 +403,43 @@ await broadcastToQueueSubscribers(queueId, {
   queuePosition: 2,
   estimatedWaitTime: 60000,
 });
+```
+
+## Security Considerations
+
+### Session Token Security
+
+**Token Transmission:**
+
+- Session tokens are transmitted as query parameters during WebSocket handshake
+- URLs with session tokens are logged server-side but sanitized in client logs
+- Tokens are not stored persistently in browser history or cache
+
+**Token Validation:**
+
+- Session tokens are validated against the DynamoDB session store
+- Expired or invalid tokens result in anonymous connection (graceful degradation)
+- Session validation includes user active status and email verification checks
+
+**Best Practices:**
+
+- Session tokens should only be transmitted over HTTPS/WSS connections in production
+- Tokens are automatically extracted from secure HttpOnly cookies when available
+- Connection attempts with invalid authentication fall back to anonymous mode
+- WebSocket connections automatically clean up after 24 hours via TTL
+
+**Logging and Monitoring:**
+
+- Authentication attempts are logged with sanitized session information
+- Failed authentication attempts are monitored but don't block connection
+- User connection events include authentication source (token vs cookie vs anonymous)
+
+```typescript
+// Example of secure logging (session token is masked)
+console.log(
+  "WebSocket URL:",
+  wsUrl.replace(/sessionToken=[^&]+/, "sessionToken=***")
+);
 ```
 
 ## Migration from Prompt ID
