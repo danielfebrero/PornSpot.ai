@@ -11,7 +11,6 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { ConnectionEntity } from "@shared/shared-types/websocket";
-import { UserAuthMiddleware } from "@shared/auth/user-middleware";
 
 // Initialize DynamoDB client
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
@@ -49,46 +48,14 @@ export const handler = async (
     let userId: string | undefined;
 
     try {
-      // Check for session token in query parameters first
+      // Check for JWT token in query parameters first
       const queryParams = event.queryStringParameters || {};
-      const sessionToken = queryParams["sessionToken"];
+      const jwtToken = queryParams["token"];
 
-      if (sessionToken) {
-        console.log("🔑 Found session token in query parameters");
+      if (jwtToken) {
+        console.log("🔑 Found JWT token in query parameters");
 
-        // Create a modified event with the session token as a cookie header
-        // This allows us to reuse the existing validateSession method
-        const modifiedEvent = {
-          ...event,
-          headers: {
-            ...event.headers,
-            Cookie: `user_session=${sessionToken}`,
-          },
-        };
-
-        const validation = await UserAuthMiddleware.validateSession(
-          modifiedEvent
-        );
-        if (validation.isValid && validation.user) {
-          userId = validation.user.userId;
-          console.log(`🔐 User authenticated via session token: ${userId}`);
-        } else {
-          console.log("🔓 Invalid session token, connection will be anonymous");
-        }
-      } else {
-        // Fallback to cookie-based authentication
-        console.log(
-          "🍪 No session token in query, trying cookie authentication"
-        );
-        const validation = await UserAuthMiddleware.validateSession(event);
-        if (validation.isValid && validation.user) {
-          userId = validation.user.userId;
-          console.log(`🔐 User authenticated via session cookie: ${userId}`);
-        } else {
-          console.log(
-            "🔓 No valid session found, connection will be anonymous"
-          );
-        }
+        // TODO: implement jwtToken to userId
       }
     } catch (error) {
       console.log("⚠️ Session validation error, treating as anonymous:", error);

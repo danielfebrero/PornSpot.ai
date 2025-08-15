@@ -27,22 +27,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
 
-  // Helper function to get session cookie
-  const getSessionCookie = useCallback(() => {
-    if (typeof document === "undefined") return null;
-
-    const cookies = document.cookie.split(";");
-    const userSessionCookie = cookies.find((cookie) =>
-      cookie.trim().startsWith("user_session=")
-    );
-
-    if (userSessionCookie) {
-      return userSessionCookie.split("=")[1];
-    }
-
-    return null;
-  }, []);
-
   const getWebSocketUrl = useCallback(() => {
     // In production, this would come from environment variables
     // For now, we'll use a placeholder that should be replaced with actual CloudFormation output
@@ -52,21 +36,21 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       "wss://your-websocket-api-id.execute-api.region.amazonaws.com/stage";
 
     // Add session cookie as query parameter if available
-    const sessionToken = getSessionCookie();
-    if (sessionToken) {
+
+    // TODO: get jwtToken
+    let jwtToken: string | undefined;
+
+    if (jwtToken) {
       const separator = wsUrl.includes("?") ? "&" : "?";
-      wsUrl += `${separator}sessionToken=${encodeURIComponent(sessionToken)}`;
-      console.log("🍪 Added session token to WebSocket URL");
+      wsUrl += `${separator}token=${jwtToken}`;
+      console.log("🍪 Added jwtToken token to WebSocket URL");
     } else {
-      console.log("🔓 No session token found, connecting as anonymous");
+      console.log("🔓 No jwtToken found, connecting as anonymous");
     }
 
-    console.log(
-      "WebSocket URL:",
-      wsUrl.replace(/sessionToken=[^&]+/, "sessionToken=***")
-    );
+    console.log("WebSocket URL:", wsUrl.replace(/token=[^&]+/, "token=***"));
     return wsUrl;
-  }, [getSessionCookie]);
+  }, []);
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
