@@ -326,8 +326,23 @@ export function GenerateClient() {
 
   // Handle optimization stream for real-time MagicText updates
   React.useEffect(() => {
-    if (isOptimizing && optimizationStream && showMagicText && magicTextRef.current) {
+    console.log({
+      isOptimizing,
+      optimizationStream,
+      showMagicText,
+      ref: magicTextRef.current,
+    });
+    if (
+      isOptimizing &&
+      optimizationStream &&
+      showMagicText &&
+      magicTextRef.current
+    ) {
       // Update MagicText with current optimization stream
+      console.log(
+        "Casting spell, current optimization stream:",
+        optimizationStream
+      );
       magicTextRef.current.castSpell(optimizationStream);
     }
   }, [optimizationStream, isOptimizing, showMagicText]);

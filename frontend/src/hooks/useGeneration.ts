@@ -367,6 +367,7 @@ export function useGeneration(): UseGenerationReturn {
 
         case "optimization_token":
           if (message.optimizationData) {
+            console.log("optimization token", { message });
             const { optimizedPrompt, token } = message.optimizationData;
             setOptimizationStream(optimizedPrompt);
             setCurrentMessage(`Optimizing prompt...`);
