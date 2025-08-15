@@ -307,7 +307,7 @@ export function GenerateClient() {
 
   // Update prompt when optimized prompt is received from backend
   React.useEffect(() => {
-    if (optimizedPrompt && optimizedPrompt !== settings.prompt) {
+    if (optimizedPrompt && optimizedPrompt !== optimizedPromptCache) {
       // Cache the optimized prompt
       setOptimizedPromptCache(optimizedPrompt);
 
@@ -323,7 +323,7 @@ export function GenerateClient() {
         setSettings((prev) => ({ ...prev, prompt: optimizedPrompt }));
       }
     }
-  }, [optimizedPrompt, settings.prompt, showMagicText]);
+  }, [optimizedPrompt, showMagicText, optimizedPromptCache]);
 
   // Handle optimization stream for real-time MagicText updates
   React.useEffect(() => {
@@ -499,9 +499,10 @@ export function GenerateClient() {
                 <GradientTextarea
                   placeholder="Amateur photo, woman, 21, laying on the balcony, parisian building, lace thong..."
                   value={settings.prompt}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                    updateSettings("prompt", e.target.value)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                    updateSettings("prompt", e.target.value);
+                    console.log({ value: e.target.value });
+                  }}
                   className="w-full h-40 md:h-32 text-lg p-6 border-2 border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 resize-none transition-all"
                 />
 
