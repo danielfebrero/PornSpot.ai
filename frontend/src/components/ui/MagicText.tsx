@@ -32,28 +32,52 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
     const lettersStateRef = useRef<LetterState[]>([]);
     const currentTextRef = useRef<string>("");
 
-    const createLetterElement = useCallback(
-      (char: string, index: number, isNewLetter: boolean = false) => {
-        const letterSpan = document.createElement("span");
-        letterSpan.classList.add("letter");
-        letterSpan.textContent =
-          char === " " ? "\u00A0" : char === "\n" ? "\n" : char;
-
-        if (char === "\n") {
-          letterSpan.style.whiteSpace = "pre";
-        }
-
-        // Apply gradient based on position in the full text
+    const applyGradientToLetter = useCallback(
+      (letterSpan: HTMLSpanElement, index: number, textLength: number) => {
         const hueStart = 280; // Purple
         const hueEnd = 320; // Pink/Purple
-        const textLength = currentTextRef.current.length || 1;
-        const hue = hueStart + (index / textLength) * (hueEnd - hueStart);
+        const hue =
+          hueStart + (index / Math.max(textLength, 1)) * (hueEnd - hueStart);
+
+        // Apply styles in the correct order for proper text gradient
         letterSpan.style.background = `linear-gradient(135deg, hsl(${hue}, 70%, 60%), hsl(${
           hue + 20
         }, 70%, 70%))`;
         letterSpan.style.webkitBackgroundClip = "text";
         letterSpan.style.backgroundClip = "text";
         letterSpan.style.webkitTextFillColor = "transparent";
+        letterSpan.style.color = "transparent";
+
+        // Fallback for browsers that don't support text gradients
+        if (
+          !CSS.supports("background-clip", "text") &&
+          !CSS.supports("-webkit-background-clip", "text")
+        ) {
+          letterSpan.style.color = `hsl(${hue}, 70%, 60%)`;
+          letterSpan.style.background = "none";
+        }
+      },
+      []
+    );
+
+    const createLetterElement = useCallback(
+      (char: string, index: number, isNewLetter: boolean = false) => {
+        const letterSpan = document.createElement("span");
+        letterSpan.classList.add("letter");
+
+        // Set the text content
+        if (char === " ") {
+          letterSpan.innerHTML = "&nbsp;";
+        } else if (char === "\n") {
+          letterSpan.textContent = "\n";
+          letterSpan.style.whiteSpace = "pre";
+        } else {
+          letterSpan.textContent = char;
+        }
+
+        // Apply gradient styling
+        const textLength = currentTextRef.current.length || 1;
+        applyGradientToLetter(letterSpan, index, textLength);
 
         if (isNewLetter) {
           // Start with invisible state for magic entrance
@@ -65,8 +89,11 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
           }deg) scale(0.5)`;
           letterSpan.classList.add("morphing-in");
 
+          // Force reflow to ensure initial styles are applied
+          letterSpan.offsetHeight;
+
           // Animate in with magic effect
-          setTimeout(() => {
+          requestAnimationFrame(() => {
             letterSpan.style.transform =
               "translate(0, 0) rotate(0deg) scale(1)";
             letterSpan.style.opacity = "1";
@@ -76,31 +103,26 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
               letterSpan.classList.remove("morphing-in");
               letterSpan.classList.remove("magic-glow");
             }, 600);
-          }, 10);
+          });
         }
 
         return letterSpan;
       },
-      []
+      [applyGradientToLetter]
     );
 
     const updateGradients = useCallback(() => {
       // Update all existing letters' gradients based on their position in the full text
+      const textLength = currentTextRef.current.length || 1;
       lettersStateRef.current.forEach((letterState, index) => {
         if (
           letterState.element &&
           !letterState.element.classList.contains("morphing-out")
         ) {
-          const hueStart = 280;
-          const hueEnd = 320;
-          const textLength = currentTextRef.current.length || 1;
-          const hue = hueStart + (index / textLength) * (hueEnd - hueStart);
-          letterState.element.style.background = `linear-gradient(135deg, hsl(${hue}, 70%, 60%), hsl(${
-            hue + 20
-          }, 70%, 70%))`;
+          applyGradientToLetter(letterState.element, index, textLength);
         }
       });
-    }, []);
+    }, [applyGradientToLetter]);
 
     const initializeText = useCallback(
       (text: string) => {
@@ -173,7 +195,9 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
         });
 
         // Update all gradients to reflect new text length
-        updateGradients();
+        requestAnimationFrame(() => {
+          updateGradients();
+        });
       },
       [createLetterElement, updateGradients]
     );
@@ -291,7 +315,9 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
           });
 
           // Update gradients for new text
-          updateGradients();
+          requestAnimationFrame(() => {
+            updateGradients();
+          });
         }, currentLetters.length * 30 + 500);
       },
       [isInitial, createLetterElement, updateGradients]
@@ -375,9 +401,11 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
                     filter 0.3s ease;
         vertical-align: baseline;
         will-change: transform, opacity;
+        /* Ensure text is visible even if gradient fails */
+        color: hsl(var(--primary));
       }
       .letter.morphing-in {
-        filter: drop-shadow(0 0 15px currentColor) brightness(1.5);
+        filter: drop-shadow(0 0 15px hsl(var(--primary) / 0.5)) brightness(1.5);
       }
       .letter.morphing-out {
         filter: blur(2px);
@@ -390,25 +418,25 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
       }
       @keyframes magicGlow {
         0% {
-          filter: drop-shadow(0 0 5px currentColor) brightness(1);
+          filter: drop-shadow(0 0 5px hsl(var(--primary) / 0.3)) brightness(1);
         }
         50% {
-          filter: drop-shadow(0 0 20px currentColor) brightness(1.8) contrast(1.2);
+          filter: drop-shadow(0 0 20px hsl(var(--primary) / 0.6)) brightness(1.8) contrast(1.2);
           transform: scale(1.15);
         }
         100% {
-          filter: drop-shadow(0 0 8px currentColor) brightness(1.2);
+          filter: drop-shadow(0 0 8px hsl(var(--primary) / 0.4)) brightness(1.2);
           transform: scale(1);
         }
       }
       @keyframes magicalFloat {
         0%, 100% {
           transform: translateY(0px);
-          filter: drop-shadow(0 0 3px currentColor) brightness(1.1);
+          filter: drop-shadow(0 0 3px hsl(var(--primary) / 0.3)) brightness(1.1);
         }
         50% {
           transform: translateY(-2px);
-          filter: drop-shadow(0 0 8px currentColor) brightness(1.3);
+          filter: drop-shadow(0 0 8px hsl(var(--primary) / 0.5)) brightness(1.3);
         }
       }
       .particle {
