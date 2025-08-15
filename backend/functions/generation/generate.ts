@@ -40,6 +40,424 @@ const apiGatewayClient = new ApiGatewayManagementApiClient({
   endpoint: process.env["WEBSOCKET_API_ENDPOINT"],
 });
 
+// Helper interfaces
+interface UserWithPlanInfo {
+  planInfo: {
+    plan: string;
+  };
+  usageStats: {
+    imagesGeneratedThisMonth: number;
+    imagesGeneratedToday: number;
+  };
+}
+
+interface ImageDimensions {
+  width: number;
+  height: number;
+}
+
+interface ValidationErrors {
+  message: string;
+  field?: string;
+}
+
+// Helper functions extracted from duplicated code
+
+/**
+ * Calculate image dimensions from size parameters
+ */
+function calculateImageDimensions(
+  imageSize: string,
+  customWidth: number,
+  customHeight: number
+): ImageDimensions {
+  if (imageSize === "custom") {
+    return { width: customWidth, height: customHeight };
+  }
+
+  const [widthStr, heightStr] = imageSize.split("x");
+  return {
+    width: parseInt(widthStr || "1024"),
+    height: parseInt(heightStr || "1024"),
+  };
+}
+
+/**
+ * Calculate user priority based on plan
+ */
+function calculateUserPriority(userPlan: string): number {
+  switch (userPlan) {
+    case "unlimited":
+      return 0; // Highest priority
+    case "pro":
+      return 100;
+    case "starter":
+      return 500;
+    case "free":
+    default:
+      return 1000;
+  }
+}
+
+/**
+ * Validate LoRA-related parameters in a single place
+ */
+function validateLoRAUsage(
+  selectedLoras: string[],
+  loraSelectionMode: string,
+  loraStrengths: Record<string, any>,
+  permissions: any
+): ValidationErrors | null {
+  const hasLoraUsage =
+    selectedLoras.length > 0 ||
+    loraSelectionMode !== "auto" ||
+    Object.keys(loraStrengths).length > 0;
+
+  if (hasLoraUsage && !permissions.canUseLoRAModels) {
+    return { message: "LoRA models require a Pro plan", field: "lora" };
+  }
+
+  return null;
+}
+
+/**
+ * Validate request parameters
+ */
+function validateGenerationRequest(
+  requestBody: GenerationRequest,
+  permissions: any
+): ValidationErrors | null {
+  const {
+    prompt,
+    negativePrompt = "",
+    imageSize = "1024x1024",
+    batchCount = 1,
+    selectedLoras = [],
+    loraSelectionMode = "auto",
+    loraStrengths = {},
+    isPublic = true,
+  } = requestBody;
+
+  // Validate prompt
+  const validatedPrompt = ValidationUtil.validateRequiredString(
+    prompt,
+    "Prompt"
+  );
+  if (validatedPrompt.length > 1000) {
+    return {
+      message: "Prompt is too long (max 1000 characters)",
+      field: "prompt",
+    };
+  }
+
+  // Validate negative prompt
+  if (negativePrompt && negativePrompt.length > 500) {
+    return {
+      message: "Negative prompt is too long (max 500 characters)",
+      field: "negativePrompt",
+    };
+  }
+
+  // Validate batch count
+  if (batchCount > 1 && !permissions.canUseBulkGeneration) {
+    return {
+      message: `Your plan allows maximum 1 image per batch`,
+      field: "batchCount",
+    };
+  }
+
+  // Validate LoRA usage (consolidated)
+  const loraError = validateLoRAUsage(
+    selectedLoras,
+    loraSelectionMode,
+    loraStrengths,
+    permissions
+  );
+  if (loraError) return loraError;
+
+  // Validate negative prompt usage
+  if (
+    negativePrompt &&
+    negativePrompt.trim().length > 0 &&
+    !permissions.canUseNegativePrompt
+  ) {
+    return {
+      message: "Negative prompts require a Pro plan",
+      field: "negativePrompt",
+    };
+  }
+
+  // Validate custom image size
+  if (imageSize === "custom" && !permissions.canSelectImageSizes) {
+    return {
+      message: "Custom image sizes require Pro plan",
+      field: "imageSize",
+    };
+  }
+
+  // Validate private content creation
+  if (!isPublic && !permissions.canCreatePrivateContent) {
+    return {
+      message: "Private content creation requires a Pro plan",
+      field: "isPublic",
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Create WorkflowFinalParams from request (consolidated)
+ */
+function createWorkflowParams(
+  requestBody: GenerationRequest,
+  finalPrompt: string
+): WorkflowFinalParams {
+  const {
+    negativePrompt = "",
+    imageSize = "1024x1024",
+    customWidth = 1024,
+    customHeight = 1024,
+    batchCount = 1,
+    selectedLoras = [],
+    loraStrengths = {},
+    loraSelectionMode = "auto",
+    optimizePrompt = true,
+  } = requestBody;
+
+  const dimensions = calculateImageDimensions(
+    imageSize,
+    customWidth,
+    customHeight
+  );
+
+  return {
+    width: dimensions.width,
+    height: dimensions.height,
+    steps: 20,
+    cfg_scale: 7.0,
+    batch_size: batchCount,
+    loraSelectionMode,
+    loraStrengths,
+    selectedLoras,
+    optimizePrompt,
+    prompt: finalPrompt,
+    negativePrompt: negativePrompt.trim(),
+  };
+}
+
+/**
+ * Handle queue operations and response generation
+ */
+async function processGenerationQueue(
+  queueService: any,
+  auth: AuthResult,
+  finalPrompt: string,
+  workflowParams: WorkflowFinalParams,
+  priority: number,
+  optimizedPromptResult: string | null
+): Promise<GenerationResponse> {
+  // Add to queue with WebSocket connection ID if available
+  const connectionId = await DynamoDBService.getActiveConnectionIdForUser(
+    auth.userId
+  );
+
+  console.log("will add to queue");
+  const queueEntry = await queueService.addToQueue(
+    auth.userId,
+    finalPrompt,
+    workflowParams,
+    connectionId || undefined,
+    priority
+  );
+
+  console.log(
+    `📋 Added generation request to queue: ${queueEntry.queueId} for user ${auth.userId}, position: ${queueEntry.queuePosition}`
+  );
+
+  // Generate workflow data from request parameters
+  const workflowData = generateWorkflowData(workflowParams);
+
+  // Publish queue submission event to EventBridge for immediate processing
+  try {
+    await publishQueueSubmissionEvent(queueEntry.queueId, priority);
+    console.log(
+      `🚀 Published queue submission event for ${queueEntry.queueId}`
+    );
+  } catch (eventError) {
+    console.error("Failed to publish queue submission event:", eventError);
+    // Continue processing - the scheduled processor will pick it up as fallback
+  }
+
+  return {
+    queueId: queueEntry.queueId,
+    queuePosition: queueEntry.queuePosition || 1,
+    estimatedWaitTime: queueEntry.estimatedWaitTime || 0,
+    status: "pending",
+    message: `Your request has been added to the queue. Position: ${
+      queueEntry.queuePosition || 1
+    }`,
+    workflowData,
+    optimizedPrompt: optimizedPromptResult || undefined,
+  };
+}
+
+/**
+ * Handle prompt optimization with WebSocket streaming
+ */
+async function handlePromptOptimization(
+  auth: AuthResult,
+  validatedPrompt: string,
+  requestBody: GenerationRequest,
+  userPlan: string
+): Promise<{
+  finalPrompt: string;
+  optimizedPromptResult: string | null;
+  shouldReturn?: boolean;
+  response?: GenerationResponse;
+}> {
+  try {
+    console.log("🎨 Starting prompt optimization via WebSocket");
+
+    // Add to queue first to get queueId for WebSocket streaming
+    const queueService = GenerationQueueService.getInstance();
+
+    // Get active WebSocket connection for the user
+    const connectionId = await DynamoDBService.getActiveConnectionIdForUser(
+      auth.userId
+    );
+
+    if (!connectionId) {
+      console.log(
+        "📭 No active WebSocket connection found for user, proceeding without optimization streaming"
+      );
+      return {
+        finalPrompt: validatedPrompt.trim(),
+        optimizedPromptResult: null,
+      };
+    }
+
+    const priority = calculateUserPriority(userPlan);
+    const tempWorkflowParams = createWorkflowParams(
+      requestBody,
+      validatedPrompt.trim()
+    );
+
+    // Add to queue to get queueId for WebSocket communication
+    const queueEntry = await queueService.addToQueue(
+      auth.userId,
+      validatedPrompt.trim(),
+      tempWorkflowParams,
+      connectionId,
+      priority
+    );
+
+    const queueId = queueEntry.queueId;
+
+    // Stream optimization via WebSocket directly to connection
+    const openRouterService = OpenRouterService.getInstance();
+    let optimizedPrompt = "";
+
+    // Send initial optimization event directly to connection
+    if (connectionId) {
+      await sendOptimizationMessageToConnection(connectionId, {
+        type: "optimization_start",
+        optimizationData: {
+          originalPrompt: validatedPrompt.trim(),
+          optimizedPrompt: "",
+          completed: false,
+        },
+      });
+    }
+
+    // Get the stream from OpenRouter
+    const stream = await openRouterService.chatCompletionStream({
+      instructionTemplate: "prompt-optimization",
+      userMessage: validatedPrompt.trim(),
+      model: "mistralai/mistral-medium-3.1",
+      parameters: {
+        temperature: 0.7,
+        max_tokens: 1024,
+      },
+    });
+
+    // Stream the optimization tokens via WebSocket directly to connection
+    for await (const token of stream) {
+      optimizedPrompt += token;
+      if (connectionId) {
+        await sendOptimizationMessageToConnection(connectionId, {
+          type: "optimization_token",
+          optimizationData: {
+            originalPrompt: validatedPrompt.trim(),
+            optimizedPrompt,
+            token,
+            completed: false,
+          },
+        });
+      }
+    }
+
+    // Send completion event with final optimized prompt directly to connection
+    const optimizedPromptResult = optimizedPrompt.trim();
+    const finalPrompt = optimizedPromptResult;
+
+    if (connectionId) {
+      await sendOptimizationMessageToConnection(connectionId, {
+        type: "optimization_complete",
+        optimizationData: {
+          originalPrompt: validatedPrompt.trim(),
+          optimizedPrompt: optimizedPromptResult,
+          completed: true,
+        },
+      });
+    }
+
+    console.log("✅ Prompt optimization completed via WebSocket");
+
+    // Update the queue entry with the optimized prompt
+    await queueService.updateQueueEntry(queueId, {
+      prompt: finalPrompt,
+      parameters: {
+        ...tempWorkflowParams,
+        prompt: finalPrompt,
+      },
+    });
+
+    // Generate workflow data with optimized prompt
+    const workflowData = generateWorkflowData({
+      ...tempWorkflowParams,
+      prompt: finalPrompt,
+    });
+
+    // Publish queue submission event for processing
+    try {
+      await publishQueueSubmissionEvent(queueId, priority);
+      console.log(`🚀 Published queue submission event for ${queueId}`);
+    } catch (eventError) {
+      console.error("Failed to publish queue submission event:", eventError);
+    }
+
+    const response: GenerationResponse = {
+      queueId,
+      queuePosition: queueEntry.queuePosition || 1,
+      estimatedWaitTime: queueEntry.estimatedWaitTime || 0,
+      status: "pending",
+      message: `Your request has been added to the queue with optimized prompt. Position: ${
+        queueEntry.queuePosition || 1
+      }`,
+      workflowData,
+      optimizedPrompt: optimizedPromptResult,
+    };
+
+    return { finalPrompt, optimizedPromptResult, shouldReturn: true, response };
+  } catch (optimizationError) {
+    console.error("❌ Prompt optimization failed:", optimizationError);
+    // Continue with original prompt if optimization fails
+    console.log("Continuing with original prompt due to optimization failure");
+    return { finalPrompt: validatedPrompt.trim(), optimizedPromptResult: null };
+  }
+}
+
 /**
  * Send optimization message directly to a WebSocket connection
  */
@@ -97,94 +515,26 @@ const handleGenerate = async (
 
   const requestBody: GenerationRequest = LambdaHandlerUtil.parseJsonBody(event);
 
-  const {
-    prompt,
-    negativePrompt = "",
-    imageSize = "1024x1024",
-    customWidth = 1024,
-    customHeight = 1024,
-    batchCount = 1,
-    selectedLoras = [],
-    loraStrengths = {},
-    loraSelectionMode = "auto",
-    optimizePrompt = true,
-    isPublic = true,
-  } = requestBody;
-
-  // Validate required fields using shared validation
-  const validatedPrompt = ValidationUtil.validateRequiredString(
-    prompt,
-    "Prompt"
-  );
-
-  if (validatedPrompt.length > 1000) {
-    return ResponseUtil.badRequest(
-      event,
-      "Prompt is too long (max 1000 characters)"
-    );
-  }
-
-  // Validate negative prompt if provided
-  if (negativePrompt && negativePrompt.length > 500) {
-    return ResponseUtil.badRequest(
-      event,
-      "Negative prompt is too long (max 500 characters)"
-    );
-  }
-
   // Check user permissions based on their plan
   const userPlan = enhancedUser.planInfo.plan;
   const permissions = getGenerationPermissions(userPlan);
 
-  // Validate batch count
-  if (batchCount > 1 && !permissions.canUseBulkGeneration) {
-    return ResponseUtil.forbidden(
-      event,
-      `Your plan allows maximum 1 image per batch`
-    );
+  // Validate all request parameters in one place
+  const validationError = validateGenerationRequest(requestBody, permissions);
+  if (validationError) {
+    return ResponseUtil.badRequest(event, validationError.message);
   }
 
-  // Validate LoRA usage
-  if (selectedLoras.length > 0 && !permissions.canUseLoRAModels) {
-    return ResponseUtil.forbidden(event, "LoRA models require a Pro plan");
-  }
-
-  // Validate LoRA usage
-  if (loraSelectionMode !== "auto" && !permissions.canUseLoRAModels) {
-    return ResponseUtil.forbidden(event, "LoRA models require a Pro plan");
-  }
-
-  // Validate LoRA usage
-  if (Object.keys(loraStrengths).length > 0 && !permissions.canUseLoRAModels) {
-    return ResponseUtil.forbidden(event, "LoRA models require a Pro plan");
-  }
-
-  // Validate negative prompt usage
-  if (
-    negativePrompt &&
-    negativePrompt.trim().length > 0 &&
-    !permissions.canUseNegativePrompt
-  ) {
-    return ResponseUtil.forbidden(event, "Negative prompts require a Pro plan");
-  }
-
-  // Validate custom image size
-  if (imageSize === "custom" && !permissions.canSelectImageSizes) {
-    return ResponseUtil.forbidden(event, "Custom image sizes require Pro plan");
-  }
-
-  // Validate private content creation
-  if (!isPublic && !permissions.canCreatePrivateContent) {
-    return ResponseUtil.forbidden(
-      event,
-      "Private content creation requires a Pro plan"
-    );
-  }
+  // Extract validated prompt for further processing
+  const validatedPrompt = ValidationUtil.validateRequiredString(
+    requestBody.prompt,
+    "Prompt"
+  );
 
   // Check generation limits
   const { allowed, remaining } = checkGenerationLimits(
     enhancedUser,
-    batchCount
+    requestBody.batchCount || 1
   );
   if (!allowed) {
     return ResponseUtil.forbidden(
@@ -213,275 +563,39 @@ const handleGenerate = async (
   let finalPrompt = validatedPrompt.trim();
   let optimizedPromptResult: string | null = null;
 
-  if (optimizePrompt) {
-    try {
-      console.log("🎨 Starting prompt optimization via WebSocket");
+  if (requestBody.optimizePrompt) {
+    const optimizationResult = await handlePromptOptimization(
+      auth,
+      validatedPrompt,
+      requestBody,
+      userPlan
+    );
 
-      // Add to queue first to get queueId for WebSocket streaming
-      const queueService = GenerationQueueService.getInstance();
+    finalPrompt = optimizationResult.finalPrompt;
+    optimizedPromptResult = optimizationResult.optimizedPromptResult;
 
-      // Get active WebSocket connection for the user
-      const connectionId = await DynamoDBService.getActiveConnectionIdForUser(
-        auth.userId
-      );
-
-      if (!connectionId) {
-        console.log(
-          "📭 No active WebSocket connection found for user, proceeding without optimization streaming"
-        );
-        // Continue with original prompt if no connection available
-        finalPrompt = validatedPrompt.trim();
-      } else {
-        // Determine priority based on user plan
-        let priority = 1000; // Default priority
-        switch (userPlan) {
-          case "unlimited":
-            priority = 0; // Highest priority
-            break;
-          case "pro":
-            priority = 100;
-            break;
-          case "starter":
-            priority = 500;
-            break;
-          case "free":
-            priority = 1000;
-            break;
-        }
-
-        // Create temporary workflow parameters for queue entry
-        const tempWorkflowParams: WorkflowFinalParams = {
-          width:
-            imageSize === "custom"
-              ? customWidth
-              : parseInt(imageSize?.split("x")[0] || "1024"),
-          height:
-            imageSize === "custom"
-              ? customHeight
-              : parseInt(imageSize?.split("x")[1] || "1024"),
-          steps: 20,
-          cfg_scale: 7.0,
-          batch_size: batchCount,
-          loraSelectionMode,
-          loraStrengths,
-          selectedLoras,
-          optimizePrompt,
-          prompt: finalPrompt,
-          negativePrompt: negativePrompt.trim(),
-        };
-
-        // Add to queue to get queueId for WebSocket communication
-        const queueEntry = await queueService.addToQueue(
-          auth.userId,
-          finalPrompt,
-          tempWorkflowParams,
-          connectionId,
-          priority
-        );
-
-        const queueId = queueEntry.queueId;
-
-        // Stream optimization via WebSocket directly to connection
-        const openRouterService = OpenRouterService.getInstance();
-        let optimizedPrompt = "";
-
-        // Send initial optimization event directly to connection
-        if (connectionId) {
-          await sendOptimizationMessageToConnection(connectionId, {
-            type: "optimization_start",
-            optimizationData: {
-              originalPrompt: finalPrompt,
-              optimizedPrompt: "",
-              completed: false,
-            },
-          });
-        }
-
-        // Get the stream from OpenRouter
-        const stream = await openRouterService.chatCompletionStream({
-          instructionTemplate: "prompt-optimization",
-          userMessage: finalPrompt,
-          model: "mistralai/mistral-medium-3.1",
-          parameters: {
-            temperature: 0.7,
-            max_tokens: 1024,
-          },
-        });
-
-        // Stream the optimization tokens via WebSocket directly to connection
-        for await (const token of stream) {
-          optimizedPrompt += token;
-          if (connectionId) {
-            await sendOptimizationMessageToConnection(connectionId, {
-              type: "optimization_token",
-              optimizationData: {
-                originalPrompt: finalPrompt,
-                optimizedPrompt,
-                token,
-                completed: false,
-              },
-            });
-          }
-        }
-
-        // Send completion event with final optimized prompt directly to connection
-        optimizedPromptResult = optimizedPrompt.trim();
-        finalPrompt = optimizedPromptResult;
-
-        if (connectionId) {
-          await sendOptimizationMessageToConnection(connectionId, {
-            type: "optimization_complete",
-            optimizationData: {
-              originalPrompt: validatedPrompt.trim(),
-              optimizedPrompt: optimizedPromptResult,
-              completed: true,
-            },
-          });
-        }
-
-        console.log("✅ Prompt optimization completed via WebSocket");
-
-        // Update the queue entry with the optimized prompt
-        await queueService.updateQueueEntry(queueId, {
-          prompt: finalPrompt,
-          parameters: {
-            ...tempWorkflowParams,
-            prompt: finalPrompt,
-          },
-        });
-
-        // Generate workflow data with optimized prompt
-        const workflowData = generateWorkflowData({
-          ...tempWorkflowParams,
-          prompt: finalPrompt,
-        });
-
-        // Publish queue submission event for processing
-        try {
-          await publishQueueSubmissionEvent(queueId, priority);
-          console.log(`🚀 Published queue submission event for ${queueId}`);
-        } catch (eventError) {
-          console.error(
-            "Failed to publish queue submission event:",
-            eventError
-          );
-        }
-
-        const response: GenerationResponse = {
-          queueId,
-          queuePosition: queueEntry.queuePosition || 1,
-          estimatedWaitTime: queueEntry.estimatedWaitTime || 0,
-          status: "pending",
-          message: `Your request has been added to the queue with optimized prompt. Position: ${
-            queueEntry.queuePosition || 1
-          }`,
-          workflowData,
-          optimizedPrompt: optimizedPromptResult,
-        };
-
-        return ResponseUtil.success(event, response);
-      }
-    } catch (optimizationError) {
-      console.error("❌ Prompt optimization failed:", optimizationError);
-      // Continue with original prompt if optimization fails
-      console.log(
-        "Continuing with original prompt due to optimization failure"
-      );
+    // If optimization was completed with WebSocket, return early
+    if (optimizationResult.shouldReturn && optimizationResult.response) {
+      return ResponseUtil.success(event, optimizationResult.response);
     }
   }
 
   // Normal flow when optimization is not requested or failed
-
-  // Create workflow parameters for queue entry
-  const workflowParams: WorkflowFinalParams = {
-    width:
-      imageSize === "custom"
-        ? customWidth
-        : parseInt(imageSize?.split("x")[0] || "1024"),
-    height:
-      imageSize === "custom"
-        ? customHeight
-        : parseInt(imageSize?.split("x")[1] || "1024"),
-    steps: 20, // Default steps
-    cfg_scale: 7.0, // Default CFG scale
-    batch_size: batchCount,
-    loraSelectionMode,
-    loraStrengths,
-    selectedLoras,
-    optimizePrompt,
-    prompt: finalPrompt,
-    negativePrompt: negativePrompt.trim(),
-  };
-
-  // Get queue service and add request to queue
+  const workflowParams = createWorkflowParams(requestBody, finalPrompt);
   const queueService = GenerationQueueService.getInstance();
+  const priority = calculateUserPriority(userPlan);
 
   console.log("got queue service");
 
-  // Determine priority based on user plan
-  let priority = 1000; // Default priority
-  switch (userPlan) {
-    case "unlimited":
-      priority = 0; // Highest priority
-      break;
-    case "pro":
-      priority = 100;
-      break;
-    case "starter":
-      priority = 500;
-      break;
-    case "free":
-      priority = 1000;
-      break;
-  }
-
-  // Add to queue with WebSocket connection ID if available
-  const connectionId = await DynamoDBService.getActiveConnectionIdForUser(
-    auth.userId
-  );
-
-  console.log("will add to queue");
   try {
-    const queueEntry = await queueService.addToQueue(
-      auth.userId,
+    const response = await processGenerationQueue(
+      queueService,
+      auth,
       finalPrompt,
       workflowParams,
-      connectionId || undefined,
-      priority
+      priority,
+      optimizedPromptResult
     );
-
-    console.log(
-      `📋 Added generation request to queue: ${queueEntry.queueId} for user ${auth.userId}, position: ${queueEntry.queuePosition}`
-    );
-
-    // Generate workflow data from request parameters
-    const workflowData = generateWorkflowData(workflowParams);
-
-    // Publish queue submission event to EventBridge for immediate processing
-    try {
-      await publishQueueSubmissionEvent(queueEntry.queueId, priority);
-      console.log(
-        `🚀 Published queue submission event for ${queueEntry.queueId}`
-      );
-    } catch (eventError) {
-      console.error("Failed to publish queue submission event:", eventError);
-      // Continue processing - the scheduled processor will pick it up as fallback
-    }
-
-    const response: GenerationResponse = {
-      queueId: queueEntry.queueId,
-      queuePosition: queueEntry.queuePosition || 1,
-      estimatedWaitTime: queueEntry.estimatedWaitTime || 0,
-      status: "pending",
-      message: `Your request has been added to the queue. Position: ${
-        queueEntry.queuePosition || 1
-      }`,
-      workflowData,
-      optimizedPrompt: optimizedPromptResult || undefined,
-    };
-
-    // Note: WebSocket communication will be handled by EventBridge when
-    // the queue processing begins and events are published
 
     return ResponseUtil.success(event, response);
   } catch (queueError) {
@@ -533,16 +647,6 @@ function generateWorkflowData(params: WorkflowFinalParams): WorkflowData {
 }
 
 // Helper function to check generation limits
-interface UserWithPlanInfo {
-  planInfo: {
-    plan: string;
-  };
-  usageStats: {
-    imagesGeneratedThisMonth: number;
-    imagesGeneratedToday: number;
-  };
-}
-
 function checkGenerationLimits(
   user: UserWithPlanInfo,
   requestedCount: number

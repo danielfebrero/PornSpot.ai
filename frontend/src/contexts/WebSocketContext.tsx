@@ -21,9 +21,9 @@ interface WebSocketProviderProps {
 export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
-  const subscriptionsRef = useRef<
-    Map<string, (message: GenerationWebSocketMessage) => void>
-  >(new Map());
+  const globalSubscriptionsRef = useRef<
+    Set<(message: GenerationWebSocketMessage) => void>
+  >(new Set());
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
@@ -95,13 +95,10 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
             return;
           }
 
-          // Route message to appropriate subscriber
-          if (message.queueId) {
-            const callback = subscriptionsRef.current.get(message.queueId);
-            if (callback) {
-              callback(message);
-            }
-          }
+          // Route all messages to global subscribers (one queue per tab)
+          globalSubscriptionsRef.current.forEach((callback) => {
+            callback(message);
+          });
         } catch (error) {
           console.error("❌ Failed to parse WebSocket message:", error);
         }
@@ -161,44 +158,20 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   }, []);
 
   const subscribe = useCallback(
-    (
-      queueId: string,
-      callback: (message: GenerationWebSocketMessage) => void
-    ) => {
-      console.log("📝 Subscribing to queue updates:", queueId);
-      subscriptionsRef.current.set(queueId, callback);
-
-      // Send subscription message to backend
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(
-          JSON.stringify({
-            action: "subscribe",
-            data: {
-              queueId: queueId,
-            },
-          })
-        );
-      }
+    (callback: (message: GenerationWebSocketMessage) => void) => {
+      console.log("📝 Subscribing to WebSocket messages");
+      globalSubscriptionsRef.current.add(callback);
     },
     []
   );
 
-  const unsubscribe = useCallback((queueId: string) => {
-    console.log("📝 Unsubscribing from queue updates:", queueId);
-    subscriptionsRef.current.delete(queueId);
-
-    // Send unsubscribe message to backend
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(
-        JSON.stringify({
-          action: "unsubscribe",
-          data: {
-            queueId: queueId,
-          },
-        })
-      );
-    }
-  }, []);
+  const unsubscribe = useCallback(
+    (callback: (message: GenerationWebSocketMessage) => void) => {
+      console.log("📝 Unsubscribing from WebSocket messages");
+      globalSubscriptionsRef.current.delete(callback);
+    },
+    []
+  );
 
   const sendMessage = useCallback((message: any) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {

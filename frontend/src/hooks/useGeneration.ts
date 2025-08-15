@@ -60,6 +60,9 @@ export function useGeneration(): UseGenerationReturn {
 
   const { subscribe, unsubscribe, isConnected } = useWebSocket();
   const currentQueueIdRef = useRef<string | null>(null);
+  const messageCallbackRef = useRef<
+    ((message: GenerationWebSocketMessage) => void) | null
+  >(null);
 
   // Use refs to store latest values for WebSocket callback access
   const workflowNodesRef = useRef(workflowNodes);
@@ -321,8 +324,9 @@ export function useGeneration(): UseGenerationReturn {
           setProgress(100);
 
           // Unsubscribe from updates
-          if (currentQueueIdRef.current) {
-            unsubscribe(currentQueueIdRef.current);
+          if (messageCallbackRef.current) {
+            unsubscribe(messageCallbackRef.current);
+            messageCallbackRef.current = null;
             currentQueueIdRef.current = null;
           }
           break;
@@ -410,8 +414,9 @@ export function useGeneration(): UseGenerationReturn {
             setIsGenerating(false);
 
             // Unsubscribe from updates
-            if (currentQueueIdRef.current) {
-              unsubscribe(currentQueueIdRef.current);
+            if (messageCallbackRef.current) {
+              unsubscribe(messageCallbackRef.current);
+              messageCallbackRef.current = null;
               currentQueueIdRef.current = null;
             }
           }
@@ -468,7 +473,9 @@ export function useGeneration(): UseGenerationReturn {
         setCurrentMessage(result.message);
 
         // Subscribe to WebSocket updates for this generation
-        subscribe(result.queueId, handleWebSocketMessage);
+        messageCallbackRef.current = handleWebSocketMessage;
+        subscribe(handleWebSocketMessage);
+        currentQueueIdRef.current = result.queueId;
       } catch (err) {
         console.error("❌ Generation request failed:", err);
 
@@ -479,8 +486,9 @@ export function useGeneration(): UseGenerationReturn {
         setIsGenerating(false);
 
         // Clean up any pending subscription
-        if (currentQueueIdRef.current) {
-          unsubscribe(currentQueueIdRef.current);
+        if (messageCallbackRef.current) {
+          unsubscribe(messageCallbackRef.current);
+          messageCallbackRef.current = null;
           currentQueueIdRef.current = null;
         }
       }
@@ -522,8 +530,9 @@ export function useGeneration(): UseGenerationReturn {
     setOptimizationStream("");
 
     // Unsubscribe from any active subscriptions
-    if (currentQueueIdRef.current) {
-      unsubscribe(currentQueueIdRef.current);
+    if (messageCallbackRef.current) {
+      unsubscribe(messageCallbackRef.current);
+      messageCallbackRef.current = null;
       currentQueueIdRef.current = null;
     }
   }, [unsubscribe]);

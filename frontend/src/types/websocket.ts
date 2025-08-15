@@ -13,10 +13,9 @@ export interface WebSocketContextType {
   isConnected: boolean;
   connect: () => void;
   disconnect: () => void;
-  subscribe: (
-    queueId: string,
+  subscribe: (callback: (message: GenerationWebSocketMessage) => void) => void;
+  unsubscribe: (
     callback: (message: GenerationWebSocketMessage) => void
   ) => void;
-  unsubscribe: (queueId: string) => void;
   sendMessage: (message: any) => void;
 }
