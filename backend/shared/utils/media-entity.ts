@@ -70,6 +70,10 @@ export function createMediaEntity(
     GSI2PK: "MEDIA_ID",
     GSI2SK: options.mediaId,
 
+    // GSI5: Media by public status
+    GSI5PK: "MEDIA",
+    GSI5SK: options.isPublic ? "true" : "false",
+
     // Entity metadata
     EntityType: "Media" as const,
     id: options.mediaId,

@@ -138,6 +138,8 @@ const handleCreateAlbum = async (
     GSI1SK: `${now}#${albumId}`,
     GSI4PK: "ALBUM_BY_CREATOR",
     GSI4SK: `${userId}#${now}#${albumId}`,
+    GSI5PK: "ALBUM",
+    GSI5SK: isPublicValue.toString(),
     EntityType: "Album",
     id: albumId,
     title,

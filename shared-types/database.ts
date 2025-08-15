@@ -28,6 +28,8 @@ export interface AlbumEntity extends BaseEntity {
   GSI1SK: string; // {createdAt}#{albumId}
   GSI4PK: string; // ALBUM_BY_CREATOR
   GSI4SK: string; // {createdBy}#{createdAt}#{albumId}
+  GSI5PK: string; // ALBUM
+  GSI5SK: string; // {isPublic}
   EntityType: "Album";
   id: string;
   title: string;
@@ -55,6 +57,8 @@ export interface MediaEntity extends BaseEntity {
   GSI1SK: string; // {createdBy}#{createdAt}#{mediaId}
   GSI2PK: string; // MEDIA_ID
   GSI2SK: string; // {mediaId}
+  GSI5PK: string; // MEDIA
+  GSI5SK: string; // {isPublic}
   EntityType: "Media";
   id: string;
   filename: string;

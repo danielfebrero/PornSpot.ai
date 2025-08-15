@@ -116,6 +116,14 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+        - IndexName: GSI5
+          KeySchema:
+            - AttributeName: GSI5PK
+              KeyType: HASH
+            - AttributeName: GSI5SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
         - IndexName: isPublic-createdAt-index
           KeySchema:
             - AttributeName: isPublic

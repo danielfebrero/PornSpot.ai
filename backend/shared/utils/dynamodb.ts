@@ -361,21 +361,19 @@ export class DynamoDBService {
     // Build query parameters
     const queryParams: QueryCommandInput = {
       TableName: TABLE_NAME,
-      IndexName: "isPublic-createdAt-index",
-      KeyConditionExpression: "#isPublic = :isPublic",
+      IndexName: "GSI5",
+      KeyConditionExpression: "#GSI5PK = :album AND #GSI5SK = :isPublic",
       ExpressionAttributeNames: {
-        "#isPublic": "isPublic",
-        "#entityType": "EntityType",
+        "#GSI5PK": "GSI5PK",
+        "#GSI5SK": "GSI5SK",
       },
       ExpressionAttributeValues: {
+        ":album": "ALBUM",
         ":isPublic": isPublicString,
-        ":entityType": "Album",
       },
       ScanIndexForward: false, // Most recent first
       Limit: limit,
       ExclusiveStartKey: lastEvaluatedKey,
-      // Filter to only return Album entities, not Media entities
-      FilterExpression: "#entityType = :entityType",
     };
 
     // Add tag filtering if specified
