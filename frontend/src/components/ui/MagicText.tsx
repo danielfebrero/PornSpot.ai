@@ -36,16 +36,16 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
     // Smooth scroll to keep the latest content visible
     const scrollToLatest = useCallback(() => {
       if (!scrollContainerRef.current) return;
-      
+
       const scrollContainer = scrollContainerRef.current;
       const scrollHeight = scrollContainer.scrollHeight;
       const clientHeight = scrollContainer.clientHeight;
-      
+
       // Only scroll if content overflows
       if (scrollHeight > clientHeight) {
         scrollContainer.scrollTo({
           top: scrollHeight - clientHeight,
-          behavior: 'smooth'
+          behavior: "smooth",
         });
       }
     }, []);

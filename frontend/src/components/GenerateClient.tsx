@@ -307,6 +307,7 @@ export function GenerateClient() {
 
   // Update prompt when optimized prompt is received from backend
   React.useEffect(() => {
+    console.log("case 1", { optimizedPrompt, optimizedPromptCache });
     if (optimizedPrompt && optimizedPrompt !== optimizedPromptCache) {
       // Cache the optimized prompt
       setOptimizedPromptCache(optimizedPrompt);
