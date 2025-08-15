@@ -362,12 +362,15 @@ export class DynamoDBService {
     const queryParams: QueryCommandInput = {
       TableName: TABLE_NAME,
       IndexName: "isPublic-createdAt-index",
-      KeyConditionExpression: "#isPublic = :isPublic",
+      KeyConditionExpression:
+        "#isPublic = :isPublic AND #EntityType = :EntityType",
       ExpressionAttributeNames: {
         "#isPublic": "isPublic",
+        "#EntityType": "EntityType",
       },
       ExpressionAttributeValues: {
         ":isPublic": isPublicString,
+        ":EntityType": "Album",
       },
       ScanIndexForward: false, // Most recent first
       Limit: limit,
