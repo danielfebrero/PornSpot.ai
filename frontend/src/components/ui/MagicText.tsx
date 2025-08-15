@@ -28,9 +28,27 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
   ({ originalText }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const magicTextRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [isInitial, setIsInitial] = useState(true);
     const lettersStateRef = useRef<LetterState[]>([]);
     const currentTextRef = useRef<string>("");
+
+    // Smooth scroll to keep the latest content visible
+    const scrollToLatest = useCallback(() => {
+      if (!scrollContainerRef.current) return;
+      
+      const scrollContainer = scrollContainerRef.current;
+      const scrollHeight = scrollContainer.scrollHeight;
+      const clientHeight = scrollContainer.clientHeight;
+      
+      // Only scroll if content overflows
+      if (scrollHeight > clientHeight) {
+        scrollContainer.scrollTo({
+          top: scrollHeight - clientHeight,
+          behavior: 'smooth'
+        });
+      }
+    }, []);
 
     const applyGradientToLetter = useCallback(
       (letterSpan: HTMLSpanElement, index: number, textLength: number) => {
@@ -197,9 +215,13 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
         // Update all gradients to reflect new text length
         requestAnimationFrame(() => {
           updateGradients();
+          // Smooth scroll to show the latest content after a short delay to allow for animation
+          setTimeout(() => {
+            scrollToLatest();
+          }, 100);
         });
       },
-      [createLetterElement, updateGradients]
+      [createLetterElement, updateGradients, scrollToLatest]
     );
 
     const reset = useCallback(() => {
@@ -366,6 +388,9 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
         display: flex;
         align-items: flex-start;
         justify-content: flex-start;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scroll-behavior: smooth;
       }
       .magic-text-inner {
         width: 100%;
@@ -456,7 +481,7 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
     return (
       <div className="magic-text-overlay bg-background" ref={magicTextRef}>
         <style>{css}</style>
-        <div className="magic-text-content">
+        <div className="magic-text-content" ref={scrollContainerRef}>
           <div className="magic-text-inner">
             <div className="magic-text-background">{originalText}</div>
             <div className="magic-text-letters" ref={containerRef}></div>
