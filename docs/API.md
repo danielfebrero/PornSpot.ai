@@ -19,9 +19,10 @@ The API is deployed using AWS API Gateway with the following structure:
 The API supports multiple authentication methods:
 
 1. **Session-based Authentication** - For user operations (login/logout with cookies)
-2. **Admin Authorization** - For administrative operations
-3. **User Authorization** - For user-specific operations
-4. **Public Access** - For reading public albums and media
+2. **JWT Token Authentication** - For WebSocket connections with time-limited tokens
+3. **Admin Authorization** - For administrative operations
+4. **User Authorization** - For user-specific operations
+5. **Public Access** - For reading public albums and media
 
 ```bash
 # Public endpoints (no authentication)
@@ -30,6 +31,10 @@ curl https://api.pornspot.ai/albums
 # User authenticated endpoints (requires session cookie)
 curl -H "Cookie: sessionId=..." \
      https://api.pornspot.ai/user/media
+
+# JWT token generation (for WebSocket authentication)
+curl -H "Cookie: sessionId=..." \
+     -X POST https://api.pornspot.ai/user/auth/generate-jwt
 
 # Admin endpoints (requires admin session)
 curl -H "Cookie: adminSessionId=..." \
@@ -870,6 +875,56 @@ End the current user session.
 POST /user/logout
 Cookie: sessionId=session-token-here
 ```
+
+### Generate JWT Token
+
+Generate a JWT token for WebSocket authentication. The token contains an encrypted userId and expires after 5 minutes.
+
+```http
+POST /user/auth/generate-jwt
+Cookie: sessionId=session-token-here
+```
+
+**Authentication:** Required - User session
+
+**Response:**
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbmNyeXB0ZWRVc2VySWQiOiIxMjM0NTY3ODkwYWJjZGVmOjEyMzQ1Njc4OTBhYmNkZWY6MTIzNDU2Nzg5MGFiY2RlZiIsImlhdCI6MTY5MTU4NzIwMCwiZXhwIjoxNjkxNTg3NTAwLCJpc3MiOiJwb3Juc3BvdC5haSJ9.signature",
+  "expiresIn": 300,
+  "tokenType": "Bearer"
+}
+```
+
+**Response Fields:**
+
+- `token` (string): JWT token with encrypted userId for WebSocket authentication
+- `expiresIn` (number): Token expiry time in seconds (300 = 5 minutes)
+- `tokenType` (string): Token type identifier ("Bearer")
+
+**Error Responses:**
+
+- `401 Unauthorized`: User session invalid or expired
+- `500 Internal Server Error`: Token generation failed
+
+**Usage:**
+
+This endpoint is primarily used for WebSocket authentication. The generated token should be included as a query parameter when establishing WebSocket connections:
+
+```javascript
+const { token } = await userApi.generateJwt();
+const ws = new WebSocket(`wss://api.pornspot.ai/ws?token=${encodeURIComponent(token)}`);
+```
+
+**Security Features:**
+
+- Token expires after 5 minutes for security
+- UserId is encrypted using AES-256-GCM within the JWT payload
+- JWT signed with HMAC-SHA256 for integrity verification
+- Secrets managed through AWS Parameter Store
+
+**See also:** [JWT WebSocket Authentication Documentation](./JWT_WEBSOCKET_AUTHENTICATION.md)
 
 ### Email Verification
 

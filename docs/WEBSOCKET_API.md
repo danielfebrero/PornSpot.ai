@@ -17,7 +17,31 @@ Connection entities are automatically cleaned up after 24 hours using DynamoDB T
 
 ### Authentication
 
-WebSocket connections support both authenticated and anonymous users:
+WebSocket connections support multiple authentication methods:
+
+#### JWT Token Authentication (Recommended)
+
+**New JWT-based authentication provides enhanced security with time-limited tokens:**
+
+- Generate JWT token before WebSocket connection: `POST /user/auth/generate-jwt`
+- Include token as query parameter: `wss://your-websocket-url?token=jwt_token`
+- Tokens expire after 5 minutes for security
+- UserId is encrypted within the JWT payload using AES-256-GCM
+
+**Frontend Implementation:**
+
+```typescript
+// Generate JWT token and connect
+const { token } = await userApi.generateJwt();
+const wsUrl = `wss://your-websocket-url?token=${encodeURIComponent(token)}`;
+const ws = new WebSocket(wsUrl);
+```
+
+**See detailed documentation**: [JWT WebSocket Authentication](./JWT_WEBSOCKET_AUTHENTICATION.md)
+
+#### Legacy Session Authentication
+
+WebSocket connections also support legacy session-based authentication:
 
 **Authenticated Connection:**
 

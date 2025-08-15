@@ -197,4 +197,18 @@ export const userApi = {
     }>("/user/profile/avatar/upload", { filename, contentType });
     return ApiUtil.extractData(response);
   },
+
+  // Generate JWT token for WebSocket authentication
+  generateJwt: async (): Promise<{
+    token: string;
+    expiresIn: string;
+    tokenType: string;
+  }> => {
+    const response = await ApiUtil.post<{
+      token: string;
+      expiresIn: string;
+      tokenType: string;
+    }>("/user/auth/generate-jwt");
+    return ApiUtil.extractData(response);
+  },
 };

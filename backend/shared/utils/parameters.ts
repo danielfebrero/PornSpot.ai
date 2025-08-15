@@ -214,9 +214,48 @@ export class ParameterStoreService {
 
     // In production, use Parameter Store
     const environment = process.env["ENVIRONMENT"] || "dev";
-    return await this.getParameter(
-      `/${environment}/openrouter-api-key`,
-      true
-    );
+    return await this.getParameter(`/${environment}/openrouter-api-key`, true);
+  }
+
+  /**
+   * Get the JWT Encryption Key from Parameter Store or environment variable
+   */
+  static async getJwtEncryptionKey(): Promise<string> {
+    // In local development, use environment variable directly
+    if (isLocal) {
+      const key = process.env["JWT_ENCRYPTION_KEY"];
+      if (!key) {
+        throw new Error(
+          "JWT_ENCRYPTION_KEY environment variable is required in local development"
+        );
+      }
+      console.log("Using local JWT_ENCRYPTION_KEY from environment variable");
+      return key;
+    }
+
+    // In production, use Parameter Store
+    const environment = process.env["ENVIRONMENT"] || "dev";
+    return await this.getParameter(`/${environment}/jwt-encryption-key`, true);
+  }
+
+  /**
+   * Get the JWT Secret from Parameter Store or environment variable
+   */
+  static async getJwtSecret(): Promise<string> {
+    // In local development, use environment variable directly
+    if (isLocal) {
+      const secret = process.env["JWT_SECRET"];
+      if (!secret) {
+        throw new Error(
+          "JWT_SECRET environment variable is required in local development"
+        );
+      }
+      console.log("Using local JWT_SECRET from environment variable");
+      return secret;
+    }
+
+    // In production, use Parameter Store
+    const environment = process.env["ENVIRONMENT"] || "dev";
+    return await this.getParameter(`/${environment}/jwt-secret`, true);
   }
 }

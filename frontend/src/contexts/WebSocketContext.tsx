@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import { WebSocketContextType } from "@/types/websocket";
 import { GenerationWebSocketMessage } from "@/types/shared-types/websocket";
+import { userApi } from "@/lib/api";
 
 const WebSocketContext = createContext<WebSocketContextType | null>(null);
 
@@ -27,7 +28,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
 
-  const getWebSocketUrl = useCallback(() => {
+  const getWebSocketUrl = useCallback(async () => {
     // In production, this would come from environment variables
     // For now, we'll use a placeholder that should be replaced with actual CloudFormation output
     let wsUrl =
@@ -35,30 +36,37 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       process.env.NEXT_PUBLIC_WEBSOCKET_API_URL ||
       "wss://your-websocket-api-id.execute-api.region.amazonaws.com/stage";
 
-    // Add session cookie as query parameter if available
+    // Generate JWT token for authenticated users before connecting
+    try {
+      console.log(
+        "🔑 Attempting to generate JWT token for WebSocket authentication"
+      );
+      const jwtResponse = await userApi.generateJwt();
+      const jwtToken = jwtResponse.token;
 
-    // TODO: get jwtToken
-    let jwtToken: string | undefined;
-
-    if (jwtToken) {
-      const separator = wsUrl.includes("?") ? "&" : "?";
-      wsUrl += `${separator}token=${jwtToken}`;
-      console.log("🍪 Added jwtToken token to WebSocket URL");
-    } else {
-      console.log("🔓 No jwtToken found, connecting as anonymous");
+      if (jwtToken) {
+        const separator = wsUrl.includes("?") ? "&" : "?";
+        wsUrl += `${separator}token=${jwtToken}`;
+        console.log("🍪 Added JWT token to WebSocket URL");
+      }
+    } catch (error) {
+      console.log(
+        "🔓 No JWT token available (user not authenticated), connecting as anonymous:",
+        error
+      );
     }
 
     console.log("WebSocket URL:", wsUrl.replace(/token=[^&]+/, "token=***"));
     return wsUrl;
   }, []);
 
-  const connect = useCallback(() => {
+  const connect = useCallback(async () => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       return;
     }
 
     try {
-      const wsUrl = getWebSocketUrl();
+      const wsUrl = await getWebSocketUrl();
       console.log("🔌 Connecting to WebSocket:", wsUrl);
 
       wsRef.current = new WebSocket(wsUrl);

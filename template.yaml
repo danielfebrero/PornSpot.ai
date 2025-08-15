@@ -1442,6 +1442,42 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
 
+  UserGenerateJwtFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-generate-jwt-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/auth/generate-jwt.handler"]
+      Events:
+        PostGenerateJwt:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/auth/generate-jwt
+            Method: POST
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsGenerateJwt:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/auth/generate-jwt
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/jwt-encryption-key"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/jwt-secret"
+
   UserProfileEditFunction:
     Type: AWS::Serverless::Function
     Properties:
