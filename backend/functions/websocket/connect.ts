@@ -11,6 +11,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { ConnectionEntity } from "@shared/shared-types/websocket";
+import { JWTService } from "@shared/utils/jwt";
 
 // Initialize DynamoDB client
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
@@ -55,7 +56,18 @@ export const handler = async (
       if (jwtToken) {
         console.log("🔑 Found JWT token in query parameters");
 
-        // TODO: implement jwtToken to userId
+        try {
+          // Verify and decode JWT token to extract userId
+          const decoded = await JWTService.verifyToken(jwtToken);
+          userId = decoded.userId;
+          console.log("✅ JWT token validated successfully, userId:", userId);
+        } catch (jwtError) {
+          console.error("❌ JWT token validation failed:", jwtError);
+          // Continue as anonymous connection if JWT validation fails
+          console.log("⚠️ Continuing as anonymous connection due to invalid JWT");
+        }
+      } else {
+        console.log("🔓 No JWT token found in query parameters");
       }
     } catch (error) {
       console.log("⚠️ Session validation error, treating as anonymous:", error);

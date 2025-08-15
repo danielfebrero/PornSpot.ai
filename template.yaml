@@ -324,6 +324,12 @@ Resources:
             TableName: !Ref MediaTable
         - DynamoDBWritePolicy:
             TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/jwt-secret"
 
   WebSocketDisconnectFunction:
     Type: AWS::Serverless::Function
@@ -1092,6 +1098,40 @@ Resources:
             TableName: !Ref MediaTable
         - DynamoDBWritePolicy:
             TableName: !Ref MediaTable
+
+  UserJWTTokenFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-jwt-token-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/auth/jwt-token.handler"]
+      Events:
+        PostJWTToken:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/auth/jwt-token
+            Method: POST
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsJWTToken:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/auth/jwt-token
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/jwt-secret"
+
   # Admin Album Management Functions
   AdminUpdateAlbumFunction:
     Type: AWS::Serverless::Function
