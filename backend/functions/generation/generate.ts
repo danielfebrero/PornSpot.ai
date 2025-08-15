@@ -469,8 +469,7 @@ async function sendOptimizationMessageToConnection(
     const command = new PostToConnectionCommand({
       ConnectionId: connectionId,
       Data: JSON.stringify({
-        type: "optimization_update",
-        data,
+        ...data,
         timestamp: new Date().toISOString(),
       }),
     });

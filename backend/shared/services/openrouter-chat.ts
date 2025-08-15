@@ -256,7 +256,7 @@ export class OpenRouterService {
 
     // Merge parameters
     const requestParams: OpenRouterChatRequest = {
-      model: request.model || "mistralai/mistral-medium-3.1",
+      model: request.model || "mistralai/mistral-small-3.2-24b-instruct",
       messages,
       stream: true,
       ...template.defaultParameters,
