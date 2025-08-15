@@ -26,6 +26,7 @@ interface UseGenerationReturn {
   optimizedPrompt: string | null;
   isOptimizing: boolean; // Add optimization state
   optimizationStream: string; // Add current optimization text
+  optimizationToken: string; // Add current optimization token
   generateImages: (request: GenerationRequest) => Promise<void>;
   optimizePrompt: (
     prompt: string,
@@ -57,6 +58,7 @@ export function useGeneration(): UseGenerationReturn {
   // New optimization state
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [optimizationStream, setOptimizationStream] = useState("");
+  const [optimizationToken, setOptimizationToken] = useState("");
 
   const { subscribe, unsubscribe, isConnected } = useWebSocket();
   const currentQueueIdRef = useRef<string | null>(null);
@@ -370,10 +372,8 @@ export function useGeneration(): UseGenerationReturn {
             console.log("optimization token", { message });
             const { optimizedPrompt, token } = message.optimizationData;
             setOptimizationStream(optimizedPrompt);
+            setOptimizationToken(token || "");
             setCurrentMessage(`Optimizing prompt...`);
-
-            // Call callback if available (for backward compatibility)
-            // This would be handled through the optimizationStream state now
           }
           break;
 
@@ -530,6 +530,7 @@ export function useGeneration(): UseGenerationReturn {
     setOptimizedPrompt(null);
     setIsOptimizing(false);
     setOptimizationStream("");
+    setOptimizationToken("");
 
     // Unsubscribe from any active subscriptions
     if (messageCallbackRef.current) {
@@ -560,6 +561,7 @@ export function useGeneration(): UseGenerationReturn {
     optimizedPrompt,
     isOptimizing,
     optimizationStream,
+    optimizationToken,
     generateImages,
     optimizePrompt,
     clearResults,

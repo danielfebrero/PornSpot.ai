@@ -126,6 +126,7 @@ export function GenerateClient() {
     optimizedPrompt, // Get optimized prompt from hook
     isOptimizing, // Get optimization state
     optimizationStream, // Get optimization stream
+    optimizationToken, // Get optimization token
     generateImages,
     clearResults,
   } = useGeneration();
@@ -312,7 +313,7 @@ export function GenerateClient() {
 
       // If magic text is showing, animate to the new optimized prompt
       if (showMagicText) {
-        handleCastSpell(optimizedPrompt);
+        // handleCastSpell(optimizedPrompt);
         // Update settings after a delay to let the animation play
         setTimeout(() => {
           setSettings((prev) => ({ ...prev, prompt: optimizedPrompt }));
@@ -326,26 +327,16 @@ export function GenerateClient() {
 
   // Handle optimization stream for real-time MagicText updates
   React.useEffect(() => {
-    console.log({
-      isOptimizing,
-      optimizationStream,
-      showMagicText,
-      ref: magicTextRef.current,
-    });
     if (
       isOptimizing &&
       optimizationStream &&
       showMagicText &&
-      magicTextRef.current
+      magicTextRef.current &&
+      optimizationToken
     ) {
-      // Update MagicText with current optimization stream
-      console.log(
-        "Casting spell, current optimization stream:",
-        optimizationStream
-      );
-      magicTextRef.current.castSpell(optimizationStream);
+      magicTextRef.current.streamToken(optimizationToken, optimizationStream);
     }
-  }, [optimizationStream, isOptimizing, showMagicText]);
+  }, [optimizationStream, isOptimizing, showMagicText, optimizationToken]);
 
   // Update allGeneratedImages when new images are generated and hide progress card
   React.useEffect(() => {
