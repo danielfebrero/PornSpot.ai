@@ -17,213 +17,289 @@ export interface MagicTextHandle {
   reset: () => void;
 }
 
+interface LetterState {
+  char: string;
+  element?: HTMLSpanElement;
+  isNew?: boolean;
+  animationComplete?: boolean;
+}
+
 export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
   ({ originalText }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const magicTextRef = useRef<HTMLDivElement>(null);
     const [isInitial, setIsInitial] = useState(true);
+    const lettersStateRef = useRef<LetterState[]>([]);
+    const currentTextRef = useRef<string>("");
 
-    const splitText = useCallback(
+    const createLetterElement = useCallback(
+      (char: string, index: number, isNewLetter: boolean = false) => {
+        const letterSpan = document.createElement("span");
+        letterSpan.classList.add("letter");
+        letterSpan.textContent =
+          char === " " ? "\u00A0" : char === "\n" ? "\n" : char;
+
+        if (char === "\n") {
+          letterSpan.style.whiteSpace = "pre";
+        }
+
+        // Apply gradient based on position in the full text
+        const hueStart = 280; // Purple
+        const hueEnd = 320; // Pink/Purple
+        const textLength = currentTextRef.current.length || 1;
+        const hue = hueStart + (index / textLength) * (hueEnd - hueStart);
+        letterSpan.style.background = `linear-gradient(135deg, hsl(${hue}, 70%, 60%), hsl(${
+          hue + 20
+        }, 70%, 70%))`;
+        letterSpan.style.webkitBackgroundClip = "text";
+        letterSpan.style.backgroundClip = "text";
+        letterSpan.style.webkitTextFillColor = "transparent";
+
+        if (isNewLetter) {
+          // Start with invisible state for magic entrance
+          letterSpan.style.opacity = "0";
+          letterSpan.style.transform = `translate(${
+            Math.random() * 60 - 30
+          }px, ${Math.random() * 60 - 30}px) rotate(${
+            Math.random() * 360 - 180
+          }deg) scale(0.5)`;
+          letterSpan.classList.add("morphing-in");
+
+          // Animate in with magic effect
+          setTimeout(() => {
+            letterSpan.style.transform =
+              "translate(0, 0) rotate(0deg) scale(1)";
+            letterSpan.style.opacity = "1";
+            letterSpan.classList.add("magic-glow");
+
+            setTimeout(() => {
+              letterSpan.classList.remove("morphing-in");
+              letterSpan.classList.remove("magic-glow");
+            }, 600);
+          }, 10);
+        }
+
+        return letterSpan;
+      },
+      []
+    );
+
+    const updateGradients = useCallback(() => {
+      // Update all existing letters' gradients based on their position in the full text
+      lettersStateRef.current.forEach((letterState, index) => {
+        if (
+          letterState.element &&
+          !letterState.element.classList.contains("morphing-out")
+        ) {
+          const hueStart = 280;
+          const hueEnd = 320;
+          const textLength = currentTextRef.current.length || 1;
+          const hue = hueStart + (index / textLength) * (hueEnd - hueStart);
+          letterState.element.style.background = `linear-gradient(135deg, hsl(${hue}, 70%, 60%), hsl(${
+            hue + 20
+          }, 70%, 70%))`;
+        }
+      });
+    }, []);
+
+    const initializeText = useCallback(
       (text: string) => {
-        if (containerRef.current) {
-          // Set the text content for the background gradient
-          const backgroundTextEl = containerRef.current
-            .previousElementSibling as HTMLElement;
-          if (backgroundTextEl) {
-            backgroundTextEl.textContent = text;
+        if (!containerRef.current) return;
+
+        currentTextRef.current = text;
+
+        // Update background text
+        const backgroundTextEl = containerRef.current
+          .previousElementSibling as HTMLElement;
+        if (backgroundTextEl) {
+          backgroundTextEl.textContent = text;
+        }
+
+        // Clear existing content
+        containerRef.current.innerHTML = "";
+        lettersStateRef.current = [];
+
+        // Create initial letters
+        text.split("").forEach((char, index) => {
+          const letterSpan = createLetterElement(char, index, false);
+
+          if (text === originalText && isInitial) {
+            letterSpan.classList.add("initial-magic");
+            const totalInitialTime = 1500;
+            const letterDelay = Math.min(
+              50,
+              totalInitialTime / Math.max(text.length, 1)
+            );
+            letterSpan.style.animationDelay = `${index * letterDelay}ms`;
           }
 
-          // Create word-based spans with individual letter spans inside for animation
-          containerRef.current.innerHTML = "";
-          let letterIndex = 0;
-
-          // Split text into words and spaces, preserving whitespace
-          const segments = text.split(/(\s+|\n)/);
-
-          segments.forEach((segment) => {
-            if (segment.length === 0) return;
-
-            // Create a word container span
-            const wordSpan = document.createElement("span");
-            wordSpan.classList.add("word");
-            wordSpan.style.display = "inline-block";
-            wordSpan.style.whiteSpace = segment.match(/^\s+$/)
-              ? "pre"
-              : "nowrap";
-
-            // Split segment into individual letters
-            segment.split("").forEach((char) => {
-              const letterSpan = document.createElement("span");
-              letterSpan.classList.add("letter");
-              letterSpan.textContent = char === " " ? "\u00A0" : char;
-
-              // Handle line breaks
-              if (char === "\n") {
-                letterSpan.style.whiteSpace = "pre";
-              }
-
-              if (text === originalText && isInitial) {
-                letterSpan.classList.add("initial-magic");
-                // Calculate delay to make full text appear in 1.5 seconds
-                const totalInitialTime = 1500; // 1.5 seconds
-                const letterDelay = Math.min(
-                  50,
-                  totalInitialTime / Math.max(text.length, 1)
-                );
-                letterSpan.style.animationDelay = `${
-                  letterIndex * letterDelay
-                }ms`;
-              }
-
-              wordSpan.appendChild(letterSpan);
-              letterIndex++;
-            });
-
-            containerRef.current!.appendChild(wordSpan);
-          });
-        }
+          containerRef.current!.appendChild(letterSpan);
+          lettersStateRef.current.push({ char, element: letterSpan });
+        });
       },
-      [originalText, isInitial]
+      [originalText, isInitial, createLetterElement]
     );
 
     const streamToken = useCallback(
       (token: string, fullText: string) => {
         if (!containerRef.current) return;
 
-        // Update the background text
+        currentTextRef.current = fullText;
+
+        // Update background text
         const backgroundTextEl = containerRef.current
           .previousElementSibling as HTMLElement;
         if (backgroundTextEl) {
           backgroundTextEl.textContent = fullText;
         }
 
-        // Update the visible text content progressively
-        splitText(fullText);
-        const letters = containerRef.current.querySelectorAll(
-          ".letter"
-        ) as NodeListOf<HTMLSpanElement>;
+        // Calculate how many new characters to add
+        const currentLength = lettersStateRef.current.length;
+        const newChars = fullText.slice(currentLength);
 
-        // Add streaming effect to new letters
-        letters.forEach((letter, index) => {
-          letter.classList.add("streaming");
-          letter.style.opacity = "1";
-          letter.style.transform = "translate(0, 0) rotate(0deg)";
+        if (newChars.length === 0) return;
 
-          // Add a subtle animation delay for streaming effect
-          setTimeout(() => {
-            letter.classList.remove("streaming");
-          }, index * 20);
+        // Add new letters with magic effect
+        newChars.split("").forEach((char, localIndex) => {
+          const globalIndex = currentLength + localIndex;
+          const letterSpan = createLetterElement(char, globalIndex, true);
+
+          containerRef.current!.appendChild(letterSpan);
+          lettersStateRef.current.push({
+            char,
+            element: letterSpan,
+            isNew: true,
+          });
         });
+
+        // Update all gradients to reflect new text length
+        updateGradients();
       },
-      [splitText]
+      [createLetterElement, updateGradients]
     );
 
-    const reset = () => {
+    const reset = useCallback(() => {
       setIsInitial(true);
-    };
-    const castSpell = (targetText: string) => {
-      if (!containerRef.current || !targetText) return;
-      const letters = containerRef.current.querySelectorAll(
-        ".letter"
-      ) as NodeListOf<HTMLSpanElement>;
-
-      if (isInitial) {
-        setIsInitial(false);
+      lettersStateRef.current = [];
+      currentTextRef.current = "";
+      if (containerRef.current) {
+        containerRef.current.innerHTML = "";
       }
+    }, []);
 
-      // Remove initial magic if present
-      letters.forEach((letter) => {
-        letter.classList.remove("initial-magic");
-      });
+    const castSpell = useCallback(
+      (targetText: string) => {
+        if (!containerRef.current || !targetText) return;
 
-      // Animate out
-      letters.forEach((letter, index) => {
-        setTimeout(() => {
-          letter.classList.add("morphing");
-          letter.style.transform = `translate(${Math.random() * 100 - 50}px, ${
-            Math.random() * 100 - 50
-          }px) rotate(${Math.random() * 360 - 180}deg)`;
-          letter.style.opacity = "0";
-        }, index * 50);
-      });
-
-      // Create particles
-      const rect = containerRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      for (let i = 0; i < 30; i++) {
-        const particle = document.createElement("div");
-        particle.classList.add("particle");
-        document.body.appendChild(particle);
-        particle.style.left = `${centerX}px`;
-        particle.style.top = `${centerY}px`;
-        particle.style.opacity = "0";
-
-        setTimeout(() => {
-          particle.style.opacity = "1";
-          particle.style.transform = `translate(${
-            Math.random() * 120 - 60
-          }px, ${Math.random() * 120 - 60}px) scale(${
-            Math.random() * 0.8 + 0.4
-          })`;
-          setTimeout(() => {
-            particle.style.opacity = "0";
-            setTimeout(() => particle.remove(), 300);
-          }, 400);
-        }, Math.random() * 300);
-      }
-
-      // After out animation, animate in new text
-      setTimeout(() => {
-        // Update background text first
-        const backgroundTextEl = containerRef.current!
-          .previousElementSibling as HTMLElement;
-        if (backgroundTextEl) {
-          backgroundTextEl.textContent = targetText;
+        if (isInitial) {
+          setIsInitial(false);
         }
 
-        splitText(targetText);
-        const newLetters = containerRef.current!.querySelectorAll(
-          ".letter"
-        ) as NodeListOf<HTMLSpanElement>;
+        const currentLetters = lettersStateRef.current;
 
-        // Calculate delay to make full text appear in 1.5 seconds
-        const totalAnimationTime = 1500; // 1.5 seconds
-        const letterDelay = Math.min(
-          50,
-          totalAnimationTime / Math.max(newLetters.length, 1)
-        );
+        // Animate out existing letters
+        currentLetters.forEach((letterState, index) => {
+          if (letterState.element) {
+            letterState.element.classList.remove("initial-magic");
 
-        newLetters.forEach((letter, index) => {
-          letter.classList.add("morphing");
-          letter.style.transform = `translate(${Math.random() * 100 - 50}px, ${
-            Math.random() * 100 - 50
-          }px) rotate(${Math.random() * 360 - 180}deg)`;
-          letter.style.opacity = "0";
-          setTimeout(() => {
-            letter.style.transform = "translate(0, 0) rotate(0deg)";
-            letter.style.opacity = "1";
             setTimeout(() => {
-              letter.classList.remove("morphing");
-
-              // Start gradual disappearance after animation completes
-              letter.style.transition = "opacity 300ms ease-out";
-              letter.style.opacity = "0";
-
-              const mtr = magicTextRef.current;
-              if (mtr) {
-                mtr.style.transition = "opacity 300ms ease-out";
-                mtr.style.opacity = "0";
+              if (letterState.element) {
+                letterState.element.classList.add("morphing-out");
+                letterState.element.style.transform = `translate(${
+                  Math.random() * 100 - 50
+                }px, ${Math.random() * 100 - 50}px) rotate(${
+                  Math.random() * 360 - 180
+                }deg) scale(0)`;
+                letterState.element.style.opacity = "0";
               }
-            }, 500);
-          }, index * letterDelay);
+            }, index * 30);
+          }
         });
-      }, letters.length * 50 + 500);
-    };
+
+        // Create magical particles
+        const rect = containerRef.current.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        for (let i = 0; i < 30; i++) {
+          const particle = document.createElement("div");
+          particle.classList.add("particle");
+          document.body.appendChild(particle);
+          particle.style.left = `${centerX}px`;
+          particle.style.top = `${centerY}px`;
+          particle.style.opacity = "0";
+
+          setTimeout(() => {
+            particle.style.opacity = "1";
+            particle.style.transform = `translate(${
+              Math.random() * 120 - 60
+            }px, ${Math.random() * 120 - 60}px) scale(${
+              Math.random() * 0.8 + 0.4
+            })`;
+            setTimeout(() => {
+              particle.style.opacity = "0";
+              setTimeout(() => particle.remove(), 300);
+            }, 400);
+          }, Math.random() * 300);
+        }
+
+        // After out animation, create new text
+        setTimeout(() => {
+          // Clear old letters
+          containerRef.current!.innerHTML = "";
+          lettersStateRef.current = [];
+          currentTextRef.current = targetText;
+
+          // Update background text
+          const backgroundTextEl = containerRef.current!
+            .previousElementSibling as HTMLElement;
+          if (backgroundTextEl) {
+            backgroundTextEl.textContent = targetText;
+          }
+
+          // Create new letters with magical entrance
+          const totalAnimationTime = 1500;
+          const letterDelay = Math.min(
+            50,
+            totalAnimationTime / Math.max(targetText.length, 1)
+          );
+
+          targetText.split("").forEach((char, index) => {
+            const letterSpan = createLetterElement(char, index, false);
+            letterSpan.classList.add("morphing-in");
+            letterSpan.style.transform = `translate(${
+              Math.random() * 100 - 50
+            }px, ${Math.random() * 100 - 50}px) rotate(${
+              Math.random() * 360 - 180
+            }deg) scale(0)`;
+            letterSpan.style.opacity = "0";
+
+            containerRef.current!.appendChild(letterSpan);
+            lettersStateRef.current.push({ char, element: letterSpan });
+
+            setTimeout(() => {
+              letterSpan.style.transform =
+                "translate(0, 0) rotate(0deg) scale(1)";
+              letterSpan.style.opacity = "1";
+              letterSpan.classList.add("magic-glow");
+
+              setTimeout(() => {
+                letterSpan.classList.remove("morphing-in");
+                letterSpan.classList.remove("magic-glow");
+              }, 500);
+            }, index * letterDelay);
+          });
+
+          // Update gradients for new text
+          updateGradients();
+        }, currentLetters.length * 30 + 500);
+      },
+      [isInitial, createLetterElement, updateGradients]
+    );
 
     useEffect(() => {
-      splitText(originalText);
-    }, [originalText, splitText]);
+      initializeText(originalText);
+    }, [originalText, initializeText]);
 
     useImperativeHandle(ref, () => ({
       castSpell,
@@ -286,71 +362,66 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
         word-break: normal;
         overflow-wrap: normal;
         z-index: 1;
+        opacity: 0.1;
       }
       .magic-text-letters {
         position: relative;
         z-index: 2;
-        background: hsl(var(--background));
-      }
-      .word {
-        display: inline-block;
       }
       .letter {
         display: inline-block;
-        transition: transform 0.5s ease, opacity 0.5s ease, text-shadow 0.3s ease;
+        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                    opacity 0.6s ease,
+                    filter 0.3s ease;
         vertical-align: baseline;
+        will-change: transform, opacity;
       }
-      .letter.morphing {
-        background: linear-gradient(to right, hsl(var(--primary)), #9333ea);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 10px hsl(var(--primary));
+      .letter.morphing-in {
+        filter: drop-shadow(0 0 15px currentColor) brightness(1.5);
       }
-      .letter.streaming {
-        background: linear-gradient(to right, hsl(var(--primary)), #9333ea);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 5px hsl(var(--primary));
-        animation: streamingGlow 0.5s ease-in-out;
+      .letter.morphing-out {
+        filter: blur(2px);
+      }
+      .letter.magic-glow {
+        animation: magicGlow 0.6s ease-in-out;
       }
       .letter.initial-magic {
         animation: magicalFloat 2s infinite ease-in-out;
       }
-      @keyframes streamingGlow {
+      @keyframes magicGlow {
         0% {
-          filter: drop-shadow(0 0 2px hsl(var(--primary)));
-          transform: scale(1.05);
+          filter: drop-shadow(0 0 5px currentColor) brightness(1);
         }
         50% {
-          filter: drop-shadow(0 0 8px hsl(var(--primary)));
-          transform: scale(1.1);
+          filter: drop-shadow(0 0 20px currentColor) brightness(1.8) contrast(1.2);
+          transform: scale(1.15);
         }
         100% {
-          filter: drop-shadow(0 0 3px hsl(var(--primary)));
+          filter: drop-shadow(0 0 8px currentColor) brightness(1.2);
           transform: scale(1);
         }
       }
       @keyframes magicalFloat {
         0%, 100% {
           transform: translateY(0px);
-          filter: drop-shadow(0 0 3px hsl(var(--primary)));
+          filter: drop-shadow(0 0 3px currentColor) brightness(1.1);
         }
         50% {
-          transform: translateY(-1px);
-          filter: drop-shadow(0 0 6px hsl(var(--primary)));
+          transform: translateY(-2px);
+          filter: drop-shadow(0 0 8px currentColor) brightness(1.3);
         }
       }
       .particle {
         position: fixed;
-        width: 3px;
-        height: 3px;
-        background: hsl(var(--primary));
+        width: 4px;
+        height: 4px;
+        background: radial-gradient(circle, hsl(var(--primary)), transparent);
         border-radius: 50%;
         pointer-events: none;
-        transition: transform 0.5s ease-out, opacity 0.5s ease;
+        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                    opacity 0.6s ease;
         z-index: 9999;
+        filter: blur(0.5px);
       }
     `;
 
