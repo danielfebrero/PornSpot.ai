@@ -443,6 +443,10 @@ export function useGeneration(): UseGenerationReturn {
         setCurrentMessage("Submitting request...");
         setQueueStatus(null);
 
+        // Subscribe to WebSocket updates for this generation
+        messageCallbackRef.current = handleWebSocketMessage;
+        subscribe(handleWebSocketMessage);
+
         const result = await generateApi.generate(request);
 
         console.log("✅ Generation request submitted:", result);
@@ -473,9 +477,6 @@ export function useGeneration(): UseGenerationReturn {
 
         setCurrentMessage(result.message);
 
-        // Subscribe to WebSocket updates for this generation
-        messageCallbackRef.current = handleWebSocketMessage;
-        subscribe(handleWebSocketMessage);
         currentQueueIdRef.current = result.queueId;
       } catch (err) {
         console.error("❌ Generation request failed:", err);
