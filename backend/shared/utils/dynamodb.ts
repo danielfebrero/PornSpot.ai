@@ -362,24 +362,26 @@ export class DynamoDBService {
     const queryParams: QueryCommandInput = {
       TableName: TABLE_NAME,
       IndexName: "isPublic-createdAt-index",
-      KeyConditionExpression:
-        "#isPublic = :isPublic AND #EntityType = :EntityType",
+      KeyConditionExpression: "#isPublic = :isPublic",
       ExpressionAttributeNames: {
         "#isPublic": "isPublic",
-        "#EntityType": "EntityType",
+        "#entityType": "EntityType",
       },
       ExpressionAttributeValues: {
         ":isPublic": isPublicString,
-        ":EntityType": "Album",
+        ":entityType": "Album",
       },
       ScanIndexForward: false, // Most recent first
       Limit: limit,
       ExclusiveStartKey: lastEvaluatedKey,
+      // Filter to only return Album entities, not Media entities
+      FilterExpression: "#entityType = :entityType",
     };
 
     // Add tag filtering if specified
     if (tag) {
-      queryParams.FilterExpression = "contains(#tags, :tag)";
+      queryParams.FilterExpression =
+        queryParams.FilterExpression + " AND contains(#tags, :tag)";
       queryParams.ExpressionAttributeNames!["#tags"] = "tags";
       queryParams.ExpressionAttributeValues![":tag"] = tag;
     }
