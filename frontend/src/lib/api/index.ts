@@ -6,11 +6,12 @@ export { adminAlbumsApi } from "./admin-albums";
 export { mediaApi } from "./media";
 export { contentApi } from "./content";
 
-// Export API_URL for backward compatibility
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_URL) {
-  throw new Error("NEXT_PUBLIC_API_URL is not set");
+// Build-time validation only
+if (typeof process.env.NEXT_PUBLIC_API_URL === "undefined") {
+  console.error("Warning: NEXT_PUBLIC_API_URL is not set");
 }
+
+// Export with fallback or non-null assertion
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.pornspot.ai";
 
 export default API_URL;
