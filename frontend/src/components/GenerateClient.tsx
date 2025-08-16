@@ -307,11 +307,13 @@ export function GenerateClient() {
 
   // Update prompt when optimized prompt is received from backend
   React.useEffect(() => {
-    // Cache the optimized prompt
-    setOptimizedPromptCache(optimizationStream);
+    if (optimizationStream !== null) {
+      // Cache the optimized prompt
+      setOptimizedPromptCache(optimizationStream);
 
-    // Update the settings immediately if magic text is not showing
-    setSettings((prev) => ({ ...prev, prompt: optimizationStream }));
+      // Update the settings immediately if magic text is not showing
+      setSettings((prev) => ({ ...prev, prompt: optimizationStream }));
+    }
   }, [optimizationStream]);
 
   // Handle optimization stream for real-time MagicText updates

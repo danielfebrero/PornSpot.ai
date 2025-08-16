@@ -25,8 +25,8 @@ interface UseGenerationReturn {
   currentNodeIndex: number;
   optimizedPrompt: string | null;
   isOptimizing: boolean; // Add optimization state
-  optimizationStream: string; // Add current optimization text
-  optimizationToken: string; // Add current optimization token
+  optimizationStream: string | null; // Add current optimization text
+  optimizationToken: string | null; // Add current optimization token
   generateImages: (request: GenerationRequest) => Promise<void>;
   optimizePrompt: (
     prompt: string,
@@ -57,8 +57,12 @@ export function useGeneration(): UseGenerationReturn {
 
   // New optimization state
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const [optimizationStream, setOptimizationStream] = useState("");
-  const [optimizationToken, setOptimizationToken] = useState("");
+  const [optimizationStream, setOptimizationStream] = useState<string | null>(
+    null
+  );
+  const [optimizationToken, setOptimizationToken] = useState<string | null>(
+    null
+  );
 
   const { subscribe, unsubscribe, isConnected } = useWebSocket();
   const currentQueueIdRef = useRef<string | null>(null);
@@ -550,7 +554,7 @@ export function useGeneration(): UseGenerationReturn {
     setCurrentNodeIndex(0);
     setOptimizedPrompt(null);
     setIsOptimizing(false);
-    setOptimizationStream("");
+    setOptimizationStream(null);
     setOptimizationToken("");
 
     // Unsubscribe from any active subscriptions
