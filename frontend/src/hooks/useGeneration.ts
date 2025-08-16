@@ -388,6 +388,24 @@ export function useGeneration(): UseGenerationReturn {
           setIsOptimizing(false);
           break;
 
+        case "prompt-moderation":
+          console.log("❌ Prompt moderation failed:", message);
+          setIsOptimizing(false);
+          setIsGenerating(false);
+          if (message.status === "refused") {
+            const reason = message.reason || "Content violates platform rules";
+            setError(`Prompt rejected: ${reason}`);
+            setCurrentMessage("Please try a different prompt");
+            // Reset state so user can try again
+            setQueueStatus(null);
+            setProgress(0);
+            setCurrentNode("");
+            setNodeState("");
+            setOptimizationStream("");
+            setOptimizedPrompt(null);
+          }
+          break;
+
         case "optimization_error":
           console.error("❌ Prompt optimization failed:", message.error);
           setIsOptimizing(false);

@@ -370,8 +370,18 @@ async function handlePromptOptimization(
       });
     }
 
-    // Get the stream from OpenRouter
-    const stream = await openRouterService.chatCompletionStream({
+    // Start both moderation and optimization in parallel
+    const moderationPromise = openRouterService.chatCompletion({
+      instructionTemplate: "prompt-moderation",
+      userMessage: validatedPrompt.trim(),
+      model: "mistralai/mistral-medium-3.1",
+      parameters: {
+        temperature: 0.1,
+        max_tokens: 256,
+      },
+    });
+
+    const optimizationStreamPromise = openRouterService.chatCompletionStream({
       instructionTemplate: "prompt-optimization",
       userMessage: validatedPrompt.trim(),
       model: "mistralai/mistral-medium-3.1",
@@ -381,26 +391,100 @@ async function handlePromptOptimization(
       },
     });
 
-    // Stream the optimization tokens via WebSocket directly to connection
-    for await (const token of stream) {
-      optimizedPrompt += token;
-      if (connectionId) {
-        await sendOptimizationMessageToConnection(connectionId, {
-          type: "optimization_token",
-          optimizationData: {
-            originalPrompt: validatedPrompt.trim(),
-            optimizedPrompt,
-            token,
-            completed: false,
-          },
-        });
+    // Get the stream and start streaming immediately
+    const stream = await optimizationStreamPromise;
+
+    let moderationPassed = false;
+    let moderationChecked = false;
+    let shouldStopStreaming = false;
+    let moderationError: string | null = null;
+
+    // Start streaming tokens while checking moderation concurrently
+    const streamingPromise = (async () => {
+      for await (const token of stream) {
+        // Check if we should stop streaming due to moderation failure
+        if (shouldStopStreaming) {
+          console.log(
+            "🛑 Stopping optimization streaming due to moderation failure"
+          );
+          break;
+        }
+
+        optimizedPrompt += token;
+        if (connectionId) {
+          await sendOptimizationMessageToConnection(connectionId, {
+            type: "optimization_token",
+            optimizationData: {
+              originalPrompt: validatedPrompt.trim(),
+              optimizedPrompt,
+              token,
+              completed: false,
+            },
+          });
+        }
       }
+      return optimizedPrompt.trim();
+    })();
+
+    // Check moderation result as soon as it's available
+    moderationPromise
+      .then((moderationResponse) => {
+        const moderationContent = moderationResponse.content.trim();
+        moderationChecked = true;
+
+        if (moderationContent !== "OK") {
+          console.log("❌ Prompt rejected by moderation:", moderationContent);
+
+          // Extract reason from JSON response using regex
+          let reason = "Content violates platform rules";
+          const jsonMatch = moderationContent.match(
+            /\{[^}]*"reason"\s*:\s*"([^"]+)"[^}]*\}/
+          );
+          if (jsonMatch && jsonMatch[1]) {
+            reason = jsonMatch[1];
+          }
+
+          moderationError = reason;
+          shouldStopStreaming = true;
+          moderationPassed = false;
+        } else {
+          console.log("✅ Prompt passed moderation check");
+          moderationPassed = true;
+        }
+      })
+      .catch((error) => {
+        console.error("❌ Moderation check failed:", error);
+        moderationError = "Moderation check failed";
+        shouldStopStreaming = true;
+        moderationPassed = false;
+        moderationChecked = true;
+      });
+
+    // Wait for streaming to complete
+    await streamingPromise;
+
+    // Wait for moderation to complete if it hasn't already
+    if (!moderationChecked) {
+      await moderationPromise;
     }
 
-    // Send completion event with final optimized prompt directly to connection
+    // If moderation failed, send rejection message and throw error
+    if (!moderationPassed) {
+      if (connectionId) {
+        await sendOptimizationMessageToConnection(connectionId, {
+          type: "prompt-moderation",
+          status: "refused",
+          reason: moderationError || "Content violates platform rules",
+        });
+      }
+      throw new Error(`Prompt moderation failed: ${moderationError}`);
+    }
+
     const optimizedPromptResult = optimizedPrompt.trim();
     const finalPrompt = optimizedPromptResult;
 
+    // Send completion event with final optimized prompt directly to connection
+    // Only send this after both moderation and optimization are complete
     if (connectionId) {
       await sendOptimizationMessageToConnection(connectionId, {
         type: "optimization_complete",

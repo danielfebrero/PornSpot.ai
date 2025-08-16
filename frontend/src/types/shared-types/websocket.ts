@@ -19,7 +19,8 @@ export interface GenerationWebSocketMessage {
     | "optimization_start"
     | "optimization_token"
     | "optimization_complete"
-    | "optimization_error";
+    | "optimization_error"
+    | "prompt-moderation";
   queueId?: string;
   queuePosition?: number;
   estimatedWaitTime?: number;
@@ -57,6 +58,10 @@ export interface GenerationWebSocketMessage {
     token?: string;
     completed: boolean;
   };
+
+  // Prompt moderation data for prompt-moderation type
+  status?: "refused";
+  reason?: string;
 }
 
 export interface ConnectionEntity {
