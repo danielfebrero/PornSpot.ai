@@ -140,6 +140,9 @@ Resources:
         StreamViewType: NEW_AND_OLD_IMAGES
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      TimeToLiveSpecification:
+        Enabled: true
+        AttributeName: ttl
 
   # S3 Bucket for media storage
   MediaBucket:
