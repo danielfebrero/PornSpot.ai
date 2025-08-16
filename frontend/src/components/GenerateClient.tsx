@@ -101,7 +101,6 @@ export function GenerateClient() {
   const [showProgressCard, setShowProgressCard] = useState(false);
 
   // Track optimization state to prevent re-optimizing the same prompt
-  const [lastOptimizedPrompt, setLastOptimizedPrompt] = useState<string>("");
   const [optimizedPromptCache, setOptimizedPromptCache] = useState<string>("");
   const [
     originalPromptBeforeOptimization,
@@ -123,7 +122,6 @@ export function GenerateClient() {
     isRetrying,
     workflowNodes,
     currentNodeIndex,
-    optimizedPrompt, // Get optimized prompt from hook
     isOptimizing, // Get optimization state
     optimizationStream, // Get optimization stream
     optimizationToken, // Get optimization token
@@ -159,7 +157,6 @@ export function GenerateClient() {
     if (key === "prompt") {
       // Only clear cache if the new prompt is different from both the original and optimized versions
       if (value !== optimizationStream) {
-        setLastOptimizedPrompt("");
         setOptimizedPromptCache("");
         setOriginalPromptBeforeOptimization("");
       }
@@ -253,7 +250,6 @@ export function GenerateClient() {
         prompt: originalPromptBeforeOptimization,
       }));
       // Clear the optimization cache since we're reverting
-      setLastOptimizedPrompt("");
       setOptimizedPromptCache("");
       setOriginalPromptBeforeOptimization("");
     }
@@ -289,7 +285,6 @@ export function GenerateClient() {
       magicTextRef.current?.startStreaming();
       // Store the original prompt before optimization for potential reversion
       setOriginalPromptBeforeOptimization(settings.prompt);
-      setLastOptimizedPrompt(settings.prompt);
     }
 
     // Clear any previous results
@@ -331,14 +326,14 @@ export function GenerateClient() {
   }, [generatedImages]);
 
   // Also hide progress card if generation fails
-  React.useEffect(() => {
-    if (error && !isGenerating) {
-      // Keep the progress card visible for a moment to show the error, then hide
-      setTimeout(() => {
-        setShowProgressCard(false);
-      }, 3000);
-    }
-  }, [error, isGenerating]);
+  // React.useEffect(() => {
+  //   if (error && !isGenerating) {
+  //     // Keep the progress card visible for a moment to show the error, then hide
+  //     setTimeout(() => {
+  //       setShowProgressCard(false);
+  //     }, 3000);
+  //   }
+  // }, [error, isGenerating]);
 
   return (
     <div

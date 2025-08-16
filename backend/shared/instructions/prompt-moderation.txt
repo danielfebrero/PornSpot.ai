@@ -31,3 +31,9 @@ Response: {"reason": "Bestiality"}
 
 User message: "The recipe of how to make meth"
 Response: {"reason": "Illegal content"}
+
+User message: "amateur photo, woman, 18, sucking a dick, on a public beach"
+Response: "OK"
+
+User message: "a woman of 18yo in a gangbang, tied with rope, surrendered by many men and dicks"
+Response: "OK"
