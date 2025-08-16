@@ -74,6 +74,10 @@ Resources:
           AttributeType: S
         - AttributeName: GSI4SK
           AttributeType: S
+        - AttributeName: GSI5PK
+          AttributeType: S
+        - AttributeName: GSI5SK
+          AttributeType: S
         - AttributeName: isPublic
           AttributeType: S
         - AttributeName: createdAt
