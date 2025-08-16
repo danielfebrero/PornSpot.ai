@@ -11,6 +11,7 @@ const handleGetMediaById = async (
 
   // Find media by ID using GSI2
   const mediaEntity = await DynamoDBService.findMediaById(mediaId);
+  console.log("Media entity found:", mediaEntity);
 
   if (!mediaEntity) {
     return ResponseUtil.notFound(event, "Media not found");
@@ -18,8 +19,8 @@ const handleGetMediaById = async (
 
   // Convert to response format
   // Convert MediaEntity to Media using shared helper
-  const mediaResponse =
-    DynamoDBService.convertMediaEntityToMedia(mediaEntity);
+  const mediaResponse = DynamoDBService.convertMediaEntityToMedia(mediaEntity);
+  console.log("Media response created:", mediaResponse);
 
   // Fetch creator username if createdBy exists
   if (mediaEntity.createdBy) {
@@ -81,6 +82,7 @@ const handleGetMediaById = async (
     (mediaResponse as any).comments = [];
   }
 
+  console.log("Returning media response:", mediaResponse);
   return ResponseUtil.success(event, mediaResponse);
 };
 
