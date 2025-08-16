@@ -240,6 +240,10 @@ export function createComfyUIWorkflow(
         console.log("Found node: ", workflow[nodeId]);
         // workflow[nodeId].inputs["strength_clip"] = lora.strength;
       } else {
+        // Replace with proper logging framework in production
+        // Example using winston:
+        // import { logger } from '../../utils/logger';
+        // logger.warn(`LoRA "${lora.name}" not found in workflow template`);
         console.warn(`LoRA "${lora.name}" not found in workflow template`);
       }
     });
