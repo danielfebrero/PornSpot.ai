@@ -15,3 +15,5 @@
 [ ] Sur la page generate, le plan se charge pas des fois, certaines fois il disparait completement après un certain usage je crois, et des fois le plan apparait correctement (le pro).
 
 [ ] From user Albums page, delete album do not close the popup immediately.
+
+[ ] Cannot open media page of a generated media, error 500.

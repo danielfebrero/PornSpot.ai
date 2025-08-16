@@ -206,7 +206,10 @@ export class ComfyUIClientService extends EventEmitter {
               this.retryConfig.timeoutMs
             );
 
-            console.log({ promptRequest });
+            console.log(
+              "submiting prompt: ",
+              JSON.stringify({ workflow, promptRequest })
+            );
 
             const response = await fetch(`${this.baseUrl}/prompt`, {
               method: "POST",

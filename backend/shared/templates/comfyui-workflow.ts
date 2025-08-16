@@ -45,13 +45,13 @@ export function createComfyUIWorkflow(
 ): ComfyUIWorkflow {
   const {
     prompt,
-    negativePrompt = "",
-    width = 1024,
-    height = 1024,
-    batchSize = 1,
+    negativePrompt = DEFAULT_WORKFLOW_PARAMS.negativePrompt!,
+    width = DEFAULT_WORKFLOW_PARAMS.width!,
+    height = DEFAULT_WORKFLOW_PARAMS.height!,
+    batchSize = DEFAULT_WORKFLOW_PARAMS.batchSize!,
     seed = Math.floor(Math.random() * 1000000),
-    steps = 30,
-    cfgScale = 4.5,
+    steps = DEFAULT_WORKFLOW_PARAMS.steps!,
+    cfgScale = DEFAULT_WORKFLOW_PARAMS.cfgScale!,
     sampler = "dpmpp_3m_sde_gpu",
     scheduler = "exponential",
   } = params;

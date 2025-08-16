@@ -182,7 +182,7 @@ export const handler = async (
     // Create workflow parameters
     const workflowParams: WorkflowParameters = {
       prompt: queueItem.prompt,
-      negativePrompt: undefined,
+      negativePrompt: queueItem.parameters.negativePrompt,
       width: queueItem.parameters.width,
       height: queueItem.parameters.height,
       batchSize: queueItem.parameters.batch_size || 1,
