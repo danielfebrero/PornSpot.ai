@@ -327,5 +327,5 @@ export const DEFAULT_WORKFLOW_PARAMS: Partial<WorkflowParameters> = {
   sampler: "dpmpp_3m_sde_gpu",
   scheduler: "exponential",
   negativePrompt:
-    "ugly,distorted bad teeth, bad hands, distorted face, missing fingers, multiple limbs, distorted arms, distorted legs, low quality, distorted fingers, weird legs, distorted eyes,pixelated, extra fingers, watermark",
+    "ugly, distorted bad teeth, bad hands, distorted face, missing fingers, multiple limbs, distorted arms, distorted legs, low quality, distorted fingers, weird legs, distorted eyes,pixelated, extra fingers, watermark",
 };
