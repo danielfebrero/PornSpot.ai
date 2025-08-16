@@ -286,7 +286,7 @@ export function GenerateClient() {
     setShowProgressCard(true);
 
     // Handle magic text animation for optimization
-    if (settings.optimizePrompt && settings.prompt !== optimizedPrompt) {
+    if (settings.optimizePrompt && settings.prompt !== optimizedPromptCache) {
       handleResetMagicText();
       setShowMagicText(true);
       magicTextRef.current?.startStreaming();
@@ -297,7 +297,7 @@ export function GenerateClient() {
     // Clear any previous results
     clearResults();
 
-    if (settings.prompt === optimizedPrompt) {
+    if (settings.prompt === optimizedPromptCache) {
       await generateImages({ ...settings, optimizePrompt: false });
     } else {
       await generateImages(settings);
