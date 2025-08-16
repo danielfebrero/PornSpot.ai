@@ -618,7 +618,7 @@ async function handlePromptOptimization(
     const loraSelectionPromise =
       requestBody.loraSelectionMode === "auto"
         ? performAutoLoRASelection(validatedPrompt)
-        : Promise.resolve([]);
+        : Promise.resolve(requestBody.selectedLoras);
 
     const optimizationStreamPromise = openRouterService.chatCompletionStream({
       instructionTemplate: "prompt-optimization",
@@ -1066,7 +1066,7 @@ const handleGenerate = async (
     const loraSelectionPromise =
       requestBody.loraSelectionMode === "auto"
         ? performAutoLoRASelection(validatedPrompt)
-        : Promise.resolve([]);
+        : Promise.resolve(requestBody.selectedLoras);
 
     const [moderationResult, autoSelectedLoras] = await Promise.all([
       moderationPromise,
