@@ -239,6 +239,8 @@ export function createComfyUIWorkflow(
         workflow[nodeId].inputs["strength_model"] = lora.strength;
         console.log("Found node: ", workflow[nodeId]);
         // workflow[nodeId].inputs["strength_clip"] = lora.strength;
+      } else {
+        console.warn(`LoRA "${lora.name}" not found in workflow template`);
       }
     });
   }
