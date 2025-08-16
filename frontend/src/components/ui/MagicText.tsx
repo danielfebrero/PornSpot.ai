@@ -15,6 +15,7 @@ export interface MagicTextHandle {
   castSpell: (targetText: string) => void;
   streamToken: (token: string, fullText: string) => void;
   reset: () => void;
+  startStreaming: () => void;
 }
 
 interface LetterState {
@@ -30,6 +31,7 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
     const magicTextRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [isInitial, setIsInitial] = useState(true);
+    const [isStreaming, setIsStreaming] = useState(false);
     const lettersStateRef = useRef<LetterState[]>([]);
     const currentTextRef = useRef<string>("");
 
@@ -184,6 +186,14 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
       (token: string, fullText: string) => {
         if (!containerRef.current) return;
 
+        // If this is the first streaming token, clear existing content
+        if (!isStreaming) {
+          setIsStreaming(true);
+          containerRef.current.innerHTML = "";
+          lettersStateRef.current = [];
+          currentTextRef.current = "";
+        }
+
         currentTextRef.current = fullText;
 
         // Update background text
@@ -221,16 +231,21 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
           }, 100);
         });
       },
-      [createLetterElement, updateGradients, scrollToLatest]
+      [createLetterElement, updateGradients, scrollToLatest, isStreaming]
     );
 
     const reset = useCallback(() => {
       setIsInitial(true);
+      setIsStreaming(false);
       lettersStateRef.current = [];
       currentTextRef.current = "";
       if (containerRef.current) {
         containerRef.current.innerHTML = "";
       }
+    }, []);
+
+    const startStreaming = useCallback(() => {
+      setIsStreaming(false); // Reset streaming state to prepare for new stream
     }, []);
 
     const castSpell = useCallback(
@@ -353,6 +368,7 @@ export const MagicText = forwardRef<MagicTextHandle, MagicTextProps>(
       castSpell,
       streamToken,
       reset,
+      startStreaming,
     }));
 
     const css = `

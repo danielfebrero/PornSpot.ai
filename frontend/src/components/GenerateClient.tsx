@@ -287,6 +287,7 @@ export function GenerateClient() {
     if (settings.optimizePrompt) {
       handleResetMagicText();
       setShowMagicText(true);
+      magicTextRef.current?.startStreaming();
       // Store the original prompt before optimization for potential reversion
       setOriginalPromptBeforeOptimization(settings.prompt);
       setLastOptimizedPrompt(settings.prompt);
