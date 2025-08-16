@@ -237,6 +237,7 @@ export function createComfyUIWorkflow(
 
       if (nodeId && workflow[nodeId]) {
         workflow[nodeId].inputs["strength_model"] = lora.strength;
+        console.log("Found node: ", workflow[nodeId]);
         // workflow[nodeId].inputs["strength_clip"] = lora.strength;
       }
     });
@@ -315,8 +316,8 @@ export const DEFAULT_WORKFLOW_PARAMS: Partial<WorkflowParameters> = {
   width: 1504,
   height: 1504,
   batchSize: 1,
-  steps: 55,
-  cfgScale: 6.0,
+  steps: 30,
+  cfgScale: 4.5,
   sampler: "dpmpp_3m_sde_gpu",
   scheduler: "exponential",
   negativePrompt:

@@ -1,5 +1,11 @@
 # TODO list
 
+## Generate page
+
+### Deleting an image should remove it from the page instantly
+
+Currently, the image stays on the page.
+
 ## Websocket
 
 ### Clients should broadcast their new connectionId on page reload to conserve state updates
