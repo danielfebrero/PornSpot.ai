@@ -87,7 +87,8 @@ export function GenerateClient() {
 
   const [settings, setSettings] = useState<GenerationSettings>({
     prompt: "",
-    negativePrompt: "",
+    negativePrompt:
+      "ugly,distorted bad teeth, bad hands, distorted face, missing fingers, multiple limbs, distorted arms, distorted legs, low quality, distorted fingers, weird legs, distorted eyes,pixelated, extra fingers, watermark",
     imageSize: "1024x1024",
     customWidth: 1024,
     customHeight: 1024,
