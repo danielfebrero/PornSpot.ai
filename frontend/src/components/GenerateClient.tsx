@@ -61,19 +61,24 @@ const IMAGE_SIZES = [
 
 const LORA_MODELS = [
   {
-    id: "leaked-amateur",
+    id: "leaked_nudes_style_v1_fixed",
     name: "Leaked amateur",
     description: "Generate amateur-style images",
   },
   {
-    id: "anal-pov",
-    name: "Anal POV",
-    description: "As if you are in the scene",
+    id: "add-detail-xl",
+    name: "Add detail XL",
+    description: "Increases fine details",
   },
   {
-    id: "add-details",
-    name: "Add details",
-    description: "Increases fine details",
+    id: "Harness_Straps_sdxl",
+    name: "Harness, Straps, Garter and Cupless bra",
+    description: "Generate images with harness and more",
+  },
+  {
+    id: "Pierced_Nipples_XL_Barbell_Edition-000013",
+    name: "Pierced Nipples",
+    description: "Generate images with pierced nipples and barbell details",
   },
 ];
 
