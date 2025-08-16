@@ -206,6 +206,8 @@ export class ComfyUIClientService extends EventEmitter {
               this.retryConfig.timeoutMs
             );
 
+            console.log({ promptRequest });
+
             const response = await fetch(`${this.baseUrl}/prompt`, {
               method: "POST",
               headers: {
