@@ -488,7 +488,7 @@ export function GenerateClient() {
             <div className="space-y-2">
               <div className="relative">
                 <GradientTextarea
-                  placeholder="Amateur photo, woman, 21, laying on the balcony, parisian building, lace thong..."
+                  placeholder="A woman, 21, in a threesome, mmf, double penetration, having an orgasm. Not something too professional, but something more amateur. I want her to be really enjoying that moment."
                   value={settings.prompt}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                     updateSettings("prompt", e.target.value);
