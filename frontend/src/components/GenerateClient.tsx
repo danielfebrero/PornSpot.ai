@@ -259,12 +259,6 @@ export function GenerateClient() {
     }
   };
 
-  const handleCastSpell = (newText: string) => {
-    if (magicTextRef.current) {
-      magicTextRef.current.castSpell(newText);
-    }
-  };
-
   const handleResetMagicText = () => {
     if (magicTextRef.current) {
       magicTextRef.current.reset();
@@ -307,24 +301,29 @@ export function GenerateClient() {
 
   // Update prompt when optimized prompt is received from backend
   React.useEffect(() => {
-    console.log("case 1", { optimizedPrompt, optimizedPromptCache });
-    if (optimizedPrompt && optimizedPrompt !== optimizedPromptCache) {
+    console.log("case 1", {
+      lastOptimizedPrompt,
+      optimizedPromptCache,
+      diff: lastOptimizedPrompt !== optimizedPromptCache,
+      showMagicText,
+    });
+    if (lastOptimizedPrompt && lastOptimizedPrompt !== optimizedPromptCache) {
       // Cache the optimized prompt
-      setOptimizedPromptCache(optimizedPrompt);
+      setOptimizedPromptCache(lastOptimizedPrompt);
 
       // If magic text is showing, animate to the new optimized prompt
       if (showMagicText) {
         // handleCastSpell(optimizedPrompt);
         // Update settings after a delay to let the animation play
         setTimeout(() => {
-          setSettings((prev) => ({ ...prev, prompt: optimizedPrompt }));
+          setSettings((prev) => ({ ...prev, prompt: lastOptimizedPrompt }));
         }, 2000);
       } else {
         // Update the settings immediately if magic text is not showing
-        setSettings((prev) => ({ ...prev, prompt: optimizedPrompt }));
+        setSettings((prev) => ({ ...prev, prompt: lastOptimizedPrompt }));
       }
     }
-  }, [optimizedPrompt, showMagicText, optimizedPromptCache]);
+  }, [lastOptimizedPrompt, showMagicText, optimizedPromptCache]);
 
   // Handle optimization stream for real-time MagicText updates
   React.useEffect(() => {
