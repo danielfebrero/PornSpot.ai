@@ -62,7 +62,7 @@ export function createComfyUIWorkflow(
     "11": {
       class_type: "CheckpointLoaderSimple",
       inputs: {
-        ckpt_name: "lustifySDXLNSFW_oltFIXEDTEXTURES.safetensors",
+        ckpt_name: "wdrmSupermergeSDXL_v20.safetensors",
       },
       _meta: {
         title: "Load Checkpoint",
