@@ -276,14 +276,17 @@ export function GenerateClient() {
   const handleGenerate = async () => {
     if (!canGenerateImages() || !allowed || !settings.prompt.trim()) return;
 
-    if (settings.prompt === optimizedPrompt) {
-      updateSettings("optimizePrompt", false);
-    }
+    console.log({
+      prompt: settings.prompt,
+      optimizedPrompt,
+      optimizationStream,
+    });
+
     // Show progress card immediately on click
     setShowProgressCard(true);
 
     // Handle magic text animation for optimization
-    if (settings.optimizePrompt) {
+    if (settings.optimizePrompt && settings.prompt !== optimizedPrompt) {
       handleResetMagicText();
       setShowMagicText(true);
       magicTextRef.current?.startStreaming();
