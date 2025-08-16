@@ -125,6 +125,7 @@ export function GenerateClient() {
     isOptimizing, // Get optimization state
     optimizationStream, // Get optimization stream
     optimizationToken, // Get optimization token
+    optimizedPrompt, // Get optimized prompt
     generateImages,
     clearResults,
   } = useGeneration();
@@ -275,6 +276,9 @@ export function GenerateClient() {
   const handleGenerate = async () => {
     if (!canGenerateImages() || !allowed || !settings.prompt.trim()) return;
 
+    if (settings.prompt === optimizedPrompt) {
+      updateSettings("optimizePrompt", false);
+    }
     // Show progress card immediately on click
     setShowProgressCard(true);
 
