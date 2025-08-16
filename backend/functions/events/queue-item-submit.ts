@@ -9,7 +9,10 @@ Special notes:
 */
 
 import { EventBridgeEvent, Context } from "aws-lambda";
-import { GenerationQueueService } from "@shared/services/generation-queue";
+import {
+  GenerationQueueService,
+  QueueEntry,
+} from "@shared/services/generation-queue";
 import { ParameterStoreService } from "@shared/utils/parameters";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import {
@@ -63,7 +66,7 @@ async function publishEvent(eventType: string, detail: any): Promise<void> {
  * @param queueItem - The queue item containing LoRA configuration
  * @returns Array of LoRA objects with id, name, and strength
  */
-function createSelectedLorasArray(queueItem: any): Array<{
+function createSelectedLorasArray(queueItem: QueueEntry): Array<{
   id: string;
   name: string;
   strength: number;
@@ -74,31 +77,39 @@ function createSelectedLorasArray(queueItem: any): Array<{
     strength: number;
   }> = [];
 
-  if (!queueItem.selectedLoras || !Array.isArray(queueItem.selectedLoras)) {
+  if (
+    !queueItem.parameters.selectedLoras ||
+    !Array.isArray(queueItem.parameters.selectedLoras)
+  ) {
     return selectedLoras;
   }
 
-  queueItem.selectedLoras.forEach((loraName: string, index: number) => {
-    let strength = 1; // Default strength
+  queueItem.parameters.selectedLoras.forEach(
+    (loraName: string, index: number) => {
+      let strength = 1; // Default strength
 
-    // Check if we have strength configuration for this LoRA
-    if (queueItem.loraStrengths && queueItem.loraStrengths[loraName]) {
-      const loraConfig = queueItem.loraStrengths[loraName];
+      // Check if we have strength configuration for this LoRA
+      if (
+        queueItem.parameters.loraStrengths &&
+        queueItem.parameters.loraStrengths[loraName]
+      ) {
+        const loraConfig = queueItem.parameters.loraStrengths[loraName];
 
-      // If mode is "auto", use strength 1, otherwise use the configured value
-      if (loraConfig.mode === "auto") {
-        strength = 1;
-      } else {
-        strength = loraConfig.value || 1;
+        // If mode is "auto", use strength 1, otherwise use the configured value
+        if (loraConfig.mode === "auto") {
+          strength = 1;
+        } else {
+          strength = loraConfig.value || 1;
+        }
       }
-    }
 
-    selectedLoras.push({
-      id: `lora_${index}`,
-      name: loraName,
-      strength: strength,
-    });
-  });
+      selectedLoras.push({
+        id: `lora_${index}`,
+        name: loraName,
+        strength: strength,
+      });
+    }
+  );
 
   return selectedLoras;
 }
@@ -196,6 +207,8 @@ export const handler = async (
       workflowParams,
       monitorClientId // Use monitor client_id instead of queueId
     );
+
+    console.log("Submited prompt with workflow: ", workflowParams);
 
     const comfyPromptId = submitResult.promptId;
 

@@ -287,8 +287,7 @@ function calculateUserPriority(userPlan: string): number {
  */
 function createWorkflowParams(
   requestBody: GenerationRequest,
-  finalPrompt: string,
-  autoSelectedLoras?: string[]
+  finalPrompt: string
 ): WorkflowFinalParams {
   const {
     negativePrompt = "",
@@ -308,12 +307,6 @@ function createWorkflowParams(
     customHeight
   );
 
-  // Use auto-selected LoRAs if available and mode is "auto"
-  const finalSelectedLoras =
-    loraSelectionMode === "auto" && autoSelectedLoras
-      ? autoSelectedLoras
-      : selectedLoras;
-
   return {
     width: dimensions.width,
     height: dimensions.height,
@@ -322,7 +315,7 @@ function createWorkflowParams(
     batch_size: batchCount,
     loraSelectionMode,
     loraStrengths,
-    selectedLoras: finalSelectedLoras,
+    selectedLoras,
     optimizePrompt,
     prompt: finalPrompt,
     negativePrompt: negativePrompt.trim(),
@@ -683,6 +676,8 @@ async function handlePromptOptimization(
       loraSelectionPromise,
     ]);
 
+    requestBody.selectedLoras = selectedLoras;
+
     // If moderation failed, return early
     if (!finalModerationResult.passed) {
       return {
@@ -712,11 +707,7 @@ async function handlePromptOptimization(
     console.log("✅ Prompt optimization completed via WebSocket");
 
     // Update queue entry with optimized prompt
-    const workflowParams = createWorkflowParams(
-      requestBody,
-      finalPrompt,
-      selectedLoras
-    );
+    const workflowParams = createWorkflowParams(requestBody, finalPrompt);
     await queueService.updateQueueEntry(queueId, {
       prompt: finalPrompt,
       parameters: workflowParams,
@@ -1007,8 +998,7 @@ const handleGenerate = async (
   const priority = calculateUserPriority(userPlan);
   const initialWorkflowParams = createWorkflowParams(
     requestBody,
-    validatedPrompt.trim(),
-    [] // No auto-selected LoRAs yet for initial params
+    validatedPrompt.trim()
   );
 
   // Initialize queue service and add entry
@@ -1026,7 +1016,6 @@ const handleGenerate = async (
   // Handle prompt optimization if requested
   let finalPrompt = validatedPrompt.trim();
   let optimizedPromptResult: string | null = null;
-  let selectedLoras: string[] = [];
 
   if (requestBody.optimizePrompt) {
     const optimizationResult = await handlePromptOptimization(
@@ -1048,7 +1037,6 @@ const handleGenerate = async (
 
     finalPrompt = optimizationResult.finalPrompt;
     optimizedPromptResult = optimizationResult.optimizedPromptResult;
-    selectedLoras = optimizationResult.selectedLoras || [];
 
     // Return early if optimization completed with response
     if (optimizationResult.shouldReturn && optimizationResult.response) {
@@ -1068,10 +1056,12 @@ const handleGenerate = async (
         ? performAutoLoRASelection(validatedPrompt)
         : Promise.resolve(requestBody.selectedLoras);
 
-    const [moderationResult, autoSelectedLoras] = await Promise.all([
+    const [moderationResult, selectedLoras] = await Promise.all([
       moderationPromise,
       loraSelectionPromise,
     ]);
+
+    requestBody.selectedLoras = selectedLoras;
 
     if (!moderationResult.passed) {
       return ResponseUtil.badRequest(
@@ -1080,17 +1070,12 @@ const handleGenerate = async (
       );
     }
 
-    selectedLoras = autoSelectedLoras;
     console.log("✅ Selected LoRAs (no optimization):", selectedLoras);
   }
 
   // Process generation through queue
   try {
-    const workflowParams = createWorkflowParams(
-      requestBody,
-      finalPrompt,
-      selectedLoras
-    );
+    const workflowParams = createWorkflowParams(requestBody, finalPrompt);
     const response = await processGenerationQueue(
       queueService,
       auth,
