@@ -6,7 +6,7 @@ Your tasks is to validate if a prompt comply with our rules.
 # Our rules
 
 - no illegal content
-- no underage content (18 is okay)
+- no underage content (18 is okay). If no age is specified, assume 18+. Teen and schoolgirl is okay, for example.
 - no zoophilia, bestiality
 
 # Response format
@@ -36,4 +36,7 @@ User message: "amateur photo, woman, 18, sucking a dick, on a public beach"
 Response: "OK"
 
 User message: "a woman of 18yo in a gangbang, tied with rope, surrendered by many men and dicks"
+Response: "OK"
+
+User message: "woman, 21, having sex doggystyle while sucking another dick, horsedick size"
 Response: "OK"

@@ -303,6 +303,52 @@ async function processGenerationQueue(
 }
 
 /**
+ * Utility function to perform prompt moderation check
+ */
+async function performPromptModeration(validatedPrompt: string): Promise<{
+  passed: boolean;
+  reason?: string;
+}> {
+  try {
+    console.log("🛡️ Checking prompt moderation");
+
+    const openRouterService = OpenRouterService.getInstance();
+    const moderationResponse = await openRouterService.chatCompletion({
+      instructionTemplate: "prompt-moderation",
+      userMessage: validatedPrompt.trim(),
+      model: "mistralai/mistral-medium-3.1",
+      parameters: {
+        temperature: 0.1,
+        max_tokens: 256,
+      },
+    });
+
+    const moderationContent = moderationResponse.content.trim();
+
+    if (moderationContent !== "OK") {
+      console.log("❌ Prompt rejected by moderation:", moderationContent);
+
+      // Extract reason from JSON response using regex
+      let reason = "Content violates platform rules";
+      const jsonMatch = moderationContent.match(
+        /\{[^}]*"reason"\s*:\s*"([^"]+)"[^}]*\}/
+      );
+      if (jsonMatch && jsonMatch[1]) {
+        reason = jsonMatch[1];
+      }
+
+      return { passed: false, reason };
+    }
+
+    console.log("✅ Prompt passed moderation check");
+    return { passed: true };
+  } catch (error) {
+    console.error("❌ Moderation check failed:", error);
+    return { passed: false, reason: "Moderation check failed" };
+  }
+}
+
+/**
  * Handle prompt optimization with WebSocket streaming
  */
 async function handlePromptOptimization(
@@ -373,15 +419,7 @@ async function handlePromptOptimization(
     }
 
     // Start both moderation and optimization in parallel
-    const moderationPromise = openRouterService.chatCompletion({
-      instructionTemplate: "prompt-moderation",
-      userMessage: validatedPrompt.trim(),
-      model: "mistralai/mistral-medium-3.1",
-      parameters: {
-        temperature: 0.1,
-        max_tokens: 256,
-      },
-    });
+    const moderationPromise = performPromptModeration(validatedPrompt);
 
     const optimizationStreamPromise = openRouterService.chatCompletionStream({
       instructionTemplate: "prompt-optimization",
@@ -430,27 +468,15 @@ async function handlePromptOptimization(
 
     // Check moderation result as soon as it's available
     moderationPromise
-      .then((moderationResponse) => {
-        const moderationContent = moderationResponse.content.trim();
+      .then((moderationResult) => {
         moderationChecked = true;
 
-        if (moderationContent !== "OK") {
-          console.log("❌ Prompt rejected by moderation:", moderationContent);
-
-          // Extract reason from JSON response using regex
-          let reason = "Content violates platform rules";
-          const jsonMatch = moderationContent.match(
-            /\{[^}]*"reason"\s*:\s*"([^"]+)"[^}]*\}/
-          );
-          if (jsonMatch && jsonMatch[1]) {
-            reason = jsonMatch[1];
-          }
-
-          moderationError = reason;
+        if (!moderationResult.passed) {
+          moderationError =
+            moderationResult.reason || "Content violates platform rules";
           shouldStopStreaming = true;
           moderationPassed = false;
         } else {
-          console.log("✅ Prompt passed moderation check");
           moderationPassed = true;
         }
       })
@@ -706,6 +732,16 @@ const handleGenerate = async (
     // If optimization was completed with WebSocket, return early
     if (optimizationResult.shouldReturn && optimizationResult.response) {
       return ResponseUtil.success(event, optimizationResult.response);
+    }
+  } else {
+    // When optimization is not requested, still check prompt moderation
+    const moderationResult = await performPromptModeration(validatedPrompt);
+
+    if (!moderationResult.passed) {
+      return ResponseUtil.badRequest(
+        event,
+        moderationResult.reason || "Content violates platform rules"
+      );
     }
   }
 

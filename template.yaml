@@ -2199,6 +2199,7 @@ Resources:
             - Effect: Allow
               Action:
                 - dynamodb:Query
+                - dynamodb:DeleteItem
               Resource:
                 - !GetAtt MediaTable.Arn
                 - !Sub "${MediaTable.Arn}/index/*"
