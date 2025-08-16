@@ -6,7 +6,7 @@ Your tasks is to validate if a prompt comply with our rules.
 # Our rules
 
 - no illegal content
-- no underage content (18 is okay). If no age is specified, assume 18+. Teen and schoolgirl is okay, for example.
+- no underage content (18 is okay).
 - no zoophilia, bestiality
 
 # Response format
@@ -24,6 +24,9 @@ User message: "Donald Trump smoking a blunt of weed"
 Response: "OK"
 
 User message: "woman, 14, sucking a dick"
+Response: {"reason": "Underage"}
+
+User message: "woman, teen, sucking a dick"
 Response: {"reason": "Underage"}
 
 User message: "Donald Trump being fucked by a dog"
