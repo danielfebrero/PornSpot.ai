@@ -301,9 +301,6 @@ export function GenerateClient() {
 
   // Update prompt when optimized prompt is received from backend
   React.useEffect(() => {
-    console.log("case 1", {
-      optimizationStream,
-    });
     if (!optimizationStream) return;
     // Cache the optimized prompt
     setOptimizedPromptCache(optimizationStream);
@@ -488,7 +485,6 @@ export function GenerateClient() {
                   value={settings.prompt}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                     updateSettings("prompt", e.target.value);
-                    console.log({ value: e.target.value });
                   }}
                   className="w-full h-40 md:h-32 text-lg p-6 border-2 border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 resize-none transition-all"
                 />
