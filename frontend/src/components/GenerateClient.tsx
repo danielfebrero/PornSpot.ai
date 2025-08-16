@@ -297,8 +297,12 @@ export function GenerateClient() {
     // Clear any previous results
     clearResults();
 
+    if (settings.prompt === optimizedPrompt) {
+      await generateImages({ ...settings, optimizePrompt: false });
+    } else {
+      await generateImages(settings);
+    }
     // Submit to generation queue - optimization will be handled by backend if enabled
-    await generateImages({ ...settings, optimizePrompt: false });
   };
 
   // Update prompt when optimized prompt is received from backend
