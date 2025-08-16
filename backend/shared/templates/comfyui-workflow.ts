@@ -319,8 +319,8 @@ export function validateWorkflowParameters(params: WorkflowParameters): {
  * Default workflow parameters
  */
 export const DEFAULT_WORKFLOW_PARAMS: Partial<WorkflowParameters> = {
-  width: 1504,
-  height: 1504,
+  width: 1024,
+  height: 1024,
   batchSize: 1,
   steps: 30,
   cfgScale: 4.5,

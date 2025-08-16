@@ -290,7 +290,7 @@ function createWorkflowParams(
   finalPrompt: string
 ): WorkflowFinalParams {
   const {
-    negativePrompt = "",
+    negativePrompt = DEFAULT_WORKFLOW_PARAMS.negativePrompt!,
     imageSize = "1024x1024",
     customWidth,
     customHeight,
@@ -318,7 +318,7 @@ function createWorkflowParams(
     selectedLoras,
     optimizePrompt,
     prompt: finalPrompt,
-    negativePrompt: negativePrompt.trim(),
+    negativePrompt: negativePrompt?.trim(),
   };
 }
 
@@ -871,7 +871,8 @@ function generateWorkflowData(params: WorkflowFinalParams): WorkflowData {
     // Convert WorkflowFinalParams to WorkflowParameters
     const workflowParams = {
       prompt: params.prompt,
-      negativePrompt: params.negativePrompt,
+      negativePrompt:
+        params.negativePrompt || DEFAULT_WORKFLOW_PARAMS.negativePrompt!,
       width: params.width,
       height: params.height,
       batchSize: params.batch_size,
