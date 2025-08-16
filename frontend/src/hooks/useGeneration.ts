@@ -499,10 +499,13 @@ export function useGeneration(): UseGenerationReturn {
       } catch (err) {
         console.error("❌ Generation request failed:", err);
 
-        const errorMessage =
-          err instanceof Error ? err.message : "Unknown error occurred";
-        setError(errorMessage);
-        setCurrentMessage(`Error: ${errorMessage}`);
+        if (!error) {
+          const errorMessage =
+            err instanceof Error ? err.message : "Unknown error occurred";
+          setError(errorMessage);
+          setCurrentMessage(`Error: ${errorMessage}`);
+        }
+
         setIsGenerating(false);
 
         // Clean up any pending subscription
