@@ -479,21 +479,25 @@ async function handlePromptOptimization(
           reason: moderationError || "Content violates platform rules",
         });
       }
-      
+
       // Remove the queue entry since we're not proceeding with generation
       try {
         await queueService.removeQueueEntry(queueId);
-        console.log(`🗑️ Removed queue entry ${queueId} due to moderation failure`);
+        console.log(
+          `🗑️ Removed queue entry ${queueId} due to moderation failure`
+        );
       } catch (removeError) {
         console.error("Failed to remove queue entry:", removeError);
       }
-      
-      console.log(`❌ Returning early due to moderation failure: ${moderationError}`);
-      return { 
-        finalPrompt: validatedPrompt.trim(), 
-        optimizedPromptResult: null, 
+
+      console.log(
+        `❌ Returning early due to moderation failure: ${moderationError}`
+      );
+      return {
+        finalPrompt: validatedPrompt.trim(),
+        optimizedPromptResult: null,
         moderationFailed: true,
-        moderationReason: moderationError || "Content violates platform rules"
+        moderationReason: moderationError || "Content violates platform rules",
       };
     }
 
@@ -553,17 +557,23 @@ async function handlePromptOptimization(
     return { finalPrompt, optimizedPromptResult, shouldReturn: true, response };
   } catch (optimizationError: any) {
     console.error("❌ Prompt optimization failed:", optimizationError);
-    
+
     // Check if this was a moderation failure
-    if (optimizationError?.message && optimizationError.message.includes("Prompt moderation failed")) {
-      return { 
-        finalPrompt: validatedPrompt.trim(), 
-        optimizedPromptResult: null, 
+    if (
+      optimizationError?.message &&
+      optimizationError.message.includes("Prompt moderation failed")
+    ) {
+      return {
+        finalPrompt: validatedPrompt.trim(),
+        optimizedPromptResult: null,
         moderationFailed: true,
-        moderationReason: optimizationError.message.replace("Prompt moderation failed: ", "")
+        moderationReason: optimizationError.message.replace(
+          "Prompt moderation failed: ",
+          ""
+        ),
       };
     }
-    
+
     // Continue with original prompt if optimization fails for other reasons
     console.log("Continuing with original prompt due to optimization failure");
     return { finalPrompt: validatedPrompt.trim(), optimizedPromptResult: null };
@@ -685,7 +695,7 @@ const handleGenerate = async (
     // Check if moderation failed - if so, return error immediately
     if (optimizationResult.moderationFailed) {
       return ResponseUtil.badRequest(
-        event, 
+        event,
         optimizationResult.moderationReason || "Content violates platform rules"
       );
     }
