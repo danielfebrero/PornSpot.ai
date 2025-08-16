@@ -56,7 +56,7 @@ export function createComfyUIWorkflow(
     scheduler = "exponential",
   } = params;
 
-  // Base workflow template for SDXL text-to-image generation
+  // Base workflow template for SDXL text-to-image generation with LoRA chain
   const workflow: ComfyUIWorkflow = {
     // Load Checkpoint
     "11": {
@@ -70,12 +70,73 @@ export function createComfyUIWorkflow(
       },
     },
 
+    // Default LoRA chain (will be modified based on selectedLoras)
+    "23": {
+      class_type: "LoraLoader",
+      inputs: {
+        lora_name: "Harness_Straps_sdxl.safetensors",
+        strength_model: 0,
+        strength_clip: 1,
+        model: ["11", 0],
+        clip: ["11", 1],
+      },
+      _meta: {
+        title: "Load LoRA",
+        estTimeUnits: 1,
+      },
+    },
+
+    "21": {
+      class_type: "LoraLoader",
+      inputs: {
+        lora_name: "add-detail-xl.safetensors",
+        strength_model: 0,
+        strength_clip: 1.0000000000000002,
+        model: ["23", 0],
+        clip: ["23", 1],
+      },
+      _meta: {
+        title: "Load LoRA",
+        estTimeUnits: 1,
+      },
+    },
+
+    "20": {
+      class_type: "LoraLoader",
+      inputs: {
+        lora_name: "Pierced_Nipples_XL_Barbell_Edition-000013.safetensors",
+        strength_model: 0,
+        strength_clip: 1.0000000000000002,
+        model: ["21", 0],
+        clip: ["21", 1],
+      },
+      _meta: {
+        title: "Load LoRA",
+        estTimeUnits: 1,
+      },
+    },
+
+    "10": {
+      class_type: "LoraLoader",
+      inputs: {
+        lora_name: "leaked_nudes_style_v1_fixed.safetensors",
+        strength_model: 0,
+        strength_clip: 1.0000000000000002,
+        model: ["20", 0],
+        clip: ["20", 1],
+      },
+      _meta: {
+        title: "Load LoRA",
+        estTimeUnits: 1,
+      },
+    },
+
     // CLIP Text Encode (Positive Prompt)
     "6": {
       class_type: "CLIPTextEncode",
       inputs: {
         text: prompt,
-        clip: ["11", 1],
+        clip: ["10", 1],
       },
       _meta: {
         title: "CLIP Text Encode (Prompt)",
@@ -88,10 +149,10 @@ export function createComfyUIWorkflow(
       class_type: "CLIPTextEncode",
       inputs: {
         text: negativePrompt,
-        clip: ["11", 1],
+        clip: ["10", 1],
       },
       _meta: {
-        title: "CLIP Text Encode (Negative Prompt)",
+        title: "CLIP Text Encode (Prompt)",
         estTimeUnits: 2,
       },
     },
@@ -119,8 +180,8 @@ export function createComfyUIWorkflow(
         cfg: cfgScale,
         sampler_name: sampler,
         scheduler: scheduler,
-        denoise: 1.0,
-        model: ["11", 0],
+        denoise: 1,
+        model: ["10", 0],
         positive: ["6", 0],
         negative: ["7", 0],
         latent_image: ["5", 0],
@@ -158,38 +219,25 @@ export function createComfyUIWorkflow(
     },
   };
 
-  // Add LoRA support if specified
+  // Apply LoRA strengths if specified
   if (params.selectedLoras && params.selectedLoras.length > 0) {
-    // For each LoRA, we need to modify the workflow
-    // This is a simplified implementation - in practice you'd chain LoRA loaders
-    params.selectedLoras.forEach((lora, index) => {
-      const loraNodeId = `lora_${index + 12}`;
-      workflow[loraNodeId] = {
-        class_type: "LoraLoader",
-        inputs: {
-          lora_name: `${lora.name}.safetensors`,
-          strength_model: lora.strength,
-          strength_clip: lora.strength,
-          model: index === 0 ? ["11", 0] : [`lora_${index + 11}`, 0],
-          clip: index === 0 ? ["11", 1] : [`lora_${index + 11}`, 1],
-        },
-        _meta: {
-          title: `LoRA Loader ${index + 1}`,
-          estTimeUnits: 10,
-        },
-      };
+    // Map LoRA names to node IDs based on the template structure
+    const loraNodeMap: { [key: string]: string } = {
+      Harness_Straps_sdxl: "23",
+      "add-detail-xl": "21",
+      "Pierced_Nipples_XL_Barbell_Edition-000013": "20",
+      leaked_nudes_style_v1_fixed: "10",
+    };
 
-      // Update the KSampler to use the last LoRA's model output
-      if (params.selectedLoras && index === params.selectedLoras.length - 1) {
-        if (workflow["3"] && workflow["3"].inputs) {
-          workflow["3"].inputs["model"] = [loraNodeId, 0];
-        }
-        if (workflow["6"] && workflow["6"].inputs) {
-          workflow["6"].inputs["clip"] = [loraNodeId, 1];
-        }
-        if (workflow["7"] && workflow["7"].inputs) {
-          workflow["7"].inputs["clip"] = [loraNodeId, 1];
-        }
+    // Apply strengths to matching LoRAs
+    params.selectedLoras.forEach((lora) => {
+      // Find matching node by lora name (without .safetensors extension)
+      const loraBaseName = lora.name.replace(".safetensors", "");
+      const nodeId = loraNodeMap[loraBaseName];
+
+      if (nodeId && workflow[nodeId]) {
+        workflow[nodeId].inputs["strength_model"] = lora.strength;
+        // workflow[nodeId].inputs["strength_clip"] = lora.strength;
       }
     });
   }

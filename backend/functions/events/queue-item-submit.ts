@@ -58,6 +58,51 @@ async function publishEvent(eventType: string, detail: any): Promise<void> {
   }
 }
 
+/**
+ * Creates the selectedLoras array with proper structure for workflow parameters
+ * @param queueItem - The queue item containing LoRA configuration
+ * @returns Array of LoRA objects with id, name, and strength
+ */
+function createSelectedLorasArray(queueItem: any): Array<{
+  id: string;
+  name: string;
+  strength: number;
+}> {
+  const selectedLoras: Array<{
+    id: string;
+    name: string;
+    strength: number;
+  }> = [];
+
+  if (!queueItem.selectedLoras || !Array.isArray(queueItem.selectedLoras)) {
+    return selectedLoras;
+  }
+
+  queueItem.selectedLoras.forEach((loraName: string, index: number) => {
+    let strength = 1; // Default strength
+
+    // Check if we have strength configuration for this LoRA
+    if (queueItem.loraStrengths && queueItem.loraStrengths[loraName]) {
+      const loraConfig = queueItem.loraStrengths[loraName];
+
+      // If mode is "auto", use strength 1, otherwise use the configured value
+      if (loraConfig.mode === "auto") {
+        strength = 1;
+      } else {
+        strength = loraConfig.value || 1;
+      }
+    }
+
+    selectedLoras.push({
+      id: `lora_${index}`,
+      name: loraName,
+      strength: strength,
+    });
+  });
+
+  return selectedLoras;
+}
+
 export const handler = async (
   event: EventBridgeEvent<string, QueueSubmissionEvent>,
   _context: Context
@@ -130,7 +175,7 @@ export const handler = async (
       width: queueItem.parameters.width,
       height: queueItem.parameters.height,
       batchSize: queueItem.parameters.batch_size || 1,
-      selectedLoras: undefined,
+      selectedLoras: createSelectedLorasArray(queueItem),
     };
 
     // Get the ComfyUI monitor client_id from DynamoDB

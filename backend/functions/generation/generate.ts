@@ -97,6 +97,7 @@ interface ModerationResult {
 interface OptimizationResult {
   finalPrompt: string;
   optimizedPromptResult: string | null;
+  selectedLoras?: string[];
   shouldReturn?: boolean;
   response?: GenerationResponse;
   moderationFailed?: boolean;
@@ -281,11 +282,13 @@ function calculateUserPriority(userPlan: string): number {
  * Creates workflow parameters from the generation request
  * @param requestBody - The generation request
  * @param finalPrompt - The processed/optimized prompt
+ * @param autoSelectedLoras - LoRAs selected automatically (if any)
  * @returns WorkflowFinalParams for ComfyUI workflow
  */
 function createWorkflowParams(
   requestBody: GenerationRequest,
-  finalPrompt: string
+  finalPrompt: string,
+  autoSelectedLoras?: string[]
 ): WorkflowFinalParams {
   const {
     negativePrompt = "",
@@ -305,6 +308,12 @@ function createWorkflowParams(
     customHeight
   );
 
+  // Use auto-selected LoRAs if available and mode is "auto"
+  const finalSelectedLoras =
+    loraSelectionMode === "auto" && autoSelectedLoras
+      ? autoSelectedLoras
+      : selectedLoras;
+
   return {
     width: dimensions.width,
     height: dimensions.height,
@@ -313,7 +322,7 @@ function createWorkflowParams(
     batch_size: batchCount,
     loraSelectionMode,
     loraStrengths,
-    selectedLoras,
+    selectedLoras: finalSelectedLoras,
     optimizePrompt,
     prompt: finalPrompt,
     negativePrompt: negativePrompt.trim(),
@@ -396,8 +405,87 @@ async function sendOptimizationMessageToConnection(
 }
 
 // ====================================
-// Moderation and Optimization
+// Moderation, LoRA Selection and Optimization
 // ====================================
+
+/**
+ * Performs automatic LoRA selection based on the user's prompt
+ * @param validatedPrompt - The prompt to analyze for LoRA selection
+ * @returns Array of selected LoRA names
+ */
+async function performAutoLoRASelection(
+  validatedPrompt: string
+): Promise<string[]> {
+  try {
+    console.log("🎯 Performing automatic LoRA selection");
+
+    const openRouterService = OpenRouterService.getInstance();
+    const loraSelectionResponse = await openRouterService.chatCompletion({
+      instructionTemplate: "loras-selection",
+      userMessage: validatedPrompt.trim(),
+      model: "mistralai/mistral-medium-3.1",
+      parameters: {
+        temperature: 0.1,
+        max_tokens: 512,
+      },
+    });
+
+    const loraContent = loraSelectionResponse.content.trim();
+    console.log("🎯 LoRA selection response:", loraContent);
+
+    // Parse the response to extract LoRA names
+    // Expected format could be JSON array or comma-separated list
+    let selectedLoras: string[] = [];
+
+    // First, try to find an array pattern using regex
+    const arrayRegex = /\[\s*(?:"[^"]*"(?:\s*,\s*"[^"]*")*)\s*\]/;
+    const arrayMatch = loraContent.match(arrayRegex);
+
+    if (arrayMatch) {
+      try {
+        // Found an array pattern, try to parse it
+        const arrayString = arrayMatch[0];
+        const parsedArray = JSON.parse(arrayString);
+        if (Array.isArray(parsedArray)) {
+          selectedLoras = parsedArray.filter(
+            (lora: any) => typeof lora === "string"
+          );
+          console.log("✅ Parsed LoRAs from array pattern:", selectedLoras);
+          return selectedLoras;
+        }
+      } catch (regexParseError) {
+        console.log("Failed to parse array pattern, trying other methods");
+      }
+    }
+
+    try {
+      // Try to parse as JSON first
+      const parsedLoras = JSON.parse(loraContent);
+      if (Array.isArray(parsedLoras)) {
+        selectedLoras = parsedLoras.filter(
+          (lora: any) => typeof lora === "string"
+        );
+      } else if (parsedLoras && Array.isArray(parsedLoras.loras)) {
+        selectedLoras = parsedLoras.loras.filter(
+          (lora: any) => typeof lora === "string"
+        );
+      }
+    } catch (jsonError) {
+      // If JSON parsing fails, try parsing as comma-separated list
+      selectedLoras = loraContent
+        .split(",")
+        .map((lora) => lora.trim())
+        .filter((lora) => lora.length > 0);
+    }
+
+    console.log("✅ Selected LoRAs:", selectedLoras);
+    return selectedLoras;
+  } catch (error) {
+    console.error("❌ LoRA selection failed:", error);
+    // Return empty array as fallback
+    return [];
+  }
+}
 
 /**
  * Performs content moderation on the user's prompt
@@ -475,15 +563,13 @@ async function performPromptModeration(
 
 /**
  * Handles prompt optimization with streaming updates via WebSocket
- * @param auth - Authenticated user information
  * @param validatedPrompt - The original prompt to optimize
  * @param requestBody - Full generation request
- * @param userPlan - User's subscription plan
  * @param connectionId - WebSocket connection ID
  * @param queueId - Queue entry ID
  * @param queueEntry - Queue entry details
  * @param priority - User's queue priority
- * @returns OptimizationResult with final prompt and optimization details
+ * @returns OptimizationResult with final prompt, optimization details, and selected LoRAs
  */
 async function handlePromptOptimization(
   validatedPrompt: string,
@@ -521,12 +607,18 @@ async function handlePromptOptimization(
       },
     });
 
-    // Start moderation and optimization in parallel
+    // Start moderation, optimization, and LoRA selection in parallel
     const moderationPromise = performPromptModeration(
       validatedPrompt,
       connectionId,
       queueId
     );
+
+    // Only perform LoRA selection if mode is "auto"
+    const loraSelectionPromise =
+      requestBody.loraSelectionMode === "auto"
+        ? performAutoLoRASelection(validatedPrompt)
+        : Promise.resolve([]);
 
     const optimizationStreamPromise = openRouterService.chatCompletionStream({
       instructionTemplate: "prompt-optimization",
@@ -585,14 +677,18 @@ async function handlePromptOptimization(
     // Wait for streaming to complete
     await streamingPromise;
 
-    // Wait for moderation to complete
-    const finalModerationResult = await moderationPromise;
+    // Wait for moderation and LoRA selection to complete
+    const [finalModerationResult, selectedLoras] = await Promise.all([
+      moderationPromise,
+      loraSelectionPromise,
+    ]);
 
     // If moderation failed, return early
     if (!finalModerationResult.passed) {
       return {
         finalPrompt: validatedPrompt.trim(),
         optimizedPromptResult: null,
+        selectedLoras: [],
         moderationFailed: true,
         moderationReason: moderationError || "Content violates platform rules",
       };
@@ -600,6 +696,8 @@ async function handlePromptOptimization(
 
     const optimizedPromptResult = optimizedPrompt.trim();
     const finalPrompt = optimizedPromptResult || validatedPrompt.trim();
+
+    console.log("✅ Selected LoRAs:", selectedLoras);
 
     // Send completion event
     await sendOptimizationMessageToConnection(connectionId, {
@@ -614,7 +712,11 @@ async function handlePromptOptimization(
     console.log("✅ Prompt optimization completed via WebSocket");
 
     // Update queue entry with optimized prompt
-    const workflowParams = createWorkflowParams(requestBody, finalPrompt);
+    const workflowParams = createWorkflowParams(
+      requestBody,
+      finalPrompt,
+      selectedLoras
+    );
     await queueService.updateQueueEntry(queueId, {
       prompt: finalPrompt,
       parameters: workflowParams,
@@ -641,6 +743,7 @@ async function handlePromptOptimization(
     return {
       finalPrompt,
       optimizedPromptResult,
+      selectedLoras,
       shouldReturn: true,
       response,
     };
@@ -652,6 +755,7 @@ async function handlePromptOptimization(
       return {
         finalPrompt: validatedPrompt.trim(),
         optimizedPromptResult: null,
+        selectedLoras: [],
         moderationFailed: true,
         moderationReason: optimizationError.message.replace(
           "Prompt moderation failed: ",
@@ -665,6 +769,7 @@ async function handlePromptOptimization(
     return {
       finalPrompt: validatedPrompt.trim(),
       optimizedPromptResult: null,
+      selectedLoras: [],
     };
   }
 }
@@ -902,7 +1007,8 @@ const handleGenerate = async (
   const priority = calculateUserPriority(userPlan);
   const initialWorkflowParams = createWorkflowParams(
     requestBody,
-    validatedPrompt.trim()
+    validatedPrompt.trim(),
+    [] // No auto-selected LoRAs yet for initial params
   );
 
   // Initialize queue service and add entry
@@ -920,6 +1026,7 @@ const handleGenerate = async (
   // Handle prompt optimization if requested
   let finalPrompt = validatedPrompt.trim();
   let optimizedPromptResult: string | null = null;
+  let selectedLoras: string[] = [];
 
   if (requestBody.optimizePrompt) {
     const optimizationResult = await handlePromptOptimization(
@@ -941,18 +1048,30 @@ const handleGenerate = async (
 
     finalPrompt = optimizationResult.finalPrompt;
     optimizedPromptResult = optimizationResult.optimizedPromptResult;
+    selectedLoras = optimizationResult.selectedLoras || [];
 
     // Return early if optimization completed with response
     if (optimizationResult.shouldReturn && optimizationResult.response) {
       return ResponseUtil.success(event, optimizationResult.response);
     }
   } else {
-    // Perform moderation check even without optimization
-    const moderationResult = await performPromptModeration(
+    // Perform moderation and LoRA selection in parallel if optimization is not requested
+    const moderationPromise = performPromptModeration(
       validatedPrompt,
       connectionId,
       queueId
     );
+
+    // Only perform LoRA selection if mode is "auto"
+    const loraSelectionPromise =
+      requestBody.loraSelectionMode === "auto"
+        ? performAutoLoRASelection(validatedPrompt)
+        : Promise.resolve([]);
+
+    const [moderationResult, autoSelectedLoras] = await Promise.all([
+      moderationPromise,
+      loraSelectionPromise,
+    ]);
 
     if (!moderationResult.passed) {
       return ResponseUtil.badRequest(
@@ -960,11 +1079,18 @@ const handleGenerate = async (
         moderationResult.reason || "Content violates platform rules"
       );
     }
+
+    selectedLoras = autoSelectedLoras;
+    console.log("✅ Selected LoRAs (no optimization):", selectedLoras);
   }
 
   // Process generation through queue
   try {
-    const workflowParams = createWorkflowParams(requestBody, finalPrompt);
+    const workflowParams = createWorkflowParams(
+      requestBody,
+      finalPrompt,
+      selectedLoras
+    );
     const response = await processGenerationQueue(
       queueService,
       auth,
