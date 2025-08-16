@@ -158,7 +158,7 @@ export function GenerateClient() {
     // This ensures a new/modified prompt can be optimized again
     if (key === "prompt") {
       // Only clear cache if the new prompt is different from both the original and optimized versions
-      if (value !== lastOptimizedPrompt && value !== optimizedPromptCache) {
+      if (value !== optimizationStream) {
         setLastOptimizedPrompt("");
         setOptimizedPromptCache("");
         setOriginalPromptBeforeOptimization("");
@@ -267,7 +267,6 @@ export function GenerateClient() {
 
   // Open lightbox for thumbnail (from all generated images)
   const openThumbnailLightbox = (imageUrl: string) => {
-    console.log("Opening lightbox for image:", imageUrl);
     const index = allGeneratedImages.findIndex(
       (media) => media.url === imageUrl
     );
@@ -303,28 +302,15 @@ export function GenerateClient() {
   // Update prompt when optimized prompt is received from backend
   React.useEffect(() => {
     console.log("case 1", {
-      lastOptimizedPrompt,
-      optimizedPromptCache,
-      diff: lastOptimizedPrompt !== optimizedPromptCache,
-      showMagicText,
+      optimizationStream,
     });
-    if (lastOptimizedPrompt && lastOptimizedPrompt !== optimizedPromptCache) {
-      // Cache the optimized prompt
-      setOptimizedPromptCache(lastOptimizedPrompt);
+    if (!optimizationStream) return;
+    // Cache the optimized prompt
+    setOptimizedPromptCache(optimizationStream);
 
-      // If magic text is showing, animate to the new optimized prompt
-      if (showMagicText) {
-        // handleCastSpell(optimizedPrompt);
-        // Update settings after a delay to let the animation play
-        setTimeout(() => {
-          setSettings((prev) => ({ ...prev, prompt: lastOptimizedPrompt }));
-        }, 2000);
-      } else {
-        // Update the settings immediately if magic text is not showing
-        setSettings((prev) => ({ ...prev, prompt: lastOptimizedPrompt }));
-      }
-    }
-  }, [lastOptimizedPrompt, showMagicText, optimizedPromptCache]);
+    // Update the settings immediately if magic text is not showing
+    setSettings((prev) => ({ ...prev, prompt: optimizationStream }));
+  }, [optimizationStream]);
 
   // Handle optimization stream for real-time MagicText updates
   React.useEffect(() => {

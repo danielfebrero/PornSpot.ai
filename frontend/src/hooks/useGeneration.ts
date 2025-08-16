@@ -383,7 +383,6 @@ export function useGeneration(): UseGenerationReturn {
             const { optimizedPrompt } = message.optimizationData;
             setOptimizedPrompt(optimizedPrompt);
             setOptimizationStream(optimizedPrompt);
-            setIsOptimizing(false);
             setCurrentMessage(`Prompt optimized. Starting generation...`);
           }
           setIsOptimizing(false);
