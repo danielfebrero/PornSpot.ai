@@ -16,6 +16,7 @@ const handleGetAllMedia = async (
 ): Promise<APIGatewayProxyResult> => {
   // Get all public media directly from DynamoDB
   const allMedia = await DynamoDBService.getAllPublicMedia();
+  console.log({ allMedia });
 
   return ResponseUtil.success(event, allMedia);
 };

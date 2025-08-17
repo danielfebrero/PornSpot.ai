@@ -41,15 +41,16 @@ export async function getAlbums(
   }
 
   const response = await fetch(`${API_URL}/albums?${params}`, {
-    // For static generation, use cache: 'force-cache' or no cache option
-    cache: "force-cache", // This makes it static-compatible
-    // Remove next.tags for static generation
+    // ISR: Revalidate every hour, but serve stale content while regenerating
+    next: {
+      tags: ["albums", "homepage"],
+    },
+    // Remove cache: force-cache since we're using revalidate
   });
   return handleResponse<{ albums: Album[]; pagination: UnifiedPaginationMeta }>(
     response
   );
 }
-
 // Fetch all public albums, handling pagination
 export async function fetchAllPublicAlbums(): Promise<Album[]> {
   let allAlbums: Album[] = [];
@@ -77,6 +78,7 @@ export async function fetchAllPublicAlbums(): Promise<Album[]> {
       }
     } catch (error) {
       console.error("Failed to fetch a page of albums:", error);
+      // On error, stop fetching and return what we have so far
       hasNextPage = false;
     }
   }
@@ -87,8 +89,10 @@ export async function fetchAllPublicAlbums(): Promise<Album[]> {
 // Fetch a single album by ID
 export async function getAlbumById(albumId: string) {
   const response = await fetch(`${API_URL}/albums/${albumId}`, {
-    cache: "force-cache", // Static-compatible
-    // Remove next.tags
+    next: {
+      tags: [`album-${albumId}`],
+    },
+    // Remove cache: force-cache since we're using revalidate
   });
   return handleResponse<Album>(response);
 }
@@ -107,8 +111,10 @@ export async function getMediaForAlbum(
   }
 
   const response = await fetch(`${API_URL}/albums/${albumId}/media?${params}`, {
-    cache: "force-cache", // Static-compatible
-    // Remove next.tags
+    next: {
+      tags: [`album-${albumId}`],
+    },
+    // Remove cache: force-cache since we're using revalidate
   });
 
   const result = await handleResponse<{
@@ -122,8 +128,9 @@ export async function getMediaForAlbum(
 // Fetch a single media item by ID
 export async function getMediaById(mediaId: string) {
   const response = await fetch(`${API_URL}/media/${mediaId}`, {
-    cache: "force-cache", // Static-compatible
-    // Remove next.tags
+    next: {
+      tags: [`media-${mediaId}`],
+    },
   });
   return handleResponse<Media>(response);
 }
@@ -131,8 +138,7 @@ export async function getMediaById(mediaId: string) {
 // Fetch all public media items
 export async function fetchAllPublicMedia(): Promise<Media[]> {
   const response = await fetch(`${API_URL}/media`, {
-    cache: "force-cache", // Static-compatible
-    // Remove next.tags
+    next: { tags: ["medias"] },
   });
   const result = await handleResponse<Media[]>(response);
   return result.data || [];
