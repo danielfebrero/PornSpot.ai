@@ -140,7 +140,7 @@ export async function getMediaById(mediaId: string) {
 // Fetch all public media items
 export async function fetchAllPublicMedia(): Promise<Media[]> {
   const response = await fetch(`${API_URL}/media`, {
-    next: { tags: ["medias"] },
+    // next: { tags: ["medias"] },
   });
   const result = await handleResponse<Media[]>(response);
   return result.data || [];
