@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getMediaById } from "@/lib/data";
+import { getMediaById, fetchAllPublicMedia } from "@/lib/data";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { getMediaDisplayUrl } from "@/lib/utils";
 import { locales } from "@/i18n";
@@ -49,9 +49,9 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  // const media = await fetchAllPublicMedia();
+  const media = await fetchAllPublicMedia();
 
-  const media = [{ id: "cbd5d4f9-51f2-4fa7-a0e3-58f44ad4f333" }];
+  // const media = [{ id: "cbd5d4f9-51f2-4fa7-a0e3-58f44ad4f333" }];
 
   // // Generate all combinations of locale and mediaId
   const params = [];
