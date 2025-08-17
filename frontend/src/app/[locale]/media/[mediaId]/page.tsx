@@ -1,11 +1,10 @@
 import { notFound } from "next/navigation";
-import { getMediaById, fetchAllPublicMedia } from "@/lib/data";
+import { getMediaById } from "@/lib/data";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { getMediaDisplayUrl } from "@/lib/utils";
-import { locales } from "@/i18n";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
-// import { MediaDetailClient } from "@/components/MediaDetailClient";
+import { MediaDetailClient } from "@/components/MediaDetailClient";
 import { generateMediaMetadata } from "@/lib/opengraph";
 
 interface MediaDetailPageProps {
@@ -15,10 +14,8 @@ interface MediaDetailPageProps {
   };
 }
 
-// SSG for existing albums at build time, ISR for new albums, revalidate on demand
-export const revalidate = false;
-export const dynamic = "auto";
-export const dynamicParams = true;
+// Force dynamic - pages are rendered on each request
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -48,29 +45,7 @@ export async function generateMetadata({
   return generateMediaMetadata(locale, mediaId, media, displayImageUrl);
 }
 
-export async function generateStaticParams() {
-  const media = await fetchAllPublicMedia();
-
-  // const media = [{ id: "cbd5d4f9-51f2-4fa7-a0e3-58f44ad4f333" }];
-
-  // // Generate all combinations of locale and mediaId
-  const params = [];
-  for (const locale of locales) {
-    for (const item of media) {
-      params.push({
-        locale,
-        mediaId: item.id,
-      });
-    }
-  }
-
-  // const params = [
-  //   { locale: "en", mediaId: "cbd5d4f9-51f2-4fa7-a0e3-58f44ad4f333" },
-  //   { locale: "fr", mediaId: "cbd5d4f9-51f2-4fa7-a0e3-58f44ad4f333" },
-  //   { locale: "es", mediaId: "cbd5d4f9-51f2-4fa7-a0e3-58f44ad4f333" },
-  // ];
-  return params;
-}
+// NO generateStaticParams when using force-dynamic
 
 export default async function MediaDetailPage({
   params,
@@ -84,6 +59,6 @@ export default async function MediaDetailPage({
 
   const media = mediaResult.data;
 
-  // return <MediaDetailClient media={media} />;
-  return <div>{JSON.stringify(media)}</div>;
+  return <MediaDetailClient media={media} />;
+  // return <div>{JSON.stringify(media)}</div>;
 }

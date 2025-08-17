@@ -1,7 +1,5 @@
 import { Album, Media, UnifiedPaginationMeta } from "@/types";
-// import API_URL from "./api";
-
-const API_URL = "https://api.pornspot.ai";
+import API_URL from "./api";
 
 // Helper function to handle API responses
 async function handleResponse<T>(
@@ -140,7 +138,7 @@ export async function getMediaById(mediaId: string) {
 // Fetch all public media items
 export async function fetchAllPublicMedia(): Promise<Media[]> {
   const response = await fetch(`${API_URL}/media`, {
-    // next: { tags: ["medias"] },
+    next: { tags: ["medias"] },
   });
   const result = await handleResponse<Media[]>(response);
   return result.data || [];

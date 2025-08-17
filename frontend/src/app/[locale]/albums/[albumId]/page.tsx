@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
-import { getAlbumById, fetchAllPublicAlbums } from "@/lib/data";
+import { getAlbumById } from "@/lib/data";
 import { composeAlbumCoverUrl } from "@/lib/urlUtils";
 import { AlbumDetailClient } from "@/components/AlbumDetailClient";
-import { locales } from "@/i18n";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { generateAlbumMetadata } from "@/lib/opengraph";
@@ -20,10 +19,8 @@ type AlbumDetailPageProps = {
   };
 };
 
-// SSG for existing albums at build time, ISR for new albums, revalidate on demand
-export const revalidate = false;
-export const dynamic = "auto";
-export const dynamicParams = true;
+// Force dynamic rendering - no static generation
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -49,22 +46,7 @@ export async function generateMetadata({
   });
 }
 
-export async function generateStaticParams() {
-  const albums = await fetchAllPublicAlbums();
-
-  // Generate params for all locale/album combinations
-  const params = [];
-  for (const locale of locales) {
-    for (const album of albums) {
-      params.push({
-        locale,
-        albumId: album.id,
-      });
-    }
-  }
-
-  return params;
-}
+// NO generateStaticParams when using force-dynamic
 
 export default async function AlbumDetailPage({
   params,
