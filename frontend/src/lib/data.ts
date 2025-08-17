@@ -137,13 +137,10 @@ export async function getMediaById(mediaId: string) {
 
 // Fetch all public media items
 export async function fetchAllPublicMedia(): Promise<Media[]> {
-  // const response = await fetch(`${API_URL}/media`, {
-  //   next: { tags: ["medias"] },
-  //   cache: "force-cache",
-  // });
-  // const result = await handleResponse<Media[]>(response);
-  // return result.data || [];
-  return Promise.resolve([
-    { id: "cbd5d4f9-51f2-4fa7-a0e3-58f44ad4f333" },
-  ] as unknown as Media[]);
+  const response = await fetch(`${API_URL}/media`, {
+    next: { tags: ["medias"] },
+    cache: "force-cache",
+  });
+  const result = await handleResponse<Media[]>(response);
+  return result.data || [];
 }

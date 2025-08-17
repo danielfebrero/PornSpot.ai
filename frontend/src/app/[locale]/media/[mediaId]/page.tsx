@@ -16,9 +16,9 @@ interface MediaDetailPageProps {
 }
 
 // SSG for existing albums at build time, ISR for new albums, revalidate on demand
-export const revalidate = false;
-export const dynamic = "auto";
-export const dynamicParams = true;
+// export const revalidate = false;
+export const dynamic = "force-dynamic";
+// export const dynamicParams = true;
 
 export async function generateMetadata({
   params,
