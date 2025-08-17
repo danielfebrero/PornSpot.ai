@@ -19,10 +19,77 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { GenerationQueueService } from "@shared/services/generation-queue";
+import {
+  GenerationQueueService,
+  QueueEntry,
+} from "@shared/services/generation-queue";
 import { WebSocketMessage } from "@shared/shared-types/websocket";
+import {
+  DynamoDBService,
+  Media,
+  MediaEntity,
+  ParameterStoreService,
+  S3Service,
+} from "@shared";
 
-// Removed SubscriptionEntity interface - using queue entry connectionId instead
+import {
+  createMediaEntity,
+  createGenerationMetadata,
+} from "@shared/utils/media-entity";
+import axios from "axios";
+import { S3StorageService } from "@shared/services/s3-storage";
+
+interface ComfyUINode {
+  value: number;
+  max: number;
+  state: string;
+  node_id: string;
+  prompt_id: string;
+  display_node_id: string;
+  parent_node_id: string | null;
+  real_node_id: string;
+}
+
+interface ComfyUIProgressState {
+  type: "progress_state";
+  data: {
+    prompt_id: string;
+    nodes: Record<string, ComfyUINode>;
+  };
+}
+
+interface ProgressData {
+  nodeId: string;
+  displayNodeId: string;
+  currentNode: string;
+  nodeName: string;
+  value: number;
+  max: number;
+  percentage: number;
+  nodeState: string;
+  parentNodeId: string | null;
+  realNodeId: string;
+  nodeTitle: string;
+  message: string;
+}
+
+interface ComfyUIImage {
+  filename: string;
+  subfolder: string;
+  type: string;
+}
+
+interface ComfyUIExecutedMessage {
+  type: "executed";
+  data: {
+    prompt_id: string;
+    node: string;
+    output: {
+      images?: ComfyUIImage[];
+      [key: string]: any;
+    };
+  };
+}
 
 // Initialize DynamoDB client
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
@@ -41,11 +108,101 @@ const dynamoClient = new DynamoDBClient(clientConfig);
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
 const TABLE_NAME = process.env["DYNAMODB_TABLE"]!;
 const queueService = GenerationQueueService.getInstance();
+const s3Service = S3StorageService.getInstance();
+const WEBSOCKET_ENDPOINT = process.env["WEBSOCKET_API_ENDPOINT"];
 
 // Initialize API Gateway Management API client
 const apiGatewayClient = new ApiGatewayManagementApiClient({
-  endpoint: process.env["WEBSOCKET_API_ENDPOINT"],
+  endpoint: WEBSOCKET_ENDPOINT,
 });
+
+// Local cache for prompt_id -> queueEntry mappings to avoid repeated DB queries
+const promptIdToQueueEntryCache = new Map<
+  string,
+  {
+    queueId: string;
+    connectionId?: string;
+    comfyPromptId: string;
+    timestamp: number; // For cache expiration
+  }
+>();
+
+// Cache TTL: 5 minutes (in milliseconds)
+const CACHE_TTL = 5 * 60 * 1000;
+
+/**
+ * Get queue entry from cache or database
+ */
+async function getQueueEntryWithCache(promptId: string) {
+  const now = Date.now();
+
+  // Check cache first
+  const cached = promptIdToQueueEntryCache.get(promptId);
+  if (cached && now - cached.timestamp < CACHE_TTL) {
+    console.log(`📦 Cache hit for prompt ID: ${promptId}`);
+    return {
+      queueId: cached.queueId,
+      connectionId: cached.connectionId,
+      comfyPromptId: cached.comfyPromptId,
+    };
+  }
+
+  // Cache miss or expired, fetch from database
+  console.log(`🔍 Cache miss for prompt ID: ${promptId}, querying database`);
+  const queueEntry = await queueService.findQueueEntryByPromptId(promptId);
+
+  if (queueEntry) {
+    // Update cache
+    promptIdToQueueEntryCache.set(promptId, {
+      queueId: queueEntry.queueId,
+      connectionId: queueEntry.connectionId,
+      comfyPromptId: queueEntry.comfyPromptId || promptId, // Use promptId as fallback
+      timestamp: now,
+    });
+    console.log(`💾 Cached queue entry for prompt ID: ${promptId}`);
+  }
+
+  return queueEntry;
+}
+
+/**
+ * Remove expired entries from cache
+ */
+function cleanupExpiredCache() {
+  const now = Date.now();
+  const expiredKeys: string[] = [];
+
+  for (const [promptId, cached] of promptIdToQueueEntryCache.entries()) {
+    if (now - cached.timestamp >= CACHE_TTL) {
+      expiredKeys.push(promptId);
+    }
+  }
+
+  expiredKeys.forEach((key) => {
+    promptIdToQueueEntryCache.delete(key);
+    console.log(`🧹 Removed expired cache entry for prompt ID: ${key}`);
+  });
+}
+
+/**
+ * Remove cache entries for a specific connection ID
+ */
+function cleanupCacheByConnectionId(connectionId: string) {
+  const keysToRemove: string[] = [];
+
+  for (const [promptId, cached] of promptIdToQueueEntryCache.entries()) {
+    if (cached.connectionId === connectionId) {
+      keysToRemove.push(promptId);
+    }
+  }
+
+  keysToRemove.forEach((key) => {
+    promptIdToQueueEntryCache.delete(key);
+    console.log(
+      `🧹 Removed cache entry for gone connection ${connectionId}, prompt ID: ${key}`
+    );
+  });
+}
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -92,12 +249,26 @@ export const handler = async (
         break;
 
       default:
-        console.warn(`⚠️ Unknown action: ${message.action}`);
-        await sendErrorToConnection(
-          connectionId,
-          `Unknown action: ${message.action}`,
-          message.requestId
-        );
+        switch (message.type) {
+          case "progress_state":
+            await handleProgressState(message as ComfyUIProgressState);
+            break;
+
+          case "executed":
+            await handleGenerationComplete(message as ComfyUIExecutedMessage);
+            break;
+
+          default:
+            console.info(
+              `⚠️ Unknown action, message: ${JSON.stringify(message)}`
+            );
+            break;
+        }
+        // await sendErrorToConnection(
+        //   connectionId,
+        //   `Unknown action: ${message.action}`,
+        //   message.requestId
+        // );
         break;
     }
 
@@ -113,6 +284,476 @@ export const handler = async (
     };
   }
 };
+
+async function createMediaEntitiesFirst(
+  queueEntry: QueueEntry,
+  images: Array<{ filename: string; subfolder: string; type: string }>
+): Promise<MediaEntity[]> {
+  const createdEntities: MediaEntity[] = [];
+
+  console.log(
+    `💾 Creating ${images.length} media entities in DynamoDB for generation: ${queueEntry.queueId}`
+  );
+
+  for (let index = 0; index < images.length; index++) {
+    const image = images[index];
+
+    if (!image) {
+      console.error(`No image found at index ${index}`);
+      continue;
+    }
+
+    try {
+      const mediaId = `${queueEntry.queueId}_${index}`;
+      // Extract file extension from the actual image filename
+      const fileExtension = image.filename.split(".").pop() || "jpg";
+      const customFilename = `${mediaId}.${fileExtension}`;
+      const s3Key = `generated/${queueEntry.queueId}/${customFilename}`;
+
+      // Generate relative URL from S3 key
+      const relativeUrl = S3Service.getRelativePath(s3Key);
+
+      // Extract dimensions from queue parameters or use defaults
+      const width = queueEntry.parameters.width || 1024;
+      const height = queueEntry.parameters.height || 1024;
+
+      // Create generation-specific metadata
+      const generationMetadata = createGenerationMetadata({
+        prompt: queueEntry.parameters.prompt || "Generated image",
+        negativePrompt: queueEntry.parameters.negativePrompt || "",
+        width,
+        height,
+        generationId: queueEntry.queueId,
+        selectedLoras: queueEntry.parameters?.selectedLoras || [],
+        batchCount: images.length,
+        loraStrengths: queueEntry.parameters?.loraStrengths || {},
+        loraSelectionMode: queueEntry.parameters?.loraSelectionMode,
+        optimizePrompt: queueEntry.parameters?.optimizePrompt || false,
+      });
+
+      // Create MediaEntity for database storage using shared utility
+      const mediaEntity: MediaEntity = createMediaEntity({
+        mediaId,
+        userId: queueEntry.userId,
+        filename: s3Key, // Use S3 key as filename
+        originalFilename: image.filename, // Use actual ComfyUI filename
+        mimeType: `image/${fileExtension}`, // Use actual file extension for MIME type
+        width,
+        height,
+        url: relativeUrl, // Use relative URL from S3 key
+        metadata: generationMetadata,
+        // Thumbnails will be set by process-upload worker
+        // Status defaults to "pending" and will be updated by process-upload worker
+        // Interaction counts default to 0
+        // createdByType defaults to "user"
+      });
+
+      // Save to database
+      await DynamoDBService.createMedia(mediaEntity);
+      createdEntities.push(mediaEntity);
+
+      console.log(`✅ Created media entity ${mediaId} in DynamoDB`);
+    } catch (error) {
+      const errorMessage = `Failed to create media entity ${index}: ${
+        error instanceof Error ? error.message : String(error)
+      }`;
+      console.error(`❌ ${errorMessage}`);
+      // Continue with other entities - we'll handle partial failures
+    }
+  }
+
+  // Update user metrics for generated media
+  if (createdEntities.length > 0) {
+    try {
+      // Increment totalGeneratedMedias metric for each created media
+      await DynamoDBService.incrementUserProfileMetric(
+        queueEntry.userId,
+        "totalGeneratedMedias",
+        createdEntities.length
+      );
+      console.log(
+        `📈 Incremented totalGeneratedMedias by ${createdEntities.length} for user: ${queueEntry.userId}`
+      );
+    } catch (error) {
+      console.warn(
+        `⚠️ Failed to update user metrics for ${queueEntry.userId}:`,
+        error
+      );
+      // Don't fail the entire operation if metrics update fails
+    }
+  }
+
+  console.log(
+    `💾 Created ${createdEntities.length}/${images.length} media entities in DynamoDB`
+  );
+
+  return createdEntities;
+}
+
+async function downloadAndUploadImage(
+  image: { filename: string; subfolder: string; type: string },
+  queueEntry: QueueEntry,
+  comfyuiEndpoint: string,
+  mediaId: string
+): Promise<string | null> {
+  try {
+    // Download image from ComfyUI
+    const imageUrl = `${comfyuiEndpoint}/view?filename=${encodeURIComponent(
+      image.filename
+    )}&subfolder=${encodeURIComponent(
+      image.subfolder
+    )}&type=${encodeURIComponent(image.type)}`;
+
+    console.log(`Downloading image from: ${imageUrl}`);
+
+    const response = await axios.get(imageUrl, {
+      responseType: "arraybuffer",
+      timeout: 30000, // 30 second timeout
+    });
+
+    if (response.status !== 200) {
+      throw new Error(`Failed to download image: HTTP ${response.status}`);
+    }
+
+    const imageBuffer = Buffer.from(response.data);
+
+    // Generate file extension for the image
+    const fileExtension = image.filename.split(".").pop() || "png";
+    const customFilename = `${mediaId}.${fileExtension}`;
+
+    // Upload to S3 with custom filename
+    const result = await s3Service.uploadGeneratedImageWithCustomFilename(
+      imageBuffer,
+      queueEntry.queueId,
+      customFilename,
+      `image/${fileExtension}`
+    );
+
+    console.log(`Successfully uploaded image to S3: ${result.publicUrl}`);
+
+    return result.publicUrl;
+  } catch (error) {
+    console.error(`Failed to download/upload image ${image.filename}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Main function to handle generation completion from ComfyUI executed message
+ * @param message - Raw ComfyUI executed websocket message
+ * @param context - Generation context with queue and user information
+ * @returns CompletionData object or null if no images
+ */
+export async function handleGenerationComplete(
+  message: ComfyUIExecutedMessage
+): Promise<void | null> {
+  const { prompt_id, node, output } = message.data;
+
+  const queueEntry = await queueService.findQueueEntryByPromptId(prompt_id);
+
+  // Check if this execution produced images
+  const images = output.images || [];
+
+  if (images.length === 0) {
+    console.log(`Node ${node} executed but produced no images`);
+    return null;
+  }
+
+  console.log(`Node ${node} produced ${images.length} image(s)`);
+
+  if (queueEntry && images.length > 0) {
+    const COMFYUI_ENDPOINT =
+      await ParameterStoreService.getComfyUIApiEndpoint();
+
+    // Create Media entities in DynamoDB FIRST before uploading to S3
+    const createdMediaEntities = await createMediaEntitiesFirst(
+      queueEntry,
+      images
+    );
+
+    if (createdMediaEntities.length === 0) {
+      throw new Error("Failed to create any media entities in DynamoDB");
+    }
+
+    console.log(
+      `Created ${createdMediaEntities.length} media entities in DynamoDB`
+    );
+
+    // Download and upload images to S3 using predictable filenames
+    const uploadedImageUrls: string[] = [];
+
+    for (let index = 0; index < images.length; index++) {
+      const image = images[index];
+      const mediaEntity = createdMediaEntities[index];
+
+      if (!image) {
+        console.error(`No image found at index ${index}`);
+        continue;
+      }
+
+      if (!mediaEntity) {
+        console.error(`No media entity found for image ${index}`);
+        continue;
+      }
+
+      try {
+        const imageUrl = await downloadAndUploadImage(
+          image,
+          queueEntry,
+          COMFYUI_ENDPOINT,
+          mediaEntity.id
+        );
+        if (imageUrl) {
+          uploadedImageUrls.push(imageUrl);
+        }
+      } catch (error) {
+        console.error(`Failed to process image ${image.filename}:`, error);
+        // Continue with other images
+      }
+    }
+
+    if (uploadedImageUrls.length === 0) {
+      throw new Error("Failed to upload any generated images");
+    }
+
+    console.log(`Successfully uploaded ${uploadedImageUrls.length} images`);
+
+    // Update queue entry with completion status
+    try {
+      // Convert MediaEntities to Media objects for response
+      const mediaObjects: Media[] = createdMediaEntities.map((mediaEntity) =>
+        DynamoDBService.convertMediaEntityToMedia(mediaEntity)
+      );
+
+      console.log(
+        `Using ${mediaObjects.length} already-created Media entities for job completion`
+      );
+
+      // Update queue entry with completion status
+      await queueService.updateQueueEntry(queueEntry.queueId, {
+        status: "completed",
+        resultImageUrl: uploadedImageUrls[0] || undefined, // Primary image URL
+        completedAt: Date.now().toString(),
+      });
+
+      console.log(
+        `Updated queue entry ${queueEntry.queueId} status to completed`
+      );
+
+      // Broadcast completion to connected WebSocket clients
+      if (WEBSOCKET_ENDPOINT && queueEntry.connectionId) {
+        const message = {
+          type: "completed",
+          queueId: queueEntry.queueId,
+          promptId: queueEntry.comfyPromptId,
+          timestamp: new Date().toISOString(),
+          status: "completed",
+          message: "Generation completed successfully!",
+          medias: mediaObjects,
+        };
+
+        await sendMessageToConnection(queueEntry.connectionId, message);
+      }
+    } catch (error) {
+      console.error("Error handling job completion:", error);
+      throw error;
+    }
+  } else {
+    console.log(`Node ${node} executed but produced no images`);
+    return null;
+  }
+}
+
+/**
+ * Check if a ComfyUI executed message contains images
+ */
+export function hasGeneratedImages(message: ComfyUIExecutedMessage): boolean {
+  return !!(
+    message.data.output.images && message.data.output.images.length > 0
+  );
+}
+
+/**
+ * Extract image references from ComfyUI executed message
+ * Useful for downloading images from ComfyUI server
+ */
+export function extractImageReferences(
+  message: ComfyUIExecutedMessage,
+  comfyuiEndpoint: string
+): Array<{ url: string; image: ComfyUIImage; index: number }> {
+  const images = message.data.output.images || [];
+
+  return images.map((image, index) => ({
+    url: `${comfyuiEndpoint}/view?filename=${encodeURIComponent(
+      image.filename
+    )}&subfolder=${encodeURIComponent(
+      image.subfolder
+    )}&type=${encodeURIComponent(image.type)}`,
+    image,
+    index,
+  }));
+}
+
+/**
+ * Format node name for better display
+ */
+function formatNodeName(displayNodeId: string, nodeTitle?: string): string {
+  // Use nodeTitle if available, otherwise format displayNodeId
+  if (nodeTitle && nodeTitle !== displayNodeId) {
+    return nodeTitle;
+  }
+
+  // Convert node IDs like "KSampler" to "K-Sampler" for better readability
+  return displayNodeId
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase())
+    .trim();
+}
+
+/**
+ * Create intelligent progress message based on node state and progress
+ */
+function formatProgressMessage(
+  displayNodeId: string,
+  progress: number,
+  maxProgress: number,
+  percentage: number,
+  state: string,
+  nodeTitle?: string
+): string {
+  const finalNodeTitle = nodeTitle || displayNodeId;
+
+  // Create different messages based on node type and state
+  if (displayNodeId.toLowerCase().includes("sampler")) {
+    return `Generating image using ${finalNodeTitle}: ${progress}/${maxProgress} steps (${percentage}%)`;
+  } else if (displayNodeId.toLowerCase().includes("load")) {
+    return `Loading ${finalNodeTitle}: ${percentage}%`;
+  } else if (displayNodeId.toLowerCase().includes("encode")) {
+    return `Encoding with ${finalNodeTitle}: ${progress}/${maxProgress} (${percentage}%)`;
+  } else if (displayNodeId.toLowerCase().includes("decode")) {
+    return `Decoding with ${finalNodeTitle}: ${progress}/${maxProgress} (${percentage}%)`;
+  } else if (displayNodeId.toLowerCase().includes("vae")) {
+    return `Processing with VAE: ${progress}/${maxProgress} (${percentage}%)`;
+  } else {
+    return `${finalNodeTitle}: ${progress}/${maxProgress} (${percentage}%) - ${state}`;
+  }
+}
+
+/**
+ * Transform ComfyUI progress_state websocket message to progressData format
+ * @param message - The raw ComfyUI websocket message
+ * @param nodeTitle - Optional node title from external source (e.g., workflow metadata)
+ * @returns Array of ProgressData objects (one per active node)
+ */
+export function transformComfyUIProgressToProgressData(
+  message: ComfyUIProgressState,
+  nodeTitles?: Record<string, string>
+): ProgressData[] {
+  const { prompt_id, nodes } = message.data;
+  const progressDataArray: ProgressData[] = [];
+
+  if (!prompt_id || !nodes || Object.keys(nodes).length === 0) {
+    return progressDataArray;
+  }
+
+  // Transform each node in the progress state
+  for (const [nodeId, nodeInfo] of Object.entries(nodes)) {
+    const value = nodeInfo.value || 0;
+    const max = nodeInfo.max || 1;
+    const percentage =
+      max > 0 ? Math.round((value / max) * 100 * 100) / 100 : 0; // Round to 2 decimals
+    const displayNodeId = nodeInfo.display_node_id || nodeId;
+    const nodeTitle = nodeTitles?.[nodeId] || displayNodeId;
+
+    const progressData: ProgressData = {
+      nodeId,
+      displayNodeId,
+      currentNode: displayNodeId,
+      nodeName: formatNodeName(displayNodeId, nodeTitle),
+      value,
+      max,
+      percentage,
+      nodeState: nodeInfo.state || "unknown",
+      parentNodeId: nodeInfo.parent_node_id,
+      realNodeId: nodeInfo.real_node_id || nodeId,
+      nodeTitle,
+      message: formatProgressMessage(
+        displayNodeId,
+        value,
+        max,
+        percentage,
+        nodeInfo.state || "unknown",
+        nodeTitle
+      ),
+    };
+
+    progressDataArray.push(progressData);
+  }
+
+  return progressDataArray;
+}
+
+/**
+ * Get the most relevant progress data from multiple nodes
+ * (typically the one that's currently running)
+ */
+export function getMostRelevantProgress(
+  progressDataArray: ProgressData[]
+): ProgressData | undefined {
+  if (progressDataArray.length === 0) {
+    return undefined;
+  }
+
+  // Prioritize running nodes
+  const runningNode = progressDataArray.find((p) => p.nodeState === "running");
+  if (runningNode) {
+    return runningNode;
+  }
+
+  // Otherwise return the first node
+  return progressDataArray[0];
+}
+
+async function handleProgressState(
+  message: ComfyUIProgressState
+): Promise<void> {
+  const progressDataArray = transformComfyUIProgressToProgressData(message);
+  const mostRelevantProgress = getMostRelevantProgress(progressDataArray);
+
+  if (mostRelevantProgress) {
+    // Clean up expired cache entries periodically (every few calls)
+    if (Math.random() < 0.1) {
+      // 10% chance to trigger cleanup
+      cleanupExpiredCache();
+    }
+
+    const queueEntry = await getQueueEntryWithCache(message.data.prompt_id);
+
+    if (queueEntry) {
+      const data = {
+        type: "job_progress",
+        queueId: queueEntry.queueId,
+        promptId: queueEntry.comfyPromptId,
+        timestamp: new Date().toISOString(),
+        status: "processing",
+        progressType: "node_progress",
+        progressData: mostRelevantProgress,
+      };
+
+      if (queueEntry.connectionId) {
+        await sendMessageToConnection(queueEntry.connectionId, data);
+      } else {
+        console.warn(`No connection found for queue ${queueEntry.queueId}`);
+      }
+    } else {
+      console.warn(`No queue entry found for prompt ${message.data.prompt_id}`);
+    }
+  } else {
+    console.warn(
+      `No relevant progress found for prompt ${message.data.prompt_id}`
+    );
+  }
+}
 
 /**
  * Handle subscription to generation updates
@@ -312,6 +953,9 @@ async function sendMessageToConnection(
             },
           })
         );
+
+        // Clean up cache entries for this connection
+        cleanupCacheByConnectionId(connectionId);
       } catch (cleanupError) {
         console.error(
           `❌ Failed to cleanup connection ${connectionId}:`,

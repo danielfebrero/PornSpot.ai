@@ -23,10 +23,10 @@ import {
   QueueEntry,
 } from "@shared/services/generation-queue";
 import { OpenRouterService } from "@shared/services/openrouter-chat";
-import { EventBridge } from "aws-sdk";
 import {
   createComfyUIWorkflow,
   DEFAULT_WORKFLOW_PARAMS,
+  WorkflowParameters,
 } from "@shared/templates/comfyui-workflow";
 import { createWorkflowData } from "@shared/utils/workflow-nodes";
 import {
@@ -39,12 +39,20 @@ import type {
   WorkflowFinalParams,
   WorkflowData,
 } from "@shared/shared-types";
+import { ParameterStoreService } from "@shared/utils/parameters";
+import {
+  getComfyUIClient,
+  initializeComfyUIClient,
+} from "@shared/services/comfyui-client";
+import {
+  ComfyUIError,
+  ComfyUIErrorType,
+  ComfyUIRetryHandler,
+} from "@shared/services/comfyui-error-handler";
 
 // ====================================
 // Constants and Configuration
 // ====================================
-
-const EVENT_BUS_NAME = process.env["EVENTBRIDGE_BUS_NAME"] || "comfyui-events";
 
 // Plan limits configuration
 const PLAN_LIMITS = {
@@ -569,8 +577,7 @@ async function handlePromptOptimization(
   requestBody: GenerationRequest,
   connectionId: string | null,
   queueId: string,
-  queueEntry: QueueEntry,
-  priority: number
+  queueEntry: QueueEntry
 ): Promise<OptimizationResult> {
   try {
     console.log("🎨 Starting prompt optimization via WebSocket");
@@ -716,8 +723,7 @@ async function handlePromptOptimization(
     // Generate workflow data
     const workflowData = generateWorkflowData(workflowParams);
 
-    // Publish event for processing
-    await publishQueueSubmissionEvent(queueId, priority);
+    await submitPrompt(queueId);
 
     const response: GenerationResponse = {
       queueId,
@@ -808,16 +814,7 @@ async function processGenerationQueue(
   // Generate workflow data from parameters
   const workflowData = generateWorkflowData(workflowParams);
 
-  // Publish event for immediate processing
-  try {
-    await publishQueueSubmissionEvent(queueEntry.queueId, priority);
-    console.log(
-      `🚀 Published queue submission event for ${queueEntry.queueId}`
-    );
-  } catch (eventError) {
-    console.error("Failed to publish queue submission event:", eventError);
-    // Continue - scheduled processor will pick it up as fallback
-  }
+  await submitPrompt(queueEntry.queueId);
 
   return {
     queueId: queueEntry.queueId,
@@ -830,35 +827,6 @@ async function processGenerationQueue(
     workflowData,
     optimizedPrompt: optimizedPromptResult || undefined,
   };
-}
-
-/**
- * Publishes queue submission event to EventBridge for processing
- * @param queueId - Queue entry ID
- * @param priority - User's priority level
- */
-async function publishQueueSubmissionEvent(
-  queueId: string,
-  priority: number
-): Promise<void> {
-  const eventBridge = new EventBridge();
-
-  await eventBridge
-    .putEvents({
-      Entries: [
-        {
-          Source: "comfyui.queue",
-          DetailType: "Queue Item Submission",
-          Detail: JSON.stringify({
-            queueId,
-            priority,
-            retryCount: 0,
-          }),
-          EventBusName: EVENT_BUS_NAME,
-        },
-      ],
-    })
-    .promise();
 }
 
 /**
@@ -903,6 +871,160 @@ function generateWorkflowData(params: WorkflowFinalParams): WorkflowData {
     };
   }
 }
+
+/**
+ * Creates the selectedLoras array with proper structure for workflow parameters
+ * @param queueItem - The queue item containing LoRA configuration
+ * @returns Array of LoRA objects with id, name, and strength
+ */
+function createSelectedLorasArray(queueItem: QueueEntry): Array<{
+  id: string;
+  name: string;
+  strength: number;
+}> {
+  const selectedLoras: Array<{
+    id: string;
+    name: string;
+    strength: number;
+  }> = [];
+
+  if (
+    !queueItem.parameters.selectedLoras ||
+    !Array.isArray(queueItem.parameters.selectedLoras)
+  ) {
+    return selectedLoras;
+  }
+
+  queueItem.parameters.selectedLoras.forEach(
+    (loraName: string, index: number) => {
+      let strength = 1; // Default strength
+
+      // Check if we have strength configuration for this LoRA
+      if (
+        queueItem.parameters.loraStrengths &&
+        queueItem.parameters.loraStrengths[loraName]
+      ) {
+        const loraConfig = queueItem.parameters.loraStrengths[loraName];
+
+        // If mode is "auto", use strength 1, otherwise use the configured value
+        if (loraConfig.mode === "auto") {
+          strength = 1;
+        } else {
+          strength = loraConfig.value || 1;
+        }
+      }
+
+      selectedLoras.push({
+        id: `lora_${index}`,
+        name: loraName,
+        strength: strength,
+      });
+    }
+  );
+
+  return selectedLoras;
+}
+
+export const submitPrompt = async (queueId: string): Promise<void> => {
+  const queueService = GenerationQueueService.getInstance();
+  let queueItem: any = null;
+
+  try {
+    const COMFYUI_ENDPOINT =
+      await ParameterStoreService.getComfyUIApiEndpoint();
+    // Get queue item from DynamoDB
+    queueItem = await queueService.getQueueEntry(queueId);
+    if (!queueItem) {
+      console.error(`❌ Queue item not found: ${queueId}`);
+      return;
+    }
+
+    if (queueItem.status !== "pending") {
+      console.log(
+        `⚠️  Queue item ${queueId} is not pending (status: ${queueItem.status})`
+      );
+      return;
+    }
+
+    // Mark as processing
+    await queueService.updateQueueEntry(queueId, {
+      status: "processing",
+      startedAt: Date.now().toString(),
+    });
+
+    console.log(`🎨 Processing queue item: ${queueId}`);
+
+    // Initialize ComfyUI client
+    let comfyUIClient;
+    try {
+      comfyUIClient = getComfyUIClient();
+    } catch {
+      console.log(
+        `🔄 Initializing ComfyUI client with baseUrl: ${COMFYUI_ENDPOINT}`
+      );
+      comfyUIClient = initializeComfyUIClient(COMFYUI_ENDPOINT);
+    }
+
+    // Health check ComfyUI with retry
+    const isHealthy = await ComfyUIRetryHandler.withRetry(
+      () => comfyUIClient.healthCheck(),
+      { maxRetries: 2, baseDelay: 2000 },
+      { operationName: "healthCheck", promptId: queueId }
+    );
+
+    if (!isHealthy) {
+      throw new ComfyUIError(
+        ComfyUIErrorType.CONNECTION_FAILED,
+        "ComfyUI service is not available after health check",
+        { promptId: queueId, retryable: true }
+      );
+    }
+
+    // Create workflow parameters
+    const workflowParams: WorkflowParameters = {
+      prompt: queueItem.prompt,
+      negativePrompt: queueItem.parameters.negativePrompt,
+      width: queueItem.parameters.width,
+      height: queueItem.parameters.height,
+      batchSize: queueItem.parameters.batch_size || 1,
+      selectedLoras: createSelectedLorasArray(queueItem),
+    };
+
+    // Submit prompt to ComfyUI
+    const submitResult = await comfyUIClient.submitPrompt(
+      workflowParams,
+      "666" // Use monitor client_id instead of queueId
+    );
+
+    console.log("Submited prompt with workflow: ", workflowParams);
+
+    const comfyPromptId = submitResult.promptId;
+
+    // Update queue entry with ComfyUI prompt ID
+    await queueService.updateQueueEntry(queueId, {
+      comfyPromptId,
+      status: "processing",
+    });
+
+    console.log(
+      `✅ ComfyUI submission successful: promptId=${comfyPromptId}, queueId=${queueId}`
+    );
+  } catch (error) {
+    const comfyError =
+      error instanceof ComfyUIError
+        ? error
+        : new ComfyUIError(
+            ComfyUIErrorType.UNKNOWN_ERROR,
+            error instanceof Error ? error.message : "Unknown error",
+            { promptId: queueId }
+          );
+
+    console.error(
+      `❌ Queue submission error for ${queueId}:`,
+      comfyError.message
+    );
+  }
+};
 
 // ====================================
 // Main Handler
@@ -1024,8 +1146,7 @@ const handleGenerate = async (
       requestBody,
       connectionId,
       queueId,
-      queueEntry,
-      priority
+      queueEntry
     );
 
     // Check for moderation failure
