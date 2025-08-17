@@ -51,6 +51,42 @@ import {
 } from "@shared/services/comfyui-error-handler";
 
 // ====================================
+// Performance Monitoring Utilities
+// ====================================
+
+/**
+ * Performance timer utility for measuring execution time
+ */
+class PerformanceTimer {
+  private startTime: number;
+  private label: string;
+
+  constructor(label: string) {
+    this.label = label;
+    this.startTime = performance.now();
+    console.log(`[PERFORMANCE] ${this.label} - Started`);
+  }
+
+  end(): number {
+    const elapsed = performance.now() - this.startTime;
+    console.log(
+      `[PERFORMANCE] ${this.label} - Completed in ${elapsed.toFixed(2)}ms`
+    );
+    return elapsed;
+  }
+
+  checkpoint(checkpointLabel: string): number {
+    const elapsed = performance.now() - this.startTime;
+    console.log(
+      `[PERFORMANCE] ${this.label} - ${checkpointLabel}: ${elapsed.toFixed(
+        2
+      )}ms`
+    );
+    return elapsed;
+  }
+}
+
+// ====================================
 // Constants and Configuration
 // ====================================
 
@@ -417,9 +453,13 @@ async function sendOptimizationMessageToConnection(
 async function performAutoLoRASelection(
   validatedPrompt: string
 ): Promise<string[]> {
+  const startTime = performance.now();
+  console.log("[PERFORMANCE] Starting LoRA selection");
+
   try {
     console.log("🎯 Performing automatic LoRA selection");
 
+    const openRouterStart = performance.now();
     const openRouterService = OpenRouterService.getInstance();
     const loraSelectionResponse = await openRouterService.chatCompletion({
       instructionTemplate: "loras-selection",
@@ -430,6 +470,11 @@ async function performAutoLoRASelection(
         max_tokens: 512,
       },
     });
+    console.log(
+      `[PERFORMANCE] OpenRouter LoRA selection API call took ${(
+        performance.now() - openRouterStart
+      ).toFixed(2)}ms`
+    );
 
     const loraContent = loraSelectionResponse.content.trim();
     console.log("🎯 LoRA selection response:", loraContent);
@@ -480,8 +525,17 @@ async function performAutoLoRASelection(
     }
 
     console.log("✅ Selected LoRAs:", selectedLoras);
+
+    const totalTime = performance.now() - startTime;
+    console.log(
+      `[PERFORMANCE] LoRA selection completed in ${totalTime.toFixed(2)}ms`
+    );
     return selectedLoras;
   } catch (error) {
+    const totalTime = performance.now() - startTime;
+    console.log(
+      `[PERFORMANCE] LoRA selection failed after ${totalTime.toFixed(2)}ms`
+    );
     console.error("❌ LoRA selection failed:", error);
     // Return empty array as fallback
     return [];
@@ -500,9 +554,13 @@ async function performPromptModeration(
   connectionId: string | null,
   queueId: string
 ): Promise<ModerationResult> {
+  const startTime = performance.now();
+  console.log("[PERFORMANCE] Starting prompt moderation");
+
   try {
     console.log("🛡️ Checking prompt moderation");
 
+    const openRouterStart = performance.now();
     const openRouterService = OpenRouterService.getInstance();
     const moderationResponse = await openRouterService.chatCompletion({
       instructionTemplate: "prompt-moderation",
@@ -513,6 +571,11 @@ async function performPromptModeration(
         max_tokens: 256,
       },
     });
+    console.log(
+      `[PERFORMANCE] OpenRouter moderation API call took ${(
+        performance.now() - openRouterStart
+      ).toFixed(2)}ms`
+    );
 
     const moderationContent = moderationResponse.content.trim();
 
@@ -552,8 +615,16 @@ async function performPromptModeration(
     }
 
     console.log("✅ Prompt passed moderation check");
+    const totalTime = performance.now() - startTime;
+    console.log(
+      `[PERFORMANCE] Prompt moderation completed in ${totalTime.toFixed(2)}ms`
+    );
     return { passed: true };
   } catch (error) {
+    const totalTime = performance.now() - startTime;
+    console.log(
+      `[PERFORMANCE] Prompt moderation failed after ${totalTime.toFixed(2)}ms`
+    );
     console.error("❌ Moderation check failed:", error);
     return {
       passed: false,
@@ -579,6 +650,9 @@ async function handlePromptOptimization(
   queueId: string,
   queueEntry: QueueEntry
 ): Promise<OptimizationResult> {
+  const startTime = performance.now();
+  console.log("[PERFORMANCE] Starting prompt optimization");
+
   try {
     console.log("🎨 Starting prompt optimization via WebSocket");
 
@@ -594,10 +668,17 @@ async function handlePromptOptimization(
     }
 
     const queueService = GenerationQueueService.getInstance();
+    const openRouterServiceStart = performance.now();
     const openRouterService = OpenRouterService.getInstance();
+    console.log(
+      `[PERFORMANCE] OpenRouter service initialization took ${(
+        performance.now() - openRouterServiceStart
+      ).toFixed(2)}ms`
+    );
     let optimizedPrompt = "";
 
     // Send initial optimization event
+    const websocketSendStart = performance.now();
     await sendOptimizationMessageToConnection(connectionId, {
       type: "optimization_start",
       optimizationData: {
@@ -606,8 +687,14 @@ async function handlePromptOptimization(
         completed: false,
       },
     });
+    console.log(
+      `[PERFORMANCE] Initial WebSocket message took ${(
+        performance.now() - websocketSendStart
+      ).toFixed(2)}ms`
+    );
 
     // Start moderation, optimization, and LoRA selection in parallel
+    const parallelStart = performance.now();
     const moderationPromise = performPromptModeration(
       validatedPrompt,
       connectionId,
@@ -620,6 +707,7 @@ async function handlePromptOptimization(
         ? performAutoLoRASelection(validatedPrompt)
         : Promise.resolve(requestBody.selectedLoras);
 
+    const optimizationStreamStart = performance.now();
     const optimizationStreamPromise = openRouterService.chatCompletionStream({
       instructionTemplate: "prompt-optimization",
       userMessage: validatedPrompt.trim(),
@@ -629,6 +717,16 @@ async function handlePromptOptimization(
         max_tokens: 1024,
       },
     });
+    console.log(
+      `[PERFORMANCE] Optimization stream setup took ${(
+        performance.now() - optimizationStreamStart
+      ).toFixed(2)}ms`
+    );
+    console.log(
+      `[PERFORMANCE] Parallel operations setup took ${(
+        performance.now() - parallelStart
+      ).toFixed(2)}ms`
+    );
 
     // Handle streaming with moderation check
     const stream = await optimizationStreamPromise;
@@ -675,13 +773,25 @@ async function handlePromptOptimization(
       });
 
     // Wait for streaming to complete
+    const streamingStart = performance.now();
     await streamingPromise;
+    console.log(
+      `[PERFORMANCE] Streaming completion took ${(
+        performance.now() - streamingStart
+      ).toFixed(2)}ms`
+    );
 
     // Wait for moderation and LoRA selection to complete
+    const parallelCompletionStart = performance.now();
     const [finalModerationResult, selectedLoras] = await Promise.all([
       moderationPromise,
       loraSelectionPromise,
     ]);
+    console.log(
+      `[PERFORMANCE] Parallel operations completion took ${(
+        performance.now() - parallelCompletionStart
+      ).toFixed(2)}ms`
+    );
 
     requestBody.selectedLoras = selectedLoras;
 
@@ -714,16 +824,34 @@ async function handlePromptOptimization(
     console.log("✅ Prompt optimization completed via WebSocket");
 
     // Update queue entry with optimized prompt
+    const queueUpdateStart = performance.now();
     const workflowParams = createWorkflowParams(requestBody, finalPrompt);
     await queueService.updateQueueEntry(queueId, {
       prompt: finalPrompt,
       parameters: workflowParams,
     });
+    console.log(
+      `[PERFORMANCE] Queue entry update took ${(
+        performance.now() - queueUpdateStart
+      ).toFixed(2)}ms`
+    );
 
     // Generate workflow data
+    const workflowGenStart = performance.now();
     const workflowData = generateWorkflowData(workflowParams);
+    console.log(
+      `[PERFORMANCE] Workflow data generation took ${(
+        performance.now() - workflowGenStart
+      ).toFixed(2)}ms`
+    );
 
+    const submitStart = performance.now();
     await submitPrompt(queueId);
+    console.log(
+      `[PERFORMANCE] Prompt submission took ${(
+        performance.now() - submitStart
+      ).toFixed(2)}ms`
+    );
 
     const response: GenerationResponse = {
       queueId,
@@ -737,6 +865,10 @@ async function handlePromptOptimization(
       optimizedPrompt: optimizedPromptResult,
     };
 
+    const totalTime = performance.now() - startTime;
+    console.log(
+      `[PERFORMANCE] Prompt optimization completed in ${totalTime.toFixed(2)}ms`
+    );
     return {
       finalPrompt,
       optimizedPromptResult,
@@ -745,6 +877,10 @@ async function handlePromptOptimization(
       response,
     };
   } catch (optimizationError: any) {
+    const totalTime = performance.now() - startTime;
+    console.log(
+      `[PERFORMANCE] Prompt optimization failed after ${totalTime.toFixed(2)}ms`
+    );
     console.error("❌ Prompt optimization failed:", optimizationError);
 
     // Check if this was a moderation failure
@@ -793,11 +929,21 @@ async function processGenerationQueue(
   priority: number,
   optimizedPromptResult: string | null
 ): Promise<GenerationResponse> {
+  const startTime = performance.now();
+  console.log("[PERFORMANCE] Starting queue processing");
+
   // Get active WebSocket connection for real-time updates
+  const connectionStart = performance.now();
   const connectionId = await DynamoDBService.getActiveConnectionIdForUser(
     auth.userId
   );
+  console.log(
+    `[PERFORMANCE] Connection lookup took ${(
+      performance.now() - connectionStart
+    ).toFixed(2)}ms`
+  );
 
+  const queueAddStart = performance.now();
   console.log("Adding to queue");
   const queueEntry = await queueService.addToQueue(
     auth.userId,
@@ -806,15 +952,37 @@ async function processGenerationQueue(
     connectionId || undefined,
     priority
   );
+  console.log(
+    `[PERFORMANCE] Queue entry addition took ${(
+      performance.now() - queueAddStart
+    ).toFixed(2)}ms`
+  );
 
   console.log(
     `📋 Added generation request to queue: ${queueEntry.queueId} for user ${auth.userId}, position: ${queueEntry.queuePosition}`
   );
 
   // Generate workflow data from parameters
+  const workflowDataStart = performance.now();
   const workflowData = generateWorkflowData(workflowParams);
+  console.log(
+    `[PERFORMANCE] Workflow data generation took ${(
+      performance.now() - workflowDataStart
+    ).toFixed(2)}ms`
+  );
 
+  const submitStart = performance.now();
   await submitPrompt(queueEntry.queueId);
+  console.log(
+    `[PERFORMANCE] Prompt submission took ${(
+      performance.now() - submitStart
+    ).toFixed(2)}ms`
+  );
+
+  const totalTime = performance.now() - startTime;
+  console.log(
+    `[PERFORMANCE] Total queue processing time: ${totalTime.toFixed(2)}ms`
+  );
 
   return {
     queueId: queueEntry.queueId,
@@ -926,14 +1094,31 @@ function createSelectedLorasArray(queueItem: QueueEntry): Array<{
 }
 
 export const submitPrompt = async (queueId: string): Promise<void> => {
+  const startTime = performance.now();
+  console.log(`[PERFORMANCE] Starting ComfyUI submission for queue ${queueId}`);
+
   const queueService = GenerationQueueService.getInstance();
   let queueItem: any = null;
 
   try {
+    const parameterStart = performance.now();
     const COMFYUI_ENDPOINT =
       await ParameterStoreService.getComfyUIApiEndpoint();
+    console.log(
+      `[PERFORMANCE] Parameter store lookup took ${(
+        performance.now() - parameterStart
+      ).toFixed(2)}ms`
+    );
+
     // Get queue item from DynamoDB
+    const queueFetchStart = performance.now();
     queueItem = await queueService.getQueueEntry(queueId);
+    console.log(
+      `[PERFORMANCE] Queue item fetch took ${(
+        performance.now() - queueFetchStart
+      ).toFixed(2)}ms`
+    );
+
     if (!queueItem) {
       console.error(`❌ Queue item not found: ${queueId}`);
       return;
@@ -947,14 +1132,21 @@ export const submitPrompt = async (queueId: string): Promise<void> => {
     }
 
     // Mark as processing
+    const statusUpdateStart = performance.now();
     await queueService.updateQueueEntry(queueId, {
       status: "processing",
       startedAt: Date.now().toString(),
     });
+    console.log(
+      `[PERFORMANCE] Status update took ${(
+        performance.now() - statusUpdateStart
+      ).toFixed(2)}ms`
+    );
 
     console.log(`🎨 Processing queue item: ${queueId}`);
 
     // Initialize ComfyUI client
+    const clientInitStart = performance.now();
     let comfyUIClient;
     try {
       comfyUIClient = getComfyUIClient();
@@ -964,12 +1156,23 @@ export const submitPrompt = async (queueId: string): Promise<void> => {
       );
       comfyUIClient = initializeComfyUIClient(COMFYUI_ENDPOINT);
     }
+    console.log(
+      `[PERFORMANCE] ComfyUI client initialization took ${(
+        performance.now() - clientInitStart
+      ).toFixed(2)}ms`
+    );
 
     // Health check ComfyUI with retry
+    const healthCheckStart = performance.now();
     const isHealthy = await ComfyUIRetryHandler.withRetry(
       () => comfyUIClient.healthCheck(),
       { maxRetries: 2, baseDelay: 2000 },
       { operationName: "healthCheck", promptId: queueId }
+    );
+    console.log(
+      `[PERFORMANCE] ComfyUI health check took ${(
+        performance.now() - healthCheckStart
+      ).toFixed(2)}ms`
     );
 
     if (!isHealthy) {
@@ -981,6 +1184,7 @@ export const submitPrompt = async (queueId: string): Promise<void> => {
     }
 
     // Create workflow parameters
+    const workflowCreateStart = performance.now();
     const workflowParams: WorkflowParameters = {
       prompt: queueItem.prompt,
       negativePrompt: queueItem.parameters.negativePrompt,
@@ -989,11 +1193,22 @@ export const submitPrompt = async (queueId: string): Promise<void> => {
       batchSize: queueItem.parameters.batch_size || 1,
       selectedLoras: createSelectedLorasArray(queueItem),
     };
+    console.log(
+      `[PERFORMANCE] Workflow parameters creation took ${(
+        performance.now() - workflowCreateStart
+      ).toFixed(2)}ms`
+    );
 
     // Submit prompt to ComfyUI
+    const submitStart = performance.now();
     const submitResult = await comfyUIClient.submitPrompt(
       workflowParams,
       "666" // Use monitor client_id instead of queueId
+    );
+    console.log(
+      `[PERFORMANCE] ComfyUI prompt submission took ${(
+        performance.now() - submitStart
+      ).toFixed(2)}ms`
     );
 
     console.log("Submited prompt with workflow: ", workflowParams);
@@ -1001,15 +1216,32 @@ export const submitPrompt = async (queueId: string): Promise<void> => {
     const comfyPromptId = submitResult.promptId;
 
     // Update queue entry with ComfyUI prompt ID
+    const finalUpdateStart = performance.now();
     await queueService.updateQueueEntry(queueId, {
       comfyPromptId,
       status: "processing",
     });
+    console.log(
+      `[PERFORMANCE] Final queue update took ${(
+        performance.now() - finalUpdateStart
+      ).toFixed(2)}ms`
+    );
 
+    const totalTime = performance.now() - startTime;
     console.log(
       `✅ ComfyUI submission successful: promptId=${comfyPromptId}, queueId=${queueId}`
     );
+    console.log(
+      `[PERFORMANCE] Total submitPrompt execution time: ${totalTime.toFixed(
+        2
+      )}ms`
+    );
   } catch (error) {
+    const totalTime = performance.now() - startTime;
+    console.log(
+      `[PERFORMANCE] submitPrompt failed after ${totalTime.toFixed(2)}ms`
+    );
+
     const comfyError =
       error instanceof ComfyUIError
         ? error
@@ -1040,6 +1272,7 @@ const handleGenerate = async (
   event: APIGatewayProxyEvent,
   auth: AuthResult
 ): Promise<APIGatewayProxyResult> => {
+  const timer = new PerformanceTimer("Generation Handler");
   console.log("🎨 /generation/generate handler called");
 
   // Validate HTTP method
@@ -1050,23 +1283,30 @@ const handleGenerate = async (
   console.log("✅ Authenticated user:", auth.userId);
 
   // Fetch and validate user
+  timer.checkpoint("Pre-user fetch");
   const userEntity = await DynamoDBService.getUserById(auth.userId);
+  timer.checkpoint("User fetched");
+
   if (!userEntity) {
     return ResponseUtil.notFound(event, "User not found");
   }
 
   // Enhance user with plan information
   const enhancedUser = await PlanUtil.enhanceUser(userEntity);
+  timer.checkpoint("User plan enhanced");
   const userPlan = enhancedUser.planInfo.plan;
 
   // Parse request body
   const requestBody: GenerationRequest = LambdaHandlerUtil.parseJsonBody(event);
+  timer.checkpoint("Request body parsed");
 
   // Get user permissions based on plan
   const permissions = getGenerationPermissions(userPlan);
+  timer.checkpoint("Permissions checked");
 
   // Validate request against permissions
   const validationError = validateGenerationRequest(requestBody, permissions);
+  timer.checkpoint("Request validated");
   if (validationError) {
     return ResponseUtil.badRequest(event, validationError.message);
   }
@@ -1100,6 +1340,7 @@ const handleGenerate = async (
     auth.userId,
     userPlan
   );
+  timer.checkpoint("Rate limit checked");
 
   if (!rateLimitResult.allowed) {
     return ResponseUtil.forbidden(
@@ -1112,6 +1353,7 @@ const handleGenerate = async (
   const connectionId = await DynamoDBService.getActiveConnectionIdForUser(
     auth.userId
   );
+  timer.checkpoint("WebSocket connection checked");
 
   if (!connectionId) {
     console.warn("No active WebSocket connection for user:", auth.userId);
@@ -1133,6 +1375,7 @@ const handleGenerate = async (
     connectionId || undefined,
     priority
   );
+  timer.checkpoint("Initial queue entry added");
 
   const queueId = queueEntry.queueId;
 
@@ -1148,6 +1391,7 @@ const handleGenerate = async (
       queueId,
       queueEntry
     );
+    timer.checkpoint("Prompt optimization completed");
 
     // Check for moderation failure
     if (optimizationResult.moderationFailed) {
@@ -1162,6 +1406,7 @@ const handleGenerate = async (
 
     // Return early if optimization completed with response
     if (optimizationResult.shouldReturn && optimizationResult.response) {
+      timer.end();
       return ResponseUtil.success(event, optimizationResult.response);
     }
   } else {
@@ -1182,6 +1427,7 @@ const handleGenerate = async (
       moderationPromise,
       loraSelectionPromise,
     ]);
+    timer.checkpoint("Moderation and LoRA selection completed");
 
     requestBody.selectedLoras = selectedLoras;
 
@@ -1206,10 +1452,13 @@ const handleGenerate = async (
       priority,
       optimizedPromptResult
     );
+    timer.checkpoint("Queue processing completed");
 
+    timer.end();
     return ResponseUtil.success(event, response);
   } catch (queueError) {
     console.error("Failed to add request to queue:", queueError);
+    timer.end();
     return ResponseUtil.internalError(
       event,
       "Failed to process generation request"
