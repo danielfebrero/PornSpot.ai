@@ -1,5 +1,7 @@
 import { Album, Media, UnifiedPaginationMeta } from "@/types";
-import API_URL from "./api";
+// import API_URL from "./api";
+
+const API_URL = "https://api.pornspot.ai";
 
 // Helper function to handle API responses
 async function handleResponse<T>(
