@@ -6,14 +6,16 @@
 
 [x] User/bookmarks page grid consider all items as media. Albums appear as media.
 
-[ ] User profiles does not work, it shows Anonymous.
+[x] User profiles does not work, it shows Anonymous.
 
 [ ] View all generated medias and last generated media of a user does not work.
 
-[ ] LoRA are not used correctly by the workflow API probably because images are really different from Comfy UI client images with the same parameters.
+[x] LoRA are not used correctly by the workflow API probably because images are really different from Comfy UI client images with the same parameters.
 
 [ ] Sur la page generate, le plan se charge pas des fois, certaines fois il disparait completement après un certain usage je crois, et des fois le plan apparait correctement (le pro).
 
 [ ] From user Albums page, delete album do not close the popup immediately.
 
 [ ] Cannot open media page of a generated media, error 500.
+
+[ ] The queue manager of image generation is totally broken and useless.
