@@ -152,7 +152,7 @@ export function createComfyUIWorkflow(
         clip: ["10", 1],
       },
       _meta: {
-        title: "CLIP Text Encode (Prompt)",
+        title: "CLIP Text Encode (Negative Prompt)",
         estTimeUnits: 2,
       },
     },
