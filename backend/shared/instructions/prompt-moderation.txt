@@ -43,3 +43,6 @@ Response: "OK"
 
 User message: "woman, 21, having sex doggystyle while sucking another dick, horsedick size"
 Response: "OK"
+
+User message: "amateur photo, group of women, 18, arab, at the beach, topless, in marseille, France"
+Response: "OK"
