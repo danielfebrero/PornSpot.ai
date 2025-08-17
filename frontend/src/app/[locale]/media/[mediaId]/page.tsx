@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
 import { getMediaById, fetchAllPublicMedia } from "@/lib/data";
-import { composeMediaUrl } from "@/lib/urlUtils";
-import { getMediaDisplayUrl } from "@/lib/utils";
+// import { composeMediaUrl } from "@/lib/urlUtils";
+// import { getMediaDisplayUrl } from "@/lib/utils";
 import { locales } from "@/i18n";
-import { getTranslations } from "next-intl/server";
-import type { Metadata } from "next";
-import { MediaDetailClient } from "@/components/MediaDetailClient";
-import { generateMediaMetadata } from "@/lib/opengraph";
+// import { getTranslations } from "next-intl/server";
+// import type { Metadata } from "next";
+// import { MediaDetailClient } from "@/components/MediaDetailClient";
+// import { generateMediaMetadata } from "@/lib/opengraph";
 
 interface MediaDetailPageProps {
   params: {
@@ -20,38 +20,40 @@ export const revalidate = false;
 export const dynamic = "auto";
 export const dynamicParams = true;
 
-export async function generateMetadata({
-  params,
-}: MediaDetailPageProps): Promise<Metadata> {
-  const { locale, mediaId } = params;
-  const { data: media, error } = await getMediaById(mediaId);
+// export async function generateMetadata({
+//   params,
+// }: MediaDetailPageProps): Promise<Metadata> {
+//   const { locale, mediaId } = params;
+//   const { data: media, error } = await getMediaById(mediaId);
 
-  // Get localized translations for fallback
-  const tMedia = await getTranslations({ locale, namespace: "media" });
+//   // Get localized translations for fallback
+//   const tMedia = await getTranslations({ locale, namespace: "media" });
 
-  if (error || !media) {
-    return {
-      title: tMedia("errors.notFound"),
-    };
-  }
+//   if (error || !media) {
+//     return {
+//       title: tMedia("errors.notFound"),
+//     };
+//   }
 
-  // Ensure we have a valid media object with required fields
-  const safeMedia = {
-    ...media,
-    mimeType: media.mimeType || "",
-    url: media.url || "",
-    thumbnailUrls: media.thumbnailUrls || {},
-  };
+//   // Ensure we have a valid media object with required fields
+//   const safeMedia = {
+//     ...media,
+//     mimeType: media.mimeType || "",
+//     url: media.url || "",
+//     thumbnailUrls: media.thumbnailUrls || {},
+//   };
 
-  const displayImageUrl = composeMediaUrl(getMediaDisplayUrl(safeMedia));
+//   const displayImageUrl = composeMediaUrl(getMediaDisplayUrl(safeMedia));
 
-  return generateMediaMetadata(locale, mediaId, media, displayImageUrl);
-}
+//   return generateMediaMetadata(locale, mediaId, media, displayImageUrl);
+// }
 
 export async function generateStaticParams() {
-  const media = await fetchAllPublicMedia();
+  // const media = await fetchAllPublicMedia();
 
-  // Generate all combinations of locale and mediaId
+  const media = [{ id: "cbd5d4f9-51f2-4fa7-a0e3-58f44ad4f333" }];
+
+  // // Generate all combinations of locale and mediaId
   const params = [];
   for (const locale of locales) {
     for (const item of media) {
@@ -62,6 +64,11 @@ export async function generateStaticParams() {
     }
   }
 
+  // const params = [
+  //   { locale: "en", mediaId: "cbd5d4f9-51f2-4fa7-a0e3-58f44ad4f333" },
+  //   { locale: "fr", mediaId: "cbd5d4f9-51f2-4fa7-a0e3-58f44ad4f333" },
+  //   { locale: "es", mediaId: "cbd5d4f9-51f2-4fa7-a0e3-58f44ad4f333" },
+  // ];
   return params;
 }
 
@@ -77,5 +84,6 @@ export default async function MediaDetailPage({
 
   const media = mediaResult.data;
 
-  return <MediaDetailClient media={media} />;
+  // return <MediaDetailClient media={media} />;
+  return <div>{JSON.stringify(media)}</div>;
 }

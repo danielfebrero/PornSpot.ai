@@ -8,10 +8,6 @@ Currently, the image stays on the page.
 
 ## Websocket
 
-### Replace part of event bridge with server to server websocket
-
-Leverage the route.ts lambda that is always up because of the ping, to forward comfyui-monitor states to its connected clients.
-
 ### Clients should broadcast their new connectionId on page reload to conserve state updates
 
 For example, on client connection, pass the previous connectionId in parameters and on the backend, update the existing connectionId with the new one.
