@@ -390,7 +390,7 @@ export function VirtualizedGrid<T extends GridItem>({
   }
 
   return (
-    <div ref={containerRef} className={cn("space-y-6", className)}>
+    <div ref={containerRef} className={cn("space-y-6 w-full", className)}>
       <Virtuoso
         useWindowScroll
         data={gridRows}

@@ -22,7 +22,7 @@
 
 [ ] The user likes page do not sort by most recent.
 
-[ ] When creating the first album in user albums page, it appears in list mode instead of grid. But correctly set to grid.
+[x] When creating the first album in user albums page, it appears in list mode instead of grid. But correctly set to grid.
 
 [x] Homepage Discover is cached incorrectly because after navigating away and back, the state is not preserved. WONT FIX: IT HAPPENS ONLY WHEN DISCOVER PAGE IS EMPTY THEN ONE ALBUM IS ADDED. WILL NEVER HAPPEN IN PROD.
 

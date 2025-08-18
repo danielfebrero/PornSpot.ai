@@ -82,10 +82,6 @@ Make sure the album page return all albums, not just the ones created by the use
 
 Currently, the virtualizedGrid is set to not load more.
 
-### Delete album tooltip in dropdown should appear on one line
-
-The tooltip for deleting an album in the dropdown menu should be displayed on a single line for better readability and user experience.
-
 ## Optimization
 
 ### Translate all hardcoded strings
