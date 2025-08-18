@@ -60,5 +60,4 @@ export default async function MediaDetailPage({
   const media = mediaResult.data;
 
   return <MediaDetailClient media={media} />;
-  // return <div>{JSON.stringify(media)}</div>;
 }

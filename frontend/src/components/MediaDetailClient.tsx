@@ -362,6 +362,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                 className="w-fit h-fit max-w-full"
                 imageClassName="w-auto h-auto object-contain"
                 canFullscreen={true}
+                useAllAvailableSpace={true}
               />
             </div>
           </div>

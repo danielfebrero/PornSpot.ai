@@ -16,6 +16,7 @@ interface MediaPlayerProps {
   className?: string;
   imageClassName?: string;
   canFullscreen?: boolean; // Whether to show fullscreen option
+  useAllAvailableSpace?: boolean;
 }
 
 export const MediaPlayer: FC<MediaPlayerProps> = ({
@@ -27,6 +28,7 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
   className,
   imageClassName,
   canFullscreen,
+  useAllAvailableSpace,
 }) => {
   const { isMobileInterface: isMobile } = useDevice();
   const isVideoMedia = isVideo(media);
@@ -114,7 +116,7 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
         canAddToAlbum={true}
         canDownload={true}
         canDelete={false}
-        useAllAvailableSpace={true}
+        useAllAvailableSpace={useAllAvailableSpace}
         onClick={isMobile ? onMobileClick : onTogglePlay}
         onFullscreen={onFullscreen}
       />
