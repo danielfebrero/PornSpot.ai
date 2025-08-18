@@ -246,8 +246,6 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
         className="w-full h-full"
       >
         <img
-          width={dimensions.width}
-          height={dimensions.height}
           src={defaultSrc}
           alt={alt}
           className={className}
@@ -270,8 +268,6 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
           )
         )}
         <img
-          width={dimensions.width}
-          height={dimensions.height}
           src={defaultSrc}
           alt={alt}
           className={className}
