@@ -99,12 +99,12 @@ function selectOptimalThumbnailSize(
 
   // Fallback order if no perfect matches
   const fallbackOrder: (keyof ThumbnailUrls)[] = [
+    "originalSize",
     "xlarge",
     "large",
     "medium",
     "small",
     "cover",
-    "originalSize",
   ];
   for (const size of fallbackOrder) {
     if (thumbnailUrls[size]) {
@@ -197,12 +197,12 @@ function getOptimalDefaultImageSrc(
 
   // Fallback chain
   const fallbackOrder: (keyof ThumbnailUrls)[] = [
+    "originalSize",
     "xlarge",
     "large",
     "medium",
     "small",
     "cover",
-    "originalSize",
   ];
   for (const size of fallbackOrder) {
     if (thumbnailUrls[size]) {

@@ -242,7 +242,6 @@ export function VirtualizedGrid<T extends GridItem>({
               <ContentCard
                 item={item}
                 aspectRatio="auto"
-                preferredThumbnailSize="originalSize"
                 {...restProps}
                 customActions={resolvedCustomActions}
                 mediaList={
