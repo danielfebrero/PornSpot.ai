@@ -39,11 +39,12 @@ export function CommentCard({
   const currentUserId = user?.userId;
 
   // Get comment like status
-  const commentTargets = [
-    { targetType: "comment" as const, targetId: comment.id },
-  ];
-  const { data: interactionStatusData, isLoading: likeStatesLoading } =
-    useInteractionStatus(commentTargets);
+  const commentTargets = useMemo(
+    () => [{ targetType: "comment" as const, targetId: comment.id }],
+    [comment.id]
+  );
+
+  const { data: interactionStatusData } = useInteractionStatus(commentTargets);
 
   // Create a map for easier lookup
   const commentLikeStates = useMemo(() => {
@@ -167,13 +168,21 @@ export function CommentCard({
       const currentIsLiked = currentLikeState.isLiked;
 
       // Use TanStack Query mutation (with built-in optimistic updates)
+      // Pass commentTargets so the cache update uses the correct query key
       toggleLikeMutation.mutate({
         targetType: "comment",
         targetId: commentId,
         isCurrentlyLiked: currentIsLiked,
+        allTargets: commentTargets, // Pass the targets used by this component
       });
     },
-    [currentUserId, commentLikeStates, toggleLikeMutation, comment.likeCount]
+    [
+      currentUserId,
+      commentLikeStates,
+      toggleLikeMutation,
+      comment.likeCount,
+      commentTargets,
+    ]
   );
 
   // Get like state for this comment from TanStack Query cache
