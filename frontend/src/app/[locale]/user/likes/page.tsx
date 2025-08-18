@@ -194,7 +194,6 @@ const UserLikesPage: React.FC = () => {
             canDelete: false,
             showTags: true,
             showCounts: true,
-            preferredThumbnailSize: viewMode === "grid" ? "medium" : "large",
           }}
           mediaList={likes
             .filter((like) => like.targetType === "media")

@@ -408,8 +408,6 @@ export function ContentCard({
     return [];
   };
 
-  console.log({ media });
-
   return (
     <>
       <div
