@@ -1539,15 +1539,16 @@ export class DynamoDBService {
     interactions: UserInteraction[];
     lastEvaluatedKey?: Record<string, any>;
   }> {
+    // Use GSI2 for efficient chronological sorting by createdAt
     const result = await docClient.send(
       new QueryCommand({
         TableName: TABLE_NAME,
-        KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk_prefix)",
+        IndexName: "GSI2", // Use GSI2 for chronological ordering
+        KeyConditionExpression: "GSI2PK = :gsi2pk",
         ExpressionAttributeValues: {
-          ":pk": `USER#${userId}`,
-          ":sk_prefix": `INTERACTION#${interactionType}#`,
+          ":gsi2pk": `USER#${userId}#INTERACTIONS#${interactionType}`,
         },
-        ScanIndexForward: false, // Most recent first
+        ScanIndexForward: false, // Most recent first (descending order by createdAt)
         Limit: limit,
         ExclusiveStartKey: lastEvaluatedKey,
       })

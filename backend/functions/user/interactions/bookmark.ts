@@ -74,6 +74,9 @@ const handleBookmarkInteraction = async (
       SK: `INTERACTION#bookmark#${targetId}`,
       GSI1PK: `INTERACTION#bookmark#${targetId}`,
       GSI1SK: userId,
+      // GSI2 for chronological ordering of user interactions
+      GSI2PK: `USER#${userId}#INTERACTIONS#bookmark`,
+      GSI2SK: now, // createdAt timestamp for chronological sorting
       EntityType: "UserInteraction",
       userId: userId,
       interactionType: "bookmark",

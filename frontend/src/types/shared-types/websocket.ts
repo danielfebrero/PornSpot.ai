@@ -3,6 +3,7 @@ export interface WebSocketMessage {
   action: string;
   data?: any;
   requestId?: string;
+  type?: string;
 }
 
 export interface GenerationWebSocketMessage {
@@ -34,7 +35,7 @@ export interface GenerationWebSocketMessage {
   error?: string;
   errorType?: string;
   retryCount?: number;
-  
+
   // Enhanced progress data for job_progress type
   progressType?: "node_progress" | "overall_progress";
   progressData?: {

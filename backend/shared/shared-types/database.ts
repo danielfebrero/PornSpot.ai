@@ -195,6 +195,8 @@ export interface UserInteractionEntity extends BaseEntity {
   SK: string; // INTERACTION#{interactionType}#{targetId}
   GSI1PK: string; // INTERACTION#{interactionType}#{targetId}
   GSI1SK: string; // {userId}
+  GSI2PK?: string; // USER#{userId}#INTERACTIONS#{interactionType} - for chronological sorting
+  GSI2SK?: string; // {createdAt} - for chronological sorting
   EntityType: "UserInteraction";
   userId: string;
   interactionType: InteractionType;

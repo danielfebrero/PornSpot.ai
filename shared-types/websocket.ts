@@ -3,6 +3,7 @@ export interface WebSocketMessage {
   action: string;
   data?: any;
   requestId?: string;
+  type?: string;
 }
 
 export interface GenerationWebSocketMessage {

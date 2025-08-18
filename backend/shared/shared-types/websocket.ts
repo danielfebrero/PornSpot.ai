@@ -3,7 +3,7 @@ export interface WebSocketMessage {
   action: string;
   data?: any;
   requestId?: string;
-  type?: string; // Optional type for specific message categorization
+  type?: string;
 }
 
 export interface GenerationWebSocketMessage {

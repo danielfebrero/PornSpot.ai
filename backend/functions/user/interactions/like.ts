@@ -92,7 +92,7 @@ const handleLikeInteraction = async (
       return ResponseUtil.error(event, "Already liked", 409);
     }
 
-    // Create like interaction - use different SK pattern for comments
+    // Create like interaction - use GSI2 for chronological sorting
     const interaction: UserInteractionEntity = {
       PK: `USER#${userId}`,
       SK:
@@ -104,6 +104,9 @@ const handleLikeInteraction = async (
           ? `COMMENT_INTERACTION#like#${targetId}`
           : `INTERACTION#like#${targetId}`,
       GSI1SK: userId,
+      // GSI2 for chronological ordering of user interactions
+      GSI2PK: `USER#${userId}#INTERACTIONS#like`,
+      GSI2SK: now, // createdAt timestamp for chronological sorting
       EntityType: "UserInteraction",
       userId: userId,
       interactionType: "like",
