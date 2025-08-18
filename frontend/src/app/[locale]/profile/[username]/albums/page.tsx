@@ -4,8 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { FolderOpen, Grid, List, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { ContentCard } from "@/components/ui/ContentCard";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { cn } from "@/lib/utils";
 import { useAlbums } from "@/hooks/queries/useAlbumsQuery";
@@ -194,67 +194,36 @@ export default function UserAlbumsPage() {
           </Card>
 
           {/* Albums content */}
-          {albums.length === 0 ? (
-            <Card
-              className="border-border/50"
-              hideBorder={isMobile}
-              hideMargin={isMobile}
-            >
-              <CardContent className="py-12 text-center">
-                <FolderOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">
-                  No albums yet
-                </h3>
-                <p className="text-muted-foreground">
-                  {displayName} hasn&apos;t created any public albums yet.
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card
-              className="border-border/50"
-              hideBorder={isMobile}
-              hideMargin={isMobile}
-            >
-              <CardContent hidePadding={isMobile}>
-                <div
-                  className={cn(
-                    viewMode === "grid"
-                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                      : "space-y-4"
-                  )}
-                >
-                  {albums.map((album) => (
-                    <ContentCard
-                      key={album.id}
-                      item={album}
-                      canFullscreen={false}
-                      canAddToAlbum={false}
-                      showTags={false}
-                      showCounts={true}
-                      aspectRatio={viewMode === "grid" ? "square" : "auto"}
-                      preferredThumbnailSize={
-                        viewMode === "grid" ? undefined : "originalSize"
-                      }
-                    />
-                  ))}
-                </div>
-
-                {/* Pagination */}
-                {hasNext && (
-                  <div className="text-center pt-6">
-                    <Button
-                      variant="outline"
-                      onClick={loadMore}
-                      disabled={loadingMore}
-                    >
-                      {loadingMore ? "Loading..." : "Load More Albums"}
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+          <VirtualizedGrid
+            items={albums}
+            viewMode={viewMode}
+            isLoading={loading && !loadingMore}
+            hasNextPage={hasNext}
+            isFetchingNextPage={loadingMore}
+            onLoadMore={loadMore}
+            contentCardProps={{
+              canLike: true,
+              canBookmark: true,
+              canFullscreen: false,
+              canAddToAlbum: false,
+              showTags: false,
+              showCounts: true,
+              preferredThumbnailSize:
+                viewMode === "grid" ? undefined : "originalSize",
+            }}
+            emptyState={{
+              icon: <FolderOpen className="w-16 h-16 text-muted-foreground" />,
+              title: "No albums yet",
+              description: `${displayName} hasn't created any public albums yet.`,
+            }}
+            loadingState={{
+              skeletonCount: 6,
+              loadingText: "Loading more albums...",
+              noMoreText: "No more albums",
+            }}
+            error={error ? String(error) : null}
+            className={cn(isMobile && "px-0", !isMobile && "px-4")}
+          />
         </div>
       </div>
     </div>

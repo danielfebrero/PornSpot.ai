@@ -4,8 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { Heart, Grid, List, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { ContentCard } from "@/components/ui/ContentCard";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import { Lightbox } from "@/components/ui/Lightbox";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { useLikesQuery } from "@/hooks/queries/useLikesQuery";
@@ -41,6 +41,14 @@ export default function UserLikesPage() {
   const likes = useMemo(() => {
     return likesData?.pages.flatMap((page) => page.interactions) || [];
   }, [likesData]);
+
+  // Extract liked items for VirtualizedGrid
+  const likedItems = useMemo(() => {
+    return likes
+      .filter((like) => like.target)
+      .map((like) => like.target!)
+      .filter(Boolean);
+  }, [likes]);
 
   // Prefetch interaction status for all liked items
   useEffect(() => {
@@ -221,83 +229,43 @@ export default function UserLikesPage() {
           </Card>
 
           {/* Likes content */}
-          {likes.length === 0 ? (
-            <Card
-              className="border-border/50"
-              hideBorder={isMobile}
-              hideMargin={isMobile}
-            >
-              <CardContent className="py-12 text-center">
-                <Heart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">
-                  No likes yet
-                </h3>
-                <p className="text-muted-foreground">
-                  {displayName} hasn&apos;t liked any content yet.
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card
-              className="border-border/50"
-              hideBorder={isMobile}
-              hideMargin={isMobile}
-            >
-              <CardContent hidePadding={isMobile}>
-                <div
-                  className={cn(
-                    viewMode === "grid"
-                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                      : "space-y-4"
-                  )}
-                >
-                  {likes.map((like) => {
-                    const mediaIndex = mediaItems.findIndex(
-                      (m) => m.id === like.targetId
-                    );
-
-                    if (!like.target) {
-                      return null;
-                    }
-
-                    return (
-                      <ContentCard
-                        key={`${like.userId}_${like.targetId}_${like.createdAt}`}
-                        item={like.target}
-                        canFullscreen={like.targetType === "media"}
-                        canAddToAlbum={like.targetType === "media"}
-                        canLike={true}
-                        canBookmark={true}
-                        showTags={false}
-                        showCounts={true}
-                        aspectRatio={viewMode === "grid" ? "square" : "auto"}
-                        preferredThumbnailSize={
-                          viewMode === "grid" ? undefined : "originalSize"
-                        }
-                        mediaList={
-                          like.targetType === "media" ? mediaItems : undefined
-                        }
-                        currentIndex={mediaIndex >= 0 ? mediaIndex : undefined}
-                      />
-                    );
-                  })}
-                </div>
-
-                {/* Pagination */}
-                {hasNext && (
-                  <div className="text-center pt-6">
-                    <Button
-                      variant="outline"
-                      onClick={loadMore}
-                      disabled={loadingMore}
-                    >
-                      {loadingMore ? "Loading..." : "Load More Likes"}
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+          <VirtualizedGrid
+            items={likedItems}
+            viewMode={viewMode}
+            isLoading={likesLoading}
+            hasNextPage={hasNext}
+            isFetchingNextPage={loadingMore}
+            onLoadMore={loadMore}
+            gridColumns={{
+              mobile: 1,
+              sm: 2,
+              md: 3,
+              lg: 3,
+            }}
+            contentCardProps={{
+              canLike: true,
+              canBookmark: true,
+              canFullscreen: true,
+              canAddToAlbum: true,
+              showTags: false,
+              showCounts: true,
+              preferredThumbnailSize:
+                viewMode === "grid" ? undefined : "originalSize",
+            }}
+            mediaList={mediaItems}
+            emptyState={{
+              icon: <Heart className="w-16 h-16 text-muted-foreground" />,
+              title: "No likes yet",
+              description: `${displayName} hasn't liked any content yet.`,
+            }}
+            loadingState={{
+              skeletonCount: 6,
+              loadingText: "Loading more likes...",
+              noMoreText: "No more likes",
+            }}
+            error={likesError ? String(likesError) : null}
+            className={cn(isMobile && "px-0", !isMobile && "px-4")}
+          />
         </div>
       </div>
 

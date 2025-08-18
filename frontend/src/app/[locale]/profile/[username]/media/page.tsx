@@ -236,12 +236,6 @@ export default function UserMediaPage() {
             hasNextPage={hasNextPage}
             isFetchingNextPage={isFetchingNextPage}
             onLoadMore={handleLoadMore}
-            gridColumns={{
-              mobile: 1,
-              sm: 2,
-              md: 3,
-              lg: 4,
-            }}
             contentCardProps={{
               canLike: true,
               canBookmark: true,
