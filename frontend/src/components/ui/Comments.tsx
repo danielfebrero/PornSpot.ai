@@ -36,15 +36,6 @@ export function Comments({
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [hasMore, setHasMore] = useState(initialComments.length >= 20); // Assume more if we got a full page
-  const [optimisticLikeStates, setOptimisticLikeStates] = useState<
-    Record<
-      string,
-      {
-        isLiked: boolean;
-        likeCount: number;
-      }
-    >
-  >({});
   const { isMobileInterface: isMobile } = useDevice();
 
   // Use TanStack Query for fetching additional comments (load more functionality)
@@ -119,28 +110,6 @@ export function Comments({
     return statusMap;
   }, [interactionStatusData]);
 
-  // Reset optimistic states when real data arrives
-  useEffect(() => {
-    if (interactionStatusData?.statuses) {
-      const newOptimisticStates = { ...optimisticLikeStates };
-      let hasChanges = false;
-
-      interactionStatusData.statuses.forEach((status) => {
-        if (
-          status.targetType === "comment" &&
-          optimisticLikeStates[status.targetId]
-        ) {
-          delete newOptimisticStates[status.targetId];
-          hasChanges = true;
-        }
-      });
-
-      if (hasChanges) {
-        setOptimisticLikeStates(newOptimisticStates);
-      }
-    }
-  }, [interactionStatusData, optimisticLikeStates]);
-
   // Comment mutation hooks
   const createCommentMutation = useCreateComment();
   const updateCommentMutation = useUpdateComment();
@@ -202,51 +171,25 @@ export function Comments({
     }
   };
 
-  // Like comment
+  // Like comment - use only TanStack Query optimistic updates
   const handleLikeComment = useCallback(
     (commentId: string) => {
       if (!currentUserId) {
         return;
       }
 
-      // Get current like state (use optimistic state if available, otherwise use real data)
-      const optimisticState = optimisticLikeStates[commentId];
+      // Get current like state from cache only (TanStack Query will handle optimistic updates)
       const realState = commentLikeStates[commentId];
-      const commentData = comments.find((c) => c.id === commentId);
+      const currentIsLiked = realState?.isLiked || false;
 
-      const currentLikeState = optimisticState ||
-        realState || {
-          isLiked: false,
-          likeCount: commentData?.likeCount || 0,
-        };
-      const currentIsLiked = currentLikeState.isLiked;
-
-      // Immediately update optimistic state for instant UI feedback
-      setOptimisticLikeStates((prev) => ({
-        ...prev,
-        [commentId]: {
-          isLiked: !currentIsLiked,
-          likeCount: Math.max(
-            0,
-            currentLikeState.likeCount + (currentIsLiked ? -1 : 1)
-          ),
-        },
-      }));
-
-      // Use the unified like mutation
+      // Use the unified like mutation - TanStack Query handles all optimistic updates
       toggleLikeMutation.mutate({
         targetType: "comment",
         targetId: commentId,
         isCurrentlyLiked: currentIsLiked,
       });
     },
-    [
-      currentUserId,
-      optimisticLikeStates,
-      commentLikeStates,
-      comments,
-      toggleLikeMutation,
-    ]
+    [currentUserId, commentLikeStates, toggleLikeMutation]
   );
 
   // Handle keyboard shortcuts
@@ -331,17 +274,15 @@ export function Comments({
       ) : comments.length > 0 ? (
         <div className="space-y-4">
           {comments.map((comment, index) => {
-            // Check like state if user is logged in (use optimistic state if available)
-            const optimisticState = optimisticLikeStates[comment.id];
+            // Use TanStack Query cache for like state - no local optimistic state needed
             const realState = currentUserId
               ? commentLikeStates[comment.id]
               : null;
-            const displayLikeState = optimisticState || realState;
 
-            // Use like count from optimistic/real state, otherwise fall back to comment object
+            // Use like count from cache, otherwise fall back to comment object
             const commentLikeCount =
-              displayLikeState?.likeCount !== undefined
-                ? displayLikeState.likeCount
+              realState?.likeCount !== undefined
+                ? realState.likeCount
                 : comment.likeCount || 0;
 
             return (
@@ -352,7 +293,7 @@ export function Comments({
                 onEdit={handleEditComment}
                 onDelete={handleDeleteComment}
                 onLike={handleLikeComment}
-                isLiked={displayLikeState?.isLiked || false}
+                isLiked={realState?.isLiked || false}
                 likeCount={commentLikeCount}
                 className={cn(
                   index < comments.length - 1 &&
