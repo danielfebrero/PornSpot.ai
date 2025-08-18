@@ -57,7 +57,7 @@ const handleListUserMedia = async (
   const { cursor: lastEvaluatedKey, limit } = paginationParams;
 
   // Determine if we should only fetch public media
-  const publicOnly = currentUserId !== targetUserId;
+  const publicOnly = !!username;
 
   console.log(
     "🔍 Fetching media for userId:",

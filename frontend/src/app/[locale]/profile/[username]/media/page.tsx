@@ -4,13 +4,13 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { ImageIcon, Grid, List, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { ContentCard } from "@/components/ui/ContentCard";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import { Lightbox } from "@/components/ui/Lightbox";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { cn } from "@/lib/utils";
 import { usePublicProfile } from "@/hooks/queries/useUserQuery";
-import { useProfileDataQuery } from "@/hooks/queries/useProfileDataQuery";
+import { useUserMedia } from "@/hooks/queries/useMediaQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { Media } from "@/types";
 import { useDevice } from "@/contexts/DeviceContext";
@@ -32,20 +32,25 @@ export default function UserMediaPage() {
     error: profileError,
   } = usePublicProfile(username);
 
-  // Fetch profile media data using TanStack Query (using profile data as placeholder for now)
-  const { isLoading: mediaLoading, error: mediaError } = useProfileDataQuery({
-    username,
-    limit: 50,
-  });
+  // Fetch user media with infinite scroll
+  const {
+    data: mediaData,
+    isLoading: mediaLoading,
+    error: mediaError,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useUserMedia({ username, limit: 20 });
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();
 
   const user = profileData;
 
-  // For now, we'll use an empty array since there's no specific media endpoint for public profiles
-  // In a real implementation, this would be replaced with a proper media API call
-  const media: Media[] = useMemo(() => [], []);
+  // Flatten all pages of media data
+  const media: Media[] = useMemo(() => {
+    return mediaData?.pages.flatMap((page) => page.media) || [];
+  }, [mediaData]);
 
   // Prefetch interaction status for all profile media (when media is available)
   useEffect(() => {
@@ -63,6 +68,13 @@ export default function UserMediaPage() {
 
   const displayName = user?.username || username;
   const initials = displayName.slice(0, 2).toUpperCase();
+
+  // Load more function for infinite scroll
+  const handleLoadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
 
   // Lightbox handlers
   const handleLightboxClose = () => {
@@ -217,51 +229,41 @@ export default function UserMediaPage() {
           </Card>
 
           {/* Media Grid/List */}
-          {media.length > 0 ? (
-            <div
-              className={cn(
-                viewMode === "grid"
-                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                  : isMobile
-                  ? "space-y-8"
-                  : "space-y-4"
-              )}
-            >
-              {media.map((item, index) => (
-                <ContentCard
-                  key={item.id}
-                  item={item}
-                  onClick={() => {
-                    setCurrentMediaIndex(index);
-                    setLightboxOpen(true);
-                  }}
-                  className={cn(
-                    viewMode === "list" && "flex-row",
-                    "hover:shadow-lg transition-shadow"
-                  )}
-                />
-              ))}
-            </div>
-          ) : (
-            // Empty state
-            <Card
-              className="border-border/50"
-              hideBorder={isMobile}
-              hideMargin={isMobile}
-            >
-              <CardContent className="p-12 text-center">
-                <ImageIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  No media found
-                </h3>
-                <p className="text-muted-foreground">
-                  {user
-                    ? `${displayName} hasn't uploaded any media yet.`
-                    : "This user's media is not available."}
-                </p>
-              </CardContent>
-            </Card>
-          )}
+          <VirtualizedGrid
+            items={media}
+            viewMode={viewMode}
+            isLoading={loading}
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            onLoadMore={handleLoadMore}
+            gridColumns={{
+              mobile: 1,
+              sm: 2,
+              md: 3,
+              lg: 4,
+            }}
+            contentCardProps={{
+              canLike: true,
+              canBookmark: true,
+              canFullscreen: true,
+              showCounts: true,
+            }}
+            mediaList={media}
+            emptyState={{
+              icon: <ImageIcon className="w-16 h-16 text-muted-foreground" />,
+              title: "No media found",
+              description: user
+                ? `${displayName} hasn't generated any media yet.`
+                : "This user's media is not available.",
+            }}
+            loadingState={{
+              skeletonCount: 12,
+              loadingText: "Loading media...",
+              noMoreText: "No more media",
+            }}
+            error={error ? String(error) : null}
+            className={cn(isMobile && "px-0", !isMobile && "px-4")}
+          />
 
           {/* Lightbox */}
           {lightboxOpen && media.length > 0 && (
