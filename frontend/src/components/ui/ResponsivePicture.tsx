@@ -223,6 +223,8 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
 }) => {
   const { containerRef, dimensions } = useContainerDimensions();
 
+  console.log({ thumbnailUrls, dimensions });
+
   // Generate intelligent sources based on container dimensions
   const sources = generateIntelligentPictureSources(
     thumbnailUrls,
@@ -237,6 +239,8 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
     dimensions.width,
     dimensions.height
   );
+
+  console.log({ sources, defaultSrc });
 
   // If no responsive sources available, fall back to simple img
   if (sources.length === 0) {
