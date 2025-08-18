@@ -32,6 +32,6 @@
 
 [x] On media page, view count is not correctly reflected on ContentCard.
 
-[ ] Adding a like or a bookmark should update optimistically the User likes and bookmarks pages.
+[x] Adding a like or a bookmark should update optimistically the User likes and bookmarks pages.
 
 [ ] Deleting an album could update optimistically the Homepage discover page.
