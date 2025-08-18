@@ -282,7 +282,8 @@ export function ContentCard({
   const handleAddToAlbum = () => {
     if (onAddToAlbum) {
       onAddToAlbum();
-    } else if (isMedia && media) {
+    }
+    if (isMedia && media) {
       // Check if user is authenticated before showing dialog
       if (!user) {
         // Redirect to login page with current page as return URL
@@ -302,7 +303,8 @@ export function ContentCard({
     if (onRemoveFromAlbum) {
       await onRemoveFromAlbum();
       setRemoveConfirmOpen(false);
-    } else if (isMedia && media && currentAlbumId) {
+    }
+    if (isMedia && media && currentAlbumId) {
       try {
         await removeFromAlbumMutation.mutateAsync({
           albumId: currentAlbumId,
@@ -323,7 +325,8 @@ export function ContentCard({
   const handleDownload = async () => {
     if (onDownload) {
       onDownload();
-    } else if (isMedia && media) {
+    }
+    if (isMedia && media) {
       // Default behavior: download the media file
       const mediaUrl = composeMediaUrl(media.url);
       const filename = media.originalFilename || media.filename;
@@ -380,21 +383,19 @@ export function ContentCard({
   const handleConfirmDelete = async () => {
     if (onDelete) {
       onDelete();
-      setDeleteConfirmOpen(false);
-    } else {
-      try {
-        if (isMedia && media) {
-          // Default behavior: delete the media
-          await deleteMediaMutation.mutateAsync(media.id);
-        } else if (album) {
-          // For albums, log for now (could implement album deletion later)
-          console.log("Album deletion not yet implemented:", album.id);
-        }
-      } catch (error) {
-        console.error("Failed to delete:", error);
-      } finally {
-        setDeleteConfirmOpen(false);
+    }
+    try {
+      if (isMedia && media) {
+        // Default behavior: delete the media
+        await deleteMediaMutation.mutateAsync(media.id);
+      } else if (album) {
+        // For albums, log for now (could implement album deletion later)
+        console.log("Album deletion not yet implemented:", album.id);
       }
+    } catch (error) {
+      console.error("Failed to delete:", error);
+    } finally {
+      setDeleteConfirmOpen(false);
     }
   };
 

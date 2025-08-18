@@ -101,6 +101,9 @@ export function GenerateClient() {
   });
 
   const [allGeneratedImages, setAllGeneratedImages] = useState<Media[]>([]);
+  const [deletedImageIds, setDeletedImageIds] = useState<Set<string>>(
+    new Set()
+  );
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showMagicText, setShowMagicText] = useState(false);
@@ -155,6 +158,16 @@ export function GenerateClient() {
   const canUseBulk = canUseBulkGeneration();
   const canUseLoras = canUseLoRAModels();
   const canUseNegativePrompts = canUseNegativePrompt();
+
+  // Filter out deleted images from the generated images
+  const filteredGeneratedImages = generatedImages.filter(
+    (image) => !deletedImageIds.has(image.id)
+  );
+
+  // Filter out deleted images from all generated images
+  const filteredAllGeneratedImages = allGeneratedImages.filter(
+    (image) => !deletedImageIds.has(image.id)
+  );
 
   const updateSettings = (key: keyof GenerationSettings, value: unknown) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
@@ -270,13 +283,24 @@ export function GenerateClient() {
 
   // Open lightbox for thumbnail (from all generated images)
   const openThumbnailLightbox = (imageUrl: string) => {
-    const index = allGeneratedImages.findIndex(
+    const index = filteredAllGeneratedImages.findIndex(
       (media) => media.url === imageUrl
     );
     if (index !== -1) {
       setLightboxIndex(index);
       setLightboxOpen(true);
     }
+  };
+
+  // Handle optimistic deletion of generated images
+  const handleOptimisticDelete = (mediaId: string) => {
+    // Add the media ID to the deleted set for immediate UI update
+    setDeletedImageIds((prev) => new Set(prev).add(mediaId));
+
+    // Also remove from allGeneratedImages state
+    setAllGeneratedImages((prev) =>
+      prev.filter((media) => media.id !== mediaId)
+    );
   };
 
   const handleGenerate = async () => {
@@ -361,7 +385,7 @@ export function GenerateClient() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Hero Header */}
-          {!showProgressCard && generatedImages.length === 0 && (
+          {!showProgressCard && filteredGeneratedImages.length === 0 && (
             <div className="text-center space-y-6">
               <div className="relative inline-block">
                 <div className="absolute -inset-1 bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full blur opacity-30 animate-pulse"></div>
@@ -411,7 +435,7 @@ export function GenerateClient() {
           )}
 
           {/* Generation Results / Loading / Queue Status */}
-          {(showProgressCard || generatedImages.length > 0) && (
+          {(showProgressCard || filteredGeneratedImages.length > 0) && (
             <div className="text-center space-y-6">
               {showProgressCard ? (
                 <GenerationProgressCard
@@ -437,7 +461,7 @@ export function GenerateClient() {
                   </div>
                   <div className="w-full max-w-md mx-auto">
                     <ContentCard
-                      item={generatedImages[0]}
+                      item={filteredGeneratedImages[0]}
                       aspectRatio="square"
                       canLike={false}
                       canBookmark={false}
@@ -445,8 +469,11 @@ export function GenerateClient() {
                       canAddToAlbum={true}
                       canDownload={true}
                       canDelete={true}
-                      mediaList={generatedImages}
+                      mediaList={filteredGeneratedImages}
                       currentIndex={0}
+                      onDelete={() =>
+                        handleOptimisticDelete(filteredGeneratedImages[0].id)
+                      }
                     />
                   </div>
                 </div>
@@ -455,11 +482,11 @@ export function GenerateClient() {
                   <div className="flex items-center justify-center gap-2 mb-4">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                     <span className="text-sm font-medium text-foreground">
-                      {generatedImages.length} Images Generated
+                      {filteredGeneratedImages.length} Images Generated
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
-                    {generatedImages.map((image, index) => (
+                    {filteredGeneratedImages.map((image, index) => (
                       <ContentCard
                         key={index}
                         item={image}
@@ -470,8 +497,9 @@ export function GenerateClient() {
                         canAddToAlbum={true}
                         canDownload={true}
                         canDelete={true}
-                        mediaList={generatedImages}
+                        mediaList={filteredGeneratedImages}
                         currentIndex={index}
+                        onDelete={() => handleOptimisticDelete(image.id)}
                       />
                     ))}
                   </div>
@@ -645,18 +673,18 @@ export function GenerateClient() {
           </div>
 
           {/* Previously Generated Images */}
-          {allGeneratedImages.length > 0 && (
+          {filteredAllGeneratedImages.length > 0 && (
             <div className="bg-card border border-border rounded-2xl shadow-lg p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-foreground">
                   Recent Generations
                 </h3>
                 <div className="text-sm text-muted-foreground">
-                  {allGeneratedImages.length} images
+                  {filteredAllGeneratedImages.length} images
                 </div>
               </div>
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                {allGeneratedImages.slice(0, 10).map((image, index) => (
+                {filteredAllGeneratedImages.slice(0, 10).map((image, index) => (
                   <div
                     key={index}
                     className="flex-shrink-0 group"
@@ -682,8 +710,7 @@ export function GenerateClient() {
             </div>
           )}
 
-          {/* Advanced Features - Rest of the component stays the same */}
-          {/* ... (keeping all the advanced controls sections unchanged) ... */}
+          {/* Advanced Features */}
           <div className="space-y-6">
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-semibold text-foreground">
@@ -1308,14 +1335,14 @@ export function GenerateClient() {
 
           {/* Lightbox */}
           <Lightbox
-            media={allGeneratedImages}
+            media={filteredAllGeneratedImages}
             currentIndex={lightboxIndex}
             isOpen={lightboxOpen}
             canDelete={true}
             onClose={() => setLightboxOpen(false)}
             onNext={() =>
               setLightboxIndex((prev) =>
-                Math.min(prev + 1, allGeneratedImages.length - 1)
+                Math.min(prev + 1, filteredAllGeneratedImages.length - 1)
               )
             }
             onPrevious={() => setLightboxIndex((prev) => Math.max(prev - 1, 0))}

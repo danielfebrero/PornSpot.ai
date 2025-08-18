@@ -18,8 +18,6 @@
 
 [x] Cannot open media page of a generated media, error 500.
 
-[ ] The queue manager of image generation is totally broken and useless.
-
 [x] The user likes page do not sort by most recent.
 
 [x] When creating the first album in user albums page, it appears in list mode instead of grid. But correctly set to grid.
@@ -33,5 +31,3 @@
 [x] On media page, view count is not correctly reflected on ContentCard.
 
 [x] Adding a like or a bookmark should update optimistically the User likes and bookmarks pages.
-
-[ ] Deleting an album could update optimistically the Homepage discover page.

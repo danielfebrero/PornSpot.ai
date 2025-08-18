@@ -1,5 +1,11 @@
 # TODO list
 
+## Queue manager
+
+### Review the concept, the utility
+
+Currently we use the queue as a memo for prompts and parameters, not as a queue
+
 ## Launch
 
 ### Reset the dynamodb table and the S3 bucket then test everything

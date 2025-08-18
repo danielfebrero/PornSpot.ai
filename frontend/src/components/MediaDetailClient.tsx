@@ -390,7 +390,6 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                 isPlaying={isPlayingVideo}
                 onTogglePlay={handleDesktopMediaClick}
                 onMobileClick={handleMobileMediaClick}
-                onFullscreen={() => setLightboxOpen(true)}
                 className="w-fit h-fit max-w-full"
                 imageClassName="w-auto h-auto object-contain"
                 canFullscreen={true}
@@ -558,18 +557,6 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
           </aside>
         </div>
       </main>
-
-      {/* Lightbox for fullscreen view */}
-      {lightboxOpen && (
-        <Lightbox
-          media={[media]}
-          currentIndex={0}
-          isOpen={lightboxOpen}
-          onClose={() => setLightboxOpen(false)}
-          onNext={() => {}}
-          onPrevious={() => {}}
-        />
-      )}
     </div>
   );
 }
