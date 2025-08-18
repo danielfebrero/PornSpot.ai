@@ -398,6 +398,21 @@ export function useToggleLike() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.user.interactions.insights(),
       });
+
+      // Invalidate useLikesQuery hook to update the list of received likes
+      // This covers both own likes and other users' likes queries
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          // Match any query that starts with ["user", "interactions", "likes"]
+          return (
+            Array.isArray(queryKey) &&
+            queryKey[0] === "user" &&
+            queryKey[1] === "interactions" &&
+            queryKey[2] === "likes"
+          );
+        },
+      });
     },
   });
 }
@@ -548,6 +563,21 @@ export function useToggleBookmark() {
       // Invalidate insights to update received bookmarks count
       queryClient.invalidateQueries({
         queryKey: queryKeys.user.interactions.insights(),
+      });
+
+      // Invalidate all bookmark-related queries to update received bookmarks
+      // This covers both own bookmarks and other users' bookmark queries
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          // Match any query that starts with ["user", "interactions", "bookmarks"]
+          return (
+            Array.isArray(queryKey) &&
+            queryKey[0] === "user" &&
+            queryKey[1] === "interactions" &&
+            queryKey[2] === "bookmarks"
+          );
+        },
       });
     },
   });
