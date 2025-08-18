@@ -112,7 +112,7 @@ export function ContentCard({
   showCounts = true,
   showTags = true,
   disableHoverEffects = false,
-  useAllAvailableSpace = false,
+  useAllAvailableSpace = true,
   customActions,
   onClick,
   onFullscreen,
@@ -407,6 +407,8 @@ export function ContentCard({
     }
     return [];
   };
+
+  console.log({ media });
 
   return (
     <>

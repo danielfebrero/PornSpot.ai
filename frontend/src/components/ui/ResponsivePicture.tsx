@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ThumbnailUrls } from "../../types/index";
 import { useContainerDimensions } from "../../hooks/useContainerDimensions";
 
@@ -221,23 +221,40 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
   loading = "lazy",
   onClick,
 }) => {
-  const { containerRef, dimensions } = useContainerDimensions();
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
-  console.log({ thumbnailUrls, dimensions });
+  const [containerWidth, setContainerWidth] = useState<number>(0);
+  const [containerHeight, setContainerHeight] = useState(0);
+
+  useEffect(() => {
+    const mesure = () => {
+      const refToUse = containerRef.current;
+      if (refToUse) {
+        setContainerWidth(refToUse.offsetWidth);
+        setContainerHeight(refToUse.offsetHeight);
+      }
+    };
+
+    mesure();
+    window.addEventListener("resize", mesure);
+    return () => window.removeEventListener("resize", mesure);
+  }, [containerRef.current?.offsetWidth]);
+
+  console.log({ thumbnailUrls, containerHeight, containerWidth });
 
   // Generate intelligent sources based on container dimensions
   const sources = generateIntelligentPictureSources(
     thumbnailUrls,
-    dimensions.width,
-    dimensions.height
+    containerWidth,
+    containerHeight
   );
 
   // Get optimal default source
   const defaultSrc = getOptimalDefaultImageSrc(
     thumbnailUrls,
     fallbackUrl,
-    dimensions.width,
-    dimensions.height
+    containerWidth,
+    containerHeight
   );
 
   console.log({ sources, defaultSrc });
