@@ -1,12 +1,17 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { CommentCard } from "@/components/ui/CommentCard";
 import { CommentWithTarget as CommentType } from "@/types";
 import { cn } from "@/lib/utils";
+import {
+  useInteractionStatus,
+  useToggleLike,
+} from "@/hooks/queries/useInteractionsQuery";
+import { useUserProfile } from "@/hooks/queries/useUserQuery";
 
 interface VirtualizedCommentsListProps {
   comments: CommentType[];
@@ -39,6 +44,76 @@ export function VirtualizedCommentsList({
   onCommentUpdate,
   onCommentDelete,
 }: VirtualizedCommentsListProps) {
+  // Get current user data
+  const { data: userResponse } = useUserProfile();
+  const user = userResponse?.user;
+  const currentUserId = user?.userId;
+
+  // Create interaction targets for all comments
+  const commentTargets = useMemo(() => {
+    if (!currentUserId) return [];
+    return comments.map((comment) => ({
+      targetType: "comment" as const,
+      targetId: comment.id,
+    }));
+  }, [comments, currentUserId]);
+
+  // Get interaction status for all comments in one call
+  const { data: interactionStatusData } = useInteractionStatus(commentTargets);
+
+  // Create a map for easier lookup
+  const commentLikeStates = useMemo(() => {
+    const statusMap: Record<string, { isLiked: boolean; likeCount: number }> =
+      {};
+
+    if (interactionStatusData?.statuses) {
+      interactionStatusData.statuses.forEach((status) => {
+        if (status.targetType === "comment") {
+          statusMap[status.targetId] = {
+            isLiked: status.userLiked,
+            likeCount: status.likeCount,
+          };
+        }
+      });
+    }
+
+    return statusMap;
+  }, [interactionStatusData]);
+
+  // Toggle like mutation
+  const toggleLikeMutation = useToggleLike();
+
+  // Like comment handler
+  const handleLikeComment = useCallback(
+    (commentId: string) => {
+      if (!currentUserId) {
+        return;
+      }
+
+      // Get current like state from our centralized data
+      const currentLikeState = commentLikeStates[commentId] || {
+        isLiked: false,
+        likeCount: comments.find((c) => c.id === commentId)?.likeCount || 0,
+      };
+      const currentIsLiked = currentLikeState.isLiked;
+
+      // Use TanStack Query mutation with all comment targets for optimal cache updates
+      toggleLikeMutation.mutate({
+        targetType: "comment",
+        targetId: commentId,
+        isCurrentlyLiked: currentIsLiked,
+        allTargets: commentTargets, // Pass all comment targets for efficient cache updates
+      });
+    },
+    [
+      currentUserId,
+      commentLikeStates,
+      comments,
+      toggleLikeMutation,
+      commentTargets,
+    ]
+  );
+
   // Load more callback with distance trigger
   const loadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage && onLoadMore) {
@@ -57,6 +132,11 @@ export function VirtualizedCommentsList({
         loadMore();
       }
 
+      // Get interaction data for this comment
+      const commentInteractionData = currentUserId
+        ? commentLikeStates[comment.id]
+        : undefined;
+
       if (viewMode === "list") {
         return (
           <div key={comment.id} className={cn("mb-8", isMobile && "space-y-8")}>
@@ -65,6 +145,8 @@ export function VirtualizedCommentsList({
               isMobile={isMobile}
               onCommentUpdate={onCommentUpdate}
               onCommentDelete={onCommentDelete}
+              interactionData={commentInteractionData}
+              onLike={handleLikeComment}
             />
           </div>
         );
@@ -73,6 +155,11 @@ export function VirtualizedCommentsList({
       // Grid mode - render 2 comments per row
       if (index % 2 === 0) {
         const nextComment = comments[index + 1];
+        const nextCommentInteractionData =
+          currentUserId && nextComment
+            ? commentLikeStates[nextComment.id]
+            : undefined;
+
         return (
           <div
             key={`row-${index}`}
@@ -83,6 +170,8 @@ export function VirtualizedCommentsList({
               isMobile={isMobile}
               onCommentUpdate={onCommentUpdate}
               onCommentDelete={onCommentDelete}
+              interactionData={commentInteractionData}
+              onLike={handleLikeComment}
             />
             {nextComment ? (
               <CommentCard
@@ -90,6 +179,8 @@ export function VirtualizedCommentsList({
                 isMobile={isMobile}
                 onCommentUpdate={onCommentUpdate}
                 onCommentDelete={onCommentDelete}
+                interactionData={nextCommentInteractionData}
+                onLike={handleLikeComment}
               />
             ) : (
               <div />
@@ -101,7 +192,17 @@ export function VirtualizedCommentsList({
       // Skip odd indices in grid mode as they're rendered with even indices
       return null;
     },
-    [comments, isMobile, viewMode, loadMore, onCommentUpdate, onCommentDelete]
+    [
+      comments,
+      isMobile,
+      viewMode,
+      loadMore,
+      onCommentUpdate,
+      onCommentDelete,
+      currentUserId,
+      commentLikeStates,
+      handleLikeComment,
+    ]
   );
 
   // Loading skeleton

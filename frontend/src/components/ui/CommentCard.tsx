@@ -1,15 +1,11 @@
 "use client";
 
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { CommentItem } from "@/components/ui/Comment";
 import { CommentWithTarget as CommentType, Media, Album } from "@/types";
 import { cn } from "@/lib/utils";
-import {
-  useInteractionStatus,
-  useToggleLike,
-} from "@/hooks/queries/useInteractionsQuery";
 import {
   useUpdateComment,
   useDeleteComment,
@@ -24,6 +20,8 @@ interface CommentCardProps {
     updatedComment: CommentType
   ) => { rollback: () => void } | void;
   onCommentDelete?: (commentId: string) => { rollback: () => void } | void;
+  interactionData?: { isLiked: boolean; likeCount: number };
+  onLike?: (commentId: string) => void;
 }
 
 export function CommentCard({
@@ -32,43 +30,20 @@ export function CommentCard({
   className,
   onCommentUpdate,
   onCommentDelete,
+  interactionData,
+  onLike,
 }: CommentCardProps) {
   // Get current user data
   const { data: userResponse } = useUserProfile();
   const user = userResponse?.user;
   const currentUserId = user?.userId;
 
-  // Get comment like status
-  const commentTargets = useMemo(
-    () => [{ targetType: "comment" as const, targetId: comment.id }],
-    [comment.id]
-  );
-
-  const { data: interactionStatusData } = useInteractionStatus(commentTargets);
-
-  // Create a map for easier lookup
-  const commentLikeStates = useMemo(() => {
-    const statusMap: Record<string, { isLiked: boolean; likeCount: number }> =
-      {};
-
-    if (interactionStatusData?.statuses) {
-      interactionStatusData.statuses.forEach((status) => {
-        if (status.targetType === "comment") {
-          statusMap[status.targetId] = {
-            isLiked: status.userLiked,
-            likeCount: status.likeCount,
-          };
-        }
-      });
-    }
-
-    return statusMap;
-  }, [interactionStatusData]);
+  // Use provided interaction data instead of making individual API calls
+  const displayLikeState = currentUserId ? interactionData : undefined;
 
   // Mutations
   const updateCommentMutation = useUpdateComment();
   const deleteCommentMutation = useDeleteComment();
-  const toggleLikeMutation = useToggleLike();
 
   // Edit comment handler
   const handleEditComment = useCallback(
@@ -156,41 +131,17 @@ export function CommentCard({
   // Like comment handler
   const handleLikeComment = useCallback(
     (commentId: string) => {
-      if (!currentUserId) {
+      if (!currentUserId || !onLike) {
         return;
       }
 
-      // Get current like state from TanStack Query cache
-      const currentLikeState = commentLikeStates[commentId] || {
-        isLiked: false,
-        likeCount: comment.likeCount || 0,
-      };
-      const currentIsLiked = currentLikeState.isLiked;
-
-      // Use TanStack Query mutation (with built-in optimistic updates)
-      // Pass commentTargets so the cache update uses the correct query key
-      toggleLikeMutation.mutate({
-        targetType: "comment",
-        targetId: commentId,
-        isCurrentlyLiked: currentIsLiked,
-        allTargets: commentTargets, // Pass the targets used by this component
-      });
+      // Delegate to parent component
+      onLike(commentId);
     },
-    [
-      currentUserId,
-      commentLikeStates,
-      toggleLikeMutation,
-      comment.likeCount,
-      commentTargets,
-    ]
+    [currentUserId, onLike]
   );
 
-  // Get like state for this comment from TanStack Query cache
-  const displayLikeState = currentUserId
-    ? commentLikeStates[comment.id]
-    : undefined;
-
-  // Use like count from TanStack Query cache or comment object as fallback
+  // Use like count from provided interaction data or comment object as fallback
   const commentLikeCount =
     displayLikeState?.likeCount !== undefined
       ? displayLikeState.likeCount
