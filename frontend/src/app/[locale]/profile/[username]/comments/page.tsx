@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Mail, Grid, List, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { useCommentsQuery } from "@/hooks/queries/useCommentsQuery";
 import { CommentWithTarget as CommentType } from "@/types";
 import { useDevice } from "@/contexts/DeviceContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function UserCommentsPage() {
   const params = useParams();
@@ -48,6 +49,41 @@ export default function UserCommentsPage() {
   const handleRefresh = () => {
     refresh();
   };
+
+  const queryClient = useQueryClient();
+
+  // Handle comment update
+  const handleCommentUpdate = useCallback(
+    (updatedComment: CommentType) => {
+      // For comment updates, we can just refetch to get the latest data
+      refresh();
+    },
+    [refresh]
+  );
+
+  // Handle comment deletion
+  const handleCommentDelete = useCallback(
+    (commentId: string) => {
+      // Optimistically update the cache by removing the deleted comment
+      queryClient.setQueryData(["comments", { username }], (oldData: any) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page: any) => ({
+            ...page,
+            comments: page.comments.filter(
+              (comment: CommentType) => comment.id !== commentId
+            ),
+          })),
+        };
+      });
+
+      // Optionally refetch to ensure data consistency
+      // refresh();
+    },
+    [queryClient, username]
+  );
 
   const displayName = username;
   const initials = displayName.slice(0, 2).toUpperCase();
@@ -211,6 +247,8 @@ export default function UserCommentsPage() {
             className={cn(isMobile && "px-0", !isMobile && "px-4")}
             isMobile={isMobile}
             viewMode={viewMode}
+            onCommentUpdate={handleCommentUpdate}
+            onCommentDelete={handleCommentDelete}
           />
         </div>
       </div>

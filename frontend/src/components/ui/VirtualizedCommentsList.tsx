@@ -19,6 +19,8 @@ interface VirtualizedCommentsListProps {
   className?: string;
   isMobile?: boolean;
   viewMode?: "grid" | "list";
+  onCommentUpdate?: (updatedComment: CommentType) => void;
+  onCommentDelete?: (commentId: string) => void;
 }
 
 export function VirtualizedCommentsList({
@@ -32,6 +34,8 @@ export function VirtualizedCommentsList({
   className,
   isMobile = false,
   viewMode = "list",
+  onCommentUpdate,
+  onCommentDelete,
 }: VirtualizedCommentsListProps) {
   // Load more callback with distance trigger
   const loadMore = useCallback(() => {
@@ -54,7 +58,12 @@ export function VirtualizedCommentsList({
       if (viewMode === "list") {
         return (
           <div key={comment.id} className={cn("mb-8", isMobile && "space-y-8")}>
-            <CommentCard comment={comment} isMobile={isMobile} />
+            <CommentCard
+              comment={comment}
+              isMobile={isMobile}
+              onCommentUpdate={onCommentUpdate}
+              onCommentDelete={onCommentDelete}
+            />
           </div>
         );
       }
@@ -67,9 +76,19 @@ export function VirtualizedCommentsList({
             key={`row-${index}`}
             className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"
           >
-            <CommentCard comment={comment} isMobile={isMobile} />
+            <CommentCard
+              comment={comment}
+              isMobile={isMobile}
+              onCommentUpdate={onCommentUpdate}
+              onCommentDelete={onCommentDelete}
+            />
             {nextComment ? (
-              <CommentCard comment={nextComment} isMobile={isMobile} />
+              <CommentCard
+                comment={nextComment}
+                isMobile={isMobile}
+                onCommentUpdate={onCommentUpdate}
+                onCommentDelete={onCommentDelete}
+              />
             ) : (
               <div />
             )}
@@ -80,7 +99,7 @@ export function VirtualizedCommentsList({
       // Skip odd indices in grid mode as they're rendered with even indices
       return null;
     },
-    [comments, isMobile, viewMode, loadMore]
+    [comments, isMobile, viewMode, loadMore, onCommentUpdate, onCommentDelete]
   );
 
   // Loading skeleton
