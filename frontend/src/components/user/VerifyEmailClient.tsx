@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocaleRouter } from "@/lib/navigation";
 import { Button } from "@/components/ui/Button";
@@ -21,23 +21,25 @@ export function VerifyEmailClient() {
   const checkAuthMutation = useCheckAuth();
   const searchParams = useSearchParams();
   const router = useLocaleRouter();
+  const hasVerifiedRef = useRef(false);
 
-  useEffect(() => {
-    const token = searchParams.get("token");
+  const performVerification = useCallback(
+    async (token: string) => {
+      // Prevent multiple verification attempts
+      if (hasVerifiedRef.current) {
+        return;
+      }
 
-    if (!token) {
-      setState("invalid");
-      setMessage("Invalid verification link. No token provided.");
-      return;
-    }
+      hasVerifiedRef.current = true;
 
-    const performVerification = async () => {
       try {
         const result = await verifyEmailMutation.mutateAsync(token);
         if (!result) {
+          setState("error");
           setMessage(
             "Email verification failed. The link may be expired or invalid."
           );
+          return;
         }
 
         setState("success");
@@ -54,11 +56,21 @@ export function VerifyEmailClient() {
             : "An unexpected error occurred during verification."
         );
       }
-    };
+    },
+    [verifyEmailMutation, checkAuthMutation]
+  );
 
-    performVerification();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, verifyEmailMutation, checkAuthMutation]); // Updated dependencies
+  useEffect(() => {
+    const token = searchParams.get("token");
+
+    if (!token) {
+      setState("invalid");
+      setMessage("Invalid verification link. No token provided.");
+      return;
+    }
+
+    performVerification(token);
+  }, [searchParams, performVerification]);
 
   const handleGoHome = () => {
     router.push("/");
