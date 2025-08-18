@@ -223,6 +223,7 @@ export function useToggleLike() {
       targetId: string;
       albumId?: string;
       isCurrentlyLiked: boolean;
+      allTargets?: InteractionTarget[]; // All targets in the current context (for comments)
     }) => {
       const request: InteractionRequest = {
         action: isCurrentlyLiked ? "remove" : "add",
@@ -237,9 +238,14 @@ export function useToggleLike() {
 
       return await interactionApi.like(request);
     },
-    onMutate: async ({ targetType, targetId, isCurrentlyLiked }) => {
+    onMutate: async ({ targetType, targetId, isCurrentlyLiked, allTargets }) => {
+      // For comments, use the complete targets array if provided
+      // For albums/media, use single target
+      const targets = allTargets && allTargets.length > 0 
+        ? allTargets 
+        : [{ targetType, targetId }];
+
       // Cancel outgoing refetches
-      const targets = [{ targetType, targetId }];
       await queryClient.cancelQueries({
         queryKey: queryKeys.user.interactions.status(targets),
       });
@@ -325,15 +331,16 @@ export function useToggleLike() {
         countIncrement
       );
 
-      return { targetType, targetId, isCurrentlyLiked, previousData };
+      return { targetType, targetId, isCurrentlyLiked, previousData, allTargets };
     },
     onError: (error, variables, context) => {
       console.error("Failed to toggle like:", error);
 
       if (context) {
-        const targets = [
-          { targetType: context.targetType, targetId: context.targetId },
-        ];
+        // Use the same targets as in onMutate
+        const targets = context.allTargets && context.allTargets.length > 0 
+          ? context.allTargets 
+          : [{ targetType: context.targetType, targetId: context.targetId }];
 
         // Restore the previous data if we have it
         if (context.previousData !== undefined) {

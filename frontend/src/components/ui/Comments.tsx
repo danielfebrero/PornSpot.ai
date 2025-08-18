@@ -183,13 +183,15 @@ export function Comments({
       const currentIsLiked = realState?.isLiked || false;
 
       // Use the unified like mutation - TanStack Query handles all optimistic updates
+      // Pass all commentTargets so the cache update uses the correct query key
       toggleLikeMutation.mutate({
         targetType: "comment",
         targetId: commentId,
         isCurrentlyLiked: currentIsLiked,
+        allTargets: commentTargets, // Pass all comment targets for correct cache key
       });
     },
-    [currentUserId, commentLikeStates, toggleLikeMutation]
+    [currentUserId, commentLikeStates, toggleLikeMutation, commentTargets]
   );
 
   // Handle keyboard shortcuts
