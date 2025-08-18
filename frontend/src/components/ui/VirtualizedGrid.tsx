@@ -183,7 +183,7 @@ export function VirtualizedGrid<T extends GridItem>({
     // Use container width for responsive calculations
     if (containerWidth < 640) return mobile;
     if (containerWidth < 768) return sm;
-    if (containerWidth < 1105) return md;
+    if (containerWidth < 900) return md;
     return lg;
   }, [containerWidth, viewMode, gridColumns]);
 
