@@ -36,6 +36,15 @@ export function Comments({
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [hasMore, setHasMore] = useState(initialComments.length >= 20); // Assume more if we got a full page
+  const [optimisticLikeStates, setOptimisticLikeStates] = useState<
+    Record<
+      string,
+      {
+        isLiked: boolean;
+        likeCount: number;
+      }
+    >
+  >({});
   const { isMobileInterface: isMobile } = useDevice();
 
   // Use TanStack Query for fetching additional comments (load more functionality)
@@ -110,6 +119,28 @@ export function Comments({
     return statusMap;
   }, [interactionStatusData]);
 
+  // Reset optimistic states when real data arrives
+  useEffect(() => {
+    if (interactionStatusData?.statuses) {
+      const newOptimisticStates = { ...optimisticLikeStates };
+      let hasChanges = false;
+
+      interactionStatusData.statuses.forEach((status) => {
+        if (
+          status.targetType === "comment" &&
+          optimisticLikeStates[status.targetId]
+        ) {
+          delete newOptimisticStates[status.targetId];
+          hasChanges = true;
+        }
+      });
+
+      if (hasChanges) {
+        setOptimisticLikeStates(newOptimisticStates);
+      }
+    }
+  }, [interactionStatusData, optimisticLikeStates]);
+
   // Comment mutation hooks
   const createCommentMutation = useCreateComment();
   const updateCommentMutation = useUpdateComment();
@@ -178,8 +209,29 @@ export function Comments({
         return;
       }
 
-      // Get current like state
-      const currentIsLiked = commentLikeStates[commentId]?.isLiked || false;
+      // Get current like state (use optimistic state if available, otherwise use real data)
+      const optimisticState = optimisticLikeStates[commentId];
+      const realState = commentLikeStates[commentId];
+      const commentData = comments.find((c) => c.id === commentId);
+
+      const currentLikeState = optimisticState ||
+        realState || {
+          isLiked: false,
+          likeCount: commentData?.likeCount || 0,
+        };
+      const currentIsLiked = currentLikeState.isLiked;
+
+      // Immediately update optimistic state for instant UI feedback
+      setOptimisticLikeStates((prev) => ({
+        ...prev,
+        [commentId]: {
+          isLiked: !currentIsLiked,
+          likeCount: Math.max(
+            0,
+            currentLikeState.likeCount + (currentIsLiked ? -1 : 1)
+          ),
+        },
+      }));
 
       // Use the unified like mutation
       toggleLikeMutation.mutate({
@@ -188,7 +240,13 @@ export function Comments({
         isCurrentlyLiked: currentIsLiked,
       });
     },
-    [currentUserId, commentLikeStates, toggleLikeMutation]
+    [
+      currentUserId,
+      optimisticLikeStates,
+      commentLikeStates,
+      comments,
+      toggleLikeMutation,
+    ]
   );
 
   // Handle keyboard shortcuts
@@ -273,16 +331,17 @@ export function Comments({
       ) : comments.length > 0 ? (
         <div className="space-y-4">
           {comments.map((comment, index) => {
-            // Check like state if user is logged in (regardless of like count)
-            // This handles the case where a comment goes from 0 to 1+ likes
-            const likeState = currentUserId
+            // Check like state if user is logged in (use optimistic state if available)
+            const optimisticState = optimisticLikeStates[comment.id];
+            const realState = currentUserId
               ? commentLikeStates[comment.id]
               : null;
+            const displayLikeState = optimisticState || realState;
 
-            // Use like count from API if available, otherwise fall back to comment object
+            // Use like count from optimistic/real state, otherwise fall back to comment object
             const commentLikeCount =
-              likeState?.likeCount !== undefined
-                ? likeState.likeCount
+              displayLikeState?.likeCount !== undefined
+                ? displayLikeState.likeCount
                 : comment.likeCount || 0;
 
             return (
@@ -293,7 +352,7 @@ export function Comments({
                 onEdit={handleEditComment}
                 onDelete={handleDeleteComment}
                 onLike={handleLikeComment}
-                isLiked={likeState?.isLiked || false}
+                isLiked={displayLikeState?.isLiked || false}
                 likeCount={commentLikeCount}
                 className={cn(
                   index < comments.length - 1 &&

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MoreHorizontal, Edit, Trash2, Heart, User } from "lucide-react";
+import { Edit, Trash2, Heart, User } from "lucide-react";
 import { Comment } from "@/types";
 import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/Tooltip";

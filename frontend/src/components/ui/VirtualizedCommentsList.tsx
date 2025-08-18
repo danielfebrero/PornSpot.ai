@@ -142,16 +142,17 @@ export function VirtualizedCommentsList({
     );
   }
 
-  // Calculate total count for virtualization
-  const totalCount =
-    viewMode === "grid" ? Math.ceil(comments.length / 2) : comments.length;
+  // Calculate items for virtualization
+  const virtualItems =
+    viewMode === "grid"
+      ? Array.from({ length: Math.ceil(comments.length / 2) }, (_, i) => i)
+      : comments.map((_, i) => i);
 
   return (
     <div className={cn("space-y-4", className)}>
       <Virtuoso
         useWindowScroll
-        data={comments}
-        totalCount={totalCount}
+        data={virtualItems}
         itemContent={renderComment}
         endReached={loadMore}
         overscan={5}
