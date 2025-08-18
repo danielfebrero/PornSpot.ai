@@ -276,7 +276,6 @@ export function useToggleLike() {
 
           return {
             ...oldData,
-            ...oldData,
             statuses: oldData.statuses.map((status) => {
               if (
                 status.targetType === targetType &&

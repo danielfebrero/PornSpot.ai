@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useState, useEffect } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { CommentItem } from "@/components/ui/Comment";
@@ -38,12 +38,6 @@ export function CommentCard({
   const user = userResponse?.user;
   const currentUserId = user?.userId;
 
-  // Local optimistic state for like status
-  const [optimisticLikeState, setOptimisticLikeState] = useState<{
-    isLiked: boolean;
-    likeCount: number;
-  } | null>(null);
-
   // Get comment like status
   const commentTargets = [
     { targetType: "comment" as const, targetId: comment.id },
@@ -69,13 +63,6 @@ export function CommentCard({
 
     return statusMap;
   }, [interactionStatusData]);
-
-  // Reset optimistic state when real data arrives
-  useEffect(() => {
-    if (commentLikeStates[comment.id]) {
-      setOptimisticLikeState(null);
-    }
-  }, [commentLikeStates, comment.id]);
 
   // Mutations
   const updateCommentMutation = useUpdateComment();
@@ -172,24 +159,14 @@ export function CommentCard({
         return;
       }
 
-      // Get current like state (use optimistic state if available, otherwise use real data)
-      const currentLikeState = optimisticLikeState ||
-        commentLikeStates[commentId] || {
-          isLiked: false,
-          likeCount: comment.likeCount || 0,
-        };
+      // Get current like state from TanStack Query cache
+      const currentLikeState = commentLikeStates[commentId] || {
+        isLiked: false,
+        likeCount: comment.likeCount || 0,
+      };
       const currentIsLiked = currentLikeState.isLiked;
 
-      // Immediately update optimistic state for instant UI feedback
-      setOptimisticLikeState({
-        isLiked: !currentIsLiked,
-        likeCount: Math.max(
-          0,
-          currentLikeState.likeCount + (currentIsLiked ? -1 : 1)
-        ),
-      });
-
-      // Use the unified like mutation
+      // Use TanStack Query mutation (with built-in optimistic updates)
       toggleLikeMutation.mutate({
         targetType: "comment",
         targetId: commentId,
@@ -198,19 +175,16 @@ export function CommentCard({
     },
     [
       currentUserId,
-      optimisticLikeState,
       commentLikeStates,
       toggleLikeMutation,
       comment.likeCount,
     ]
   );
 
-  // Get like state for this comment (use optimistic state if available)
-  const displayLikeState =
-    optimisticLikeState ||
-    (currentUserId ? commentLikeStates[comment.id] : undefined);
+  // Get like state for this comment from TanStack Query cache
+  const displayLikeState = currentUserId ? commentLikeStates[comment.id] : undefined;
 
-  // Use like count from optimistic state, API, or comment object as fallback
+  // Use like count from TanStack Query cache or comment object as fallback
   const commentLikeCount =
     displayLikeState?.likeCount !== undefined
       ? displayLikeState.likeCount
