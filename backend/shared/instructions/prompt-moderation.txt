@@ -12,7 +12,7 @@ Your tasks is to validate if a prompt comply with our rules.
 # Response format
 
 Respond with "OK" if the prompt is compliant with our rules. Nothing more than "OK".
-Otherwise respond with JSON following this schema: { "reason": "..." }. Responding with a JSON object is mandatory if the prompt is not compliant.
+Otherwise respond with JSON following this schema: { "reason": "..." }. Responding with a JSON object is mandatory if the prompt is not compliant. Use a precise reason. "Content violates platform rules" is too vague.
 Responding with "OK" and nothing else is mandatory if the prompt is compliant.
 
 # Examples

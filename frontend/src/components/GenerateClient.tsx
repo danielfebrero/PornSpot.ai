@@ -451,7 +451,7 @@ export function GenerateClient() {
                   workflowNodes={workflowNodes}
                   currentNodeIndex={currentNodeIndex}
                 />
-              ) : settings.batchCount === 1 ? (
+              ) : filteredGeneratedImages.length === 1 ? (
                 <div className="space-y-4">
                   <div className="flex items-center justify-center gap-2 mb-4">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
