@@ -14,9 +14,9 @@
 
 [ ] Sur la page generate, le plan se charge pas des fois, certaines fois il disparait completement après un certain usage je crois, et des fois le plan apparait correctement (le pro).
 
-[ ] From user Albums page, delete album do not close the popup immediately.
+[x] From user Albums page, delete album do not close the popup immediately. CANNOT REPRODUCE.
 
-[ ] Cannot open media page of a generated media, error 500.
+[x] Cannot open media page of a generated media, error 500.
 
 [ ] The queue manager of image generation is totally broken and useless.
 
@@ -24,8 +24,10 @@
 
 [ ] When creating the first album in user albums page, it appears in list mode instead of grid. But correctly set to grid.
 
-[ ] Homepage Discover is cached incorrectly because after navigating away and back, the state is not preserved.
+[x] Homepage Discover is cached incorrectly because after navigating away and back, the state is not preserved. WONT FIX: IT HAPPENS ONLY WHEN DISCOVER PAGE IS EMPTY THEN ONE ALBUM IS ADDED. WILL NEVER HAPPEN IN PROD.
 
 [x] I think deleting an album do not decrease user total albums count.
 
 [x] Discover: filter by tag do not work, no album found.
+
+[ ] On media page, view count is not correctly reflected on ContentCard.
