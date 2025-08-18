@@ -16,9 +16,7 @@ import {
   ChevronDown,
   Info,
   Layers,
-  Palette,
   Bot,
-  Hash,
 } from "lucide-react";
 import { Media } from "@/types";
 import { useUserProfile } from "@/hooks/queries/useUserQuery";
@@ -178,13 +176,22 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
   // Extract user from the API response structure
   const user = userResponse?.user;
 
-  // Bulk prefetch view counts for the media
+  // Bulk prefetch view counts for the media and albums
   const viewCountTargets = useMemo(() => {
     const targets: Array<{ targetType: "album" | "media"; targetId: string }> =
       [{ targetType: "media", targetId: media.id }];
 
+    // Add albums to view count targets if they exist
+    if (media.albums && media.albums.length > 0) {
+      const albumTargets = media.albums.map((album) => ({
+        targetType: "album" as const,
+        targetId: album.id,
+      }));
+      targets.push(...albumTargets);
+    }
+
     return targets;
-  }, [media.id]);
+  }, [media.id, media.albums]);
 
   // Prefetch view counts in the background
   useBulkViewCounts(viewCountTargets, { enabled: viewCountTargets.length > 0 });
