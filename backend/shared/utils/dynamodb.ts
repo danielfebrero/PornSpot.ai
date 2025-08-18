@@ -378,8 +378,7 @@ export class DynamoDBService {
 
     // Add tag filtering if specified
     if (tag) {
-      queryParams.FilterExpression =
-        queryParams.FilterExpression + " AND contains(#tags, :tag)";
+      queryParams.FilterExpression = "contains(#tags, :tag)";
       queryParams.ExpressionAttributeNames!["#tags"] = "tags";
       queryParams.ExpressionAttributeValues![":tag"] = tag;
     }

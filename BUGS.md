@@ -19,3 +19,13 @@
 [ ] Cannot open media page of a generated media, error 500.
 
 [ ] The queue manager of image generation is totally broken and useless.
+
+[ ] The user likes page do not sort by most recent.
+
+[ ] When creating the first album in user albums page, it appears in list mode instead of grid. But correctly set to grid.
+
+[ ] Homepage Discover is cached incorrectly because after navigating away and back, the state is not preserved.
+
+[x] I think deleting an album do not decrease user total albums count.
+
+[x] Discover: filter by tag do not work, no album found.

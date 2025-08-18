@@ -1,5 +1,15 @@
 # TODO list
 
+## Launch
+
+### Reset the dynamodb table and the S3 bucket then test everything
+
+We must ensure a clean state before running tests.
+
+### Set up dev environment
+
+Add ssm parameters, subdomains, etc.
+
 ## Generate page
 
 ### Deleting an image should remove it from the page instantly
@@ -15,6 +25,10 @@ For example, on client connection, pass the previous connectionId in parameters 
 ## User Insights
 
 ## Homepage Discover
+
+### Optimize filter by tags using indexes
+
+Currently, we filter and it's not efficient at all.
 
 ## User Bookmarks page
 
