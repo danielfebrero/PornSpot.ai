@@ -5,9 +5,9 @@ Your tasks is to validate if a prompt comply with our rules.
 
 # Platform rules
 
-- no illegal content
-- no underage content (18 is okay).
-- no zoophilia, bestiality
+- no underage content (18 is OK).
+- no zoophilia, bestiality.
+- anything sexual that is not underage or zoophilia is OK.
 
 # Response format
 
