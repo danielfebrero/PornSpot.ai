@@ -20,6 +20,8 @@ import {
   Info,
   Layers,
   Bot,
+  Palette,
+  Hash,
 } from "lucide-react";
 import { Media } from "@/types";
 import { useUserProfile } from "@/hooks/queries/useUserQuery";
@@ -27,7 +29,6 @@ import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQue
 import { useNavigationLoading } from "@/contexts/NavigationLoadingContext";
 import { ShareDropdown } from "@/components/ui/ShareDropdown";
 import { Tooltip } from "@/components/ui/Tooltip";
-import { Lightbox } from "@/components/ui/Lightbox";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { HorizontalScroll } from "@/components/ui/HorizontalScroll";
 import { Comments } from "@/components/ui/Comments";
@@ -448,7 +449,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
               </MetaSection>
             )}
 
-            {/* {Array.isArray(metadata.loraModels) &&
+            {Array.isArray(metadata.loraModels) &&
               metadata.loraModels.length > 0 && (
                 <MetaSection
                   icon={<Palette className="w-5 h-5" />}
@@ -462,7 +463,8 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                         label={lora}
                         value={
                           typeof metadata.loraStrengths === "object" &&
-                          metadata.loraStrengths
+                          metadata.loraStrengths &&
+                          !Array.isArray(metadata.loraStrengths)
                             ? String(metadata.loraStrengths[lora] || "N/A")
                             : "N/A"
                         }
@@ -471,7 +473,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                     ))}
                   </div>
                 </MetaSection>
-              )} */}
+              )}
 
             {Array.isArray(metadata.bulkSiblings) &&
               metadata.bulkSiblings.length > 0 && (

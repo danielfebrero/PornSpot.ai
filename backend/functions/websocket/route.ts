@@ -431,6 +431,22 @@ async function downloadAndUploadImage(
 
     console.log(`Successfully uploaded image to S3: ${result.publicUrl}`);
 
+    // Update media entity in DynamoDB with image dimensions, file size, and URL
+    try {
+      const updateData: Partial<MediaEntity> = {
+        size: imageBuffer.length, // File size in bytes
+        updatedAt: new Date().toISOString(),
+      };
+
+      await DynamoDBService.updateMedia(mediaId, updateData);
+      console.log(
+        `Successfully updated media entity ${mediaId} with URL, size (${imageBuffer.length} bytes), and dimensions`
+      );
+    } catch (dbError) {
+      console.error(`Failed to update media entity ${mediaId}:`, dbError);
+      // Don't throw here - the upload was successful, DB update is secondary
+    }
+
     return result.publicUrl;
   } catch (error) {
     console.error(`Failed to download/upload image ${image.filename}:`, error);
@@ -479,45 +495,6 @@ export async function handleGenerationComplete(
       `Created ${createdMediaEntities.length} media entities in DynamoDB`
     );
 
-    // Download and upload images to S3 using predictable filenames
-    const uploadedImageUrls: string[] = [];
-
-    for (let index = 0; index < images.length; index++) {
-      const image = images[index];
-      const mediaEntity = createdMediaEntities[index];
-
-      if (!image) {
-        console.error(`No image found at index ${index}`);
-        continue;
-      }
-
-      if (!mediaEntity) {
-        console.error(`No media entity found for image ${index}`);
-        continue;
-      }
-
-      try {
-        const imageUrl = await downloadAndUploadImage(
-          image,
-          queueEntry,
-          COMFYUI_ENDPOINT,
-          mediaEntity.id
-        );
-        if (imageUrl) {
-          uploadedImageUrls.push(imageUrl);
-        }
-      } catch (error) {
-        console.error(`Failed to process image ${image.filename}:`, error);
-        // Continue with other images
-      }
-    }
-
-    if (uploadedImageUrls.length === 0) {
-      throw new Error("Failed to upload any generated images");
-    }
-
-    console.log(`Successfully uploaded ${uploadedImageUrls.length} images`);
-
     // Update queue entry with completion status
     try {
       // Convert MediaEntities to Media objects for response
@@ -528,6 +505,45 @@ export async function handleGenerationComplete(
       console.log(
         `Using ${mediaObjects.length} already-created Media entities for job completion`
       );
+
+      // Download and upload images to S3 using predictable filenames
+      const uploadedImageUrls: string[] = [];
+
+      for (let index = 0; index < images.length; index++) {
+        const image = images[index];
+        const mediaEntity = createdMediaEntities[index];
+
+        if (!image) {
+          console.error(`No image found at index ${index}`);
+          continue;
+        }
+
+        if (!mediaEntity) {
+          console.error(`No media entity found for image ${index}`);
+          continue;
+        }
+
+        try {
+          const imageUrl = await downloadAndUploadImage(
+            image,
+            queueEntry,
+            COMFYUI_ENDPOINT,
+            mediaEntity.id
+          );
+          if (imageUrl) {
+            uploadedImageUrls.push(imageUrl);
+          }
+        } catch (error) {
+          console.error(`Failed to process image ${image.filename}:`, error);
+          // Continue with other images
+        }
+      }
+
+      if (uploadedImageUrls.length === 0) {
+        throw new Error("Failed to upload any generated images");
+      }
+
+      console.log(`Successfully uploaded ${uploadedImageUrls.length} images`);
 
       // Update queue entry with completion status
       await queueService.updateQueueEntry(queueEntry.queueId, {

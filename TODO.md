@@ -18,15 +18,15 @@ Add ssm parameters, subdomains, etc.
 
 ## Generate page
 
-### Deleting an image should remove it from the page instantly
+### Deleting an a recent image from the list under the main images should remove it from the page instantly
 
-Currently, the image stays on the page.
+Currently, the image stays on the page and the lightbox do not close.
+
+### Navigating to another image should not lose the current state
+
+When I come back to generate page, state is lost.
 
 ## Websocket
-
-### Clients should broadcast their new connectionId on page reload to conserve state updates
-
-For example, on client connection, pass the previous connectionId in parameters and on the backend, update the existing connectionId with the new one.
 
 ## User Insights
 
@@ -102,9 +102,9 @@ We should optimize our use of TanStack to leverage Static Site Generation (SSG) 
 
 ## Media page
 
-### Generation parameters should show everything
+### We should show siblings
 
-Right now they do not show a lot except the prompt. May be we do not save the information to the database.
+Right now they do not show a lot except the prompt.
 
 ## Infrastructure
 
