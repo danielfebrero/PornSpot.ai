@@ -97,7 +97,6 @@ const DEFAULT_GRID_COLUMNS = {
   sm: 2,
   md: 3,
   lg: 4,
-  xl: 4,
 };
 
 /**
@@ -149,27 +148,34 @@ export function VirtualizedGrid<T extends GridItem>({
 }: VirtualizedGridProps<T>) {
   // Container dimensions for responsive grid calculation
   const containerRef = useRef<HTMLDivElement>(null);
+  const skeletonContainerRef = useRef<HTMLDivElement>(null);
 
   // Calculate dimensions manually for responsive grid
   const [containerWidth, setContainerWidth] = React.useState(0);
 
   React.useEffect(() => {
     const measureWidth = () => {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
+      const refToUse = skeletonContainerRef.current || containerRef.current;
+      if (refToUse) {
+        setContainerWidth(refToUse.offsetWidth);
       }
     };
 
     measureWidth();
     window.addEventListener("resize", measureWidth);
     return () => window.removeEventListener("resize", measureWidth);
-  }, [containerRef.current?.offsetWidth, mediaList, items]);
+  }, [
+    containerRef.current?.offsetWidth,
+    skeletonContainerRef.current?.offsetWidth,
+    mediaList,
+    items,
+  ]);
 
   // Calculate grid columns based on container width
   const calculatedColumns = useMemo(() => {
     if (viewMode === "list") return 1;
 
-    const { mobile = 1, sm = 2, md = 3, lg = 4, xl = 4 } = gridColumns;
+    const { mobile = 1, sm = 2, md = 3, lg = 4 } = gridColumns;
 
     // Mobile-first approach: if container width is not yet measured, assume mobile
     if (!containerWidth) return mobile;
@@ -177,9 +183,8 @@ export function VirtualizedGrid<T extends GridItem>({
     // Use container width for responsive calculations
     if (containerWidth < 640) return mobile;
     if (containerWidth < 768) return sm;
-    if (containerWidth < 1024) return md;
-    if (containerWidth < 1280) return lg;
-    return xl;
+    if (containerWidth < 1105) return md;
+    return lg;
   }, [containerWidth, viewMode, gridColumns]);
 
   // Convert flat items array to grid rows for virtualization
@@ -320,7 +325,7 @@ export function VirtualizedGrid<T extends GridItem>({
   if (isLoading && items.length === 0) {
     const skeletonCount = loadingState?.skeletonCount || 8;
     return (
-      <div className={cn("space-y-6", className)}>
+      <div className={cn("space-y-6", className)} ref={skeletonContainerRef}>
         <div
           className="grid gap-4"
           style={{
@@ -390,7 +395,7 @@ export function VirtualizedGrid<T extends GridItem>({
   }
 
   return (
-    <div ref={containerRef} className={cn("space-y-6 w-full", className)}>
+    <div ref={containerRef} className={cn("space-y-6", className)}>
       <Virtuoso
         useWindowScroll
         data={gridRows}
