@@ -174,7 +174,7 @@ export default function AdminAlbumsPage() {
                 Delete Selected ({selectedAlbums.length})
               </Button>
             )}
-            <Button
+            {/* <Button
               onClick={() => router.push("/admin/albums/create")}
               className="bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-primary-foreground shadow-lg"
             >
@@ -190,7 +190,7 @@ export default function AdminAlbumsPage() {
                 />
               </svg>
               Create Album
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>

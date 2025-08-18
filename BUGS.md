@@ -2,7 +2,7 @@
 
 [ ] In Admin zone, last images I uploaded were 2 by 2 instead of bulk upload. This should be fixed to allow bulk uploads for images.
 
-[ ] The optimistic update for view counts does not work correctly when navigating from page to page. We need to ensure that the view count is updated consistently across all pages.
+[x] The optimistic update for view counts does not work correctly when navigating from page to page. We need to ensure that the view count is updated consistently across all pages.
 
 [x] User/bookmarks page grid consider all items as media. Albums appear as media.
 
@@ -30,7 +30,7 @@
 
 [x] Discover: filter by tag do not work, no album found.
 
-[ ] On media page, view count is not correctly reflected on ContentCard.
+[x] On media page, view count is not correctly reflected on ContentCard.
 
 [ ] Adding a like or a bookmark should update optimistically the User likes and bookmarks pages.
 
