@@ -8,7 +8,7 @@
 
 [x] User profiles does not work, it shows Anonymous.
 
-[ ] View all generated medias and last generated media of a user does not work.
+[x] View all generated medias and last generated media of a user does not work.
 
 [x] LoRA are not used correctly by the workflow API probably because images are really different from Comfy UI client images with the same parameters.
 

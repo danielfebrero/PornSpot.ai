@@ -19,8 +19,10 @@ interface VirtualizedCommentsListProps {
   className?: string;
   isMobile?: boolean;
   viewMode?: "grid" | "list";
-  onCommentUpdate?: (updatedComment: CommentType) => void;
-  onCommentDelete?: (commentId: string) => void;
+  onCommentUpdate?: (
+    updatedComment: CommentType
+  ) => { rollback: () => void } | void;
+  onCommentDelete?: (commentId: string) => { rollback: () => void } | void;
 }
 
 export function VirtualizedCommentsList({

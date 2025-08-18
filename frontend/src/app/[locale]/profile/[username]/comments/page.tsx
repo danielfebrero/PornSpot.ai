@@ -55,15 +55,42 @@ export default function UserCommentsPage() {
   // Handle comment update
   const handleCommentUpdate = useCallback(
     (updatedComment: CommentType) => {
-      // For comment updates, we can just refetch to get the latest data
-      refresh();
+      // Store the original data for potential rollback
+      const originalData = queryClient.getQueryData(["comments", { username }]);
+
+      // Optimistically update the cache with the updated comment
+      queryClient.setQueryData(["comments", { username }], (oldData: any) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page: any) => ({
+            ...page,
+            comments: page.comments.map((comment: CommentType) =>
+              comment.id === updatedComment.id ? updatedComment : comment
+            ),
+          })),
+        };
+      });
+
+      // Return a rollback function in case the update fails
+      return {
+        rollback: () => {
+          if (originalData) {
+            queryClient.setQueryData(["comments", { username }], originalData);
+          }
+        },
+      };
     },
-    [refresh]
+    [queryClient, username]
   );
 
   // Handle comment deletion
   const handleCommentDelete = useCallback(
     (commentId: string) => {
+      // Store the original data for potential rollback
+      const originalData = queryClient.getQueryData(["comments", { username }]);
+
       // Optimistically update the cache by removing the deleted comment
       queryClient.setQueryData(["comments", { username }], (oldData: any) => {
         if (!oldData) return oldData;
@@ -79,8 +106,14 @@ export default function UserCommentsPage() {
         };
       });
 
-      // Optionally refetch to ensure data consistency
-      // refresh();
+      // Return a rollback function in case the deletion fails
+      return {
+        rollback: () => {
+          if (originalData) {
+            queryClient.setQueryData(["comments", { username }], originalData);
+          }
+        },
+      };
     },
     [queryClient, username]
   );
