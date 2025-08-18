@@ -311,8 +311,6 @@ const UserAlbumsPage: React.FC = () => {
           canDownload: false,
           canDelete: false,
           showTags: false,
-          preferredThumbnailSize:
-            viewMode === "grid" ? undefined : "originalSize",
           customActions: (item) => [
             {
               label: "Edit Album",

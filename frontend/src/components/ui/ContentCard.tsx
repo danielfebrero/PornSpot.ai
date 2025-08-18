@@ -112,7 +112,7 @@ export function ContentCard({
   showCounts = true,
   showTags = true,
   disableHoverEffects = false,
-  useAllAvailableSpace = true,
+  useAllAvailableSpace = false,
   customActions,
   onClick,
   onFullscreen,
