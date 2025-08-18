@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useMemo, useEffect, FC, ReactNode } from "react";
+import { useState, useMemo, useEffect, FC, ReactNode, useRef } from "react";
 import { useLocaleRouter } from "@/lib/navigation";
-import { useBulkViewCounts } from "@/hooks/queries/useViewCountsQuery";
+import {
+  useBulkViewCounts,
+  useTrackView,
+} from "@/hooks/queries/useViewCountsQuery";
 import {
   Share2,
   ArrowLeft,
@@ -25,7 +28,6 @@ import { useNavigationLoading } from "@/contexts/NavigationLoadingContext";
 import { ShareDropdown } from "@/components/ui/ShareDropdown";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { Lightbox } from "@/components/ui/Lightbox";
-import { ViewTracker } from "@/components/ui/ViewTracker";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { HorizontalScroll } from "@/components/ui/HorizontalScroll";
 import { Comments } from "@/components/ui/Comments";
@@ -167,14 +169,37 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
   const { startNavigation } = useNavigationLoading();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+  const [viewTracked, setViewTracked] = useState(false);
   const metadata = useMediaMetadata(media);
   const { data: userResponse } = useUserProfile();
+  const hasTrackedView = useRef(false);
+  const trackViewMutation = useTrackView();
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();
 
   // Extract user from the API response structure
   const user = userResponse?.user;
+
+  // Track view when component mounts, then enable view count fetching
+  useEffect(() => {
+    if (hasTrackedView.current) return;
+    hasTrackedView.current = true;
+
+    // Track view and then enable view count fetching
+    trackViewMutation.mutate(
+      {
+        targetType: "media",
+        targetId: media.id,
+      },
+      {
+        onSettled: () => {
+          // Enable view count fetching after tracking is done (success or failure)
+          setViewTracked(true);
+        },
+      }
+    );
+  }, [media.id, trackViewMutation]);
 
   // Bulk prefetch view counts for the media and albums
   const viewCountTargets = useMemo(() => {
@@ -193,8 +218,10 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
     return targets;
   }, [media.id, media.albums]);
 
-  // Prefetch view counts in the background
-  useBulkViewCounts(viewCountTargets, { enabled: viewCountTargets.length > 0 });
+  // Prefetch view counts in the background - but only after view tracking is done
+  useBulkViewCounts(viewCountTargets, {
+    enabled: viewCountTargets.length > 0 && viewTracked,
+  });
 
   // Prefetch interaction status for media and related albums
   useEffect(() => {
@@ -247,8 +274,6 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <ViewTracker targetType="media" targetId={media.id} />
-
       {/* Header */}
       <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm border-border">
         <div className="flex items-center h-16 gap-4 md:px-4">
@@ -505,6 +530,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                       canDownload={false}
                       canDelete={false}
                       showTags={false}
+                      showCounts={true}
                       className="w-full"
                     />
                   ))}
