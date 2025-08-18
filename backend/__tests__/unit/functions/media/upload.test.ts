@@ -1,4 +1,4 @@
-import { handler } from "../../../../functions/media/upload";
+import { handler } from "../../../../functions/media/add";
 import { DynamoDBService } from "../../../../shared/utils/dynamodb";
 import { S3Service } from "../../../../shared/utils/s3";
 import { UserAuthMiddleware } from "../../../../shared/auth/user-middleware";
@@ -142,6 +142,10 @@ describe("Media Upload Handler", () => {
         GSI1SK: `mock-admin-user-id#${mockTimestamp}#mock-media-uuid-456`,
         GSI2PK: "MEDIA_ID",
         GSI2SK: "mock-media-uuid-456",
+        GSI3PK: "MEDIA_BY_USER_true",
+        GSI3SK: `mock-admin-user-id#${mockTimestamp}#mock-media-uuid-456`,
+        GSI5PK: "MEDIA",
+        GSI5SK: "true",
         EntityType: "Media",
         id: "mock-media-uuid-456",
         filename: mockS3Key,
@@ -151,6 +155,11 @@ describe("Media Upload Handler", () => {
         url: `/${mockS3Key}`,
         createdAt: mockTimestamp,
         updatedAt: mockTimestamp,
+        isPublic: "true",
+        likeCount: 0,
+        bookmarkCount: 0,
+        viewCount: 0,
+        commentCount: 0,
         createdBy: "mock-admin-user-id",
         createdByType: "admin",
         status: "pending",

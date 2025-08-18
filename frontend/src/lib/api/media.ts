@@ -1,11 +1,16 @@
 import { Media, UnifiedMediaResponse, UploadMediaRequest } from "@/types";
 import { ApiUtil, PaginationParams } from "../api-util";
 
+// Types for media API parameters
+interface GetUserMediaParams extends PaginationParams {
+  username?: string;
+}
+
 // Media API Functions
 export const mediaApi = {
   // Get user's media - NEW UNIFIED FORMAT
   getUserMedia: async (
-    params?: PaginationParams
+    params?: GetUserMediaParams
   ): Promise<UnifiedMediaResponse> => {
     const response = await ApiUtil.get<UnifiedMediaResponse>(
       "/user/media",

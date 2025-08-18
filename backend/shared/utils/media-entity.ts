@@ -70,9 +70,15 @@ export function createMediaEntity(
     GSI2PK: "MEDIA_ID",
     GSI2SK: options.mediaId,
 
+    // GSI3: Media by user and public status for efficient filtering
+    GSI3PK: `MEDIA_BY_USER_${
+      options.isPublic !== undefined ? String(options.isPublic) : "true"
+    }`,
+    GSI3SK: `${options.userId}#${now}#${options.mediaId}`,
+
     // GSI5: Media by public status
     GSI5PK: "MEDIA",
-    GSI5SK: options.isPublic ? "true" : "false",
+    GSI5SK: options.isPublic !== undefined ? String(options.isPublic) : "true",
 
     // Entity metadata
     EntityType: "Media" as const,

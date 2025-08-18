@@ -15,18 +15,21 @@ All entities in the application are stored in a single DynamoDB table. This desi
 
 The table uses Global Secondary Indexes (GSIs) to support additional query patterns.
 
-- **GSI1**: Used for querying items by type and other attributes.
+- **GSI1**:
   - `GSI1PK`: The partition key for GSI1.
   - `GSI1SK`: The sort key for GSI1.
-- **GSI2**: Used for querying users by their Google ID.
+- **GSI2**:
   - `GSI2PK`: The partition key for GSI2.
   - `GSI2SK`: The sort key for GSI2.
-- **GSI3**: Used for querying users by their username.
+- **GSI3**:
   - `GSI3PK`: The partition key for GSI3.
   - `GSI3SK`: The sort key for GSI3.
-- **GSI4**: Used for querying albums by creator.
+- **GSI4**:
   - `GSI4PK`: The partition key for GSI4.
   - `GSI4SK`: The sort key for GSI4.
+- **GSI5**:
+  - `GSI5PK`: The partition key for GSI5.
+  - `GSI5SK`: The sort key for GSI5.
 
 ## New Global Secondary Index: isPublic-createdAt-index
 
@@ -90,6 +93,8 @@ Represents a single media item (e.g., an image) that can belong to multiple albu
 - **GSI1SK**: `<createdBy>#<createdAt>#<mediaId>`
 - **GSI2PK**: `MEDIA_ID`
 - **GSI2SK**: `<mediaId>`
+- **GSI3PK**: `MEDIA_BY_USER_{isPublic}`
+- **GSI3SK**: `<createdBy>#<createdAt>#<mediaId>`
 - **EntityType**: `Media`
 
 | Attribute          | Type     | Description                                  |
@@ -147,10 +152,14 @@ Represents the relationship between an album and a media item, allowing one medi
 2. **Get all media for an album**: Query main table with `PK = "ALBUM#<albumId>"` and `SK begins_with "MEDIA#"`
 3. **Get all albums for a media**: Use GSI1 with `GSI1PK = "MEDIA#<mediaId>"`
 4. **Get all media by creator**: Use GSI1 with `GSI1PK = "MEDIA_BY_CREATOR"` and `GSI1SK begins_with "<createdBy>#"`
-5. **Get all public media**:
+5. **Get public media by user** (**NEW - OPTIMIZED**): Use GSI3 with `GSI3PK = "MEDIA_BY_USER_true"` and `GSI3SK begins_with "<userId>#"`
+6. **Get private media by user** (**NEW - OPTIMIZED**): Use GSI3 with `GSI3PK = "MEDIA_BY_USER_false"` and `GSI3SK begins_with "<userId>#"`
+7. **Get all public media**:
    - First: Query albums with `isPublic-createdAt-index` where `isPublic = "true"`
    - Then: For each album, query media relationships
    - Finally: Fetch unique media records
+
+**Performance Note**: Patterns 5 and 6 using GSI3 are highly optimized as they avoid FilterExpression usage and directly query the desired partition.
 
 ### Migration from v1.0
 

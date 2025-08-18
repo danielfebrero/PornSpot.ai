@@ -13,8 +13,32 @@ const handleListUserMedia = async (
   event: APIGatewayProxyEvent,
   auth: AuthResult
 ): Promise<APIGatewayProxyResult> => {
-  const userId = auth.userId;
-  console.log("✅ Authenticated user:", userId);
+  const currentUserId = auth.userId;
+  console.log("✅ Authenticated user:", currentUserId);
+
+  // Check if we're looking up a specific user by username
+  const username = event.queryStringParameters?.["username"];
+  let targetUserId = currentUserId; // Default to current user
+
+  if (username) {
+    console.log("🔍 Looking up user by username:", username);
+
+    // Get user by username
+    const userEntity = await DynamoDBService.getUserByUsername(username);
+    if (!userEntity) {
+      console.log("❌ User not found with username:", username);
+      return ResponseUtil.notFound(event, "User not found");
+    }
+
+    // Check if user is active
+    if (!userEntity.isActive) {
+      console.log("❌ User is inactive:", username);
+      return ResponseUtil.notFound(event, "User not found");
+    }
+
+    targetUserId = userEntity.userId;
+    console.log("✅ Found user:", targetUserId, userEntity.email);
+  }
 
   // Parse pagination parameters using unified utility
   let paginationParams;
@@ -32,11 +56,22 @@ const handleListUserMedia = async (
 
   const { cursor: lastEvaluatedKey, limit } = paginationParams;
 
-  // Get user's media
+  // Determine if we should only fetch public media
+  const publicOnly = currentUserId !== targetUserId;
+
+  console.log(
+    "🔍 Fetching media for userId:",
+    targetUserId,
+    "publicOnly:",
+    publicOnly
+  );
+
+  // Get user's media (current user or target user)
   const { media, nextKey } = await DynamoDBService.getUserMedia(
-    userId,
+    targetUserId,
     limit,
-    lastEvaluatedKey
+    lastEvaluatedKey,
+    publicOnly
   );
 
   // Convert MediaEntity to Media using shared helper

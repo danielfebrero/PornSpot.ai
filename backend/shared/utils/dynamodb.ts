@@ -625,31 +625,64 @@ export class DynamoDBService {
   static async getUserMedia(
     userId: string,
     limit: number = 50,
-    lastEvaluatedKey?: Record<string, any>
+    lastEvaluatedKey?: Record<string, any>,
+    publicOnly: boolean = false
   ): Promise<{
     media: MediaEntity[];
     nextKey?: Record<string, any>;
   }> {
-    const result = await docClient.send(
-      new QueryCommand({
+    if (publicOnly) {
+      // Use GSI3 for public-only media - no filter needed!
+      const queryParams: any = {
         TableName: TABLE_NAME,
-        IndexName: "GSI1",
-        KeyConditionExpression: "GSI1PK = :gsi1pk",
-        FilterExpression: "createdBy = :userId",
+        IndexName: "GSI3",
+        KeyConditionExpression:
+          "GSI3PK = :gsi3pk AND begins_with(GSI3SK, :gsi3sk)",
         ExpressionAttributeValues: {
-          ":gsi1pk": "MEDIA_BY_CREATOR",
-          ":userId": userId,
+          ":gsi3pk": "MEDIA_BY_USER_true",
+          ":gsi3sk": `${userId}#`,
         },
         Limit: limit,
-        ...(lastEvaluatedKey && { ExclusiveStartKey: lastEvaluatedKey }),
         ScanIndexForward: false, // newest first
-      })
-    );
+      };
 
-    return {
-      media: (result.Items as MediaEntity[]) || [],
-      ...(result.LastEvaluatedKey && { nextKey: result.LastEvaluatedKey }),
-    };
+      if (lastEvaluatedKey) {
+        queryParams.ExclusiveStartKey = lastEvaluatedKey;
+      }
+
+      const result = await docClient.send(new QueryCommand(queryParams));
+
+      return {
+        media: (result.Items as MediaEntity[]) || [],
+        ...(result.LastEvaluatedKey && { nextKey: result.LastEvaluatedKey }),
+      };
+    } else {
+      // For all media (public + private), we need to query both GSI3 partitions
+      // For simplicity, we'll use GSI1 which contains all media by creator
+      const queryParams: any = {
+        TableName: TABLE_NAME,
+        IndexName: "GSI1",
+        KeyConditionExpression:
+          "GSI1PK = :gsi1pk AND begins_with(GSI1SK, :gsi1sk)",
+        ExpressionAttributeValues: {
+          ":gsi1pk": "MEDIA_BY_CREATOR",
+          ":gsi1sk": `${userId}#`,
+        },
+        Limit: limit,
+        ScanIndexForward: false, // newest first
+      };
+
+      if (lastEvaluatedKey) {
+        queryParams.ExclusiveStartKey = lastEvaluatedKey;
+      }
+
+      const result = await docClient.send(new QueryCommand(queryParams));
+
+      return {
+        media: (result.Items as MediaEntity[]) || [],
+        ...(result.LastEvaluatedKey && { nextKey: result.LastEvaluatedKey }),
+      };
+    }
   }
 
   // Album-Media relationship operations
@@ -1845,7 +1878,12 @@ export class DynamoDBService {
       }
 
       // Also get media view counts (for media not in albums or individual media views)
-      const userMediaResult = await this.getUserMedia(userId, 1000); // Get up to 1000 media items
+      const userMediaResult = await this.getUserMedia(
+        userId,
+        1000,
+        undefined,
+        false
+      ); // Get up to 1000 media items, include private
       for (const mediaEntity of userMediaResult.media) {
         const viewCount = mediaEntity.viewCount || 0;
         totalViews += viewCount;
