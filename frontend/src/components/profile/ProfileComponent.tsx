@@ -130,10 +130,12 @@ export default function ProfileComponent({
   // Effect to preload interaction statuses for liked content
   useEffect(() => {
     if (recentLikes.length > 0 && loggedInUser) {
-      const targets = recentLikes.map((item) => ({
-        targetType: item.targetType as "album" | "media",
-        targetId: item.targetId,
-      }));
+      const targets = recentLikes
+        .filter((item) => item && item.targetType && item.targetId)
+        .map((item) => ({
+          targetType: item.targetType as "album" | "media",
+          targetId: item.targetId,
+        }));
 
       // Preload the current logged-in user's statuses for these items
       // This will show the actual like/bookmark status of the current viewer,
@@ -177,7 +179,7 @@ export default function ProfileComponent({
     if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith("image/")) {
+    if (!file.type || !file.type.startsWith("image/")) {
       console.error("Please select an image file");
       return;
     }
@@ -188,18 +190,16 @@ export default function ProfileComponent({
       return;
     }
 
+    // Clean up previous preview URL if it exists
+    if (previewAvatarUrl) {
+      URL.revokeObjectURL(previewAvatarUrl);
+    }
+
     setSelectedAvatarFile(file);
 
     // Create preview URL
     const previewUrl = URL.createObjectURL(file);
     setPreviewAvatarUrl(previewUrl);
-
-    // Clean up previous preview URL
-    return () => {
-      if (previewAvatarUrl) {
-        URL.revokeObjectURL(previewAvatarUrl);
-      }
-    };
   };
 
   const handleAvatarUpload = async (
@@ -211,6 +211,11 @@ export default function ProfileComponent({
   }> => {
     try {
       setIsUploadingAvatar(true);
+
+      // Validate file parameter
+      if (!file || !file.type || !file.name) {
+        throw new Error("Invalid file provided");
+      }
 
       // Step 1: Get presigned upload URL
       const { data } = await userApi.uploadAvatar(file.name, file.type);
@@ -895,17 +900,25 @@ export default function ProfileComponent({
                     showArrows={true}
                     className="w-full"
                   >
-                    {recentLikes.map((item) => (
-                      <ContentCard
-                        key={item.targetId}
-                        item={item.target}
-                        showTags={false}
-                        context="albums"
-                        className="w-full"
-                        canAddToAlbum={item.targetType !== "album"} // Disable for albums
-                        canFullscreen={item.targetType !== "album"} // Disable for albums
-                      />
-                    ))}
+                    {recentLikes
+                      .filter(
+                        (item) =>
+                          item &&
+                          item.target &&
+                          item.targetType &&
+                          item.targetId
+                      )
+                      .map((item) => (
+                        <ContentCard
+                          key={item.targetId}
+                          item={item.target}
+                          showTags={false}
+                          context="albums"
+                          className="w-full"
+                          canAddToAlbum={item.targetType !== "album"} // Disable for albums
+                          canFullscreen={item.targetType !== "album"} // Disable for albums
+                        />
+                      ))}
                   </HorizontalScroll>
                 ) : (
                   <div className="text-center py-8">
@@ -971,15 +984,17 @@ export default function ProfileComponent({
                     showArrows={true}
                     className="w-full"
                   >
-                    {recentMedia.map((item) => (
-                      <ContentCard
-                        key={item.id}
-                        item={item}
-                        showTags={false}
-                        context="albums"
-                        className="w-full"
-                      />
-                    ))}
+                    {recentMedia
+                      .filter((item) => item && item.id)
+                      .map((item) => (
+                        <ContentCard
+                          key={item.id}
+                          item={item}
+                          showTags={false}
+                          context="albums"
+                          className="w-full"
+                        />
+                      ))}
                   </HorizontalScroll>
                 ) : (
                   <div className="text-center py-8">
@@ -1045,17 +1060,19 @@ export default function ProfileComponent({
                     showArrows={true}
                     className="w-full"
                   >
-                    {recentAlbums.map((album) => (
-                      <ContentCard
-                        key={album.id}
-                        item={album}
-                        canFullscreen={false}
-                        canAddToAlbum={false}
-                        showTags={false}
-                        context="albums"
-                        className="w-full"
-                      />
-                    ))}
+                    {recentAlbums
+                      .filter((album) => album && album.id)
+                      .map((album) => (
+                        <ContentCard
+                          key={album.id}
+                          item={album}
+                          canFullscreen={false}
+                          canAddToAlbum={false}
+                          showTags={false}
+                          context="albums"
+                          className="w-full"
+                        />
+                      ))}
                   </HorizontalScroll>
                 ) : (
                   <div className="text-center py-8">
@@ -1119,34 +1136,44 @@ export default function ProfileComponent({
                       No comments yet
                     </div>
                   ) : (
-                    recentComments.slice(0, 3).map((comment) => (
-                      <LocaleLink
-                        key={comment.id}
-                        href={
-                          comment.targetType === "media"
-                            ? `/media/${comment.targetId}`
-                            : `/albums/${comment.targetId}`
-                        }
-                      >
-                        <div className="p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
-                          <div className="flex items-start gap-3">
-                            <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold">
-                              {initials}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm text-foreground">
-                                &ldquo;{comment.content}&rdquo;
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {formatDistanceToNow(
-                                  new Date(comment.createdAt)
-                                )}
-                              </p>
+                    recentComments
+                      .filter(
+                        (comment) =>
+                          comment &&
+                          comment.id &&
+                          comment.content &&
+                          comment.targetType &&
+                          comment.targetId
+                      )
+                      .slice(0, 3)
+                      .map((comment) => (
+                        <LocaleLink
+                          key={comment.id}
+                          href={
+                            comment.targetType === "media"
+                              ? `/media/${comment.targetId}`
+                              : `/albums/${comment.targetId}`
+                          }
+                        >
+                          <div className="p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold">
+                                {initials}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm text-foreground">
+                                  &ldquo;{comment.content}&rdquo;
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {formatDistanceToNow(
+                                    new Date(comment.createdAt)
+                                  )}
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </LocaleLink>
-                    ))
+                        </LocaleLink>
+                      ))
                   )}
                   <div className="text-center pt-2">
                     <LocaleLink href={`/profile/${displayName}/comments`}>

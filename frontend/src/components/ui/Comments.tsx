@@ -5,7 +5,6 @@ import { MessageCircle, Send, Loader2 } from "lucide-react";
 import { Comment } from "@/types";
 import { CommentItem } from "@/components/ui/Comment";
 import { Button } from "@/components/ui/Button";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
 import { useDevice } from "@/contexts/DeviceContext";
 import {
@@ -37,12 +36,6 @@ export function Comments({
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [hasMore, setHasMore] = useState(initialComments.length >= 20); // Assume more if we got a full page
-  const [deleteConfirm, setDeleteConfirm] = useState<{
-    isOpen: boolean;
-    commentId?: string;
-  }>({
-    isOpen: false,
-  });
   const { isMobileInterface: isMobile } = useDevice();
 
   // Use TanStack Query for fetching additional comments (load more functionality)
@@ -162,16 +155,7 @@ export function Comments({
 
   // Delete comment
   const handleDeleteComment = async (commentId: string) => {
-    setDeleteConfirm({
-      isOpen: true,
-      commentId,
-    });
-  };
-
-  // Confirm delete comment
-  const handleConfirmDelete = async () => {
-    const commentId = deleteConfirm.commentId;
-    if (!commentId || deleteCommentMutation.isPending) return;
+    if (deleteCommentMutation.isPending) return;
 
     try {
       const result = await deleteCommentMutation.mutateAsync(commentId);
@@ -182,11 +166,8 @@ export function Comments({
           prev.filter((comment) => comment.id !== commentId)
         );
       }
-
-      setDeleteConfirm({ isOpen: false });
     } catch (err) {
       console.error("Error deleting comment:", err);
-      setDeleteConfirm({ isOpen: false });
     }
   };
 
@@ -353,17 +334,6 @@ export function Comments({
           </p>
         </div>
       )}
-
-      {/* Delete Confirmation Dialog */}
-      <ConfirmDialog
-        isOpen={deleteConfirm.isOpen}
-        onClose={() => setDeleteConfirm({ isOpen: false })}
-        onConfirm={handleConfirmDelete}
-        title="Delete Comment"
-        message="Are you sure you want to delete this comment? This action cannot be undone."
-        confirmText="Delete"
-        confirmVariant="danger"
-      />
     </div>
   );
 }
