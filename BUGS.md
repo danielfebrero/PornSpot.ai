@@ -20,7 +20,7 @@
 
 [ ] The queue manager of image generation is totally broken and useless.
 
-[ ] The user likes page do not sort by most recent.
+[x] The user likes page do not sort by most recent.
 
 [x] When creating the first album in user albums page, it appears in list mode instead of grid. But correctly set to grid.
 
@@ -31,3 +31,7 @@
 [x] Discover: filter by tag do not work, no album found.
 
 [ ] On media page, view count is not correctly reflected on ContentCard.
+
+[ ] Adding a like or a bookmark should update optimistically the User likes and bookmarks pages.
+
+[ ] Deleting an album could update optimistically the Homepage discover page.
