@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { MessageCircle, Send, Loader2 } from "lucide-react";
 import { Comment } from "@/types";
 import { CommentItem } from "@/components/ui/Comment";
@@ -34,45 +34,36 @@ export function Comments({
   className,
 }: CommentsProps) {
   const [newComment, setNewComment] = useState("");
-  const [comments, setComments] = useState<Comment[]>(initialComments);
-  const [hasMore, setHasMore] = useState(initialComments.length >= 20); // Assume more if we got a full page
   const { isMobileInterface: isMobile } = useDevice();
 
-  // Use TanStack Query for fetching additional comments (load more functionality)
-  // Disabled by default since we use SSG comments initially
+  // Use TanStack Query for fetching comments (enabled to support optimistic updates)
   const {
-    data: additionalCommentsData,
+    data: commentsData,
     fetchNextPage: loadMoreComments,
     isFetchingNextPage: loadingMore,
     error: fetchError,
-  } = useTargetComments(targetType, targetId, { limit: 20, enabled: false });
+  } = useTargetComments(targetType, targetId, {
+    limit: 20,
+    enabled: true,
+  });
 
-  // Update comments list when we get additional comments from load more
-  useEffect(() => {
-    if (additionalCommentsData?.pages) {
-      const newComments = additionalCommentsData.pages.flatMap(
-        (page) => page.comments || []
-      );
-      if (newComments.length > 0) {
-        // Filter out comments we already have to avoid duplicates
-        const existingIds = new Set(comments.map((c) => c.id));
-        const uniqueNewComments = newComments.filter(
-          (c) => !existingIds.has(c.id)
-        );
-
-        if (uniqueNewComments.length > 0) {
-          setComments((prev) => [...prev, ...uniqueNewComments]);
-
-          // Check if there are more comments to load
-          const lastPage =
-            additionalCommentsData.pages[
-              additionalCommentsData.pages.length - 1
-            ];
-          setHasMore(!!lastPage.pagination?.hasNext);
-        }
-      }
+  // Get comments from TanStack Query cache (supports optimistic updates)
+  // If no data from cache yet, use initial comments from SSG
+  const comments = useMemo(() => {
+    if (commentsData?.pages && commentsData.pages.length > 0) {
+      return commentsData.pages.flatMap((page) => page.comments || []);
     }
-  }, [additionalCommentsData, comments]);
+    return initialComments;
+  }, [commentsData, initialComments]);
+
+  // Check if there are more comments to load
+  const hasMore = useMemo(() => {
+    if (commentsData?.pages && commentsData.pages.length > 0) {
+      const lastPage = commentsData.pages[commentsData.pages.length - 1];
+      return !!lastPage.pagination?.hasNext;
+    }
+    return initialComments.length >= 20;
+  }, [commentsData, initialComments]);
 
   // Memoize comment IDs to prevent unnecessary re-renders and API calls
   // Create interaction targets for comments
@@ -122,14 +113,12 @@ export function Comments({
       return;
 
     try {
-      const result = await createCommentMutation.mutateAsync({
+      await createCommentMutation.mutateAsync({
         content: newComment.trim(),
         targetType,
         targetId,
       });
 
-      // Add new comment to local state
-      setComments((prev) => [result, ...prev]);
       setNewComment("");
     } catch (err) {
       console.error("Error creating comment:", err);
@@ -139,15 +128,10 @@ export function Comments({
   // Edit comment
   const handleEditComment = async (commentId: string, content: string) => {
     try {
-      const result = await updateCommentMutation.mutateAsync({
+      await updateCommentMutation.mutateAsync({
         commentId,
         content,
       });
-
-      // Update comment in local state
-      setComments((prev) =>
-        prev.map((comment) => (comment.id === commentId ? result : comment))
-      );
     } catch (err) {
       console.error("Error updating comment:", err);
     }
@@ -158,14 +142,7 @@ export function Comments({
     if (deleteCommentMutation.isPending) return;
 
     try {
-      const result = await deleteCommentMutation.mutateAsync(commentId);
-
-      // Remove comment from local state
-      if (result.success) {
-        setComments((prev) =>
-          prev.filter((comment) => comment.id !== commentId)
-        );
-      }
+      await deleteCommentMutation.mutateAsync(commentId);
     } catch (err) {
       console.error("Error deleting comment:", err);
     }

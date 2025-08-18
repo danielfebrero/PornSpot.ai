@@ -48,45 +48,26 @@ export function CommentCard({
   // Edit comment handler
   const handleEditComment = useCallback(
     async (commentId: string, content: string) => {
-      let rollbackFn: (() => void) | null = null;
-
       try {
-        // Optimistic update: update comment in UI immediately
+        // Use TanStack Query optimistic updates directly
+        await updateCommentMutation.mutateAsync({
+          commentId,
+          content,
+        });
+
+        // Optionally call parent callback for additional logic
         if (onCommentUpdate) {
-          // Convert to CommentWithTarget format with updated content
           const updatedCommentWithTarget: CommentType = {
             ...comment,
             content,
             updatedAt: new Date().toISOString(),
             isEdited: true,
           };
-
-          const result = onCommentUpdate(updatedCommentWithTarget);
-          // Store rollback function if provided
-          if (result && typeof result === "object" && "rollback" in result) {
-            rollbackFn = result.rollback;
-          }
-        }
-
-        // Then perform the actual update
-        const result = await updateCommentMutation.mutateAsync({
-          commentId,
-          content,
-        });
-
-        // If update fails, rollback the optimistic update
-        if (!result) {
-          console.error("Failed to update comment");
-          if (rollbackFn) {
-            rollbackFn();
-          }
+          onCommentUpdate(updatedCommentWithTarget);
         }
       } catch (err) {
         console.error("Error updating comment:", err);
-        // In case of error, rollback the optimistic update
-        if (rollbackFn) {
-          rollbackFn();
-        }
+        // TanStack Query optimistic updates will handle rollback automatically
       }
     },
     [updateCommentMutation, onCommentUpdate, comment]
@@ -95,34 +76,17 @@ export function CommentCard({
   // Delete comment handler
   const handleDeleteComment = useCallback(
     async (commentId: string) => {
-      let rollbackFn: (() => void) | null = null;
-
       try {
-        // Optimistic update: remove comment from UI immediately
+        // Use TanStack Query optimistic updates directly
+        await deleteCommentMutation.mutateAsync(commentId);
+
+        // Optionally call parent callback for additional logic
         if (onCommentDelete) {
-          const result = onCommentDelete(commentId);
-          // Store rollback function if provided
-          if (result && typeof result === "object" && "rollback" in result) {
-            rollbackFn = result.rollback;
-          }
-        }
-
-        // Then perform the actual deletion
-        const result = await deleteCommentMutation.mutateAsync(commentId);
-
-        // If deletion fails, rollback the optimistic update
-        if (!result.success) {
-          console.error("Failed to delete comment:", result);
-          if (rollbackFn) {
-            rollbackFn();
-          }
+          onCommentDelete(commentId);
         }
       } catch (err) {
         console.error("Error deleting comment:", err);
-        // In case of error, rollback the optimistic update
-        if (rollbackFn) {
-          rollbackFn();
-        }
+        // TanStack Query optimistic updates will handle rollback automatically
       }
     },
     [deleteCommentMutation, onCommentDelete]

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Mail, Grid, List, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 import { useCommentsQuery } from "@/hooks/queries/useCommentsQuery";
 import { CommentWithTarget as CommentType } from "@/types";
 import { useDevice } from "@/contexts/DeviceContext";
-import { useQueryClient } from "@tanstack/react-query";
 
 export default function UserCommentsPage() {
   const params = useParams();
@@ -49,74 +48,6 @@ export default function UserCommentsPage() {
   const handleRefresh = () => {
     refresh();
   };
-
-  const queryClient = useQueryClient();
-
-  // Handle comment update
-  const handleCommentUpdate = useCallback(
-    (updatedComment: CommentType) => {
-      // Store the original data for potential rollback
-      const originalData = queryClient.getQueryData(["comments", { username }]);
-
-      // Optimistically update the cache with the updated comment
-      queryClient.setQueryData(["comments", { username }], (oldData: any) => {
-        if (!oldData) return oldData;
-
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page: any) => ({
-            ...page,
-            comments: page.comments.map((comment: CommentType) =>
-              comment.id === updatedComment.id ? updatedComment : comment
-            ),
-          })),
-        };
-      });
-
-      // Return a rollback function in case the update fails
-      return {
-        rollback: () => {
-          if (originalData) {
-            queryClient.setQueryData(["comments", { username }], originalData);
-          }
-        },
-      };
-    },
-    [queryClient, username]
-  );
-
-  // Handle comment deletion
-  const handleCommentDelete = useCallback(
-    (commentId: string) => {
-      // Store the original data for potential rollback
-      const originalData = queryClient.getQueryData(["comments", { username }]);
-
-      // Optimistically update the cache by removing the deleted comment
-      queryClient.setQueryData(["comments", { username }], (oldData: any) => {
-        if (!oldData) return oldData;
-
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page: any) => ({
-            ...page,
-            comments: page.comments.filter(
-              (comment: CommentType) => comment.id !== commentId
-            ),
-          })),
-        };
-      });
-
-      // Return a rollback function in case the deletion fails
-      return {
-        rollback: () => {
-          if (originalData) {
-            queryClient.setQueryData(["comments", { username }], originalData);
-          }
-        },
-      };
-    },
-    [queryClient, username]
-  );
 
   const displayName = username;
   const initials = displayName.slice(0, 2).toUpperCase();
@@ -280,8 +211,6 @@ export default function UserCommentsPage() {
             className={cn(isMobile && "px-0", !isMobile && "px-4")}
             isMobile={isMobile}
             viewMode={viewMode}
-            onCommentUpdate={handleCommentUpdate}
-            onCommentDelete={handleCommentDelete}
           />
         </div>
       </div>
