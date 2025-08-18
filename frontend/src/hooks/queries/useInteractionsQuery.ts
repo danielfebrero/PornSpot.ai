@@ -274,25 +274,46 @@ export function useToggleLike() {
             };
           }
 
-          return {
-            ...oldData,
-            statuses: oldData.statuses.map((status) => {
-              if (
-                status.targetType === targetType &&
-                status.targetId === targetId
-              ) {
-                return {
-                  ...status,
+          // Check if the target already exists in the statuses
+          const existingStatusIndex = oldData.statuses.findIndex(
+            (status) =>
+              status.targetType === targetType && status.targetId === targetId
+          );
+
+          if (existingStatusIndex >= 0) {
+            // Update existing status
+            const updatedStatuses = [...oldData.statuses];
+            updatedStatuses[existingStatusIndex] = {
+              ...updatedStatuses[existingStatusIndex],
+              userLiked: newLikedState,
+              likeCount: Math.max(
+                0,
+                (updatedStatuses[existingStatusIndex].likeCount || 0) +
+                  countIncrement
+              ),
+            };
+
+            return {
+              ...oldData,
+              statuses: updatedStatuses,
+            };
+          } else {
+            // Add new status if it doesn't exist
+            return {
+              ...oldData,
+              statuses: [
+                ...oldData.statuses,
+                {
+                  targetType,
+                  targetId,
                   userLiked: newLikedState,
-                  likeCount: Math.max(
-                    0,
-                    (status.likeCount || 0) + countIncrement
-                  ),
-                };
-              }
-              return status;
-            }),
-          };
+                  userBookmarked: false,
+                  likeCount: Math.max(0, countIncrement),
+                  bookmarkCount: 0,
+                },
+              ],
+            };
+          }
         }
       );
 
@@ -342,19 +363,18 @@ export function useToggleLike() {
       // Invalidate to refetch correct data
       invalidateQueries.userInteractions();
     },
-    onSuccess: (data, { targetType, targetId }) => {
-      // Invalidate related queries to ensure consistency
-      const targets = [{ targetType, targetId }];
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.user.interactions.status(targets),
-      });
+    onSuccess: () => {
+      // For likes, we don't invalidate the interaction status cache
+      // because we want to keep the optimistic update in place
+      // The API doesn't return the updated counts, so invalidating would cause a refetch
+      // which defeats the purpose of optimistic updates
 
-      // Invalidate likes list if it's a like action
+      // Only invalidate the user's likes list (to update the "My Likes" page)
       queryClient.invalidateQueries({
         queryKey: queryKeys.user.interactions.likes(),
       });
 
-      // Invalidate insights to update received likes count
+      // Also invalidate insights to update received likes count
       queryClient.invalidateQueries({
         queryKey: queryKeys.user.interactions.insights(),
       });

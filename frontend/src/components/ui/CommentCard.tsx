@@ -173,16 +173,13 @@ export function CommentCard({
         isCurrentlyLiked: currentIsLiked,
       });
     },
-    [
-      currentUserId,
-      commentLikeStates,
-      toggleLikeMutation,
-      comment.likeCount,
-    ]
+    [currentUserId, commentLikeStates, toggleLikeMutation, comment.likeCount]
   );
 
   // Get like state for this comment from TanStack Query cache
-  const displayLikeState = currentUserId ? commentLikeStates[comment.id] : undefined;
+  const displayLikeState = currentUserId
+    ? commentLikeStates[comment.id]
+    : undefined;
 
   // Use like count from TanStack Query cache or comment object as fallback
   const commentLikeCount =
