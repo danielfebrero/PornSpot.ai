@@ -2,7 +2,8 @@
 File objective: Provide platform-wide aggregate stats for admin dashboard.
 Auth: Requires admin auth via LambdaHandlerUtil.withAdminAuth.
 Special notes:
-- Uses DynamoDB GSI1 to count albums; sums mediaCount across albums (paginated)
+- Uses DynamoDB GSI1 to count albums
+- Uses DynamoDB GSI2 to count total media with GSIPK2 = MEDIA_ID (direct COUNT query)
 - Calculates public album count via FilterExpression
 - Optionally computes S3 storage usage with ListObjectsV2; tolerant to S3 errors
 - LocalStack-aware client configuration for local development
@@ -110,32 +111,20 @@ const handleGetStats = async (
 
   const publicAlbums = publicAlbumsResult.Count || 0;
 
-  // Get total media count across all albums
-  let totalMedia = 0;
-  let lastEvaluatedKey: Record<string, any> | undefined;
+  // Get total media count using GSI2 with MEDIA_ID
+  const mediaResult = await docClient.send(
+    new QueryCommand({
+      TableName: TABLE_NAME,
+      IndexName: "GSI2",
+      KeyConditionExpression: "GSI2PK = :gsi2pk",
+      ExpressionAttributeValues: {
+        ":gsi2pk": "MEDIA_ID",
+      },
+      Select: "COUNT",
+    })
+  );
 
-  do {
-    const mediaResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI1",
-        KeyConditionExpression: "GSI1PK = :gsi1pk",
-        ExpressionAttributeValues: {
-          ":gsi1pk": "ALBUM",
-        },
-        ProjectionExpression: "mediaCount",
-        ExclusiveStartKey: lastEvaluatedKey,
-      })
-    );
-
-    if (mediaResult.Items) {
-      for (const item of mediaResult.Items) {
-        totalMedia += item["mediaCount"] || 0;
-      }
-    }
-
-    lastEvaluatedKey = mediaResult.LastEvaluatedKey;
-  } while (lastEvaluatedKey);
+  const totalMedia = mediaResult.Count || 0;
 
   // Get storage used from S3
   let storageUsed = 0;

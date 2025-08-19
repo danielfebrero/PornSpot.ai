@@ -7,7 +7,9 @@ import { SessionUtil } from "@shared/utils/session";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 
-const handleVerifyEmail = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+const handleVerifyEmail = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   let token: string;
 
   // Handle both GET and POST requests
@@ -20,16 +22,16 @@ const handleVerifyEmail = async (event: APIGatewayProxyEvent): Promise<APIGatewa
     token = body.token || "";
   }
 
-  const validatedToken = ValidationUtil.validateRequiredString(token, "Verification token");
+  const validatedToken = ValidationUtil.validateRequiredString(
+    token,
+    "Verification token"
+  );
 
   // Verify the token
   const tokenVerification = await UserUtil.verifyEmailToken(validatedToken);
 
   if (!tokenVerification.isValid) {
-    return ResponseUtil.badRequest(
-      event,
-      "Invalid or expired verification token. Please request a new verification email."
-    );
+    return ResponseUtil.badRequest(event, "Invalid verification token");
   }
 
   const { userId, email } = tokenVerification;
@@ -42,14 +44,11 @@ const handleVerifyEmail = async (event: APIGatewayProxyEvent): Promise<APIGatewa
   const userEntity = await DynamoDBService.getUserById(userId);
 
   if (!userEntity) {
-    return ResponseUtil.notFound(event, "User not found");
+    return ResponseUtil.badRequest(event, "Invalid verification token");
   }
 
   if (userEntity.isEmailVerified) {
-    return ResponseUtil.success(event, {
-      message: "Email is already verified",
-      user: UserUtil.sanitizeUserForResponse(userEntity),
-    });
+    return ResponseUtil.badRequest(event, "Invalid verification token");
   }
 
   // Mark email as verified
