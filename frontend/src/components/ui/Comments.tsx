@@ -164,10 +164,10 @@ export function Comments({
         targetType: "comment",
         targetId: commentId,
         isCurrentlyLiked: currentIsLiked,
-        allTargets: [{ targetType: "comment", targetId: commentId }], // Pass all comment targets for correct cache key
+        allTargets: commentTargets, // Pass all comment targets for correct cache key
       });
     },
-    [currentUserId, commentLikeStates, toggleLikeMutation]
+    [currentUserId, commentLikeStates, toggleLikeMutation, commentTargets]
   );
 
   // Handle keyboard shortcuts
