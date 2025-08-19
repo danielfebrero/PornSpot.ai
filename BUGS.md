@@ -33,3 +33,5 @@
 [x] Adding a like or a bookmark should update optimistically the User likes and bookmarks pages.
 
 [ ] Add to album dialog should update album media count optimistically.
+
+[ ] Edit album dialog should update album media count optimistically.

@@ -449,7 +449,6 @@ export function MediaManager({
                           variant="outline"
                           onClick={() => handleRemoveFromAlbumClick(mediaItem)}
                           className="text-orange-600 border-orange-600/30 hover:bg-orange-600 hover:text-white"
-                          disabled={loading}
                         >
                           Remove
                         </Button>
