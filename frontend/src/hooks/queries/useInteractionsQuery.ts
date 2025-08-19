@@ -257,12 +257,12 @@ export function useToggleLike() {
       // 2. The bulk cache if allTargets is provided (for consistency)
 
       // Always use single target for the primary cache update
-      // const singleTarget = [{ targetType, targetId }];
+      const singleTarget = [{ targetType, targetId }];
 
       // For comments, if allTargets is provided, always use it for the primary cache update
       // to ensure the component can read the optimistic update (they use the same array reference)
-      // const targets = allTargets || singleTarget;
-      const targets = allTargets || [{ targetType, targetId }];
+      const targets = allTargets || singleTarget;
+      // const targets = allTargets || [{ targetType, targetId }];
 
       // Cancel outgoing refetches for the cache that the component reads from
       await queryClient.cancelQueries({
@@ -270,11 +270,11 @@ export function useToggleLike() {
       });
 
       // Also cancel for single target cache if different
-      // if (targets !== singleTarget) {
-      //   await queryClient.cancelQueries({
-      //     queryKey: queryKeys.user.interactions.status(singleTarget),
-      //   });
-      // }
+      if (targets !== singleTarget) {
+        await queryClient.cancelQueries({
+          queryKey: queryKeys.user.interactions.status(singleTarget),
+        });
+      }
 
       // Store the previous data for rollback on error (use the cache the component reads from)
       const previousData = queryClient.getQueryData(
@@ -286,128 +286,128 @@ export function useToggleLike() {
       const countIncrement = isCurrentlyLiked ? -1 : 1;
 
       // Update the primary cache (the one the component reads from)
-      // queryClient.setQueryData(
-      //   queryKeys.user.interactions.status(targets),
-      //   (oldData: InteractionStatusResponse | undefined) => {
-      //     // If there's no existing data, create the structure with the optimistic update
-      //     if (!oldData?.statuses) {
-      //       return {
-      //         statuses: [
-      //           {
-      //             targetType,
-      //             targetId,
-      //             userLiked: newLikedState,
-      //             userBookmarked: false,
-      //             likeCount: newLikedState ? 1 : 0,
-      //             bookmarkCount: 0,
-      //           },
-      //         ],
-      //       };
-      //     }
+      queryClient.setQueryData(
+        queryKeys.user.interactions.status(targets),
+        (oldData: InteractionStatusResponse | undefined) => {
+          // If there's no existing data, create the structure with the optimistic update
+          if (!oldData?.statuses) {
+            return {
+              statuses: [
+                {
+                  targetType,
+                  targetId,
+                  userLiked: newLikedState,
+                  userBookmarked: false,
+                  likeCount: newLikedState ? 1 : 0,
+                  bookmarkCount: 0,
+                },
+              ],
+            };
+          }
 
-      //     // Check if the target already exists in the statuses
-      //     const existingStatusIndex = oldData.statuses.findIndex(
-      //       (status) =>
-      //         status.targetType === targetType && status.targetId === targetId
-      //     );
+          // Check if the target already exists in the statuses
+          const existingStatusIndex = oldData.statuses.findIndex(
+            (status) =>
+              status.targetType === targetType && status.targetId === targetId
+          );
 
-      //     if (existingStatusIndex >= 0) {
-      //       // Update existing status
-      //       const updatedStatuses = [...oldData.statuses];
-      //       updatedStatuses[existingStatusIndex] = {
-      //         ...updatedStatuses[existingStatusIndex],
-      //         userLiked: newLikedState,
-      //         likeCount: Math.max(
-      //           0,
-      //           (updatedStatuses[existingStatusIndex].likeCount || 0) +
-      //             countIncrement
-      //         ),
-      //       };
+          if (existingStatusIndex >= 0) {
+            // Update existing status
+            const updatedStatuses = [...oldData.statuses];
+            updatedStatuses[existingStatusIndex] = {
+              ...updatedStatuses[existingStatusIndex],
+              userLiked: newLikedState,
+              likeCount: Math.max(
+                0,
+                (updatedStatuses[existingStatusIndex].likeCount || 0) +
+                  countIncrement
+              ),
+            };
 
-      //       return {
-      //         ...oldData,
-      //         statuses: updatedStatuses,
-      //       };
-      //     } else {
-      //       // Add new status if it doesn't exist
-      //       return {
-      //         ...oldData,
-      //         statuses: [
-      //           ...oldData.statuses,
-      //           {
-      //             targetType,
-      //             targetId,
-      //             userLiked: newLikedState,
-      //             userBookmarked: false,
-      //             likeCount: Math.max(0, countIncrement),
-      //             bookmarkCount: 0,
-      //           },
-      //         ],
-      //       };
-      //     }
-      //   }
-      // );
+            return {
+              ...oldData,
+              statuses: updatedStatuses,
+            };
+          } else {
+            // Add new status if it doesn't exist
+            return {
+              ...oldData,
+              statuses: [
+                ...oldData.statuses,
+                {
+                  targetType,
+                  targetId,
+                  userLiked: newLikedState,
+                  userBookmarked: false,
+                  likeCount: Math.max(0, countIncrement),
+                  bookmarkCount: 0,
+                },
+              ],
+            };
+          }
+        }
+      );
 
       // Also update single target cache if different (for other potential consumers)
-      // if (targets !== singleTarget) {
-      //   queryClient.setQueryData(
-      //     queryKeys.user.interactions.status(singleTarget),
-      //     (oldData: InteractionStatusResponse | undefined) => {
-      //       if (!oldData?.statuses) {
-      //         return {
-      //           statuses: [
-      //             {
-      //               targetType,
-      //               targetId,
-      //               userLiked: newLikedState,
-      //               userBookmarked: false,
-      //               likeCount: newLikedState ? 1 : 0,
-      //               bookmarkCount: 0,
-      //             },
-      //           ],
-      //         };
-      //       }
+      if (targets !== singleTarget) {
+        queryClient.setQueryData(
+          queryKeys.user.interactions.status(singleTarget),
+          (oldData: InteractionStatusResponse | undefined) => {
+            if (!oldData?.statuses) {
+              return {
+                statuses: [
+                  {
+                    targetType,
+                    targetId,
+                    userLiked: newLikedState,
+                    userBookmarked: false,
+                    likeCount: newLikedState ? 1 : 0,
+                    bookmarkCount: 0,
+                  },
+                ],
+              };
+            }
 
-      //       const existingStatusIndex = oldData.statuses.findIndex(
-      //         (status) =>
-      //           status.targetType === targetType && status.targetId === targetId
-      //       );
+            const existingStatusIndex = oldData.statuses.findIndex(
+              (status) =>
+                status.targetType === targetType && status.targetId === targetId
+            );
 
-      //       if (existingStatusIndex >= 0) {
-      //         const updatedStatuses = [...oldData.statuses];
-      //         updatedStatuses[existingStatusIndex] = {
-      //           ...updatedStatuses[existingStatusIndex],
-      //           userLiked: newLikedState,
-      //           likeCount: Math.max(
-      //             0,
-      //             (updatedStatuses[existingStatusIndex].likeCount || 0) +
-      //               countIncrement
-      //           ),
-      //         };
+            if (existingStatusIndex >= 0) {
+              const updatedStatuses = [...oldData.statuses];
+              updatedStatuses[existingStatusIndex] = {
+                ...updatedStatuses[existingStatusIndex],
+                userLiked: newLikedState,
+                likeCount: Math.max(
+                  0,
+                  (updatedStatuses[existingStatusIndex].likeCount || 0) +
+                    countIncrement
+                ),
+              };
 
-      //         return {
-      //           ...oldData,
-      //           statuses: updatedStatuses,
-      //         };
-      //       } else {
-      //         return {
-      //           ...oldData,
-      //           statuses: [
-      //             ...oldData.statuses,
-      //             {
-      //               targetType,
-      //               targetId,
-      //               userLiked: newLikedState,
-      //               userBookmarked: false,
-      //               likeCount: Math.max(0, countIncrement),
-      //               bookmarkCount: 0,
-      //             },
-      //           ],
-      //         };
-      //       }
-      //     }
-      //   );
-      // }
+              return {
+                ...oldData,
+                statuses: updatedStatuses,
+              };
+            } else {
+              return {
+                ...oldData,
+                statuses: [
+                  ...oldData.statuses,
+                  {
+                    targetType,
+                    targetId,
+                    userLiked: newLikedState,
+                    userBookmarked: false,
+                    likeCount: Math.max(0, countIncrement),
+                    bookmarkCount: 0,
+                  },
+                ],
+              };
+            }
+          }
+        );
+      }
 
       // Also update counts in other caches (album/media detail pages, album lists)
       updateCache.interactionCounts(
@@ -418,7 +418,7 @@ export function useToggleLike() {
       );
 
       updateCache.userInteractionStatus(targetType, targetId, {
-        userLiked: !isCurrentlyLiked,
+        userLiked: newLikedState,
       });
 
       // For comments, also update the comment list cache to reflect the new like count
