@@ -53,11 +53,6 @@ export const adminAlbumsApi = {
     await ApiUtil.delete<void>(`/admin/albums/${albumId}`);
   },
 
-  // Bulk delete albums (admin)
-  bulkDeleteAlbums: async (albumIds: string[]): Promise<void> => {
-    await ApiUtil.delete<void>("/admin/albums/bulk-delete", { albumIds });
-  },
-
   // Get a single album (admin)
   getAlbum: async (albumId: string): Promise<any> => {
     const response = await ApiUtil.get<any>(`/albums/${albumId}`);

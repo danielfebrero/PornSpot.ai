@@ -34,7 +34,7 @@
 
 [x] Add to album dialog should update album media count optimistically.
 
-[ ] Edit album dialog should update album media count optimistically.
+[x] Edit album dialog should update album media count optimistically.
 
 [ ] Remove media from Admin manage album media should update optimistically top page media count.
 
@@ -45,3 +45,5 @@
 [ ] Progress card on generate page should not show estimated wait time because it's broken.
 
 [ ] If add an image to album already in album, we must display a message informative.
+
+[ ] Bulk remove media from album in edit album dialg does not work

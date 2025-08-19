@@ -3,14 +3,12 @@
 import { useState, useCallback } from "react";
 import { useLocaleRouter } from "@/lib/navigation";
 import { Album } from "@/types";
-import { Button } from "@/components/ui/Button";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Edit, Trash2, Image as ImageIcon } from "lucide-react";
 import {
   useAdminAlbumsData,
   useDeleteAdminAlbum,
-  useBulkDeleteAdminAlbums,
 } from "@/hooks/queries/useAdminAlbumsQuery";
 
 export default function AdminAlbumsPage() {
@@ -25,9 +23,7 @@ export default function AdminAlbumsPage() {
   } = useAdminAlbumsData({ limit: 20 });
 
   const deleteAlbumMutation = useDeleteAdminAlbum();
-  const bulkDeleteMutation = useBulkDeleteAdminAlbums();
 
-  const [selectedAlbums, setSelectedAlbums] = useState<string[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     isOpen: boolean;
     albumId?: string;
@@ -46,19 +42,9 @@ export default function AdminAlbumsPage() {
     });
   };
 
-  const handleBulkDeleteClick = () => {
-    setDeleteConfirm({
-      isOpen: true,
-      isBulk: true,
-    });
-  };
-
   const handleConfirmDelete = async () => {
     try {
-      if (deleteConfirm.isBulk) {
-        await bulkDeleteMutation.mutateAsync(selectedAlbums);
-        setSelectedAlbums([]);
-      } else if (deleteConfirm.albumId) {
+      if (deleteConfirm.albumId) {
         await deleteAlbumMutation.mutateAsync(deleteConfirm.albumId);
       }
       setDeleteConfirm({ isOpen: false });
@@ -147,50 +133,6 @@ export default function AdminAlbumsPage() {
                 Manage your photo albums and collections
               </p>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {selectedAlbums.length > 0 && (
-              <Button
-                variant="outline"
-                onClick={handleBulkDeleteClick}
-                className="text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
-              >
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"
-                    clipRule="evenodd"
-                  />
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414L7.586 12l-1.293 1.293a1 1 0 101.414 1.414L9 13.414l2.293 2.293a1 1 0 001.414-1.414L11.414 12l1.293-1.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Delete Selected ({selectedAlbums.length})
-              </Button>
-            )}
-            {/* <Button
-              onClick={() => router.push("/admin/albums/create")}
-              className="bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-primary-foreground shadow-lg"
-            >
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Create Album
-            </Button> */}
           </div>
         </div>
       </div>
@@ -310,12 +252,8 @@ export default function AdminAlbumsPage() {
         isOpen={deleteConfirm.isOpen}
         onClose={() => setDeleteConfirm({ isOpen: false })}
         onConfirm={handleConfirmDelete}
-        title={deleteConfirm.isBulk ? "Delete Albums" : "Delete Album"}
-        message={
-          deleteConfirm.isBulk
-            ? `Are you sure you want to delete ${selectedAlbums.length} selected albums? This action cannot be undone and will also delete all media in these albums.`
-            : `Are you sure you want to delete "${deleteConfirm.albumTitle}"? This action cannot be undone and will also delete all media in this album.`
-        }
+        title="Delete Album"
+        message={`Are you sure you want to delete "${deleteConfirm.albumTitle}"? This action cannot be undone and will also delete all media in this album.`}
         confirmText="Delete"
         confirmVariant="danger"
       />
