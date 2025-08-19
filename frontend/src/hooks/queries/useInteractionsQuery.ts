@@ -5,6 +5,7 @@ import {
   InfiniteData,
 } from "@tanstack/react-query";
 import { useLayoutEffect } from "react";
+import _ from "lodash";
 import { interactionApi } from "@/lib/api";
 import {
   queryKeys,
@@ -349,7 +350,7 @@ export function useToggleLike() {
       );
 
       // Also update single target cache if different (for other potential consumers)
-      if (targets !== singleTarget) {
+      if (!_.isEqual(targets, singleTarget)) {
         queryClient.setQueryData(
           queryKeys.user.interactions.status(singleTarget),
           (oldData: InteractionStatusResponse | undefined) => {
