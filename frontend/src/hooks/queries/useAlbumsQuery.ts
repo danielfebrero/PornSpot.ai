@@ -880,7 +880,10 @@ export function useBulkRemoveMediaFromAlbum() {
           return old
             ? {
                 ...old,
-                mediaCount: Math.max(0, (old.mediaCount || 0) - mediaIds.length),
+                mediaCount: Math.max(
+                  0,
+                  (old.mediaCount || 0) - mediaIds.length
+                ),
                 lastModified: new Date().toISOString(),
               }
             : old;
@@ -904,7 +907,10 @@ export function useBulkRemoveMediaFromAlbum() {
                     album.id === albumId
                       ? {
                           ...album,
-                          mediaCount: Math.max(0, (album.mediaCount || 0) - mediaIds.length),
+                          mediaCount: Math.max(
+                            0,
+                            (album.mediaCount || 0) - mediaIds.length
+                          ),
                           lastModified: new Date().toISOString(),
                         }
                       : album
@@ -921,7 +927,10 @@ export function useBulkRemoveMediaFromAlbum() {
                 album.id === albumId
                   ? {
                       ...album,
-                      mediaCount: Math.max(0, (album.mediaCount || 0) - mediaIds.length),
+                      mediaCount: Math.max(
+                        0,
+                        (album.mediaCount || 0) - mediaIds.length
+                      ),
                       lastModified: new Date().toISOString(),
                     }
                   : album
