@@ -205,6 +205,18 @@ export const invalidateQueries = {
       queryKey: queryKeys.albums.detail(albumId),
     }),
 
+  // Invalidate album media queries (for albums.media queries)
+  albumMedia: (albumId: string) =>
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.albums.media(albumId),
+    }),
+
+  // Invalidate album media list queries (for media.album queries used by useAlbumMedia)
+  albumMediaList: (albumId: string) =>
+    queryClient.invalidateQueries({
+      queryKey: ["media", "album", albumId],
+    }),
+
   // Invalidate all albums lists
   albumsLists: () =>
     queryClient.invalidateQueries({ queryKey: queryKeys.albums.lists() }),

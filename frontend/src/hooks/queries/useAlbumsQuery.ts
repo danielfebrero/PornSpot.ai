@@ -564,12 +564,18 @@ export function useAddMediaToAlbum() {
 
       // Invalidate to refetch correct data as fallback
       invalidateQueries.album(variables.albumId);
+      invalidateQueries.albumMedia(variables.albumId);
+      invalidateQueries.albumMediaList(variables.albumId);
       invalidateQueries.albumsLists();
     },
     onSuccess: (data, variables) => {
       // Invalidate the album detail to get fresh data from server
       // This ensures we have the latest media count and any other updated fields
       invalidateQueries.album(variables.albumId);
+
+      // Invalidate album media queries to refresh the media list when navigating to the album
+      invalidateQueries.albumMedia(variables.albumId);
+      invalidateQueries.albumMediaList(variables.albumId);
 
       // Optionally invalidate albums lists to ensure consistency
       invalidateQueries.albumsLists();
