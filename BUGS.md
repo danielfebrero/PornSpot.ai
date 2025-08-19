@@ -41,3 +41,5 @@
 [ ] If I open another tab while generating image, my websocket connection id is replaced by a new one and I don't receive generation updates anymore.
 
 [ ] On media page and album page, optimist update of likes does not work anymore. It works on user comments page.
+
+[ ] Progress card on generate page should not show estimated wait time because it's broken.
