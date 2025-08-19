@@ -268,32 +268,32 @@ export function useToggleLike() {
         willUseSingleTarget: !allTargets || allTargets.length === 1,
       });
 
-      // For comments, if allTargets is provided and contains multiple targets,
-      // we'll also update the bulk cache, but prioritize the single target cache
-      const targets =
-        allTargets && allTargets.length > 1 ? allTargets : singleTarget;
+      // For comments, if allTargets is provided, always use it for the primary cache update
+      // to ensure the component can read the optimistic update (they use the same array reference)
+      const targets = allTargets || singleTarget;
 
       console.log("[DEBUG] Cache keys to update:", {
         singleTargetKey: queryKeys.user.interactions.status(singleTarget),
         targetsKey: queryKeys.user.interactions.status(targets),
         targetsIsSingleTarget: targets === singleTarget,
+        usingAllTargets: targets === allTargets,
       });
 
-      // Cancel outgoing refetches for the primary target
+      // Cancel outgoing refetches for the cache that the component reads from
       await queryClient.cancelQueries({
-        queryKey: queryKeys.user.interactions.status(singleTarget),
+        queryKey: queryKeys.user.interactions.status(targets),
       });
 
-      // Also cancel for bulk cache if different
+      // Also cancel for single target cache if different
       if (targets !== singleTarget) {
         await queryClient.cancelQueries({
-          queryKey: queryKeys.user.interactions.status(targets),
+          queryKey: queryKeys.user.interactions.status(singleTarget),
         });
       }
 
-      // Store the previous data for rollback on error (use single target)
+      // Store the previous data for rollback on error (use the cache the component reads from)
       const previousData = queryClient.getQueryData(
-        queryKeys.user.interactions.status(singleTarget)
+        queryKeys.user.interactions.status(targets)
       );
 
       // DEBUG: Check what cache exists
@@ -317,9 +317,9 @@ export function useToggleLike() {
       const newLikedState = !isCurrentlyLiked;
       const countIncrement = isCurrentlyLiked ? -1 : 1;
 
-      // Update the primary cache (single target) - this is what components actually read from
+      // Update the primary cache (the one the component reads from)
       queryClient.setQueryData(
-        queryKeys.user.interactions.status(singleTarget),
+        queryKeys.user.interactions.status(targets),
         (oldData: InteractionStatusResponse | undefined) => {
           // If there's no existing data, create the structure with the optimistic update
           if (!oldData?.statuses) {
@@ -381,11 +381,11 @@ export function useToggleLike() {
         }
       );
 
-      // Also update bulk cache if it exists and is different from single target
+      // Also update single target cache if different (for other potential consumers)
       if (targets !== singleTarget) {
-        console.log("[DEBUG] Updating bulk cache for multiple targets");
+        console.log("[DEBUG] Also updating single target cache");
         queryClient.setQueryData(
-          queryKeys.user.interactions.status(targets),
+          queryKeys.user.interactions.status(singleTarget),
           (oldData: InteractionStatusResponse | undefined) => {
             if (!oldData?.statuses) {
               return {
