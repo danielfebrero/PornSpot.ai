@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
+import { useUserProfile, useLogout } from "@/hooks/queries/useUserQuery";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { userApi } from "@/lib/api";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -46,6 +46,7 @@ export default function SettingsPage() {
   const { data: userProfile, isLoading: loading } = useUserProfile();
   const user = userProfile?.user || null;
   const userPermissions = useUserPermissions();
+  const logoutMutation = useLogout();
   const t = useTranslations();
   const tSettings = useTranslations("user.settings");
   const tCommon = useTranslations("common");
@@ -208,7 +209,11 @@ export default function SettingsPage() {
     setIsDeletingAccount(true);
     try {
       await userApi.deleteAccount();
-      // Redirect to home page after deletion
+
+      // Log out the user automatically after successful account deletion
+      await logoutMutation.mutateAsync();
+
+      // Redirect to home page after deletion and logout
       router.push("/");
     } catch (error: unknown) {
       const errorMessage =
