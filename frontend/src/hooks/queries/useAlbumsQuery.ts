@@ -616,6 +616,401 @@ export function useRemoveMediaFromAlbum() {
   });
 }
 
+// Mutation hook for bulk adding existing media to an album
+export function useBulkAddMediaToAlbum() {
+  return useMutation({
+    mutationFn: async ({
+      albumId,
+      mediaIds,
+    }: {
+      albumId: string;
+      mediaIds: string[];
+    }) => {
+      // Import albums API dynamically to avoid circular dependencies
+      const { albumsApi } = await import("@/lib/api");
+      const results = await albumsApi.bulkAddMediaToAlbum(albumId, mediaIds);
+      return { albumId, mediaIds, results };
+    },
+    onMutate: async ({ albumId, mediaIds }) => {
+      // Cancel any outgoing refetches for album media and album detail
+      await queryClient.cancelQueries({
+        queryKey: ["media", "album", albumId],
+      });
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.albums.detail(albumId),
+      });
+
+      // Snapshot the previous values
+      const previousAlbumMedia = queryClient.getQueriesData({
+        queryKey: ["media", "album", albumId],
+      });
+      const previousAlbum = queryClient.getQueryData(
+        queryKeys.albums.detail(albumId)
+      );
+
+      // Get all media items to add (if they exist in cache)
+      const mediaItems = mediaIds
+        .map((mediaId) =>
+          queryClient.getQueryData(queryKeys.media.detail(mediaId))
+        )
+        .filter(Boolean);
+
+      // Optimistically add the media to album media infinite query
+      if (mediaItems.length > 0) {
+        queryClient.setQueriesData(
+          { queryKey: ["media", "album", albumId] },
+          (old: InfiniteMediaQueryData | undefined) => {
+            if (!old?.pages) return old;
+
+            // Add to first page to show immediately
+            const newPages = [...old.pages];
+            if (newPages[0]?.media) {
+              newPages[0] = {
+                ...newPages[0],
+                media: [...(mediaItems as Media[]), ...newPages[0].media],
+              };
+            }
+
+            return {
+              ...old,
+              pages: newPages,
+            };
+          }
+        );
+      }
+
+      // Optimistically update the album's media count in detail cache
+      queryClient.setQueryData(
+        queryKeys.albums.detail(albumId),
+        (old: Album | undefined) => {
+          return old
+            ? {
+                ...old,
+                mediaCount: (old.mediaCount || 0) + mediaIds.length,
+                lastModified: new Date().toISOString(),
+              }
+            : old;
+        }
+      );
+
+      // Optimistically update ALL album lists to increment media count
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.albums.lists() },
+        (oldData: any) => {
+          if (!oldData) return oldData;
+
+          // Handle infinite query format
+          if (oldData.pages) {
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page: any) => ({
+                ...page,
+                albums:
+                  page.albums?.map((album: Album) =>
+                    album.id === albumId
+                      ? {
+                          ...album,
+                          mediaCount: (album.mediaCount || 0) + mediaIds.length,
+                          lastModified: new Date().toISOString(),
+                        }
+                      : album
+                  ) || [],
+              })),
+            };
+          }
+
+          // Handle regular query format
+          if (oldData.albums) {
+            return {
+              ...oldData,
+              albums: oldData.albums.map((album: Album) =>
+                album.id === albumId
+                  ? {
+                      ...album,
+                      mediaCount: (album.mediaCount || 0) + mediaIds.length,
+                      lastModified: new Date().toISOString(),
+                    }
+                  : album
+              ),
+            };
+          }
+
+          return oldData;
+        }
+      );
+
+      // Return context for rollback
+      return { previousAlbumMedia, previousAlbum, albumId, mediaIds };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, restore the previous data
+      if (context?.previousAlbumMedia) {
+        context.previousAlbumMedia.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
+      // Rollback album detail optimistic update
+      if (context?.previousAlbum) {
+        queryClient.setQueryData(
+          queryKeys.albums.detail(context.albumId),
+          context.previousAlbum
+        );
+
+        // Restore previous album state in all lists
+        queryClient.setQueriesData(
+          { queryKey: queryKeys.albums.lists() },
+          (oldData: any) => {
+            if (!oldData) return oldData;
+
+            // Handle infinite query format
+            if (oldData.pages) {
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page: any) => ({
+                  ...page,
+                  albums:
+                    page.albums?.map((album: Album) =>
+                      album.id === context.albumId
+                        ? context.previousAlbum
+                        : album
+                    ) || [],
+                })),
+              };
+            }
+
+            // Handle regular query format
+            if (oldData.albums) {
+              return {
+                ...oldData,
+                albums: oldData.albums.map((album: Album) =>
+                  album.id === context.albumId ? context.previousAlbum : album
+                ),
+              };
+            }
+
+            return oldData;
+          }
+        );
+      }
+
+      console.error("Failed to bulk add media to album:", err);
+    },
+    onSuccess: (data, variables) => {
+      // Invalidate album media queries to ensure fresh data
+      queryClient.invalidateQueries({
+        queryKey: ["media", "album", variables.albumId],
+      });
+
+      // Invalidate user media queries in case media appears there
+      queryClient.invalidateQueries({
+        queryKey: ["media", "user"],
+      });
+
+      // Invalidate the specific album to update counts
+      invalidateQueries.album(variables.albumId);
+
+      // Invalidate each successfully added media item
+      if (data.results.successfullyAdded.length > 0) {
+        data.results.successfullyAdded.forEach((mediaId) => {
+          invalidateQueries.media(mediaId);
+        });
+      }
+    },
+  });
+}
+
+// Mutation hook for bulk removing media from an album
+export function useBulkRemoveMediaFromAlbum() {
+  return useMutation({
+    mutationFn: async ({
+      albumId,
+      mediaIds,
+    }: {
+      albumId: string;
+      mediaIds: string[];
+    }) => {
+      // Import albums API dynamically to avoid circular dependencies
+      const { albumsApi } = await import("@/lib/api");
+      const results = await albumsApi.bulkRemoveMediaFromAlbum(
+        albumId,
+        mediaIds
+      );
+      return { albumId, mediaIds, results };
+    },
+    onMutate: async ({ albumId, mediaIds }) => {
+      // Cancel any outgoing refetches for album media and album detail
+      await queryClient.cancelQueries({
+        queryKey: ["media", "album", albumId],
+      });
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.albums.detail(albumId),
+      });
+
+      // Snapshot the previous values
+      const previousAlbumMedia = queryClient.getQueriesData({
+        queryKey: ["media", "album", albumId],
+      });
+      const previousAlbum = queryClient.getQueryData(
+        queryKeys.albums.detail(albumId)
+      );
+
+      // Optimistically remove the media from album media infinite query
+      queryClient.setQueriesData(
+        { queryKey: ["media", "album", albumId] },
+        (old: InfiniteMediaQueryData | undefined) => {
+          if (!old?.pages) return old;
+
+          const newPages = old.pages.map((page) => ({
+            ...page,
+            media: page.media.filter((m) => !mediaIds.includes(m.id)),
+          }));
+
+          return {
+            ...old,
+            pages: newPages,
+          };
+        }
+      );
+
+      // Optimistically update the album's media count in detail cache
+      queryClient.setQueryData(
+        queryKeys.albums.detail(albumId),
+        (old: Album | undefined) => {
+          return old
+            ? {
+                ...old,
+                mediaCount: Math.max(0, (old.mediaCount || 0) - mediaIds.length),
+                lastModified: new Date().toISOString(),
+              }
+            : old;
+        }
+      );
+
+      // Optimistically update ALL album lists to decrement media count
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.albums.lists() },
+        (oldData: any) => {
+          if (!oldData) return oldData;
+
+          // Handle infinite query format
+          if (oldData.pages) {
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page: any) => ({
+                ...page,
+                albums:
+                  page.albums?.map((album: Album) =>
+                    album.id === albumId
+                      ? {
+                          ...album,
+                          mediaCount: Math.max(0, (album.mediaCount || 0) - mediaIds.length),
+                          lastModified: new Date().toISOString(),
+                        }
+                      : album
+                  ) || [],
+              })),
+            };
+          }
+
+          // Handle regular query format
+          if (oldData.albums) {
+            return {
+              ...oldData,
+              albums: oldData.albums.map((album: Album) =>
+                album.id === albumId
+                  ? {
+                      ...album,
+                      mediaCount: Math.max(0, (album.mediaCount || 0) - mediaIds.length),
+                      lastModified: new Date().toISOString(),
+                    }
+                  : album
+              ),
+            };
+          }
+
+          return oldData;
+        }
+      );
+
+      // Return context for rollback
+      return { previousAlbumMedia, previousAlbum, albumId, mediaIds };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, restore the previous data
+      if (context?.previousAlbumMedia) {
+        context.previousAlbumMedia.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
+      // Rollback album detail optimistic update
+      if (context?.previousAlbum) {
+        queryClient.setQueryData(
+          queryKeys.albums.detail(context.albumId),
+          context.previousAlbum
+        );
+
+        // Restore previous album state in all lists
+        queryClient.setQueriesData(
+          { queryKey: queryKeys.albums.lists() },
+          (oldData: any) => {
+            if (!oldData) return oldData;
+
+            // Handle infinite query format
+            if (oldData.pages) {
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page: any) => ({
+                  ...page,
+                  albums:
+                    page.albums?.map((album: Album) =>
+                      album.id === context.albumId
+                        ? context.previousAlbum
+                        : album
+                    ) || [],
+                })),
+              };
+            }
+
+            // Handle regular query format
+            if (oldData.albums) {
+              return {
+                ...oldData,
+                albums: oldData.albums.map((album: Album) =>
+                  album.id === context.albumId ? context.previousAlbum : album
+                ),
+              };
+            }
+
+            return oldData;
+          }
+        );
+      }
+
+      console.error("Failed to bulk remove media from album:", err);
+    },
+    onSuccess: (data, variables) => {
+      // No need to invalidate album media queries - optimistic update handles this
+
+      // Invalidate user media queries in case media appears there
+      queryClient.invalidateQueries({
+        queryKey: ["media", "user"],
+      });
+
+      // Invalidate the specific album to update counts (but not media list)
+      invalidateQueries.album(variables.albumId);
+
+      // Invalidate each successfully removed media item
+      if (data.results.successfullyRemoved.length > 0) {
+        data.results.successfullyRemoved.forEach((mediaId) => {
+          invalidateQueries.media(mediaId);
+        });
+      }
+    },
+  });
+}
+
 // Mutation for adding media to album
 export function useAddMediaToAlbum() {
   return useMutation({

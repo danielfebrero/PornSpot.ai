@@ -22,7 +22,7 @@ Add ssm parameters, subdomains, etc.
 
 Currently, the image stays on the page and the lightbox do not close.
 
-### Navigating to another image should not lose the current state
+### Navigating to another page should not lose the current state
 
 When I come back to generate page, state is lost.
 

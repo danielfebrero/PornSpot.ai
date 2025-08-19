@@ -32,7 +32,7 @@
 
 [x] Adding a like or a bookmark should update optimistically the User likes and bookmarks pages.
 
-[ ] Add to album dialog should update album media count optimistically.
+[x] Add to album dialog should update album media count optimistically.
 
 [ ] Edit album dialog should update album media count optimistically.
 
@@ -43,3 +43,5 @@
 [ ] On media page and album page, optimist update of likes does not work anymore. It works on user comments page.
 
 [ ] Progress card on generate page should not show estimated wait time because it's broken.
+
+[ ] If add an image to album already in album, we must display a message informative.

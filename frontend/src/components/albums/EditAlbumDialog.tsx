@@ -24,7 +24,7 @@ import {
   useAddMediaToAlbum,
   useBulkAddMediaToAlbum,
   useBulkRemoveMediaFromAlbum,
-} from "@/hooks/queries/useMediaQuery";
+} from "@/hooks/queries/useAlbumsQuery";
 
 import { useRemoveMediaFromAlbum } from "@/hooks/queries/useAlbumsQuery";
 
