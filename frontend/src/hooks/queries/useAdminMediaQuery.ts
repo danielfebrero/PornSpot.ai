@@ -159,9 +159,25 @@ export function useAdminDeleteMedia() {
         queryKey: queryKeys.admin.media.all(),
       });
 
+      // Cancel any outgoing refetches for album media queries
+      await queryClient.cancelQueries({
+        queryKey: ["media", "album"],
+        predicate: (query) => {
+          return query.queryKey[0] === "media" && query.queryKey[1] === "album";
+        },
+      });
+
       // Snapshot the previous values
       const previousMedia = queryClient.getQueriesData({
         queryKey: queryKeys.admin.media.all(),
+      });
+
+      // Snapshot the previous album media values
+      const previousAlbumMedia = queryClient.getQueriesData({
+        queryKey: ["media", "album"],
+        predicate: (query) => {
+          return query.queryKey[0] === "media" && query.queryKey[1] === "album";
+        },
       });
 
       // Optimistically remove the media from all admin media queries
@@ -182,13 +198,43 @@ export function useAdminDeleteMedia() {
         }
       );
 
+      // Optimistically remove the media from all album media queries
+      queryClient.setQueriesData(
+        {
+          queryKey: ["media", "album"],
+          predicate: (query) => {
+            return query.queryKey[0] === "media" && query.queryKey[1] === "album";
+          },
+        },
+        (old: any) => {
+          if (!old?.pages) return old;
+
+          const newPages = old.pages.map((page: any) => ({
+            ...page,
+            media: page.media.filter((m: Media) => m.id !== mediaId),
+          }));
+
+          return {
+            ...old,
+            pages: newPages,
+          };
+        }
+      );
+
       // Return context for rollback
-      return { previousMedia, mediaId };
+      return { previousMedia, previousAlbumMedia, mediaId };
     },
     onError: (err, mediaId, context) => {
       // If the mutation fails, restore the previous data
       if (context?.previousMedia) {
         context.previousMedia.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+      
+      // Restore previous album media data
+      if (context?.previousAlbumMedia) {
+        context.previousAlbumMedia.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data);
         });
       }
@@ -205,6 +251,14 @@ export function useAdminDeleteMedia() {
       // Invalidate admin-specific queries
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.media.all(),
+      });
+
+      // Invalidate all album media queries
+      queryClient.invalidateQueries({
+        queryKey: ["media", "album"],
+        predicate: (query) => {
+          return query.queryKey[0] === "media" && query.queryKey[1] === "album";
+        },
       });
 
       // Invalidate all albums that might contain this media
@@ -230,9 +284,25 @@ export function useAdminBatchDeleteMedia() {
         queryKey: queryKeys.admin.media.all(),
       });
 
+      // Cancel any outgoing refetches for album media queries
+      await queryClient.cancelQueries({
+        queryKey: ["media", "album"],
+        predicate: (query) => {
+          return query.queryKey[0] === "media" && query.queryKey[1] === "album";
+        },
+      });
+
       // Snapshot previous values
       const previousData = queryClient.getQueriesData({
         queryKey: queryKeys.admin.media.all(),
+      });
+
+      // Snapshot the previous album media values
+      const previousAlbumMediaData = queryClient.getQueriesData({
+        queryKey: ["media", "album"],
+        predicate: (query) => {
+          return query.queryKey[0] === "media" && query.queryKey[1] === "album";
+        },
       });
 
       // Optimistically remove all media from admin media queries
@@ -253,12 +323,42 @@ export function useAdminBatchDeleteMedia() {
         }
       );
 
-      return { previousData, mediaIds };
+      // Optimistically remove all media from album media queries
+      queryClient.setQueriesData(
+        {
+          queryKey: ["media", "album"],
+          predicate: (query) => {
+            return query.queryKey[0] === "media" && query.queryKey[1] === "album";
+          },
+        },
+        (old: any) => {
+          if (!old?.pages) return old;
+
+          const newPages = old.pages.map((page: any) => ({
+            ...page,
+            media: page.media.filter((m: Media) => !mediaIds.includes(m.id)),
+          }));
+
+          return {
+            ...old,
+            pages: newPages,
+          };
+        }
+      );
+
+      return { previousData, previousAlbumMediaData, mediaIds };
     },
     onError: (err, mediaIds, context) => {
       // If the mutation fails, restore the previous data
       if (context?.previousData) {
         context.previousData.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+      
+      // Restore previous album media data
+      if (context?.previousAlbumMediaData) {
+        context.previousAlbumMediaData.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data);
         });
       }
@@ -275,6 +375,14 @@ export function useAdminBatchDeleteMedia() {
       // Invalidate all admin media queries
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.media.all(),
+      });
+
+      // Invalidate all album media queries
+      queryClient.invalidateQueries({
+        queryKey: ["media", "album"],
+        predicate: (query) => {
+          return query.queryKey[0] === "media" && query.queryKey[1] === "album";
+        },
       });
 
       // Invalidate all albums that might contain these media

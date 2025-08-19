@@ -66,6 +66,6 @@ export const adminAlbumsApi = {
 
   // Remove media from album (admin endpoint)
   removeMedia: async (albumId: string, mediaId: string): Promise<void> => {
-    await ApiUtil.delete(`/admin/media/${albumId}/${mediaId}`);
+    await ApiUtil.delete(`/admin/albums/${albumId}/media/${mediaId}`);
   },
 };

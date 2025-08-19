@@ -1310,10 +1310,10 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
 
-  AdminDeleteMediaFromAlbumFunction:
+  AdminDeleteMediaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-admin-delete-media-from-album-v2"
+      FunctionName: !Sub "${Environment}-pornspot-admin-delete-media-v2"
       PackageType: Image
       ImageUri: !Ref ImageUri
       ImageConfig:
@@ -1364,7 +1364,7 @@ Resources:
                 - s3:DeleteObject
               Resource: !Sub "arn:aws:s3:::${MediaBucket}/*"
 
-  AdminDeleteMediaFunction:
+  AdminDeleteMediaCompletelyFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-admin-delete-media-completely-v2"
@@ -1408,7 +1408,6 @@ Resources:
               Action:
                 - dynamodb:DeleteItem
                 - dynamodb:Query
-                - dynamodb:Scan
                 - dynamodb:UpdateItem
               Resource:
                 - !GetAtt MediaTable.Arn
