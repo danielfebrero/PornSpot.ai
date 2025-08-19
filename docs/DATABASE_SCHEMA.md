@@ -95,6 +95,8 @@ Represents a single media item (e.g., an image) that can belong to multiple albu
 - **GSI2SK**: `<mediaId>`
 - **GSI3PK**: `MEDIA_BY_USER_{isPublic}`
 - **GSI3SK**: `<createdBy>#<createdAt>#<mediaId>`
+- **GSI4PK**: `MEDIA`
+- **GSI4SK**: `<createdAt>#<mediaId>`
 - **EntityType**: `Media`
 
 | Attribute          | Type     | Description                                  |
@@ -152,9 +154,10 @@ Represents the relationship between an album and a media item, allowing one medi
 2. **Get all media for an album**: Query main table with `PK = "ALBUM#<albumId>"` and `SK begins_with "MEDIA#"`
 3. **Get all albums for a media**: Use GSI1 with `GSI1PK = "MEDIA#<mediaId>"`
 4. **Get all media by creator**: Use GSI1 with `GSI1PK = "MEDIA_BY_CREATOR"` and `GSI1SK begins_with "<createdBy>#"`
-5. **Get public media by user** (**NEW - OPTIMIZED**): Use GSI3 with `GSI3PK = "MEDIA_BY_USER_true"` and `GSI3SK begins_with "<userId>#"`
-6. **Get private media by user** (**NEW - OPTIMIZED**): Use GSI3 with `GSI3PK = "MEDIA_BY_USER_false"` and `GSI3SK begins_with "<userId>#"`
-7. **Get all public media**:
+5. **Get all media (admin/chronological)** (**NEW**): Use GSI4 with `GSI4PK = "MEDIA"` sorted by `GSI4SK = "<createdAt>#<mediaId>"` (newest first)
+6. **Get public media by user** (**NEW - OPTIMIZED**): Use GSI3 with `GSI3PK = "MEDIA_BY_USER_true"` and `GSI3SK begins_with "<userId>#"`
+7. **Get private media by user** (**NEW - OPTIMIZED**): Use GSI3 with `GSI3PK = "MEDIA_BY_USER_false"` and `GSI3SK begins_with "<userId>#"`
+8. **Get all public media**:
    - First: Query albums with `isPublic-createdAt-index` where `isPublic = "true"`
    - Then: For each album, query media relationships
    - Finally: Fetch unique media records

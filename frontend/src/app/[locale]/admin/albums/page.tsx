@@ -246,11 +246,11 @@ export default function AdminAlbumsPage() {
         isFetchingNextPage={isFetchingNextPage}
         onLoadMore={loadMore}
         gridColumns={{
-          mobile: 1,
-          sm: 2,
-          md: 3,
-          lg: 4,
-          xl: 4,
+          mobile: 2,
+          sm: 3,
+          md: 4,
+          lg: 5,
+          xl: 6,
         }}
         contentCardProps={{
           canLike: false,
@@ -261,7 +261,6 @@ export default function AdminAlbumsPage() {
           canDelete: false,
           showTags: true,
           showCounts: true,
-          preferredThumbnailSize: "medium",
           customActions: (item) => [
             {
               label: "Edit Album",

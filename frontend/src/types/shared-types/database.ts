@@ -59,6 +59,8 @@ export interface MediaEntity extends BaseEntity {
   GSI2SK: string; // {mediaId}
   GSI3PK: string; // MEDIA_BY_USER_{isPublic}
   GSI3SK: string; // {createdBy}#{createdAt}#{mediaId}
+  GSI4PK: string; // MEDIA
+  GSI4SK: string; // {createdAt}#{mediaId}
   GSI5PK: string; // MEDIA
   GSI5SK: string; // {isPublic}
   EntityType: "Media";

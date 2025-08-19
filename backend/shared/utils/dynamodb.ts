@@ -681,6 +681,37 @@ export class DynamoDBService {
     }
   }
 
+  // Admin method to list all media across all users
+  static async listAllMedia(
+    limit: number = 50,
+    lastEvaluatedKey?: Record<string, any>
+  ): Promise<{
+    media: MediaEntity[];
+    nextKey?: Record<string, any>;
+  }> {
+    const queryParams: any = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI4",
+      KeyConditionExpression: "GSI4PK = :gsi4pk",
+      ExpressionAttributeValues: {
+        ":gsi4pk": "MEDIA",
+      },
+      Limit: limit,
+      ScanIndexForward: false, // newest first (descending order by createdAt)
+    };
+
+    if (lastEvaluatedKey) {
+      queryParams.ExclusiveStartKey = lastEvaluatedKey;
+    }
+
+    const result = await docClient.send(new QueryCommand(queryParams));
+
+    return {
+      media: (result.Items as MediaEntity[]) || [],
+      ...(result.LastEvaluatedKey && { nextKey: result.LastEvaluatedKey }),
+    };
+  }
+
   // Album-Media relationship operations
   static async addMediaToAlbum(
     albumId: string,

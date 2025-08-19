@@ -1281,14 +1281,43 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
 
-  AdminDeleteMediaFunction:
+  AdminListMediaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-admin-delete-media-v2"
+      FunctionName: !Sub "${Environment}-pornspot-admin-list-media-v2"
       PackageType: Image
       ImageUri: !Ref ImageUri
       ImageConfig:
-        Command: ["functions/admin/media/delete.handler"]
+        Command: ["functions/admin/media/list.handler"]
+      Events:
+        GetMedia:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/media
+            Method: GET
+            Auth:
+              Authorizer: AdminAuthorizer
+        OptionsMedia:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/media
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
+  AdminDeleteMediaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-admin-delete-media-from-album-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/admin/albums/delete-media.handler"]
       Events:
         DeleteMedia:
           Type: Api

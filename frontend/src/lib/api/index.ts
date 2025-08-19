@@ -3,6 +3,7 @@ export { userApi } from "./user";
 export { interactionApi } from "./interactions";
 export { albumsApi } from "./albums";
 export { adminAlbumsApi } from "./admin-albums";
+export { adminMediaApi } from "./admin-media";
 export { mediaApi } from "./media";
 export { contentApi } from "./content";
 
