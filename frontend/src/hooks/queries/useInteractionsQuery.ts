@@ -410,12 +410,12 @@ export function useToggleLike() {
       }
 
       // Also update counts in other caches (album/media detail pages, album lists)
-      updateCache.interactionCounts(
-        targetType,
-        targetId,
-        "like",
-        countIncrement
-      );
+      // updateCache.interactionCounts(
+      //   targetType,
+      //   targetId,
+      //   "like",
+      //   countIncrement
+      // );
 
       // updateCache.userInteractionStatus(targetType, targetId, {
       //   userLiked: newLikedState,
@@ -490,13 +490,16 @@ export function useToggleLike() {
           );
         } else {
           // Fallback: revert optimistic updates manually
-          updateCache.userInteractionStatus(
-            context.targetType,
-            context.targetId,
-            {
-              userLiked: context.isCurrentlyLiked,
-            }
-          );
+          // updateCache.userInteractionStatus(
+          //   context.targetType,
+          //   context.targetId,
+          //   {
+          //     userLiked: context.isCurrentlyLiked,
+          //   }
+          // );
+          // queryClient.setQueryData(
+          //   queryKeys.user.interactions.status()
+          // )
 
           updateCache.interactionCounts(
             context.targetType,

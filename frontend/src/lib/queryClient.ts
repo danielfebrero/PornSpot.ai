@@ -332,94 +332,94 @@ export const updateCache = {
   ) => {
     // For comments, only update the interaction status cache
     if (targetType === "comment") {
-      const targets = [{ targetType, targetId }];
-      const statusQueryKey = queryKeys.user.interactions.status(targets);
+      //   const targets = [{ targetType, targetId }];
+      //   const statusQueryKey = queryKeys.user.interactions.status(targets);
+      //   queryClient.setQueryData(
+      //     statusQueryKey,
+      //     (oldData: InteractionStatusResponse | undefined) => {
+      //       const countField = type === "like" ? "likeCount" : "bookmarkCount";
+      //       // If there's no existing data, create it with the count update
+      //       if (!oldData?.statuses) {
+      //         return {
+      //           statuses: [
+      //             {
+      //               targetType,
+      //               targetId,
+      //               userLiked: false,
+      //               userBookmarked: false,
+      //               likeCount: type === "like" ? Math.max(0, increment) : 0,
+      //               bookmarkCount:
+      //                 type === "bookmark" ? Math.max(0, increment) : 0,
+      //             },
+      //           ],
+      //         };
+      //       }
+      //       return {
+      //         ...oldData,
+      //         statuses: oldData.statuses.map((status) => {
+      //           if (
+      //             status.targetType === targetType &&
+      //             status.targetId === targetId
+      //           ) {
+      //             return {
+      //               ...status,
+      //               [countField]: Math.max(
+      //                 0,
+      //                 (status[countField] || 0) + increment
+      //               ),
+      //             };
+      //           }
+      //           return status;
+      //         }),
+      //       };
+      //     }
+      //   );
+      //   return;
+    } else {
+      // Update in album/media detail pages
+      const detailQueryKey =
+        targetType === "album"
+          ? queryKeys.albums.detail(targetId)
+          : queryKeys.media.detail(targetId);
 
       queryClient.setQueryData(
-        statusQueryKey,
-        (oldData: InteractionStatusResponse | undefined) => {
-          const countField = type === "like" ? "likeCount" : "bookmarkCount";
+        detailQueryKey,
+        (oldData: Album | Media | undefined) => {
+          if (!oldData) return oldData;
 
-          // If there's no existing data, create it with the count update
-          if (!oldData?.statuses) {
-            return {
-              statuses: [
-                {
-                  targetType,
-                  targetId,
-                  userLiked: false,
-                  userBookmarked: false,
-                  likeCount: type === "like" ? Math.max(0, increment) : 0,
-                  bookmarkCount:
-                    type === "bookmark" ? Math.max(0, increment) : 0,
-                },
-              ],
-            };
-          }
+          const countField = type === "like" ? "likeCount" : "bookmarkCount";
+          return {
+            ...oldData,
+            [countField]: Math.max(0, (oldData[countField] || 0) + increment),
+          };
+        }
+      );
+
+      // Also update in any album lists that might contain this item
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.albums.lists() },
+        (oldData: AlbumsListData | undefined) => {
+          if (!oldData?.albums) return oldData;
 
           return {
             ...oldData,
-            statuses: oldData.statuses.map((status) => {
-              if (
-                status.targetType === targetType &&
-                status.targetId === targetId
-              ) {
+            albums: oldData.albums.map((album) => {
+              if (album.id === targetId) {
+                const countField =
+                  type === "like" ? "likeCount" : "bookmarkCount";
                 return {
-                  ...status,
+                  ...album,
                   [countField]: Math.max(
                     0,
-                    (status[countField] || 0) + increment
+                    (album[countField] || 0) + increment
                   ),
                 };
               }
-              return status;
+              return album;
             }),
           };
         }
       );
-      return;
     }
-
-    // Update in album/media detail pages
-    const detailQueryKey =
-      targetType === "album"
-        ? queryKeys.albums.detail(targetId)
-        : queryKeys.media.detail(targetId);
-
-    queryClient.setQueryData(
-      detailQueryKey,
-      (oldData: Album | Media | undefined) => {
-        if (!oldData) return oldData;
-
-        const countField = type === "like" ? "likeCount" : "bookmarkCount";
-        return {
-          ...oldData,
-          [countField]: Math.max(0, (oldData[countField] || 0) + increment),
-        };
-      }
-    );
-
-    // Also update in any album lists that might contain this item
-    queryClient.setQueriesData(
-      { queryKey: queryKeys.albums.lists() },
-      (oldData: AlbumsListData | undefined) => {
-        if (!oldData?.albums) return oldData;
-
-        return {
-          ...oldData,
-          albums: oldData.albums.map((album) => {
-            if (album.id === targetId) {
-              const countField =
-                type === "like" ? "likeCount" : "bookmarkCount";
-              return {
-                ...album,
-                [countField]: Math.max(0, (album[countField] || 0) + increment),
-              };
-            }
-            return album;
-          }),
-        };
-      }
-    );
   },
 };
