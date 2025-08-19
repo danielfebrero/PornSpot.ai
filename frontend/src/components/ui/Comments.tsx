@@ -82,20 +82,26 @@ export function Comments({
     error: likeStatesError,
   } = useInteractionStatus(commentTargets);
 
-  // DEBUG: Log what cache key we're reading from
-  console.log("[DEBUG] Comments component reading from cache:", {
-    commentTargetsLength: commentTargets.length,
-    commentTargets,
-    interactionStatusData,
-  });
-
   // Create a map for easier lookup
   const commentLikeStates = useMemo(() => {
     const statusMap: Record<string, { isLiked: boolean; likeCount: number }> =
       {};
 
-    if (interactionStatusData?.statuses) {
-      interactionStatusData.statuses.forEach((status) => {
+    // DEBUG: Check the exact structure
+    console.log("[DEBUG] interactionStatusData structure:", {
+      hasData: !!(interactionStatusData as any)?.data,
+      hasStatuses: !!interactionStatusData?.statuses,
+      hasDataStatuses: !!(interactionStatusData as any)?.data?.statuses,
+      raw: interactionStatusData,
+    });
+
+    // Handle both possible structures
+    const statuses =
+      interactionStatusData?.statuses ||
+      (interactionStatusData as any)?.data?.statuses;
+
+    if (statuses) {
+      statuses.forEach((status: any) => {
         if (status.targetType === "comment") {
           statusMap[status.targetId] = {
             isLiked: status.userLiked,
@@ -167,15 +173,6 @@ export function Comments({
         likeCount: comments.find((c) => c.id === commentId)?.likeCount || 0,
       };
       const currentIsLiked = currentLikeState.isLiked;
-
-      // DEBUG: Log the commentTargets being passed
-      console.log("[DEBUG] handleLikeComment called with:", {
-        commentId,
-        commentTargetsLength: commentTargets.length,
-        commentTargets,
-        currentIsLiked,
-        currentLikeState,
-      });
 
       // Use the unified like mutation - TanStack Query handles all optimistic updates
       // Pass all commentTargets so the cache update uses the correct query key
@@ -286,7 +283,11 @@ export function Comments({
                 onDelete={handleDeleteComment}
                 onLike={handleLikeComment}
                 isLiked={commentLikeStates[comment.id]?.isLiked || false}
-                likeCount={commentLikeStates[comment.id]?.likeCount || 0}
+                likeCount={
+                  commentLikeStates[comment.id]?.likeCount ||
+                  comment.likeCount ||
+                  0
+                }
                 className={cn(
                   index < comments.length - 1 &&
                     "border-b border-border/20 pb-4"
