@@ -301,10 +301,6 @@ export class DynamoDBService {
     albums: Album[];
     lastEvaluatedKey?: Record<string, any>;
   }> {
-    console.log("🔄 About to call DynamoDBService.listAlbums");
-    console.log("📋 Using table name:", TABLE_NAME);
-    console.log("🔍 Query parameters:", { limit, lastEvaluatedKey, tag });
-
     // Build query parameters
     const queryParams: QueryCommandInput = {
       TableName: TABLE_NAME,

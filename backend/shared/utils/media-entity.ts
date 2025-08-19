@@ -76,6 +76,10 @@ export function createMediaEntity(
     }`,
     GSI3SK: `${options.userId}#${now}#${options.mediaId}`,
 
+    // GSI4: Media entity type and current time
+    GSI4PK: "MEDIA",
+    GSI4SK: `${now}#${options.mediaId}`,
+
     // GSI5: Media by public status
     GSI5PK: "MEDIA",
     GSI5SK: options.isPublic !== undefined ? String(options.isPublic) : "true",
