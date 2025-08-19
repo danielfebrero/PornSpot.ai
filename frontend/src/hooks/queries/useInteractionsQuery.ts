@@ -244,30 +244,42 @@ export function useToggleLike() {
       isCurrentlyLiked,
       allTargets,
     }) => {
-      // For comments, use the complete targets array if provided
-      // For albums/media, use single target
-      const targets =
-        allTargets && allTargets.length > 0
-          ? allTargets
-          : [{ targetType, targetId }];
+      // For comments, we should update both:
+      // 1. The individual comment cache (single target)
+      // 2. The bulk cache if allTargets is provided (for consistency)
 
-      // Cancel outgoing refetches
+      // Always use single target for the primary cache update
+      const singleTarget = [{ targetType, targetId }];
+
+      // For comments, if allTargets is provided and contains multiple targets,
+      // we'll also update the bulk cache, but prioritize the single target cache
+      const targets =
+        allTargets && allTargets.length > 1 ? allTargets : singleTarget;
+
+      // Cancel outgoing refetches for the primary target
       await queryClient.cancelQueries({
-        queryKey: queryKeys.user.interactions.status(targets),
+        queryKey: queryKeys.user.interactions.status(singleTarget),
       });
 
-      // Store the previous data for rollback on error
+      // Also cancel for bulk cache if different
+      if (targets !== singleTarget) {
+        await queryClient.cancelQueries({
+          queryKey: queryKeys.user.interactions.status(targets),
+        });
+      }
+
+      // Store the previous data for rollback on error (use single target)
       const previousData = queryClient.getQueryData(
-        queryKeys.user.interactions.status(targets)
+        queryKeys.user.interactions.status(singleTarget)
       );
 
       // Optimistically update interaction status - this will handle both status and count updates
       const newLikedState = !isCurrentlyLiked;
       const countIncrement = isCurrentlyLiked ? -1 : 1;
 
-      // Update the interaction status cache with both status and count
+      // Update the primary cache (single target) - this is what components actually read from
       queryClient.setQueryData(
-        queryKeys.user.interactions.status(targets),
+        queryKeys.user.interactions.status(singleTarget),
         (oldData: InteractionStatusResponse | undefined) => {
           // If there's no existing data, create the structure with the optimistic update
           if (!oldData?.statuses) {
@@ -329,6 +341,68 @@ export function useToggleLike() {
         }
       );
 
+      // Also update bulk cache if it exists and is different from single target
+      if (targets !== singleTarget) {
+        queryClient.setQueryData(
+          queryKeys.user.interactions.status(targets),
+          (oldData: InteractionStatusResponse | undefined) => {
+            if (!oldData?.statuses) {
+              return {
+                success: true,
+                statuses: [
+                  {
+                    targetType,
+                    targetId,
+                    userLiked: newLikedState,
+                    userBookmarked: false,
+                    likeCount: newLikedState ? 1 : 0,
+                    bookmarkCount: 0,
+                  },
+                ],
+              };
+            }
+
+            const existingStatusIndex = oldData.statuses.findIndex(
+              (status) =>
+                status.targetType === targetType && status.targetId === targetId
+            );
+
+            if (existingStatusIndex >= 0) {
+              const updatedStatuses = [...oldData.statuses];
+              updatedStatuses[existingStatusIndex] = {
+                ...updatedStatuses[existingStatusIndex],
+                userLiked: newLikedState,
+                likeCount: Math.max(
+                  0,
+                  (updatedStatuses[existingStatusIndex].likeCount || 0) +
+                    countIncrement
+                ),
+              };
+
+              return {
+                ...oldData,
+                statuses: updatedStatuses,
+              };
+            } else {
+              return {
+                ...oldData,
+                statuses: [
+                  ...oldData.statuses,
+                  {
+                    targetType,
+                    targetId,
+                    userLiked: newLikedState,
+                    userBookmarked: false,
+                    likeCount: Math.max(0, countIncrement),
+                    bookmarkCount: 0,
+                  },
+                ],
+              };
+            }
+          }
+        );
+      }
+
       // Also update counts in other caches (album/media detail pages, album lists)
       updateCache.interactionCounts(
         targetType,
@@ -343,22 +417,22 @@ export function useToggleLike() {
         isCurrentlyLiked,
         previousData,
         allTargets,
+        singleTarget, // Store the single target for error recovery
       };
     },
     onError: (error, variables, context) => {
       console.error("Failed to toggle like:", error);
 
       if (context) {
-        // Use the same targets as in onMutate
-        const targets =
-          context.allTargets && context.allTargets.length > 0
-            ? context.allTargets
-            : [{ targetType: context.targetType, targetId: context.targetId }];
+        // Always restore the single target cache first (primary cache)
+        const singleTarget = context.singleTarget || [
+          { targetType: context.targetType, targetId: context.targetId },
+        ];
 
         // Restore the previous data if we have it
         if (context.previousData !== undefined) {
           queryClient.setQueryData(
-            queryKeys.user.interactions.status(targets),
+            queryKeys.user.interactions.status(singleTarget),
             context.previousData
           );
         } else {
@@ -377,6 +451,15 @@ export function useToggleLike() {
             "like",
             context.isCurrentlyLiked ? 1 : -1
           );
+        }
+
+        // Also restore bulk cache if it's different and exists
+        if (context.allTargets && context.allTargets.length > 1) {
+          const targets = context.allTargets;
+          // Try to restore bulk cache or invalidate it to refetch
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.user.interactions.status(targets),
+          });
         }
       }
 

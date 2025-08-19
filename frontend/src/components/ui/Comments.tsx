@@ -113,13 +113,12 @@ export function Comments({
       return;
 
     try {
+      setNewComment("");
       await createCommentMutation.mutateAsync({
         content: newComment.trim(),
         targetType,
         targetId,
       });
-
-      setNewComment("");
     } catch (err) {
       console.error("Error creating comment:", err);
     }
