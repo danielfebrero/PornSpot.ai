@@ -175,13 +175,13 @@ export function MediaManager({
 
   const handleConfirmDelete = async () => {
     try {
+      setDeleteConfirm({ isOpen: false });
       if (deleteConfirm.isBulk) {
         await bulkDeleteMutation.mutateAsync(selectedMedia);
         setSelectedMedia([]);
       } else if (deleteConfirm.mediaId) {
         await deleteMutation.mutateAsync(deleteConfirm.mediaId);
       }
-      setDeleteConfirm({ isOpen: false });
       onMediaChange();
     } catch (error) {
       console.error("Delete failed:", error);

@@ -312,9 +312,19 @@ export function useRemoveMediaFromAlbum() {
         queryKey: ["admin", "media", "album", albumId],
       });
 
-      // Snapshot the previous values
-      const previousAlbumMedia = queryClient.getQueriesData({
+      // Also cancel any outgoing refetches for regular album media (used by MediaManager)
+      await queryClient.cancelQueries({
+        queryKey: ["media", "album", albumId],
+      });
+
+      // Snapshot the previous values for admin queries
+      const previousAdminAlbumMedia = queryClient.getQueriesData({
         queryKey: ["admin", "media", "album", albumId],
+      });
+
+      // Snapshot the previous values for regular album media queries
+      const previousAlbumMedia = queryClient.getQueriesData({
+        queryKey: ["media", "album", albumId],
       });
 
       // Optimistically remove the media from admin album media infinite query
@@ -335,16 +345,42 @@ export function useRemoveMediaFromAlbum() {
         }
       );
 
+      // Optimistically remove the media from regular album media infinite query (for MediaManager)
+      queryClient.setQueriesData(
+        { queryKey: ["media", "album", albumId] },
+        (old: any) => {
+          if (!old?.pages) return old;
+
+          const newPages = old.pages.map((page: any) => ({
+            ...page,
+            media: page.media.filter((m: any) => m.id !== mediaId),
+          }));
+
+          return {
+            ...old,
+            pages: newPages,
+          };
+        }
+      );
+
       // Return context for rollback
-      return { previousAlbumMedia, albumId, mediaId };
+      return { previousAdminAlbumMedia, previousAlbumMedia, albumId, mediaId };
     },
     onError: (err, variables, context) => {
-      // If the mutation fails, restore the previous data
+      // If the mutation fails, restore the previous admin album media data
+      if (context?.previousAdminAlbumMedia) {
+        context.previousAdminAlbumMedia.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
+      // If the mutation fails, restore the previous regular album media data
       if (context?.previousAlbumMedia) {
         context.previousAlbumMedia.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data);
         });
       }
+
       console.error("Failed to remove media from album:", err);
     },
     onSuccess: (data, variables) => {
