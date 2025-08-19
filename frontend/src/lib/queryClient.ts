@@ -7,6 +7,8 @@ import type {
   UnifiedAlbumsResponse,
   UnifiedMediaResponse,
   UnifiedPaginationMeta,
+  InteractionStatus,
+  InteractionStatusResponse,
 } from "@/types";
 
 // Error type for React Query retry function
@@ -15,21 +17,6 @@ interface QueryError {
     status: number;
   };
   message?: string;
-}
-
-// Cache data types for optimistic updates
-interface InteractionStatusData {
-  success: boolean;
-  data: {
-    statuses: Array<{
-      targetType: "album" | "media" | "comment";
-      targetId: string;
-      userLiked: boolean;
-      userBookmarked: boolean;
-      likeCount: number;
-      bookmarkCount: number;
-    }>;
-  };
 }
 
 interface AlbumsListData {
@@ -261,40 +248,34 @@ export const updateCache = {
 
     queryClient.setQueryData(
       queryKey,
-      (oldData: InteractionStatusData | undefined) => {
+      (oldData: InteractionStatusResponse | undefined) => {
         // If there's no existing data, create the structure with the optimistic update
-        if (!oldData?.data?.statuses) {
+        if (!oldData?.statuses) {
           return {
-            success: true,
-            data: {
-              statuses: [
-                {
-                  targetType,
-                  targetId,
-                  userLiked: updates.userLiked ?? false,
-                  userBookmarked: updates.userBookmarked ?? false,
-                  likeCount: updates.userLiked ? 1 : 0,
-                  bookmarkCount: updates.userBookmarked ? 1 : 0,
-                },
-              ],
-            },
+            statuses: [
+              {
+                targetType,
+                targetId,
+                userLiked: updates.userLiked ?? false,
+                userBookmarked: updates.userBookmarked ?? false,
+                likeCount: updates.userLiked ? 1 : 0,
+                bookmarkCount: updates.userBookmarked ? 1 : 0,
+              },
+            ],
           };
         }
 
         return {
           ...oldData,
-          data: {
-            ...oldData.data,
-            statuses: oldData.data.statuses.map((status) => {
-              if (
-                status.targetType === targetType &&
-                status.targetId === targetId
-              ) {
-                return { ...status, ...updates };
-              }
-              return status;
-            }),
-          },
+          statuses: oldData?.statuses.map((status) => {
+            if (
+              status.targetType === targetType &&
+              status.targetId === targetId
+            ) {
+              return { ...status, ...updates };
+            }
+            return status;
+          }),
         };
       }
     );
@@ -353,49 +334,43 @@ export const updateCache = {
 
       queryClient.setQueryData(
         statusQueryKey,
-        (oldData: InteractionStatusData | undefined) => {
+        (oldData: InteractionStatusResponse | undefined) => {
           const countField = type === "like" ? "likeCount" : "bookmarkCount";
 
           // If there's no existing data, create it with the count update
-          if (!oldData?.data?.statuses) {
+          if (!oldData?.statuses) {
             return {
-              success: true,
-              data: {
-                statuses: [
-                  {
-                    targetType,
-                    targetId,
-                    userLiked: false,
-                    userBookmarked: false,
-                    likeCount: type === "like" ? Math.max(0, increment) : 0,
-                    bookmarkCount:
-                      type === "bookmark" ? Math.max(0, increment) : 0,
-                  },
-                ],
-              },
+              statuses: [
+                {
+                  targetType,
+                  targetId,
+                  userLiked: false,
+                  userBookmarked: false,
+                  likeCount: type === "like" ? Math.max(0, increment) : 0,
+                  bookmarkCount:
+                    type === "bookmark" ? Math.max(0, increment) : 0,
+                },
+              ],
             };
           }
 
           return {
             ...oldData,
-            data: {
-              ...oldData.data,
-              statuses: oldData.data.statuses.map((status) => {
-                if (
-                  status.targetType === targetType &&
-                  status.targetId === targetId
-                ) {
-                  return {
-                    ...status,
-                    [countField]: Math.max(
-                      0,
-                      (status[countField] || 0) + increment
-                    ),
-                  };
-                }
-                return status;
-              }),
-            },
+            statuses: oldData.statuses.map((status) => {
+              if (
+                status.targetType === targetType &&
+                status.targetId === targetId
+              ) {
+                return {
+                  ...status,
+                  [countField]: Math.max(
+                    0,
+                    (status[countField] || 0) + increment
+                  ),
+                };
+              }
+              return status;
+            }),
           };
         }
       );
