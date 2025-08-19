@@ -284,9 +284,9 @@ export function Comments({
                 onLike={handleLikeComment}
                 isLiked={commentLikeStates[comment.id]?.isLiked || false}
                 likeCount={
-                  commentLikeStates[comment.id]?.likeCount ||
-                  comment.likeCount ||
-                  0
+                  commentLikeStates[comment.id]?.likeCount === undefined
+                    ? comment.likeCount || 0
+                    : commentLikeStates[comment.id]?.likeCount
                 }
                 className={cn(
                   index < comments.length - 1 &&
