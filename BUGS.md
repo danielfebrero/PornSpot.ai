@@ -36,7 +36,7 @@
 
 [x] Edit album dialog should update album media count optimistically.
 
-[ ] Remove media from Admin manage album media should update optimistically top page media count.
+[x] Remove media from Admin manage album media should update optimistically top page media count.
 
 [ ] If I open another tab while generating image, my websocket connection id is replaced by a new one and I don't receive generation updates anymore.
 
@@ -46,4 +46,4 @@
 
 [ ] If add an image to album already in album, we must display a message informative.
 
-[ ] Bulk remove media from album in edit album dialg does not work
+[x] Bulk remove media from album in edit album dialg does not work

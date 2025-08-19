@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useLayoutEffect, useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -9,6 +9,7 @@ import { CommentWithTarget as CommentType } from "@/types";
 import { cn } from "@/lib/utils";
 import {
   useInteractionStatus,
+  usePrefetchInteractionStatus,
   useToggleLike,
 } from "@/hooks/queries/useInteractionsQuery";
 import { useUserProfile } from "@/hooks/queries/useUserQuery";
@@ -49,6 +50,9 @@ export function VirtualizedCommentsList({
   const user = userResponse?.user;
   const currentUserId = user?.userId;
 
+  // Hook for manual prefetching (for interaction status)
+  const { prefetch } = usePrefetchInteractionStatus();
+
   // Create interaction targets for all comments
   const commentTargets = useMemo(() => {
     if (!currentUserId) return [];
@@ -57,6 +61,23 @@ export function VirtualizedCommentsList({
       targetId: comment.id,
     }));
   }, [comments, currentUserId]);
+
+  const allContentsTargets = useMemo(() => {
+    if (!currentUserId) return [];
+    return comments.map((comment) => ({
+      targetType: comment.target.type,
+      targetId: comment.target.id,
+    }));
+  }, [comments, currentUserId]);
+
+  // Auto-prefetch interaction status for all loaded media
+  useLayoutEffect(() => {
+    if (allContentsTargets.length > 0) {
+      prefetch(allContentsTargets).catch((error) => {
+        console.error("Failed to prefetch media interaction status:", error);
+      });
+    }
+  }, [allContentsTargets, prefetch]);
 
   // Get interaction status for all comments in one call
   const { data: interactionStatusData } = useInteractionStatus(commentTargets);
