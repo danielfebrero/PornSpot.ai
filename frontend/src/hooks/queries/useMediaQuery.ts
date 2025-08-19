@@ -474,6 +474,11 @@ export function useDeleteMedia() {
         queryKey: queryKeys.media.detail(mediaId),
       });
 
+      // Cancel any outgoing refetches for admin media queries
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.admin.media.all(),
+      });
+
       // Snapshot the previous values for rollback
       const previousMedia = queryClient.getQueryData(
         queryKeys.media.detail(mediaId)
@@ -482,6 +487,11 @@ export function useDeleteMedia() {
       // Get all album media queries to update them optimistically
       const albumMediaQueries = queryClient.getQueriesData({
         queryKey: ["media", "album"],
+      });
+
+      // Snapshot the previous admin media values for rollback
+      const previousAdminMedia = queryClient.getQueriesData({
+        queryKey: queryKeys.admin.media.all(),
       });
 
       // Optimistically remove the media from all album media infinite queries
@@ -524,11 +534,29 @@ export function useDeleteMedia() {
         }
       );
 
+      // Optimistically remove the media from all admin media queries
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.admin.media.all() },
+        (old: any) => {
+          if (!old?.pages) return old;
+
+          const newPages = old.pages.map((page: any) => ({
+            ...page,
+            media: page.media.filter((m: any) => m.id !== mediaId),
+          }));
+
+          return {
+            ...old,
+            pages: newPages,
+          };
+        }
+      );
+
       // Remove from detail cache
       queryClient.removeQueries({ queryKey: queryKeys.media.detail(mediaId) });
 
       // Return context for rollback
-      return { previousMedia, mediaId, albumMediaQueries };
+      return { previousMedia, mediaId, albumMediaQueries, previousAdminMedia };
     },
     onError: (err, mediaId, context) => {
       // If the mutation fails, restore the previous data
@@ -546,10 +574,18 @@ export function useDeleteMedia() {
         });
       }
 
+      // Restore admin media queries
+      if (context?.previousAdminMedia) {
+        context.previousAdminMedia.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
       // Invalidate to refetch correct data
       invalidateQueries.media(mediaId);
       queryClient.invalidateQueries({ queryKey: ["media", "user"] });
       queryClient.invalidateQueries({ queryKey: ["media", "album"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.media.all() });
 
       console.error("Failed to delete media:", err);
     },
@@ -559,6 +595,11 @@ export function useDeleteMedia() {
       // Invalidate all album queries since media counts have changed
       queryClient.invalidateQueries({
         queryKey: ["albums"],
+      });
+
+      // Invalidate admin media queries to ensure counts and data are fresh
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.media.all(),
       });
 
       // Invalidate user profile query since media counts may have changed

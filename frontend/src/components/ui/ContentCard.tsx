@@ -385,6 +385,7 @@ export function ContentCard({
       onDelete();
     }
     try {
+      setDeleteConfirmOpen(false);
       if (isMedia && media) {
         // Default behavior: delete the media
         await deleteMediaMutation.mutateAsync(media.id);
@@ -394,8 +395,6 @@ export function ContentCard({
       }
     } catch (error) {
       console.error("Failed to delete:", error);
-    } finally {
-      setDeleteConfirmOpen(false);
     }
   };
 
