@@ -37,7 +37,7 @@ const handleLogin = async (
   }
 
   if (!userEntity.isActive) {
-    return ResponseUtil.forbidden(event, "Account is disabled");
+    return ResponseUtil.forbidden(event, "Invalid email or password");
   }
 
   // Check if email is verified

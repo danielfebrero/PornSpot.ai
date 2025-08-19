@@ -48,13 +48,22 @@ const handleDeleteAccount = async (
 /**
  * Anonymize user account (soft delete) by removing personal information
  * but keeping the user record so content can still reference it as "[deleted]"
+ *
+ * IMPORTANT: We must update both email/username AND their corresponding GSI indexes
+ * (GSI1SK for email, GSI3SK for username) to ensure the original email/username
+ * can be reused for new account registration without conflicts.
  */
 async function anonymizeUserAccount(userId: string): Promise<void> {
   try {
+    // Create anonymized email and update both email and GSI1SK to prevent conflicts
+    const anonymizedEmail = `deleted.${userId}@deleted.local`;
+
     // Update user to mark as deleted and remove personal information
     const anonymizedData: Partial<UserEntity> = {
-      email: `deleted.${userId}@deleted.local`, // Keep unique for constraints
+      email: anonymizedEmail, // Keep unique for constraints
+      GSI1SK: anonymizedEmail, // Update GSI1SK to match new email for proper indexing
       username: "[deleted]", // This will be displayed instead of real username
+      GSI3SK: "[deleted]", // Update GSI3SK to match new username for proper indexing
       isActive: false,
       isEmailVerified: false,
     };
@@ -73,7 +82,9 @@ async function anonymizeUserAccount(userId: string): Promise<void> {
     Object.assign(anonymizedData, fieldsToRemove);
 
     await DynamoDBService.updateUser(userId, anonymizedData);
-    console.log(`✅ User ${userId} has been anonymized`);
+    console.log(
+      `✅ User ${userId} has been anonymized with updated GSI indexes`
+    );
   } catch (error) {
     console.error("Error anonymizing user account:", error);
     throw error;
