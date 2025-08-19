@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/Button";
 import { useAdminAlbumMedia } from "@/hooks/queries/useAdminMediaQuery";
 import { Media } from "@/types";
@@ -32,8 +32,10 @@ export function CoverImageSelector({
     error,
   } = useAdminAlbumMedia(albumId);
 
-  // Extract media from the response
-  const media = mediaData?.media || [];
+  // Extract all media from paginated data
+  const allMedia = useMemo(() => {
+    return mediaData?.pages.flatMap((page) => page.media || []) || [];
+  }, [mediaData]);
 
   const [selectedCoverUrl, setSelectedCoverUrl] = useState<string | undefined>(
     currentCoverUrl
@@ -52,7 +54,7 @@ export function CoverImageSelector({
     onCoverSelect(newCoverUrl);
   };
 
-  const imageMedia = media.filter((item) => isImage(item));
+  const imageMedia = allMedia.filter((item) => isImage(item));
 
   if (!isOpen) {
     return (
@@ -66,7 +68,7 @@ export function CoverImageSelector({
               <img
                 src={getBestThumbnailUrl(
                   composeThumbnailUrls(
-                    media.find((m) => m.url === selectedCoverUrl)
+                    allMedia.find((m) => m.url === selectedCoverUrl)
                       ?.thumbnailUrls || {}
                   ),
                   composeMediaUrl(selectedCoverUrl),
