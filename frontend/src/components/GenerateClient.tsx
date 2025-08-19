@@ -463,8 +463,8 @@ export function GenerateClient() {
                     <ContentCard
                       item={filteredGeneratedImages[0]}
                       aspectRatio="square"
-                      canLike={false}
-                      canBookmark={false}
+                      canLike={true}
+                      canBookmark={true}
                       canFullscreen={true}
                       canAddToAlbum={true}
                       canDownload={true}
@@ -491,8 +491,8 @@ export function GenerateClient() {
                         key={index}
                         item={image}
                         aspectRatio="square"
-                        canLike={false}
-                        canBookmark={false}
+                        canLike={true}
+                        canBookmark={true}
                         canFullscreen={true}
                         canAddToAlbum={true}
                         canDownload={true}
