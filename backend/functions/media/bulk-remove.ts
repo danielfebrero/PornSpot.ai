@@ -121,6 +121,7 @@ const handleBulkRemoveMedia = async (
 };
 
 export const handler = LambdaHandlerUtil.withAuth(handleBulkRemoveMedia, {
+  requireBody: true,
   includeRole: true,
   validatePathParams: ["albumId"],
 });

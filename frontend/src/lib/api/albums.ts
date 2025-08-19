@@ -107,7 +107,8 @@ export const albumsApi = {
   }> => {
     const response = await ApiUtil.delete<any>(
       `/albums/${albumId}/media/bulk-remove`,
-      { mediaIds }
+      { mediaIds },
+      {}
     );
     return ApiUtil.extractData(response).results;
   },

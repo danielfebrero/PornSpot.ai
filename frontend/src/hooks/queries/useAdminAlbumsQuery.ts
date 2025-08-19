@@ -251,6 +251,11 @@ export function useRemoveMediaFromAlbum() {
         queryKey: ["media", "album", albumId],
       });
 
+      // Also cancel any outgoing refetches for album detail
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.albums.detail(albumId),
+      });
+
       // Snapshot the previous values for admin queries
       const previousAdminAlbumMedia = queryClient.getQueriesData({
         queryKey: ["admin", "media", "album", albumId],
@@ -260,6 +265,11 @@ export function useRemoveMediaFromAlbum() {
       const previousAlbumMedia = queryClient.getQueriesData({
         queryKey: ["media", "album", albumId],
       });
+
+      // Snapshot the previous album data for rollback
+      const previousAlbum = queryClient.getQueryData(
+        queryKeys.albums.detail(albumId)
+      );
 
       // Optimistically remove the media from admin album media infinite query
       queryClient.setQueriesData(
@@ -297,8 +307,52 @@ export function useRemoveMediaFromAlbum() {
         }
       );
 
+      // Optimistically update the album's media count in detail cache
+      queryClient.setQueryData(
+        queryKeys.albums.detail(albumId),
+        (old: Album | undefined) => {
+          return old
+            ? {
+                ...old,
+                mediaCount: Math.max(0, (old.mediaCount || 0) - 1),
+                lastModified: new Date().toISOString(),
+              }
+            : old;
+        }
+      );
+
+      // Optimistically update ALL admin album lists to decrement media count
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.admin.albums.all() },
+        (oldData: InfiniteAdminAlbumsData | undefined) => {
+          if (!oldData?.pages) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              albums: page.albums.map((album: Album) =>
+                album.id === albumId
+                  ? {
+                      ...album,
+                      mediaCount: Math.max(0, (album.mediaCount || 0) - 1),
+                      lastModified: new Date().toISOString(),
+                    }
+                  : album
+              ),
+            })),
+          };
+        }
+      );
+
       // Return context for rollback
-      return { previousAdminAlbumMedia, previousAlbumMedia, albumId, mediaId };
+      return {
+        previousAdminAlbumMedia,
+        previousAlbumMedia,
+        albumId,
+        mediaId,
+        previousAlbum,
+      };
     },
     onError: (err, variables, context) => {
       // If the mutation fails, restore the previous admin album media data
@@ -313,6 +367,32 @@ export function useRemoveMediaFromAlbum() {
         context.previousAlbumMedia.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data);
         });
+      }
+
+      // Rollback album detail optimistic update
+      if (context?.previousAlbum) {
+        queryClient.setQueryData(
+          queryKeys.albums.detail(context.albumId),
+          context.previousAlbum
+        );
+
+        // Restore previous album state in admin album lists
+        queryClient.setQueriesData(
+          { queryKey: queryKeys.admin.albums.all() },
+          (oldData: InfiniteAdminAlbumsData | undefined) => {
+            if (!oldData?.pages) return oldData;
+
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                albums: page.albums.map((album: Album) =>
+                  album.id === context.albumId ? context.previousAlbum : album
+                ),
+              })),
+            };
+          }
+        );
       }
 
       console.error("Failed to remove media from album:", err);

@@ -148,9 +148,22 @@ export class ApiUtil {
    */
   static async delete<T = any>(
     endpoint: string,
-    params?: Record<string, any>
+    paramsOrBody?: Record<string, any>,
+    params?: Record<string, string | number | boolean | undefined>
   ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: "DELETE", params });
+    // If params is provided, treat paramsOrBody as body, otherwise as params
+    if (params !== undefined) {
+      return this.request<T>(endpoint, {
+        method: "DELETE",
+        body: paramsOrBody,
+        params,
+      });
+    } else {
+      return this.request<T>(endpoint, {
+        method: "DELETE",
+        params: paramsOrBody,
+      });
+    }
   }
 
   /**
