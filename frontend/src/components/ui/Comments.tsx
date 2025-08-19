@@ -270,11 +270,7 @@ export function Comments({
                 onDelete={handleDeleteComment}
                 onLike={handleLikeComment}
                 isLiked={commentLikeStates[comment.id]?.isLiked || false}
-                likeCount={
-                  commentLikeStates[comment.id]?.likeCount ||
-                  comment.likeCount ||
-                  0
-                }
+                likeCount={commentLikeStates[comment.id]?.likeCount || 0}
                 className={cn(
                   index < comments.length - 1 &&
                     "border-b border-border/20 pb-4"

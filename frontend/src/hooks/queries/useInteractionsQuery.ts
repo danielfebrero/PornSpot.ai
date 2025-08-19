@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
 import { useLayoutEffect } from "react";
 import { interactionApi } from "@/lib/api";
 import {
@@ -11,6 +11,7 @@ import {
   InteractionRequest,
   UnifiedUserInteractionsResponse,
   UnifiedCommentsResponse,
+  CommentWithTarget,
 } from "@/types/user";
 import {
   InteractionStatus,
@@ -429,15 +430,15 @@ export function useToggleLike() {
               parentTarget.targetType,
               parentTarget.targetId
             ),
-            (oldData: any) => {
+            (oldData: InfiniteData<UnifiedCommentsResponse> | undefined) => {
               if (!oldData?.pages) return oldData;
 
               return {
                 ...oldData,
-                pages: oldData.pages.map((page: any) => ({
+                pages: oldData.pages.map((page: UnifiedCommentsResponse) => ({
                   ...page,
                   comments:
-                    page.comments?.map((comment: any) =>
+                    page.comments?.map((comment: CommentWithTarget) =>
                       comment.id === targetId
                         ? {
                             ...comment,
