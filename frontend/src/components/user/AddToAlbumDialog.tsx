@@ -10,9 +10,12 @@ import { TagManager } from "@/components/ui/TagManager";
 import { Media } from "@/types";
 import { usePermissions } from "@/contexts/PermissionsContext";
 import { cn } from "@/lib/utils";
-import { useAlbums, useCreateAlbum } from "@/hooks/queries/useAlbumsQuery";
+import {
+  useAlbums,
+  useCreateAlbum,
+  useAddMediaToAlbum,
+} from "@/hooks/queries/useAlbumsQuery";
 import { useUserProfile } from "@/hooks/queries/useUserQuery";
-import { albumsApi } from "@/lib/api";
 
 interface AddToAlbumDialogProps {
   isOpen: boolean;
@@ -48,6 +51,9 @@ export function AddToAlbumDialog({
   // Use the create album mutation
   const { mutateAsync: createAlbumHook } = useCreateAlbum();
 
+  // Use the add media to album mutation
+  const { mutateAsync: addMediaToAlbumHook } = useAddMediaToAlbum();
+
   // UI state
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedAlbumIds, setSelectedAlbumIds] = useState<Set<string>>(
@@ -69,11 +75,6 @@ export function AddToAlbumDialog({
     coverImageId?: string;
   }) => {
     return await createAlbumHook(albumData);
-  };
-
-  // Add media to album function using API
-  const addMediaToAlbum = async (albumId: string, mediaId: string) => {
-    await albumsApi.addMediaToAlbum(albumId, mediaId);
   };
 
   // Reset state when dialog opens/closes
@@ -131,7 +132,7 @@ export function AddToAlbumDialog({
       // Add to selected existing albums
       if (selectedAlbumIds.size > 0) {
         const promises = Array.from(selectedAlbumIds).map((albumId) =>
-          addMediaToAlbum(albumId, media.id)
+          addMediaToAlbumHook({ albumId, mediaId: media.id })
         );
 
         await Promise.all(promises);
