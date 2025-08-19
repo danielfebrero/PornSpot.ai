@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocaleRouter } from "@/lib/navigation";
 import { MediaManager } from "@/components/admin/MediaManager";
 import {
   useAdminAlbum,
   useUpdateAdminAlbum,
 } from "@/hooks/queries/useAdminAlbumsQuery";
-import { useAdminAlbumMedia } from "@/hooks/queries/useAdminMediaQuery";
+import { useAlbumMedia } from "@/hooks/queries/useMediaQuery";
 
 interface MediaManagementPageProps {
   params: {
@@ -22,14 +22,18 @@ export default function MediaManagementPage({
   const { data: album, isLoading: albumLoading } = useAdminAlbum(
     params.albumId
   );
-  const { data: mediaData, isLoading: mediaLoading } = useAdminAlbumMedia(
-    params.albumId
-  );
+  const { data: mediaData, isLoading: mediaLoading } = useAlbumMedia({
+    albumId: params.albumId,
+  });
   const updateAlbumMutation = useUpdateAdminAlbum();
   const [error, setError] = useState<string | null>(null);
 
   const loading = albumLoading || mediaLoading;
-  const media = mediaData?.media || [];
+
+  // Extract all media from paginated data
+  const allMedia = useMemo(() => {
+    return mediaData?.pages.flatMap((page) => page.media || []) || [];
+  }, [mediaData]);
 
   const handleBack = () => {
     router.push("/admin/albums");
@@ -304,7 +308,7 @@ export default function MediaManagementPage({
       <MediaManager
         albumId={params.albumId}
         albumTitle={album.title}
-        media={media}
+        media={allMedia}
         onMediaChange={() => {
           // TanStack Query will automatically refetch when mutations complete
           // No manual refetch needed

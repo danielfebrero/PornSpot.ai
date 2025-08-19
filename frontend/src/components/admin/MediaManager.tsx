@@ -12,6 +12,7 @@ import {
   useAdminDeleteMedia,
   useAdminBatchDeleteMedia,
 } from "@/hooks/queries/useAdminMediaQuery";
+import { useRemoveMediaFromAlbum } from "@/hooks/queries/useAdminAlbumsQuery";
 import { formatDateShort, formatFileSize, isImage } from "@/lib/utils";
 import {
   composeMediaUrl,
@@ -47,6 +48,7 @@ export function MediaManager({
   const uploadMutation = useAdminUploadMedia();
   const deleteMutation = useAdminDeleteMedia();
   const bulkDeleteMutation = useAdminBatchDeleteMedia();
+  const removeFromAlbumMutation = useRemoveMediaFromAlbum();
 
   // Upload progress tracking
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>(
@@ -57,13 +59,15 @@ export function MediaManager({
   const loading =
     uploadMutation.isPending ||
     deleteMutation.isPending ||
-    bulkDeleteMutation.isPending;
+    bulkDeleteMutation.isPending ||
+    removeFromAlbumMutation.isPending;
 
   // Error from mutations
   const error =
     uploadMutation.error?.message ||
     deleteMutation.error?.message ||
     bulkDeleteMutation.error?.message ||
+    removeFromAlbumMutation.error?.message ||
     null;
 
   const [selectedMedia, setSelectedMedia] = useState<string[]>([]);
@@ -150,6 +154,18 @@ export function MediaManager({
     });
   };
 
+  const handleRemoveFromAlbumClick = async (mediaItem: Media) => {
+    try {
+      await removeFromAlbumMutation.mutateAsync({
+        albumId,
+        mediaId: mediaItem.id,
+      });
+      onMediaChange();
+    } catch (error) {
+      console.error("Remove from album failed:", error);
+    }
+  };
+
   const handleBulkDeleteClick = () => {
     setDeleteConfirm({
       isOpen: true,
@@ -160,17 +176,10 @@ export function MediaManager({
   const handleConfirmDelete = async () => {
     try {
       if (deleteConfirm.isBulk) {
-        const mediaItems = selectedMedia.map((mediaId) => ({
-          albumId,
-          mediaId,
-        }));
-        await bulkDeleteMutation.mutateAsync(mediaItems);
+        await bulkDeleteMutation.mutateAsync(selectedMedia);
         setSelectedMedia([]);
       } else if (deleteConfirm.mediaId) {
-        await deleteMutation.mutateAsync({
-          albumId,
-          mediaId: deleteConfirm.mediaId,
-        });
+        await deleteMutation.mutateAsync(deleteConfirm.mediaId);
       }
       setDeleteConfirm({ isOpen: false });
       onMediaChange();
@@ -434,6 +443,15 @@ export function MediaManager({
                           className="flex-1 border-admin-primary/30 text-admin-primary hover:bg-admin-primary hover:text-admin-primary-foreground"
                         >
                           View
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRemoveFromAlbumClick(mediaItem)}
+                          className="text-orange-600 border-orange-600/30 hover:bg-orange-600 hover:text-white"
+                          disabled={loading}
+                        >
+                          Remove
                         </Button>
                         <Button
                           size="sm"

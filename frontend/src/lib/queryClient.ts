@@ -1,12 +1,12 @@
 import { QueryClient } from "@tanstack/react-query";
-import type { 
-  ApiResponse, 
-  Album, 
-  Media, 
+import type {
+  ApiResponse,
+  Album,
+  Media,
   UserInteraction,
   UnifiedAlbumsResponse,
   UnifiedMediaResponse,
-  UnifiedPaginationMeta 
+  UnifiedPaginationMeta,
 } from "@/types";
 
 // Error type for React Query retry function
@@ -58,9 +58,11 @@ const defaultQueryOptions = {
     retry: (failureCount: number, error: unknown) => {
       const queryError = error as QueryError;
       // Don't retry 4xx errors (client errors)
-      if (queryError?.response?.status != null && 
-          queryError.response.status >= 400 && 
-          queryError.response.status < 500) {
+      if (
+        queryError?.response?.status != null &&
+        queryError.response.status >= 400 &&
+        queryError.response.status < 500
+      ) {
         return false;
       }
       // Retry up to 3 times for other errors
@@ -158,12 +160,21 @@ export const queryKeys = {
     profile: () => ["admin", "profile"] as const,
     albums: {
       all: () => ["admin", "albums"] as const,
-      list: (params?: Record<string, unknown>) => ["admin", "albums", "list", params] as const,
+      list: (params?: Record<string, unknown>) =>
+        ["admin", "albums", "list", params] as const,
+    },
+    media: {
+      all: () => ["admin", "media"] as const,
+      list: (albumIds: string[]) =>
+        ["admin", "media", "list", albumIds] as const,
+      album: (albumId: string, params?: Record<string, unknown>) =>
+        ["admin", "media", "album", albumId, params] as const,
     },
     stats: () => ["admin", "stats"] as const,
     users: {
       all: () => ["admin", "users"] as const,
-      list: (params?: Record<string, unknown>) => ["admin", "users", "list", params] as const,
+      list: (params?: Record<string, unknown>) =>
+        ["admin", "users", "list", params] as const,
       detail: (userId: string) => ["admin", "users", "detail", userId] as const,
     },
   },
@@ -236,46 +247,52 @@ export const updateCache = {
     const targets = [{ targetType, targetId }];
     const queryKey = queryKeys.user.interactions.status(targets);
 
-    queryClient.setQueryData(queryKey, (oldData: InteractionStatusData | undefined) => {
-      // If there's no existing data, create the structure with the optimistic update
-      if (!oldData?.data?.statuses) {
+    queryClient.setQueryData(
+      queryKey,
+      (oldData: InteractionStatusData | undefined) => {
+        // If there's no existing data, create the structure with the optimistic update
+        if (!oldData?.data?.statuses) {
+          return {
+            success: true,
+            data: {
+              statuses: [
+                {
+                  targetType,
+                  targetId,
+                  userLiked: updates.userLiked ?? false,
+                  userBookmarked: updates.userBookmarked ?? false,
+                  likeCount: updates.userLiked ? 1 : 0,
+                  bookmarkCount: updates.userBookmarked ? 1 : 0,
+                },
+              ],
+            },
+          };
+        }
+
         return {
-          success: true,
+          ...oldData,
           data: {
-            statuses: [
-              {
-                targetType,
-                targetId,
-                userLiked: updates.userLiked ?? false,
-                userBookmarked: updates.userBookmarked ?? false,
-                likeCount: updates.userLiked ? 1 : 0,
-                bookmarkCount: updates.userBookmarked ? 1 : 0,
-              },
-            ],
+            ...oldData.data,
+            statuses: oldData.data.statuses.map((status) => {
+              if (
+                status.targetType === targetType &&
+                status.targetId === targetId
+              ) {
+                return { ...status, ...updates };
+              }
+              return status;
+            }),
           },
         };
       }
-
-      return {
-        ...oldData,
-        data: {
-          ...oldData.data,
-          statuses: oldData.data.statuses.map((status) => {
-            if (
-              status.targetType === targetType &&
-              status.targetId === targetId
-            ) {
-              return { ...status, ...updates };
-            }
-            return status;
-          }),
-        },
-      };
-    });
+    );
   },
 
   // Update album in lists after creation/update
-  albumInLists: (album: Partial<Album> & { id: string }, action: "add" | "update" | "remove") => {
+  albumInLists: (
+    album: Partial<Album> & { id: string },
+    action: "add" | "update" | "remove"
+  ) => {
     queryClient.setQueriesData(
       { queryKey: queryKeys.albums.lists() },
       (oldData: AlbumsListData | undefined) => {
@@ -322,51 +339,54 @@ export const updateCache = {
       const targets = [{ targetType, targetId }];
       const statusQueryKey = queryKeys.user.interactions.status(targets);
 
-      queryClient.setQueryData(statusQueryKey, (oldData: InteractionStatusData | undefined) => {
-        const countField = type === "like" ? "likeCount" : "bookmarkCount";
+      queryClient.setQueryData(
+        statusQueryKey,
+        (oldData: InteractionStatusData | undefined) => {
+          const countField = type === "like" ? "likeCount" : "bookmarkCount";
 
-        // If there's no existing data, create it with the count update
-        if (!oldData?.data?.statuses) {
+          // If there's no existing data, create it with the count update
+          if (!oldData?.data?.statuses) {
+            return {
+              success: true,
+              data: {
+                statuses: [
+                  {
+                    targetType,
+                    targetId,
+                    userLiked: false,
+                    userBookmarked: false,
+                    likeCount: type === "like" ? Math.max(0, increment) : 0,
+                    bookmarkCount:
+                      type === "bookmark" ? Math.max(0, increment) : 0,
+                  },
+                ],
+              },
+            };
+          }
+
           return {
-            success: true,
+            ...oldData,
             data: {
-              statuses: [
-                {
-                  targetType,
-                  targetId,
-                  userLiked: false,
-                  userBookmarked: false,
-                  likeCount: type === "like" ? Math.max(0, increment) : 0,
-                  bookmarkCount:
-                    type === "bookmark" ? Math.max(0, increment) : 0,
-                },
-              ],
+              ...oldData.data,
+              statuses: oldData.data.statuses.map((status) => {
+                if (
+                  status.targetType === targetType &&
+                  status.targetId === targetId
+                ) {
+                  return {
+                    ...status,
+                    [countField]: Math.max(
+                      0,
+                      (status[countField] || 0) + increment
+                    ),
+                  };
+                }
+                return status;
+              }),
             },
           };
         }
-
-        return {
-          ...oldData,
-          data: {
-            ...oldData.data,
-            statuses: oldData.data.statuses.map((status) => {
-              if (
-                status.targetType === targetType &&
-                status.targetId === targetId
-              ) {
-                return {
-                  ...status,
-                  [countField]: Math.max(
-                    0,
-                    (status[countField] || 0) + increment
-                  ),
-                };
-              }
-              return status;
-            }),
-          },
-        };
-      });
+      );
       return;
     }
 
@@ -376,15 +396,18 @@ export const updateCache = {
         ? queryKeys.albums.detail(targetId)
         : queryKeys.media.detail(targetId);
 
-    queryClient.setQueryData(detailQueryKey, (oldData: Album | Media | undefined) => {
-      if (!oldData) return oldData;
+    queryClient.setQueryData(
+      detailQueryKey,
+      (oldData: Album | Media | undefined) => {
+        if (!oldData) return oldData;
 
-      const countField = type === "like" ? "likeCount" : "bookmarkCount";
-      return {
-        ...oldData,
-        [countField]: Math.max(0, (oldData[countField] || 0) + increment),
-      };
-    });
+        const countField = type === "like" ? "likeCount" : "bookmarkCount";
+        return {
+          ...oldData,
+          [countField]: Math.max(0, (oldData[countField] || 0) + increment),
+        };
+      }
+    );
 
     // Also update in any album lists that might contain this item
     queryClient.setQueriesData(

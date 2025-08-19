@@ -31,3 +31,5 @@
 [x] On media page, view count is not correctly reflected on ContentCard.
 
 [x] Adding a like or a bookmark should update optimistically the User likes and bookmarks pages.
+
+[ ] Add to album dialog should update album media count optimistically.

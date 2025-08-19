@@ -291,3 +291,150 @@ export function useBulkDeleteAdminAlbums() {
     },
   });
 }
+
+// Mutation hook for removing media from album (admin)
+export function useRemoveMediaFromAlbum() {
+  return useMutation({
+    mutationFn: async ({
+      albumId,
+      mediaId,
+    }: {
+      albumId: string;
+      mediaId: string;
+    }) => {
+      // Import admin media API
+      await adminAlbumsApi.removeMedia(albumId, mediaId);
+      return { albumId, mediaId };
+    },
+    onMutate: async ({ albumId, mediaId }) => {
+      // Cancel any outgoing refetches for admin album media
+      await queryClient.cancelQueries({
+        queryKey: ["admin", "media", "album", albumId],
+      });
+
+      // Snapshot the previous values
+      const previousAlbumMedia = queryClient.getQueriesData({
+        queryKey: ["admin", "media", "album", albumId],
+      });
+
+      // Optimistically remove the media from admin album media infinite query
+      queryClient.setQueriesData(
+        { queryKey: ["admin", "media", "album", albumId] },
+        (old: any) => {
+          if (!old?.pages) return old;
+
+          const newPages = old.pages.map((page: any) => ({
+            ...page,
+            media: page.media.filter((m: any) => m.id !== mediaId),
+          }));
+
+          return {
+            ...old,
+            pages: newPages,
+          };
+        }
+      );
+
+      // Return context for rollback
+      return { previousAlbumMedia, albumId, mediaId };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, restore the previous data
+      if (context?.previousAlbumMedia) {
+        context.previousAlbumMedia.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+      console.error("Failed to remove media from album:", err);
+    },
+    onSuccess: (data, variables) => {
+      // Invalidate admin album media queries to ensure fresh data
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "media", "album", variables.albumId],
+      });
+
+      // Invalidate global admin media queries
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "media"],
+      });
+
+      // Invalidate the specific album to update counts
+      invalidateQueries.album(variables.albumId);
+
+      // Invalidate the specific media item
+      invalidateQueries.media(variables.mediaId);
+    },
+  });
+}
+
+// Mutation hook for deleting media completely (admin)
+export function useDeleteMedia() {
+  return useMutation({
+    mutationFn: async (mediaId: string) => {
+      // Import admin media API
+      const { adminMediaApi } = await import("@/lib/api");
+      await adminMediaApi.deleteMedia(mediaId);
+      return mediaId;
+    },
+    onMutate: async (mediaId) => {
+      // Cancel any outgoing refetches for admin media queries
+      await queryClient.cancelQueries({
+        queryKey: ["admin", "media"],
+      });
+
+      // Snapshot the previous values
+      const previousMediaQueries = queryClient.getQueriesData({
+        queryKey: ["admin", "media"],
+      });
+
+      // Optimistically remove the media from all admin media queries
+      queryClient.setQueriesData(
+        { queryKey: ["admin", "media"] },
+        (old: any) => {
+          if (!old?.pages) return old;
+
+          const newPages = old.pages.map((page: any) => ({
+            ...page,
+            media: page.media.filter((m: any) => m.id !== mediaId),
+          }));
+
+          return {
+            ...old,
+            pages: newPages,
+          };
+        }
+      );
+
+      // Return context for rollback
+      return { previousMediaQueries, mediaId };
+    },
+    onError: (err, mediaId, context) => {
+      // If the mutation fails, restore the previous data
+      if (context?.previousMediaQueries) {
+        context.previousMediaQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+      console.error("Failed to delete media:", err);
+    },
+    onSuccess: (mediaId) => {
+      // Remove from cache completely
+      queryClient.removeQueries({
+        queryKey: ["media", mediaId],
+      });
+
+      // Invalidate related queries
+      invalidateQueries.media(mediaId);
+
+      // Invalidate all admin media queries
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "media"],
+      });
+
+      // Invalidate all albums that might contain this media
+      queryClient.invalidateQueries({
+        queryKey: ["albums"],
+      });
+    },
+  });
+}
