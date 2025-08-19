@@ -272,7 +272,10 @@ export const updateCache = {
               status.targetType === targetType &&
               status.targetId === targetId
             ) {
-              return { ...status, ...updates };
+              return {
+                ...status,
+                ...updates,
+              };
             }
             return status;
           }),
