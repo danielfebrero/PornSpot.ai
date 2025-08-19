@@ -411,6 +411,41 @@ export function useToggleLike() {
         countIncrement
       );
 
+      // For comments, also update the comment list cache to reflect the new like count
+      if (targetType === "comment" && allTargets) {
+        // Find the parent target (album/media) from allTargets
+        const parentTarget = allTargets.find(
+          (target) => target.targetType === "album" || target.targetType === "media"
+        );
+
+        if (parentTarget && (parentTarget.targetType === "album" || parentTarget.targetType === "media")) {
+          queryClient.setQueryData(
+            queryKeys.comments.byTarget(parentTarget.targetType, parentTarget.targetId),
+            (oldData: any) => {
+              if (!oldData?.pages) return oldData;
+
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page: any) => ({
+                  ...page,
+                  comments: page.comments?.map((comment: any) =>
+                    comment.id === targetId
+                      ? {
+                          ...comment,
+                          likeCount: Math.max(
+                            0,
+                            (comment.likeCount || 0) + countIncrement
+                          ),
+                        }
+                      : comment
+                  ) || page.comments,
+                })),
+              };
+            }
+          );
+        }
+      }
+
       return {
         targetType,
         targetId,
@@ -451,6 +486,42 @@ export function useToggleLike() {
             "like",
             context.isCurrentlyLiked ? 1 : -1
           );
+
+          // For comments, also revert the comment list cache
+          if (context.targetType === "comment" && context.allTargets) {
+            const parentTarget = context.allTargets.find(
+              (target) => target.targetType === "album" || target.targetType === "media"
+            );
+
+            if (parentTarget && (parentTarget.targetType === "album" || parentTarget.targetType === "media")) {
+              queryClient.setQueryData(
+                queryKeys.comments.byTarget(parentTarget.targetType, parentTarget.targetId),
+                (oldData: any) => {
+                  if (!oldData?.pages) return oldData;
+
+                  const revertIncrement = context.isCurrentlyLiked ? 1 : -1;
+
+                  return {
+                    ...oldData,
+                    pages: oldData.pages.map((page: any) => ({
+                      ...page,
+                      comments: page.comments?.map((comment: any) =>
+                        comment.id === context.targetId
+                          ? {
+                              ...comment,
+                              likeCount: Math.max(
+                                0,
+                                (comment.likeCount || 0) + revertIncrement
+                              ),
+                            }
+                          : comment
+                      ) || page.comments,
+                    })),
+                  };
+                }
+              );
+            }
+          }
         }
 
         // Also restore bulk cache if it's different and exists

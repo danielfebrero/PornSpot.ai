@@ -154,16 +154,12 @@ export function Comments({
         return;
       }
 
-      // Get current like state from cache only (TanStack Query will handle optimistic updates)
-      const realState = commentLikeStates[commentId];
-      const currentIsLiked = realState?.isLiked || false;
-
       // Use the unified like mutation - TanStack Query handles all optimistic updates
       // Pass all commentTargets so the cache update uses the correct query key
       toggleLikeMutation.mutate({
         targetType: "comment",
         targetId: commentId,
-        isCurrentlyLiked: currentIsLiked,
+        isCurrentlyLiked: commentLikeStates[commentId]?.isLiked || false,
         allTargets: commentTargets, // Pass all comment targets for correct cache key
       });
     },
@@ -252,17 +248,6 @@ export function Comments({
       ) : comments.length > 0 ? (
         <div className="space-y-4">
           {comments.map((comment, index) => {
-            // Use TanStack Query cache for like state - no local optimistic state needed
-            const realState = currentUserId
-              ? commentLikeStates[comment.id]
-              : null;
-
-            // Use like count from cache, otherwise fall back to comment object
-            const commentLikeCount =
-              realState?.likeCount !== undefined
-                ? realState.likeCount
-                : comment.likeCount || 0;
-
             return (
               <CommentItem
                 key={comment.id}
@@ -271,8 +256,12 @@ export function Comments({
                 onEdit={handleEditComment}
                 onDelete={handleDeleteComment}
                 onLike={handleLikeComment}
-                isLiked={realState?.isLiked || false}
-                likeCount={commentLikeCount}
+                isLiked={commentLikeStates[comment.id]?.isLiked || false}
+                likeCount={
+                  commentLikeStates[comment.id]?.likeCount ||
+                  comment.likeCount ||
+                  0
+                }
                 className={cn(
                   index < comments.length - 1 &&
                     "border-b border-border/20 pb-4"
