@@ -32,7 +32,6 @@ This comprehensive todo list covers the complete migration from custom hooks to 
 - ✅ `useCommentsQuery` - User comments with infinite scroll
 - ✅ `useProfileDataQuery` - Profile statistics and recent activity
 - ✅ `useInsightsQuery` - User analytics and insights
-- ✅ `useAlbumQuery` - Single album detail fetching
 - ✅ `useCommentInteractionsQuery` - Comment like/reply operations _(Fixed compilation errors)_
 - ✅ _(Skipped useUserPermissionsQuery - local state logic, not server state)_
 
@@ -129,12 +128,6 @@ This comprehensive todo list covers the complete migration from custom hooks to 
   - ~~Implement permission caching~~
   - ~~Add permission change monitoring~~
   - ~~Include role-based access controls~~
-
-- [x] **Create useAlbumQuery hook**
-  - Replace `useAlbum.ts` functionality (single album fetch)
-  - Implement individual album loading
-  - Add album detail caching
-  - Include album metadata management
 
 #### Interaction Management Hooks
 

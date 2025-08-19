@@ -14,7 +14,7 @@ import { composeMediaUrl } from "@/lib/urlUtils";
 import { useDevice } from "@/contexts/DeviceContext";
 import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
-import { useRemoveMediaFromAlbum } from "@/hooks/queries/useMediaQuery";
+import { useRemoveMediaFromAlbum } from "@/hooks/queries/useAlbumsQuery";
 import { useDeleteMedia } from "@/hooks/queries/useMediaQuery";
 import {
   Maximize2,

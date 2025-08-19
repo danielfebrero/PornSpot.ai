@@ -22,10 +22,11 @@ import {
 import { mediaApi } from "@/lib/api";
 import {
   useAddMediaToAlbum,
-  useRemoveMediaFromAlbum,
   useBulkAddMediaToAlbum,
   useBulkRemoveMediaFromAlbum,
 } from "@/hooks/queries/useMediaQuery";
+
+import { useRemoveMediaFromAlbum } from "@/hooks/queries/useAlbumsQuery";
 
 interface MediaWithSelection extends Media {
   selected: boolean;

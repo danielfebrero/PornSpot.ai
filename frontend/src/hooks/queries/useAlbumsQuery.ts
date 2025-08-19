@@ -12,6 +12,7 @@ import {
   Media,
   CreateAlbumRequest,
   UpdateAlbumRequest,
+  InfiniteMediaQueryData,
 } from "@/types";
 
 // Types - using shared request types
@@ -423,6 +424,194 @@ export function useDeleteAlbum() {
       queryClient.removeQueries({ queryKey: queryKeys.albums.detail(albumId) });
       invalidateQueries.albumsLists();
       invalidateQueries.user();
+    },
+  });
+}
+
+// Mutation hook for removing media from an album
+export function useRemoveMediaFromAlbum() {
+  return useMutation({
+    mutationFn: async ({
+      albumId,
+      mediaId,
+    }: {
+      albumId: string;
+      mediaId: string;
+    }) => {
+      // Import albums API dynamically to avoid circular dependencies
+      const { albumsApi } = await import("@/lib/api");
+      await albumsApi.removeMediaFromAlbum(albumId, mediaId);
+      return { albumId, mediaId };
+    },
+    onMutate: async ({ albumId, mediaId }) => {
+      // Cancel any outgoing refetches for album media and album detail
+      await queryClient.cancelQueries({
+        queryKey: ["media", "album", albumId],
+      });
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.albums.detail(albumId),
+      });
+
+      // Snapshot the previous values
+      const previousAlbumMedia = queryClient.getQueriesData({
+        queryKey: ["media", "album", albumId],
+      });
+      const previousAlbum = queryClient.getQueryData(
+        queryKeys.albums.detail(albumId)
+      );
+
+      // Optimistically remove the media from album media infinite query
+      queryClient.setQueriesData(
+        { queryKey: ["media", "album", albumId] },
+        (old: InfiniteMediaQueryData | undefined) => {
+          if (!old?.pages) return old;
+
+          const newPages = old.pages.map((page) => ({
+            ...page,
+            media: page.media.filter((m) => m.id !== mediaId),
+          }));
+
+          return {
+            ...old,
+            pages: newPages,
+          };
+        }
+      );
+
+      // Optimistically update the album's media count in detail cache
+      queryClient.setQueryData(
+        queryKeys.albums.detail(albumId),
+        (old: Album | undefined) => {
+          return old
+            ? {
+                ...old,
+                mediaCount: Math.max(0, (old.mediaCount || 0) - 1),
+                lastModified: new Date().toISOString(),
+              }
+            : old;
+        }
+      );
+
+      // Optimistically update ALL album lists to decrement media count
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.albums.lists() },
+        (oldData: any) => {
+          if (!oldData) return oldData;
+
+          // Handle infinite query format
+          if (oldData.pages) {
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page: any) => ({
+                ...page,
+                albums:
+                  page.albums?.map((album: Album) =>
+                    album.id === albumId
+                      ? {
+                          ...album,
+                          mediaCount: Math.max(0, (album.mediaCount || 0) - 1),
+                          lastModified: new Date().toISOString(),
+                        }
+                      : album
+                  ) || [],
+              })),
+            };
+          }
+
+          // Handle regular query format
+          if (oldData.albums) {
+            return {
+              ...oldData,
+              albums: oldData.albums.map((album: Album) =>
+                album.id === albumId
+                  ? {
+                      ...album,
+                      mediaCount: Math.max(0, (album.mediaCount || 0) - 1),
+                      lastModified: new Date().toISOString(),
+                    }
+                  : album
+              ),
+            };
+          }
+
+          return oldData;
+        }
+      );
+
+      // Return context for rollback
+      return { previousAlbumMedia, previousAlbum, albumId, mediaId };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, restore the previous data
+      if (context?.previousAlbumMedia) {
+        context.previousAlbumMedia.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
+      // Rollback album detail optimistic update
+      if (context?.previousAlbum) {
+        queryClient.setQueryData(
+          queryKeys.albums.detail(context.albumId),
+          context.previousAlbum
+        );
+
+        // Restore previous album state in all lists
+        queryClient.setQueriesData(
+          { queryKey: queryKeys.albums.lists() },
+          (oldData: any) => {
+            if (!oldData) return oldData;
+
+            // Handle infinite query format
+            if (oldData.pages) {
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page: any) => ({
+                  ...page,
+                  albums:
+                    page.albums?.map((album: Album) =>
+                      album.id === context.albumId
+                        ? context.previousAlbum
+                        : album
+                    ) || [],
+                })),
+              };
+            }
+
+            // Handle regular query format
+            if (oldData.albums) {
+              return {
+                ...oldData,
+                albums: oldData.albums.map((album: Album) =>
+                  album.id === context.albumId ? context.previousAlbum : album
+                ),
+              };
+            }
+
+            return oldData;
+          }
+        );
+      }
+
+      console.error("Failed to remove media from album:", err);
+    },
+    onSuccess: (data, variables) => {
+      // Invalidate user media queries in case media appears there
+      queryClient.invalidateQueries({
+        queryKey: ["media", "user"],
+      });
+
+      // Invalidate the specific album to update counts
+      invalidateQueries.album(variables.albumId);
+
+      // Invalidate album media queries
+      invalidateQueries.albumMediaList(variables.albumId);
+
+      // Invalidate albums lists to ensure consistency
+      invalidateQueries.albumsLists();
+
+      // Invalidate the specific media item
+      invalidateQueries.media(variables.mediaId);
     },
   });
 }

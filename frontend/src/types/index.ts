@@ -80,3 +80,8 @@ export type {
 
 // Re-export shared types that are needed directly
 // (explicit re-exports removed; already provided by export * above)
+
+export interface InfiniteMediaQueryData {
+  pages: UnifiedMediaResponse[];
+  pageParams: unknown[];
+}
