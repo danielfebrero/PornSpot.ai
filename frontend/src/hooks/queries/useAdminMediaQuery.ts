@@ -203,7 +203,9 @@ export function useAdminDeleteMedia() {
         {
           queryKey: ["media", "album"],
           predicate: (query) => {
-            return query.queryKey[0] === "media" && query.queryKey[1] === "album";
+            return (
+              query.queryKey[0] === "media" && query.queryKey[1] === "album"
+            );
           },
         },
         (old: any) => {
@@ -231,7 +233,7 @@ export function useAdminDeleteMedia() {
           queryClient.setQueryData(queryKey, data);
         });
       }
-      
+
       // Restore previous album media data
       if (context?.previousAlbumMedia) {
         context.previousAlbumMedia.forEach(([queryKey, data]) => {
@@ -328,7 +330,9 @@ export function useAdminBatchDeleteMedia() {
         {
           queryKey: ["media", "album"],
           predicate: (query) => {
-            return query.queryKey[0] === "media" && query.queryKey[1] === "album";
+            return (
+              query.queryKey[0] === "media" && query.queryKey[1] === "album"
+            );
           },
         },
         (old: any) => {
@@ -355,7 +359,7 @@ export function useAdminBatchDeleteMedia() {
           queryClient.setQueryData(queryKey, data);
         });
       }
-      
+
       // Restore previous album media data
       if (context?.previousAlbumMediaData) {
         context.previousAlbumMediaData.forEach(([queryKey, data]) => {

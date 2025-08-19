@@ -40,13 +40,6 @@ interface DynamoDBClientConfig {
 
 const clientConfig: DynamoDBClientConfig = {};
 
-interface DynamoDBQueryResult {
-  Items?: Record<string, unknown>[];
-  LastEvaluatedKey?: Record<string, unknown>;
-  Count?: number;
-  ScannedCount?: number;
-}
-
 if (isLocal) {
   clientConfig.endpoint = "http://pornspot-local-aws:4566";
   clientConfig.region = "us-east-1";
@@ -686,7 +679,7 @@ export class DynamoDBService {
     limit: number = 50,
     lastEvaluatedKey?: Record<string, any>
   ): Promise<{
-    media: MediaEntity[];
+    media: Media[];
     nextKey?: Record<string, any>;
   }> {
     const queryParams: any = {
@@ -706,8 +699,13 @@ export class DynamoDBService {
 
     const result = await docClient.send(new QueryCommand(queryParams));
 
+    const mediaEntities = (result.Items as MediaEntity[]) || [];
+    const media = mediaEntities.map((entity) =>
+      this.convertMediaEntityToMedia(entity)
+    );
+
     return {
-      media: (result.Items as MediaEntity[]) || [],
+      media,
       ...(result.LastEvaluatedKey && { nextKey: result.LastEvaluatedKey }),
     };
   }
@@ -1013,68 +1011,48 @@ export class DynamoDBService {
     return albums;
   }
 
-  static async getAllPublicMedia(): Promise<Media[]> {
-    // Get all public albums first
-    const allMediaIds = new Set<string>();
-    let lastEvaluatedKey: Record<string, unknown> | undefined = undefined;
+  static async getAllPublicMedia(
+    limit: number = 50,
+    lastEvaluatedKey?: Record<string, any>
+  ): Promise<{
+    media: Media[];
+    lastEvaluatedKey?: Record<string, any>;
+  }> {
+    // Use GSI5 to directly query all public media
+    const queryParams: QueryCommandInput = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI5",
+      KeyConditionExpression: "GSI5PK = :gsi5pk AND GSI5SK = :gsi5sk",
+      ExpressionAttributeValues: {
+        ":gsi5pk": "MEDIA",
+        ":gsi5sk": "true", // isPublic = "true"
+      },
+      ScanIndexForward: false, // Most recent first (descending order by createdAt)
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey,
+    };
 
-    do {
-      const result: DynamoDBQueryResult = await docClient.send(
-        new QueryCommand({
-          TableName: TABLE_NAME,
-          IndexName: "isPublic-createdAt-index",
-          KeyConditionExpression: "#isPublic = :isPublic",
-          ExpressionAttributeNames: {
-            "#isPublic": "isPublic",
-          },
-          ExpressionAttributeValues: {
-            ":isPublic": "true",
-          },
-          ScanIndexForward: false, // Most recent first
-          ExclusiveStartKey: lastEvaluatedKey,
-        })
-      );
+    const result = await docClient.send(new QueryCommand(queryParams));
 
-      const publicAlbums = (result.Items as unknown as AlbumEntity[]) || [];
+    const mediaEntities = (result.Items as MediaEntity[]) || [];
 
-      // For each public album, get all its media IDs
-      for (const album of publicAlbums) {
-        let mediaLastKey: Record<string, unknown> | undefined = undefined;
-
-        do {
-          const mediaResult: DynamoDBQueryResult = await docClient.send(
-            new QueryCommand({
-              TableName: TABLE_NAME,
-              KeyConditionExpression:
-                "PK = :pk AND begins_with(SK, :sk_prefix)",
-              ExpressionAttributeValues: {
-                ":pk": `ALBUM#${album.id}`,
-                ":sk_prefix": "MEDIA#",
-              },
-              ExclusiveStartKey: mediaLastKey,
-            })
-          );
-
-          const albumMediaRelationships =
-            (mediaResult.Items as unknown as AlbumMediaEntity[]) || [];
-          albumMediaRelationships.forEach((rel) =>
-            allMediaIds.add(rel.mediaId)
-          );
-
-          mediaLastKey = mediaResult.LastEvaluatedKey;
-        } while (mediaLastKey);
-      }
-
-      lastEvaluatedKey = result.LastEvaluatedKey;
-    } while (lastEvaluatedKey);
-
-    // Now fetch all unique media records
-    const mediaPromises = Array.from(allMediaIds).map((mediaId) =>
-      this.getMedia(mediaId)
+    // Convert MediaEntity to Media format for API response
+    const media: Media[] = mediaEntities.map((entity) =>
+      this.convertMediaEntityToMedia(entity)
     );
 
-    const mediaResults = await Promise.all(mediaPromises);
-    return mediaResults.filter((media) => media !== null) as Media[];
+    const response: {
+      media: Media[];
+      lastEvaluatedKey?: Record<string, any>;
+    } = {
+      media,
+    };
+
+    if (result.LastEvaluatedKey) {
+      response.lastEvaluatedKey = result.LastEvaluatedKey;
+    }
+
+    return response;
   }
 
   static async incrementAlbumMediaCount(albumId: string): Promise<void> {
