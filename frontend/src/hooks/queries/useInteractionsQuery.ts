@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useInfiniteQuery,
+  InfiniteData,
+} from "@tanstack/react-query";
 import { useLayoutEffect } from "react";
 import { interactionApi } from "@/lib/api";
 import {
@@ -252,10 +257,27 @@ export function useToggleLike() {
       // Always use single target for the primary cache update
       const singleTarget = [{ targetType, targetId }];
 
+      // DEBUG: Log the targets being used
+      console.log("[DEBUG] useToggleLike.onMutate:", {
+        targetType,
+        targetId,
+        allTargetsLength: allTargets?.length,
+        allTargets,
+        singleTarget,
+        allTargetsIs1: allTargets?.length === 1,
+        willUseSingleTarget: !allTargets || allTargets.length === 1,
+      });
+
       // For comments, if allTargets is provided and contains multiple targets,
       // we'll also update the bulk cache, but prioritize the single target cache
       const targets =
         allTargets && allTargets.length > 1 ? allTargets : singleTarget;
+
+      console.log("[DEBUG] Cache keys to update:", {
+        singleTargetKey: queryKeys.user.interactions.status(singleTarget),
+        targetsKey: queryKeys.user.interactions.status(targets),
+        targetsIsSingleTarget: targets === singleTarget,
+      });
 
       // Cancel outgoing refetches for the primary target
       await queryClient.cancelQueries({
@@ -273,6 +295,23 @@ export function useToggleLike() {
       const previousData = queryClient.getQueryData(
         queryKeys.user.interactions.status(singleTarget)
       );
+
+      // DEBUG: Check what cache exists
+      const singleTargetCache = queryClient.getQueryData(
+        queryKeys.user.interactions.status(singleTarget)
+      );
+      const allTargetsCache = allTargets
+        ? queryClient.getQueryData(
+            queryKeys.user.interactions.status(allTargets)
+          )
+        : null;
+
+      console.log("[DEBUG] Existing cache state:", {
+        hasSingleTargetCache: !!singleTargetCache,
+        hasAllTargetsCache: !!allTargetsCache,
+        singleTargetCache,
+        allTargetsCache,
+      });
 
       // Optimistically update interaction status - this will handle both status and count updates
       const newLikedState = !isCurrentlyLiked;
@@ -344,6 +383,7 @@ export function useToggleLike() {
 
       // Also update bulk cache if it exists and is different from single target
       if (targets !== singleTarget) {
+        console.log("[DEBUG] Updating bulk cache for multiple targets");
         queryClient.setQueryData(
           queryKeys.user.interactions.status(targets),
           (oldData: InteractionStatusResponse | undefined) => {

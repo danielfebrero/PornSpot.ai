@@ -82,6 +82,13 @@ export function Comments({
     error: likeStatesError,
   } = useInteractionStatus(commentTargets);
 
+  // DEBUG: Log what cache key we're reading from
+  console.log("[DEBUG] Comments component reading from cache:", {
+    commentTargetsLength: commentTargets.length,
+    commentTargets,
+    interactionStatusData,
+  });
+
   // Create a map for easier lookup
   const commentLikeStates = useMemo(() => {
     const statusMap: Record<string, { isLiked: boolean; likeCount: number }> =
@@ -160,6 +167,15 @@ export function Comments({
         likeCount: comments.find((c) => c.id === commentId)?.likeCount || 0,
       };
       const currentIsLiked = currentLikeState.isLiked;
+
+      // DEBUG: Log the commentTargets being passed
+      console.log("[DEBUG] handleLikeComment called with:", {
+        commentId,
+        commentTargetsLength: commentTargets.length,
+        commentTargets,
+        currentIsLiked,
+        currentLikeState,
+      });
 
       // Use the unified like mutation - TanStack Query handles all optimistic updates
       // Pass all commentTargets so the cache update uses the correct query key
