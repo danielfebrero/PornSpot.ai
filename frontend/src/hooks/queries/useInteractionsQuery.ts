@@ -417,9 +417,9 @@ export function useToggleLike() {
         countIncrement
       );
 
-      updateCache.userInteractionStatus(targetType, targetId, {
-        userLiked: newLikedState,
-      });
+      // updateCache.userInteractionStatus(targetType, targetId, {
+      //   userLiked: newLikedState,
+      // });
 
       // For comments, also update the comment list cache to reflect the new like count
       if (targetType === "comment" && allTargets) {
