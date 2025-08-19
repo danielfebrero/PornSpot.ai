@@ -88,8 +88,13 @@ export class ApiUtil {
           throw new Error(
             errorData.error || `HTTP ${response.status}: ${response.statusText}`
           );
-        } catch {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        } catch (parseError) {
+          // Only catch JSON parsing errors, not the thrown Error above
+          if (parseError instanceof SyntaxError) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          // Re-throw the original error if it's not a JSON parsing error
+          throw parseError;
         }
       }
 
@@ -217,8 +222,13 @@ export class ApiUtil {
           throw new Error(
             errorData.error || `HTTP ${response.status}: ${response.statusText}`
           );
-        } catch {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        } catch (parseError) {
+          // Only catch JSON parsing errors, not the thrown Error above
+          if (parseError instanceof SyntaxError) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          // Re-throw the original error if it's not a JSON parsing error
+          throw parseError;
         }
       }
 
@@ -360,8 +370,13 @@ export class ApiUtil {
           throw new Error(
             errorData.error || `HTTP ${response.status}: ${response.statusText}`
           );
-        } catch {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        } catch (parseError) {
+          // Only catch JSON parsing errors, not the thrown Error above
+          if (parseError instanceof SyntaxError) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          // Re-throw the original error if it's not a JSON parsing error
+          throw parseError;
         }
       }
 

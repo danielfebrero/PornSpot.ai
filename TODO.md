@@ -121,3 +121,7 @@ We should upgrade our Next.js version to 15 to take advantage of the latest feat
 We should upgrade our React.js version to 19 to take advantage of the latest features and improvements.
 
 ## Login / Logout
+
+### Forgot password page
+
+We should implement forgot password page.
