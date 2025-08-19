@@ -65,7 +65,7 @@ export function VirtualizedCommentsList({
   const allContentsTargets = useMemo(() => {
     if (!currentUserId) return [];
     return comments.map((comment) => ({
-      targetType: comment.target.type,
+      targetType: comment.targetType,
       targetId: comment.target.id,
     }));
   }, [comments, currentUserId]);

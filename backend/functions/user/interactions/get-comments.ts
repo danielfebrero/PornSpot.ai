@@ -10,7 +10,7 @@ Special notes:
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
-import { Comment } from "@shared";
+import { Album, Comment, Media } from "@shared";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 
@@ -170,46 +170,18 @@ async function getUserComments(
       if (comment.targetType === "album") {
         const album = await DynamoDBService.getAlbum(comment.targetId);
         if (album) {
-          targetDetails = {
-            id: album.id,
-            title: album.title,
-            coverImageUrl: album.coverImageUrl,
-            thumbnailUrls: album.thumbnailUrls,
-            mediaCount: album.mediaCount,
-            isPublic: album.isPublic,
-            viewCount: album.viewCount,
-            createdAt: album.createdAt,
-            updatedAt: album.updatedAt,
-          };
+          targetDetails = album;
         }
       } else if (comment.targetType === "media") {
         // For media, get the media details directly
         const media = await DynamoDBService.getMedia(comment.targetId);
         if (media) {
-          targetDetails = {
-            id: media.id,
-            title: media.originalFilename,
-            type: "media",
-            mimeType: media.mimeType,
-            size: media.size,
-            thumbnailUrls: media.thumbnailUrls,
-            url: media.url,
-            viewCount: media.viewCount,
-            createdAt: media.createdAt,
-            updatedAt: media.updatedAt,
-          };
-        } else {
-          // If we can't find the media, use basic fallback
-          targetDetails = {
-            id: comment.targetId,
-            type: "media",
-            title: "Unknown Media",
-          };
+          targetDetails = media;
         }
       }
 
       // Convert CommentEntity to Comment format with target details
-      const enrichedComment: Comment & { target?: Record<string, unknown> } = {
+      const enrichedComment: Comment & { target?: Media | Album } = {
         id: comment.id,
         content: comment.content,
         targetType: comment.targetType,
