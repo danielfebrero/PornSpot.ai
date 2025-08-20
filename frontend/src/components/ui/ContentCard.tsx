@@ -142,7 +142,6 @@ export function ContentCard({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
-  const [previewIndex, setPreviewIndex] = useState(0);
   const { isMobileInterface } = useDevice();
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -151,78 +150,6 @@ export function ContentCard({
   const album = !isMedia ? (item as Album) : null;
 
   const isVideoMedia = isMedia && media ? isVideo(media) : false;
-
-  // Preload album content preview images for smooth carousel
-  useEffect(() => {
-    if (!album || !album.contentPreview || album.contentPreview.length <= 1) {
-      return;
-    }
-
-    // Preload first 5 images maximum to avoid overwhelming the network
-    const imagesToPreload = album.contentPreview.slice(
-      0,
-      Math.min(5, album.contentPreview.length)
-    );
-
-    imagesToPreload.forEach((thumbnailUrls, index) => {
-      // Create img elements to preload images
-      const img = new Image();
-
-      // Get the appropriate thumbnail URL for preloading
-      const thumbnailUrl = preferredThumbnailSize
-        ? thumbnailUrls?.[preferredThumbnailSize]
-        : thumbnailUrls?.medium ||
-          thumbnailUrls?.small ||
-          Object.values(thumbnailUrls)[0];
-
-      if (thumbnailUrl) {
-        img.src = composeMediaUrl(thumbnailUrl);
-        // Optional: handle load/error events for debugging
-        img.onload = () => {
-          console.debug(`Preloaded image ${index} for album ${album.id}`);
-        };
-        img.onerror = () => {
-          console.warn(
-            `Failed to preload image ${index} for album ${album.id}`
-          );
-        };
-      }
-    });
-  }, [album, preferredThumbnailSize]);
-
-  // Album content preview carousel effect
-  useEffect(() => {
-    if (!album || !album.contentPreview || album.contentPreview.length <= 1) {
-      return;
-    }
-
-    // Only start carousel when hovered (desktop) or mobile actions are shown (mobile)
-    const shouldShowCarousel = isMobileInterface
-      ? showMobileActions
-      : isHovered;
-
-    if (!shouldShowCarousel) {
-      // Reset to first image when not hovering/tapping
-      setPreviewIndex(0);
-      return;
-    }
-
-    let interval: NodeJS.Timeout | undefined;
-
-    // Start with a delay to let the first image load
-    const startDelay = setTimeout(() => {
-      interval = setInterval(() => {
-        setPreviewIndex(
-          (prevIndex) => (prevIndex + 1) % album.contentPreview!.length
-        );
-      }, 600); // Reduced to 1.5 seconds since images are preloaded
-    }, 800); // Reduced initial delay since images are preloaded
-
-    return () => {
-      clearTimeout(startDelay);
-      if (interval) clearInterval(interval);
-    };
-  }, [album, isHovered, showMobileActions, isMobileInterface]);
 
   // Simple mobile actions timeout management
   useEffect(() => {
@@ -764,23 +691,12 @@ export function ContentCard({
                 thumbnailUrls={
                   preferredThumbnailSize
                     ? undefined
-                    : album.contentPreview && album.contentPreview.length > 0
-                    ? composeThumbnailUrls(album.contentPreview[previewIndex])
                     : composeThumbnailUrls(album.thumbnailUrls)
                 }
                 fallbackUrl={composeMediaUrl(
                   preferredThumbnailSize
-                    ? album.contentPreview && album.contentPreview.length > 0
-                      ? album.contentPreview[previewIndex]?.[
-                          preferredThumbnailSize
-                        ] ??
-                        album.thumbnailUrls?.[preferredThumbnailSize] ??
+                    ? album.thumbnailUrls?.[preferredThumbnailSize] ??
                         album.coverImageUrl
-                      : album.thumbnailUrls?.[preferredThumbnailSize] ??
-                        album.coverImageUrl
-                    : album.contentPreview && album.contentPreview.length > 0
-                    ? Object.values(album.contentPreview[previewIndex])[0] ??
-                      album.coverImageUrl
                     : album.coverImageUrl
                 )}
                 alt={title || album.title}
@@ -794,6 +710,12 @@ export function ContentCard({
                   imageClassName
                 )}
                 loading="lazy"
+                // Carousel props
+                contentPreview={album.contentPreview}
+                enableCarousel={!!album.contentPreview}
+                isHovered={isHovered}
+                showMobileActions={showMobileActions}
+                isMobileInterface={isMobileInterface}
               />
             )}
 

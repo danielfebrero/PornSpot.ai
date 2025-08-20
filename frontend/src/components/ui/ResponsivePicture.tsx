@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ThumbnailUrls } from "../../types/index";
 import { useContainerDimensions } from "../../hooks/useContainerDimensions";
+import { composeMediaUrl } from "../../lib/urlUtils";
 
 interface ResponsivePictureProps {
   thumbnailUrls?: ThumbnailUrls;
@@ -9,6 +10,12 @@ interface ResponsivePictureProps {
   className?: string;
   loading?: "lazy" | "eager";
   onClick?: () => void;
+  // Carousel props for album content preview
+  contentPreview?: ThumbnailUrls[];
+  enableCarousel?: boolean;
+  isHovered?: boolean;
+  showMobileActions?: boolean;
+  isMobileInterface?: boolean;
 }
 
 // Thumbnail configurations matching backend
@@ -220,19 +227,102 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
   className,
   loading = "lazy",
   onClick,
+  contentPreview,
+  enableCarousel = false,
+  isHovered = false,
+  showMobileActions = false,
+  isMobileInterface = false,
 }) => {
   const { containerRef, dimensions } = useContainerDimensions();
+  const [previewIndex, setPreviewIndex] = useState(0);
+
+  // Determine if carousel should be active
+  const shouldShowCarousel =
+    enableCarousel && contentPreview && contentPreview.length > 1;
+  const isCarouselActive =
+    shouldShowCarousel && (isMobileInterface ? showMobileActions : isHovered);
+
+  // Preload content preview images using optimal sizing
+  useEffect(() => {
+    if (!shouldShowCarousel) return;
+
+    // Preload first 5 images maximum to avoid overwhelming the network
+    const imagesToPreload = contentPreview.slice(
+      0,
+      Math.min(5, contentPreview.length)
+    );
+
+    imagesToPreload.forEach((thumbnailUrls, index) => {
+      // Use getOptimalDefaultImageSrc to determine the best image to preload
+      const optimalSrc = getOptimalDefaultImageSrc(
+        thumbnailUrls,
+        fallbackUrl,
+        dimensions.width || 300, // fallback dimensions
+        dimensions.height || 300
+      );
+
+      if (optimalSrc) {
+        const img = new Image();
+        img.src = composeMediaUrl(optimalSrc);
+        img.onload = () => {
+          console.debug(`Preloaded optimal image ${index} (${optimalSrc})`);
+        };
+        img.onerror = () => {
+          console.warn(
+            `Failed to preload optimal image ${index} (${optimalSrc})`
+          );
+        };
+      }
+    });
+  }, [
+    shouldShowCarousel,
+    contentPreview,
+    dimensions.width,
+    dimensions.height,
+    fallbackUrl,
+  ]);
+
+  // Carousel effect
+  useEffect(() => {
+    if (!isCarouselActive) {
+      // Reset to first image when not hovering/tapping
+      setPreviewIndex(0);
+      return;
+    }
+
+    let interval: NodeJS.Timeout | undefined;
+
+    // Start with a delay to let the first image load
+    const startDelay = setTimeout(() => {
+      interval = setInterval(() => {
+        setPreviewIndex(
+          (prevIndex) => (prevIndex + 1) % contentPreview!.length
+        );
+      }, 1500); // 1.5 seconds between transitions
+    }, 800); // Initial delay
+
+    return () => {
+      clearTimeout(startDelay);
+      if (interval) clearInterval(interval);
+    };
+  }, [isCarouselActive, contentPreview]);
+
+  // Determine which thumbnailUrls to use
+  const currentThumbnailUrls =
+    shouldShowCarousel && contentPreview && contentPreview[previewIndex]
+      ? contentPreview[previewIndex]
+      : thumbnailUrls;
 
   // Generate intelligent sources based on container dimensions
   const sources = generateIntelligentPictureSources(
-    thumbnailUrls,
+    currentThumbnailUrls,
     dimensions.width,
     dimensions.height
   );
 
   // Get optimal default source
   const defaultSrc = getOptimalDefaultImageSrc(
-    thumbnailUrls,
+    currentThumbnailUrls,
     fallbackUrl,
     dimensions.width,
     dimensions.height
