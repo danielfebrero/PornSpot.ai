@@ -8,20 +8,22 @@ import { CreateCommentRequest } from "@/types";
 interface CommentsQueryParams {
   username: string;
   limit?: number;
+  includeContentPreview?: boolean; // New parameter for content preview
 }
 
 // Hook for fetching user's comments with infinite scroll
 export function useCommentsQuery(params: CommentsQueryParams) {
-  const { username, limit = 20 } = params;
+  const { username, limit = 20, includeContentPreview } = params;
 
   return useInfiniteQuery({
     queryKey: queryKeys.user.interactions.comments({ username, limit }),
     queryFn: async ({ pageParam }): Promise<UnifiedCommentsResponse> => {
-      return await interactionApi.getCommentsByUsername(
+      return await interactionApi.getCommentsByUsername({
         username,
         limit,
-        pageParam
-      );
+        cursor: pageParam,
+        includeContentPreview,
+      });
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage: UnifiedCommentsResponse) => {

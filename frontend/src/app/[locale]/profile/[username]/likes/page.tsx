@@ -32,7 +32,11 @@ export default function UserLikesPage() {
     fetchNextPage,
     hasNextPage: hasNext,
     isFetchingNextPage: loadingMore,
-  } = useLikesQuery({ targetUser: username, limit: 20 });
+  } = useLikesQuery({
+    targetUser: username,
+    limit: 20,
+    includeContentPreview: true,
+  });
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();

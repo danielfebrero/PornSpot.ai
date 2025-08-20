@@ -73,13 +73,18 @@ export const interactionApi = {
   },
 
   // Get user's bookmarks - NEW UNIFIED FORMAT
-  getBookmarks: async (
-    limit: number = 20,
-    cursor?: string
-  ): Promise<UnifiedUserInteractionsResponse> => {
+  getBookmarks: async ({
+    limit = 20,
+    cursor,
+    includeContentPreview,
+  }: {
+    limit: number;
+    cursor?: string;
+    includeContentPreview?: boolean;
+  }): Promise<UnifiedUserInteractionsResponse> => {
     const response = await ApiUtil.get<UnifiedUserInteractionsResponse>(
       "/user/interactions/bookmarks",
-      { limit, cursor }
+      { limit, cursor, includeContentPreview }
     );
     return ApiUtil.extractData(response);
   },
@@ -128,14 +133,20 @@ export const interactionApi = {
   },
 
   // Get comments by username (for profile views) - NEW UNIFIED FORMAT
-  getCommentsByUsername: async (
-    username: string,
-    limit: number = 20,
-    cursor?: string
-  ): Promise<UnifiedCommentsResponse> => {
+  getCommentsByUsername: async ({
+    username,
+    limit = 20,
+    cursor,
+    includeContentPreview,
+  }: {
+    username: string;
+    limit?: number;
+    cursor?: string;
+    includeContentPreview?: boolean;
+  }): Promise<UnifiedCommentsResponse> => {
     const response = await ApiUtil.get<UnifiedCommentsResponse>(
       "/user/interactions/comments",
-      { user: username, limit, cursor }
+      { user: username, limit, cursor, includeContentPreview }
     );
     return ApiUtil.extractData(response);
   },

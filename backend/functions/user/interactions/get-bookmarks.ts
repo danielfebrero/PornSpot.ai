@@ -31,6 +31,8 @@ const handleGetBookmarks = async (
   }
 
   const { cursor: lastEvaluatedKey, limit } = paginationParams;
+  const includeContentPreview =
+    event.queryStringParameters?.["includeContentPreview"] === "true";
 
   // Get user bookmarks
   const result = await DynamoDBService.getUserInteractions(
@@ -47,6 +49,14 @@ const handleGetBookmarks = async (
 
       if (interaction.targetType === "album") {
         targetDetails = await DynamoDBService.getAlbum(interaction.targetId);
+        if (includeContentPreview) {
+          targetDetails = {
+            ...targetDetails,
+            contentPreview: await DynamoDBService.getContentPreviewForAlbum(
+              interaction.targetId
+            ),
+          };
+        }
       } else if (interaction.targetType === "media") {
         // For media, get the media details directly
         targetDetails = await DynamoDBService.getMedia(interaction.targetId);

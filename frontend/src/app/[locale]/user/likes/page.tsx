@@ -42,7 +42,7 @@ const UserLikesPage: React.FC = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useLikesQuery();
+  } = useLikesQuery({ includeContentPreview: true });
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();

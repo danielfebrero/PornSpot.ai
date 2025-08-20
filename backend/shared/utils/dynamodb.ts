@@ -957,6 +957,7 @@ export class DynamoDBService {
 
     const mediaResults = await Promise.all(mediaPromises);
     return mediaResults
+      .slice(0, 10) // Limit to first 10 media items for preview
       .filter((m) => m !== null)
       .map((m) => m.thumbnailUrls) as ThumbnailUrls[];
   }

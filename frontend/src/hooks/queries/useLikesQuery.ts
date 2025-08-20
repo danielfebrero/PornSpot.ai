@@ -7,6 +7,7 @@ import { UnifiedUserInteractionsResponse } from "@/types/user";
 interface LikesQueryParams {
   targetUser?: string;
   limit?: number;
+  includeContentPreview?: boolean; // New parameter for content preview
 }
 
 // Use the new unified response type
@@ -14,7 +15,7 @@ type LikesResponse = UnifiedUserInteractionsResponse;
 
 // Hook for fetching user's likes with infinite scroll
 export function useLikesQuery(params: LikesQueryParams = {}) {
-  const { targetUser, limit = 20 } = params;
+  const { targetUser, limit = 20, includeContentPreview } = params;
 
   return useInfiniteQuery({
     queryKey: queryKeys.user.interactions.likes(params),
@@ -23,6 +24,7 @@ export function useLikesQuery(params: LikesQueryParams = {}) {
         limit,
         cursor: pageParam,
         username: targetUser,
+        includeContentPreview,
       });
     },
     initialPageParam: undefined as string | undefined,

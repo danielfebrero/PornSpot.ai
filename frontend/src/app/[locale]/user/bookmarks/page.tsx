@@ -91,7 +91,7 @@ const UserBookmarksPage: React.FC = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useBookmarksQuery();
+  } = useBookmarksQuery({ includeContentPreview: true });
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();

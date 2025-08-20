@@ -30,10 +30,11 @@ const handleGetComments = async (
   const targetId = event.pathParameters?.["targetId"];
   const queryParams = event.queryStringParameters || {};
   const userParam = queryParams["user"]; // New: support user parameter
+  const includeContentPreview = queryParams["includeContentPreview"] === "true"; // New: support content preview
 
   // Check if this is a user-based query (when user param is provided)
   if (userParam) {
-    return await getUserComments(event, userParam);
+    return await getUserComments(event, userParam, includeContentPreview);
   }
 
   // Original target-based comments functionality - validate required parameters
@@ -122,7 +123,8 @@ const handleGetComments = async (
 // Helper function to get comments by user
 async function getUserComments(
   event: APIGatewayProxyEvent,
-  targetUsername: string
+  targetUsername: string,
+  includeContentPreview: boolean
 ): Promise<APIGatewayProxyResult> {
   const validatedUsername = ValidationUtil.validateRequiredString(
     targetUsername,
@@ -171,6 +173,10 @@ async function getUserComments(
         const album = await DynamoDBService.getAlbum(comment.targetId);
         if (album) {
           targetDetails = album;
+          if (includeContentPreview) {
+            targetDetails.contentPreview =
+              await DynamoDBService.getContentPreviewForAlbum(comment.targetId);
+          }
         }
       } else if (comment.targetType === "media") {
         // For media, get the media details directly

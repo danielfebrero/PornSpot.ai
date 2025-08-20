@@ -29,7 +29,7 @@ export default function UserCommentsPage() {
     hasNextPage: hasMore,
     isFetchingNextPage: isLoadingMore,
     refetch: refresh,
-  } = useCommentsQuery({ username });
+  } = useCommentsQuery({ username, includeContentPreview: true });
 
   // Extract comments from paginated data and explicitly type them
   const extractedComments =
