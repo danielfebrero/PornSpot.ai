@@ -12,7 +12,7 @@
 
 [x] LoRA are not used correctly by the workflow API probably because images are really different from Comfy UI client images with the same parameters.
 
-[ ] Sur la page generate, le plan se charge pas des fois, certaines fois il disparait completement après un certain usage je crois, et des fois le plan apparait correctement (le pro).
+[x] Sur la page generate, le plan se charge pas des fois, certaines fois il disparait completement après un certain usage je crois, et des fois le plan apparait correctement (le pro).
 
 [x] From user Albums page, delete album do not close the popup immediately. CANNOT REPRODUCE.
 
@@ -38,7 +38,7 @@
 
 [x] Remove media from Admin manage album media should update optimistically top page media count.
 
-[ ] If I open another tab while generating image, my websocket connection id is replaced by a new one and I don't receive generation updates anymore.
+[x] If I open another tab while generating image, my websocket connection id is replaced by a new one and I don't receive generation updates anymore.
 
 [x] On media page and album page, optimist update of likes does not work anymore. It works on user comments page.
 
