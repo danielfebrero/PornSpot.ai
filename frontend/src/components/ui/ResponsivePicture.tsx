@@ -338,28 +338,22 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
 
     const startCarousel = () => {
       // Start showing second image
-      setPreviewIndex(1 % contentPreview!.length);
-
-      // Then continue with 700ms intervals
-      carouselInterval = setInterval(() => {
-        setPreviewIndex(
-          (prevIndex) => (prevIndex + 1) % contentPreview!.length
-        );
-      }, 700);
+      setTimeout(() => {
+        setPreviewIndex(1 % contentPreview!.length);
+        // Then continue with 900ms intervals
+        carouselInterval = setInterval(() => {
+          setPreviewIndex(
+            (prevIndex) => (prevIndex + 1) % contentPreview!.length
+          );
+        }, 900);
+      }, 500);
     };
 
-    // Start carousel after 700ms OR when first image is loaded (whichever comes first)
-    const timeoutDelay = 700;
-    const startTimeoutId = setTimeout(startCarousel, timeoutDelay);
-
-    // If first image loads before 700ms, start immediately
     if (firstImageLoaded) {
-      clearTimeout(startTimeoutId);
       startCarousel();
     }
 
     return () => {
-      clearTimeout(startTimeoutId);
       if (carouselInterval) clearInterval(carouselInterval);
     };
   }, [isCarouselActive, shouldShowCarousel, firstImageLoaded, contentPreview]);
