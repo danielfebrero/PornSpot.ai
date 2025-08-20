@@ -1591,8 +1591,8 @@ export class DynamoDBService {
     };
 
     if (!includeComments) {
-      queryParams.FilterExpression = "targetType <> :targetType";
-      queryParams.ExpressionAttributeValues![":targetType"] = "comment";
+      queryParams.KeyConditionExpression = " AND begin_with(GSI2SK, :gsi2sk)";
+      queryParams.ExpressionAttributeValues![":gsi2sk"] = "CONTENT#";
     }
     // Use GSI2 for efficient chronological sorting by createdAt
     const result = await docClient.send(new QueryCommand(queryParams));

@@ -106,7 +106,7 @@ const handleLikeInteraction = async (
       GSI1SK: userId,
       // GSI2 for chronological ordering of user interactions
       GSI2PK: `USER#${userId}#INTERACTIONS#like`,
-      GSI2SK: now, // createdAt timestamp for chronological sorting
+      GSI2SK: `${targetType === "comment" ? "COMMENT" : "CONTENT"}#${now}`, // createdAt timestamp for chronological sorting
       EntityType: "UserInteraction",
       userId: userId,
       interactionType: "like",
