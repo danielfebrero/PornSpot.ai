@@ -391,25 +391,26 @@ export default function ProfileComponent({
       }
 
       // Call the API to update the profile
-      const result = await userApi.updateProfile(formData);
 
-      if (result.success && result.data?.user) {
+      try {
+        const result = await userApi.updateProfile(formData);
+
         refetch();
         // Update the current user state with the response data
         setCurrentUser({
           ...currentUser,
-          username: result.data.user.username,
-          bio: result.data.user.bio,
-          location: result.data.user.location,
-          website: result.data.user.website,
+          username: result.user?.username,
+          bio: result.user?.bio,
+          location: result.user?.location,
+          website: result.user?.website,
           // Include avatar updates if they were successful
           ...avatarUpdateData,
           // Also include any avatar data from the API response
-          ...(result.data.user.avatarUrl && {
-            avatarUrl: result.data.user.avatarUrl,
+          ...(result.user?.avatarUrl && {
+            avatarUrl: result.user?.avatarUrl,
           }),
-          ...(result.data.user.avatarThumbnails && {
-            avatarThumbnails: result.data.user.avatarThumbnails,
+          ...(result.user?.avatarThumbnails && {
+            avatarThumbnails: result.user?.avatarThumbnails,
           }),
         });
 
@@ -425,15 +426,11 @@ export default function ProfileComponent({
 
         // Optionally show a success message or trigger a refresh
         // For now, we'll just log the success
-      } else {
-        console.error(
-          "Profile update failed:",
-          result.data?.message || "Unknown error"
-        );
-        // In a real app, you'd show an error message to the user
+      } catch (error) {
+        console.error("Error updating profile:", error);
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("Error uploading profile avatar:", error);
       // In a real app, you'd show an error message to the user
     } finally {
       setIsSaving(false);

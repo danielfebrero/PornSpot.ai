@@ -169,12 +169,6 @@ export interface UserProfileUpdateRequest {
 }
 
 export interface UserProfileUpdateResponse {
-  success: boolean;
-  data?: ExtractedUserProfileUpdateResponse;
-  error?: string;
-}
-
-export interface ExtractedUserProfileUpdateResponse {
   message: string;
   user?: User;
 }
