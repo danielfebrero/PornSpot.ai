@@ -1,6 +1,6 @@
 # TODO list
 
-[ ] Image titles must be better than Comfyui_Generated_000043.png.
+[x] Image titles must be better than Comfyui_Generated_000043.png.
 
 [ ] Review the concept of queue and estimated waiting time.
 
@@ -16,7 +16,7 @@
 
 [ ] When not logged in and try to like/bookmark, we need a visual feedback.
 
-[ ] On hover/tap an album card, I want to see changing thumbnails.
+[x] On hover/tap an album card, I want to see changing thumbnails.
 
 [ ] Write tests for backend and frontend.
 
@@ -38,4 +38,4 @@
 
 [ ] Implement forgot password page.
 
-[ ] Always show lora models on media page, even if selected automatically.
+[ ] Always show lora models and strength on media page, even if selected automatically.
