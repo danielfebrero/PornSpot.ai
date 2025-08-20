@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ThumbnailUrls } from "../../types/index";
 import { useContainerDimensions } from "../../hooks/useContainerDimensions";
 import { composeMediaUrl } from "../../lib/urlUtils";
 import { is } from "zod/v4/locales";
+import { clear } from "console";
 
 interface ResponsivePictureProps {
   thumbnailUrls?: ThumbnailUrls;
@@ -240,6 +241,7 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
     new Set()
   );
   const [firstImageLoaded, setFirstImageLoaded] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Determine if carousel should be active
   const shouldShowCarousel =
@@ -332,17 +334,17 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
   // Carousel display effect with optimized timing
   useEffect(() => {
     if (!isCarouselActive || !shouldShowCarousel) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
       return;
     }
-
-    let carouselInterval: NodeJS.Timeout;
 
     const startCarousel = () => {
       // Start showing second image
       setTimeout(() => {
         setPreviewIndex(1 % contentPreview!.length);
         // Then continue with 900ms intervals
-        carouselInterval = setInterval(() => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(() => {
           setPreviewIndex(
             (prevIndex) => (prevIndex + 1) % contentPreview!.length
           );
@@ -355,7 +357,7 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
     }
 
     return () => {
-      if (carouselInterval) clearInterval(carouselInterval);
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [isCarouselActive, shouldShowCarousel, firstImageLoaded, contentPreview]);
 
