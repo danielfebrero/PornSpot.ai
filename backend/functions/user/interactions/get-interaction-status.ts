@@ -64,7 +64,78 @@ const handleGetInteractionStatus = async (
     }
   }
 
-  // Get user interactions for all targets
+  // Separate comment targets from album/media targets
+  const albumMediaTargets = targets.filter(
+    (t) => t.targetType === "album" || t.targetType === "media"
+  );
+  const commentTargets = targets.filter((t) => t.targetType === "comment");
+
+  // Build all promises for parallel execution
+  const promises: Promise<any>[] = [];
+  const promiseMap = new Map<string, { type: string; index: number }>();
+  let promiseIndex = 0;
+
+  // For album/media targets: check likes, bookmarks, and get counts
+  albumMediaTargets.forEach((target) => {
+    const key = `${target.targetType}:${target.targetId}`;
+
+    // Check if user liked this target
+    promises.push(
+      DynamoDBService.getUserInteraction(userId, "like", target.targetId)
+    );
+    promiseMap.set(`${key}:like`, {
+      type: "interaction",
+      index: promiseIndex++,
+    });
+
+    // Check if user bookmarked this target
+    promises.push(
+      DynamoDBService.getUserInteraction(userId, "bookmark", target.targetId)
+    );
+    promiseMap.set(`${key}:bookmark`, {
+      type: "interaction",
+      index: promiseIndex++,
+    });
+
+    // Get interaction counts for the target
+    promises.push(
+      DynamoDBService.getInteractionCounts(
+        target.targetType as "album" | "media",
+        target.targetId
+      )
+    );
+    promiseMap.set(`${key}:counts`, { type: "counts", index: promiseIndex++ });
+  });
+
+  // For comment targets: check likes and get comment data
+  commentTargets.forEach((target) => {
+    const key = `${target.targetType}:${target.targetId}`;
+
+    // Check if user liked this comment
+    promises.push(
+      DynamoDBService.getUserInteractionForComment(
+        userId,
+        "like",
+        target.targetId
+      )
+    );
+    promiseMap.set(`${key}:like`, {
+      type: "interaction",
+      index: promiseIndex++,
+    });
+
+    // Get comment data for like count
+    promises.push(DynamoDBService.getComment(target.targetId));
+    promiseMap.set(`${key}:comment`, {
+      type: "comment",
+      index: promiseIndex++,
+    });
+  });
+
+  // Execute all promises in parallel
+  const results = await Promise.all(promises);
+
+  // Build status map from results
   const statusMap = new Map<
     string,
     {
@@ -75,107 +146,45 @@ const handleGetInteractionStatus = async (
     }
   >();
 
-  // Initialize all targets as not interacted
-  for (const target of targets) {
+  // Process album/media targets
+  albumMediaTargets.forEach((target) => {
     const key = `${target.targetType}:${target.targetId}`;
+
+    const likeInfo = promiseMap.get(`${key}:like`);
+    const bookmarkInfo = promiseMap.get(`${key}:bookmark`);
+    const countsInfo = promiseMap.get(`${key}:counts`);
+
+    const userLiked = likeInfo ? results[likeInfo.index] !== null : false;
+    const userBookmarked = bookmarkInfo
+      ? results[bookmarkInfo.index] !== null
+      : false;
+    const counts = countsInfo ? results[countsInfo.index] : null;
+
     statusMap.set(key, {
-      userLiked: false,
-      userBookmarked: false,
-      likeCount: 0,
-      bookmarkCount: 0,
+      userLiked,
+      userBookmarked,
+      likeCount: counts?.likeCount || 0,
+      bookmarkCount: counts?.bookmarkCount || 0,
     });
-  }
-
-  // Separate comment targets from album/media targets
-  const albumMediaTargets = targets.filter(
-    (t) => t.targetType === "album" || t.targetType === "media"
-  );
-  const commentTargets = targets.filter((t) => t.targetType === "comment");
-
-  // Get user likes and bookmarks for album/media targets
-  // TODO: optimize, get interaction for each target
-  const promises: Promise<any>[] = [
-    DynamoDBService.getUserInteractions(userId, "like"),
-    DynamoDBService.getUserInteractions(userId, "bookmark"),
-  ];
-
-  // Add interaction counts for album/media targets
-  albumMediaTargets.forEach((target) => {
-    promises.push(
-      DynamoDBService.getInteractionCounts(
-        target.targetType as "album" | "media",
-        target.targetId
-      )
-    );
   });
 
-  // Add comment interaction checks for comment targets
-  commentTargets.forEach((target) => {
-    promises.push(
-      DynamoDBService.getUserInteractionForComment(
-        userId,
-        "like",
-        target.targetId
-      )
-    );
-    promises.push(DynamoDBService.getComment(target.targetId));
-  });
-
-  const results = await Promise.all(promises);
-
-  let resultIndex = 0;
-  const likesResult = results[resultIndex++];
-  const bookmarksResult = results[resultIndex++];
-
-  // Process album/media interaction counts
-  albumMediaTargets.forEach((target) => {
-    const key = `${target.targetType}:${target.targetId}`;
-    const status = statusMap.get(key)!;
-    const counts = results[resultIndex++];
-    if (counts) {
-      status.likeCount = counts.likeCount;
-      status.bookmarkCount = counts.bookmarkCount;
-      statusMap.set(key, status);
-    }
-  });
-
-  // Process comment interactions
+  // Process comment targets
   commentTargets.forEach((target) => {
     const key = `${target.targetType}:${target.targetId}`;
-    const status = statusMap.get(key)!;
 
-    const userInteraction = results[resultIndex++];
-    const comment = results[resultIndex++];
+    const likeInfo = promiseMap.get(`${key}:like`);
+    const commentInfo = promiseMap.get(`${key}:comment`);
 
-    status.userLiked = userInteraction !== null;
-    status.likeCount = comment?.likeCount || 0;
-    // Comments don't have bookmarks, so bookmark count stays 0
-    statusMap.set(key, status);
+    const userLiked = likeInfo ? results[likeInfo.index] !== null : false;
+    const comment = commentInfo ? results[commentInfo.index] : null;
+
+    statusMap.set(key, {
+      userLiked,
+      userBookmarked: false, // Comments don't have bookmarks
+      likeCount: comment?.likeCount || 0,
+      bookmarkCount: 0, // Comments don't have bookmarks
+    });
   });
-
-  // Process likes for album/media targets
-  if (likesResult.interactions) {
-    for (const interaction of likesResult.interactions) {
-      const key = `${interaction.targetType}:${interaction.targetId}`;
-      if (statusMap.has(key)) {
-        const status = statusMap.get(key)!;
-        status.userLiked = true;
-        statusMap.set(key, status);
-      }
-    }
-  }
-
-  // Process bookmarks for album/media targets
-  if (bookmarksResult.interactions) {
-    for (const interaction of bookmarksResult.interactions) {
-      const key = `${interaction.targetType}:${interaction.targetId}`;
-      if (statusMap.has(key)) {
-        const status = statusMap.get(key)!;
-        status.userBookmarked = true;
-        statusMap.set(key, status);
-      }
-    }
-  }
 
   // Format response
   const statuses = targets.map((target) => ({
