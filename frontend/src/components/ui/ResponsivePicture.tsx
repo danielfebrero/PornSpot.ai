@@ -413,11 +413,16 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
         alt={alt}
         className={className}
         loading={loading}
-        style={{ zIndex: isCarouselActive ? 1 : 0, position: "absolute" }}
+        style={{
+          display: isCarouselActive ? "block" : "none",
+          position: "absolute",
+        }}
       />
       <picture
         onClick={onClick}
-        style={{ position: "absolute", zIndex: isCarouselActive ? 0 : 1 }}
+        style={{
+          position: "absolute",
+        }}
       >
         {sources.map(
           (source: { media: string; srcSet: string }, index: number) => (

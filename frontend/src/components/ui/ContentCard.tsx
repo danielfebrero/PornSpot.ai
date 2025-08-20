@@ -612,7 +612,7 @@ export function ContentCard({
 
                 {/* Like, Bookmark, View count */}
                 {showCounts && (
-                  <div className="flex items-center gap-3 z-[1]">
+                  <div className="flex items-center gap-3">
                     {canBookmark && (
                       <div
                         onClick={(e) => e.stopPropagation()}
@@ -773,7 +773,7 @@ export function ContentCard({
                   {album.mediaCount === 1 ? "item" : "items"}
                 </p>
                 {showCounts && (
-                  <div className="flex items-center gap-3 z-[1]">
+                  <div className="flex items-center gap-3">
                     {canBookmark && (
                       <div
                         onClick={(e) => e.stopPropagation()}
