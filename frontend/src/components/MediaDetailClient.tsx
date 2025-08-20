@@ -96,7 +96,7 @@ const useMediaMetadata = (media: Media) => {
       isCreatorClickable,
       prompt: metadata.prompt || metadata.description,
       negativePrompt: metadata.negativePrompt,
-      loraModels: metadata.loraModels || metadata.loras || [],
+      loraModels: metadata.selectedLoras || [],
       loraStrengths: metadata.loraStrengths || {},
       bulkSiblings: metadata.bulkSiblings || [],
       imageSize:
@@ -157,7 +157,7 @@ const InfoPill: FC<InfoPillProps> = ({ icon, label, value, isTag = false }) => (
 const GenerationPrompt: FC<GenerationPromptProps> = ({ title, prompt }) => (
   <div>
     <h4 className="mb-2 text-sm font-medium text-muted-foreground">{title}</h4>
-    <div className="p-3 text-sm rounded-lg bg-muted/50 max-h-40 overflow-y-auto">
+    <div className="p-3 text-sm rounded-lg bg-muted/50 max-h-40 overflow-y-auto scrollbar-hide">
       {prompt}
     </div>
   </div>
