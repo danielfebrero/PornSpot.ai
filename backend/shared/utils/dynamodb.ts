@@ -1591,7 +1591,7 @@ export class DynamoDBService {
     };
 
     if (!includeComments) {
-      queryParams.KeyConditionExpression = " AND begins_with(GSI2SK, :gsi2sk)";
+      queryParams.KeyConditionExpression += " AND begins_with(GSI2SK, :gsi2sk)";
       queryParams.ExpressionAttributeValues![":gsi2sk"] = "CONTENT#";
     }
     // Use GSI2 for efficient chronological sorting by createdAt
