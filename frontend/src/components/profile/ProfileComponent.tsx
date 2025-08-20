@@ -933,7 +933,7 @@ export default function ProfileComponent({
                       .map((item) => (
                         <ContentCard
                           key={item.targetId}
-                          item={item.target}
+                          item={item.target!}
                           showTags={false}
                           context="albums"
                           className="w-full"

@@ -2,9 +2,9 @@
 
 import { ReactNode, useState, useEffect } from "react";
 import { PermissionsProvider } from "@/contexts/PermissionsContext";
-import { createUserWithPlan, createMockUser } from "@/lib/userUtils";
+import { createMockUser } from "@/lib/userUtils";
 import { useUserContext } from "@/contexts/UserContext";
-import { UserWithPlanInfo } from "@/types";
+import { User } from "@/types";
 
 interface PermissionsWrapperProps {
   children: ReactNode;
@@ -14,8 +14,9 @@ export function PermissionsWrapper({ children }: PermissionsWrapperProps) {
   const userContext = useUserContext();
 
   const user = userContext?.user || null;
-  const [userWithPermissions, setUserWithPermissions] =
-    useState<UserWithPlanInfo | null>(null);
+  const [userWithPermissions, setUserWithPermissions] = useState<User | null>(
+    null
+  );
   const [lastProcessedUserId, setLastProcessedUserId] = useState<string | null>(
     null
   );
@@ -37,9 +38,7 @@ export function PermissionsWrapper({ children }: PermissionsWrapperProps) {
 
     const loadUserPermissions = async () => {
       try {
-        const userWithPerms = user
-          ? await createUserWithPlan(user)
-          : await createMockUser("free");
+        const userWithPerms = user ? user : await createMockUser("free");
         setUserWithPermissions(userWithPerms);
       } catch (error) {
         console.error("Failed to load user permissions:", error);

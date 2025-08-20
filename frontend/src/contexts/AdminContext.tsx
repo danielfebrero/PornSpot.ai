@@ -6,11 +6,11 @@ import {
   useLogout,
   useCheckAuth,
 } from "@/hooks/queries/useUserQuery";
-import { UserWithPlanInfo } from "../types/user";
+import { User } from "@/types";
 import { useUserContext } from "./UserContext";
 
 interface AdminContextType {
-  user: UserWithPlanInfo | null;
+  user: User | null;
   loading: boolean;
   error: string | null;
   login: (credentials: { email: string; password: string }) => Promise<boolean>;

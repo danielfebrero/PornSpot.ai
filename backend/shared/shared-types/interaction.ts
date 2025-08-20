@@ -1,5 +1,7 @@
 // User interaction types
 import type { InteractionType, TargetType } from "./core";
+import type { Album } from "./album";
+import type { Media } from "./media";
 
 export interface UserInteraction {
   userId: string;
@@ -7,6 +9,7 @@ export interface UserInteraction {
   targetType: TargetType;
   targetId: string;
   createdAt: string;
+  target?: Album | Media; // Optional target for enriched interactions
 }
 
 export interface InteractionRequest {

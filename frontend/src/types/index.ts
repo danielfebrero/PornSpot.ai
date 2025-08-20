@@ -52,7 +52,6 @@ export * from "./permissions";
 export type {
   CommentWithTarget,
   InteractionRequest,
-  UserInteraction,
   UserRegistrationFormData,
   UserLoginFormData,
   UserLoginResponse,
@@ -62,7 +61,6 @@ export type {
   GoogleOAuthState,
   GoogleOAuthResponse,
   UsernameAvailabilityResponse,
-  UserWithPlanInfo,
   UserProfileUpdateRequest,
   UserProfileUpdateResponse,
   PublicUserProfile,

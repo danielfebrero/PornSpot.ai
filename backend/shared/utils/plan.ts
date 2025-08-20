@@ -1,6 +1,7 @@
 // Plan and subscription utilities
 import { DynamoDBService } from "./dynamodb";
 import {
+  User,
   UserEntity,
   UserPlan,
   UserProfileInsights,
@@ -164,7 +165,7 @@ export class PlanUtil {
   /**
    * Convert a regular user entity to enhanced user with plan information
    */
-  static async enhanceUser(userEntity: UserEntity): Promise<EnhancedUser> {
+  static async enhanceUser(userEntity: UserEntity): Promise<User> {
     const planInfo = await this.getUserPlanInfo(userEntity.userId);
     const role = await this.getUserRole(userEntity.userId);
     const usageStats = await this.getUserUsageStats(userEntity);

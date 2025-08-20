@@ -15,7 +15,6 @@ import { UsageIndicator } from "@/components/UsageIndicator";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { useLocaleRouter } from "@/lib/navigation";
 import { locales } from "@/i18n";
-import { UserWithPlanInfo } from "@/types/user";
 import {
   Settings as SettingsIcon,
   Globe,
@@ -277,7 +276,7 @@ export default function SettingsPage() {
 
   const currentPlan = userPermissions.getCurrentPlan();
   const planLimits = userPermissions.getPlanLimits();
-  const userWithPlan = user as UserWithPlanInfo;
+  const userWithPlan = user;
   const usageStats = userWithPlan.usageStats || {
     imagesGeneratedThisMonth: 0,
     imagesGeneratedToday: 0,

@@ -218,31 +218,15 @@ if (canAccessAdmin()) {
 
 ### Extending User Types
 
-The system works with your existing `User` type by extending it:
+The system works with your existing `User` type:
 
-```tsx
+````tsx
 // Your existing User type stays the same
 interface User {
   userId: string;
   email: string;
   // ... other fields
 }
-
-// Extended version for permissions
-interface UserWithPlanInfo extends User {
-  plan?: string;
-  role?: string;
-  subscriptionStatus?: string;
-  usageStats?: {
-    imagesGeneratedThisMonth: number;
-    imagesGeneratedToday: number;
-    storageUsedGB: number;
-  };
-}
-
-// Convert to permission-compatible format
-const userWithPlan = createUserWithPlan(apiUser);
-```
 
 ### API Integration
 
@@ -262,7 +246,7 @@ Update your user API to include plan and usage information:
     storageUsedGB: 2.3
   }
 }
-```
+````
 
 ### Layout Integration
 

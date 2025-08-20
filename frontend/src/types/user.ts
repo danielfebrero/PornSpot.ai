@@ -180,7 +180,7 @@ export interface ExtractedUserProfileUpdateResponse {
 }
 
 // Public profile types - frontend specific
-interface PublicUserProfile {
+export interface PublicUserProfile {
   userId: string;
   email: string;
   username?: string;

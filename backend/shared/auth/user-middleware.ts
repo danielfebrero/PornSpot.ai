@@ -1,7 +1,8 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
-import { UserSessionValidationResult, User } from "@shared";
+import { UserSessionValidationResult } from "@shared";
 import { UsernameGenerator } from "@shared/utils/username-generator";
+import { PlanUtil } from "@shared/utils/plan";
 
 export class UserAuthMiddleware {
   static async validateSession(
@@ -129,26 +130,7 @@ export class UserAuthMiddleware {
         }
       }
 
-      const user: User = {
-        userId: userEntity.userId,
-        email: userEntity.email,
-        createdAt: userEntity.createdAt,
-        isActive: userEntity.isActive,
-        isEmailVerified: userEntity.isEmailVerified,
-        ...(currentUsername && { username: currentUsername }),
-        ...(userEntity.firstName && { firstName: userEntity.firstName }),
-        ...(userEntity.lastName && { lastName: userEntity.lastName }),
-        ...(userEntity.lastLoginAt && { lastLoginAt: userEntity.lastLoginAt }),
-        ...(userEntity.lastActive && { lastActive: userEntity.lastActive }),
-        ...(userEntity.googleId && { googleId: userEntity.googleId }),
-      };
-
-      console.log("🎉 Session validation successful!");
-      console.log("👤 Validated user:", {
-        userId: user.userId,
-        email: user.email,
-        username: user.username,
-      });
+      const user = await PlanUtil.enhanceUser(userEntity);
 
       return {
         isValid: true,

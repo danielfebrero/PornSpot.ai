@@ -1,53 +1,12 @@
-import { User, UserWithPlanInfo } from "@/types";
+import { User } from "@/types";
 import { UserPlan, UserRole } from "@/types/permissions";
 import { getAllPlanDefinitions } from "@/utils/permissions";
-
-// Utility to convert API user to permissions-compatible user
-export async function createUserWithPlan(
-  user: User | UserWithPlanInfo
-): Promise<UserWithPlanInfo> {
-  const baseUser = user as UserWithPlanInfo;
-
-  // Extract plan info from the nested structure
-  const plan: UserPlan = (baseUser.planInfo?.plan as UserPlan) || "free";
-  const role: UserRole = (baseUser.role as UserRole) || "user";
-
-  const planDefinitions = await getAllPlanDefinitions();
-  const permissions = planDefinitions[plan];
-
-  return {
-    ...user,
-    role,
-    planInfo: {
-      plan,
-      isActive: baseUser.planInfo?.isActive || plan === "free",
-      subscriptionId: baseUser.planInfo?.subscriptionId,
-      planStartDate: baseUser.planInfo?.planStartDate || user.createdAt,
-      planEndDate: baseUser.planInfo?.planEndDate,
-      permissions,
-    },
-    usageStats: baseUser.usageStats || {
-      imagesGeneratedThisMonth: 0,
-      imagesGeneratedToday: 0,
-    },
-  };
-}
 
 // Mock user data for development/testing
 export async function createMockUser(
   plan: UserPlan = "free",
-  overrides?: Partial<UserWithPlanInfo>
-): Promise<UserWithPlanInfo> {
-  const baseUser: User = {
-    userId: "mock-user-123",
-    email: "test@example.com",
-    username: "testuser",
-    createdAt: new Date().toISOString(),
-    isActive: true,
-    isEmailVerified: true,
-    lastLoginAt: new Date().toISOString(),
-  };
-
+  overrides?: Partial<User>
+): Promise<User> {
   const mockUsage = {
     free: { month: 25, day: 0, storage: 0.1 },
     starter: { month: 150, day: 5, storage: 2.5 },
@@ -56,9 +15,15 @@ export async function createMockUser(
   };
 
   const usage = mockUsage[plan];
+  const baseUser: User = {
+    userId: "mock-user-id",
+    email: "test@example.com",
+    username: "testuser",
+    createdAt: new Date().toISOString(),
+    isActive: true,
+    isEmailVerified: true,
+    lastLoginAt: new Date().toISOString(),
 
-  const userWithPlan = await createUserWithPlan({
-    ...baseUser,
     role: "user",
     planInfo: {
       plan,
@@ -73,7 +38,7 @@ export async function createMockUser(
       lastGenerationAt: new Date().toISOString(),
     },
     ...overrides,
-  });
+  };
 
-  return userWithPlan;
+  return baseUser;
 }

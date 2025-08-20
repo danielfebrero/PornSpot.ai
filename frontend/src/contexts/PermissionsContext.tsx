@@ -7,10 +7,10 @@ import {
   RolePermissions,
   PermissionContext,
 } from "@/types/permissions";
-import { UserWithPlanInfo } from "@/types";
+import { User } from "@/types";
 
 interface PermissionsContextType {
-  user: UserWithPlanInfo | null;
+  user: User | null;
   planPermissions: PlanPermissions | null;
   rolePermissions: RolePermissions | null;
 
@@ -46,7 +46,7 @@ const PermissionsContext = createContext<PermissionsContextType | undefined>(
 
 interface PermissionsProviderProps {
   children: ReactNode;
-  user: UserWithPlanInfo | null;
+  user: User | null;
 }
 
 export function PermissionsProvider({

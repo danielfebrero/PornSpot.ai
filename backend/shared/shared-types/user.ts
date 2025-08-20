@@ -31,7 +31,7 @@ export interface User {
     subscriptionStatus?: "active" | "canceled" | "expired";
     planStartDate?: string;
     planEndDate?: string;
-    permissions: PlanPermissions;
+    permissions?: PlanPermissions;
   };
   usageStats: {
     imagesGeneratedThisMonth: number;
@@ -39,7 +39,7 @@ export interface User {
     storageUsedGB?: number;
     lastGenerationAt?: string;
   };
-  profileInsights: UserProfileInsights;
+  profileInsights?: UserProfileInsights;
 }
 
 export interface UserSession {

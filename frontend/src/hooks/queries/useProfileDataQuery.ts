@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { interactionApi } from "@/lib/api";
-import { UnifiedUserInteractionsResponse, UserInteraction } from "@/types/user";
+import { UnifiedUserInteractionsResponse } from "@/types/user";
+import { UserInteraction } from "@/types";
 
 // Types
 interface UseProfileDataOptions {

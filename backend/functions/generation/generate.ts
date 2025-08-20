@@ -38,6 +38,7 @@ import type {
   GenerationRequest,
   WorkflowFinalParams,
   WorkflowData,
+  User,
 } from "@shared/shared-types";
 import { ParameterStoreService } from "@shared/utils/parameters";
 import {
@@ -112,16 +113,6 @@ const apiGatewayClient = new ApiGatewayManagementApiClient({
 // ====================================
 // Type Definitions
 // ====================================
-
-interface UserWithPlanInfo {
-  planInfo: {
-    plan: string;
-  };
-  usageStats: {
-    imagesGeneratedThisMonth: number;
-    imagesGeneratedToday: number;
-  };
-}
 
 interface ImageDimensions {
   width: number;
@@ -373,7 +364,7 @@ function createWorkflowParams(
  * @returns Object indicating if generation is allowed and remaining quota
  */
 function checkGenerationLimits(
-  user: UserWithPlanInfo,
+  user: User,
   requestedCount: number
 ): GenerationLimitCheck {
   const planKey = user.planInfo.plan.toLowerCase() as keyof typeof PLAN_LIMITS;
