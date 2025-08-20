@@ -142,6 +142,7 @@ export function ContentCard({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState(0);
   const { isMobileInterface } = useDevice();
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -150,6 +151,32 @@ export function ContentCard({
   const album = !isMedia ? (item as Album) : null;
 
   const isVideoMedia = isMedia && media ? isVideo(media) : false;
+
+  // Album content preview carousel effect
+  useEffect(() => {
+    if (!album || !album.contentPreview || album.contentPreview.length <= 1) {
+      return;
+    }
+
+    // Only start carousel when hovered (desktop) or mobile actions are shown (mobile)
+    const shouldShowCarousel = isMobileInterface
+      ? showMobileActions
+      : isHovered;
+
+    if (!shouldShowCarousel) {
+      // Reset to first image when not hovering/tapping
+      setPreviewIndex(0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setPreviewIndex(
+        (prevIndex) => (prevIndex + 1) % album.contentPreview!.length
+      );
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [album, isHovered, showMobileActions, isMobileInterface]);
 
   // Simple mobile actions timeout management
   useEffect(() => {
@@ -681,7 +708,8 @@ export function ContentCard({
           <div className="relative w-full h-full">
             {!album.coverImageUrl &&
             (!album.thumbnailUrls ||
-              Object.keys(album.thumbnailUrls).length === 0) ? (
+              Object.keys(album.thumbnailUrls).length === 0) &&
+            (!album.contentPreview || album.contentPreview.length === 0) ? (
               <div className="flex items-center justify-center w-full h-full bg-muted/50">
                 <Folder className="w-16 h-16 text-muted-foreground opacity-60" />
               </div>
@@ -690,12 +718,23 @@ export function ContentCard({
                 thumbnailUrls={
                   preferredThumbnailSize
                     ? undefined
+                    : album.contentPreview && album.contentPreview.length > 0
+                    ? composeThumbnailUrls(album.contentPreview[previewIndex])
                     : composeThumbnailUrls(album.thumbnailUrls)
                 }
                 fallbackUrl={composeMediaUrl(
                   preferredThumbnailSize
-                    ? album.thumbnailUrls?.[preferredThumbnailSize] ??
+                    ? album.contentPreview && album.contentPreview.length > 0
+                      ? album.contentPreview[previewIndex]?.[
+                          preferredThumbnailSize
+                        ] ??
+                        album.thumbnailUrls?.[preferredThumbnailSize] ??
                         album.coverImageUrl
+                      : album.thumbnailUrls?.[preferredThumbnailSize] ??
+                        album.coverImageUrl
+                    : album.contentPreview && album.contentPreview.length > 0
+                    ? Object.values(album.contentPreview[previewIndex])[0] ??
+                      album.coverImageUrl
                     : album.coverImageUrl
                 )}
                 alt={title || album.title}

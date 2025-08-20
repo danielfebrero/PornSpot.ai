@@ -16,6 +16,7 @@ import {
   MediaEntity,
   AlbumMediaEntity,
   CommentEntity,
+  ThumbnailUrls,
 } from "@shared/shared-types";
 import {
   UserEntity,
@@ -945,6 +946,19 @@ export class DynamoDBService {
     return (
       (result.Items as AlbumMediaEntity[])?.map((item) => item.mediaId) || []
     );
+  }
+
+  static async getContentPreviewForAlbum(
+    albumId: string
+  ): Promise<ThumbnailUrls[]> {
+    const mediaIds = await this.getMediaIdsForAlbum(albumId);
+
+    const mediaPromises = mediaIds.map((mediaId) => this.getMedia(mediaId));
+
+    const mediaResults = await Promise.all(mediaPromises);
+    return mediaResults
+      .filter((m) => m !== null)
+      .map((m) => m.thumbnailUrls) as ThumbnailUrls[];
   }
 
   static async listAlbumMedia(

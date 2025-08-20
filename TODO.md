@@ -1,127 +1,39 @@
 # TODO list
 
-## Queue manager
+[ ] Image titles must be better than Comfyui_Generated_000043.png.
 
-### Review the concept, the utility
+[ ] Review the concept of queue and estimated waiting time.
 
-Currently we use the queue as a memo for prompts and parameters, not as a queue
+[ ] Reset database before launch.
 
-## Launch
+[ ] Set up dev environment, ssm parameters, subdomains, etc.
 
-### Reset the dynamodb table and the S3 bucket then test everything
+[ ] Deleting a recent image from the list under the main images should remove it from the page instantly and close the lightbox.
 
-We must ensure a clean state before running tests.
+[ ] Navigating to another page should not lose the current state.
 
-### Set up dev environment
+[ ] Optimize filter by tags using indexes.
 
-Add ssm parameters, subdomains, etc.
+[ ] When not logged in and try to like/bookmark, we need a visual feedback.
 
-## Generate page
+[ ] On hover/tap an album card, I want to see changing thumbnails.
 
-### Deleting an a recent image from the list under the main images should remove it from the page instantly
+[ ] Write tests for backend and frontend.
 
-Currently, the image stays on the page and the lightbox do not close.
+[ ] Rework Welcome email.
 
-### Navigating to another page should not lose the current state
+[ ] Implement admin users page.
 
-When I come back to generate page, state is lost.
+[ ] User albums virtualizedGrid is not set to load more for infinite loading.
 
-## Websocket
+[ ] Translate all hardcoded strings.
 
-## User Insights
+[ ] We should show siblings on media page.
 
-## Homepage Discover
+[ ] Migrate to Terraform.
 
-### Optimize filter by tags using indexes
+[ ] Migrate to Next.js 15.
 
-Currently, we filter and it's not efficient at all.
+[ ] Migrate to React.js 19.
 
-## User Bookmarks page
-
-## Content Cards
-
-### When not logged in and try to like/bookmark, we need a visual feedback
-
-Currently, nothing happens.
-
-### On hover/tap an album card, I want to see changing thumbnails
-
-When hovering or tapping on an album card, the thumbnail should change to another media of the album thumbnail, every 1 seconds. This will provide a more dynamic and engaging user experience.
-
-## Error handling
-
-### Write tests
-
-I suggest to delete all the tests and write new ones. The current tests are not up to date and do not cover all the functionality. We should write tests for all the components, hooks, and utilities. Both frontend and backend should have tests.
-
-## UI/UX
-
-### Rework Welcome email
-
-The "what you can do now" section is not coherent and should be reworked.
-
-## User profile
-
-## Videos
-
-## Admin
-
-### Dashboard page should show stats of global app
-
-Refactor the admin dashboard to show stats and analytics for the entire application, not just the admin's own content. This will provide a better overview of the app's performance.
-
-### All media page
-
-We should implement an "All Media" page in the admin section to allow admins to view and manage all media content in one place.
-
-### All albums page
-
-Make sure the album page return all albums, not just the ones created by the user. This will allow admins to manage all albums effectively.
-
-## Settings
-
-## User Profile
-
-## User albums
-
-### Should have infinite loading
-
-Currently, the virtualizedGrid is set to not load more.
-
-## Optimization
-
-### Translate all hardcoded strings
-
-We should extract all hardcoded strings in the application and replace them with next-intl keys.
-
-### Make tanstack leverage ssg data
-
-We should optimize our use of TanStack to leverage Static Site Generation (SSG) data effectively. This will improve performance and reduce the load on our servers.
-
-## Comments
-
-## Media page
-
-### We should show siblings
-
-Right now they do not show a lot except the prompt.
-
-## Infrastructure
-
-### Migrate to Terraform
-
-We should migrate our infrastructure to Terraform for better management and scalability.
-
-### Migrate to Next.js 15
-
-We should upgrade our Next.js version to 15 to take advantage of the latest features and improvements.
-
-### Migrate to React.js 19
-
-We should upgrade our React.js version to 19 to take advantage of the latest features and improvements.
-
-## Login / Logout
-
-### Forgot password page
-
-We should implement forgot password page.
+[ ] Implement forgot password page.

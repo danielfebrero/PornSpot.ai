@@ -16,6 +16,7 @@ import {
   MAX_PAGINATION_LIMITS,
 } from "@shared/utils/pagination";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
+import { Album } from "@shared";
 
 /**
  * Albums GET endpoint with intelligent filtering based on user permissions:
@@ -78,6 +79,8 @@ const handleGetAlbums = async (
   const userParam = event.queryStringParameters?.["user"]; // User parameter for username lookup
   const includeMediaIds =
     event.queryStringParameters?.["includeMediaIds"] === "true"; // Include media IDs in response
+  const includeContentPreview =
+    event.queryStringParameters?.["includeContentPreview"] === "true"; // Include content preview in response
 
   console.log("[Albums API] Request params:", {
     limit,
@@ -144,7 +147,9 @@ const handleGetAlbums = async (
     );
   }
 
-  const albums = includeMediaIds
+  let albums: Album[];
+
+  albums = includeMediaIds
     ? await Promise.all(
         result.albums.map(async (album) => ({
           ...album,
@@ -152,6 +157,16 @@ const handleGetAlbums = async (
         }))
       )
     : result.albums;
+
+  albums = includeContentPreview
+    ? await Promise.all(
+        albums.map(async (album) => ({
+          ...album,
+          contentPreview:
+            (await DynamoDBService.getContentPreviewForAlbum(album.id)) || null,
+        }))
+      )
+    : albums;
 
   // Build typed paginated payload
   const payload = PaginationUtil.createPaginatedResponse(

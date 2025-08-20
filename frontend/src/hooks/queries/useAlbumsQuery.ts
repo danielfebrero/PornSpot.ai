@@ -31,6 +31,7 @@ interface AlbumsQueryParams {
   limit?: number;
   tag?: string;
   includeMediaIds?: boolean;
+  includeContentPreview?: boolean;
   // SSG/ISR support
   initialData?: {
     albums: Album[];

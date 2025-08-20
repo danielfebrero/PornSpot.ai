@@ -52,6 +52,7 @@ export function DiscoverClient({
     refetch,
   } = useAlbums({
     isPublic: true,
+    includeContentPreview: true,
     limit: 12,
     tag,
     // Pass initial data only for non-tagged requests
