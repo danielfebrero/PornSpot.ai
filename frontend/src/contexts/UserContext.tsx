@@ -17,6 +17,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [initializing, setInitializing] = useState(true);
 
+  const refetch = useCallback(async (): Promise<void> => {
+    try {
+      setLoading(true);
+      const response = await userApi.me();
+      if (!response) {
+        setUser(null);
+      }
+
+      setUser(response.user);
+    } catch (err) {
+      // Silent fail for auth check - user is simply not authenticated
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const checkAuth = useCallback(async (): Promise<void> => {
     try {
       setLoading(true);
@@ -78,6 +95,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     },
     clearError: () => {}, // No-op since error handling moved to mutations
     clearUser, // Add clearUser method
+    refetch,
   };
 
   return (

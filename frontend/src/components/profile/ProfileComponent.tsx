@@ -101,7 +101,7 @@ export default function ProfileComponent({
 
   const t = useTranslations("common");
   const { isMobile } = useDevice();
-  const { user: loggedInUser } = useUserContext();
+  const { user: loggedInUser, refetch } = useUserContext();
 
   // Use the abstracted username availability hook
   const {
@@ -394,6 +394,7 @@ export default function ProfileComponent({
       const result = await userApi.updateProfile(formData);
 
       if (result.success && result.data?.user) {
+        refetch();
         // Update the current user state with the response data
         setCurrentUser({
           ...currentUser,

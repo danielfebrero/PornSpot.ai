@@ -24,7 +24,6 @@ import {
   Hash,
 } from "lucide-react";
 import { Media } from "@/types";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { useNavigationLoading } from "@/contexts/NavigationLoadingContext";
 import { ShareDropdown } from "@/components/ui/ShareDropdown";

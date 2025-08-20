@@ -131,6 +131,7 @@ export interface UserContextType {
   resendVerification: (email: string) => Promise<boolean>;
   clearError: () => void;
   clearUser: () => void;
+  refetch: () => Promise<void>;
 }
 
 // Frontend-specific error types
