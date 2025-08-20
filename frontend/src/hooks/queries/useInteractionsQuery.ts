@@ -135,15 +135,11 @@ export function useLikes(targetUser?: string, params: { limit?: number } = {}) {
   return useInfiniteQuery({
     queryKey: queryKeys.user.interactions.likes({ ...params }),
     queryFn: async ({ pageParam }) => {
-      if (targetUser) {
-        return await interactionApi.getLikesByUsername(
-          targetUser,
-          limit,
-          pageParam
-        );
-      } else {
-        return await interactionApi.getLikes(limit, pageParam);
-      }
+      return await interactionApi.getLikes({
+        limit,
+        cursor: pageParam,
+        username: targetUser,
+      });
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage: UnifiedUserInteractionsResponse) => {
