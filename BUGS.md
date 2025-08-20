@@ -44,7 +44,7 @@
 
 [ ] Progress card on generate page should not show estimated wait time because it's broken.
 
-[ ] If add an image to album already in album, we must display a message informative.
+[x] If add an image to album already in album, we must display a message informative.
 
 [x] Bulk remove media from album in edit album dialog does not work
 

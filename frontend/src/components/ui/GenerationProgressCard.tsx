@@ -1,11 +1,9 @@
 import {
   AlertCircle,
   Clock,
-  Cpu,
   RotateCcw,
   Zap,
   CheckCircle2,
-  Loader2,
   Sparkles,
   Activity,
 } from "lucide-react";
@@ -210,12 +208,12 @@ export function GenerationProgressCard({
                         {progressPercentage}%
                       </span>
                     )}
-                    {isQueued && queueStatus?.estimatedWaitTime > 0 && (
+                    {/* {isQueued && queueStatus?.estimatedWaitTime > 0 && (
                       <span className="text-xs text-muted-foreground">
                         ~{Math.round(queueStatus.estimatedWaitTime / 1000 / 60)}{" "}
                         min
                       </span>
-                    )}
+                    )} */}
                   </div>
                 </div>
                 <div className="relative w-full h-1.5 bg-muted/20 rounded-full overflow-hidden">
