@@ -21,6 +21,7 @@ export interface Album {
   createdBy?: string; // userId or adminId who created this album
   createdByType?: CreatorType; // type of creator
   comments?: import("./comment").Comment[]; // Include comments directly in Album
+  mediaIds?: string[]; // List of media ids included in the album
 }
 
 export interface CreateAlbumRequest {

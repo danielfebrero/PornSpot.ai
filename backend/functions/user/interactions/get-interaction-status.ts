@@ -93,6 +93,7 @@ const handleGetInteractionStatus = async (
   const commentTargets = targets.filter((t) => t.targetType === "comment");
 
   // Get user likes and bookmarks for album/media targets
+  // TODO: optimize, get interaction for each target
   const promises: Promise<any>[] = [
     DynamoDBService.getUserInteractions(userId, "like"),
     DynamoDBService.getUserInteractions(userId, "bookmark"),

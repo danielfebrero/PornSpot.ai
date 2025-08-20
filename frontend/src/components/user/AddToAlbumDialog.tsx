@@ -43,6 +43,7 @@ export function AddToAlbumDialog({
   } = useAlbums({
     user: user?.username,
     limit: 50,
+    includeMediaIds: true,
   });
 
   // Extract albums from paginated data

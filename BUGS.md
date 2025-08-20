@@ -50,8 +50,6 @@
 
 [x] Last liked user media does not appear in the user profile.
 
-[ ] Like status is not updated on the user profile for albums and media in last...
+[x] Like status is not updated on the user profile for albums and media in last...
 
-[ ] Like count not showing on most pages in ContentCard.
-
-[ ] Bookmark status do not show on last created albums on user profile.
+[x] Bookmark status do not show on last created albums on user profile.

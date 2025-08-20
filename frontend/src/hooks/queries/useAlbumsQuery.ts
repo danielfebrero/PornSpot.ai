@@ -30,6 +30,7 @@ interface AlbumsQueryParams {
   isPublic?: boolean;
   limit?: number;
   tag?: string;
+  includeMediaIds?: boolean;
   // SSG/ISR support
   initialData?: {
     albums: Album[];

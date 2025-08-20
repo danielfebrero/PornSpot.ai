@@ -930,6 +930,23 @@ export class DynamoDBService {
     return (result.Items as AlbumMediaEntity[]) || [];
   }
 
+  static async getMediaIdsForAlbum(albumId: string): Promise<string[]> {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk_prefix)",
+        ExpressionAttributeValues: {
+          ":pk": `ALBUM#${albumId}`,
+          ":sk_prefix": "MEDIA#",
+        },
+      })
+    );
+
+    return (
+      (result.Items as AlbumMediaEntity[])?.map((item) => item.mediaId) || []
+    );
+  }
+
   static async listAlbumMedia(
     albumId: string,
     limit: number = 50,

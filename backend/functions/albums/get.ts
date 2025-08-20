@@ -76,6 +76,8 @@ const handleGetAlbums = async (
   const isPublicParam = event.queryStringParameters?.["isPublic"];
   const tag = event.queryStringParameters?.["tag"]; // Tag filter parameter
   const userParam = event.queryStringParameters?.["user"]; // User parameter for username lookup
+  const includeMediaIds =
+    event.queryStringParameters?.["includeMediaIds"] === "true"; // Include media IDs in response
 
   console.log("[Albums API] Request params:", {
     limit,
@@ -142,10 +144,19 @@ const handleGetAlbums = async (
     );
   }
 
+  const albums = includeMediaIds
+    ? await Promise.all(
+        result.albums.map(async (album) => ({
+          ...album,
+          mediaIds: (await DynamoDBService.getMediaIdsForAlbum(album.id)) || [],
+        }))
+      )
+    : result.albums;
+
   // Build typed paginated payload
   const payload = PaginationUtil.createPaginatedResponse(
     "albums",
-    result.albums,
+    albums,
     result.lastEvaluatedKey,
     limit
   );
