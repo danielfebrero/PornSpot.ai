@@ -4,19 +4,15 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocaleRouter } from "@/lib/navigation";
 import { Button } from "@/components/ui/Button";
-import {
-  useUserProfile,
-  useVerifyEmail,
-  useCheckAuth,
-} from "@/hooks/queries/useUserQuery";
+import { useVerifyEmail, useCheckAuth } from "@/hooks/queries/useUserQuery";
+import { useUserContext } from "@/contexts/UserContext";
 
 type VerificationState = "loading" | "success" | "error" | "invalid";
 
 export function VerifyEmailClient() {
   const [state, setState] = useState<VerificationState>("loading");
   const [message, setMessage] = useState("");
-  const { data: userProfile } = useUserProfile();
-  const user = userProfile?.user || null;
+  const { user } = useUserContext();
   const verifyEmailMutation = useVerifyEmail();
   const checkAuthMutation = useCheckAuth();
   const searchParams = useSearchParams();

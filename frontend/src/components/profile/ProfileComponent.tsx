@@ -20,7 +20,6 @@ import { useAlbums } from "@/hooks/queries/useAlbumsQuery";
 import { useCommentsQuery } from "@/hooks/queries/useCommentsQuery";
 import { useUserMedia } from "@/hooks/queries/useMediaQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { useUsernameAvailability } from "@/hooks/useUsernameAvailability";
 import { formatDistanceToNow } from "@/lib/dateUtils";
 import { userApi } from "@/lib/api/user";
@@ -44,6 +43,7 @@ import {
 import { cn } from "@/lib/utils";
 import { UserProfileInsights } from "@/types/user";
 import { useDevice } from "@/contexts/DeviceContext";
+import { useUserContext } from "@/contexts/UserContext";
 
 interface ProfileUser {
   userId: string;
@@ -101,8 +101,7 @@ export default function ProfileComponent({
 
   const t = useTranslations("common");
   const { isMobile } = useDevice();
-  const { data: userProfile } = useUserProfile();
-  const loggedInUser = userProfile?.user || null;
+  const { user: loggedInUser } = useUserContext();
 
   // Use the abstracted username availability hook
   const {

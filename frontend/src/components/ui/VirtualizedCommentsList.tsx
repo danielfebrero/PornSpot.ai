@@ -12,7 +12,7 @@ import {
   usePrefetchInteractionStatus,
   useToggleLike,
 } from "@/hooks/queries/useInteractionsQuery";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
+import { useUserContext } from "@/contexts/UserContext";
 
 interface VirtualizedCommentsListProps {
   comments: CommentType[];
@@ -46,8 +46,7 @@ export function VirtualizedCommentsList({
   onCommentDelete,
 }: VirtualizedCommentsListProps) {
   // Get current user data
-  const { data: userResponse } = useUserProfile();
-  const user = userResponse?.user;
+  const { user } = useUserContext();
   const currentUserId = user?.userId;
 
   // Hook for manual prefetching (for interaction status)

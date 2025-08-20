@@ -37,6 +37,7 @@ import LocaleLink from "@/components/ui/LocaleLink";
 import { cn } from "@/lib/utils";
 import { formatFileSize, isVideo } from "@/lib/utils";
 import { formatDistanceToNow } from "@/lib/dateUtils";
+import { useUserContext } from "@/contexts/UserContext";
 
 // --- PROPS INTERFACES ---
 
@@ -168,19 +169,15 @@ const GenerationPrompt: FC<GenerationPromptProps> = ({ title, prompt }) => (
 export function MediaDetailClient({ media }: MediaDetailClientProps) {
   const router = useLocaleRouter();
   const { startNavigation } = useNavigationLoading();
-  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const [viewTracked, setViewTracked] = useState(false);
   const metadata = useMediaMetadata(media);
-  const { data: userResponse } = useUserProfile();
+  const { user } = useUserContext();
   const hasTrackedView = useRef(false);
   const trackViewMutation = useTrackView();
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();
-
-  // Extract user from the API response structure
-  const user = userResponse?.user;
 
   // Track view when component mounts, then enable view count fetching
   useEffect(() => {
@@ -259,8 +256,6 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
   const handleDesktopMediaClick = () => {
     if (shouldShowPlayer) {
       setIsPlayingVideo(!isPlayingVideo);
-    } else {
-      setLightboxOpen(true);
     }
   };
 
@@ -268,8 +263,6 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
   const handleMobileMediaClick = () => {
     if (shouldShowPlayer) {
       setIsPlayingVideo(!isPlayingVideo);
-    } else {
-      setLightboxOpen(true);
     }
   };
 

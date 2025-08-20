@@ -7,13 +7,13 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import { User, UserContextType } from "@/types";
+import { UserContextType, UserWithPlanInfo } from "@/types";
 import { userApi } from "@/lib/api";
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserWithPlanInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [initializing, setInitializing] = useState(true);
 

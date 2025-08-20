@@ -2,12 +2,12 @@
 
 import React, { createContext, useContext } from "react";
 import {
-  useUserProfile,
   useLogin,
   useLogout,
   useCheckAuth,
 } from "@/hooks/queries/useUserQuery";
 import { UserWithPlanInfo } from "../types/user";
+import { useUserContext } from "./UserContext";
 
 interface AdminContextType {
   user: UserWithPlanInfo | null;
@@ -23,12 +23,11 @@ interface AdminContextType {
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export function AdminProvider({ children }: { children: React.ReactNode }) {
-  const { data: userProfile, isLoading } = useUserProfile();
+  const { user, loading: isLoading } = useUserContext();
   const loginMutation = useLogin();
   const logoutMutation = useLogout();
   const checkAuthMutation = useCheckAuth();
 
-  const user = userProfile?.user as UserWithPlanInfo | null;
   const isAdmin = user?.role === "admin";
   const isModerator = user?.role === "moderator";
   const hasAdminAccess = isAdmin || isModerator;

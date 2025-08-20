@@ -11,11 +11,11 @@ import {
   useUpdateAlbum,
   useDeleteAlbum,
 } from "@/hooks/queries/useAlbumsQuery";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { EditAlbumDialog } from "@/components/albums/EditAlbumDialog";
 import { DeleteAlbumDialog } from "@/components/albums/DeleteAlbumDialog";
 import { Album, UnifiedAlbumsResponse } from "@/types";
+import { useUserContext } from "@/contexts/UserContext";
 
 const UserAlbumsPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -23,8 +23,7 @@ const UserAlbumsPage: React.FC = () => {
   const [deletingAlbum, setDeletingAlbum] = useState<Album | null>(null);
 
   // Get current user info
-  const { data: userResponse } = useUserProfile();
-  const user = userResponse?.user;
+  const { user } = useUserContext();
 
   // Use TanStack Query hooks for album operations
   const {

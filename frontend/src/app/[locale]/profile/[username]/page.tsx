@@ -3,16 +3,16 @@
 import { useParams } from "next/navigation";
 import ProfileComponent from "@/components/profile/ProfileComponent";
 import { usePublicProfile } from "@/hooks/queries/useUserQuery";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { ViewTracker } from "@/components/ui/ViewTracker";
+import { useUserContext } from "@/contexts/UserContext";
 
 export default function PublicProfilePage() {
   const params = useParams();
   const username = params.username as string;
 
   // Get current user authentication status
-  const { data: currentUserData, isLoading: authLoading } = useUserProfile();
-  const currentUser = currentUserData?.user;
+  const { user, loading: authLoading } = useUserContext();
+  const currentUser = user;
 
   // Fetch public profile data using TanStack Query
   const {
@@ -22,15 +22,6 @@ export default function PublicProfilePage() {
   } = usePublicProfile(username);
 
   const profileUser = profileData;
-
-  // Debug logging
-  console.log("🔍 Profile Debug:", {
-    username,
-    profileData,
-    profileUser,
-    loading,
-    error,
-  });
 
   // Authentication check: require user to be logged in to view any profile
   if (!currentUser && !authLoading) {

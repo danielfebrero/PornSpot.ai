@@ -12,7 +12,6 @@ import { ViewCount } from "@/components/ui/ViewCount";
 import { cn, isVideo } from "@/lib/utils";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { useDevice } from "@/contexts/DeviceContext";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useRemoveMediaFromAlbum } from "@/hooks/queries/useAlbumsQuery";
 import { useDeleteMedia } from "@/hooks/queries/useMediaQuery";
@@ -29,6 +28,7 @@ import {
 import ResponsivePicture from "@/components/ui/ResponsivePicture";
 import { composeThumbnailUrls } from "@/lib/urlUtils";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useUserContext } from "@/contexts/UserContext";
 
 interface ContentCardProps {
   item: Media | Album;
@@ -130,8 +130,7 @@ export function ContentCard({
 }: ContentCardProps) {
   const router = useLocaleRouter();
   const { startNavigation } = useNavigationLoading();
-  const { data: userProfile } = useUserProfile();
-  const user = userProfile?.user || null;
+  const { user } = useUserContext();
   const { redirectToLogin } = useAuthRedirect();
   const removeFromAlbumMutation = useRemoveMediaFromAlbum();
   const deleteMediaMutation = useDeleteMedia();

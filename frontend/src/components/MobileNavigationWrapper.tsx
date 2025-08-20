@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { MobileNavigation } from "@/components/ui/MobileNavigation";
 import {
   Compass,
@@ -13,15 +12,13 @@ import {
   Image,
   FolderOpen,
 } from "lucide-react";
+import { useUserContext } from "@/contexts/UserContext";
 
 export function MobileNavigationWrapper() {
   const pathname = usePathname();
-  const { data: userResponse } = useUserProfile();
+  const { user } = useUserContext();
   const t = useTranslations("common");
   const tNav = useTranslations("navigation");
-
-  // Extract user from the API response structure
-  const user = userResponse?.user;
 
   // Don't show on admin pages
   const isAdminPage = pathname.includes("/admin");

@@ -1,11 +1,11 @@
 import { User, UserWithPlanInfo } from "@/types";
-import { UserWithPlan, UserPlan, UserRole } from "@/types/permissions";
+import { UserPlan, UserRole } from "@/types/permissions";
 import { getAllPlanDefinitions } from "@/utils/permissions";
 
 // Utility to convert API user to permissions-compatible user
 export async function createUserWithPlan(
   user: User | UserWithPlanInfo
-): Promise<UserWithPlan> {
+): Promise<UserWithPlanInfo> {
   const baseUser = user as UserWithPlanInfo;
 
   // Extract plan info from the nested structure
@@ -22,8 +22,8 @@ export async function createUserWithPlan(
       plan,
       isActive: baseUser.planInfo?.isActive || plan === "free",
       subscriptionId: baseUser.planInfo?.subscriptionId,
-      startDate: baseUser.planInfo?.planStartDate || user.createdAt,
-      endDate: baseUser.planInfo?.planEndDate,
+      planStartDate: baseUser.planInfo?.planStartDate || user.createdAt,
+      planEndDate: baseUser.planInfo?.planEndDate,
       permissions,
     },
     usageStats: baseUser.usageStats || {
@@ -36,8 +36,8 @@ export async function createUserWithPlan(
 // Mock user data for development/testing
 export async function createMockUser(
   plan: UserPlan = "free",
-  overrides?: Partial<UserWithPlan>
-): Promise<UserWithPlan> {
+  overrides?: Partial<UserWithPlanInfo>
+): Promise<UserWithPlanInfo> {
   const baseUser: User = {
     userId: "mock-user-123",
     email: "test@example.com",

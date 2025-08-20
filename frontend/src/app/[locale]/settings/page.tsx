@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
-import { useUserProfile, useLogout } from "@/hooks/queries/useUserQuery";
+import { useLogout } from "@/hooks/queries/useUserQuery";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { userApi } from "@/lib/api";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -26,6 +26,7 @@ import {
   ExternalLink,
   Trash2,
 } from "lucide-react";
+import { useUserContext } from "@/contexts/UserContext";
 
 interface LanguageOption {
   code: string;
@@ -43,8 +44,7 @@ const languageOptions: LanguageOption[] = [
 ];
 
 export default function SettingsPage() {
-  const { data: userProfile, isLoading: loading } = useUserProfile();
-  const user = userProfile?.user || null;
+  const { user, loading } = useUserContext();
   const userPermissions = useUserPermissions();
   const logoutMutation = useLogout();
   const t = useTranslations();

@@ -7,10 +7,10 @@ import {
   useInteractionStatusFromCache,
   useToggleBookmark,
 } from "@/hooks/queries/useInteractionsQuery";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { InteractionButtonSkeleton } from "@/components/ui/Skeleton";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { cn } from "@/lib/utils";
+import { useUserContext } from "@/contexts/UserContext";
 
 interface BookmarkButtonProps {
   targetType: "album" | "media";
@@ -31,8 +31,7 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   variant = "ghost",
   className,
 }) => {
-  const { data: userProfile } = useUserProfile();
-  const user = userProfile?.user || null;
+  const { user } = useUserContext();
   const { redirectToLogin } = useAuthRedirect();
 
   const t = useTranslations("common");

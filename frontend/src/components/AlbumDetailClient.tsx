@@ -9,7 +9,6 @@ import { Tooltip } from "@/components/ui/Tooltip";
 import { ViewTracker } from "@/components/ui/ViewTracker";
 import { MediaGallery } from "@/components/MediaGallery";
 import { Comments } from "@/components/ui/Comments";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { formatDistanceToNow } from "@/lib/dateUtils";
 import {
@@ -17,6 +16,7 @@ import {
   MediaGalleryErrorBoundary,
   CommentsErrorBoundary,
 } from "./ErrorBoundaries";
+import { useUserContext } from "@/contexts/UserContext";
 
 interface AlbumDetailClientProps {
   album: Album;
@@ -24,9 +24,7 @@ interface AlbumDetailClientProps {
 
 export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
   const router = useRouter();
-  const { data } = useUserProfile();
-
-  const user = data?.user;
+  const { user } = useUserContext();
 
   return (
     <div className="min-h-screen bg-background text-foreground">

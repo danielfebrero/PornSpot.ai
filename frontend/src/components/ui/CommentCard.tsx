@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { use, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { CommentItem } from "@/components/ui/Comment";
@@ -10,7 +10,7 @@ import {
   useUpdateComment,
   useDeleteComment,
 } from "@/hooks/queries/useCommentsQuery";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
+import { useUserContext } from "@/contexts/UserContext";
 
 interface CommentCardProps {
   comment: CommentType;
@@ -34,8 +34,7 @@ export function CommentCard({
   onLike,
 }: CommentCardProps) {
   // Get current user data
-  const { data: userResponse } = useUserProfile();
-  const user = userResponse?.user;
+  const { user } = useUserContext();
   const currentUserId = user?.userId;
 
   // Use provided interaction data instead of making individual API calls

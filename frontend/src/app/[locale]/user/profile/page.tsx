@@ -1,11 +1,10 @@
 "use client";
 
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import ProfileComponent from "@/components/profile/ProfileComponent";
+import { useUserContext } from "@/contexts/UserContext";
 
 export default function ProfilePage() {
-  const { data: userResponse, isLoading: loading } = useUserProfile();
-  const user = userResponse?.user;
+  const { user, loading } = useUserContext();
 
   // No user state
   if (!user && !loading) {

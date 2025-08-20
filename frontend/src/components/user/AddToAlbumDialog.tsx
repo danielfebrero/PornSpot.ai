@@ -15,7 +15,7 @@ import {
   useCreateAlbum,
   useAddMediaToAlbum,
 } from "@/hooks/queries/useAlbumsQuery";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
+import { useUserContext } from "@/contexts/UserContext";
 
 interface AddToAlbumDialogProps {
   isOpen: boolean;
@@ -31,8 +31,7 @@ export function AddToAlbumDialog({
   const t = useTranslations("album");
   const tCommon = useTranslations("common");
   const { canCreatePrivateContent } = usePermissions();
-  const { data: userProfile } = useUserProfile();
-  const user = userProfile?.user || null;
+  const { user } = useUserContext();
 
   // Use TanStack Query hooks for albums and creation
   const {

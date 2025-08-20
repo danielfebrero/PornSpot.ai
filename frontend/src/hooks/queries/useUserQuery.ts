@@ -10,45 +10,45 @@ import {
 } from "@/types";
 
 // Hook for fetching current user profile
-export function useUserProfile() {
-  const userContext = useUserContext();
+// export function useUserProfile() {
+//   const userContext = useUserContext();
 
-  return useQuery({
-    queryKey: queryKeys.user.profile(),
-    queryFn: async () => {
-      return await userApi.me();
-    },
-    // Keep user profile fresh for 5 minutes
-    staleTime: () => {
-      // If we have user data, keep fresh for 5 minutes
-      return 5 * 60 * 1000;
-    },
-    // Only refetch on window focus if we don't have authentication errors
-    refetchOnWindowFocus: () => {
-      return true;
-    },
-    // Don't retry authentication errors
-    retry: false,
-    // Prevent automatic queries when UserContext indicates no authentication
-    enabled: (() => {
-      // If UserContext is still initializing, wait for it
-      // if (userContext?.initializing) {
-      //   return false;
-      // }
+//   return useQuery({
+//     queryKey: queryKeys.user.profile(),
+//     queryFn: async () => {
+//       return await userApi.me();
+//     },
+//     // Keep user profile fresh for 5 minutes
+//     staleTime: () => {
+//       // If we have user data, keep fresh for 5 minutes
+//       return 5 * 60 * 1000;
+//     },
+//     // Only refetch on window focus if we don't have authentication errors
+//     refetchOnWindowFocus: () => {
+//       return true;
+//     },
+//     // Don't retry authentication errors
+//     retry: false,
+//     // Prevent automatic queries when UserContext indicates no authentication
+//     enabled: (() => {
+//       // If UserContext is still initializing, wait for it
+//       // if (userContext?.initializing) {
+//       //   return false;
+//       // }
 
-      // If UserContext has definitively determined there's no user and isn't loading,
-      // and we don't already have cached data, don't query
-      if (!userContext?.user && !userContext?.loading) {
-        return false;
-      }
+//       // If UserContext has definitively determined there's no user and isn't loading,
+//       // and we don't already have cached data, don't query
+//       if (!userContext?.user && !userContext?.loading) {
+//         return false;
+//       }
 
-      // Otherwise, allow the query to proceed
-      return true;
-    })(),
-    // If UserContext already has user data, initialize the cache with it
-    initialData: userContext?.user ? { user: userContext.user } : undefined,
-  });
-}
+//       // Otherwise, allow the query to proceed
+//       return true;
+//     })(),
+//     // If UserContext already has user data, initialize the cache with it
+//     initialData: userContext?.user ? { user: userContext.user } : undefined,
+//   });
+// }
 
 // Hook for updating user profile
 export function useUpdateUserProfile() {

@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { useLocaleRouter } from "@/lib/navigation";
 import { useTranslations } from "next-intl";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { Heart, Bookmark, Image, FolderOpen, User } from "lucide-react";
 import {
   Skeleton,
@@ -26,9 +25,8 @@ const UserLayout: React.FC<UserLayoutProps> = ({
   children,
   params: { locale },
 }) => {
-  const { data: userResponse, isLoading: loading } = useUserProfile();
+  const { user, loading } = useUserContext();
   const userContext = useUserContext();
-  const user = userResponse?.user;
   const router = useLocaleRouter();
   const t = useTranslations("navigation");
 
@@ -37,10 +35,9 @@ const UserLayout: React.FC<UserLayoutProps> = ({
     // Wait for both UserContext initialization and useUserProfile query to complete
     const isUserContextReady =
       !userContext?.initializing && !userContext?.loading;
-    const isUserProfileReady = !loading;
 
     // Only redirect if both are ready and no user is found
-    if (isUserContextReady && isUserProfileReady && !user) {
+    if (isUserContextReady && !user) {
       router.push(`/${locale}/auth/login`);
     }
   }, [

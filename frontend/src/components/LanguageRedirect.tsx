@@ -2,16 +2,15 @@
 
 import { useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { useLocaleRouter } from "@/lib/navigation";
+import { useUserContext } from "@/contexts/UserContext";
 
 /**
  * Component that handles automatic language redirection based on user preferences
  * Should be included in the root layout to work on all pages
  */
 export function LanguageRedirect() {
-  const { data: userProfile, isLoading: loading } = useUserProfile();
-  const user = userProfile?.user || null;
+  const { user, loading } = useUserContext();
   const params = useParams();
   const router = useLocaleRouter();
   const currentLocale = params.locale as string;

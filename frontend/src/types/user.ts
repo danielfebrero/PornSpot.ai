@@ -7,6 +7,7 @@ import type {
   Comment as SharedComment,
   UserLoginRequest,
   UserRegistrationRequest,
+  PlanPermissions,
 } from "@/types/shared-types";
 import type { UserInteraction as BaseUserInteraction } from "@/types/shared-types";
 
@@ -116,7 +117,7 @@ export interface UserLoginFormData {
 
 // Frontend-specific context types
 export interface UserContextType {
-  user: BaseUser | null;
+  user: UserWithPlanInfo | null;
   loading: boolean;
   error: string | null;
   initializing: boolean;
@@ -164,8 +165,6 @@ export interface ExtractedGoogleOAuthResponse {
 
 // Extended user with plan information - frontend specific
 export interface UserWithPlanInfo extends BaseUser {
-  // Explicitly include username to avoid build-time type resolution issues on Vercel
-  username?: string;
   role?: string; // 'user', 'admin', 'moderator'
   planInfo?: {
     plan: string; // 'free', 'starter', 'unlimited', 'pro'
@@ -174,6 +173,7 @@ export interface UserWithPlanInfo extends BaseUser {
     subscriptionStatus?: "active" | "canceled" | "expired";
     planStartDate?: string;
     planEndDate?: string;
+    permissions: PlanPermissions;
   };
   usageStats?: {
     imagesGeneratedThisMonth: number;
