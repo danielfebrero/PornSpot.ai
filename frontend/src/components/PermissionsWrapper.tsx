@@ -5,14 +5,16 @@ import { useUserProfile } from "@/hooks/queries/useUserQuery";
 import { PermissionsProvider } from "@/contexts/PermissionsContext";
 import { createUserWithPlan, createMockUser } from "@/lib/userUtils";
 import { UserWithPlan } from "@/types/permissions";
+import { useUserContext } from "@/contexts/UserContext";
 
 interface PermissionsWrapperProps {
   children: ReactNode;
 }
 
 export function PermissionsWrapper({ children }: PermissionsWrapperProps) {
-  const { data: userResponse, isLoading: loading } = useUserProfile();
-  const user = userResponse?.user || null;
+  const userContext = useUserContext();
+
+  const user = userContext?.user || null;
   const [userWithPermissions, setUserWithPermissions] =
     useState<UserWithPlan | null>(null);
   const [lastProcessedUserId, setLastProcessedUserId] = useState<string | null>(
@@ -23,7 +25,7 @@ export function PermissionsWrapper({ children }: PermissionsWrapperProps) {
   // If no user is logged in, create a mock free user for permissions
   useEffect(() => {
     // Don't load permissions until user context is fully initialized
-    if (loading) {
+    if (userContext.loading) {
       return;
     }
 
@@ -49,7 +51,7 @@ export function PermissionsWrapper({ children }: PermissionsWrapperProps) {
     };
 
     loadUserPermissions();
-  }, [user, loading, lastProcessedUserId, userWithPermissions]);
+  }, [user, userContext.loading, lastProcessedUserId, userWithPermissions]);
 
   return (
     <PermissionsProvider user={userWithPermissions}>
