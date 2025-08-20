@@ -53,3 +53,5 @@
 [x] Like status is not updated on the user profile for albums and media in last...
 
 [x] Bookmark status do not show on last created albums on user profile.
+
+[ ] After content #20, interaction status does not show on user likes page (and probably other pages).

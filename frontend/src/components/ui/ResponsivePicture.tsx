@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ThumbnailUrls } from "../../types/index";
 import { useContainerDimensions } from "../../hooks/useContainerDimensions";
 import { composeMediaUrl } from "../../lib/urlUtils";
+import { is } from "zod/v4/locales";
 
 interface ResponsivePictureProps {
   thumbnailUrls?: ThumbnailUrls;
@@ -412,9 +413,12 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
         alt={alt}
         className={className}
         loading={loading}
-        style={{ zIndex: isCarouselActive ? 10 : 0, position: "absolute" }}
+        style={{ zIndex: isCarouselActive ? 1 : 0, position: "absolute" }}
       />
-      <picture onClick={onClick} style={{ position: "absolute" }}>
+      <picture
+        onClick={onClick}
+        style={{ position: "absolute", zIndex: isCarouselActive ? 0 : 1 }}
+      >
         {sources.map(
           (source: { media: string; srcSet: string }, index: number) => (
             <source key={index} media={source.media} srcSet={source.srcSet} />
