@@ -26,9 +26,16 @@ export async function getAlbums(
     limit?: number;
     cursor?: string;
     tag?: string;
+    includeContentPreview?: boolean;
   } = {}
 ) {
-  const { isPublic = true, limit = 12, cursor, tag } = options;
+  const {
+    isPublic = true,
+    limit = 12,
+    cursor,
+    tag,
+    includeContentPreview,
+  } = options;
   const params = new URLSearchParams({
     isPublic: String(isPublic),
     limit: String(limit),
@@ -38,6 +45,9 @@ export async function getAlbums(
   }
   if (tag) {
     params.append("tag", tag);
+  }
+  if (includeContentPreview) {
+    params.append("includeContentPreview", String(includeContentPreview));
   }
 
   const response = await fetch(`${API_URL}/albums?${params}`, {

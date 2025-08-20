@@ -53,6 +53,7 @@ export default async function DiscoverPage({
     const result = await getAlbums({
       isPublic: true,
       limit: 12,
+      includeContentPreview: true,
       ...(tag && { tag }), // Include tag if provided
     });
 
