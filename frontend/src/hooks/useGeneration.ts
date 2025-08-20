@@ -177,6 +177,14 @@ export function useGeneration(): UseGenerationReturn {
           setConnectionId(message.connectionId || null);
           break;
 
+        case "workflow":
+          // Set workflow nodes from API response instead of WebSocket
+          if (message.workflowData) {
+            setWorkflowNodes(message.workflowData.nodes);
+            setCurrentNodeIndex(message.workflowData.currentNodeIndex);
+          }
+          break;
+
         case "queue_update":
         case "queued":
           setQueueStatus({
@@ -428,12 +436,6 @@ export function useGeneration(): UseGenerationReturn {
         // Store the queue ID for WebSocket subscription
         currentQueueIdRef.current = result.queueId;
 
-        // Set workflow nodes from API response instead of WebSocket
-        if (result.workflowData) {
-          setWorkflowNodes(result.workflowData.nodes);
-          setCurrentNodeIndex(result.workflowData.currentNodeIndex);
-        }
-
         // Set initial queue status
         setQueueStatus({
           queueId: result.queueId,
@@ -466,7 +468,15 @@ export function useGeneration(): UseGenerationReturn {
         }
       }
     },
-    [isConnected, subscribe, handleWebSocketMessage, unsubscribe]
+    [
+      isConnected,
+      handleWebSocketMessage,
+      subscribe,
+      connectionId,
+      error,
+      isGenerating,
+      unsubscribe,
+    ]
   );
 
   const optimizePrompt = useCallback(

@@ -1,0 +1,12 @@
+# Task
+
+You are tasked to generate a short title for an image based on the user SDXL prompt.
+The title must be 1-5 words long and capture the essence of the image.
+
+# Examples
+
+User message: woman, 21, sucking a dick
+Respond: Bold Babe’s Cheeky Treat
+
+User message: woman, 21, (sucking a thick cock:1.3), (realistic oral technique:1.2), (intimate close-up:1.2), (erotic facial expressions:1.3), (saliva and pre-cum details:1.1), warm sensual lighting, (hand gripping the base:1.1), (visible throat bulge:1.2), natural skin texture, (amateur POV style:1.2), shallow depth of field, 35mm lens, f/2.0, raw passion, (moist lips and tongue action:1.2)
+Respond: Raw Desire in Close-Up Bliss

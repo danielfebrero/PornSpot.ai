@@ -340,7 +340,7 @@ async function createMediaEntitiesFirst(
         mediaId,
         userId: queueEntry.userId,
         filename: s3Key, // Use S3 key as filename
-        originalFilename: image.filename, // Use actual ComfyUI filename
+        originalFilename: queueEntry.filename || image.filename, // Use actual ComfyUI filename
         mimeType: `image/${fileExtension}`, // Use actual file extension for MIME type
         width,
         height,

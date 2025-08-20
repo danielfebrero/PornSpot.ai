@@ -52,12 +52,9 @@ import {
 } from "@shared/services/comfyui-error-handler";
 
 // ====================================
-// Performance Monitoring Utilities
+// Performance Monitoring
 // ====================================
 
-/**
- * Performance timer utility for measuring execution time
- */
 class PerformanceTimer {
   private startTime: number;
   private label: string;
@@ -91,18 +88,36 @@ class PerformanceTimer {
 // Constants and Configuration
 // ====================================
 
-// Plan limits configuration
-const PLAN_LIMITS = {
-  free: { monthly: 30, daily: 1, priority: 1000 },
-  starter: { monthly: 300, daily: 50, priority: 500 },
-  pro: { monthly: "unlimited", daily: "unlimited", priority: 100 },
-  unlimited: { monthly: "unlimited", daily: "unlimited", priority: 0 },
-} as const;
-
-// Validation limits
-const VALIDATION_LIMITS = {
-  prompt: { maxLength: 1000 },
-  negativePrompt: { maxLength: 500 },
+const CONFIG = {
+  PLAN_LIMITS: {
+    free: { monthly: 30, daily: 1, priority: 1000 },
+    starter: { monthly: 300, daily: 50, priority: 500 },
+    pro: { monthly: "unlimited", daily: "unlimited", priority: 100 },
+    unlimited: { monthly: "unlimited", daily: "unlimited", priority: 0 },
+  },
+  VALIDATION_LIMITS: {
+    prompt: { maxLength: 1000 },
+    negativePrompt: { maxLength: 500 },
+  },
+  MODELS: {
+    moderation: "mistralai/mistral-medium-3.1",
+    optimization: "mistralai/mistral-medium-3.1",
+    loraSelection: "mistralai/mistral-medium-3.1",
+  },
+  AI_PARAMS: {
+    temperature: {
+      moderation: 0.1,
+      optimization: 0.7,
+      loraSelection: 0.1,
+      titleGeneration: 0.7,
+    },
+    maxTokens: {
+      moderation: 256,
+      optimization: 1024,
+      loraSelection: 512,
+      titleGeneration: 128,
+    },
+  },
 } as const;
 
 // Initialize AWS API Gateway client for WebSocket messaging
@@ -114,1002 +129,520 @@ const apiGatewayClient = new ApiGatewayManagementApiClient({
 // Type Definitions
 // ====================================
 
-interface ImageDimensions {
-  width: number;
-  height: number;
-}
-
 interface ValidationError {
   message: string;
   field?: string;
 }
 
-interface ModerationResult {
-  passed: boolean;
-  reason?: string;
-}
-
-interface OptimizationResult {
-  finalPrompt: string;
-  optimizedPromptResult: string | null;
-  selectedLoras?: string[];
-  shouldReturn?: boolean;
-  response?: GenerationResponse;
-  moderationFailed?: boolean;
-  moderationReason?: string;
-}
-
-interface GenerationLimitCheck {
-  allowed: boolean;
-  remaining: number | "unlimited";
+interface ProcessingResult<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
 }
 
 // ====================================
-// Validation Functions
+// WebSocket Communication Service
 // ====================================
 
-/**
- * Validates the entire generation request against plan permissions and limits
- * @param requestBody - The generation request from the client
- * @param permissions - User's plan permissions
- * @returns ValidationError if validation fails, null otherwise
- */
-function validateGenerationRequest(
-  requestBody: GenerationRequest,
-  permissions: any
-): ValidationError | null {
-  const {
-    prompt,
-    negativePrompt = "",
-    imageSize = "1024x1024",
-    batchCount = 1,
-    selectedLoras = [],
-    loraSelectionMode = "auto",
-    loraStrengths = {},
-    isPublic = true,
-  } = requestBody;
+class WebSocketService {
+  static async sendMessage(
+    connectionId: string,
+    messageType: string,
+    data: any
+  ): Promise<void> {
+    if (!connectionId) return;
 
-  // Validate prompt presence and length
-  try {
-    const validatedPrompt = ValidationUtil.validateRequiredString(
-      prompt,
-      "Prompt"
-    );
-    if (validatedPrompt.length > VALIDATION_LIMITS.prompt.maxLength) {
-      return {
-        message: `Prompt is too long (max ${VALIDATION_LIMITS.prompt.maxLength} characters)`,
-        field: "prompt",
-      };
-    }
-  } catch (error) {
-    return {
-      message: "Prompt is required",
-      field: "prompt",
-    };
-  }
+    try {
+      const command = new PostToConnectionCommand({
+        ConnectionId: connectionId,
+        Data: JSON.stringify({
+          type: messageType,
+          ...data,
+          timestamp: new Date().toISOString(),
+        }),
+      });
 
-  // Validate negative prompt length
-  if (
-    negativePrompt &&
-    negativePrompt.length > VALIDATION_LIMITS.negativePrompt.maxLength
-  ) {
-    return {
-      message: `Negative prompt is too long (max ${VALIDATION_LIMITS.negativePrompt.maxLength} characters)`,
-      field: "negativePrompt",
-    };
-  }
-
-  // Validate batch count against plan permissions
-  if (batchCount > 1 && !permissions.canUseBulkGeneration) {
-    return {
-      message: "Your plan allows maximum 1 image per batch",
-      field: "batchCount",
-    };
-  }
-
-  // Validate LoRA usage
-  const loraError = validateLoRAUsage(
-    selectedLoras,
-    loraSelectionMode,
-    loraStrengths,
-    permissions
-  );
-  if (loraError) return loraError;
-
-  // Validate negative prompt usage permission
-  if (negativePrompt?.trim() && !permissions.canUseNegativePrompt) {
-    return {
-      message: "Negative prompts require a Pro plan",
-      field: "negativePrompt",
-    };
-  }
-
-  // Validate custom image size permission
-  if (imageSize === "custom" && !permissions.canSelectImageSizes) {
-    return {
-      message: "Custom image sizes require Pro plan",
-      field: "imageSize",
-    };
-  }
-
-  // Validate private content creation permission
-  if (!isPublic && !permissions.canCreatePrivateContent) {
-    return {
-      message: "Private content creation requires a Pro plan",
-      field: "isPublic",
-    };
-  }
-
-  return null;
-}
-
-/**
- * Validates LoRA model usage against plan permissions
- * @param selectedLoras - Array of selected LoRA model names
- * @param loraSelectionMode - Mode for LoRA selection (auto/manual)
- * @param loraStrengths - Strength values for each LoRA
- * @param permissions - User's plan permissions
- * @returns ValidationError if LoRA usage is not allowed, null otherwise
- */
-function validateLoRAUsage(
-  selectedLoras: string[],
-  loraSelectionMode: string,
-  loraStrengths: Record<string, any>,
-  permissions: any
-): ValidationError | null {
-  const hasLoraUsage =
-    selectedLoras.length > 0 ||
-    loraSelectionMode !== "auto" ||
-    Object.keys(loraStrengths).length > 0;
-
-  if (hasLoraUsage && !permissions.canUseLoRAModels) {
-    return {
-      message: "LoRA models require a Pro plan",
-      field: "lora",
-    };
-  }
-
-  return null;
-}
-
-// ====================================
-// Utility Functions
-// ====================================
-
-/**
- * Calculates image dimensions from size string or custom values
- * @param imageSize - Size string (e.g., "1024x1024") or "custom"
- * @param customWidth - Custom width if imageSize is "custom"
- * @param customHeight - Custom height if imageSize is "custom"
- * @returns Object with width and height
- */
-function calculateImageDimensions(
-  imageSize: string,
-  customWidth?: number,
-  customHeight?: number
-): ImageDimensions {
-  if (imageSize === "custom") {
-    return {
-      width: customWidth || 1024,
-      height: customHeight || 1024,
-    };
-  }
-
-  const [widthStr, heightStr] = imageSize.split("x");
-  return {
-    width: parseInt(widthStr || "1024", 10),
-    height: parseInt(heightStr || "1024", 10),
-  };
-}
-
-/**
- * Calculates queue priority based on user's plan
- * Lower numbers = higher priority
- * @param userPlan - User's subscription plan
- * @returns Priority value for queue ordering
- */
-function calculateUserPriority(userPlan: string): number {
-  const planKey = userPlan.toLowerCase() as keyof typeof PLAN_LIMITS;
-  return PLAN_LIMITS[planKey]?.priority ?? PLAN_LIMITS.free.priority;
-}
-
-/**
- * Creates workflow parameters from the generation request
- * @param requestBody - The generation request
- * @param finalPrompt - The processed/optimized prompt
- * @param autoSelectedLoras - LoRAs selected automatically (if any)
- * @returns WorkflowFinalParams for ComfyUI workflow
- */
-function createWorkflowParams(
-  requestBody: GenerationRequest,
-  finalPrompt: string
-): WorkflowFinalParams {
-  const {
-    negativePrompt = DEFAULT_WORKFLOW_PARAMS.negativePrompt!,
-    imageSize = "1024x1024",
-    customWidth,
-    customHeight,
-    batchCount = 1,
-    selectedLoras = [],
-    loraStrengths = {},
-    loraSelectionMode = "auto",
-    optimizePrompt = true,
-  } = requestBody;
-
-  const dimensions = calculateImageDimensions(
-    imageSize,
-    customWidth,
-    customHeight
-  );
-
-  return {
-    width: dimensions.width,
-    height: dimensions.height,
-    steps: 20,
-    cfg_scale: 7.0,
-    batch_size: batchCount,
-    loraSelectionMode,
-    loraStrengths,
-    selectedLoras,
-    optimizePrompt,
-    prompt: finalPrompt,
-    negativePrompt: negativePrompt?.trim(),
-  };
-}
-
-/**
- * Checks if user has remaining generation quota
- * @param user - User with plan and usage information
- * @param requestedCount - Number of images requested
- * @returns Object indicating if generation is allowed and remaining quota
- */
-function checkGenerationLimits(
-  user: User,
-  requestedCount: number
-): GenerationLimitCheck {
-  const planKey = user.planInfo.plan.toLowerCase() as keyof typeof PLAN_LIMITS;
-  const limits = PLAN_LIMITS[planKey] ?? PLAN_LIMITS.free;
-
-  const { monthly: monthlyLimit, daily: dailyLimit } = limits;
-  const usage = user.usageStats;
-
-  // Check monthly limit
-  if (monthlyLimit !== "unlimited") {
-    const monthlyRemaining = monthlyLimit - usage.imagesGeneratedThisMonth;
-    if (monthlyRemaining < requestedCount) {
-      return { allowed: false, remaining: monthlyRemaining };
-    }
-  }
-
-  // Check daily limit
-  if (dailyLimit !== "unlimited") {
-    const dailyRemaining = dailyLimit - usage.imagesGeneratedToday;
-    if (dailyRemaining < requestedCount) {
-      return { allowed: false, remaining: dailyRemaining };
-    }
-    return { allowed: true, remaining: dailyRemaining };
-  }
-
-  return { allowed: true, remaining: "unlimited" };
-}
-
-// ====================================
-// WebSocket Communication
-// ====================================
-
-/**
- * Sends optimization-related messages to a WebSocket connection
- * @param connectionId - WebSocket connection ID
- * @param data - Message data to send
- */
-async function sendOptimizationMessageToConnection(
-  connectionId: string,
-  data: any
-): Promise<void> {
-  try {
-    const command = new PostToConnectionCommand({
-      ConnectionId: connectionId,
-      Data: JSON.stringify({
-        ...data,
-        timestamp: new Date().toISOString(),
-      }),
-    });
-
-    await apiGatewayClient.send(command);
-    console.log(`📤 Sent optimization message to connection ${connectionId}`);
-  } catch (error: any) {
-    console.error(
-      `❌ Failed to send optimization message to ${connectionId}:`,
-      error
-    );
-
-    // Don't throw error for gone connections to avoid disrupting generation
-    if (error.name === "GoneException") {
+      await apiGatewayClient.send(command);
       console.log(
-        `🧹 Connection ${connectionId} is gone, skipping optimization message`
+        `📤 Sent ${messageType} message to connection ${connectionId}`
       );
+    } catch (error: any) {
+      console.error(
+        `❌ Failed to send ${messageType} message to ${connectionId}:`,
+        error
+      );
+
+      // Don't throw error for gone connections to avoid disrupting generation
+      if (error.name === "GoneException") {
+        console.log(
+          `🧹 Connection ${connectionId} is gone, skipping ${messageType} message`
+        );
+      }
     }
+  }
+
+  static async sendOptimizationMessage(
+    connectionId: string,
+    data: any
+  ): Promise<void> {
+    await this.sendMessage(connectionId, data.type, data);
+  }
+
+  static async sendWorkflowMessage(
+    connectionId: string,
+    workflow: WorkflowData
+  ): Promise<void> {
+    await this.sendMessage(connectionId, "workflow", {
+      workflowData: workflow,
+    });
   }
 }
 
 // ====================================
-// Moderation, LoRA Selection and Optimization
+// AI Service Wrapper
 // ====================================
 
-/**
- * Performs automatic LoRA selection based on the user's prompt
- * @param validatedPrompt - The prompt to analyze for LoRA selection
- * @returns Array of selected LoRA names
- */
-async function performAutoLoRASelection(
-  validatedPrompt: string
-): Promise<string[]> {
-  const startTime = performance.now();
-  console.log("[PERFORMANCE] Starting LoRA selection");
+class AIService {
+  private static openRouterService = OpenRouterService.getInstance();
 
-  try {
-    console.log("🎯 Performing automatic LoRA selection");
-
-    const openRouterStart = performance.now();
-    const openRouterService = OpenRouterService.getInstance();
-    const loraSelectionResponse = await openRouterService.chatCompletion({
-      instructionTemplate: "loras-selection",
-      userMessage: validatedPrompt.trim(),
-      model: "mistralai/mistral-medium-3.1",
+  static async chatCompletion(
+    template: string,
+    userMessage: string,
+    temperature: number,
+    maxTokens: number
+  ): Promise<string> {
+    const response = await this.openRouterService.chatCompletion({
+      instructionTemplate: template,
+      userMessage: userMessage.trim(),
+      model: CONFIG.MODELS.optimization,
       parameters: {
-        temperature: 0.1,
-        max_tokens: 512,
+        temperature,
+        max_tokens: maxTokens,
       },
     });
-    console.log(
-      `[PERFORMANCE] OpenRouter LoRA selection API call took ${(
-        performance.now() - openRouterStart
-      ).toFixed(2)}ms`
-    );
+    return response.content.trim();
+  }
 
-    const loraContent = loraSelectionResponse.content.trim();
-    console.log("🎯 LoRA selection response:", loraContent);
+  static async chatCompletionStream(
+    template: string,
+    userMessage: string,
+    temperature: number,
+    maxTokens: number
+  ): Promise<AsyncIterable<string>> {
+    return await this.openRouterService.chatCompletionStream({
+      instructionTemplate: template,
+      userMessage: userMessage.trim(),
+      model: CONFIG.MODELS.optimization,
+      parameters: {
+        temperature,
+        max_tokens: maxTokens,
+      },
+    });
+  }
 
-    // Parse the response to extract LoRA names
-    // Expected format could be JSON array or comma-separated list
-    let selectedLoras: string[] = [];
+  static async performTitleGeneration(
+    prompt: string
+  ): Promise<ProcessingResult<string>> {
+    const timer = new PerformanceTimer("Title Generation");
 
-    // First, try to find an array pattern using regex
+    try {
+      const content = await this.chatCompletion(
+        "prompt-to-title",
+        prompt,
+        CONFIG.AI_PARAMS.temperature.titleGeneration,
+        CONFIG.AI_PARAMS.maxTokens.titleGeneration
+      );
+
+      return { success: true, data: content };
+    } catch (error) {
+      console.error("❌ Title generation failed:", error);
+      return { success: false, error: "Title generation failed" };
+    } finally {
+      timer.end();
+    }
+  }
+
+  static async performModeration(
+    prompt: string
+  ): Promise<ProcessingResult<void>> {
+    const timer = new PerformanceTimer("Moderation");
+
+    try {
+      const content = await this.chatCompletion(
+        "prompt-moderation",
+        prompt,
+        CONFIG.AI_PARAMS.temperature.moderation,
+        CONFIG.AI_PARAMS.maxTokens.moderation
+      );
+
+      if (content !== "OK") {
+        const jsonMatch = content.match(
+          /\{[^}]*"reason"\s*:\s*"([^"]+)"[^}]*\}/
+        );
+        const reason = jsonMatch?.[1] || "Content violates platform rules";
+
+        console.log("❌ Prompt rejected by moderation:", reason);
+        PromptProcessor.shouldReturnPrematurely = true;
+        return { success: false, error: reason };
+      }
+
+      console.log("✅ Prompt passed moderation check");
+      return { success: true };
+    } catch (error) {
+      console.error("❌ Moderation check failed:", error);
+      return { success: false, error: "Moderation check failed" };
+    } finally {
+      timer.end();
+    }
+  }
+
+  static async selectLoras(prompt: string): Promise<string[]> {
+    const timer = new PerformanceTimer("LoRA Selection");
+
+    try {
+      const content = await this.chatCompletion(
+        "loras-selection",
+        prompt,
+        CONFIG.AI_PARAMS.temperature.loraSelection,
+        CONFIG.AI_PARAMS.maxTokens.loraSelection
+      );
+
+      return this.parseLoraResponse(content);
+    } catch (error) {
+      console.error("❌ LoRA selection failed:", error);
+      return [];
+    } finally {
+      timer.end();
+    }
+  }
+
+  private static parseLoraResponse(content: string): string[] {
+    // Try to parse as JSON array first
     const arrayRegex = /\[\s*(?:"[^"]*"(?:\s*,\s*"[^"]*")*)\s*\]/;
-    const arrayMatch = loraContent.match(arrayRegex);
+    const arrayMatch = content.match(arrayRegex);
 
     if (arrayMatch) {
       try {
-        // Found an array pattern, try to parse it
-        const arrayString = arrayMatch[0];
-        const parsedArray = JSON.parse(arrayString);
+        const parsedArray = JSON.parse(arrayMatch[0]);
         if (Array.isArray(parsedArray)) {
-          selectedLoras = parsedArray.filter(
-            (lora: any) => typeof lora === "string"
-          );
-          console.log("✅ Parsed LoRAs from array pattern:", selectedLoras);
-          return selectedLoras;
+          return parsedArray.filter((lora: any) => typeof lora === "string");
         }
-      } catch (regexParseError) {
-        console.log("Failed to parse array pattern, trying other methods");
+      } catch (error) {
+        console.log("Failed to parse array pattern");
       }
     }
 
+    // Try to parse as JSON object
     try {
-      // Try to parse as JSON first
-      const parsedLoras = JSON.parse(loraContent);
-      if (Array.isArray(parsedLoras)) {
-        selectedLoras = parsedLoras.filter(
-          (lora: any) => typeof lora === "string"
-        );
-      } else if (parsedLoras && Array.isArray(parsedLoras.loras)) {
-        selectedLoras = parsedLoras.loras.filter(
-          (lora: any) => typeof lora === "string"
-        );
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((lora: any) => typeof lora === "string");
+      } else if (parsed?.loras && Array.isArray(parsed.loras)) {
+        return parsed.loras.filter((lora: any) => typeof lora === "string");
       }
-    } catch (jsonError) {
-      // If JSON parsing fails, try parsing as comma-separated list
-      selectedLoras = loraContent
+    } catch (error) {
+      // Fall back to comma-separated list
+      return content
         .split(",")
         .map((lora) => lora.trim())
         .filter((lora) => lora.length > 0);
     }
 
-    console.log("✅ Selected LoRAs:", selectedLoras);
-
-    const totalTime = performance.now() - startTime;
-    console.log(
-      `[PERFORMANCE] LoRA selection completed in ${totalTime.toFixed(2)}ms`
-    );
-    return selectedLoras;
-  } catch (error) {
-    const totalTime = performance.now() - startTime;
-    console.log(
-      `[PERFORMANCE] LoRA selection failed after ${totalTime.toFixed(2)}ms`
-    );
-    console.error("❌ LoRA selection failed:", error);
-    // Return empty array as fallback
     return [];
   }
 }
 
-/**
- * Performs content moderation on the user's prompt
- * @param validatedPrompt - The prompt to moderate
- * @param connectionId - WebSocket connection ID for updates
- * @param queueId - Queue entry ID to remove if moderation fails
- * @returns ModerationResult indicating if prompt passed moderation
- */
-async function performPromptModeration(
-  validatedPrompt: string,
-  connectionId: string | null,
-  queueId: string
-): Promise<ModerationResult> {
-  const startTime = performance.now();
-  console.log("[PERFORMANCE] Starting prompt moderation");
+// ====================================
+// Validation Service
+// ====================================
 
-  try {
-    console.log("🛡️ Checking prompt moderation");
+class ValidationService {
+  static validateRequest(
+    requestBody: GenerationRequest,
+    permissions: any
+  ): ValidationError | null {
+    const validators = [
+      this.validatePrompt,
+      this.validateNegativePrompt,
+      this.validateBatchCount,
+      this.validateLoraUsage,
+      this.validateImageSize,
+      this.validatePrivateContent,
+    ];
 
-    const openRouterStart = performance.now();
-    const openRouterService = OpenRouterService.getInstance();
-    const moderationResponse = await openRouterService.chatCompletion({
-      instructionTemplate: "prompt-moderation",
-      userMessage: validatedPrompt.trim(),
-      model: "mistralai/mistral-medium-3.1",
-      parameters: {
-        temperature: 0.1,
-        max_tokens: 256,
-      },
-    });
-    console.log(
-      `[PERFORMANCE] OpenRouter moderation API call took ${(
-        performance.now() - openRouterStart
-      ).toFixed(2)}ms`
-    );
-
-    const moderationContent = moderationResponse.content.trim();
-
-    if (moderationContent !== "OK") {
-      console.log("❌ Prompt rejected by moderation:", moderationContent);
-
-      // Extract reason from JSON response
-      let reason = "Content violates platform rules";
-      const jsonMatch = moderationContent.match(
-        /\{[^}]*"reason"\s*:\s*"([^"]+)"[^}]*\}/
-      );
-      if (jsonMatch?.[1]) {
-        reason = jsonMatch[1];
-      }
-
-      // Notify user via WebSocket if connected
-      if (connectionId) {
-        await sendOptimizationMessageToConnection(connectionId, {
-          type: "prompt-moderation",
-          status: "refused",
-          reason,
-        });
-      }
-
-      // Clean up queue entry since generation won't proceed
-      try {
-        const queueService = GenerationQueueService.getInstance();
-        await queueService.removeQueueEntry(queueId);
-        console.log(
-          `🗑️ Removed queue entry ${queueId} due to moderation failure`
-        );
-      } catch (removeError) {
-        console.error("Failed to remove queue entry:", removeError);
-      }
-
-      return { passed: false, reason };
+    for (const validator of validators) {
+      const error = validator(requestBody, permissions);
+      if (error) return error;
     }
 
-    console.log("✅ Prompt passed moderation check");
-    const totalTime = performance.now() - startTime;
-    console.log(
-      `[PERFORMANCE] Prompt moderation completed in ${totalTime.toFixed(2)}ms`
-    );
-    return { passed: true };
-  } catch (error) {
-    const totalTime = performance.now() - startTime;
-    console.log(
-      `[PERFORMANCE] Prompt moderation failed after ${totalTime.toFixed(2)}ms`
-    );
-    console.error("❌ Moderation check failed:", error);
-    return {
-      passed: false,
-      reason: "Moderation check failed",
-    };
+    return null;
+  }
+
+  private static validatePrompt(
+    requestBody: GenerationRequest,
+    _permissions: any
+  ): ValidationError | null {
+    const { prompt } = requestBody;
+
+    try {
+      const validatedPrompt = ValidationUtil.validateRequiredString(
+        prompt,
+        "Prompt"
+      );
+      if (validatedPrompt.length > CONFIG.VALIDATION_LIMITS.prompt.maxLength) {
+        return {
+          message: `Prompt is too long (max ${CONFIG.VALIDATION_LIMITS.prompt.maxLength} characters)`,
+          field: "prompt",
+        };
+      }
+    } catch (error) {
+      return { message: "Prompt is required", field: "prompt" };
+    }
+
+    return null;
+  }
+
+  private static validateNegativePrompt(
+    requestBody: GenerationRequest,
+    permissions: any
+  ): ValidationError | null {
+    const { negativePrompt = "" } = requestBody;
+
+    if (
+      negativePrompt &&
+      negativePrompt.length > CONFIG.VALIDATION_LIMITS.negativePrompt.maxLength
+    ) {
+      return {
+        message: `Negative prompt is too long (max ${CONFIG.VALIDATION_LIMITS.negativePrompt.maxLength} characters)`,
+        field: "negativePrompt",
+      };
+    }
+
+    if (negativePrompt?.trim() && !permissions.canUseNegativePrompt) {
+      return {
+        message: "Negative prompts require a Pro plan",
+        field: "negativePrompt",
+      };
+    }
+
+    return null;
+  }
+
+  private static validateBatchCount(
+    requestBody: GenerationRequest,
+    permissions: any
+  ): ValidationError | null {
+    const { batchCount = 1 } = requestBody;
+
+    if (batchCount > 1 && !permissions.canUseBulkGeneration) {
+      return {
+        message: "Your plan allows maximum 1 image per batch",
+        field: "batchCount",
+      };
+    }
+
+    return null;
+  }
+
+  private static validateLoraUsage(
+    requestBody: GenerationRequest,
+    permissions: any
+  ): ValidationError | null {
+    const {
+      selectedLoras = [],
+      loraSelectionMode = "auto",
+      loraStrengths = {},
+    } = requestBody;
+
+    const hasLoraUsage =
+      selectedLoras.length > 0 ||
+      loraSelectionMode !== "auto" ||
+      Object.keys(loraStrengths).length > 0;
+
+    if (hasLoraUsage && !permissions.canUseLoRAModels) {
+      return { message: "LoRA models require a Pro plan", field: "lora" };
+    }
+
+    return null;
+  }
+
+  private static validateImageSize(
+    requestBody: GenerationRequest,
+    permissions: any
+  ): ValidationError | null {
+    const { imageSize = "1024x1024" } = requestBody;
+
+    if (imageSize === "custom" && !permissions.canSelectImageSizes) {
+      return {
+        message: "Custom image sizes require Pro plan",
+        field: "imageSize",
+      };
+    }
+
+    return null;
+  }
+
+  private static validatePrivateContent(
+    requestBody: GenerationRequest,
+    permissions: any
+  ): ValidationError | null {
+    const { isPublic = true } = requestBody;
+
+    if (!isPublic && !permissions.canCreatePrivateContent) {
+      return {
+        message: "Private content creation requires a Pro plan",
+        field: "isPublic",
+      };
+    }
+
+    return null;
   }
 }
 
-/**
- * Handles prompt optimization with streaming updates via WebSocket
- * @param validatedPrompt - The original prompt to optimize
- * @param requestBody - Full generation request
- * @param connectionId - WebSocket connection ID
- * @param queueId - Queue entry ID
- * @param queueEntry - Queue entry details
- * @param priority - User's queue priority
- * @returns OptimizationResult with final prompt, optimization details, and selected LoRAs
- */
-async function handlePromptOptimization(
-  validatedPrompt: string,
-  requestBody: GenerationRequest,
-  connectionId: string | null,
-  queueId: string,
-  queueEntry: QueueEntry
-): Promise<OptimizationResult> {
-  const startTime = performance.now();
-  console.log("[PERFORMANCE] Starting prompt optimization");
+// ====================================
+// Generation Service
+// ====================================
 
-  try {
-    console.log("🎨 Starting prompt optimization via WebSocket");
-
-    // If no WebSocket connection, skip optimization streaming
-    if (!connectionId) {
-      console.log(
-        "📭 No active WebSocket connection, proceeding without optimization streaming"
-      );
+class GenerationService {
+  static calculateImageDimensions(
+    imageSize: string,
+    customWidth?: number,
+    customHeight?: number
+  ): { width: number; height: number } {
+    if (imageSize === "custom") {
       return {
-        finalPrompt: validatedPrompt.trim(),
-        optimizedPromptResult: null,
+        width: customWidth || 1024,
+        height: customHeight || 1024,
       };
     }
 
-    const queueService = GenerationQueueService.getInstance();
-    const openRouterServiceStart = performance.now();
-    const openRouterService = OpenRouterService.getInstance();
-    console.log(
-      `[PERFORMANCE] OpenRouter service initialization took ${(
-        performance.now() - openRouterServiceStart
-      ).toFixed(2)}ms`
-    );
-    let optimizedPrompt = "";
-
-    // Send initial optimization event
-    const websocketSendStart = performance.now();
-    await sendOptimizationMessageToConnection(connectionId, {
-      type: "optimization_start",
-      optimizationData: {
-        originalPrompt: validatedPrompt.trim(),
-        optimizedPrompt: "",
-        completed: false,
-      },
-    });
-    console.log(
-      `[PERFORMANCE] Initial WebSocket message took ${(
-        performance.now() - websocketSendStart
-      ).toFixed(2)}ms`
-    );
-
-    // Start moderation, optimization, and LoRA selection in parallel
-    const parallelStart = performance.now();
-    const moderationPromise = performPromptModeration(
-      validatedPrompt,
-      connectionId,
-      queueId
-    );
-
-    // Only perform LoRA selection if mode is "auto"
-    const loraSelectionPromise =
-      requestBody.loraSelectionMode === "auto"
-        ? performAutoLoRASelection(validatedPrompt)
-        : Promise.resolve(requestBody.selectedLoras);
-
-    const optimizationStreamStart = performance.now();
-    const optimizationStreamPromise = openRouterService.chatCompletionStream({
-      instructionTemplate: "prompt-optimization",
-      userMessage: validatedPrompt.trim(),
-      model: "mistralai/mistral-medium-3.1",
-      parameters: {
-        temperature: 0.7,
-        max_tokens: 1024,
-      },
-    });
-    console.log(
-      `[PERFORMANCE] Optimization stream setup took ${(
-        performance.now() - optimizationStreamStart
-      ).toFixed(2)}ms`
-    );
-    console.log(
-      `[PERFORMANCE] Parallel operations setup took ${(
-        performance.now() - parallelStart
-      ).toFixed(2)}ms`
-    );
-
-    // Handle streaming with moderation check
-    const stream = await optimizationStreamPromise;
-    let shouldStopStreaming = false;
-    let moderationError: string | null = null;
-
-    // Stream tokens while checking moderation concurrently
-    const streamingPromise = (async () => {
-      for await (const token of stream) {
-        if (shouldStopStreaming) {
-          console.log(
-            "🛑 Stopping optimization streaming due to moderation failure"
-          );
-          break;
-        }
-
-        optimizedPrompt += token;
-        await sendOptimizationMessageToConnection(connectionId, {
-          type: "optimization_token",
-          optimizationData: {
-            originalPrompt: validatedPrompt.trim(),
-            optimizedPrompt,
-            token,
-            completed: false,
-          },
-        });
-      }
-      return optimizedPrompt.trim();
-    })();
-
-    // Handle moderation result
-    moderationPromise
-      .then((moderationResult) => {
-        if (!moderationResult.passed) {
-          moderationError =
-            moderationResult.reason || "Content violates platform rules";
-          shouldStopStreaming = true;
-        }
-      })
-      .catch((error) => {
-        console.error("❌ Moderation check failed:", error);
-        moderationError = "Moderation check failed";
-        shouldStopStreaming = true;
-      });
-
-    // Wait for streaming to complete
-    const streamingStart = performance.now();
-    await streamingPromise;
-    console.log(
-      `[PERFORMANCE] Streaming completion took ${(
-        performance.now() - streamingStart
-      ).toFixed(2)}ms`
-    );
-
-    // Wait for moderation and LoRA selection to complete
-    const parallelCompletionStart = performance.now();
-    const [finalModerationResult, selectedLoras] = await Promise.all([
-      moderationPromise,
-      loraSelectionPromise,
-    ]);
-    console.log(
-      `[PERFORMANCE] Parallel operations completion took ${(
-        performance.now() - parallelCompletionStart
-      ).toFixed(2)}ms`
-    );
-
-    requestBody.selectedLoras = selectedLoras;
-
-    // If moderation failed, return early
-    if (!finalModerationResult.passed) {
-      return {
-        finalPrompt: validatedPrompt.trim(),
-        optimizedPromptResult: null,
-        selectedLoras: [],
-        moderationFailed: true,
-        moderationReason: moderationError || "Content violates platform rules",
-      };
-    }
-
-    const optimizedPromptResult = optimizedPrompt.trim();
-    const finalPrompt = optimizedPromptResult || validatedPrompt.trim();
-
-    console.log("✅ Selected LoRAs:", selectedLoras);
-
-    // Send completion event
-    await sendOptimizationMessageToConnection(connectionId, {
-      type: "optimization_complete",
-      optimizationData: {
-        originalPrompt: validatedPrompt.trim(),
-        optimizedPrompt: optimizedPromptResult,
-        completed: true,
-      },
-    });
-
-    console.log("✅ Prompt optimization completed via WebSocket");
-
-    // Update queue entry with optimized prompt
-    const queueUpdateStart = performance.now();
-    const workflowParams = createWorkflowParams(requestBody, finalPrompt);
-    await queueService.updateQueueEntry(queueId, {
-      prompt: finalPrompt,
-      parameters: workflowParams,
-    });
-    console.log(
-      `[PERFORMANCE] Queue entry update took ${(
-        performance.now() - queueUpdateStart
-      ).toFixed(2)}ms`
-    );
-
-    // Generate workflow data
-    const workflowGenStart = performance.now();
-    const workflowData = generateWorkflowData(workflowParams);
-    console.log(
-      `[PERFORMANCE] Workflow data generation took ${(
-        performance.now() - workflowGenStart
-      ).toFixed(2)}ms`
-    );
-
-    const submitStart = performance.now();
-    await submitPrompt(queueId);
-    console.log(
-      `[PERFORMANCE] Prompt submission took ${(
-        performance.now() - submitStart
-      ).toFixed(2)}ms`
-    );
-
-    const response: GenerationResponse = {
-      queueId,
-      queuePosition: queueEntry.queuePosition || 1,
-      estimatedWaitTime: queueEntry.estimatedWaitTime || 0,
-      status: "pending",
-      message: `Your request has been added to the queue with optimized prompt. Position: ${
-        queueEntry.queuePosition || 1
-      }`,
-      workflowData,
-      optimizedPrompt: optimizedPromptResult,
-    };
-
-    const totalTime = performance.now() - startTime;
-    console.log(
-      `[PERFORMANCE] Prompt optimization completed in ${totalTime.toFixed(2)}ms`
-    );
+    const [widthStr, heightStr] = imageSize.split("x");
     return {
-      finalPrompt,
-      optimizedPromptResult,
+      width: parseInt(widthStr || "1024", 10),
+      height: parseInt(heightStr || "1024", 10),
+    };
+  }
+
+  static calculateUserPriority(userPlan: string): number {
+    const planKey = userPlan.toLowerCase() as keyof typeof CONFIG.PLAN_LIMITS;
+    return (
+      CONFIG.PLAN_LIMITS[planKey]?.priority ?? CONFIG.PLAN_LIMITS.free.priority
+    );
+  }
+
+  static createWorkflowParams(
+    requestBody: GenerationRequest,
+    finalPrompt: string
+  ): WorkflowFinalParams {
+    const {
+      negativePrompt = DEFAULT_WORKFLOW_PARAMS.negativePrompt!,
+      imageSize = "1024x1024",
+      customWidth,
+      customHeight,
+      batchCount = 1,
+      selectedLoras = [],
+      loraStrengths = {},
+      loraSelectionMode = "auto",
+      optimizePrompt = true,
+    } = requestBody;
+
+    const dimensions = this.calculateImageDimensions(
+      imageSize,
+      customWidth,
+      customHeight
+    );
+
+    return {
+      width: dimensions.width,
+      height: dimensions.height,
+      steps: 20,
+      cfg_scale: 7.0,
+      batch_size: batchCount,
+      loraSelectionMode,
+      loraStrengths,
       selectedLoras,
-      shouldReturn: true,
-      response,
+      optimizePrompt,
+      prompt: finalPrompt,
+      negativePrompt: negativePrompt?.trim(),
     };
-  } catch (optimizationError: any) {
-    const totalTime = performance.now() - startTime;
-    console.log(
-      `[PERFORMANCE] Prompt optimization failed after ${totalTime.toFixed(2)}ms`
-    );
-    console.error("❌ Prompt optimization failed:", optimizationError);
+  }
 
-    // Check if this was a moderation failure
-    if (optimizationError?.message?.includes("Prompt moderation failed")) {
+  static checkGenerationLimits(
+    user: User,
+    requestedCount: number
+  ): { allowed: boolean; remaining: number | "unlimited" } {
+    const planKey =
+      user.planInfo.plan.toLowerCase() as keyof typeof CONFIG.PLAN_LIMITS;
+    const limits = CONFIG.PLAN_LIMITS[planKey] ?? CONFIG.PLAN_LIMITS.free;
+    const usage = user.usageStats;
+
+    // Check monthly limit
+    if (limits.monthly !== "unlimited") {
+      const monthlyRemaining = limits.monthly - usage.imagesGeneratedThisMonth;
+      if (monthlyRemaining < requestedCount) {
+        return { allowed: false, remaining: monthlyRemaining };
+      }
+    }
+
+    // Check daily limit
+    if (limits.daily !== "unlimited") {
+      const dailyRemaining = limits.daily - usage.imagesGeneratedToday;
+      if (dailyRemaining < requestedCount) {
+        return { allowed: false, remaining: dailyRemaining };
+      }
+      return { allowed: true, remaining: dailyRemaining };
+    }
+
+    return { allowed: true, remaining: "unlimited" };
+  }
+
+  static generateWorkflowData(params: WorkflowFinalParams): WorkflowData {
+    try {
+      const workflowParams = {
+        prompt: params.prompt,
+        negativePrompt:
+          params.negativePrompt || DEFAULT_WORKFLOW_PARAMS.negativePrompt!,
+        width: params.width,
+        height: params.height,
+        batchSize: params.batch_size,
+        steps: params.steps || DEFAULT_WORKFLOW_PARAMS.steps!,
+        cfgScale: params.cfg_scale || DEFAULT_WORKFLOW_PARAMS.cfgScale!,
+        sampler: DEFAULT_WORKFLOW_PARAMS.sampler,
+        scheduler: DEFAULT_WORKFLOW_PARAMS.scheduler,
+        selectedLoras: params.selectedLoras.map((loraName, index) => ({
+          id: `lora_${index}`,
+          name: loraName,
+          strength: params.loraStrengths[loraName]?.value || 1.0,
+        })),
+      };
+
+      const workflow = createComfyUIWorkflow(workflowParams);
+      return createWorkflowData(workflow);
+    } catch (error) {
+      console.error("Failed to generate workflow data:", error);
       return {
-        finalPrompt: validatedPrompt.trim(),
-        optimizedPromptResult: null,
-        selectedLoras: [],
-        moderationFailed: true,
-        moderationReason: optimizationError.message.replace(
-          "Prompt moderation failed: ",
-          ""
-        ),
+        nodes: [],
+        totalNodes: 0,
+        currentNodeIndex: 0,
+        nodeOrder: [],
       };
     }
-
-    // Continue with original prompt if optimization fails
-    console.log("Continuing with original prompt due to optimization failure");
-    return {
-      finalPrompt: validatedPrompt.trim(),
-      optimizedPromptResult: null,
-      selectedLoras: [],
-    };
   }
 }
 
 // ====================================
-// Queue Management
+// ComfyUI Submission
 // ====================================
-
-/**
- * Processes generation request through the queue system
- * @param queueService - Queue service instance
- * @param auth - Authenticated user information
- * @param finalPrompt - The final prompt to use
- * @param workflowParams - Workflow parameters
- * @param priority - User's queue priority
- * @param optimizedPromptResult - Optimized prompt if available
- * @returns GenerationResponse with queue details
- */
-async function processGenerationQueue(
-  queueService: GenerationQueueService,
-  auth: AuthResult,
-  finalPrompt: string,
-  workflowParams: WorkflowFinalParams,
-  priority: number,
-  optimizedPromptResult: string | null
-): Promise<GenerationResponse> {
-  const startTime = performance.now();
-  console.log("[PERFORMANCE] Starting queue processing");
-
-  // Get active WebSocket connection for real-time updates
-  const connectionStart = performance.now();
-  const connectionId = await DynamoDBService.getActiveConnectionIdForUser(
-    auth.userId
-  );
-  console.log(
-    `[PERFORMANCE] Connection lookup took ${(
-      performance.now() - connectionStart
-    ).toFixed(2)}ms`
-  );
-
-  const queueAddStart = performance.now();
-  console.log("Adding to queue");
-  const queueEntry = await queueService.addToQueue(
-    auth.userId,
-    finalPrompt,
-    workflowParams,
-    connectionId || undefined,
-    priority
-  );
-  console.log(
-    `[PERFORMANCE] Queue entry addition took ${(
-      performance.now() - queueAddStart
-    ).toFixed(2)}ms`
-  );
-
-  console.log(
-    `📋 Added generation request to queue: ${queueEntry.queueId} for user ${auth.userId}, position: ${queueEntry.queuePosition}`
-  );
-
-  // Generate workflow data from parameters
-  const workflowDataStart = performance.now();
-  const workflowData = generateWorkflowData(workflowParams);
-  console.log(
-    `[PERFORMANCE] Workflow data generation took ${(
-      performance.now() - workflowDataStart
-    ).toFixed(2)}ms`
-  );
-
-  const submitStart = performance.now();
-  await submitPrompt(queueEntry.queueId);
-  console.log(
-    `[PERFORMANCE] Prompt submission took ${(
-      performance.now() - submitStart
-    ).toFixed(2)}ms`
-  );
-
-  const totalTime = performance.now() - startTime;
-  console.log(
-    `[PERFORMANCE] Total queue processing time: ${totalTime.toFixed(2)}ms`
-  );
-
-  return {
-    queueId: queueEntry.queueId,
-    queuePosition: queueEntry.queuePosition || 1,
-    estimatedWaitTime: queueEntry.estimatedWaitTime || 0,
-    status: "pending",
-    message: `Your request has been added to the queue. Position: ${
-      queueEntry.queuePosition || 1
-    }`,
-    workflowData,
-    optimizedPrompt: optimizedPromptResult || undefined,
-  };
-}
-
-/**
- * Generates workflow data from workflow parameters
- * @param params - Workflow parameters
- * @returns WorkflowData structure for ComfyUI
- */
-function generateWorkflowData(params: WorkflowFinalParams): WorkflowData {
-  try {
-    // Convert WorkflowFinalParams to WorkflowParameters
-    const workflowParams = {
-      prompt: params.prompt,
-      negativePrompt:
-        params.negativePrompt || DEFAULT_WORKFLOW_PARAMS.negativePrompt!,
-      width: params.width,
-      height: params.height,
-      batchSize: params.batch_size,
-      steps: params.steps || DEFAULT_WORKFLOW_PARAMS.steps!,
-      cfgScale: params.cfg_scale || DEFAULT_WORKFLOW_PARAMS.cfgScale!,
-      sampler: DEFAULT_WORKFLOW_PARAMS.sampler,
-      scheduler: DEFAULT_WORKFLOW_PARAMS.scheduler,
-      selectedLoras: params.selectedLoras.map((loraName, index) => ({
-        id: `lora_${index}`,
-        name: loraName,
-        strength: params.loraStrengths[loraName]?.value || 1.0,
-      })),
-    };
-
-    // Generate ComfyUI workflow
-    const workflow = createComfyUIWorkflow(workflowParams);
-
-    // Create workflow data with sorted nodes
-    return createWorkflowData(workflow);
-  } catch (error) {
-    console.error("Failed to generate workflow data:", error);
-    // Return minimal fallback workflow data
-    return {
-      nodes: [],
-      totalNodes: 0,
-      currentNodeIndex: 0,
-      nodeOrder: [],
-    };
-  }
-}
-
-/**
- * Creates the selectedLoras array with proper structure for workflow parameters
- * @param queueItem - The queue item containing LoRA configuration
- * @returns Array of LoRA objects with id, name, and strength
- */
-function createSelectedLorasArray(queueItem: QueueEntry): Array<{
-  id: string;
-  name: string;
-  strength: number;
-}> {
-  const selectedLoras: Array<{
-    id: string;
-    name: string;
-    strength: number;
-  }> = [];
-
-  if (
-    !queueItem.parameters.selectedLoras ||
-    !Array.isArray(queueItem.parameters.selectedLoras)
-  ) {
-    return selectedLoras;
-  }
-
-  queueItem.parameters.selectedLoras.forEach(
-    (loraName: string, index: number) => {
-      let strength = 1; // Default strength
-
-      // Check if we have strength configuration for this LoRA
-      if (
-        queueItem.parameters.loraStrengths &&
-        queueItem.parameters.loraStrengths[loraName]
-      ) {
-        const loraConfig = queueItem.parameters.loraStrengths[loraName];
-
-        // If mode is "auto", use strength 1, otherwise use the configured value
-        if (loraConfig.mode === "auto") {
-          strength = 1;
-        } else {
-          strength = loraConfig.value || 1;
-        }
-      }
-
-      selectedLoras.push({
-        id: `lora_${index}`,
-        name: loraName,
-        strength: strength,
-      });
-    }
-  );
-
-  return selectedLoras;
-}
 
 export const submitPrompt = async (queueId: string): Promise<void> => {
-  const startTime = performance.now();
-  console.log(`[PERFORMANCE] Starting ComfyUI submission for queue ${queueId}`);
-
+  const timer = new PerformanceTimer(`ComfyUI Submission - ${queueId}`);
   const queueService = GenerationQueueService.getInstance();
-  let queueItem: any = null;
 
   try {
-    const parameterStart = performance.now();
     const COMFYUI_ENDPOINT =
       await ParameterStoreService.getComfyUIApiEndpoint();
-    console.log(
-      `[PERFORMANCE] Parameter store lookup took ${(
-        performance.now() - parameterStart
-      ).toFixed(2)}ms`
-    );
 
-    // Get queue item from DynamoDB
-    const queueFetchStart = performance.now();
-    queueItem = await queueService.getQueueEntry(queueId);
-    console.log(
-      `[PERFORMANCE] Queue item fetch took ${(
-        performance.now() - queueFetchStart
-      ).toFixed(2)}ms`
-    );
-
+    const queueItem = await queueService.getQueueEntry(queueId);
     if (!queueItem) {
       console.error(`❌ Queue item not found: ${queueId}`);
       return;
@@ -1122,60 +655,35 @@ export const submitPrompt = async (queueId: string): Promise<void> => {
       return;
     }
 
-    // Mark as processing
-    const statusUpdateStart = performance.now();
     await queueService.updateQueueEntry(queueId, {
       status: "processing",
       startedAt: Date.now().toString(),
     });
-    console.log(
-      `[PERFORMANCE] Status update took ${(
-        performance.now() - statusUpdateStart
-      ).toFixed(2)}ms`
-    );
-
-    console.log(`🎨 Processing queue item: ${queueId}`);
 
     // Initialize ComfyUI client
-    const clientInitStart = performance.now();
     let comfyUIClient;
     try {
       comfyUIClient = getComfyUIClient();
     } catch {
-      console.log(
-        `🔄 Initializing ComfyUI client with baseUrl: ${COMFYUI_ENDPOINT}`
-      );
       comfyUIClient = initializeComfyUIClient(COMFYUI_ENDPOINT);
     }
-    console.log(
-      `[PERFORMANCE] ComfyUI client initialization took ${(
-        performance.now() - clientInitStart
-      ).toFixed(2)}ms`
-    );
 
-    // Health check ComfyUI with retry
-    const healthCheckStart = performance.now();
+    // Health check with retry
     const isHealthy = await ComfyUIRetryHandler.withRetry(
       () => comfyUIClient.healthCheck(),
       { maxRetries: 2, baseDelay: 2000 },
       { operationName: "healthCheck", promptId: queueId }
     );
-    console.log(
-      `[PERFORMANCE] ComfyUI health check took ${(
-        performance.now() - healthCheckStart
-      ).toFixed(2)}ms`
-    );
 
     if (!isHealthy) {
       throw new ComfyUIError(
         ComfyUIErrorType.CONNECTION_FAILED,
-        "ComfyUI service is not available after health check",
+        "ComfyUI service is not available",
         { promptId: queueId, retryable: true }
       );
     }
 
     // Create workflow parameters
-    const workflowCreateStart = performance.now();
     const workflowParams: WorkflowParameters = {
       prompt: queueItem.prompt,
       negativePrompt: queueItem.parameters.negativePrompt,
@@ -1184,55 +692,22 @@ export const submitPrompt = async (queueId: string): Promise<void> => {
       batchSize: queueItem.parameters.batch_size || 1,
       selectedLoras: createSelectedLorasArray(queueItem),
     };
-    console.log(
-      `[PERFORMANCE] Workflow parameters creation took ${(
-        performance.now() - workflowCreateStart
-      ).toFixed(2)}ms`
-    );
 
-    // Submit prompt to ComfyUI
-    const submitStart = performance.now();
+    // Submit to ComfyUI
     const submitResult = await comfyUIClient.submitPrompt(
       workflowParams,
-      "666" // Use monitor client_id instead of queueId
-    );
-    console.log(
-      `[PERFORMANCE] ComfyUI prompt submission took ${(
-        performance.now() - submitStart
-      ).toFixed(2)}ms`
+      "666" // Monitor client_id
     );
 
-    console.log("Submited prompt with workflow: ", workflowParams);
-
-    const comfyPromptId = submitResult.promptId;
-
-    // Update queue entry with ComfyUI prompt ID
-    const finalUpdateStart = performance.now();
     await queueService.updateQueueEntry(queueId, {
-      comfyPromptId,
+      comfyPromptId: submitResult.promptId,
       status: "processing",
     });
-    console.log(
-      `[PERFORMANCE] Final queue update took ${(
-        performance.now() - finalUpdateStart
-      ).toFixed(2)}ms`
-    );
 
-    const totalTime = performance.now() - startTime;
     console.log(
-      `✅ ComfyUI submission successful: promptId=${comfyPromptId}, queueId=${queueId}`
-    );
-    console.log(
-      `[PERFORMANCE] Total submitPrompt execution time: ${totalTime.toFixed(
-        2
-      )}ms`
+      `✅ ComfyUI submission successful: promptId=${submitResult.promptId}, queueId=${queueId}`
     );
   } catch (error) {
-    const totalTime = performance.now() - startTime;
-    console.log(
-      `[PERFORMANCE] submitPrompt failed after ${totalTime.toFixed(2)}ms`
-    );
-
     const comfyError =
       error instanceof ComfyUIError
         ? error
@@ -1246,82 +721,298 @@ export const submitPrompt = async (queueId: string): Promise<void> => {
       `❌ Queue submission error for ${queueId}:`,
       comfyError.message
     );
+  } finally {
+    timer.end();
   }
 };
 
+function createSelectedLorasArray(queueItem: QueueEntry): Array<{
+  id: string;
+  name: string;
+  strength: number;
+}> {
+  if (!Array.isArray(queueItem.parameters.selectedLoras)) {
+    return [];
+  }
+
+  return queueItem.parameters.selectedLoras.map(
+    (loraName: string, index: number) => {
+      const loraConfig = queueItem.parameters.loraStrengths?.[loraName];
+      const strength = loraConfig?.mode === "auto" ? 1 : loraConfig?.value || 1;
+
+      return {
+        id: `lora_${index}`,
+        name: loraName,
+        strength,
+      };
+    }
+  );
+}
+
+class PromptProcessor {
+  static shouldReturnPrematurely: boolean = false;
+
+  static async setShouldReturnPrematurely(value: boolean) {
+    PromptProcessor.shouldReturnPrematurely = value;
+  }
+
+  static async processPrompt(
+    validatedPrompt: string,
+    requestBody: GenerationRequest,
+    connectionId: string | null,
+    queueId: string,
+    queueEntry: QueueEntry
+  ): Promise<ProcessingResult<GenerationResponse>> {
+    const timer = new PerformanceTimer("Unified Prompt Processing");
+    const queueService = GenerationQueueService.getInstance();
+
+    try {
+      // Initialize optimization state
+      if (requestBody.optimizePrompt && connectionId) {
+        await WebSocketService.sendOptimizationMessage(connectionId, {
+          type: "optimization_start",
+          optimizationData: {
+            originalPrompt: validatedPrompt.trim(),
+            optimizedPrompt: "",
+            completed: false,
+          },
+        });
+      }
+
+      // Perform all operations in parallel
+      const [moderationResult, selectedLoras, optimizedPrompt] =
+        await Promise.all([
+          // Always perform moderation
+          AIService.performModeration(validatedPrompt),
+
+          // Conditionally perform LoRA selection
+          requestBody.loraSelectionMode === "auto"
+            ? AIService.selectLoras(validatedPrompt)
+            : Promise.resolve(requestBody.selectedLoras || []),
+
+          // Conditionally perform optimization
+          requestBody.optimizePrompt && connectionId
+            ? this.streamOptimization(validatedPrompt, connectionId)
+            : Promise.resolve(null),
+        ]);
+
+      // Handle moderation failure
+      if (!moderationResult.success) {
+        await this.handleModerationFailure(
+          connectionId,
+          queueId,
+          moderationResult.error || "Content violates platform rules"
+        );
+        return {
+          success: false,
+          error: moderationResult.error || "Content violates platform rules",
+        };
+      }
+
+      // Update request with selected LoRAs
+      requestBody.selectedLoras = selectedLoras;
+
+      // Determine final prompt
+      const finalPrompt = optimizedPrompt || validatedPrompt.trim();
+      const hasOptimization = optimizedPrompt !== null;
+
+      // Create workflow
+      const workflowParams = GenerationService.createWorkflowParams(
+        requestBody,
+        finalPrompt
+      );
+
+      // Update queue entry
+      await queueService.updateQueueEntry(queueId, {
+        prompt: finalPrompt,
+        parameters: workflowParams,
+      });
+
+      // Generate and send workflow data
+      const workflowData =
+        GenerationService.generateWorkflowData(workflowParams);
+      if (connectionId) {
+        await WebSocketService.sendWorkflowMessage(connectionId, workflowData);
+
+        // Send optimization complete if we optimized
+        if (hasOptimization) {
+          await WebSocketService.sendOptimizationMessage(connectionId, {
+            type: "optimization_complete",
+            optimizationData: {
+              originalPrompt: validatedPrompt.trim(),
+              optimizedPrompt,
+              completed: true,
+            },
+          });
+        }
+      }
+
+      // Submit to ComfyUI
+      await submitPrompt(queueId);
+
+      // Generate title for the image
+      const imageTitle = await AIService.performTitleGeneration(
+        validatedPrompt
+      );
+      if (imageTitle.success && imageTitle.data) {
+        await queueService.updateQueueEntry(queueId, {
+          filename: imageTitle.data,
+        });
+        // Update filename in dynamodb
+        await DynamoDBService.updateMediaAndSiblingsFilename(
+          queueId,
+          imageTitle.data
+        );
+      } else {
+        console.warn("❗ Title generation failed:", imageTitle.error);
+      }
+
+      // Build response
+      const response: GenerationResponse = {
+        queueId,
+        queuePosition: queueEntry.queuePosition || 1,
+        estimatedWaitTime: queueEntry.estimatedWaitTime || 0,
+        status: "pending",
+        message: `Your request has been added to the queue${
+          hasOptimization ? " with optimized prompt" : ""
+        }. Position: ${queueEntry.queuePosition || 1}`,
+        workflowData,
+        ...(hasOptimization && { optimizedPrompt }),
+      };
+
+      return { success: true, data: response };
+    } catch (error) {
+      console.error("❌ Prompt processing failed:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Processing failed",
+      };
+    } finally {
+      timer.end();
+    }
+  }
+
+  private static async streamOptimization(
+    prompt: string,
+    connectionId: string
+  ): Promise<string> {
+    // Check if we should return prematurely before starting
+    if (PromptProcessor.shouldReturnPrematurely) {
+      console.log(
+        "⚠️ Stream optimization interrupted - returning original prompt"
+      );
+      return prompt.trim();
+    }
+
+    const stream = await AIService.chatCompletionStream(
+      "prompt-optimization",
+      prompt,
+      CONFIG.AI_PARAMS.temperature.optimization,
+      CONFIG.AI_PARAMS.maxTokens.optimization
+    );
+
+    let optimizedPrompt = "";
+    for await (const token of stream) {
+      // Check if we should stop during streaming
+      if (PromptProcessor.shouldReturnPrematurely) {
+        console.log(
+          "⚠️ Stream optimization interrupted during streaming - returning partial result"
+        );
+        break;
+      }
+
+      optimizedPrompt += token;
+      await WebSocketService.sendOptimizationMessage(connectionId, {
+        type: "optimization_token",
+        optimizationData: {
+          originalPrompt: prompt.trim(),
+          optimizedPrompt,
+          token,
+          completed: false,
+        },
+      });
+    }
+
+    return optimizedPrompt.trim() || prompt.trim();
+  }
+
+  private static async handleModerationFailure(
+    connectionId: string | null,
+    queueId: string,
+    reason: string
+  ): Promise<void> {
+    // Notify user if connected
+    if (connectionId) {
+      await WebSocketService.sendOptimizationMessage(connectionId, {
+        type: "prompt-moderation",
+        status: "refused",
+        reason,
+      });
+    }
+
+    // Clean up queue entry
+    try {
+      const queueService = GenerationQueueService.getInstance();
+      await queueService.removeQueueEntry(queueId);
+      console.log(
+        `🗑️ Removed queue entry ${queueId} due to moderation failure`
+      );
+    } catch (error) {
+      console.error("Failed to remove queue entry:", error);
+    }
+  }
+}
+
 // ====================================
-// Main Handler
+// Simplified Main Handler
 // ====================================
 
-/**
- * Main handler for generation requests
- * @param event - API Gateway event
- * @param auth - Authenticated user information
- * @returns API Gateway response
- */
 const handleGenerate = async (
   event: APIGatewayProxyEvent,
   auth: AuthResult
 ): Promise<APIGatewayProxyResult> => {
   const timer = new PerformanceTimer("Generation Handler");
-  console.log("🎨 /generation/generate handler called");
 
   // Validate HTTP method
   if (event.httpMethod !== "POST") {
     return ResponseUtil.badRequest(event, "Only POST method allowed");
   }
 
-  console.log("✅ Authenticated user:", auth.userId);
-
-  // Fetch and validate user
-  timer.checkpoint("Pre-user fetch");
+  // Parse request and fetch user
+  const requestBody: GenerationRequest = LambdaHandlerUtil.parseJsonBody(event);
   const userEntity = await DynamoDBService.getUserById(auth.userId);
-  timer.checkpoint("User fetched");
 
   if (!userEntity) {
     return ResponseUtil.notFound(event, "User not found");
   }
 
-  // Enhance user with plan information
   const enhancedUser = await PlanUtil.enhanceUser(userEntity);
-  timer.checkpoint("User plan enhanced");
   const userPlan = enhancedUser.planInfo.plan;
-
-  // Parse request body
-  const requestBody: GenerationRequest = LambdaHandlerUtil.parseJsonBody(event);
-  timer.checkpoint("Request body parsed");
-
-  // Get user permissions based on plan
   const permissions = getGenerationPermissions(userPlan);
-  timer.checkpoint("Permissions checked");
 
-  // Validate request against permissions
-  const validationError = validateGenerationRequest(requestBody, permissions);
-  timer.checkpoint("Request validated");
+  // Validate request
+  const validationError = ValidationService.validateRequest(
+    requestBody,
+    permissions
+  );
   if (validationError) {
     return ResponseUtil.badRequest(event, validationError.message);
   }
 
-  // Extract and validate prompt
   const validatedPrompt = ValidationUtil.validateRequiredString(
     requestBody.prompt,
     "Prompt"
   );
 
-  // Check generation limits
-  const limitCheck = checkGenerationLimits(
+  // Check limits
+  const limitCheck = GenerationService.checkGenerationLimits(
     enhancedUser,
     requestBody.batchCount || 1
   );
-
   if (!limitCheck.allowed) {
     return ResponseUtil.forbidden(
       event,
-      `Generation limit exceeded. Remaining: ${
-        limitCheck.remaining === "unlimited"
-          ? "unlimited"
-          : limitCheck.remaining
-      }`
+      `Generation limit exceeded. Remaining: ${limitCheck.remaining}`
     );
   }
 
@@ -1331,8 +1022,6 @@ const handleGenerate = async (
     auth.userId,
     userPlan
   );
-  timer.checkpoint("Rate limit checked");
-
   if (!rateLimitResult.allowed) {
     return ResponseUtil.forbidden(
       event,
@@ -1340,7 +1029,7 @@ const handleGenerate = async (
     );
   }
 
-  // Get WebSocket connection for real-time updates
+  // Get WebSocket connection
   const connectionId =
     requestBody.connectionId &&
     (await DynamoDBService.isValidUserConnectionId(
@@ -1349,20 +1038,18 @@ const handleGenerate = async (
     ))
       ? requestBody.connectionId
       : await DynamoDBService.getActiveConnectionIdForUser(auth.userId);
-  timer.checkpoint("WebSocket connection checked");
 
   if (!connectionId) {
     console.warn("No active WebSocket connection for user:", auth.userId);
   }
 
-  // Calculate priority and create initial workflow params
-  const priority = calculateUserPriority(userPlan);
-  const initialWorkflowParams = createWorkflowParams(
+  // Initialize queue
+  const priority = GenerationService.calculateUserPriority(userPlan);
+  const initialWorkflowParams = GenerationService.createWorkflowParams(
     requestBody,
     validatedPrompt.trim()
   );
 
-  // Initialize queue service and add entry
   const queueService = GenerationQueueService.getInstance();
   const queueEntry = await queueService.addToQueue(
     auth.userId,
@@ -1371,94 +1058,25 @@ const handleGenerate = async (
     connectionId || undefined,
     priority
   );
-  timer.checkpoint("Initial queue entry added");
 
-  const queueId = queueEntry.queueId;
+  timer.checkpoint("Queue entry added");
 
-  // Handle prompt optimization if requested
-  let finalPrompt = validatedPrompt.trim();
-  let optimizedPromptResult: string | null = null;
+  // Process prompt with unified workflow
+  const processingResult = await PromptProcessor.processPrompt(
+    validatedPrompt,
+    requestBody,
+    connectionId,
+    queueEntry.queueId,
+    queueEntry
+  );
 
-  if (requestBody.optimizePrompt) {
-    const optimizationResult = await handlePromptOptimization(
-      validatedPrompt,
-      requestBody,
-      connectionId,
-      queueId,
-      queueEntry
-    );
-    timer.checkpoint("Prompt optimization completed");
+  timer.end();
 
-    // Check for moderation failure
-    if (optimizationResult.moderationFailed) {
-      return ResponseUtil.badRequest(
-        event,
-        optimizationResult.moderationReason || "Content violates platform rules"
-      );
-    }
-
-    finalPrompt = optimizationResult.finalPrompt;
-    optimizedPromptResult = optimizationResult.optimizedPromptResult;
-
-    // Return early if optimization completed with response
-    if (optimizationResult.shouldReturn && optimizationResult.response) {
-      timer.end();
-      return ResponseUtil.success(event, optimizationResult.response);
-    }
+  // Return result
+  if (processingResult.success) {
+    return ResponseUtil.success(event, processingResult.data);
   } else {
-    // Perform moderation and LoRA selection in parallel if optimization is not requested
-    const moderationPromise = performPromptModeration(
-      validatedPrompt,
-      connectionId,
-      queueId
-    );
-
-    // Only perform LoRA selection if mode is "auto"
-    const loraSelectionPromise =
-      requestBody.loraSelectionMode === "auto"
-        ? performAutoLoRASelection(validatedPrompt)
-        : Promise.resolve(requestBody.selectedLoras);
-
-    const [moderationResult, selectedLoras] = await Promise.all([
-      moderationPromise,
-      loraSelectionPromise,
-    ]);
-    timer.checkpoint("Moderation and LoRA selection completed");
-
-    requestBody.selectedLoras = selectedLoras;
-
-    if (!moderationResult.passed) {
-      return ResponseUtil.badRequest(
-        event,
-        moderationResult.reason || "Content violates platform rules"
-      );
-    }
-
-    console.log("✅ Selected LoRAs (no optimization):", selectedLoras);
-  }
-
-  // Process generation through queue
-  try {
-    const workflowParams = createWorkflowParams(requestBody, finalPrompt);
-    const response = await processGenerationQueue(
-      queueService,
-      auth,
-      finalPrompt,
-      workflowParams,
-      priority,
-      optimizedPromptResult
-    );
-    timer.checkpoint("Queue processing completed");
-
-    timer.end();
-    return ResponseUtil.success(event, response);
-  } catch (queueError) {
-    console.error("Failed to add request to queue:", queueError);
-    timer.end();
-    return ResponseUtil.internalError(
-      event,
-      "Failed to process generation request"
-    );
+    return ResponseUtil.badRequest(event, processingResult.error!);
   }
 };
 

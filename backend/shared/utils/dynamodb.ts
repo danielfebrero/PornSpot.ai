@@ -575,6 +575,55 @@ export class DynamoDBService {
     await this.removeMediaFromAllAlbums(mediaId);
   }
 
+  static async updateMediaAndSiblingsFilename(
+    mediaId: string,
+    filename: string
+  ): Promise<void> {
+    try {
+      // First, query all items with GSI2PK="MEDIA_ID" and GSI2SK begins_with mediaId
+      const queryResult = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI2",
+          KeyConditionExpression:
+            "GSI2PK = :gsi2pk AND begins_with(GSI2SK, :gsi2sk)",
+          ExpressionAttributeValues: {
+            ":gsi2pk": "MEDIA_ID",
+            ":gsi2sk": mediaId,
+          },
+        })
+      );
+
+      const items = queryResult.Items || [];
+
+      // Update each item with the new filename
+      for (const item of items) {
+        await docClient.send(
+          new UpdateCommand({
+            TableName: TABLE_NAME,
+            Key: {
+              PK: item["PK"],
+              SK: item["SK"],
+            },
+            UpdateExpression:
+              "SET filename = :filename, updatedAt = :updatedAt",
+            ExpressionAttributeValues: {
+              ":filename": filename,
+              ":updatedAt": new Date().toISOString(),
+            },
+          })
+        );
+      }
+
+      console.log(
+        `✅ Updated filename for ${items.length} items related to media ${mediaId}`
+      );
+    } catch (error) {
+      console.error("❌ Error updating media and siblings filename:", error);
+      throw error;
+    }
+  }
+
   static async updateMedia(
     mediaId: string,
     updates: Partial<MediaEntity>
