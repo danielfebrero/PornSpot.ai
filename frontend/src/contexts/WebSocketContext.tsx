@@ -81,6 +81,10 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
           clearTimeout(reconnectTimeoutRef.current);
           reconnectTimeoutRef.current = null;
         }
+
+        wsRef.current?.send(
+          JSON.stringify({ action: "get_client_connectionId" })
+        );
       };
 
       wsRef.current.onmessage = (event) => {

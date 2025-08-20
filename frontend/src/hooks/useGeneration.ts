@@ -49,6 +49,7 @@ export function useGeneration(): UseGenerationReturn {
   const [nodeState, setNodeState] = useState("");
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [connectionId, setConnectionId] = useState<string | null>(null);
 
   // New workflow state
   const [workflowNodes, setWorkflowNodes] = useState<WorkflowNode[]>([]);
@@ -193,6 +194,10 @@ export function useGeneration(): UseGenerationReturn {
       console.log("🎨 Generation update received:", message);
 
       switch (message.type) {
+        case "client_connectionId":
+          setConnectionId(message.connectionId || null);
+          break;
+
         case "queue_update":
         case "queued":
           setQueueStatus({
@@ -469,7 +474,10 @@ export function useGeneration(): UseGenerationReturn {
         messageCallbackRef.current = handleWebSocketMessage;
         subscribe(handleWebSocketMessage);
 
-        const result = await generateApi.generate(request);
+        const result = await generateApi.generate({
+          ...request,
+          connectionId: connectionId || undefined,
+        });
 
         console.log("✅ Generation request submitted:", result);
 

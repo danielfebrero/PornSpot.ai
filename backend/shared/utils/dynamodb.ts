@@ -2624,6 +2624,33 @@ export class DynamoDBService {
     }
   }
 
+  static async isValidUserConnectionId(
+    userId: string,
+    connectionId: string
+  ): Promise<boolean> {
+    try {
+      const result = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI1",
+          KeyConditionExpression: "GSI1PK = :gsi1pk AND GSI1SK = :gsi1sk",
+          ExpressionAttributeValues: {
+            ":gsi1pk": "WEBSOCKET_CONNECTIONS",
+            ":gsi1sk": `${userId}#${connectionId}`,
+          },
+          Limit: 1,
+        })
+      );
+      return !!(result.Items && result.Items.length > 0);
+    } catch (error) {
+      console.error(
+        `❌ Error validating user connection ID for user ${userId}:`,
+        error
+      );
+      return false;
+    }
+  }
+
   /**
    * Get active WebSocket connection ID for a user
    * Returns the most recent active connection for the user

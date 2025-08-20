@@ -42,7 +42,7 @@
 
 [x] On media page and album page, optimist update of likes does not work anymore. It works on user comments page.
 
-[ ] Progress card on generate page should not show estimated wait time because it's broken.
+[x] Progress card on generate page should not show estimated wait time because it's broken.
 
 [x] If add an image to album already in album, we must display a message informative.
 

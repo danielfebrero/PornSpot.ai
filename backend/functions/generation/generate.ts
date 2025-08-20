@@ -1350,9 +1350,14 @@ const handleGenerate = async (
   }
 
   // Get WebSocket connection for real-time updates
-  const connectionId = await DynamoDBService.getActiveConnectionIdForUser(
-    auth.userId
-  );
+  const connectionId =
+    requestBody.connectionId &&
+    (await DynamoDBService.isValidUserConnectionId(
+      auth.userId,
+      requestBody.connectionId
+    ))
+      ? requestBody.connectionId
+      : await DynamoDBService.getActiveConnectionIdForUser(auth.userId);
   timer.checkpoint("WebSocket connection checked");
 
   if (!connectionId) {

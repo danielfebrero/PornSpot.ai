@@ -8,6 +8,8 @@ export interface WebSocketMessage {
 
 export interface GenerationWebSocketMessage {
   type:
+    | "client_connectionId"
+    | "subscription_confirmed"
     | "queued"
     | "processing"
     | "progress"
@@ -22,6 +24,7 @@ export interface GenerationWebSocketMessage {
     | "optimization_complete"
     | "optimization_error"
     | "prompt-moderation";
+  connectionId?: string; // Added connectionId to track the connection
   queueId?: string;
   queuePosition?: number;
   estimatedWaitTime?: number;

@@ -113,7 +113,7 @@ export const handler = async (
     // Extract and validate JWT token
     const jwtToken = queryParams["token"];
     if (!jwtToken) {
-      console.log("❌ No JWT token provided, anonymouse connecting");
+      console.log("❌ No JWT token provided, anonymous connecting");
       return {
         statusCode: 200,
         body: JSON.stringify({ message: "Connected" }),

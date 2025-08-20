@@ -12,6 +12,7 @@ export interface GenerationSettings {
   loraSelectionMode: "auto" | "manual";
   optimizePrompt: boolean;
   isPublic?: boolean;
+  connectionId?: string;
 }
 
 export interface GenerationRequest extends GenerationSettings {}

@@ -236,6 +236,10 @@ export const handler = async (
 
     // Route message based on action
     switch (message.action) {
+      case "get_client_connectionId":
+        await handleGetClientConnectionId(connectionId);
+        break;
+
       case "subscribe":
         await handleSubscribe(connectionId, message);
         break;
@@ -452,6 +456,23 @@ async function downloadAndUploadImage(
     console.error(`Failed to download/upload image ${image.filename}:`, error);
     return null;
   }
+}
+
+async function handleGetClientConnectionId(
+  connectionId: string | null
+): Promise<void> {
+  if (!connectionId) {
+    console.error("No connectionId available");
+    return;
+  }
+
+  // Assuming you have a way to send messages back to the client
+  const message = {
+    type: "client_connectionId",
+    connectionId,
+  };
+
+  await sendMessageToConnection(connectionId, message);
 }
 
 /**
