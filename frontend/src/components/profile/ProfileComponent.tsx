@@ -120,6 +120,7 @@ export default function ProfileComponent({
     username: currentUser.username,
     isOwner,
     limit: 6, // Fetch 6 recent likes for the scrollable preview
+    includeContentPreview: true,
   });
 
   const recentLikes = useMemo(
@@ -136,6 +137,7 @@ export default function ProfileComponent({
     user: currentUser.username || "",
     isPublic: true,
     limit: 6, // Fetch 6 recent albums for the scrollable preview
+    includeContentPreview: true,
   });
 
   // Get real user media using TanStack Query

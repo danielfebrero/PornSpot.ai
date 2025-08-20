@@ -30,7 +30,7 @@ export default function UserAlbumsPage() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage: loadingMore,
-  } = useAlbums({ user: username, limit: 12 });
+  } = useAlbums({ user: username, limit: 12, includeContentPreview: true });
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();

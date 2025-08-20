@@ -32,6 +32,7 @@ const UserAlbumsPage: React.FC = () => {
     error: queryError,
   } = useAlbums({
     user: user?.username,
+    includeContentPreview: true,
   });
   const updateAlbumMutation = useUpdateAlbum();
   const deleteAlbumMutation = useDeleteAlbum();

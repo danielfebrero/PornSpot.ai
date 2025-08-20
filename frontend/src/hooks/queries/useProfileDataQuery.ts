@@ -9,6 +9,7 @@ interface UseProfileDataOptions {
   isOwner?: boolean;
   limit?: number;
   enabled?: boolean;
+  includeContentPreview?: boolean;
 }
 
 interface ProfileData {
@@ -17,7 +18,13 @@ interface ProfileData {
 
 // Hook for fetching profile data including recent likes and statistics
 export function useProfileDataQuery(options: UseProfileDataOptions) {
-  const { username, isOwner = false, limit = 3, enabled = true } = options;
+  const {
+    username,
+    isOwner = false,
+    limit = 3,
+    enabled = true,
+    includeContentPreview = false,
+  } = options;
 
   return useQuery({
     queryKey: ["profile", "data", username, isOwner, limit],
@@ -26,15 +33,11 @@ export function useProfileDataQuery(options: UseProfileDataOptions) {
         return { recentLikes: [] };
       }
 
-      let response: UnifiedUserInteractionsResponse;
-
-      if (username) {
-        // Fetch likes for specific user by username
-        response = await interactionApi.getLikesByUsername(username, limit);
-      } else {
-        // Fetch current user's likes (for owner view)
-        response = await interactionApi.getLikes(limit);
-      }
+      const response = await interactionApi.getLikes({
+        username,
+        limit,
+        includeContentPreview,
+      });
 
       return {
         recentLikes: response.interactions,

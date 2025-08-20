@@ -54,26 +54,20 @@ export const interactionApi = {
   },
 
   // Get user's likes - NEW UNIFIED FORMAT
-  getLikes: async (
-    limit: number = 20,
-    cursor?: string
-  ): Promise<UnifiedUserInteractionsResponse> => {
+  getLikes: async ({
+    limit = 20,
+    cursor,
+    includeContentPreview,
+    username,
+  }: {
+    limit?: number;
+    cursor?: string;
+    includeContentPreview?: boolean;
+    username?: string;
+  }): Promise<UnifiedUserInteractionsResponse> => {
     const response = await ApiUtil.get<UnifiedUserInteractionsResponse>(
       "/user/interactions/likes",
-      { limit, cursor }
-    );
-    return ApiUtil.extractData(response);
-  },
-
-  // Get likes by username (for profile views) - NEW UNIFIED FORMAT
-  getLikesByUsername: async (
-    username: string,
-    limit: number = 20,
-    cursor?: string
-  ): Promise<UnifiedUserInteractionsResponse> => {
-    const response = await ApiUtil.get<UnifiedUserInteractionsResponse>(
-      "/user/interactions/likes",
-      { user: username, limit, cursor }
+      { limit, cursor, includeContentPreview, user: username }
     );
     return ApiUtil.extractData(response);
   },

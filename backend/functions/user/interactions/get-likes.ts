@@ -18,6 +18,7 @@ const handleGetLikes = async (
   // Check if we're querying for a specific user's likes
   const queryParams = event.queryStringParameters || {};
   const targetUsername = queryParams["user"];
+  const includeContentPreview = queryParams["includeContentPreview"] === "true";
 
   let targetUserId = requestingUserId; // Default to requesting user's own likes
 
@@ -64,6 +65,14 @@ const handleGetLikes = async (
 
       if (interaction.targetType === "album") {
         targetDetails = await DynamoDBService.getAlbum(interaction.targetId);
+        if (includeContentPreview) {
+          targetDetails = {
+            ...targetDetails,
+            contentPreview: await DynamoDBService.getContentPreviewForAlbum(
+              interaction.targetId
+            ),
+          };
+        }
       } else if (interaction.targetType === "media") {
         // For media, get the media details directly
         targetDetails = await DynamoDBService.getMedia(interaction.targetId);
