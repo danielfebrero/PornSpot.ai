@@ -265,12 +265,15 @@ export function AddToAlbumDialog({
                   {albums.map((album) => {
                     const isSelected = selectedAlbumIds.has(album.id);
                     // Check if media is already in this album
-                    const isAlreadyInAlbum = album.mediaIds?.includes(media.id) ?? false;
+                    const isAlreadyInAlbum =
+                      album.mediaIds?.includes(media.id) ?? false;
 
                     return (
                       <button
                         key={album.id}
-                        onClick={() => !isAlreadyInAlbum && handleAlbumToggle(album.id)}
+                        onClick={() =>
+                          !isAlreadyInAlbum && handleAlbumToggle(album.id)
+                        }
                         disabled={isAlreadyInAlbum}
                         className={cn(
                           "w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left",

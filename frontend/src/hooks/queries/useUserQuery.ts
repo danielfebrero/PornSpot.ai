@@ -32,9 +32,9 @@ export function useUserProfile() {
     // Prevent automatic queries when UserContext indicates no authentication
     enabled: (() => {
       // If UserContext is still initializing, wait for it
-      if (userContext?.initializing) {
-        return false;
-      }
+      // if (userContext?.initializing) {
+      //   return false;
+      // }
 
       // If UserContext has definitively determined there's no user and isn't loading,
       // and we don't already have cached data, don't query
