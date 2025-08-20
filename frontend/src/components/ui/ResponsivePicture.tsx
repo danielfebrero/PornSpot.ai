@@ -403,8 +403,23 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
     <div
       ref={containerRef as React.RefObject<HTMLDivElement>}
       className="w-full h-full"
+      style={{ position: "relative" }}
     >
-      {shouldShowCarousel && contentPreview && firstImageLoaded ? (
+      <img
+        width={dimensions.width}
+        height={dimensions.height}
+        src={defaultSrc}
+        alt={alt}
+        className={className}
+        loading={loading}
+        style={{ zIndex: isCarouselActive ? 10 : 0, position: "absolute" }}
+      />
+      <picture onClick={onClick} style={{ position: "absolute" }}>
+        {sources.map(
+          (source: { media: string; srcSet: string }, index: number) => (
+            <source key={index} media={source.media} srcSet={source.srcSet} />
+          )
+        )}
         <img
           width={dimensions.width}
           height={dimensions.height}
@@ -413,23 +428,7 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
           className={className}
           loading={loading}
         />
-      ) : (
-        <picture onClick={onClick}>
-          {sources.map(
-            (source: { media: string; srcSet: string }, index: number) => (
-              <source key={index} media={source.media} srcSet={source.srcSet} />
-            )
-          )}
-          <img
-            width={dimensions.width}
-            height={dimensions.height}
-            src={defaultSrc}
-            alt={alt}
-            className={className}
-            loading={loading}
-          />
-        </picture>
-      )}
+      </picture>
     </div>
   );
 };
