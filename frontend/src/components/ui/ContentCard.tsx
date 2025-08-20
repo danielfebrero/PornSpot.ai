@@ -215,7 +215,7 @@ export function ContentCard({
         setPreviewIndex(
           (prevIndex) => (prevIndex + 1) % album.contentPreview!.length
         );
-      }, 1500); // Reduced to 1.5 seconds since images are preloaded
+      }, 600); // Reduced to 1.5 seconds since images are preloaded
     }, 800); // Reduced initial delay since images are preloaded
 
     return () => {
