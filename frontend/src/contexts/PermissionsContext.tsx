@@ -8,6 +8,7 @@ import {
   PermissionContext,
 } from "@/types/permissions";
 import { User } from "@/types";
+import { getPlanPermissions } from "@/utils/permissions";
 
 interface PermissionsContextType {
   user: User | null;
@@ -53,7 +54,17 @@ export function PermissionsProvider({
   children,
   user,
 }: PermissionsProviderProps) {
-  const planPermissions = user?.planInfo?.permissions || null;
+  const [planPermissions, setPlanPermissions] =
+    React.useState<PlanPermissions | null>(null);
+  React.useEffect(() => {
+    const fetchPlanPermissions = async () => {
+      const permissions = await getPlanPermissions(
+        user?.planInfo?.plan || "free"
+      );
+      setPlanPermissions(permissions);
+    };
+    fetchPlanPermissions();
+  }, [user]);
 
   // Basic role permissions - in the future this should be loaded from API
   const rolePermissions: RolePermissions | null = user

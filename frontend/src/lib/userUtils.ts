@@ -1,6 +1,5 @@
 import { User } from "@/types";
-import { UserPlan, UserRole } from "@/types/permissions";
-import { getAllPlanDefinitions } from "@/utils/permissions";
+import { UserPlan } from "@/types/permissions";
 
 // Mock user data for development/testing
 export async function createMockUser(
