@@ -149,10 +149,16 @@ export default function ProfileComponent({
   });
 
   // Extract albums from paginated data (only need first page for profile preview)
-  const recentAlbums = albumsData?.pages[0]?.albums || [];
+  const recentAlbums = useMemo(
+    () => albumsData?.pages[0]?.albums || [],
+    [albumsData]
+  );
 
   // Extract media from paginated data (only need first page for profile preview)
-  const recentMedia = userMediaData?.pages[0]?.media || [];
+  const recentMedia = useMemo(
+    () => userMediaData?.pages[0]?.media || [],
+    [userMediaData]
+  );
 
   // Preload interaction statuses for liked content
   const { prefetch } = usePrefetchInteractionStatus();
@@ -399,19 +405,8 @@ export default function ProfileComponent({
         // Update the current user state with the response data
         setCurrentUser({
           ...currentUser,
-          username: result.user?.username,
-          bio: result.user?.bio,
-          location: result.user?.location,
-          website: result.user?.website,
-          // Include avatar updates if they were successful
+          ...result.user,
           ...avatarUpdateData,
-          // Also include any avatar data from the API response
-          ...(result.user?.avatarUrl && {
-            avatarUrl: result.user?.avatarUrl,
-          }),
-          ...(result.user?.avatarThumbnails && {
-            avatarThumbnails: result.user?.avatarThumbnails,
-          }),
         });
 
         // Reset username status since we've successfully saved

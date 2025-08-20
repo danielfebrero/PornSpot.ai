@@ -19,7 +19,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const refetch = useCallback(async (): Promise<void> => {
     try {
-      setLoading(true);
       const response = await userApi.me();
       if (!response) {
         setUser(null);
@@ -29,8 +28,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       // Silent fail for auth check - user is simply not authenticated
       setUser(null);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
