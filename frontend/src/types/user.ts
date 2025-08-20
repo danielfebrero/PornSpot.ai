@@ -2,14 +2,14 @@
 import type {
   Album,
   Media,
-  User as BaseUser,
-  UserProfileInsights as BaseUserProfileInsights,
+  User,
   Comment as SharedComment,
   UserLoginRequest,
   UserRegistrationRequest,
-  PlanPermissions,
+  UserProfileInsights,
+  ThumbnailUrls,
 } from "@/types/shared-types";
-import type { UserInteraction as BaseUserInteraction } from "@/types/shared-types";
+import type { UserInteraction } from "@/types/shared-types";
 
 // Frontend-specific interaction request (with albumId and action for frontend usage)
 export interface InteractionRequest {
@@ -17,11 +17,6 @@ export interface InteractionRequest {
   targetId: string;
   action: "add" | "remove";
   albumId?: string; // Required for media interactions
-}
-
-// Frontend-specific user interaction (with target enrichment, extends all base properties)
-export interface UserInteraction extends BaseUserInteraction {
-  target: Media | Album; // Added for enriched interactions
 }
 
 // Comment type with target enrichment for frontend display
@@ -38,7 +33,7 @@ export interface UserLoginResponse {
 }
 
 export interface ExtractedUserLoginResponse {
-  user: BaseUser;
+  user: User;
   sessionId: string;
 }
 
@@ -62,7 +57,7 @@ export interface UserMeResponse {
 }
 
 export interface ExtractedUserMeResponse {
-  user: BaseUser;
+  user: User;
 }
 
 // Email verification types (not in backend shared types)
@@ -78,7 +73,7 @@ export interface EmailVerificationResponse {
 
 export interface ExtractedVerificationResponse {
   message: string;
-  user?: BaseUser;
+  user?: User;
 }
 
 export interface ResendVerificationRequest {
@@ -117,7 +112,7 @@ export interface UserLoginFormData {
 
 // Frontend-specific context types
 export interface UserContextType {
-  user: UserWithPlanInfo | null;
+  user: User | null;
   loading: boolean;
   error: string | null;
   initializing: boolean;
@@ -160,28 +155,8 @@ export interface GoogleOAuthResponse {
 }
 
 export interface ExtractedGoogleOAuthResponse {
-  user: BaseUser;
+  user: User;
   redirectUrl: string;
-}
-
-// Extended user with plan information - frontend specific
-export interface UserWithPlanInfo extends BaseUser {
-  role?: string; // 'user', 'admin', 'moderator'
-  planInfo?: {
-    plan: string; // 'free', 'starter', 'unlimited', 'pro'
-    isActive: boolean;
-    subscriptionId?: string;
-    subscriptionStatus?: "active" | "canceled" | "expired";
-    planStartDate?: string;
-    planEndDate?: string;
-    permissions: PlanPermissions;
-  };
-  usageStats?: {
-    imagesGeneratedThisMonth: number;
-    imagesGeneratedToday: number;
-    storageUsedGB?: number;
-    lastGenerationAt?: string;
-  };
 }
 
 // Profile update types - frontend specific
@@ -201,51 +176,23 @@ export interface UserProfileUpdateResponse {
 
 export interface ExtractedUserProfileUpdateResponse {
   message: string;
-  user?: {
-    userId: string;
-    email: string;
-    username: string;
-    bio?: string;
-    location?: string;
-    website?: string;
-    preferredLanguage?: string;
-    createdAt: string;
-    lastLoginAt?: string;
-
-    // Avatar information
-    avatarUrl?: string;
-    avatarThumbnails?: {
-      originalSize?: string;
-      small?: string;
-      medium?: string;
-      large?: string;
-    };
-  };
+  user?: User;
 }
 
 // Public profile types - frontend specific
-export interface PublicUserProfile {
+interface PublicUserProfile {
   userId: string;
+  email: string;
   username?: string;
-  createdAt: string;
-  isActive: boolean;
-  isEmailVerified: boolean;
-  lastLoginAt?: string;
+  firstName?: string;
+  lastName?: string;
   bio?: string;
   location?: string;
   website?: string;
-
-  // Avatar information
-  avatarUrl?: string; // Original avatar image URL
-  avatarThumbnails?: {
-    originalSize?: string; // WebP optimized version of original (full resolution)
-    small?: string; // Small size (max 32px, preserves aspect ratio)
-    medium?: string; // Medium size (max 96px, preserves aspect ratio)
-    large?: string; // Large size (max 128px, preserves aspect ratio)
-  };
-
-  // Profile insights
-  profileInsights?: BaseUserProfileInsights;
+  createdAt: string;
+  avatarUrl?: string;
+  avatarThumbnails?: ThumbnailUrls;
+  profileInsights: UserProfileInsights;
 }
 
 export interface GetPublicProfileResponse {

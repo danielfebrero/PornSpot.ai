@@ -1,20 +1,14 @@
 import {
   UserLoginRequest,
   UserRegistrationRequest,
-  UserLoginResponse,
-  UserRegistrationResponse,
-  UserMeResponse,
-  EmailVerificationResponse,
-  ResendVerificationResponse,
-  GoogleOAuthResponse,
   UsernameAvailabilityRequest,
   UsernameAvailabilityResponse,
   UserProfileUpdateRequest,
   UserProfileUpdateResponse,
   GetPublicProfileResponse,
   PublicUserProfile,
+  User,
 } from "@/types";
-import { User as BaseUser } from "@/types/shared-types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -161,12 +155,12 @@ export const userApi = {
   ): Promise<{
     success: boolean;
     message: string;
-    user?: BaseUser;
+    user?: User;
   }> => {
     const response = await ApiUtil.put<{
       success: boolean;
       message: string;
-      user?: BaseUser;
+      user?: User;
     }>("/user/profile/edit", { preferredLanguage: languageCode });
     return ApiUtil.extractData(response);
   },

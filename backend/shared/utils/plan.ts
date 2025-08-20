@@ -1,9 +1,11 @@
 // Plan and subscription utilities
 import { DynamoDBService } from "./dynamodb";
-import { UserEntity, UserProfileInsights } from "@shared/shared-types";
-
-export type UserPlan = "free" | "starter" | "unlimited" | "pro";
-export type UserRole = "user" | "admin" | "moderator";
+import {
+  UserEntity,
+  UserPlan,
+  UserProfileInsights,
+  UserRole,
+} from "@shared/shared-types";
 
 export interface UserPlanInfo {
   plan: UserPlan;

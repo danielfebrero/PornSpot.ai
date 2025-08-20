@@ -1,5 +1,6 @@
 // User Authentication Types
 import type { ThumbnailUrls } from "./core";
+import type { UserPlan, PlanPermissions } from "./permissions";
 
 export interface User {
   userId: string;
@@ -7,6 +8,9 @@ export interface User {
   username?: string; // Now required
   firstName?: string;
   lastName?: string;
+  bio?: string;
+  location?: string;
+  website?: string;
   createdAt: string;
   isActive: boolean;
   isEmailVerified: boolean;
@@ -18,6 +22,24 @@ export interface User {
   // Avatar information
   avatarUrl?: string; // Original avatar image URL
   avatarThumbnails?: ThumbnailUrls;
+
+  role: string; // 'user', 'admin', 'moderator'
+  planInfo: {
+    plan: UserPlan; // 'free', 'starter', 'unlimited', 'pro'
+    isActive: boolean;
+    subscriptionId?: string;
+    subscriptionStatus?: "active" | "canceled" | "expired";
+    planStartDate?: string;
+    planEndDate?: string;
+    permissions: PlanPermissions;
+  };
+  usageStats: {
+    imagesGeneratedThisMonth: number;
+    imagesGeneratedToday: number;
+    storageUsedGB?: number;
+    lastGenerationAt?: string;
+  };
+  profileInsights: UserProfileInsights;
 }
 
 export interface UserSession {

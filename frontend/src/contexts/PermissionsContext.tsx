@@ -2,15 +2,15 @@
 
 import React, { createContext, useContext, ReactNode } from "react";
 import {
-  UserWithPlan,
   UserPlan,
   PlanPermissions,
   RolePermissions,
   PermissionContext,
 } from "@/types/permissions";
+import { UserWithPlanInfo } from "@/types";
 
 interface PermissionsContextType {
-  user: UserWithPlan | null;
+  user: UserWithPlanInfo | null;
   planPermissions: PlanPermissions | null;
   rolePermissions: RolePermissions | null;
 
@@ -46,7 +46,7 @@ const PermissionsContext = createContext<PermissionsContextType | undefined>(
 
 interface PermissionsProviderProps {
   children: ReactNode;
-  user: UserWithPlan | null;
+  user: UserWithPlanInfo | null;
 }
 
 export function PermissionsProvider({
@@ -76,13 +76,13 @@ export function PermissionsProvider({
   // Plan-based permission checks
   const canGenerateImages = (): boolean => {
     if (!user || !planPermissions) return false;
-    return user.planInfo.isActive;
+    return !!user.planInfo?.isActive;
   };
 
   const canGenerateImagesCount = (
     count: number = 1
   ): { allowed: boolean; remaining: number | "unlimited" } => {
-    if (!user || !planPermissions || !user.planInfo.isActive) {
+    if (!user || !planPermissions || !user.planInfo?.isActive) {
       return { allowed: false, remaining: 0 };
     }
 
@@ -96,7 +96,7 @@ export function PermissionsProvider({
     // Check monthly limit
     if (monthlyLimit !== "unlimited") {
       const monthlyRemaining =
-        monthlyLimit - user.usageStats.imagesGeneratedThisMonth;
+        monthlyLimit - (user.usageStats?.imagesGeneratedThisMonth || 0);
       if (monthlyRemaining < count) {
         return { allowed: false, remaining: monthlyRemaining };
       }
@@ -104,7 +104,8 @@ export function PermissionsProvider({
 
     // Check daily limit
     if (dailyLimit !== "unlimited") {
-      const dailyRemaining = dailyLimit - user.usageStats.imagesGeneratedToday;
+      const dailyRemaining =
+        dailyLimit - (user.usageStats?.imagesGeneratedToday || 0);
       if (dailyRemaining < count) {
         return { allowed: false, remaining: dailyRemaining };
       }
@@ -116,33 +117,33 @@ export function PermissionsProvider({
       remaining:
         monthlyLimit === "unlimited"
           ? "unlimited"
-          : monthlyLimit - user.usageStats.imagesGeneratedThisMonth,
+          : monthlyLimit - (user.usageStats?.imagesGeneratedThisMonth || 0),
     };
   };
 
   const canUseBulkGeneration = (): boolean => {
     if (!user || !planPermissions) return false;
-    return planPermissions.canUseBulkGeneration && user.planInfo.isActive;
+    return planPermissions.canUseBulkGeneration && !!user.planInfo?.isActive;
   };
 
   const canUseLoRAModels = (): boolean => {
     if (!user || !planPermissions) return false;
-    return planPermissions.canUseLoRAModels && user.planInfo.isActive;
+    return planPermissions.canUseLoRAModels && !!user.planInfo?.isActive;
   };
 
   const canUseNegativePrompt = (): boolean => {
     if (!user || !planPermissions) return false;
-    return planPermissions.canUseNegativePrompt && user.planInfo.isActive;
+    return planPermissions.canUseNegativePrompt && !!user.planInfo?.isActive;
   };
 
   const canCreatePrivateContent = (): boolean => {
     if (!user || !planPermissions) return false;
-    return planPermissions.canCreatePrivateContent && user.planInfo.isActive;
+    return planPermissions.canCreatePrivateContent && !!user.planInfo?.isActive;
   };
 
   const canUseCustomSizes = (): boolean => {
     if (!user || !planPermissions) return false;
-    return planPermissions.canSelectImageSizes && user.planInfo.isActive;
+    return planPermissions.canSelectImageSizes && !!user.planInfo?.isActive;
   };
 
   // Role-based permission checks
@@ -212,7 +213,7 @@ export function PermissionsProvider({
 
   // Plan information
   const getCurrentPlan = (): UserPlan => {
-    return user?.planInfo.plan || "free";
+    return user?.planInfo?.plan || ("free" as UserPlan);
   };
 
   const getPlanLimits = (): PlanPermissions | null => {
@@ -226,14 +227,15 @@ export function PermissionsProvider({
       case "imagesPerMonth":
         if (planPermissions.imagesPerMonth === "unlimited") return true;
         return (
-          user.usageStats.imagesGeneratedThisMonth <
+          (user.usageStats?.imagesGeneratedThisMonth || 0) <
           planPermissions.imagesPerMonth
         );
 
       case "imagesPerDay":
         if (planPermissions.imagesPerDay === "unlimited") return true;
         return (
-          user.usageStats.imagesGeneratedToday < planPermissions.imagesPerDay
+          (user.usageStats?.imagesGeneratedToday || 0) <
+          planPermissions.imagesPerDay
         );
 
       default:
