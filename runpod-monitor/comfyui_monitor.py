@@ -73,10 +73,10 @@ class WebSocketForwarder:
             return False
         try:
             # In websockets 15.x, we can check the state attribute
-            if hasattr(ws, 'state'):
-                return str(ws.state) == 'State.OPEN' or 'OPEN' in str(ws.state)
+            if hasattr(ws, "state"):
+                return str(ws.state) == "State.OPEN" or "OPEN" in str(ws.state)
             # Fallback for older versions
-            elif hasattr(ws, 'closed'):
+            elif hasattr(ws, "closed"):
                 return not ws.closed
             else:
                 # Last resort: assume it's open if we can't determine
