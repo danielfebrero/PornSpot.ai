@@ -112,7 +112,6 @@ export function useGeneration(): UseGenerationReturn {
       nodeIndex: number
     ): { overallProgress: number; overallMaxProgress: number } => {
       if (nodes.length === 0) {
-        console.log("📊 No nodes available, using raw progress");
         return {
           overallProgress: currentNodeProgress,
           overallMaxProgress: currentNodeMaxProgress,
@@ -163,24 +162,6 @@ export function useGeneration(): UseGenerationReturn {
           ? Math.round((totalCompletedEstTimeUnits / totalEstTimeUnits) * 100)
           : 0;
 
-      console.log("📊 Overall progress calculation:", {
-        currentNodeId,
-        currentNodeProgress,
-        currentNodeMaxProgress,
-        actualCurrentNodeIndex,
-        useNodeIndex,
-        totalEstTimeUnits,
-        completedEstTimeUnits,
-        currentNodeEstTimeUnits,
-        totalCompletedEstTimeUnits,
-        overallProgress,
-        nodes: nodes.map((n) => ({
-          id: n.nodeId,
-          title: n.nodeTitle,
-          estTime: n.estTimeUnits,
-        })),
-      });
-
       return {
         overallProgress,
         overallMaxProgress: 100,
@@ -191,8 +172,6 @@ export function useGeneration(): UseGenerationReturn {
 
   const handleWebSocketMessage = useCallback(
     (message: GenerationWebSocketMessage) => {
-      console.log("🎨 Generation update received:", message);
-
       switch (message.type) {
         case "client_connectionId":
           setConnectionId(message.connectionId || null);
@@ -231,11 +210,9 @@ export function useGeneration(): UseGenerationReturn {
         case "job_progress":
           // Handle enhanced node-level progress with overall progress calculation
           if (message.progressData) {
-            console.log({ message });
             const { progressData } = message;
             const nodeId =
               progressData.nodeId || progressData.displayNodeId || "";
-            console.log({ nodeId });
 
             // Get current values from refs to avoid stale closure
             const currentWorkflowNodes = workflowNodesRef.current;
@@ -249,8 +226,6 @@ export function useGeneration(): UseGenerationReturn {
                 currentNodeIdx
               )
             ) {
-              console.log("Should show node progress:", nodeId);
-
               // Calculate overall progress based on estTimeUnits
               const { overallProgress, overallMaxProgress } =
                 calculateOverallProgress(
@@ -272,19 +247,6 @@ export function useGeneration(): UseGenerationReturn {
                 progressData.displayNodeId ||
                 nodeId;
 
-              console.log("📊 Progress update:", {
-                nodeTitle,
-                nodeId,
-                actualNodeIndex: currentWorkflowNodes.findIndex(
-                  (n) => n.nodeId === nodeId
-                ),
-                currentNodeIdx,
-                rawProgress: progressData.value,
-                rawMax: progressData.max,
-                overallProgress,
-                overallMaxProgress,
-              });
-
               setCurrentNode(nodeTitle);
               setNodeState(progressData.nodeState || "");
               setCurrentMessage(progressData.message);
@@ -293,21 +255,10 @@ export function useGeneration(): UseGenerationReturn {
               const nodeIndex = currentWorkflowNodes.findIndex(
                 (n) => n.nodeId === nodeId
               );
-              console.log({
-                nodeId,
-                nodeIndex,
-                currentNodeIndex: currentNodeIdx,
-                workflowNodes: currentWorkflowNodes,
-              });
+
               if (nodeIndex >= 0 && nodeIndex > currentNodeIdx) {
                 setCurrentNodeIndex(nodeIndex);
               }
-            } else {
-              console.log(
-                `🚫 Skipping progress for past node: ${nodeId} (workflow position: ${currentWorkflowNodes.findIndex(
-                  (n) => n.nodeId === nodeId
-                )}, current: ${currentNodeIdx})`
-              );
             }
           }
           break;
@@ -365,7 +316,6 @@ export function useGeneration(): UseGenerationReturn {
           break;
 
         case "optimization_start":
-          console.log("🎨 Starting prompt optimization");
           setIsOptimizing(true);
           setOptimizationStream("");
           setError(null);
@@ -378,7 +328,6 @@ export function useGeneration(): UseGenerationReturn {
 
         case "optimization_token":
           if (message.optimizationData) {
-            console.log("optimization token", { message });
             const { optimizedPrompt, token } = message.optimizationData;
             setOptimizationStream(optimizedPrompt);
             setOptimizationToken(token || "");
@@ -387,7 +336,6 @@ export function useGeneration(): UseGenerationReturn {
           break;
 
         case "optimization_complete":
-          console.log("✅ Prompt optimization completed");
           if (message.optimizationData) {
             const { optimizedPrompt } = message.optimizationData;
             setOptimizedPrompt(optimizedPrompt);
@@ -398,7 +346,6 @@ export function useGeneration(): UseGenerationReturn {
           break;
 
         case "prompt-moderation":
-          console.log("❌ Prompt moderation failed:", message);
           setIsOptimizing(false);
           setIsGenerating(false);
           if (message.status === "refused") {
@@ -416,7 +363,6 @@ export function useGeneration(): UseGenerationReturn {
           break;
 
         case "optimization_error":
-          console.error("❌ Prompt optimization failed:", message.error);
           setIsOptimizing(false);
           setError(message.error || "Prompt optimization failed");
           setCurrentMessage(
@@ -479,8 +425,6 @@ export function useGeneration(): UseGenerationReturn {
           connectionId: connectionId || undefined,
         });
 
-        console.log("✅ Generation request submitted:", result);
-
         // Store the queue ID for WebSocket subscription
         currentQueueIdRef.current = result.queueId;
 
@@ -488,12 +432,6 @@ export function useGeneration(): UseGenerationReturn {
         if (result.workflowData) {
           setWorkflowNodes(result.workflowData.nodes);
           setCurrentNodeIndex(result.workflowData.currentNodeIndex);
-          console.log(
-            "📋 Workflow nodes received from API:",
-            result.workflowData.nodes
-              .map((n) => `${n.nodeId}(${n.nodeTitle})`)
-              .join(" → ")
-          );
         }
 
         // Set initial queue status
@@ -572,10 +510,6 @@ export function useGeneration(): UseGenerationReturn {
       currentQueueIdRef.current = null;
     }
   }, [unsubscribe]);
-
-  useEffect(() => {
-    console.log("workflow nodes changed:", { workflowNodes });
-  }, [workflowNodes]);
 
   return {
     isGenerating,
