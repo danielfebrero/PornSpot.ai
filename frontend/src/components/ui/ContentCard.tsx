@@ -152,6 +152,44 @@ export function ContentCard({
 
   const isVideoMedia = isMedia && media ? isVideo(media) : false;
 
+  // Preload album content preview images for smooth carousel
+  useEffect(() => {
+    if (!album || !album.contentPreview || album.contentPreview.length <= 1) {
+      return;
+    }
+
+    // Preload first 5 images maximum to avoid overwhelming the network
+    const imagesToPreload = album.contentPreview.slice(
+      0,
+      Math.min(5, album.contentPreview.length)
+    );
+
+    imagesToPreload.forEach((thumbnailUrls, index) => {
+      // Create img elements to preload images
+      const img = new Image();
+
+      // Get the appropriate thumbnail URL for preloading
+      const thumbnailUrl = preferredThumbnailSize
+        ? thumbnailUrls?.[preferredThumbnailSize]
+        : thumbnailUrls?.medium ||
+          thumbnailUrls?.small ||
+          Object.values(thumbnailUrls)[0];
+
+      if (thumbnailUrl) {
+        img.src = composeMediaUrl(thumbnailUrl);
+        // Optional: handle load/error events for debugging
+        img.onload = () => {
+          console.debug(`Preloaded image ${index} for album ${album.id}`);
+        };
+        img.onerror = () => {
+          console.warn(
+            `Failed to preload image ${index} for album ${album.id}`
+          );
+        };
+      }
+    });
+  }, [album, preferredThumbnailSize]);
+
   // Album content preview carousel effect
   useEffect(() => {
     if (!album || !album.contentPreview || album.contentPreview.length <= 1) {
@@ -169,13 +207,21 @@ export function ContentCard({
       return;
     }
 
-    const interval = setInterval(() => {
-      setPreviewIndex(
-        (prevIndex) => (prevIndex + 1) % album.contentPreview!.length
-      );
-    }, 500);
+    let interval: NodeJS.Timeout | undefined;
 
-    return () => clearInterval(interval);
+    // Start with a delay to let the first image load
+    const startDelay = setTimeout(() => {
+      interval = setInterval(() => {
+        setPreviewIndex(
+          (prevIndex) => (prevIndex + 1) % album.contentPreview!.length
+        );
+      }, 1500); // Reduced to 1.5 seconds since images are preloaded
+    }, 800); // Reduced initial delay since images are preloaded
+
+    return () => {
+      clearTimeout(startDelay);
+      if (interval) clearInterval(interval);
+    };
   }, [album, isHovered, showMobileActions, isMobileInterface]);
 
   // Simple mobile actions timeout management
