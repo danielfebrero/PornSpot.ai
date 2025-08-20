@@ -1572,25 +1572,30 @@ export class DynamoDBService {
     userId: string,
     interactionType: "like" | "bookmark",
     limit: number = 20,
-    lastEvaluatedKey?: Record<string, any>
+    lastEvaluatedKey?: Record<string, any>,
+    includeComments: boolean = true
   ): Promise<{
     interactions: UserInteraction[];
     lastEvaluatedKey?: Record<string, any>;
   }> {
+    const queryParams: QueryCommandInput = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI2", // Use GSI2 for chronological ordering
+      KeyConditionExpression: "GSI2PK = :gsi2pk",
+      ExpressionAttributeValues: {
+        ":gsi2pk": `USER#${userId}#INTERACTIONS#${interactionType}`,
+      },
+      ScanIndexForward: false, // Most recent first (descending order by createdAt)
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey,
+    };
+
+    if (!includeComments) {
+      queryParams.FilterExpression = "targetType <> :targetType";
+      queryParams.ExpressionAttributeValues![":targetType"] = "comment";
+    }
     // Use GSI2 for efficient chronological sorting by createdAt
-    const result = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI2", // Use GSI2 for chronological ordering
-        KeyConditionExpression: "GSI2PK = :gsi2pk",
-        ExpressionAttributeValues: {
-          ":gsi2pk": `USER#${userId}#INTERACTIONS#${interactionType}`,
-        },
-        ScanIndexForward: false, // Most recent first (descending order by createdAt)
-        Limit: limit,
-        ExclusiveStartKey: lastEvaluatedKey,
-      })
-    );
+    const result = await docClient.send(new QueryCommand(queryParams));
 
     const response: {
       interactions: UserInteraction[];

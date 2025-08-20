@@ -40,10 +40,16 @@
 
 [ ] If I open another tab while generating image, my websocket connection id is replaced by a new one and I don't receive generation updates anymore.
 
-[ ] On media page and album page, optimist update of likes does not work anymore. It works on user comments page.
+[x] On media page and album page, optimist update of likes does not work anymore. It works on user comments page.
 
 [ ] Progress card on generate page should not show estimated wait time because it's broken.
 
 [ ] If add an image to album already in album, we must display a message informative.
 
-[x] Bulk remove media from album in edit album dialg does not work
+[x] Bulk remove media from album in edit album dialog does not work
+
+[ ] Last generated user media does not appear in the user profile.
+
+[ ] Like status is not updated on the user profile for albums and media in last...
+
+[ ] Like count not showing on most pages in ContentCard.

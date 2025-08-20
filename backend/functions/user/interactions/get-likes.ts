@@ -51,7 +51,8 @@ const handleGetLikes = async (
     targetUserId,
     "like",
     limit,
-    lastEvaluatedKey
+    lastEvaluatedKey,
+    false
   );
 
   const { interactions } = result;
