@@ -235,6 +235,10 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
 }) => {
   const { containerRef, dimensions } = useContainerDimensions();
   const [previewIndex, setPreviewIndex] = useState(0);
+  const [preloadedImages, setPreloadedImages] = useState<Set<number>>(
+    new Set()
+  );
+  const [firstImageLoaded, setFirstImageLoaded] = useState(false);
 
   // Determine if carousel should be active
   const shouldShowCarousel =
@@ -242,39 +246,81 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
   const isCarouselActive =
     shouldShowCarousel && (isMobileInterface ? showMobileActions : isHovered);
 
-  // Preload content preview images using optimal sizing
+  // Sequential preload content preview images when carousel is active
   useEffect(() => {
-    if (!shouldShowCarousel) return;
+    if (!isCarouselActive || !shouldShowCarousel) {
+      // Reset states when carousel is not active
+      setPreloadedImages(new Set());
+      setFirstImageLoaded(false);
+      setPreviewIndex(0);
+      return;
+    }
 
-    // Preload first 5 images maximum to avoid overwhelming the network
-    const imagesToPreload = contentPreview.slice(
-      0,
-      Math.min(5, contentPreview.length)
-    );
+    let currentPreloadIndex = 0;
+    let preloadTimeout: NodeJS.Timeout;
 
-    imagesToPreload.forEach((thumbnailUrls, index) => {
-      // Use getOptimalDefaultImageSrc to determine the best image to preload
+    const preloadNextImage = () => {
+      if (currentPreloadIndex >= contentPreview!.length) {
+        return; // All images preloaded
+      }
+
+      const thumbnailUrls = contentPreview![currentPreloadIndex];
       const optimalSrc = getOptimalDefaultImageSrc(
         thumbnailUrls,
         fallbackUrl,
-        dimensions.width || 300, // fallback dimensions
+        dimensions.width || 300,
         dimensions.height || 300
       );
 
       if (optimalSrc) {
         const img = new Image();
         img.src = composeMediaUrl(optimalSrc);
+
         img.onload = () => {
-          console.debug(`Preloaded optimal image ${index} (${optimalSrc})`);
+          console.debug(
+            `Preloaded image ${currentPreloadIndex} (${optimalSrc})`
+          );
+          setPreloadedImages((prev) => new Set(prev).add(currentPreloadIndex));
+
+          // Mark first image as loaded
+          if (currentPreloadIndex === 0) {
+            setFirstImageLoaded(true);
+          }
+
+          // Continue preloading next image
+          currentPreloadIndex++;
+          if (currentPreloadIndex < contentPreview!.length) {
+            preloadTimeout = setTimeout(preloadNextImage, 100); // Small delay between preloads
+          }
         };
+
         img.onerror = () => {
           console.warn(
-            `Failed to preload optimal image ${index} (${optimalSrc})`
+            `Failed to preload image ${currentPreloadIndex} (${optimalSrc})`
           );
+          // Continue with next image even if this one failed
+          currentPreloadIndex++;
+          if (currentPreloadIndex < contentPreview!.length) {
+            preloadTimeout = setTimeout(preloadNextImage, 100);
+          }
         };
+      } else {
+        // No optimal source found, skip this image
+        currentPreloadIndex++;
+        if (currentPreloadIndex < contentPreview!.length) {
+          preloadTimeout = setTimeout(preloadNextImage, 100);
+        }
       }
-    });
+    };
+
+    // Start preloading immediately
+    preloadNextImage();
+
+    return () => {
+      if (preloadTimeout) clearTimeout(preloadTimeout);
+    };
   }, [
+    isCarouselActive,
     shouldShowCarousel,
     contentPreview,
     dimensions.width,
@@ -282,30 +328,41 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
     fallbackUrl,
   ]);
 
-  // Carousel effect
+  // Carousel display effect with optimized timing
   useEffect(() => {
-    if (!isCarouselActive) {
-      // Reset to first image when not hovering/tapping
-      setPreviewIndex(0);
+    if (!isCarouselActive || !shouldShowCarousel) {
       return;
     }
 
-    let interval: NodeJS.Timeout | undefined;
+    let carouselInterval: NodeJS.Timeout;
 
-    // Start with a delay to let the first image load
-    const startDelay = setTimeout(() => {
-      interval = setInterval(() => {
+    const startCarousel = () => {
+      // Start showing second image
+      setPreviewIndex(1 % contentPreview!.length);
+
+      // Then continue with 700ms intervals
+      carouselInterval = setInterval(() => {
         setPreviewIndex(
           (prevIndex) => (prevIndex + 1) % contentPreview!.length
         );
-      }, 1500); // 1.5 seconds between transitions
-    }, 800); // Initial delay
+      }, 700);
+    };
+
+    // Start carousel after 700ms OR when first image is loaded (whichever comes first)
+    const timeoutDelay = 700;
+    const startTimeoutId = setTimeout(startCarousel, timeoutDelay);
+
+    // If first image loads before 700ms, start immediately
+    if (firstImageLoaded) {
+      clearTimeout(startTimeoutId);
+      startCarousel();
+    }
 
     return () => {
-      clearTimeout(startDelay);
-      if (interval) clearInterval(interval);
+      clearTimeout(startTimeoutId);
+      if (carouselInterval) clearInterval(carouselInterval);
     };
-  }, [isCarouselActive, contentPreview]);
+  }, [isCarouselActive, shouldShowCarousel, firstImageLoaded, contentPreview]);
 
   // Determine which thumbnailUrls to use
   const currentThumbnailUrls =
@@ -353,12 +410,7 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
       ref={containerRef as React.RefObject<HTMLDivElement>}
       className="w-full h-full"
     >
-      <picture onClick={onClick}>
-        {sources.map(
-          (source: { media: string; srcSet: string }, index: number) => (
-            <source key={index} media={source.media} srcSet={source.srcSet} />
-          )
-        )}
+      {shouldShowCarousel && contentPreview && firstImageLoaded ? (
         <img
           width={dimensions.width}
           height={dimensions.height}
@@ -367,7 +419,23 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
           className={className}
           loading={loading}
         />
-      </picture>
+      ) : (
+        <picture onClick={onClick}>
+          {sources.map(
+            (source: { media: string; srcSet: string }, index: number) => (
+              <source key={index} media={source.media} srcSet={source.srcSet} />
+            )
+          )}
+          <img
+            width={dimensions.width}
+            height={dimensions.height}
+            src={defaultSrc}
+            alt={alt}
+            className={className}
+            loading={loading}
+          />
+        </picture>
+      )}
     </div>
   );
 };
