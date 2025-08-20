@@ -67,6 +67,23 @@ class WebSocketForwarder:
         logger.info(f"   Local: {self.local_ws_url}")
         logger.info(f"   Remote: {self.remote_ws_url}")
 
+    def is_connection_open(self, ws) -> bool:
+        """Check if WebSocket connection is open"""
+        if not ws:
+            return False
+        try:
+            # In websockets 15.x, we can check the state attribute
+            if hasattr(ws, 'state'):
+                return str(ws.state) == 'State.OPEN' or 'OPEN' in str(ws.state)
+            # Fallback for older versions
+            elif hasattr(ws, 'closed'):
+                return not ws.closed
+            else:
+                # Last resort: assume it's open if we can't determine
+                return True
+        except Exception:
+            return False
+
     async def connect_local(self) -> bool:
         """Connect to local ComfyUI WebSocket"""
         try:
@@ -100,13 +117,13 @@ class WebSocketForwarder:
         while self.running:
             try:
                 # Ensure both connections are established
-                if not self.local_ws or self.local_ws.closed:
+                if not self.is_connection_open(self.local_ws):
                     if not await self.connect_local():
                         await self.handle_reconnect(reconnect_attempts)
                         reconnect_attempts += 1
                         continue
 
-                if not self.remote_ws or self.remote_ws.closed:
+                if not self.is_connection_open(self.remote_ws):
                     if not await self.connect_remote():
                         await self.handle_reconnect(reconnect_attempts)
                         reconnect_attempts += 1
@@ -114,6 +131,10 @@ class WebSocketForwarder:
 
                 # Reset reconnect attempts on successful connection
                 reconnect_attempts = 0
+
+                # At this point, both connections should be open
+                assert self.local_ws is not None
+                assert self.remote_ws is not None
 
                 # Listen for messages from local WebSocket and forward to remote
                 async for message in self.local_ws:
@@ -177,7 +198,7 @@ class WebSocketForwarder:
 
         # Close connections
         for ws, name in [(self.local_ws, "local"), (self.remote_ws, "remote")]:
-            if ws and not ws.closed:
+            if self.is_connection_open(ws):
                 try:
                     await asyncio.wait_for(ws.close(), timeout=5.0)
                     logger.info(f"✅ {name.capitalize()} WebSocket closed")
