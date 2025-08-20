@@ -10,7 +10,11 @@ import LocaleLink from "@/components/ui/LocaleLink";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { HorizontalScroll } from "@/components/ui/HorizontalScroll";
 import { Avatar } from "@/components/ui/Avatar";
-import { CommentWithTarget as CommentType, ThumbnailUrls } from "@/types";
+import {
+  CommentWithTarget as CommentType,
+  InteractionTarget,
+  ThumbnailUrls,
+} from "@/types";
 import { useProfileDataQuery } from "@/hooks/queries/useProfileDataQuery";
 import { useAlbums } from "@/hooks/queries/useAlbumsQuery";
 import { useCommentsQuery } from "@/hooks/queries/useCommentsQuery";
@@ -124,30 +128,75 @@ export default function ProfileComponent({
     [profileData?.recentLikes]
   );
 
+  // Get real recent albums using TanStack Query
+  const {
+    data: albumsData,
+    isLoading: albumsLoading,
+    error: albumsError,
+  } = useAlbums({
+    user: currentUser.username || "",
+    isPublic: true,
+    limit: 6, // Fetch 6 recent albums for the scrollable preview
+  });
+
+  // Get real user media using TanStack Query
+  const {
+    data: userMediaData,
+    isLoading: userMediaLoading,
+    error: userMediaError,
+  } = useUserMedia({
+    username: currentUser.username,
+    limit: 6, // Fetch 6 recent media for the scrollable preview
+  });
+
+  // Extract albums from paginated data (only need first page for profile preview)
+  const recentAlbums = albumsData?.pages[0]?.albums || [];
+
+  // Extract media from paginated data (only need first page for profile preview)
+  const recentMedia = userMediaData?.pages[0]?.media || [];
+
   // Preload interaction statuses for liked content
   const { prefetch } = usePrefetchInteractionStatus();
 
-  // Effect to preload interaction statuses for liked content
+  // Effect to preload interaction statuses for all content
   useEffect(() => {
-    if (recentLikes.length > 0 && loggedInUser) {
-      const targets = recentLikes
+    if (loggedInUser) {
+      const likeTargets = recentLikes
         .filter((item) => item && item.targetType && item.targetId)
         .map((item) => ({
           targetType: item.targetType as "album" | "media",
           targetId: item.targetId,
         }));
 
+      const albumTargets = recentAlbums
+        .filter((item) => item && item.id)
+        .map((item) => ({
+          targetType: "album",
+          targetId: item.id,
+        }));
+
+      const mediaTargets = recentMedia
+        .filter((item) => item && item.id)
+        .map((item) => ({
+          targetType: "media",
+          targetId: item.id,
+        }));
+
       // Preload the current logged-in user's statuses for these items
       // This will show the actual like/bookmark status of the current viewer,
       // not the profile owner's status
-      prefetch(targets).catch((error) => {
+      prefetch([
+        ...likeTargets,
+        ...albumTargets,
+        ...mediaTargets,
+      ] as InteractionTarget[]).catch((error) => {
         console.error(
           "Failed to prefetch profile recent likes interaction status:",
           error
         );
       });
     }
-  }, [recentLikes, loggedInUser, prefetch]);
+  }, [recentLikes, recentAlbums, recentMedia, loggedInUser, prefetch]);
 
   // Debounce username checking when form data changes
   useEffect(() => {
@@ -264,33 +313,6 @@ export default function ProfileComponent({
   // Extract recent comments from paginated data (only need first page for profile preview)
   const recentComments: CommentType[] = (commentsData?.pages[0]?.comments ||
     []) as unknown as CommentType[];
-
-  // Get real recent albums using TanStack Query
-  const {
-    data: albumsData,
-    isLoading: albumsLoading,
-    error: albumsError,
-  } = useAlbums({
-    user: currentUser.username || "",
-    isPublic: true,
-    limit: 6, // Fetch 6 recent albums for the scrollable preview
-  });
-
-  // Get real user media using TanStack Query
-  const {
-    data: userMediaData,
-    isLoading: userMediaLoading,
-    error: userMediaError,
-  } = useUserMedia({
-    username: currentUser.username,
-    limit: 6, // Fetch 6 recent media for the scrollable preview
-  });
-
-  // Extract albums from paginated data (only need first page for profile preview)
-  const recentAlbums = albumsData?.pages[0]?.albums || [];
-
-  // Extract media from paginated data (only need first page for profile preview)
-  const recentMedia = userMediaData?.pages[0]?.media || [];
 
   // Check if user is online (last active less than 5 minutes ago)
   const isUserOnline = useMemo(() => {

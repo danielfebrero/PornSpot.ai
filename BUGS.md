@@ -48,7 +48,7 @@
 
 [x] Bulk remove media from album in edit album dialog does not work
 
-[ ] Last liked user media does not appear in the user profile.
+[x] Last liked user media does not appear in the user profile.
 
 [ ] Like status is not updated on the user profile for albums and media in last...
 
