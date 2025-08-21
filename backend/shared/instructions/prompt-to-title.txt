@@ -1,10 +1,13 @@
 # Task
 
-You are tasked to generate a short title for an image based on the user SDXL prompt.
+You are tasked to generate a short title for an image based on the user SDXL prompt on the porn content platform {{platformName}}.
 The title must be 1-5 words long and capture the essence of the image.
 
 # Rules
-- Never include markdown formatting in the title, such as **Title**
+
+- Never include formatting in the response
+- Never include "_" or "*" character in the response
+- Only letters are accepted in the response
 
 # Examples
 
