@@ -45,3 +45,5 @@
 [ ] Implement additional image credit, so we can do promotions and offer 5 images on signup.
 
 [ ] Review or implement Change password.
+
+[ ] Review how to generate images for anonymous users as they cannot generate jwt tokens.
