@@ -588,7 +588,6 @@ export function GenerateClient() {
               {originalPromptBeforeOptimization && (
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <div className="flex items-center gap-2">
-                    <RotateCcw className="h-3 w-3" />
                     <span>
                       {settings.prompt === originalPromptBeforeOptimization
                         ? "Viewing original prompt"
@@ -596,28 +595,18 @@ export function GenerateClient() {
                     </span>
                   </div>
                   {settings.prompt !== originalPromptBeforeOptimization && (
-                    <button
-                      onClick={revertToOriginalPrompt}
-                      className="text-primary hover:text-primary/80 underline underline-offset-2 transition-colors"
-                    >
-                      Revert to original
-                    </button>
+                    <>
+                      <RotateCcw className="h-3 w-3" />
+                      <button
+                        onClick={revertToOriginalPrompt}
+                        className="text-primary hover:text-primary/80 underline underline-offset-2 transition-colors"
+                      >
+                        Revert to original
+                      </button>
+                    </>
                   )}
                 </div>
               )}
-
-              {/* Optimized Prompt Indicator */}
-              {optimizedPromptCache &&
-                settings.prompt === optimizedPromptCache && (
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-3 w-3 text-primary" />
-                      <span className="text-primary">
-                        This prompt was optimized by AI
-                      </span>
-                    </div>
-                  </div>
-                )}
             </div>
           </div>
 
