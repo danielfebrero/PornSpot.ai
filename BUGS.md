@@ -58,10 +58,12 @@
 
 [x] When visiting another user profile, I see my plan instead of his plan (or I always see free plan may be).
 
-[ ] Free users have 0 generation remaining instead of 1.
+[x] Free users have 0 generation remaining instead of 1.
 
-[ ] Add to album contentcard button do not update optimistically discover page item count on album card.
+[x] Last generated image added from media page to an album do not display "in albums" album card on media page.
 
-[ ] Last generated image added from media page to an album do not display "in albums" album card on media page.
+[x] Album cover image not showing cover but first image of the album.
 
-[ ] Album cover image not showing cover but first image of the album.
+[ ] On mobile, cannot pinch and zoom on an image because of swipe gesture.
+
+[x] After deleting my account, cannot sign in with Google.

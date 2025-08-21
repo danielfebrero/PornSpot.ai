@@ -76,6 +76,8 @@ async function anonymizeUserAccount(userId: string): Promise<void> {
       bio: "",
       location: "",
       website: "",
+      GSI2PK: "",
+      GSI2SK: "",
     };
 
     // Only add fields to remove if they would actually clear existing data
