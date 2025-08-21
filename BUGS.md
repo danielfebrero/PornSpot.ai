@@ -59,3 +59,7 @@
 [x] When visiting another user profile, I see my plan instead of his plan (or I always see free plan may be).
 
 [ ] Free users have 0 generation remaining instead of 1.
+
+[ ] Add to album contentcard button do not update optimistically discover page item count on album card.
+
+[ ] Last generated image added from media page to an album do not display "in albums" album card on media page.

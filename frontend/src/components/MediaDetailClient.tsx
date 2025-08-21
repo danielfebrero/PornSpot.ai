@@ -178,6 +178,8 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
   const hasTrackedView = useRef(false);
   const trackViewMutation = useTrackView();
 
+  console.log({ media });
+
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();
 
