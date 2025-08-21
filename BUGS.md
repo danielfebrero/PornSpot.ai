@@ -63,3 +63,5 @@
 [ ] Add to album contentcard button do not update optimistically discover page item count on album card.
 
 [ ] Last generated image added from media page to an album do not display "in albums" album card on media page.
+
+[ ] Album cover image not showing cover but first image of the album.

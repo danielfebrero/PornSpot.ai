@@ -48,6 +48,13 @@ const handleGetMediaById = async (
     const albums = await DynamoDBService.getAlbumsForMedia(mediaId);
     if (albums.length > 0) {
       mediaResponse.albums = albums.filter((album) => album.isPublic);
+      mediaResponse.albums = await Promise.all(
+        mediaResponse.albums.map(async (album) => ({
+          ...album,
+          contentPreview:
+            (await DynamoDBService.getContentPreviewForAlbum(album.id)) || null,
+        }))
+      );
     }
   } catch (error) {
     console.error("Failed to fetch albums for media:", error);
