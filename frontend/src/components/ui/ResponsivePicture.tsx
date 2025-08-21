@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ThumbnailUrls } from "../../types/index";
 import { useContainerDimensions } from "../../hooks/useContainerDimensions";
 import { composeMediaUrl } from "../../lib/urlUtils";
@@ -362,10 +362,11 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
   }, [isCarouselActive, shouldShowCarousel, firstImageLoaded, contentPreview]);
 
   // Determine which thumbnailUrls to use
-  const currentThumbnailUrls =
-    shouldShowCarousel && contentPreview && contentPreview[previewIndex]
+  const currentThumbnailUrls = useMemo(() => {
+    return shouldShowCarousel && contentPreview && contentPreview[previewIndex]
       ? contentPreview[previewIndex]
       : thumbnailUrls;
+  }, [shouldShowCarousel, contentPreview, previewIndex, thumbnailUrls]);
 
   // Generate intelligent sources based on container dimensions
   const sources = generateIntelligentPictureSources(
