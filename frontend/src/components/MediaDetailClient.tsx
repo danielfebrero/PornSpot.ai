@@ -97,7 +97,10 @@ const useMediaMetadata = (media: Media) => {
       prompt: metadata.prompt || metadata.description,
       negativePrompt: metadata.negativePrompt,
       loraModels: metadata.selectedLoras || [],
-      loraStrengths: metadata.loraStrengths || {},
+      loraStrengths: (metadata.loraStrengths || {}) as Record<
+        string,
+        { mode: "auto" | "manual"; value: number }
+      >,
       bulkSiblings: metadata.bulkSiblings || [],
       imageSize:
         media.width && media.height ? `${media.width} × ${media.height}` : null,
@@ -424,10 +427,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
             </MetaSection>
 
             {metadata.prompt && (
-              <MetaSection
-                icon={<Bot className="w-5 h-5" />}
-                title="Generation Parameters"
-              >
+              <MetaSection icon={<Bot className="w-5 h-5" />} title="Prompts">
                 <GenerationPrompt
                   title="Prompt"
                   prompt={String(metadata.prompt)}
@@ -453,13 +453,9 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                         key={index}
                         icon={<Hash className="w-4 h-4" />}
                         label={lora}
-                        value={
-                          typeof metadata.loraStrengths === "object" &&
-                          metadata.loraStrengths &&
-                          !Array.isArray(metadata.loraStrengths)
-                            ? String(metadata.loraStrengths[lora] || "N/A")
-                            : "N/A"
-                        }
+                        value={String(
+                          metadata.loraStrengths[lora].value || "1"
+                        )}
                         isTag
                       />
                     ))}

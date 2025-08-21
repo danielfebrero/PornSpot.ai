@@ -541,7 +541,6 @@ class GenerationService {
       customHeight,
       batchCount = 1,
       selectedLoras = [],
-      loraStrengths = {},
       loraSelectionMode = "auto",
       optimizePrompt = true,
     } = requestBody;
@@ -551,6 +550,18 @@ class GenerationService {
       customWidth,
       customHeight
     );
+
+    let loraStrengths: Record<
+      string,
+      { mode: "auto" | "manual"; value: number }
+    > = requestBody.loraStrengths || {};
+
+    if (loraSelectionMode === "auto") {
+      loraStrengths = selectedLoras.reduce((acc, lora) => {
+        acc[lora] = { mode: "auto", value: 1 };
+        return acc;
+      }, {} as Record<string, { mode: "auto"; value: number }>);
+    }
 
     return {
       width: dimensions.width,
