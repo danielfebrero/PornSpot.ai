@@ -57,11 +57,13 @@ async function anonymizeUserAccount(userId: string): Promise<void> {
   try {
     // Create anonymized email and update both email and GSI1SK to prevent conflicts
     const anonymizedEmail = `deleted.${userId}@deleted.local`;
+    const anonymizedGoogleId = `deleted.${userId}`;
 
     // Update user to mark as deleted and remove personal information
     const anonymizedData: Partial<UserEntity> = {
       email: anonymizedEmail, // Keep unique for constraints
       GSI1SK: anonymizedEmail, // Update GSI1SK to match new email for proper indexing
+      GSI2SK: anonymizedGoogleId,
       username: "[deleted]", // This will be displayed instead of real username
       GSI3SK: "[deleted]", // Update GSI3SK to match new username for proper indexing
       isActive: false,
@@ -76,8 +78,6 @@ async function anonymizeUserAccount(userId: string): Promise<void> {
       bio: "",
       location: "",
       website: "",
-      GSI2PK: "",
-      GSI2SK: "",
     };
 
     // Only add fields to remove if they would actually clear existing data
