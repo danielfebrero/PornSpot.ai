@@ -24,7 +24,7 @@ interface LightboxProps {
   onClose: () => void;
   onNext: () => void;
   onPrevious: () => void;
-  onDelete: (mediaId: string) => void;
+  onDelete?: (mediaId: string) => void;
 }
 
 export const Lightbox: React.FC<LightboxProps> = ({
@@ -391,7 +391,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                     canDownload={true}
                     canDelete={canDelete}
                     onDelete={() => {
-                      onDelete(currentMedia.id);
+                      onDelete!(currentMedia.id);
                       currentIndex < media.length - 1 || hasNextPage
                         ? onNext()
                         : currentIndex > 0
