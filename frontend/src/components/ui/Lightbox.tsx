@@ -7,7 +7,7 @@ import { ContentCard } from "@/components/ui/ContentCard";
 import { MediaPlayer } from "@/components/ui/MediaPlayer";
 import { ViewTracker } from "@/components/ui//ViewTracker";
 import { useLightboxPreloader } from "@/hooks/useLightboxPreloader";
-import { useSwipeGesture } from "@/hooks/useSwipeGesture";
+import { useAdvancedGestures } from "@/hooks/useAdvancedGestures";
 
 interface LightboxProps {
   media: Media[];
@@ -53,9 +53,9 @@ export const Lightbox: React.FC<LightboxProps> = ({
   // Use optimized preloader for seamless navigation
   const { preloadAroundIndex } = useLightboxPreloader(media, currentIndex);
 
-  // Handle swipe gestures with preview
-  const { handleDragStart, handleDrag, handleDragEnd, dragOffset } =
-    useSwipeGesture({
+  // Handle advanced gestures with preview and zoom support
+  const { containerRef, dragOffset, isDragging, isPinching } =
+    useAdvancedGestures({
       // Swiping left should navigate to the NEXT item (content moves left)
       onSwipeLeft: () => {
         if (currentIndex < media.length - 1 || hasNextPage) {
@@ -192,7 +192,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [isOpen]);
+  }, [isOpen, handleClose]);
 
   // Prevent body scroll when lightbox is open
   useEffect(() => {
@@ -226,8 +226,14 @@ export const Lightbox: React.FC<LightboxProps> = ({
 
       {/* Content wrapper */}
       <div className="relative w-full h-full">
-        {/* Swipeable Media Content with deck-of-cards layered images */}
-        <div className="w-full h-full flex items-center justify-center overflow-hidden">
+        {/* Swipeable Media Content with deck-of-cards layered images and zoom support */}
+        <div
+          ref={containerRef}
+          className="w-full h-full flex items-center justify-center overflow-hidden"
+          style={{
+            touchAction: isPinching ? "auto" : "pan-y pinch-zoom",
+          }}
+        >
           <div className="relative w-full h-full max-w-[100vw] max-h-[100vh] flex">
             {/* Background Card Stack - Multiple layers for depth */}
             {/* Layer 3 (deepest) - 2 items ahead/behind */}
@@ -336,7 +342,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
               </motion.div>
             )}
 
-            {/* Current Media - on top, draggable */}
+            {/* Current Media - on top, with advanced gesture support */}
             <motion.div
               key={`current-${currentIndex}`}
               className="absolute inset-0 flex items-center justify-center"
@@ -347,26 +353,22 @@ export const Lightbox: React.FC<LightboxProps> = ({
               }}
               animate={{
                 opacity: 1,
-                x: 0,
+                x: dragOffset,
                 scale: 1,
               }}
               transition={{
                 duration: 0,
               }}
-              drag="x"
-              dragConstraints={{ left: -600, right: 600 }}
-              dragElastic={0.5}
-              onDragStart={handleDragStart}
-              onDrag={handleDrag}
-              onDragEnd={handleDragEnd}
               style={{
-                x: dragOffset,
                 zIndex: 10,
               }}
             >
               <div
                 className="w-fit h-fit max-w-full max-h-full"
                 data-testid="lightbox-image"
+                style={{
+                  touchAction: "pinch-zoom",
+                }}
               >
                 {isVideoMedia ? (
                   <MediaPlayer

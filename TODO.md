@@ -41,3 +41,5 @@
 [x] Always show lora models and strength on media page, even if selected automatically.
 
 [ ] Remove all console logs.
+
+[ ] Implement additional image credit, so we can do promotions and offer 5 images on signup.
