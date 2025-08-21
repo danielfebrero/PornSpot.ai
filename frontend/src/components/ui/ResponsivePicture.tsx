@@ -237,9 +237,6 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
 }) => {
   const { containerRef, dimensions } = useContainerDimensions();
   const [previewIndex, setPreviewIndex] = useState(0);
-  const [preloadedImages, setPreloadedImages] = useState<Set<number>>(
-    new Set()
-  );
   const [firstImageLoaded, setFirstImageLoaded] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -253,7 +250,6 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
   useEffect(() => {
     if (!isCarouselActive || !shouldShowCarousel) {
       // Reset states when carousel is not active
-      setPreloadedImages(new Set());
       setFirstImageLoaded(false);
       setPreviewIndex(0);
       return;
@@ -280,11 +276,6 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
         img.src = composeMediaUrl(optimalSrc);
 
         img.onload = () => {
-          console.debug(
-            `Preloaded image ${currentPreloadIndex} (${optimalSrc})`
-          );
-          setPreloadedImages((prev) => new Set(prev).add(currentPreloadIndex));
-
           // Mark first image as loaded
           if (currentPreloadIndex === 0) {
             setFirstImageLoaded(true);
@@ -363,10 +354,10 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
 
   // Determine which thumbnailUrls to use
   const currentThumbnailUrls = useMemo(() => {
-    return shouldShowCarousel && contentPreview && contentPreview[previewIndex]
+    return isCarouselActive && contentPreview && contentPreview[previewIndex]
       ? contentPreview[previewIndex]
       : thumbnailUrls;
-  }, [shouldShowCarousel, contentPreview, previewIndex, thumbnailUrls]);
+  }, [isCarouselActive, contentPreview, previewIndex, thumbnailUrls]);
 
   // Generate intelligent sources based on container dimensions
   const sources = generateIntelligentPictureSources(
