@@ -8,7 +8,7 @@
 
 [ ] Set up dev environment, ssm parameters, subdomains, etc.
 
-[ ] Deleting a recent image from the list under the main images should remove it from the page instantly and close the lightbox.
+[x] Deleting a recent image from the list under the main images should remove it from the page instantly and close the lightbox.
 
 [ ] Navigating to another page should not lose the current state.
 

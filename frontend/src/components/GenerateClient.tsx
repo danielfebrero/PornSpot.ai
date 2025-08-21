@@ -595,7 +595,7 @@ export function GenerateClient() {
                     </span>
                   </div>
                   {settings.prompt !== originalPromptBeforeOptimization && (
-                    <>
+                    <div className="flex items-center gap-2">
                       <RotateCcw className="h-3 w-3" />
                       <button
                         onClick={revertToOriginalPrompt}
@@ -603,7 +603,7 @@ export function GenerateClient() {
                       >
                         Revert to original
                       </button>
-                    </>
+                    </div>
                   )}
                 </div>
               )}
