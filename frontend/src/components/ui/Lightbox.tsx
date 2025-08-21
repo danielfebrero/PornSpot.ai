@@ -392,11 +392,6 @@ export const Lightbox: React.FC<LightboxProps> = ({
                     canDelete={canDelete}
                     onDelete={() => {
                       onDelete!(currentMedia.id);
-                      currentIndex < media.length - 1 || hasNextPage
-                        ? onNext()
-                        : currentIndex > 0
-                        ? onPrevious()
-                        : onClose();
                     }}
                     showCounts={false}
                     disableHoverEffects={true}
