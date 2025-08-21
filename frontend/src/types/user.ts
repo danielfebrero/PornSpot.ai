@@ -6,8 +6,7 @@ import type {
   Comment as SharedComment,
   UserLoginRequest,
   UserRegistrationRequest,
-  UserProfileInsights,
-  ThumbnailUrls,
+  PublicUserProfile,
 } from "@/types/shared-types";
 import type { UserInteraction } from "@/types/shared-types";
 
@@ -171,22 +170,6 @@ export interface UserProfileUpdateRequest {
 export interface UserProfileUpdateResponse {
   message: string;
   user?: User;
-}
-
-// Public profile types - frontend specific
-export interface PublicUserProfile {
-  userId: string;
-  email: string;
-  username?: string;
-  firstName?: string;
-  lastName?: string;
-  bio?: string;
-  location?: string;
-  website?: string;
-  createdAt: string;
-  avatarUrl?: string;
-  avatarThumbnails?: ThumbnailUrls;
-  profileInsights: UserProfileInsights;
 }
 
 export interface GetPublicProfileResponse {

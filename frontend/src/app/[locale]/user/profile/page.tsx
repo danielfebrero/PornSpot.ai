@@ -22,16 +22,5 @@ export default function ProfilePage() {
     );
   }
 
-  return (
-    <ProfileComponent
-      user={
-        user || {
-          userId: "",
-          createdAt: new Date().toISOString(),
-        }
-      }
-      isOwner={true}
-      loading={loading}
-    />
-  );
+  return <ProfileComponent user={user} isOwner={true} loading={loading} />;
 }

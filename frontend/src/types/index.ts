@@ -63,7 +63,6 @@ export type {
   UsernameAvailabilityResponse,
   UserProfileUpdateRequest,
   UserProfileUpdateResponse,
-  PublicUserProfile,
   GetPublicProfileResponse,
   UnifiedUserInteractionsResponse,
   UnifiedCommentsResponse,

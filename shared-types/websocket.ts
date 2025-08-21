@@ -1,3 +1,5 @@
+import { WorkflowData } from "./generation";
+
 // WebSocket Types
 export interface WebSocketMessage {
   action: string;
@@ -8,6 +10,7 @@ export interface WebSocketMessage {
 
 export interface GenerationWebSocketMessage {
   type:
+    | "workflow"
     | "client_connectionId"
     | "subscription_confirmed"
     | "queued"
@@ -66,6 +69,8 @@ export interface GenerationWebSocketMessage {
   // Prompt moderation data for prompt-moderation type
   status?: "refused";
   reason?: string;
+
+  workflowData: WorkflowData;
 }
 
 export interface ConnectionEntity {

@@ -1,15 +1,13 @@
 "use client";
 
-import { usePermissions } from "@/contexts/PermissionsContext";
+import { UserPlan } from "@/types";
 import { Crown, Star, Zap, User } from "lucide-react";
 
-export function UserPlanBadge() {
-  const { getCurrentPlan, user } = usePermissions();
+interface UserPlanBadgeProps {
+  plan: UserPlan;
+}
 
-  if (!user) return null;
-
-  const plan = getCurrentPlan();
-
+export function UserPlanBadge({ plan }: UserPlanBadgeProps) {
   const planConfig = {
     free: {
       name: "Free",

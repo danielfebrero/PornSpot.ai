@@ -61,12 +61,7 @@ export default function PublicProfilePage() {
       {/* Track profile view when profile is successfully loaded */}
       {profileUser && <ViewTracker targetType="profile" targetId={username} />}
       <ProfileComponent
-        user={
-          profileUser || {
-            userId: "",
-            createdAt: new Date().toISOString(),
-          }
-        }
+        user={profileUser || null}
         isOwner={false}
         loading={loading}
       />

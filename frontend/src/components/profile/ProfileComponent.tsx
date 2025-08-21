@@ -13,7 +13,9 @@ import { Avatar } from "@/components/ui/Avatar";
 import {
   CommentWithTarget as CommentType,
   InteractionTarget,
+  PublicUserProfile,
   ThumbnailUrls,
+  User as UserType,
 } from "@/types";
 import { useProfileDataQuery } from "@/hooks/queries/useProfileDataQuery";
 import { useAlbums } from "@/hooks/queries/useAlbumsQuery";
@@ -41,37 +43,11 @@ import {
   Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { UserProfileInsights } from "@/types/user";
 import { useDevice } from "@/contexts/DeviceContext";
 import { useUserContext } from "@/contexts/UserContext";
 
-interface ProfileUser {
-  userId: string;
-  username?: string;
-  bio?: string;
-  location?: string;
-  website?: string;
-  createdAt: string;
-  lastLoginAt?: string;
-  lastActive?: string; // Last time user was seen active
-  plan?: string;
-  role?: string;
-
-  // Avatar information
-  avatarUrl?: string;
-  avatarThumbnails?: {
-    originalSize?: string;
-    small?: string;
-    medium?: string;
-    large?: string;
-  };
-
-  // Profile insights
-  profileInsights?: UserProfileInsights;
-}
-
 interface ProfileComponentProps {
-  user: ProfileUser;
+  user: UserType | PublicUserProfile | null;
   isOwner?: boolean; // Whether the current user is viewing their own profile
   loading?: boolean;
 }
@@ -83,7 +59,9 @@ export default function ProfileComponent({
 }: ProfileComponentProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [currentUser, setCurrentUser] = useState<ProfileUser>(user);
+  const [currentUser, setCurrentUser] = useState<
+    UserType | PublicUserProfile | null
+  >(user);
   const [formData, setFormData] = useState({
     username: "",
     bio: "",
@@ -117,7 +95,7 @@ export default function ProfileComponent({
     isLoading: profileDataLoading,
     error: profileDataError,
   } = useProfileDataQuery({
-    username: currentUser.username,
+    username: currentUser?.username,
     isOwner,
     limit: 6, // Fetch 6 recent likes for the scrollable preview
     includeContentPreview: true,
@@ -134,7 +112,7 @@ export default function ProfileComponent({
     isLoading: albumsLoading,
     error: albumsError,
   } = useAlbums({
-    user: currentUser.username || "",
+    user: currentUser?.username || "",
     isPublic: true,
     limit: 6, // Fetch 6 recent albums for the scrollable preview
     includeContentPreview: true,
@@ -146,7 +124,7 @@ export default function ProfileComponent({
     isLoading: userMediaLoading,
     error: userMediaError,
   } = useUserMedia({
-    username: currentUser.username,
+    username: currentUser?.username,
     limit: 6, // Fetch 6 recent media for the scrollable preview
   });
 
@@ -211,7 +189,7 @@ export default function ProfileComponent({
 
     const timeoutId = setTimeout(() => {
       if (formData.username) {
-        checkUsernameAvailability(formData.username, currentUser.username);
+        checkUsernameAvailability(formData.username, currentUser?.username);
       }
     }, 500);
 
@@ -220,7 +198,7 @@ export default function ProfileComponent({
     formData.username,
     checkUsernameAvailability,
     isEditing,
-    currentUser.username,
+    currentUser?.username,
   ]);
 
   useEffect(() => {
@@ -315,7 +293,7 @@ export default function ProfileComponent({
     data: commentsData,
     isLoading: commentsLoading,
     error: commentsError,
-  } = useCommentsQuery({ username: currentUser.username || "", limit: 3 });
+  } = useCommentsQuery({ username: currentUser?.username || "", limit: 3 });
 
   // Extract recent comments from paginated data (only need first page for profile preview)
   const recentComments: CommentType[] = (commentsData?.pages[0]?.comments ||
@@ -323,11 +301,11 @@ export default function ProfileComponent({
 
   // Check if user is online (last active less than 5 minutes ago)
   const isUserOnline = useMemo(() => {
-    if (!currentUser.lastActive) return false;
+    if (!currentUser?.lastActive) return false;
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
     const lastActiveDate = new Date(currentUser.lastActive);
     return lastActiveDate > fiveMinutesAgo;
-  }, [currentUser.lastActive]);
+  }, [currentUser?.lastActive]);
 
   // Loading state
   if (loading) {
@@ -354,10 +332,10 @@ export default function ProfileComponent({
   // Initialize form data when user is available and editing starts
   const handleEditStart = () => {
     setFormData({
-      username: currentUser.username || "",
-      bio: currentUser.bio || "",
-      location: currentUser.location || "",
-      website: currentUser.website || "",
+      username: currentUser?.username || "",
+      bio: currentUser?.bio || "",
+      location: currentUser?.location || "",
+      website: currentUser?.website || "",
     });
     // Reset username status when starting to edit
     resetUsernameStatus();
@@ -369,7 +347,7 @@ export default function ProfileComponent({
     try {
       // Check username availability before submission if username changed
       if (
-        formData.username !== currentUser.username &&
+        formData.username !== currentUser?.username &&
         usernameStatus === "taken"
       ) {
         console.error("Username is already taken");
@@ -409,7 +387,7 @@ export default function ProfileComponent({
           ...currentUser,
           ...result.user,
           ...avatarUpdateData,
-        });
+        } as UserType);
 
         // Reset username status since we've successfully saved
         resetUsernameStatus();
@@ -461,7 +439,7 @@ export default function ProfileComponent({
     }
   };
 
-  const displayName = currentUser.username ?? "Anonymous";
+  const displayName = currentUser?.username ?? "Anonymous";
   const initials = displayName.slice(0, 2).toUpperCase();
 
   // Create a user object for the Avatar component with preview support
@@ -558,7 +536,7 @@ export default function ProfileComponent({
                             {/* Username availability indicator */}
                             {formData.username &&
                               formData.username.length >= 3 &&
-                              formData.username !== currentUser.username && (
+                              formData.username !== currentUser?.username && (
                                 <div className="absolute right-3 top-8 flex items-center h-10">
                                   {usernameStatus === "checking" && (
                                     <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
@@ -613,7 +591,7 @@ export default function ProfileComponent({
 
                             {/* Username status message */}
                             {usernameMessage &&
-                              formData.username !== currentUser.username && (
+                              formData.username !== currentUser?.username && (
                                 <div
                                   className={`text-xs mt-1 ${
                                     usernameStatus === "available"
@@ -677,7 +655,9 @@ export default function ProfileComponent({
                             <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">
                               {displayName}
                             </h1>
-                            <UserPlanBadge />
+                            <UserPlanBadge
+                              plan={currentUser?.planInfo.plan || "free"}
+                            />
                           </div>
 
                           <div className="space-y-2">
@@ -686,12 +666,13 @@ export default function ProfileComponent({
                               <span>
                                 Joined{" "}
                                 {new Date(
-                                  currentUser.createdAt
+                                  currentUser?.createdAt ||
+                                    new Date().toISOString()
                                 ).toLocaleDateString()}
                               </span>
                             </div>
 
-                            {currentUser.lastActive && (
+                            {currentUser?.lastActive && (
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Shield className="w-4 h-4" />
                                 <span>
@@ -706,7 +687,7 @@ export default function ProfileComponent({
                             {/* User Information */}
                             <div className="mt-4 space-y-2">
                               {/* Location - only show if user has location */}
-                              {currentUser.location && (
+                              {currentUser?.location && (
                                 <div className="flex items-center gap-2 text-sm">
                                   <MapPin className="w-4 h-4 text-muted-foreground" />
                                   <span className="text-foreground">
@@ -716,7 +697,7 @@ export default function ProfileComponent({
                               )}
 
                               {/* Website - only show if user has website */}
-                              {currentUser.website && (
+                              {currentUser?.website && (
                                 <div className="flex items-center gap-2 text-sm">
                                   <Globe className="w-4 h-4 text-muted-foreground" />
                                   <a
@@ -736,7 +717,7 @@ export default function ProfileComponent({
 
                               {/* Bio - moved after location and website */}
                               <div>
-                                {currentUser.bio ? (
+                                {currentUser?.bio ? (
                                   <p className="text-sm text-foreground">
                                     {currentUser.bio}
                                   </p>
@@ -819,37 +800,37 @@ export default function ProfileComponent({
               {
                 icon: Heart,
                 label: "Likes Received",
-                value: user.profileInsights?.totalLikesReceived ?? 0,
+                value: user?.profileInsights?.totalLikesReceived ?? 0,
                 color: "text-red-600",
               },
               {
                 icon: Bookmark,
                 label: "Content Bookmarked",
-                value: user.profileInsights?.totalBookmarksReceived ?? 0,
+                value: user?.profileInsights?.totalBookmarksReceived ?? 0,
                 color: "text-purple-600",
               },
               {
                 icon: Eye,
                 label: "Total Media Views",
-                value: user.profileInsights?.totalMediaViews ?? 0,
+                value: user?.profileInsights?.totalMediaViews ?? 0,
                 color: "text-blue-600",
               },
               {
                 icon: User,
                 label: "Profile Views",
-                value: user.profileInsights?.totalProfileViews ?? 0,
+                value: user?.profileInsights?.totalProfileViews ?? 0,
                 color: "text-green-600",
               },
               {
                 icon: ImageIcon,
                 label: "Total Medias",
-                value: user.profileInsights?.totalGeneratedMedias ?? 0,
+                value: user?.profileInsights?.totalGeneratedMedias ?? 0,
                 color: "text-orange-600",
               },
               {
                 icon: FolderOpen,
                 label: "Total Albums",
-                value: user.profileInsights?.totalAlbums ?? 0,
+                value: user?.profileInsights?.totalAlbums ?? 0,
                 color: "text-indigo-600",
               },
             ].map((insight, index) => (

@@ -11,6 +11,7 @@ import type {
   AuthProvider,
   SubscriptionStatus,
 } from "./core";
+import { UserPlan } from "./permissions";
 import type { UserProfileInsights } from "./user";
 
 // DynamoDB Entity base interface
@@ -161,8 +162,8 @@ export interface UserEntity extends BaseEntity {
   avatarThumbnails?: ThumbnailUrls;
 
   // Plan and subscription information
-  role?: "user" | "admin" | "moderator"; // User role
-  plan?: "free" | "starter" | "unlimited" | "pro"; // Current plan
+  role: "user" | "admin" | "moderator"; // User role
+  plan: UserPlan; // Current plan
   subscriptionId?: string; // Stripe/payment provider subscription ID
   subscriptionStatus?: SubscriptionStatus; // Subscription status
   planStartDate?: string; // When current plan started

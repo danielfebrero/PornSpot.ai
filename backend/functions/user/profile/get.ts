@@ -1,34 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
-import { UserProfileInsights } from "@shared";
+import { PublicUserProfile } from "@shared";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
-
-interface PublicUserProfile {
-  userId: string;
-  username?: string;
-  createdAt: string;
-  lastActive?: string; // Last time user was seen active (updated on each request)
-  isActive: boolean;
-  isEmailVerified: boolean;
-  lastLoginAt?: string;
-  bio?: string;
-  location?: string;
-  website?: string;
-
-  // Avatar information
-  avatarUrl?: string;
-  avatarThumbnails?: {
-    originalSize?: string;
-    small?: string;
-    medium?: string;
-    large?: string;
-  };
-
-  // Profile insights
-  profileInsights?: UserProfileInsights;
-}
 
 interface GetPublicProfileResponse {
   user: PublicUserProfile;
@@ -91,6 +66,9 @@ const handleGetUserProfile = async (
     ...(userEntity.profileInsights && {
       profileInsights: userEntity.profileInsights,
     }),
+    planInfo: {
+      plan: userEntity.plan,
+    },
   };
 
   console.log("✅ Returning public profile for user:", username);

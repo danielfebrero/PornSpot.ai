@@ -371,7 +371,7 @@ export default function SettingsPage() {
                 <span className="font-medium">
                   {tSettings("subscription.currentPlan")}
                 </span>
-                <UserPlanBadge />
+                <UserPlanBadge plan={user.planInfo.plan} />
               </div>
 
               <div className="grid gap-6 md:grid-cols-2">
@@ -438,7 +438,7 @@ export default function SettingsPage() {
                 <span className="font-medium">
                   {tSettings(`subscription.plans.${currentPlan}`)}
                 </span>
-                <UserPlanBadge />
+                <UserPlanBadge plan={user.planInfo.plan} />
               </div>
 
               <div className="flex flex-wrap gap-3">

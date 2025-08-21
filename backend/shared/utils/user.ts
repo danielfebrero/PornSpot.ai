@@ -52,6 +52,8 @@ export class UserUtil {
       createdAt: now,
       isActive,
       isEmailVerified: false, // Email verification will be Phase 2
+      plan: "free",
+      role: "user",
     };
 
     await DynamoDBService.createUser(userEntity);

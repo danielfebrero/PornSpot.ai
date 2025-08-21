@@ -42,6 +42,35 @@ export interface User {
   profileInsights?: UserProfileInsights;
 }
 
+export interface PublicUserProfile {
+  userId: string;
+  username?: string;
+  createdAt: string;
+  lastActive?: string; // Last time user was seen active (updated on each request)
+  isActive: boolean;
+  isEmailVerified: boolean;
+  lastLoginAt?: string;
+  bio?: string;
+  location?: string;
+  website?: string;
+
+  // Avatar information
+  avatarUrl?: string;
+  avatarThumbnails?: {
+    originalSize?: string;
+    small?: string;
+    medium?: string;
+    large?: string;
+  };
+
+  // Profile insights
+  profileInsights?: UserProfileInsights;
+
+  planInfo: {
+    plan: UserPlan;
+  };
+}
+
 export interface UserSession {
   sessionId: string;
   userId: string;

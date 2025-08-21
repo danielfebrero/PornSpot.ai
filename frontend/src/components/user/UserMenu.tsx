@@ -113,7 +113,7 @@ export function UserMenu({ user }: UserMenuProps) {
                   {user.email}
                 </div>
                 <div className="mt-2">
-                  <UserPlanBadge />
+                  <UserPlanBadge plan={user.planInfo.plan} />
                 </div>
                 {!user.isEmailVerified && (
                   <div className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">

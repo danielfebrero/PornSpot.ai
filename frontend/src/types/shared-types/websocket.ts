@@ -1,4 +1,4 @@
-import { WorkflowData } from "@/types/shared-types";
+import { WorkflowData } from "./generation";
 
 // WebSocket Types
 export interface WebSocketMessage {

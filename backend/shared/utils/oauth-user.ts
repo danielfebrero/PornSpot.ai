@@ -63,7 +63,7 @@ export class OAuthUserUtil {
     const userId = uuidv4();
     const now = new Date().toISOString();
 
-    const userEntity: Partial<UserEntity> = {
+    const userEntity: UserEntity = {
       PK: `USER#${userId}`,
       SK: "METADATA",
       GSI1PK: "USER_EMAIL",
@@ -81,6 +81,8 @@ export class OAuthUserUtil {
       isActive,
       isEmailVerified: true, // Google accounts are pre-verified
       googleId,
+      role: "user",
+      plan: "free",
     };
 
     await DynamoDBService.createUser(userEntity as UserEntity);
