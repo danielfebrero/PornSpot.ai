@@ -39,3 +39,5 @@
 [ ] Implement forgot password page.
 
 [ ] Always show lora models and strength on media page, even if selected automatically.
+
+[ ] Remove all console logs.

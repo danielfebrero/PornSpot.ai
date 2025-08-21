@@ -454,7 +454,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                         icon={<Hash className="w-4 h-4" />}
                         label={lora}
                         value={String(
-                          metadata.loraStrengths[lora].value || "1"
+                          metadata.loraStrengths[lora]?.value || "1"
                         )}
                         isTag
                       />
