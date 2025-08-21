@@ -56,4 +56,4 @@
 
 [x] After content #20, interaction status does not show on user likes page (and probably other pages).
 
-[ ] When visiting another user profile, I see my plan instead of his plan (or I always see free plan may be).
+[x] When visiting another user profile, I see my plan instead of his plan (or I always see free plan may be).

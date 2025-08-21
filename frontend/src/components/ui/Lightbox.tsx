@@ -24,6 +24,7 @@ interface LightboxProps {
   onClose: () => void;
   onNext: () => void;
   onPrevious: () => void;
+  onDelete: (mediaId: string) => void;
 }
 
 export const Lightbox: React.FC<LightboxProps> = ({
@@ -37,6 +38,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
   onClose,
   onNext,
   onPrevious,
+  onDelete,
 }) => {
   const [isMounted, setIsMounted] = useState(false);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
@@ -388,6 +390,14 @@ export const Lightbox: React.FC<LightboxProps> = ({
                     canAddToAlbum={true}
                     canDownload={true}
                     canDelete={canDelete}
+                    onDelete={() => {
+                      onDelete(currentMedia.id);
+                      currentIndex < media.length - 1 || hasNextPage
+                        ? onNext()
+                        : currentIndex > 0
+                        ? onPrevious()
+                        : onClose();
+                    }}
                     showCounts={false}
                     disableHoverEffects={true}
                     preferredThumbnailSize="originalSize"

@@ -335,6 +335,11 @@ export function GenerateClient() {
     // Submit to generation queue - optimization will be handled by backend if enabled
   };
 
+  const handleDeleteRecentMedia = (mediaId: string) => {
+    // Optimistically update the UI
+    setDeletedImageIds((prev) => new Set(prev).add(mediaId));
+  };
+
   // Update prompt when optimized prompt is received from backend
   React.useEffect(() => {
     if (optimizationStream !== null) {
@@ -1339,6 +1344,7 @@ export function GenerateClient() {
             currentIndex={lightboxIndex}
             isOpen={lightboxOpen}
             canDelete={true}
+            onDelete={handleDeleteRecentMedia}
             onClose={() => setLightboxOpen(false)}
             onNext={() =>
               setLightboxIndex((prev) =>
