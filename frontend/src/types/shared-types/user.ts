@@ -196,3 +196,25 @@ export interface UserInsightsResponse {
   data?: UserProfileInsights;
   error?: string;
 }
+
+// Password reset types
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
+  message: string;
+  user?: User;
+  sessionId?: string;
+}

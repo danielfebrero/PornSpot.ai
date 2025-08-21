@@ -8,6 +8,10 @@ import {
   GetPublicProfileResponse,
   PublicUserProfile,
   User,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
 } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -203,6 +207,28 @@ export const userApi = {
       expiresIn: string;
       tokenType: string;
     }>("/user/auth/generate-jwt");
+    return ApiUtil.extractData(response);
+  },
+
+  // Forgot password - send reset email
+  forgotPassword: async (
+    request: ForgotPasswordRequest
+  ): Promise<ForgotPasswordResponse> => {
+    const response = await ApiUtil.post<ForgotPasswordResponse>(
+      "/user/auth/forgot-password",
+      request
+    );
+    return ApiUtil.extractData(response);
+  },
+
+  // Reset password with token
+  resetPassword: async (
+    request: ResetPasswordRequest
+  ): Promise<ResetPasswordResponse> => {
+    const response = await ApiUtil.post<ResetPasswordResponse>(
+      "/user/auth/reset-password",
+      request
+    );
     return ApiUtil.extractData(response);
   },
 };

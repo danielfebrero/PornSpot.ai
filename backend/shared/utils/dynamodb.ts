@@ -1585,6 +1585,103 @@ export class DynamoDBService {
     }
   }
 
+  // Password reset token operations
+  static async createPasswordResetToken(
+    token: string,
+    userId: string,
+    email: string,
+    expiresAt: Date
+  ): Promise<void> {
+    const tokenEntity = {
+      PK: `PASSWORD_RESET#${token}`,
+      SK: "TOKEN",
+      GSI1PK: "PASSWORD_RESET_EXPIRY",
+      GSI1SK: `${expiresAt.toISOString()}#${token}`,
+      EntityType: "PasswordResetToken" as const,
+      token,
+      userId,
+      email,
+      expiresAt: expiresAt.toISOString(),
+      createdAt: new Date().toISOString(),
+      ttl: Math.floor(expiresAt.getTime() / 1000), // TTL for automatic cleanup
+    };
+
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: tokenEntity,
+        ConditionExpression: "attribute_not_exists(PK)",
+      })
+    );
+  }
+
+  static async getPasswordResetToken(
+    token: string
+  ): Promise<
+    import("@shared/shared-types/database").PasswordResetTokenEntity | null
+  > {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `PASSWORD_RESET#${token}`,
+          SK: "TOKEN",
+        },
+      })
+    );
+
+    return (
+      (result.Item as import("@shared/shared-types/database").PasswordResetTokenEntity) ||
+      null
+    );
+  }
+
+  static async deletePasswordResetToken(token: string): Promise<void> {
+    await docClient.send(
+      new DeleteCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `PASSWORD_RESET#${token}`,
+          SK: "TOKEN",
+        },
+      })
+    );
+  }
+
+  static async cleanupExpiredPasswordResetTokens(): Promise<void> {
+    const now = new Date().toISOString();
+
+    // Query for expired password reset tokens using GSI1
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI1",
+        KeyConditionExpression: "GSI1PK = :gsi1pk AND GSI1SK < :now",
+        ExpressionAttributeValues: {
+          ":gsi1pk": "PASSWORD_RESET_EXPIRY",
+          ":now": now,
+        },
+      })
+    );
+
+    // Delete expired tokens
+    if (result.Items && result.Items.length > 0) {
+      const deletePromises = result.Items.map((item) =>
+        docClient.send(
+          new DeleteCommand({
+            TableName: TABLE_NAME,
+            Key: {
+              PK: item["PK"],
+              SK: item["SK"],
+            },
+          })
+        )
+      );
+
+      await Promise.all(deletePromises);
+    }
+  }
+
   // User interaction operations
   static async createUserInteraction(
     interaction: UserInteractionEntity

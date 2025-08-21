@@ -1,0 +1,52 @@
+import { Metadata } from "next";
+import { locales } from "@/i18n";
+import { Suspense } from "react";
+import { ForgotPasswordForm } from "@/components/user/ForgotPasswordForm";
+import {
+  generateTranslatedOpenGraphMetadata,
+  generateSiteUrl,
+} from "@/lib/opengraph";
+
+type ForgotPasswordPageProps = {
+  params: { locale: string };
+};
+
+// Enable ISR for this page - static generation with revalidation
+export const revalidate = 86400; // revalidate every day
+export const dynamic = "force-static"; // Force static generation at build time
+export const dynamicParams = true; // Allow dynamic params
+
+// Generate static pages for all locales at build time
+export async function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({
+  params,
+}: ForgotPasswordPageProps): Promise<Metadata> {
+  return generateTranslatedOpenGraphMetadata({
+    locale: params.locale,
+    titleKey: "meta.title",
+    descriptionKey: "meta.description",
+    namespace: "auth.forgotPassword",
+    url: generateSiteUrl(params.locale, "auth/forgot-password"),
+    type: "website",
+  });
+}
+
+function ForgotPasswordFallback() {
+  return (
+    <div className="text-center space-y-4">
+      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p className="text-muted-foreground">Loading forgot password form...</p>
+    </div>
+  );
+}
+
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense fallback={<ForgotPasswordFallback />}>
+      <ForgotPasswordForm />
+    </Suspense>
+  );
+}

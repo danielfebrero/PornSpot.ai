@@ -87,7 +87,7 @@
   "auth": {
     "signIn": "Sign In",
     "signUp": "Sign Up",
-    "forgotPassword": "Forgot Password?",
+    "forgotPasswordLink": "Forgot Password?",
     "alreadyHaveAccount": "Already have an account?",
     "dontHaveAccount": "Don't have an account?",
     "email": "Email",
@@ -198,6 +198,35 @@
         "title": "Success - PornSpot.ai",
         "description": "Authentication successful"
       }
+    },
+    "forgotPassword": {
+      "meta": {
+        "title": "Forgot Password - PornSpot.ai",
+        "description": "Reset your password"
+      },
+      "title": "Forgot Password?",
+      "subtitle": "Enter your email address and we'll send you a link to reset your password.",
+      "emailSent": "Reset email sent",
+      "emailSentMessage": "If an account exists with this email address, you will receive a password reset link.",
+      "sendResetLink": "Send Reset Link",
+      "backToLogin": "Back to Sign In",
+      "checkEmail": "Check your email for the reset link"
+    },
+    "resetPassword": {
+      "meta": {
+        "title": "Reset Password - PornSpot.ai",
+        "description": "Create a new password"
+      },
+      "title": "Reset Your Password",
+      "subtitle": "Enter your new password below.",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password",
+      "resetSuccess": "Password reset successfully",
+      "resetSuccessMessage": "Your password has been reset and you are now logged in.",
+      "invalidToken": "Invalid or expired token",
+      "invalidTokenMessage": "The reset link is invalid or has expired. Please request a new link.",
+      "resetPassword": "Reset Password",
+      "requestNewLink": "Request New Link"
     },
     "verifyEmail": {
       "meta": {

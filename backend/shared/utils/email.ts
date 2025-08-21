@@ -138,6 +138,31 @@ export class EmailService {
   }
 
   /**
+   * Send password reset email
+   */
+  static async sendPasswordResetEmail(options: {
+    to: string;
+    username: string;
+    resetUrl: string;
+    expiresAt: Date;
+  }): Promise<EmailSendResult> {
+    const { to, username, resetUrl, expiresAt } = options;
+    const displayName = username;
+    const expiresAtFormatted = expiresAt.toLocaleString();
+
+    const template = await this.getPasswordResetEmailTemplate(
+      displayName,
+      resetUrl,
+      expiresAtFormatted
+    );
+
+    return this.sendEmail({
+      to,
+      template,
+    });
+  }
+
+  /**
    * Get email verification template
    */
   private static async getVerificationEmailTemplate(
@@ -179,6 +204,33 @@ export class EmailService {
         subject,
         displayName,
         loginUrl,
+      }
+    );
+
+    return {
+      subject,
+      htmlBody,
+      textBody,
+    };
+  }
+
+  /**
+   * Get password reset email template
+   */
+  private static async getPasswordResetEmailTemplate(
+    displayName: string,
+    resetUrl: string,
+    expiresAt: string
+  ): Promise<EmailTemplate> {
+    const subject = "Reset Your Password - PornSpot.ai";
+
+    const { htmlBody, textBody } = await EmailTemplateService.loadTemplate(
+      "password-reset",
+      {
+        subject,
+        displayName,
+        resetUrl,
+        expiresAt,
       }
     );
 

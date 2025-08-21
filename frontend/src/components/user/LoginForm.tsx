@@ -263,7 +263,7 @@ export function LoginForm() {
           href="/auth/forgot-password"
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          {tAuth("forgotPassword")}
+          {tAuth("forgotPasswordLink")}
         </LocaleLink>
       </div>
     </div>

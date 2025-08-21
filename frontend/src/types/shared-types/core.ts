@@ -53,7 +53,8 @@ export type EntityType =
   | "Comment"
   | "UserInteraction"
   | "AlbumMedia"
-  | "EmailVerificationToken";
+  | "EmailVerificationToken"
+  | "PasswordResetToken";
 
 export type CreatorType = "user" | "admin";
 

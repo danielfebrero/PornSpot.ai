@@ -224,3 +224,18 @@ export interface EmailVerificationTokenEntity extends BaseEntity {
   expiresAt: string;
   ttl: number; // For DynamoDB TTL
 }
+
+// Password Reset Token Entity
+export interface PasswordResetTokenEntity extends BaseEntity {
+  PK: string; // PASSWORD_RESET#{token}
+  SK: string; // TOKEN
+  GSI1PK: string; // PASSWORD_RESET_EXPIRY
+  GSI1SK: string; // {expiresAt}#{token}
+  EntityType: "PasswordResetToken";
+  token: string;
+  userId: string;
+  email: string;
+  createdAt: string;
+  expiresAt: string;
+  ttl: number; // For DynamoDB TTL
+}

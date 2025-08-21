@@ -87,7 +87,7 @@
   "auth": {
     "signIn": "Se connecter",
     "signUp": "S'inscrire",
-    "forgotPassword": "Mot de passe oublié ?",
+    "forgotPasswordLink": "Mot de passe oublié ?",
     "alreadyHaveAccount": "Vous avez déjà un compte ?",
     "dontHaveAccount": "Vous n'avez pas de compte ?",
     "email": "Email",
@@ -198,6 +198,35 @@
         "title": "Succès - PornSpot.ai",
         "description": "Authentification réussie"
       }
+    },
+    "forgotPassword": {
+      "meta": {
+        "title": "Mot de passe oublié - PornSpot.ai",
+        "description": "Réinitialisez votre mot de passe"
+      },
+      "title": "Mot de passe oublié ?",
+      "subtitle": "Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+      "emailSent": "Email de réinitialisation envoyé",
+      "emailSentMessage": "Si un compte existe avec cette adresse e-mail, vous recevrez un lien pour réinitialiser votre mot de passe.",
+      "sendResetLink": "Envoyer le lien de réinitialisation",
+      "backToLogin": "Retour à la connexion",
+      "checkEmail": "Vérifiez votre e-mail pour le lien de réinitialisation"
+    },
+    "resetPassword": {
+      "meta": {
+        "title": "Réinitialiser le mot de passe - PornSpot.ai",
+        "description": "Créez un nouveau mot de passe"
+      },
+      "title": "Réinitialiser votre mot de passe",
+      "subtitle": "Entrez votre nouveau mot de passe ci-dessous.",
+      "newPassword": "Nouveau mot de passe",
+      "confirmNewPassword": "Confirmer le nouveau mot de passe",
+      "resetSuccess": "Mot de passe réinitialisé avec succès",
+      "resetSuccessMessage": "Votre mot de passe a été réinitialisé et vous êtes maintenant connecté.",
+      "invalidToken": "Token invalide ou expiré",
+      "invalidTokenMessage": "Le lien de réinitialisation n'est pas valide ou a expiré. Veuillez demander un nouveau lien.",
+      "resetPassword": "Réinitialiser le mot de passe",
+      "requestNewLink": "Demander un nouveau lien"
     },
     "verifyEmail": {
       "meta": {

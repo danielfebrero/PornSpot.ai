@@ -43,3 +43,5 @@
 [ ] Remove all console logs.
 
 [ ] Implement additional image credit, so we can do promotions and offer 5 images on signup.
+
+[ ] Review or implement Change password.

@@ -64,6 +64,6 @@
 
 [x] Album cover image not showing cover but first image of the album.
 
-[ ] On mobile, cannot pinch and zoom on an image because of swipe gesture.
+[x] On mobile, cannot pinch and zoom on an image because of swipe gesture.
 
 [x] After deleting my account, cannot sign in with Google.
