@@ -125,7 +125,7 @@ export const userApi = {
     currentPassword: string;
     newPassword: string;
   }): Promise<{ success: boolean; message: string }> => {
-    const response = await ApiUtil.post<{ success: boolean; message: string }>(
+    const response = await ApiUtil.put<{ success: boolean; message: string }>(
       "/user/auth/change-password",
       passwordData
     );

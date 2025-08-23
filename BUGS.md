@@ -70,4 +70,4 @@
 
 [x] Auto signing after verify email did not work.
 
-[ ] Trop d’appels aux API Location ou History dans un court laps de temps dans Lightbox.
+[x] Trop d’appels aux API Location ou History dans un court laps de temps dans Lightbox.
