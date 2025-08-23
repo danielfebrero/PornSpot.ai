@@ -59,3 +59,5 @@
 [ ] Implement private beta: invitation code wall + free users get all pro features.
 
 [x] Add default cover image if no cover is selected.
+
+[ ] Add more parameters (cfg_scale, seed, steps, etc) to generation page and show them on Media page.

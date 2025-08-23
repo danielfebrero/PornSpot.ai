@@ -18,7 +18,6 @@ import { ContentCard } from "@/components/ui/ContentCard";
 import { GradientTextarea } from "@/components/ui/GradientTextarea";
 import { MagicText, MagicTextHandle } from "@/components/ui/MagicText";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
-import { useGeneration } from "@/hooks/useGeneration";
 import { useGenerationContext } from "@/contexts/GenerationContext";
 import {
   ImageIcon,
@@ -85,7 +84,7 @@ const LORA_MODELS = [
 export function GenerateClient() {
   const magicTextRef = useRef<MagicTextHandle>(null);
 
-  // Use GenerationContext instead of local state
+  // Use GenerationContext for all generation state and functionality
   const {
     settings,
     updateSettings,
@@ -98,6 +97,8 @@ export function GenerateClient() {
       showProgressCard,
       optimizedPromptCache,
       originalPromptBeforeOptimization,
+      isGenerating,
+      isOptimizing,
     },
     setAllGeneratedImages,
     setDeletedImageIds,
@@ -107,15 +108,13 @@ export function GenerateClient() {
     setShowProgressCard,
     setOptimizedPromptCache,
     setOriginalPromptBeforeOptimization,
+    setIsGenerating,
+    setIsOptimizing,
     handleDeleteRecentMedia,
     toggleLora,
     updateLoraStrength,
     handleLoraClickInAutoMode,
-  } = useGenerationContext();
-
-  // Use the new generation hook with WebSocket support
-  const {
-    isGenerating,
+    // Generation state and methods (now in context)
     queueStatus,
     generatedImages,
     error,
@@ -128,14 +127,15 @@ export function GenerateClient() {
     isRetrying,
     workflowNodes,
     currentNodeIndex,
-    isOptimizing, // Get optimization state
-    optimizationStream, // Get optimization stream
-    optimizationToken, // Get optimization token
-    optimizedPrompt, // Get optimized prompt
+    optimizationStream,
+    optimizationToken,
+    optimizedPrompt,
     generateImages,
     clearResults,
-  } = useGeneration();
+    stopGeneration,
+  } = useGenerationContext();
 
+  // Use the new generation context with WebSocket support
   const {
     canGenerateImages,
     checkGenerationLimits,
@@ -253,6 +253,10 @@ export function GenerateClient() {
       await generateImages(settings);
     }
     // Submit to generation queue - optimization will be handled by backend if enabled
+  };
+
+  const handleStopGeneration = () => {
+    stopGeneration();
   };
 
   // Update prompt when optimized prompt is received from backend
@@ -528,17 +532,20 @@ export function GenerateClient() {
           {/* Generate Button */}
           <div className="relative">
             <Button
-              onClick={handleGenerate}
+              onClick={
+                isGenerating || isOptimizing
+                  ? handleStopGeneration
+                  : handleGenerate
+              }
               disabled={
-                !allowed ||
-                !settings.prompt.trim() ||
-                isGenerating ||
-                isOptimizing
+                (!allowed || !settings.prompt.trim()) &&
+                !isGenerating &&
+                !isOptimizing
               }
               className={cn(
                 "w-full h-16 text-lg font-semibold rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]",
                 isGenerating || isOptimizing
-                  ? "bg-gradient-to-r from-primary/80 to-purple-600/80"
+                  ? "bg-gradient-to-r from-red-500/80 to-red-600/80 hover:from-red-500/90 hover:to-red-600/90"
                   : "bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
               )}
               size="lg"
@@ -549,12 +556,12 @@ export function GenerateClient() {
                     <Sparkles className="w-6 h-6 text-white animate-pulse" />
                     <div className="absolute inset-0 bg-white/20 rounded-full animate-ping" />
                   </div>
-                  <span>Optimizing Prompt...</span>
+                  <span>Stop Optimization</span>
                 </div>
               ) : isGenerating ? (
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span>Creating Magic...</span>
+                  <span>Stop Generation</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
