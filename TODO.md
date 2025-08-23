@@ -24,7 +24,7 @@
 
 [ ] Implement admin users page.
 
-[ ] User albums virtualizedGrid is not set to load more for infinite loading.
+[x] User albums virtualizedGrid is not set to load more for infinite loading.
 
 [ ] Translate all hardcoded strings.
 
@@ -49,3 +49,5 @@
 [ ] Review how to generate images for anonymous users as they cannot generate jwt tokens.
 
 [ ] Review what happens when I'm not logged in, I start generating an image, then I login.
+
+[ ] Verify the entire mobile and tablet experience.

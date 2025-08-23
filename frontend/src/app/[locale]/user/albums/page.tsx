@@ -30,6 +30,9 @@ const UserAlbumsPage: React.FC = () => {
     data: albumsData,
     isLoading,
     error: queryError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage: loadingMore,
   } = useAlbums({
     user: user?.username,
     includeContentPreview: true,
@@ -57,6 +60,7 @@ const UserAlbumsPage: React.FC = () => {
 
   const totalCount = albums.length;
   const error = queryError?.message;
+  const hasNext = hasNextPage || false;
 
   // Prefetch interaction status for all user albums
   useEffect(() => {
@@ -70,6 +74,12 @@ const UserAlbumsPage: React.FC = () => {
       });
     }
   }, [albums, prefetch]);
+
+  const loadMore = () => {
+    if (hasNextPage) {
+      fetchNextPage();
+    }
+  };
 
   // Handle edit album
   const handleEditAlbum = useCallback((album: Album) => {
@@ -128,7 +138,7 @@ const UserAlbumsPage: React.FC = () => {
     });
   }, [deletingAlbum, deleteAlbumMutation]);
 
-  if (isLoading) {
+  if (isLoading && !loadingMore) {
     return (
       <div className="space-y-6">
         {/* Header Skeleton */}
@@ -300,9 +310,10 @@ const UserAlbumsPage: React.FC = () => {
       <VirtualizedGrid
         items={albums}
         viewMode={viewMode}
-        isLoading={isLoading}
-        hasNextPage={false} // User albums are typically loaded all at once
-        isFetchingNextPage={false}
+        isLoading={isLoading && !loadingMore}
+        hasNextPage={hasNext}
+        isFetchingNextPage={loadingMore}
+        onLoadMore={loadMore}
         contentCardProps={{
           canLike: true,
           canBookmark: true,

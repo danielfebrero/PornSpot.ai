@@ -9,9 +9,7 @@ import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { cn } from "@/lib/utils";
 import { useAlbums } from "@/hooks/queries/useAlbumsQuery";
-import { usePublicProfile } from "@/hooks/queries/useUserQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
-import { Album } from "@/types";
 import { useDevice } from "@/contexts/DeviceContext";
 
 export default function UserAlbumsPage() {
