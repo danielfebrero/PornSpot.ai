@@ -48,6 +48,8 @@
 
 [ ] Review how to generate images for anonymous users as they cannot generate jwt tokens.
 
+[ ] If I login after website load, make sure to get a new jwt token and websocket connection.
+
 [ ] Verify the entire mobile and tablet experience.
 
 [ ] Review page titles and meta descriptions.
@@ -56,4 +58,4 @@
 
 [ ] Implement private beta: invitation code wall + free users get all pro features.
 
-[ ] Add default cover image if no cover is selected.
+[x] Add default cover image if no cover is selected.
