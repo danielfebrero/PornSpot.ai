@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
-import { Comment } from "@shared";
+import { Comment, MediaWithSiblings } from "@shared";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 
 const handleGetMediaById = async (
@@ -19,8 +19,24 @@ const handleGetMediaById = async (
 
   // Convert to response format
   // Convert MediaEntity to Media using shared helper
-  const mediaResponse = DynamoDBService.convertMediaEntityToMedia(mediaEntity);
+  const mediaResponse: MediaWithSiblings =
+    DynamoDBService.convertMediaEntityToMedia(mediaEntity);
   console.log("Media response created:", mediaResponse);
+
+  if (
+    mediaResponse.metadata?.["bulkSiblings"] &&
+    (mediaResponse.metadata?.["bulkSiblings"] as string[]).length > 0
+  ) {
+    const siblingsPromise = Promise.all(
+      (mediaResponse.metadata["bulkSiblings"] as string[]).map(
+        async (id) => await DynamoDBService.findMediaById(id)
+      )
+    );
+    mediaResponse.bulkSiblings = (await siblingsPromise)
+      .filter(Boolean)
+      .filter((entity) => entity !== null)
+      .map((entity) => DynamoDBService.convertMediaEntityToMedia(entity));
+  }
 
   // Fetch creator username if createdBy exists
   if (mediaEntity.createdBy) {

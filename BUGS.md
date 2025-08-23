@@ -71,3 +71,5 @@
 [x] Auto signing after verify email did not work.
 
 [x] Trop d’appels aux API Location ou History dans un court laps de temps dans Lightbox.
+
+[ ] On register, I do not receive the welcome email.

@@ -151,6 +151,7 @@ export function createGenerationMetadata(options: {
   optimizePrompt?: boolean;
   customWidth?: number;
   customHeight?: number;
+  bulkSiblings?: string[];
 }): Metadata {
   return {
     prompt: options.prompt.trim(),
@@ -174,5 +175,6 @@ export function createGenerationMetadata(options: {
     }),
     ...(options.customWidth && { customWidth: options.customWidth }),
     ...(options.customHeight && { customHeight: options.customHeight }),
+    ...(options.bulkSiblings && { bulkSiblings: options.bulkSiblings }),
   };
 }

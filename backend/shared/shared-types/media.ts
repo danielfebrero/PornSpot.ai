@@ -30,6 +30,10 @@ export interface Media {
   comments?: import("./comment").Comment[];
 }
 
+export interface MediaWithSiblings extends Media {
+  bulkSiblings?: Media[]; // Other media IDs in the same bulk upload
+}
+
 export interface UploadMediaRequest {
   filename: string;
   mimeType: string;

@@ -299,6 +299,8 @@ async function createMediaEntitiesFirst(
     `💾 Creating ${images.length} media entities in DynamoDB for generation: ${queueEntry.queueId}`
   );
 
+  const mediaIds = images.map((_, index) => `${queueEntry.queueId}_${index}`);
+
   for (let index = 0; index < images.length; index++) {
     const image = images[index];
 
@@ -333,6 +335,10 @@ async function createMediaEntitiesFirst(
         loraStrengths: queueEntry.parameters?.loraStrengths || {},
         loraSelectionMode: queueEntry.parameters?.loraSelectionMode,
         optimizePrompt: queueEntry.parameters?.optimizePrompt || false,
+        bulkSiblings:
+          mediaIds.length > 1
+            ? mediaIds.filter((id) => id !== mediaId)
+            : undefined,
       });
 
       // Create MediaEntity for database storage using shared utility

@@ -23,7 +23,7 @@ import {
   Palette,
   Hash,
 } from "lucide-react";
-import { Media } from "@/types";
+import { Media, MediaWithSiblings } from "@/types";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { useNavigationLoading } from "@/contexts/NavigationLoadingContext";
 import { ShareDropdown } from "@/components/ui/ShareDropdown";
@@ -41,7 +41,7 @@ import { useUserContext } from "@/contexts/UserContext";
 // --- PROPS INTERFACES ---
 
 interface MediaDetailClientProps {
-  media: Media;
+  media: MediaWithSiblings;
 }
 
 interface MetaSectionProps {
@@ -177,8 +177,6 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
   const { user } = useUserContext();
   const hasTrackedView = useRef(false);
   const trackViewMutation = useTrackView();
-
-  console.log({ media });
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();
@@ -465,8 +463,8 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                 </MetaSection>
               )}
 
-            {Array.isArray(metadata.bulkSiblings) &&
-              metadata.bulkSiblings.length > 0 && (
+            {Array.isArray(media.bulkSiblings) &&
+              media.bulkSiblings.length > 0 && (
                 <MetaSection
                   icon={<Layers className="w-5 h-5" />}
                   title="Related Images"
@@ -477,22 +475,9 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                     showArrows={true}
                     className="w-full"
                   >
-                    {metadata.bulkSiblings.map(
-                      (siblingId: string, index: number) => (
-                        <button
-                          key={siblingId}
-                          onClick={() => {
-                            startNavigation("media");
-                            router.push(`/media/${siblingId}`);
-                          }}
-                          className="aspect-square bg-muted/50 rounded-lg overflow-hidden hover:ring-2 hover:ring-primary transition-all hover:scale-[1.02] w-full"
-                        >
-                          <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
-                            Image {index + 1}
-                          </div>
-                        </button>
-                      )
-                    )}
+                    {media.bulkSiblings.map((sibling: MediaWithSiblings) => (
+                      <ContentCard item={sibling} key={sibling.id} />
+                    ))}
                   </HorizontalScroll>
                 </MetaSection>
               )}

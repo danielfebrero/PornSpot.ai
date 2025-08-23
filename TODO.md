@@ -51,3 +51,5 @@
 [ ] Review what happens when I'm not logged in, I start generating an image, then I login.
 
 [ ] Verify the entire mobile and tablet experience.
+
+[ ] Review page titles and meta descriptions.
