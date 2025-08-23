@@ -10,7 +10,7 @@
 
 [x] Deleting a recent image from the list under the main images should remove it from the page instantly and close the lightbox.
 
-[ ] Navigating to another page should not lose the current state of image generation.
+[x] Navigating to another page should not lose the current state of image generation.
 
 [x] Optimize filter by tags using indexes.
 

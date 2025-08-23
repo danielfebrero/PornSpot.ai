@@ -11,6 +11,7 @@ import React, {
 import { WebSocketContextType } from "@/types/websocket";
 import { GenerationWebSocketMessage } from "@/types/shared-types/websocket";
 import { userApi } from "@/lib/api";
+import { useUserContext } from "./UserContext";
 
 const WebSocketContext = createContext<WebSocketContextType | null>(null);
 
@@ -28,6 +29,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
+  const { user } = useUserContext();
 
   const fetchConnectionId = useCallback(() => {
     wsRef.current?.send(JSON.stringify({ action: "get_client_connectionId" }));
@@ -38,7 +40,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     // For now, we'll use a placeholder that should be replaced with actual CloudFormation output
     let wsUrl =
       process.env.NEXT_PUBLIC_WEBSOCKET_URL ||
-      process.env.NEXT_PUBLIC_WEBSOCKET_API_URL ||
       "wss://your-websocket-api-id.execute-api.region.amazonaws.com/stage";
 
     // Generate JWT token for authenticated users before connecting
@@ -198,7 +199,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     return () => {
       disconnect();
     };
-  }, [connect, disconnect]);
+  }, [connect, disconnect, user?.userId]);
 
   // Keep connection alive with periodic pings
   useEffect(() => {
