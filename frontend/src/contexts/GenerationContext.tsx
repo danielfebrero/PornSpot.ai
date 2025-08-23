@@ -61,7 +61,6 @@ interface GenerationUIState {
   optimizedPrompt: string | null;
   optimizationStream: string | null;
   optimizationToken: string | null;
-  connectionId: string | null;
 }
 
 const DEFAULT_UI_STATE: GenerationUIState = {
@@ -93,7 +92,6 @@ const DEFAULT_UI_STATE: GenerationUIState = {
   optimizedPrompt: null,
   optimizationStream: null,
   optimizationToken: null,
-  connectionId: null,
 };
 
 // Generation context type
@@ -210,7 +208,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
   );
 
   // WebSocket and generation state
-  const { subscribe, unsubscribe, isConnected } = useWebSocket();
+  const { subscribe, unsubscribe, isConnected, connectionId } = useWebSocket();
   const currentQueueIdRef = useRef<string | null>(null);
   const messageCallbackRef = useRef<
     ((message: GenerationWebSocketMessage) => void) | null
@@ -315,13 +313,6 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
   const handleWebSocketMessage = useCallback(
     (message: GenerationWebSocketMessage) => {
       switch (message.type) {
-        case "client_connectionId":
-          setUiState((prev) => ({
-            ...prev,
-            connectionId: message.connectionId || null,
-          }));
-          break;
-
         case "workflow":
           // Set workflow nodes from API response instead of WebSocket
           if (message.workflowData) {
@@ -608,7 +599,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
 
         const result = await generateApi.generate({
           ...request,
-          connectionId: uiState.connectionId || undefined,
+          connectionId: connectionId || undefined,
         });
 
         // Store the queue ID for WebSocket subscription
@@ -648,13 +639,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
         }
       }
     },
-    [
-      isConnected,
-      handleWebSocketMessage,
-      subscribe,
-      uiState.connectionId,
-      unsubscribe,
-    ]
+    [isConnected, handleWebSocketMessage, subscribe, connectionId, unsubscribe]
   );
 
   const clearResults = useCallback(() => {

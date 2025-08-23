@@ -20,6 +20,7 @@ interface WebSocketProviderProps {
 
 export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const [isConnected, setIsConnected] = useState(false);
+  const [connectionId, setConnectionId] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const globalSubscriptionsRef = useRef<
     Set<(message: GenerationWebSocketMessage) => void>
@@ -97,6 +98,10 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
             // Send pong response
             wsRef.current?.send(JSON.stringify({ action: "pong" }));
             return;
+          }
+
+          if (message.type === "client_connectionId" && message.connectionId) {
+            setConnectionId(message.connectionId);
           }
 
           // Route all messages to global subscribers (one queue per tab)
@@ -210,6 +215,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
   const contextValue: WebSocketContextType = {
     isConnected,
+    connectionId,
     connect,
     disconnect,
     subscribe,
