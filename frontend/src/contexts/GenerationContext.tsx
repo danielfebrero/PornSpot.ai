@@ -44,7 +44,7 @@ interface GenerationUIState {
   originalPromptBeforeOptimization: string;
   isGenerating: boolean;
   isOptimizing: boolean;
-  
+
   // Generation WebSocket state (moved from useGeneration)
   queueStatus: GenerationQueueStatus | null;
   generatedImages: Media[];
@@ -76,7 +76,7 @@ const DEFAULT_UI_STATE: GenerationUIState = {
   originalPromptBeforeOptimization: "",
   isGenerating: false,
   isOptimizing: false,
-  
+
   // Generation WebSocket state defaults
   queueStatus: null,
   generatedImages: [],
@@ -235,11 +235,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
 
   // Helper function to determine if a node progress should be shown
   const shouldShowNodeProgress = useCallback(
-    (
-      nodeId: string,
-      nodes: WorkflowNode[],
-      nodeIndex: number
-    ): boolean => {
+    (nodeId: string, nodes: WorkflowNode[], nodeIndex: number): boolean => {
       if (nodes.length === 0) return true; // Show if no workflow info yet
 
       const foundNodeIndex = nodes.findIndex((node) => node.nodeId === nodeId);
