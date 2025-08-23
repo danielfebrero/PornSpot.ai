@@ -162,38 +162,19 @@ const STORAGE_KEYS = {
   UI_STATE: "pornspot-generation-ui-state",
 } as const;
 
-const loadFromStorage = function <T>(key: string, defaultValue: T): T {
-  try {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        // Handle Set serialization for deletedImageIds
-        if (key === STORAGE_KEYS.UI_STATE && parsed.deletedImageIds) {
-          parsed.deletedImageIds = new Set(parsed.deletedImageIds);
-        }
-        return parsed;
-      }
-    }
-  } catch (error) {
-    console.warn("Failed to load from localStorage:", error);
-  }
-  return defaultValue;
-};
-
 interface GenerationProviderProps {
   children: ReactNode;
 }
 
 export function GenerationProvider({ children }: GenerationProviderProps) {
   // Initialize settings from localStorage or defaults
-  const [settings, setSettings] = useState<GenerationSettings>(() =>
-    loadFromStorage(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS)
+  const [settings, setSettings] = useState<GenerationSettings>(
+    () => DEFAULT_SETTINGS
   );
 
   // Initialize UI state from localStorage or defaults
-  const [uiState, setUiState] = useState<GenerationUIState>(() =>
-    loadFromStorage(STORAGE_KEYS.UI_STATE, DEFAULT_UI_STATE)
+  const [uiState, setUiState] = useState<GenerationUIState>(
+    () => DEFAULT_UI_STATE
   );
 
   // WebSocket and generation state
