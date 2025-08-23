@@ -116,14 +116,14 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
       <QueryProvider>
-        <WebSocketProvider>
-          <PrefetchProvider>
-            <PageErrorBoundary context={`Locale Layout (${locale})`}>
-              <DeviceProvider initialDeviceInfo={deviceInfo}>
-                <ReturnUrlProvider>
-                  <UserProvider>
-                    <PermissionsWrapper>
-                      <AdminProvider>
+        <PrefetchProvider>
+          <PageErrorBoundary context={`Locale Layout (${locale})`}>
+            <DeviceProvider initialDeviceInfo={deviceInfo}>
+              <ReturnUrlProvider>
+                <UserProvider>
+                  <PermissionsWrapper>
+                    <AdminProvider>
+                      <WebSocketProvider>
                         <GenerationProvider>
                           <NavigationLoadingProvider>
                             <LanguageRedirect />
@@ -153,14 +153,14 @@ export default async function LocaleLayout({
                             <MobileNavigationWrapper />
                           </NavigationLoadingProvider>
                         </GenerationProvider>
-                      </AdminProvider>
-                    </PermissionsWrapper>
-                  </UserProvider>
-                </ReturnUrlProvider>
-              </DeviceProvider>
-            </PageErrorBoundary>
-          </PrefetchProvider>
-        </WebSocketProvider>
+                      </WebSocketProvider>
+                    </AdminProvider>
+                  </PermissionsWrapper>
+                </UserProvider>
+              </ReturnUrlProvider>
+            </DeviceProvider>
+          </PageErrorBoundary>
+        </PrefetchProvider>
       </QueryProvider>
     </NextIntlClientProvider>
   );
