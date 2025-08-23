@@ -59,6 +59,7 @@ const handleCreateAlbum = async (
 
   // Validate cover image ID if provided and generate thumbnails
   let coverImageUrl: string | undefined;
+  let coverImageId: string | undefined;
   let thumbnailUrls:
     | {
         cover?: string;
@@ -69,11 +70,21 @@ const handleCreateAlbum = async (
       }
     | undefined;
 
-  if (request.coverImageId) {
-    const coverImageId = ValidationUtil.validateRequiredString(
-      request.coverImageId,
-      "coverImageId"
-    );
+  if (
+    request.coverImageId ||
+    (request.mediaIds && request.mediaIds.length > 0)
+  ) {
+    if (request.coverImageId) {
+      coverImageId = ValidationUtil.validateRequiredString(
+        request.coverImageId,
+        "coverImageId"
+      );
+    } else {
+      coverImageId = ValidationUtil.validateRequiredString(
+        request.mediaIds?.[0],
+        "coverImageId"
+      );
+    }
 
     const coverMedia = await DynamoDBService.getMedia(coverImageId);
     if (!coverMedia) {
