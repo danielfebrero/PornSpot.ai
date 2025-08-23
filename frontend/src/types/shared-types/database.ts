@@ -104,6 +104,25 @@ export interface AlbumMediaEntity extends BaseEntity {
   addedBy?: string; // who added it to this album
 }
 
+// Album-Tag relationship entity (many-to-many)
+export interface AlbumTagEntity extends BaseEntity {
+  PK: string; // ALBUM_TAG#{normalizedTag}
+  SK: string; // ALBUM#{albumId}#{createdAt}
+  GSI1PK: string; // ALBUM_TAG
+  GSI1SK: string; // {normalizedTag}#{createdAt}#{albumId}
+  GSI2PK: string; // ALBUM_TAG#{normalizedTag}#{isPublic}
+  GSI2SK: string; // {createdAt}
+  GSI3PK: string; // ALBUM_TAG#{userId}#{isPublic}
+  GSI3SK: string; // {normalizedTag}#{createdAt}
+  EntityType: "AlbumTag";
+  albumId: string; // Album ID for easy retrieval
+  userId: string; // Creator ID for GSI3 queries
+  tag: string; // Original tag (with case)
+  normalizedTag: string; // Normalized tag (lowercase, trimmed)
+  createdAt: string; // When album was created (for chronological sorting)
+  isPublic: string; // "true" or "false" for GSI compatibility
+}
+
 // Comment Entity
 export interface CommentEntity extends BaseEntity {
   PK: string; // COMMENT#{commentId}

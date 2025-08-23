@@ -10,7 +10,7 @@
 
 [x] Deleting a recent image from the list under the main images should remove it from the page instantly and close the lightbox.
 
-[ ] Navigating to another page should not lose the current state.
+[ ] Navigating to another page should not lose the current state of image generation.
 
 [ ] Optimize filter by tags using indexes.
 
@@ -28,7 +28,7 @@
 
 [ ] Translate all hardcoded strings.
 
-[ ] We should show siblings on media page.
+[x] We should show siblings on media page.
 
 [ ] Migrate to Terraform.
 
@@ -53,3 +53,5 @@
 [ ] Verify the entire mobile and tablet experience.
 
 [ ] Review page titles and meta descriptions.
+
+[x] Hardcode things in negative prompt to prevent CSM.

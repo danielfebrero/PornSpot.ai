@@ -105,6 +105,31 @@ const handleUpdateAlbum = async (
   // Apply updates
   await DynamoDBService.updateAlbum(albumId, updates);
 
+  // Update Album-Tag relationships if tags were modified
+  if (tags !== undefined) {
+    try {
+      // Determine the current isPublic value (use updated value if changed, otherwise existing)
+      const currentIsPublic =
+        request.isPublic !== undefined
+          ? request.isPublic
+          : existingAlbum.isPublic === "true";
+      await DynamoDBService.updateAlbumTagRelations(
+        albumId,
+        tags,
+        existingAlbum.createdAt,
+        currentIsPublic,
+        userId
+      );
+      console.log(`🏷️ Updated tag relations for album: ${albumId}`);
+    } catch (error) {
+      console.warn(
+        `⚠️ Failed to update tag relations for album ${albumId}:`,
+        error
+      );
+      // Don't fail album update if tag relations fail
+    }
+  }
+
   // Fetch and return updated album
   const updatedAlbum = await DynamoDBService.getAlbum(albumId);
 

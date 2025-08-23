@@ -120,6 +120,8 @@ const CONFIG = {
   },
 } as const;
 
+const KEYWORDS_FOR_NEGATIVE_PROMPT = ["child", "teen"];
+
 // Initialize AWS API Gateway client for WebSocket messaging
 const apiGatewayClient = new ApiGatewayManagementApiClient({
   endpoint: process.env["WEBSOCKET_API_ENDPOINT"],
@@ -697,7 +699,10 @@ export const submitPrompt = async (queueId: string): Promise<void> => {
     // Create workflow parameters
     const workflowParams: WorkflowParameters = {
       prompt: queueItem.prompt,
-      negativePrompt: queueItem.parameters.negativePrompt,
+      negativePrompt:
+        queueItem.parameters.negativePrompt +
+        ", " +
+        KEYWORDS_FOR_NEGATIVE_PROMPT.join(", "),
       width: queueItem.parameters.width,
       height: queueItem.parameters.height,
       batchSize: queueItem.parameters.batch_size || 1,

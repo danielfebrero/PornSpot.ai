@@ -15,6 +15,7 @@ import {
   AlbumEntity,
   MediaEntity,
   AlbumMediaEntity,
+  AlbumTagEntity,
   CommentEntity,
   ThumbnailUrls,
 } from "@shared/shared-types";
@@ -295,7 +296,12 @@ export class DynamoDBService {
     albums: Album[];
     lastEvaluatedKey?: Record<string, any>;
   }> {
-    // Build query parameters
+    // If tag filtering is requested, use the new efficient method
+    if (tag) {
+      return this.listAlbumsByTag(tag, limit, lastEvaluatedKey);
+    }
+
+    // Build query parameters for all albums
     const queryParams: QueryCommandInput = {
       TableName: TABLE_NAME,
       IndexName: "GSI1",
@@ -307,15 +313,6 @@ export class DynamoDBService {
       Limit: limit,
       ExclusiveStartKey: lastEvaluatedKey,
     };
-
-    // Add tag filtering if specified
-    if (tag) {
-      queryParams.FilterExpression = "contains(#tags, :tag)";
-      queryParams.ExpressionAttributeNames = {
-        "#tags": "tags",
-      };
-      queryParams.ExpressionAttributeValues![":tag"] = tag;
-    }
 
     const result = await docClient.send(new QueryCommand(queryParams));
 
@@ -346,6 +343,11 @@ export class DynamoDBService {
     albums: Album[];
     lastEvaluatedKey?: Record<string, unknown>;
   }> {
+    // If tag filtering is requested, use the new efficient method with isPublic
+    if (tag) {
+      return this.listAlbumsByTag(tag, limit, lastEvaluatedKey, isPublic);
+    }
+
     const isPublicString = isPublic.toString();
 
     // Build query parameters
@@ -365,13 +367,6 @@ export class DynamoDBService {
       Limit: limit,
       ExclusiveStartKey: lastEvaluatedKey,
     };
-
-    // Add tag filtering if specified
-    if (tag) {
-      queryParams.FilterExpression = "contains(#tags, :tag)";
-      queryParams.ExpressionAttributeNames!["#tags"] = "tags";
-      queryParams.ExpressionAttributeValues![":tag"] = tag;
-    }
 
     const result = await docClient.send(new QueryCommand(queryParams));
 
@@ -405,6 +400,16 @@ export class DynamoDBService {
     albums: Album[];
     lastEvaluatedKey?: Record<string, any>;
   }> {
+    // If tag filtering is requested, use the new efficient GSI3-based method
+    if (tag) {
+      return this.listAlbumsByCreatorAndTag(
+        createdBy,
+        tag,
+        limit,
+        lastEvaluatedKey
+      );
+    }
+
     // Use GSI4 for efficient querying of albums by creator
     // GSI4PK = "ALBUM_BY_CREATOR", GSI4SK = "<createdBy>#<createdAt>#<albumId>"
 
@@ -433,13 +438,6 @@ export class DynamoDBService {
       Limit: limit,
       ExclusiveStartKey: lastEvaluatedKey,
     };
-
-    // Add tag filtering if specified
-    if (tag) {
-      queryParams.FilterExpression = "contains(#tags, :tag)";
-      queryParams.ExpressionAttributeNames!["#tags"] = "tags";
-      queryParams.ExpressionAttributeValues![":tag"] = tag;
-    }
 
     const result = await docClient.send(new QueryCommand(queryParams));
 
@@ -505,6 +503,278 @@ export class DynamoDBService {
     increment: number = 1
   ): Promise<void> {
     return CounterUtil.incrementMediaViewCount(mediaId, increment);
+  }
+
+  // Album-Tag relationship operations
+  static async createAlbumTagRelations(
+    albumId: string,
+    tags: string[],
+    createdAt: string,
+    isPublic: boolean,
+    userId: string
+  ): Promise<void> {
+    if (!tags || tags.length === 0) return;
+
+    const isPublicString = isPublic.toString();
+
+    const albumTagEntities: AlbumTagEntity[] = tags.map((tag) => {
+      const normalizedTag = tag.toLowerCase().trim();
+      return {
+        PK: `ALBUM_TAG#${normalizedTag}`,
+        SK: `ALBUM#${albumId}#${createdAt}`,
+        GSI1PK: "ALBUM_TAG",
+        GSI1SK: `${normalizedTag}#${createdAt}#${albumId}`,
+        GSI2PK: `ALBUM_TAG#${normalizedTag}#${isPublicString}`,
+        GSI2SK: createdAt,
+        GSI3PK: `ALBUM_TAG#${userId}#${isPublicString}`,
+        GSI3SK: `${normalizedTag}#${createdAt}`,
+        EntityType: "AlbumTag",
+        albumId,
+        userId,
+        tag,
+        normalizedTag,
+        createdAt,
+        isPublic: isPublicString,
+      };
+    });
+
+    // Use batch write for efficiency
+    const batchWritePromises = [];
+    const BATCH_SIZE = 25; // DynamoDB batch limit
+
+    for (let i = 0; i < albumTagEntities.length; i += BATCH_SIZE) {
+      const batch = albumTagEntities.slice(i, i + BATCH_SIZE);
+      const putRequests = batch.map((entity) => ({
+        PutRequest: { Item: entity },
+      }));
+
+      batchWritePromises.push(
+        docClient.send(
+          new BatchWriteCommand({
+            RequestItems: {
+              [TABLE_NAME]: putRequests,
+            },
+          })
+        )
+      );
+    }
+
+    await Promise.all(batchWritePromises);
+  }
+
+  static async deleteAlbumTagRelations(albumId: string): Promise<void> {
+    // Find all tag relations for this album using the main table
+    // We query by PK pattern ALBUM_TAG#* and filter by SK containing our albumId
+
+    // Since we can't efficiently query across multiple ALBUM_TAG# partitions,
+    // we'll need to scan or query via GSI1 where all album tags have GSI1PK = "ALBUM_TAG"
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI1",
+        KeyConditionExpression: "GSI1PK = :gsi1pk",
+        FilterExpression: "albumId = :albumId",
+        ExpressionAttributeValues: {
+          ":gsi1pk": "ALBUM_TAG",
+          ":albumId": albumId,
+        },
+      })
+    );
+
+    const albumTagEntities = (result.Items as AlbumTagEntity[]) || [];
+
+    if (albumTagEntities.length === 0) return;
+
+    // Delete all found album-tag relations
+    const deletePromises = albumTagEntities.map((entity) =>
+      docClient.send(
+        new DeleteCommand({
+          TableName: TABLE_NAME,
+          Key: {
+            PK: entity.PK,
+            SK: entity.SK,
+          },
+        })
+      )
+    );
+
+    await Promise.all(deletePromises);
+  }
+
+  static async updateAlbumTagRelations(
+    albumId: string,
+    newTags: string[],
+    createdAt: string,
+    isPublic: boolean,
+    userId: string
+  ): Promise<void> {
+    // Delete existing relations
+    await this.deleteAlbumTagRelations(albumId);
+
+    // Create new relations
+    await this.createAlbumTagRelations(
+      albumId,
+      newTags,
+      createdAt,
+      isPublic,
+      userId
+    );
+  }
+
+  static async listAlbumsByTag(
+    tag: string,
+    limit: number = 20,
+    lastEvaluatedKey?: Record<string, unknown>,
+    isPublic?: boolean
+  ): Promise<{
+    albums: Album[];
+    lastEvaluatedKey?: Record<string, unknown>;
+  }> {
+    const normalizedTag = tag.toLowerCase().trim();
+
+    // Use GSI2 for efficient tag filtering
+    // If isPublic is specified, include it in GSI2PK for maximum efficiency
+    let gsi2pk: string;
+    if (isPublic !== undefined) {
+      gsi2pk = `ALBUM_TAG#${normalizedTag}#${isPublic.toString()}`;
+    } else {
+      // If isPublic is not specified, we need to query both public and private
+      // For now, let's query public albums by default (most common case)
+      // TODO: Implement pagination across multiple GSI2PK values for full coverage
+      gsi2pk = `ALBUM_TAG#${normalizedTag}#true`;
+    }
+
+    const queryParams: QueryCommandInput = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI2",
+      KeyConditionExpression: "GSI2PK = :gsi2pk",
+      ExpressionAttributeValues: {
+        ":gsi2pk": gsi2pk,
+      },
+      ScanIndexForward: false, // Most recent first (descending order by createdAt)
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey,
+    };
+
+    const result = await docClient.send(new QueryCommand(queryParams));
+    const albumTagEntities = (result.Items as AlbumTagEntity[]) || [];
+
+    // Get the actual album records
+    const albumPromises = albumTagEntities.map((tagEntity) =>
+      this.getAlbum(tagEntity.albumId)
+    );
+
+    const albumResults = await Promise.all(albumPromises);
+    const albums = albumResults.filter((album) => album !== null) as Album[];
+
+    const response: {
+      albums: Album[];
+      lastEvaluatedKey?: Record<string, unknown>;
+    } = { albums };
+
+    if (result.LastEvaluatedKey) {
+      response.lastEvaluatedKey = result.LastEvaluatedKey;
+    }
+
+    return response;
+  }
+
+  static async listAlbumsByCreatorAndTag(
+    userId: string,
+    tag?: string,
+    limit: number = 20,
+    lastEvaluatedKey?: Record<string, unknown>,
+    isPublic?: boolean
+  ): Promise<{
+    albums: Album[];
+    lastEvaluatedKey?: Record<string, unknown>;
+  }> {
+    // If no tag is specified, fall back to regular listAlbumsByCreator
+    if (!tag) {
+      return this.listAlbumsByCreator(userId, limit, lastEvaluatedKey);
+    }
+
+    const normalizedTag = tag.toLowerCase().trim();
+
+    // Use GSI3 for efficient creator + tag filtering
+    // If isPublic is specified, include it in GSI3PK for maximum efficiency
+    let gsi3pk: string;
+    if (isPublic !== undefined) {
+      gsi3pk = `ALBUM_TAG#${userId}#${isPublic.toString()}`;
+    } else {
+      // If isPublic is not specified, query both public and private by default
+      // For now, let's start with public (most common case)
+      // TODO: Implement pagination across multiple GSI3PK values for full coverage
+      gsi3pk = `ALBUM_TAG#${userId}#true`;
+    }
+
+    const queryParams: QueryCommandInput = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI3",
+      KeyConditionExpression:
+        "GSI3PK = :gsi3pk AND begins_with(GSI3SK, :tagPrefix)",
+      ExpressionAttributeValues: {
+        ":gsi3pk": gsi3pk,
+        ":tagPrefix": `${normalizedTag}#`,
+      },
+      ScanIndexForward: false, // Most recent first (descending order by createdAt)
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey,
+    };
+
+    const result = await docClient.send(new QueryCommand(queryParams));
+    const albumTagEntities = (result.Items as AlbumTagEntity[]) || [];
+
+    // Get the actual album records
+    const albumPromises = albumTagEntities.map((tagEntity) =>
+      this.getAlbum(tagEntity.albumId)
+    );
+
+    const albumResults = await Promise.all(albumPromises);
+    const albums = albumResults.filter((album) => album !== null) as Album[];
+
+    const response: {
+      albums: Album[];
+      lastEvaluatedKey?: Record<string, unknown>;
+    } = { albums };
+
+    if (result.LastEvaluatedKey) {
+      response.lastEvaluatedKey = result.LastEvaluatedKey;
+    }
+
+    return response;
+  }
+
+  static async getAllTagsWithCounts(): Promise<
+    Array<{ tag: string; count: number }>
+  > {
+    // Query all album-tag relations via GSI1
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI1",
+        KeyConditionExpression: "GSI1PK = :gsi1pk",
+        ExpressionAttributeValues: {
+          ":gsi1pk": "ALBUM_TAG",
+        },
+        ProjectionExpression: "normalizedTag",
+      })
+    );
+
+    const albumTagEntities =
+      (result.Items as Pick<AlbumTagEntity, "normalizedTag">[]) || [];
+
+    // Count occurrences of each tag
+    const tagCounts = albumTagEntities.reduce((acc, entity) => {
+      const tag = entity.normalizedTag;
+      acc[tag] = (acc[tag] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Convert to array and sort by count descending
+    return Object.entries(tagCounts)
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count);
   }
 
   // Media operations - NEW DESIGN: Media can belong to multiple albums

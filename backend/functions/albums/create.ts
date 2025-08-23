@@ -159,6 +159,28 @@ const handleCreateAlbum = async (
 
   await DynamoDBService.createAlbum(albumEntity);
 
+  // Create Album-Tag relationships if tags are provided
+  if (tags && tags.length > 0) {
+    try {
+      await DynamoDBService.createAlbumTagRelations(
+        albumId,
+        tags,
+        now,
+        isPublicValue,
+        userId
+      );
+      console.log(
+        `🏷️ Created ${tags.length} tag relations for album: ${albumId}`
+      );
+    } catch (error) {
+      console.warn(
+        `⚠️ Failed to create tag relations for album ${albumId}:`,
+        error
+      );
+      // Don't fail album creation if tag relations fail
+    }
+  }
+
   // Increment user's totalAlbums metric
   try {
     await DynamoDBService.incrementUserProfileMetric(userId, "totalAlbums");

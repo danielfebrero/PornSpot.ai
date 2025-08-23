@@ -63,6 +63,18 @@ const handleDeleteAlbum = async (
   // Clean up interactions (likes/bookmarks) for the album itself
   await DynamoDBService.deleteAllInteractionsForTarget(albumId);
 
+  // Delete Album-Tag relationships
+  try {
+    await DynamoDBService.deleteAlbumTagRelations(albumId);
+    console.log(`🏷️ Deleted tag relations for album: ${albumId}`);
+  } catch (error) {
+    console.warn(
+      `⚠️ Failed to delete tag relations for album ${albumId}:`,
+      error
+    );
+    // Don't fail album deletion if tag relations cleanup fails
+  }
+
   // Delete the album
   await DynamoDBService.deleteAlbum(albumId);
 
