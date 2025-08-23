@@ -84,7 +84,7 @@ const LORA_MODELS = [
 
 export function GenerateClient() {
   const magicTextRef = useRef<MagicTextHandle>(null);
-  const { fetchConnectionId } = useWebSocket();
+  const { fetchConnectionId, isConnected } = useWebSocket();
 
   // Use GenerationContext for all generation state and functionality
   const {
@@ -292,18 +292,9 @@ export function GenerateClient() {
   }, [generatedImages, setAllGeneratedImages, setShowProgressCard]);
 
   useEffect(() => {
+    if (!isConnected) return;
     fetchConnectionId();
-  }, [fetchConnectionId]);
-
-  // Also hide progress card if generation fails
-  // React.useEffect(() => {
-  //   if (error && !isGenerating) {
-  //     // Keep the progress card visible for a moment to show the error, then hide
-  //     setTimeout(() => {
-  //       setShowProgressCard(false);
-  //     }, 3000);
-  //   }
-  // }, [error, isGenerating]);
+  }, [fetchConnectionId, isConnected]);
 
   return (
     <div
