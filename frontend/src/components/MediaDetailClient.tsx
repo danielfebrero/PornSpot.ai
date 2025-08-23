@@ -475,7 +475,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                     showArrows={true}
                     className="w-full"
                   >
-                    {media.bulkSiblings.map((sibling: MediaWithSiblings) => (
+                    {media.bulkSiblings.map((sibling: Media, index: number) => (
                       <ContentCard
                         item={sibling}
                         key={sibling.id}
@@ -483,6 +483,8 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                         canBookmark={true}
                         canLike={true}
                         canAddToAlbum={true}
+                        mediaList={media.bulkSiblings}
+                        currentIndex={index}
                       />
                     ))}
                   </HorizontalScroll>
