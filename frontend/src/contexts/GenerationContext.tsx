@@ -139,10 +139,6 @@ interface GenerationContextType {
 
   // Generation methods
   generateImages: (request: GenerationSettings) => Promise<void>;
-  optimizePrompt: (
-    prompt: string,
-    onToken?: (token: string, fullText: string) => void
-  ) => Promise<string>;
   clearResults: () => void;
   stopGeneration: () => void;
 
@@ -661,22 +657,6 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
     ]
   );
 
-  const optimizePrompt = useCallback(
-    async (
-      prompt: string,
-      onToken?: (token: string, fullText: string) => void
-    ): Promise<string> => {
-      // DEPRECATED: Prompt optimization is now handled automatically by the backend
-      // during the generateImages call when optimizePrompt: true is set.
-      // This function is kept for backward compatibility but just returns the original prompt.
-      console.warn(
-        "optimizePrompt is deprecated. Use generateImages with optimizePrompt: true instead."
-      );
-      return prompt;
-    },
-    []
-  );
-
   const clearResults = useCallback(() => {
     setUiState((prev) => ({
       ...prev,
@@ -944,7 +924,6 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
 
     // Generation methods
     generateImages,
-    optimizePrompt,
     clearResults,
     stopGeneration,
 
