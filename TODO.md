@@ -36,7 +36,7 @@
 
 [ ] Migrate to React.js 19.
 
-[ ] Implement forgot password page.
+[x] Implement forgot password page.
 
 [x] Always show lora models and strength on media page, even if selected automatically.
 

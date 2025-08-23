@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocaleRouter } from "@/lib/navigation";
 import { Button } from "@/components/ui/Button";
-import { useVerifyEmail, useCheckAuth } from "@/hooks/queries/useUserQuery";
+import { useVerifyEmail } from "@/hooks/queries/useUserQuery";
 import { useUserContext } from "@/contexts/UserContext";
 
 type VerificationState = "loading" | "success" | "error" | "invalid";
@@ -12,9 +12,8 @@ type VerificationState = "loading" | "success" | "error" | "invalid";
 export function VerifyEmailClient() {
   const [state, setState] = useState<VerificationState>("loading");
   const [message, setMessage] = useState("");
-  const { user } = useUserContext();
+  const { user, checkAuth } = useUserContext();
   const verifyEmailMutation = useVerifyEmail();
-  const checkAuthMutation = useCheckAuth();
   const searchParams = useSearchParams();
   const router = useLocaleRouter();
   const hasVerifiedRef = useRef(false);
@@ -43,7 +42,7 @@ export function VerifyEmailClient() {
           "Your email has been successfully verified and you're now signed in!"
         );
 
-        await checkAuthMutation.mutateAsync();
+        await checkAuth();
       } catch (err) {
         setState("error");
         setMessage(
@@ -53,7 +52,7 @@ export function VerifyEmailClient() {
         );
       }
     },
-    [verifyEmailMutation, checkAuthMutation]
+    [verifyEmailMutation, checkAuth]
   );
 
   useEffect(() => {

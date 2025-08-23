@@ -1712,8 +1712,8 @@ Resources:
               Action:
                 - ssm:GetParameter
               Resource:
-                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Environment}/pornspot/sendgrid-api-key"
-                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Environment}/pornspot/frontend-url"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/sendgrid-api-key"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/frontend-url"
 
   UserResetPasswordFunction:
     Type: AWS::Serverless::Function
@@ -1745,6 +1745,11 @@ Resources:
             TableName: !Ref MediaTable
         - DynamoDBWritePolicy:
             TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:DeleteItem
+              Resource: !GetAtt MediaTable.Arn
 
   UserDeleteAccountFunction:
     Type: AWS::Serverless::Function

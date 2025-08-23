@@ -67,3 +67,5 @@
 [x] On mobile, cannot pinch and zoom on an image because of swipe gesture.
 
 [x] After deleting my account, cannot sign in with Google.
+
+[ ] Auto signing after verify email did not work.
