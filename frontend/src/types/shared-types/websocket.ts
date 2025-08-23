@@ -6,7 +6,6 @@ export interface WebSocketMessage {
   data?: any;
   requestId?: string;
   type?: string;
-  tabId?: string; // Added tabId for tab-specific filtering
 }
 
 export interface GenerationWebSocketMessage {
@@ -29,7 +28,6 @@ export interface GenerationWebSocketMessage {
     | "optimization_error"
     | "prompt-moderation";
   connectionId?: string; // Added connectionId to track the connection
-  tabId?: string; // Added tabId to track which tab initiated the generation
   queueId?: string;
   queuePosition?: number;
   estimatedWaitTime?: number;
