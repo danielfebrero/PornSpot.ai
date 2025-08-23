@@ -295,7 +295,8 @@ export default function AdminUsersPage() {
                           <span className="flex items-center space-x-1">
                             <Clock className="w-3 h-3" />
                             <span>
-                              Last active {formatDistanceToNow(user.lastActive)}
+                              Last active{" "}
+                              {formatDistanceToNow(user.lastActive!)}
                             </span>
                           </span>
                         )}
