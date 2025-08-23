@@ -4,6 +4,7 @@ export { interactionApi } from "./interactions";
 export { albumsApi } from "./albums";
 export { adminAlbumsApi } from "./admin-albums";
 export { adminMediaApi } from "./admin-media";
+export { adminUsersApi } from "./admin-users";
 export { mediaApi } from "./media";
 export { contentApi } from "./content";
 

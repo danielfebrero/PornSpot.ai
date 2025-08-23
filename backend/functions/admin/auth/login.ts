@@ -16,8 +16,14 @@ const handleAdminLogin = async (
   const request: LoginRequest = LambdaHandlerUtil.parseJsonBody(event);
 
   // Validate input using shared validation
-  const username = ValidationUtil.validateRequiredString(request.username, "Username");
-  const password = ValidationUtil.validateRequiredString(request.password, "Password");
+  const username = ValidationUtil.validateRequiredString(
+    request.username,
+    "Username"
+  );
+  const password = ValidationUtil.validateRequiredString(
+    request.password,
+    "Password"
+  );
 
   // Look for user by username (admins are now users with role="admin")
   const userEntity = await DynamoDBService.getUserByUsername(username);
@@ -31,7 +37,7 @@ const handleAdminLogin = async (
     }
   }
 
-  const user = userEntity || await DynamoDBService.getUserByEmail(username);
+  const user = userEntity || (await DynamoDBService.getUserByEmail(username));
 
   if (!user) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -70,6 +76,8 @@ const handleAdminLogin = async (
     SK: "METADATA",
     GSI1PK: "USER_SESSION_EXPIRY",
     GSI1SK: `${expiresAt.toISOString()}#${sessionId}`,
+    GSI2PK: `USER#${user.userId}#SESSION`,
+    GSI2SK: `${now.toISOString()}#${sessionId}`,
     EntityType: "UserSession",
     sessionId,
     userId: user.userId,
@@ -98,7 +106,9 @@ const handleAdminLogin = async (
     expiresAt.toISOString()
   );
 
-  console.log(`🔑 Admin ${username} logged in successfully (role: ${user.role})`);
+  console.log(
+    `🔑 Admin ${username} logged in successfully (role: ${user.role})`
+  );
 
   const successResponse = ResponseUtil.success(event, responseData);
   successResponse.headers = {

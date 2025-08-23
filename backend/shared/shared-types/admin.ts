@@ -68,3 +68,11 @@ export interface AdminStats {
   storageUsed: string;
   storageUsedBytes: number;
 }
+
+export interface DisableUserRequest {
+  userId: string;
+}
+
+export interface EnableUserRequest {
+  userId: string;
+}

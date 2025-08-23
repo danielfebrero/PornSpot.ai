@@ -18,13 +18,6 @@ import {
 // Types - using shared request types
 type CreateAlbumData = CreateAlbumRequest;
 type UpdateAlbumData = UpdateAlbumRequest;
-
-interface AlbumMediaResponse {
-  media: Media[];
-  nextCursor: string | undefined;
-  hasNext: boolean;
-}
-
 interface AlbumsQueryParams {
   user?: string;
   isPublic?: boolean;
@@ -103,32 +96,6 @@ export function useAlbum(albumId: string, options?: { enabled?: boolean }) {
     staleTime: 2 * 60 * 1000,
     // Enable refetch on window focus for album details
     refetchOnWindowFocus: true,
-  });
-}
-
-// Hook for fetching album media with infinite scroll
-export function useAlbumMedia(
-  albumId: string,
-  params: { limit?: number } = {},
-  options?: { enabled?: boolean }
-) {
-  return useInfiniteQuery({
-    queryKey: queryKeys.albums.media(albumId, params),
-    queryFn: async ({ pageParam }) => {
-      // Note: This would require implementing getAlbumMedia in albumsApi
-      // For now, we'll return mock data structure
-      return {
-        media: [],
-        nextCursor: pageParam,
-        hasNext: false,
-      };
-    },
-    initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage: AlbumMediaResponse) => {
-      return lastPage.hasNext ? lastPage.nextCursor : undefined;
-    },
-    enabled: !!albumId && options?.enabled !== false,
-    staleTime: 60 * 1000, // 1 minute
   });
 }
 

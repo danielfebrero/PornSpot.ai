@@ -184,6 +184,8 @@ export interface UserSessionEntity extends BaseEntity {
   SK: string; // METADATA
   GSI1PK: string; // USER_SESSION_EXPIRY
   GSI1SK: string; // {expiresAt}#{sessionId}
+  GSI2PK: string; // USER#{userId}#SESSION
+  GSI2SK: string; // {createdAt}#{sessionId}
   EntityType: "UserSession";
   sessionId: string;
   userId: string;

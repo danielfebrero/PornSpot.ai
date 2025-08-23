@@ -67,6 +67,8 @@ export class SessionUtil {
       SK: "METADATA",
       GSI1PK: "USER_SESSION_EXPIRY",
       GSI1SK: `${expiresAt.toISOString()}#${sessionId}`,
+      GSI2PK: `USER#${userId}#SESSION`,
+      GSI2SK: `${now.toISOString()}#${sessionId}`,
       EntityType: "UserSession",
       sessionId,
       userId,

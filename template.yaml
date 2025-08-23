@@ -1406,6 +1406,94 @@ Resources:
         - S3ReadPolicy:
             BucketName: !Ref MediaBucket
 
+  # Admin Users Functions
+  AdminUsersListFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-admin-users-list"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/admin/users/list.handler"]
+      Events:
+        GetUsersList:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/users/list
+            Method: GET
+            Auth:
+              Authorizer: AdminAuthorizer
+        OptionsUsersList:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/users/list
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
+  AdminUsersDisableFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-admin-users-disable"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/admin/users/disable.handler"]
+      Events:
+        DisableUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/users/disable
+            Method: POST
+            Auth:
+              Authorizer: AdminAuthorizer
+        OptionsDisableUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/users/disable
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaTable
+
+  AdminUsersEnableFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-admin-users-enable"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/admin/users/enable.handler"]
+      Events:
+        EnableUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/users/enable
+            Method: POST
+            Auth:
+              Authorizer: AdminAuthorizer
+        OptionsEnableUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/users/enable
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaTable
+
   # User Authentication Functions
   UserRegisterFunction:
     Type: AWS::Serverless::Function

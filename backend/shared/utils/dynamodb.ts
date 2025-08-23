@@ -1330,6 +1330,46 @@ export class DynamoDBService {
     );
   }
 
+  static async getAllUsers(
+    limit: number = 50,
+    lastEvaluatedKey?: any
+  ): Promise<{
+    users: UserEntity[];
+    lastEvaluatedKey?: any;
+  }> {
+    console.log("[DynamoDB] getAllUsers called with:", {
+      limit,
+      lastEvaluatedKey,
+    });
+
+    // Query GSI1 to get all users by USER_EMAIL
+    const queryParams: any = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI1",
+      KeyConditionExpression: "GSI1PK = :gsi1pk",
+      ExpressionAttributeValues: {
+        ":gsi1pk": "USER_EMAIL",
+      },
+      Limit: limit,
+    };
+
+    if (lastEvaluatedKey) {
+      queryParams.ExclusiveStartKey = lastEvaluatedKey;
+    }
+
+    const result = await docClient.send(new QueryCommand(queryParams));
+
+    console.log("[DynamoDB] getAllUsers result:", {
+      itemsCount: result.Items?.length || 0,
+      hasMorePages: !!result.LastEvaluatedKey,
+    });
+
+    return {
+      users: (result.Items || []) as UserEntity[],
+      lastEvaluatedKey: result.LastEvaluatedKey,
+    };
+  }
+
   // User session operations
   static async createUserSession(session: UserSessionEntity): Promise<void> {
     try {
@@ -1420,6 +1460,56 @@ export class DynamoDBService {
           ":lastAccessedAt": new Date().toISOString(),
         },
       })
+    );
+  }
+
+  static async deleteUserSessionsByUserId(userId: string): Promise<void> {
+    console.log(
+      "[DynamoDB] deleteUserSessionsByUserId called with userId:",
+      userId
+    );
+
+    // Query all sessions for this user using GSI2
+    const queryParams = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI2",
+      KeyConditionExpression: "GSI2PK = :gsi2pk",
+      ExpressionAttributeValues: {
+        ":gsi2pk": `USER#${userId}#SESSION`,
+      },
+    };
+
+    const result = await docClient.send(new QueryCommand(queryParams));
+
+    if (!result.Items || result.Items.length === 0) {
+      console.log("[DynamoDB] No sessions found for user:", userId);
+      return;
+    }
+
+    // Delete all sessions found
+    const deleteRequests = result.Items.map((session: any) => ({
+      DeleteRequest: {
+        Key: {
+          PK: session.PK,
+          SK: session.SK,
+        },
+      },
+    }));
+
+    // Batch delete sessions (max 25 items per batch)
+    for (let i = 0; i < deleteRequests.length; i += 25) {
+      const batch = deleteRequests.slice(i, i + 25);
+      await docClient.send(
+        new BatchWriteCommand({
+          RequestItems: {
+            [TABLE_NAME]: batch,
+          },
+        })
+      );
+    }
+
+    console.log(
+      `[DynamoDB] Deleted ${deleteRequests.length} sessions for user ${userId}`
     );
   }
 

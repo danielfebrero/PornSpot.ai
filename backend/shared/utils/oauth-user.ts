@@ -131,6 +131,11 @@ export class OAuthUserUtil {
     const existingEmailUser = await DynamoDBService.getUserByEmail(email);
 
     if (existingEmailUser) {
+      // Check if user is active
+      if (!existingEmailUser.isActive) {
+        throw new Error("Account has been disabled. Please contact support.");
+      }
+
       // Link Google account to existing user
       await this.linkGoogleToUser(existingEmailUser.userId, googleId);
 

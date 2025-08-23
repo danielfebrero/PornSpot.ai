@@ -72,6 +72,14 @@ const handleLogin = async (
     return ResponseUtil.unauthorized(event, "Invalid email or password");
   }
 
+  // Check if user is active
+  if (!userEntity.isActive) {
+    return ResponseUtil.unauthorized(
+      event,
+      "Account has been disabled. Please contact support."
+    );
+  }
+
   // Create user session with auto sign-in
   return SessionUtil.createUserSessionResponse(
     event,
