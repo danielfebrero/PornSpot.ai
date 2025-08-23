@@ -54,24 +54,23 @@ export const Lightbox: React.FC<LightboxProps> = ({
   const { preloadAroundIndex } = useLightboxPreloader(media, currentIndex);
 
   // Handle advanced gestures with preview and zoom support
-  const { containerRef, dragOffset, isDragging, isPinching } =
-    useAdvancedGestures({
-      // Swiping left should navigate to the NEXT item (content moves left)
-      onSwipeLeft: () => {
-        if (currentIndex < media.length - 1 || hasNextPage) {
-          setIsPlayingVideo(false); // Stop video when navigating
-          onNext();
-        }
-      },
-      // Swiping right should navigate to the PREVIOUS item (content moves right)
-      onSwipeRight: () => {
-        if (currentIndex > 0) {
-          setIsPlayingVideo(false); // Stop video when navigating
-          onPrevious();
-        }
-      },
-      enablePreview: true,
-    });
+  const { containerRef, dragOffset, isPinching } = useAdvancedGestures({
+    // Swiping left should navigate to the NEXT item (content moves left)
+    onSwipeLeft: () => {
+      if (currentIndex < media.length - 1 || hasNextPage) {
+        setIsPlayingVideo(false); // Stop video when navigating
+        onNext();
+      }
+    },
+    // Swiping right should navigate to the PREVIOUS item (content moves right)
+    onSwipeRight: () => {
+      if (currentIndex > 0) {
+        setIsPlayingVideo(false); // Stop video when navigating
+        onPrevious();
+      }
+    },
+    enablePreview: true,
+  });
 
   // Trigger preloading when lightbox opens or index changes
   useEffect(() => {
@@ -89,7 +88,12 @@ export const Lightbox: React.FC<LightboxProps> = ({
       onLoadMore &&
       currentIndex >= media.length - 3 // Load more when 3 items from the end
     ) {
-      onLoadMore();
+      // Use a small timeout to debounce rapid navigation
+      const timeoutId = setTimeout(() => {
+        onLoadMore();
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
     }
   }, [
     isOpen,
@@ -175,24 +179,34 @@ export const Lightbox: React.FC<LightboxProps> = ({
 
   // Handle browser back button to close lightbox
   useEffect(() => {
+    if (!isOpen) return;
+
+    // Track if we've already added a history state to avoid duplicates
+    let historyAdded = false;
+
+    // Add a dummy history entry when lightbox opens (only once)
+    if (!window.history.state?.lightbox) {
+      window.history.pushState({ lightbox: true }, "", window.location.href);
+      historyAdded = true;
+    }
+
     const handlePopState = () => {
-      if (isOpen) {
-        handleClose();
-      }
+      // Use the current onClose directly to avoid stale closure
+      onClose();
     };
 
-    if (isOpen) {
-      // Add a dummy history entry when lightbox opens
-      window.history.pushState({ lightbox: true }, "", window.location.href);
-
-      // Listen for popstate events (back button)
-      window.addEventListener("popstate", handlePopState);
-    }
+    // Listen for popstate events (back button)
+    window.addEventListener("popstate", handlePopState);
 
     return () => {
       window.removeEventListener("popstate", handlePopState);
+      // Only clean up history if we added it in this effect
+      if (historyAdded && window.history.state?.lightbox) {
+        // Don't call history.back() in cleanup as it might interfere with normal navigation
+        // Let the handleClose in the component handle history cleanup when needed
+      }
     };
-  }, [isOpen, handleClose]);
+  }, [isOpen, onClose]);
 
   // Prevent body scroll when lightbox is open
   useEffect(() => {

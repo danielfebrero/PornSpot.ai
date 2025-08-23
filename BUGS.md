@@ -68,4 +68,6 @@
 
 [x] After deleting my account, cannot sign in with Google.
 
-[ ] Auto signing after verify email did not work.
+[x] Auto signing after verify email did not work.
+
+[ ] Trop d’appels aux API Location ou History dans un court laps de temps dans Lightbox.
