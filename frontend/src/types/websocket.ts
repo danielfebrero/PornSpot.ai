@@ -12,6 +12,7 @@ export interface GenerationQueueStatus {
 export interface WebSocketContextType {
   isConnected: boolean;
   connectionId: string | null;
+  fetchConnectionId: () => void;
   connect: () => void;
   disconnect: () => void;
   subscribe: (callback: (message: GenerationWebSocketMessage) => void) => void;

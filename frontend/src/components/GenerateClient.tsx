@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -84,6 +84,7 @@ const LORA_MODELS = [
 
 export function GenerateClient() {
   const magicTextRef = useRef<MagicTextHandle>(null);
+  const { fetchConnectionId } = useWebSocket();
 
   // Use GenerationContext for all generation state and functionality
   const {
@@ -259,7 +260,7 @@ export function GenerateClient() {
   };
 
   // Update prompt when optimized prompt is received from backend
-  React.useEffect(() => {
+  useEffect(() => {
     if (optimizationStream !== null) {
       // Cache the optimized prompt
       setOptimizedPromptCache(optimizationStream);
@@ -270,7 +271,7 @@ export function GenerateClient() {
   }, [optimizationStream, setOptimizedPromptCache, updateSettings]);
 
   // Handle optimization stream for real-time MagicText updates
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       isOptimizing &&
       optimizationStream &&
@@ -283,12 +284,16 @@ export function GenerateClient() {
   }, [optimizationStream, isOptimizing, showMagicText, optimizationToken]);
 
   // Update allGeneratedImages when new images are generated and hide progress card
-  React.useEffect(() => {
+  useEffect(() => {
     if (generatedImages.length > 0) {
       setAllGeneratedImages((prev) => [...generatedImages, ...prev]);
       setShowProgressCard(false); // Hide progress card when images are received
     }
   }, [generatedImages, setAllGeneratedImages, setShowProgressCard]);
+
+  useEffect(() => {
+    fetchConnectionId();
+  }, [fetchConnectionId]);
 
   // Also hide progress card if generation fails
   // React.useEffect(() => {
