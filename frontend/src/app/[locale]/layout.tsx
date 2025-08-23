@@ -126,32 +126,32 @@ export default async function LocaleLayout({
                       <AdminProvider>
                         <GenerationProvider>
                           <NavigationLoadingProvider>
-                          <LanguageRedirect />
-                          <div className="min-h-screen bg-background flex flex-col">
-                            <SectionErrorBoundary context="Header">
-                              <Header />
-                            </SectionErrorBoundary>
-                            <SectionErrorBoundary context="Main Content">
-                              <MainContentWrapper>
-                                {children}
-                              </MainContentWrapper>
-                            </SectionErrorBoundary>
-                            <SectionErrorBoundary context="Footer">
-                              <footer className="border-t border-border mt-16 pb-[55px] lg:pb-0">
-                                <div className="container mx-auto py-4">
-                                  <div className="text-center">
-                                    <p className="text-muted-foreground">
-                                      &copy; 2024 PornSpot.ai. All rights
-                                      reserved.
-                                    </p>
+                            <LanguageRedirect />
+                            <div className="min-h-screen bg-background flex flex-col">
+                              <SectionErrorBoundary context="Header">
+                                <Header />
+                              </SectionErrorBoundary>
+                              <SectionErrorBoundary context="Main Content">
+                                <MainContentWrapper>
+                                  {children}
+                                </MainContentWrapper>
+                              </SectionErrorBoundary>
+                              <SectionErrorBoundary context="Footer">
+                                <footer className="border-t border-border mt-16 pb-[55px] lg:pb-0">
+                                  <div className="container mx-auto py-4">
+                                    <div className="text-center">
+                                      <p className="text-muted-foreground">
+                                        &copy; 2024 PornSpot.ai. All rights
+                                        reserved.
+                                      </p>
+                                    </div>
                                   </div>
-                                </div>
-                              </footer>
-                            </SectionErrorBoundary>
-                          </div>
-                          <NavigationLoadingOverlay />
-                          <MobileNavigationWrapper />
-                        </NavigationLoadingProvider>
+                                </footer>
+                              </SectionErrorBoundary>
+                            </div>
+                            <NavigationLoadingOverlay />
+                            <MobileNavigationWrapper />
+                          </NavigationLoadingProvider>
                         </GenerationProvider>
                       </AdminProvider>
                     </PermissionsWrapper>

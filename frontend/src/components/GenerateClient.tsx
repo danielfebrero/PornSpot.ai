@@ -214,7 +214,9 @@ export function GenerateClient() {
 
   // Lightbox navigation handlers
   const handleLightboxNext = () => {
-    setLightboxIndex(Math.min(lightboxIndex + 1, filteredAllGeneratedImages.length - 1));
+    setLightboxIndex(
+      Math.min(lightboxIndex + 1, filteredAllGeneratedImages.length - 1)
+    );
   };
 
   const handleLightboxPrevious = () => {

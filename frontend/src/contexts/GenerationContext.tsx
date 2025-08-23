@@ -58,8 +58,12 @@ interface GenerationContextType {
 
   // UI state
   uiState: GenerationUIState;
-  setAllGeneratedImages: (images: Media[] | ((prev: Media[]) => Media[])) => void;
-  setDeletedImageIds: (ids: Set<string> | ((prev: Set<string>) => Set<string>)) => void;
+  setAllGeneratedImages: (
+    images: Media[] | ((prev: Media[]) => Media[])
+  ) => void;
+  setDeletedImageIds: (
+    ids: Set<string> | ((prev: Set<string>) => Set<string>)
+  ) => void;
   setLightboxOpen: (open: boolean) => void;
   setLightboxIndex: (index: number) => void;
   setShowMagicText: (show: boolean) => void;
@@ -176,7 +180,9 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
       setUiState((prev) => ({
         ...prev,
         allGeneratedImages:
-          typeof images === "function" ? images(prev.allGeneratedImages) : images,
+          typeof images === "function"
+            ? images(prev.allGeneratedImages)
+            : images,
       }));
     },
     []
@@ -186,7 +192,8 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
     (ids: Set<string> | ((prev: Set<string>) => Set<string>)) => {
       setUiState((prev) => ({
         ...prev,
-        deletedImageIds: typeof ids === "function" ? ids(prev.deletedImageIds) : ids,
+        deletedImageIds:
+          typeof ids === "function" ? ids(prev.deletedImageIds) : ids,
       }));
     },
     []
@@ -230,9 +237,12 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
     }
   }, []);
 
-  const handleDeleteRecentMedia = useCallback((mediaId: string) => {
-    setDeletedImageIds((prev) => new Set(prev).add(mediaId));
-  }, [setDeletedImageIds]);
+  const handleDeleteRecentMedia = useCallback(
+    (mediaId: string) => {
+      setDeletedImageIds((prev) => new Set(prev).add(mediaId));
+    },
+    [setDeletedImageIds]
+  );
 
   const toggleLora = useCallback(
     (loraId: string) => {
@@ -289,21 +299,18 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
     []
   );
 
-  const handleLoraClickInAutoMode = useCallback(
-    (loraId: string) => {
-      // Switch to manual mode and select the clicked LoRA
-      setSettings((prev) => ({
-        ...prev,
-        loraSelectionMode: "manual",
-        selectedLoras: [loraId],
-        loraStrengths: {
-          ...prev.loraStrengths,
-          [loraId]: { mode: "auto", value: 1.0 },
-        },
-      }));
-    },
-    []
-  );
+  const handleLoraClickInAutoMode = useCallback((loraId: string) => {
+    // Switch to manual mode and select the clicked LoRA
+    setSettings((prev) => ({
+      ...prev,
+      loraSelectionMode: "manual",
+      selectedLoras: [loraId],
+      loraStrengths: {
+        ...prev.loraStrengths,
+        [loraId]: { mode: "auto", value: 1.0 },
+      },
+    }));
+  }, []);
 
   const contextValue: GenerationContextType = {
     // Settings
