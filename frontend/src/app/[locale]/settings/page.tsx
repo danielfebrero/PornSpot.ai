@@ -26,6 +26,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
+import { AlertDialog } from "@/components/ui/AlertDialog";
 
 interface LanguageOption {
   code: string;
@@ -72,6 +73,37 @@ export default function SettingsPage() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
+
+  // Alert Dialog states
+  const [alertDialog, setAlertDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    variant: "info" | "success" | "warning" | "error";
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    variant: "info",
+  });
+
+  const showAlert = (title: string, message: string, variant: "info" | "success" | "warning" | "error" = "info") => {
+    setAlertDialog({
+      isOpen: true,
+      title,
+      message,
+      variant,
+    });
+  };
+
+  const closeAlert = () => {
+    setAlertDialog({
+      isOpen: false,
+      title: "",
+      message: "",
+      variant: "info",
+    });
+  };
 
   useEffect(() => {
     // Check if user has a language preference
@@ -151,7 +183,11 @@ export default function SettingsPage() {
         error instanceof Error
           ? error.message
           : "Failed to update language preference";
-      alert(errorMessage);
+      showAlert(
+        tSettings("language.title"),
+        errorMessage,
+        "error"
+      );
     } finally {
       setIsChangingLanguage(false);
     }
@@ -164,12 +200,20 @@ export default function SettingsPage() {
     if (!user || user.googleId) return;
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert(t("auth.validation.passwordsDoNotMatch"));
+      showAlert(
+        tSettings("security.changePassword.title"),
+        t("auth.validation.passwordsDoNotMatch"),
+        "error"
+      );
       return;
     }
 
     if (passwordData.newPassword.length < 8) {
-      alert(t("auth.validation.passwordTooShort"));
+      showAlert(
+        tSettings("security.changePassword.title"),
+        t("auth.validation.passwordTooShort"),
+        "error"
+      );
       return;
     }
 
@@ -186,13 +230,21 @@ export default function SettingsPage() {
         confirmPassword: "",
       });
 
-      alert(tSettings("security.changePassword.success"));
+      showAlert(
+        tSettings("security.changePassword.title"),
+        tSettings("security.changePassword.success"),
+        "success"
+      );
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error
           ? error.message
           : tSettings("messages.updateError");
-      alert(errorMessage);
+      showAlert(
+        tSettings("security.changePassword.title"),
+        errorMessage,
+        "error"
+      );
     } finally {
       setIsChangingPassword(false);
     }
@@ -201,7 +253,11 @@ export default function SettingsPage() {
   // Handle account deletion
   const handleDeleteAccount = async () => {
     if (deleteConfirmation !== "DELETE") {
-      alert("Please type DELETE to confirm");
+      showAlert(
+        tSettings("account.deleteAccount.title"),
+        "Please type DELETE to confirm",
+        "warning"
+      );
       return;
     }
 
@@ -219,7 +275,11 @@ export default function SettingsPage() {
         error instanceof Error
           ? error.message
           : tSettings("messages.updateError");
-      alert(errorMessage);
+      showAlert(
+        tSettings("account.deleteAccount.title"),
+        errorMessage,
+        "error"
+      );
     } finally {
       setIsDeletingAccount(false);
     }
@@ -230,7 +290,11 @@ export default function SettingsPage() {
     setIsUpdating(true);
     try {
       await userApi.cancelSubscription();
-      alert(tSettings("messages.updateSuccess"));
+      showAlert(
+        tSettings("subscription.title"),
+        tSettings("messages.updateSuccess"),
+        "success"
+      );
       setShowCancelSubscription(false);
       // Refresh user data
       window.location.reload();
@@ -239,7 +303,11 @@ export default function SettingsPage() {
         error instanceof Error
           ? error.message
           : tSettings("messages.updateError");
-      alert(errorMessage);
+      showAlert(
+        tSettings("subscription.title"),
+        errorMessage,
+        "error"
+      );
     } finally {
       setIsUpdating(false);
     }
@@ -720,6 +788,15 @@ export default function SettingsPage() {
           </Card>
         </div>
       </div>
+
+      {/* Alert Dialog */}
+      <AlertDialog
+        isOpen={alertDialog.isOpen}
+        onClose={closeAlert}
+        title={alertDialog.title}
+        message={alertDialog.message}
+        variant={alertDialog.variant}
+      />
     </div>
   );
 }

@@ -1655,12 +1655,12 @@ Resources:
       ImageConfig:
         Command: ["functions/user/auth/change-password.handler"]
       Events:
-        PostChangePassword:
+        PutChangePassword:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
             Path: /user/auth/change-password
-            Method: POST
+            Method: PUT
             Auth:
               Authorizer: UserAuthorizer
         OptionsChangePassword:
