@@ -1365,7 +1365,9 @@ export class DynamoDBService {
     });
 
     return {
-      users: (result.Items || []) as UserEntity[],
+      users: (result.Items || []).filter(
+        (item) => item["username"] !== "[deleted]"
+      ) as UserEntity[],
       lastEvaluatedKey: result.LastEvaluatedKey,
     };
   }

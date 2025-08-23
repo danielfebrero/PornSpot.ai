@@ -236,9 +236,7 @@ export default function AdminUsersPage() {
               {allUsers.map((user) => (
                 <div
                   key={user.userId}
-                  className={`flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors ${
-                    !user.isActive ? "opacity-60 bg-red-50 border-red-200" : ""
-                  }`}
+                  className={`flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors`}
                 >
                   <div className="flex items-center space-x-4">
                     <div className="relative">
