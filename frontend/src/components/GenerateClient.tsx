@@ -19,7 +19,7 @@ import { GradientTextarea } from "@/components/ui/GradientTextarea";
 import { MagicText, MagicTextHandle } from "@/components/ui/MagicText";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { useGeneration } from "@/hooks/useGeneration";
-import { GenerationSettings, Media } from "@/types";
+import { useGenerationContext } from "@/contexts/GenerationContext";
 import {
   ImageIcon,
   Crown,
@@ -85,36 +85,33 @@ const LORA_MODELS = [
 export function GenerateClient() {
   const magicTextRef = useRef<MagicTextHandle>(null);
 
-  const [settings, setSettings] = useState<GenerationSettings>({
-    prompt: "",
-    negativePrompt:
-      "ugly, distorted bad teeth, bad hands, distorted face, missing fingers, multiple limbs, distorted arms, distorted legs, low quality, distorted fingers, weird legs, distorted eyes,pixelated, extra fingers, watermark",
-    imageSize: "1024x1024",
-    customWidth: 1024,
-    customHeight: 1024,
-    batchCount: 1,
-    selectedLoras: [],
-    loraStrengths: {},
-    loraSelectionMode: "auto",
-    optimizePrompt: true,
-    isPublic: true, // Default to public
-  });
-
-  const [allGeneratedImages, setAllGeneratedImages] = useState<Media[]>([]);
-  const [deletedImageIds, setDeletedImageIds] = useState<Set<string>>(
-    new Set()
-  );
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [showMagicText, setShowMagicText] = useState(false);
-  const [showProgressCard, setShowProgressCard] = useState(false);
-
-  // Track optimization state to prevent re-optimizing the same prompt
-  const [optimizedPromptCache, setOptimizedPromptCache] = useState<string>("");
-  const [
-    originalPromptBeforeOptimization,
+  // Use GenerationContext instead of local state
+  const {
+    settings,
+    updateSettings,
+    uiState: {
+      allGeneratedImages,
+      deletedImageIds,
+      lightboxOpen,
+      lightboxIndex,
+      showMagicText,
+      showProgressCard,
+      optimizedPromptCache,
+      originalPromptBeforeOptimization,
+    },
+    setAllGeneratedImages,
+    setDeletedImageIds,
+    setLightboxOpen,
+    setLightboxIndex,
+    setShowMagicText,
+    setShowProgressCard,
+    setOptimizedPromptCache,
     setOriginalPromptBeforeOptimization,
-  ] = useState<string>("");
+    handleDeleteRecentMedia,
+    toggleLora,
+    updateLoraStrength,
+    handleLoraClickInAutoMode,
+  } = useGenerationContext();
 
   // Use the new generation hook with WebSocket support
   const {
@@ -169,106 +166,18 @@ export function GenerateClient() {
     (image) => !deletedImageIds.has(image.id)
   );
 
-  const updateSettings = (key: keyof GenerationSettings, value: unknown) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-
-    // If the prompt is being changed manually, clear the optimization cache
-    // This ensures a new/modified prompt can be optimized again
-    if (key === "prompt") {
-      // Only clear cache if the new prompt is different from both the original and optimized versions
-      if (value !== optimizationStream) {
-        setOptimizedPromptCache("");
-        setOriginalPromptBeforeOptimization("");
-      }
-    }
-  };
-
-  const toggleLora = (loraId: string) => {
-    // Only allow toggling in manual mode
-    if (settings.loraSelectionMode === "auto") {
-      return;
-    }
-
-    setSettings((prev) => {
-      const isCurrentlySelected = prev.selectedLoras.includes(loraId);
-
-      if (isCurrentlySelected) {
-        // Remove LoRA and its strength settings
-        const newLoraStrengths = { ...prev.loraStrengths };
-        delete newLoraStrengths[loraId];
-
-        return {
-          ...prev,
-          selectedLoras: prev.selectedLoras.filter((id) => id !== loraId),
-          loraStrengths: newLoraStrengths,
-        };
-      } else {
-        // Add LoRA with default strength settings
-        return {
-          ...prev,
-          selectedLoras: [...prev.selectedLoras, loraId],
-          loraStrengths: {
-            ...prev.loraStrengths,
-            [loraId]: { mode: "auto", value: 1.0 },
-          },
-        };
-      }
-    });
-  };
-
-  const handleLoraClickInAutoMode = (loraId: string) => {
-    // Only Pro users can switch to manual mode and select LoRAs
-    if (!canUseLoras) {
-      return;
-    }
-
-    // Switch to manual mode and select the clicked LoRA
-    setSettings((prev) => ({
-      ...prev,
-      loraSelectionMode: "manual",
-      selectedLoras: [loraId],
-      loraStrengths: {
-        ...prev.loraStrengths,
-        [loraId]: { mode: "auto", value: 1.0 },
-      },
-    }));
-  };
-
-  const updateLoraStrength = (
-    loraId: string,
-    mode: "auto" | "manual",
-    value?: number
-  ) => {
-    setSettings((prev) => ({
-      ...prev,
-      loraStrengths: {
-        ...prev.loraStrengths,
-        [loraId]: {
-          mode,
-          value:
-            value !== undefined
-              ? value
-              : prev.loraStrengths[loraId]?.value || 1.0,
-        },
-      },
-    }));
-  };
-
   const updateLoraSelectionMode = (mode: "auto" | "manual") => {
     if (mode === "manual" && !canUseLoras) {
       // Non-Pro users cannot use manual mode
       return;
     }
-    setSettings((prev) => ({ ...prev, loraSelectionMode: mode }));
+    updateSettings("loraSelectionMode", mode);
   };
 
   // Revert to original prompt before optimization
   const revertToOriginalPrompt = () => {
     if (originalPromptBeforeOptimization) {
-      setSettings((prev) => ({
-        ...prev,
-        prompt: originalPromptBeforeOptimization,
-      }));
+      updateSettings("prompt", originalPromptBeforeOptimization);
       // Clear the optimization cache since we're reverting
       setOptimizedPromptCache("");
       setOriginalPromptBeforeOptimization("");
@@ -303,6 +212,15 @@ export function GenerateClient() {
     );
   };
 
+  // Lightbox navigation handlers
+  const handleLightboxNext = () => {
+    setLightboxIndex(Math.min(lightboxIndex + 1, filteredAllGeneratedImages.length - 1));
+  };
+
+  const handleLightboxPrevious = () => {
+    setLightboxIndex(Math.max(lightboxIndex - 1, 0));
+  };
+
   const handleGenerate = async () => {
     if (!canGenerateImages() || !allowed || !settings.prompt.trim()) return;
 
@@ -335,11 +253,6 @@ export function GenerateClient() {
     // Submit to generation queue - optimization will be handled by backend if enabled
   };
 
-  const handleDeleteRecentMedia = (mediaId: string) => {
-    // Optimistically update the UI
-    setDeletedImageIds((prev) => new Set(prev).add(mediaId));
-  };
-
   // Update prompt when optimized prompt is received from backend
   React.useEffect(() => {
     if (optimizationStream !== null) {
@@ -347,9 +260,9 @@ export function GenerateClient() {
       setOptimizedPromptCache(optimizationStream);
 
       // Update the settings immediately if magic text is not showing
-      setSettings((prev) => ({ ...prev, prompt: optimizationStream }));
+      updateSettings("prompt", optimizationStream);
     }
-  }, [optimizationStream]);
+  }, [optimizationStream, setOptimizedPromptCache, updateSettings]);
 
   // Handle optimization stream for real-time MagicText updates
   React.useEffect(() => {
@@ -370,7 +283,7 @@ export function GenerateClient() {
       setAllGeneratedImages((prev) => [...generatedImages, ...prev]);
       setShowProgressCard(false); // Hide progress card when images are received
     }
-  }, [generatedImages]);
+  }, [generatedImages, setAllGeneratedImages, setShowProgressCard]);
 
   // Also hide progress card if generation fails
   // React.useEffect(() => {
@@ -1335,12 +1248,8 @@ export function GenerateClient() {
             canDelete={true}
             onDelete={handleDeleteRecentMedia}
             onClose={() => setLightboxOpen(false)}
-            onNext={() =>
-              setLightboxIndex((prev) =>
-                Math.min(prev + 1, filteredAllGeneratedImages.length - 1)
-              )
-            }
-            onPrevious={() => setLightboxIndex((prev) => Math.max(prev - 1, 0))}
+            onNext={handleLightboxNext}
+            onPrevious={handleLightboxPrevious}
           />
         </div>
       </div>

@@ -10,6 +10,7 @@ import { NavigationLoadingProvider } from "@/contexts/NavigationLoadingContext";
 import { DeviceProvider } from "@/contexts/DeviceContext";
 import { ReturnUrlProvider } from "@/contexts/ReturnUrlContext";
 import { WebSocketProvider } from "@/contexts/WebSocketContext";
+import { GenerationProvider } from "@/contexts/GenerationContext";
 
 import { Header } from "@/components/Header";
 import { PermissionsWrapper } from "@/components/PermissionsWrapper";
@@ -123,7 +124,8 @@ export default async function LocaleLayout({
                   <UserProvider>
                     <PermissionsWrapper>
                       <AdminProvider>
-                        <NavigationLoadingProvider>
+                        <GenerationProvider>
+                          <NavigationLoadingProvider>
                           <LanguageRedirect />
                           <div className="min-h-screen bg-background flex flex-col">
                             <SectionErrorBoundary context="Header">
@@ -150,6 +152,7 @@ export default async function LocaleLayout({
                           <NavigationLoadingOverlay />
                           <MobileNavigationWrapper />
                         </NavigationLoadingProvider>
+                        </GenerationProvider>
                       </AdminProvider>
                     </PermissionsWrapper>
                   </UserProvider>
