@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { useLocaleRouter } from "@/lib/navigation";
 import { GenerationProgressCard } from "./ui/GenerationProgressCard";
 import { composeMediaUrl } from "@/lib/urlUtils";
+import { useWebSocket } from "@/contexts/WebSocketContext";
 
 const IMAGE_SIZES = [
   {
@@ -108,8 +109,6 @@ export function GenerateClient() {
     setShowProgressCard,
     setOptimizedPromptCache,
     setOriginalPromptBeforeOptimization,
-    setIsGenerating,
-    setIsOptimizing,
     handleDeleteRecentMedia,
     toggleLora,
     updateLoraStrength,

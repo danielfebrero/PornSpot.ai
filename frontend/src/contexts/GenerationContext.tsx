@@ -639,7 +639,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
         }
       }
     },
-    [isConnected, handleWebSocketMessage, subscribe, connectionId, unsubscribe]
+    [isConnected, handleWebSocketMessage, subscribe, unsubscribe, connectionId]
   );
 
   const clearResults = useCallback(() => {
