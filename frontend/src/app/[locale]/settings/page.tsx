@@ -87,7 +87,11 @@ export default function SettingsPage() {
     variant: "info",
   });
 
-  const showAlert = (title: string, message: string, variant: "info" | "success" | "warning" | "error" = "info") => {
+  const showAlert = (
+    title: string,
+    message: string,
+    variant: "info" | "success" | "warning" | "error" = "info"
+  ) => {
     setAlertDialog({
       isOpen: true,
       title,
@@ -183,11 +187,7 @@ export default function SettingsPage() {
         error instanceof Error
           ? error.message
           : "Failed to update language preference";
-      showAlert(
-        tSettings("language.title"),
-        errorMessage,
-        "error"
-      );
+      showAlert(tSettings("language.title"), errorMessage, "error");
     } finally {
       setIsChangingLanguage(false);
     }
@@ -303,11 +303,7 @@ export default function SettingsPage() {
         error instanceof Error
           ? error.message
           : tSettings("messages.updateError");
-      showAlert(
-        tSettings("subscription.title"),
-        errorMessage,
-        "error"
-      );
+      showAlert(tSettings("subscription.title"), errorMessage, "error");
     } finally {
       setIsUpdating(false);
     }
