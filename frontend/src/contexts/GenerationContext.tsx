@@ -162,17 +162,6 @@ const STORAGE_KEYS = {
   UI_STATE: "pornspot-generation-ui-state",
 } as const;
 
-// Utility functions for localStorage
-const saveToStorage = (key: string, value: unknown) => {
-  try {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(key, JSON.stringify(value));
-    }
-  } catch (error) {
-    console.warn("Failed to save to localStorage:", error);
-  }
-};
-
 const loadFromStorage = function <T>(key: string, defaultValue: T): T {
   try {
     if (typeof window !== "undefined") {
@@ -688,21 +677,6 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
       currentQueueIdRef.current = null;
     }
   }, [unsubscribe]);
-
-  // Save settings to localStorage whenever they change
-  useEffect(() => {
-    saveToStorage(STORAGE_KEYS.SETTINGS, settings);
-  }, [settings]);
-
-  // Save UI state to localStorage whenever it changes
-  useEffect(() => {
-    // Convert Set to Array for JSON serialization
-    const serializedState = {
-      ...uiState,
-      deletedImageIds: Array.from(uiState.deletedImageIds),
-    };
-    saveToStorage(STORAGE_KEYS.UI_STATE, serializedState);
-  }, [uiState]);
 
   // Settings methods
   const updateSettings = useCallback(
