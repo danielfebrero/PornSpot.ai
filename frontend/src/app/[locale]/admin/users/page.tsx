@@ -107,8 +107,8 @@ export default function AdminUsersPage() {
     }
   };
 
-  const getRoleBadgeColor = (role: string) => {
-    switch (role.toLowerCase()) {
+  const getRoleBadgeColor = (role: string | undefined) => {
+    switch (role?.toLowerCase()) {
       case "admin":
         return "bg-red-100 text-red-800 border-red-200";
       case "moderator":

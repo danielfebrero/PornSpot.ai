@@ -26,23 +26,7 @@ const handleAdminUsersList = async (
     // Query all users using getAllUsers
     const result = await DynamoDBService.getAllUsers(limit, lastEvaluatedKey);
 
-    // Transform user data for admin view (remove sensitive fields)
-    const users = result.users.map((user: any) => ({
-      userId: user.userId,
-      username: user.username,
-      email: user.email,
-      role: user.role || "user",
-      provider: user.provider,
-      createdAt: user.createdAt,
-      isActive: user.isActive,
-      isEmailVerified: user.isEmailVerified,
-      lastLoginAt: user.lastLoginAt,
-      lastActive: user.lastActive,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    }));
-
-    console.log(`✅ Admin retrieved ${users.length} users`);
+    console.log(`✅ Admin retrieved ${result.users.length} users`);
 
     // Build typed paginated payload
     const payload = PaginationUtil.createPaginatedResponse(
