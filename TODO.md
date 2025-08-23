@@ -12,7 +12,7 @@
 
 [ ] Navigating to another page should not lose the current state of image generation.
 
-[ ] Optimize filter by tags using indexes.
+[x] Optimize filter by tags using indexes.
 
 [ ] When not logged in and try to like/bookmark, we need a visual feedback.
 
@@ -48,10 +48,12 @@
 
 [ ] Review how to generate images for anonymous users as they cannot generate jwt tokens.
 
-[ ] Review what happens when I'm not logged in, I start generating an image, then I login.
-
 [ ] Verify the entire mobile and tablet experience.
 
 [ ] Review page titles and meta descriptions.
 
 [x] Hardcode things in negative prompt to prevent CSM.
+
+[ ] Implement private beta: invitation code wall + free users get all pro features.
+
+[ ] Add default cover image if no cover is selected.
