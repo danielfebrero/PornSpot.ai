@@ -476,7 +476,14 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                     className="w-full"
                   >
                     {media.bulkSiblings.map((sibling: MediaWithSiblings) => (
-                      <ContentCard item={sibling} key={sibling.id} />
+                      <ContentCard
+                        item={sibling}
+                        key={sibling.id}
+                        canFullscreen={true}
+                        canBookmark={true}
+                        canLike={true}
+                        canAddToAlbum={true}
+                      />
                     ))}
                   </HorizontalScroll>
                 </MetaSection>
