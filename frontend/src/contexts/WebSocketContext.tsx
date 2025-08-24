@@ -230,19 +230,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     };
   }, [connect, disconnect]);
 
-  // Reconnect when user changes (new JWT needed)
-  // useEffect(() => {
-  //   if (user && !useReconnectedUserRef.current) {
-  //     console.log("🔄 User changed, reconnecting WebSocket for new JWT");
-  //     useReconnectedUserRef.current = true;
-  //     disconnect!();
-  //     // Small delay to ensure cleanup completes
-  //     setTimeout(() => {
-  //       connect!();
-  //     }, 100);
-  //   }
-  // }, [user, connect, disconnect]);
-
   // Keep connection alive with periodic pings
   useEffect(() => {
     if (!isConnected) return;
