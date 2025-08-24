@@ -28,9 +28,9 @@ export function AuthLayoutContent({ children }: AuthLayoutContentProps) {
           </div>
 
           {/* Why Register Section */}
-          <div className="lg:flex-1 mt-8 lg:mt-0">
+          {/* <div className="lg:flex-1 mt-8 lg:mt-0">
             <ConditionalWhyRegisterSection />
-          </div>
+          </div> */}
         </div>
       );
     } else {
