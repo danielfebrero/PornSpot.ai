@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { getAlbums } from "@/lib/data";
-import { Album, UnifiedPaginationMeta } from "@/types";
+import { discoverApi } from "@/lib/api/discover";
+import { Album, Media, UnifiedPaginationMeta } from "@/types";
 import { DiscoverClient } from "@/components/DiscoverClient";
 import { locales } from "@/i18n";
 import { generateHomepageMetadata } from "@/lib/opengraph";
@@ -45,25 +45,20 @@ export default async function DiscoverPage({
   });
 
   const tag = searchParams.tag;
-  let albums: Album[] = [];
+  let items: (Album | Media)[] = [];
   let pagination: UnifiedPaginationMeta | null = null;
   let error: string | null = null;
 
   try {
-    const result = await getAlbums({
+    const result = await discoverApi.getDiscover({
       isPublic: true,
       limit: 12,
       includeContentPreview: true,
       ...(tag && { tag }), // Include tag if provided
     });
 
-    if (result.error) {
-      console.error("Error fetching albums:", result.error);
-      error = result.error;
-    } else {
-      albums = result.data?.albums || [];
-      pagination = result.data?.pagination || null;
-    }
+    items = result.items || [];
+    pagination = result.pagination || null;
   } catch (fetchError) {
     console.error("Exception while fetching albums:", fetchError);
     error = String(fetchError);
@@ -78,20 +73,20 @@ export default async function DiscoverPage({
         <p>{t("welcomeDescription")}</p>
       </div>
 
-      {error && albums.length === 0 ? (
+      {error && items.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-red-500 mb-4">
-            {tCommon("errors.loadingAlbums")}: {error}
+            {tCommon("errors.loadingItems")}: {error}
           </p>
           <p className="text-gray-500">{tCommon("errors.refreshPage")}</p>
         </div>
-      ) : albums.length === 0 ? (
+      ) : items.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500">{tPlaceholders("noAlbums")}</p>
+          <p className="text-gray-500">{tPlaceholders("noItems")}</p>
         </div>
       ) : (
         <DiscoverClient
-          initialAlbums={albums}
+          initialContent={items}
           initialPagination={pagination}
           initialError={error}
           initialTag={tag}

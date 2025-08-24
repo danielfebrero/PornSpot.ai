@@ -1,9 +1,8 @@
 "use client";
 
-import { AlbumGrid } from "./AlbumGrid";
-import { useAlbums } from "@/hooks/queries/useAlbumsQuery";
+import { ContentGrid } from "./ContentGrid";
 import { useBulkViewCounts } from "@/hooks/queries/useViewCountsQuery";
-import { Album } from "@/types";
+import { Album, Media } from "@/types";
 import { useSearchParams } from "next/navigation";
 import { useLocaleRouter } from "@/lib/navigation";
 import { useEffect, useRef, useMemo } from "react";
@@ -11,9 +10,10 @@ import {
   SectionErrorBoundary,
   ComponentErrorBoundary,
 } from "./ErrorBoundaries";
+import { useDiscover } from "@/hooks/queries/useDiscoverQuery";
 
 interface DiscoverClientProps {
-  initialAlbums: Album[];
+  initialContent: (Album | Media)[];
   initialPagination: {
     hasNext: boolean;
     cursor: string | null;
@@ -23,7 +23,7 @@ interface DiscoverClientProps {
 }
 
 export function DiscoverClient({
-  initialAlbums,
+  initialContent,
   initialPagination,
   initialError,
   initialTag,
@@ -35,7 +35,8 @@ export function DiscoverClient({
 
   // For pages with tags, we need fresh data since SSG doesn't pre-render all tag combinations
   // For the main discover page (no tag), we can use the SSG initial data
-  const shouldUseInitialData = !tag && !initialTag && initialAlbums?.length > 0;
+  const shouldUseInitialData =
+    !tag && !initialTag && initialContent?.length > 0;
 
   // Use TanStack Query with infinite scroll and initial data from SSG/ISR
   // This approach:
@@ -50,7 +51,7 @@ export function DiscoverClient({
     hasNextPage,
     isFetchingNextPage,
     refetch,
-  } = useAlbums({
+  } = useDiscover({
     isPublic: true,
     includeContentPreview: true,
     limit: 12,
@@ -58,29 +59,29 @@ export function DiscoverClient({
     // Pass initial data only for non-tagged requests
     ...(shouldUseInitialData && {
       initialData: {
-        albums: initialAlbums,
+        items: initialContent,
         pagination: initialPagination || undefined,
       },
     }),
   });
 
-  // Flatten all pages into a single albums array
-  const albums = useMemo(() => {
-    return data?.pages.flatMap((page) => page.albums || []) || [];
+  // Flatten all pages into a single items array
+  const items = useMemo(() => {
+    return data?.pages.flatMap((page) => page.items || []) || [];
   }, [data]);
 
-  // Bulk prefetch view counts for all albums (for SSG pages)
+  // Bulk prefetch view counts for all items (for SSG pages)
   const viewCountTargets = useMemo(() => {
-    return albums.map((album) => ({
-      targetType: "album" as const,
-      targetId: album.id,
+    return items.map((item) => ({
+      targetType: item.type,
+      targetId: item.id,
     }));
-  }, [albums]);
+  }, [items]);
 
   // Prefetch view counts in the background
   useBulkViewCounts(viewCountTargets, { enabled: viewCountTargets.length > 0 });
 
-  // Create pagination object compatible with existing AlbumGrid component
+  // Create pagination object compatible with existing ContentGrid component
   const pagination = useMemo(
     () => ({
       hasNext: hasNextPage || false,
@@ -113,7 +114,7 @@ export function DiscoverClient({
   // Use initial error if no albums were loaded and we have an error
   const displayError = useMemo(() => {
     // Prioritize initial error for SSG/ISR pages
-    if (albums.length === 0 && initialError) {
+    if (items.length === 0 && initialError) {
       return initialError;
     }
 
@@ -123,7 +124,7 @@ export function DiscoverClient({
     }
 
     return null;
-  }, [albums.length, initialError, error]);
+  }, [items.length, initialError, error]);
 
   return (
     <SectionErrorBoundary context="Discover Page">
@@ -164,9 +165,9 @@ export function DiscoverClient({
           </ComponentErrorBoundary>
         )}
 
-        <SectionErrorBoundary context="Album Grid">
-          <AlbumGrid
-            albums={albums}
+        <SectionErrorBoundary context="Content Grid">
+          <ContentGrid
+            items={items}
             loadMore={loadMore}
             loading={isActuallyLoading || isFetchingNextPage}
             hasMore={pagination?.hasNext || false}

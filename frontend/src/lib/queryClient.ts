@@ -178,6 +178,17 @@ export const queryKeys = {
     all: () => ["generation"] as const,
     usageStats: () => ["generation", "usage-stats"] as const,
   },
+
+  // Discover
+  discover: {
+    all: () => ["discover"] as const,
+    list: (params?: {
+      isPublic?: boolean;
+      includeContentPreview?: boolean;
+      limit?: number;
+      tag?: string;
+    }) => ["discover", "list", params] as const,
+  },
 } as const;
 
 // Utility functions for cache invalidation

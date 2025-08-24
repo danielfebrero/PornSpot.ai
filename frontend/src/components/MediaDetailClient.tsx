@@ -495,25 +495,32 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
               title="Related Images"
               defaultOpen={media.bulkSiblings && media.bulkSiblings.length > 0}
             >
-              <HorizontalScroll
-                itemWidth="150px"
-                gap="small"
-                showArrows={true}
-                className="w-full"
-              >
-                {media.bulkSiblings?.map((sibling: Media, index: number) => (
-                  <ContentCard
-                    item={sibling}
-                    key={sibling.id}
-                    canFullscreen={true}
-                    canBookmark={true}
-                    canLike={true}
-                    canAddToAlbum={true}
-                    mediaList={media.bulkSiblings}
-                    currentIndex={index}
-                  />
-                ))}
-              </HorizontalScroll>
+              {media.bulkSiblings && media.bulkSiblings.length > 0 ? (
+                <HorizontalScroll
+                  itemWidth="150px"
+                  gap="small"
+                  showArrows={true}
+                  className="w-full"
+                >
+                  {media.bulkSiblings?.map((sibling: Media, index: number) => (
+                    <ContentCard
+                      item={sibling}
+                      key={sibling.id}
+                      canFullscreen={true}
+                      canBookmark={true}
+                      canLike={true}
+                      canAddToAlbum={true}
+                      mediaList={media.bulkSiblings}
+                      currentIndex={index}
+                    />
+                  ))}
+                </HorizontalScroll>
+              ) : (
+                <div className="text-center py-6 text-muted-foreground">
+                  <Layers className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                  <p>No related images found.</p>
+                </div>
+              )}
             </MetaSection>
 
             <MetaSection

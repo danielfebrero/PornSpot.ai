@@ -7,6 +7,7 @@ export { adminMediaApi } from "./admin-media";
 export { adminUsersApi } from "./admin-users";
 export { mediaApi } from "./media";
 export { contentApi } from "./content";
+export { discoverApi } from "./discover";
 
 // Export with fallback or non-null assertion
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.pornspot.ai";

@@ -1,12 +1,12 @@
-import { Album } from "../types/index";
-import { VirtualizedGrid } from "./ui/VirtualizedGrid";
-import { ThumbnailContext } from "../types/index";
 import { useLayoutEffect } from "react";
 import { useTranslations } from "next-intl";
+import { Album, Media } from "@/types";
+import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
+import { ThumbnailContext } from "@/types";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 
-interface AlbumGridProps {
-  albums: Album[];
+interface ContentGridProps {
+  items: (Album | Media)[];
   className?: string;
   context?: ThumbnailContext;
   loadMore?: () => void;
@@ -15,8 +15,8 @@ interface AlbumGridProps {
   error?: string | null;
 }
 
-export const AlbumGrid: React.FC<AlbumGridProps> = ({
-  albums,
+export const ContentGrid: React.FC<ContentGridProps> = ({
+  items,
   className,
   loadMore,
   loading = false,
@@ -30,24 +30,24 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
 
   // Prefetch interaction status for all albums using useLayoutEffect
   // to ensure prefetch happens BEFORE child components render and make individual requests
-  // Note: AlbumGrid receives all albums as props, so we prefetch all of them
+  // Note: ContentGrid receives all albums as props, so we prefetch all of them
   useLayoutEffect(() => {
-    if (albums.length > 0) {
-      const targets = albums.map((album) => ({
-        targetType: "album" as const,
-        targetId: album.id,
+    if (items.length > 0) {
+      const targets = items.map((item) => ({
+        targetType: item.type,
+        targetId: item.id,
       }));
 
-      // Prefetch all album interaction status
+      // Prefetch all item interaction status
       prefetch(targets).catch((error) => {
         console.error("Failed to prefetch album interaction status:", error);
       });
     }
-  }, [albums, prefetch]);
+  }, [items, prefetch]);
 
   return (
     <VirtualizedGrid
-      items={albums.filter((album) => album && album.id)}
+      items={items.filter((item) => item && item.id)}
       className={className}
       viewMode="grid"
       isLoading={loading}
