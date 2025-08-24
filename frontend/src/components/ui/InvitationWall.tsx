@@ -104,11 +104,11 @@ export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
   };
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
+    <div className="min-h-screen relative flex items-center justify-center p-4">
       <StarsBackground />
 
       <div className="relative z-10 w-full max-w-md mx-auto">
-        <div className="bg-black/20 backdrop-blur-lg border border-white/10 rounded-2xl p-8 shadow-2xl">
+        <div className="bg-black/20 backdrop-blur-lg p-8 shadow-2xl">
           <div className="text-center mb-8">
             <div className="mb-6">
               <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">

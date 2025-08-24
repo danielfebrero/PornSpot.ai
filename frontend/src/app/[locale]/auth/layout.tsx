@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { AuthLayoutContent } from "@/components/user/AuthLayoutContent";
+import { InvitationProvider } from "@/contexts/InvitationContext";
 import {
   PageErrorBoundary,
   AuthErrorBoundary,
@@ -29,7 +30,9 @@ export default async function AuthLayout({ children }: AuthLayoutProps) {
               </div>
 
               <AuthErrorBoundary>
-                <AuthLayoutContent>{children}</AuthLayoutContent>
+                <InvitationProvider>
+                  <AuthLayoutContent>{children}</AuthLayoutContent>
+                </InvitationProvider>
               </AuthErrorBoundary>
             </div>
           </div>
