@@ -96,8 +96,14 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
           // Handle ping messages
           if (message.type === "ping") {
-            // Send pong response
-            wsRef.current?.send(JSON.stringify({ action: "pong" }));
+            // Send pong response safely
+            if (wsRef.current?.readyState === WebSocket.OPEN) {
+              try {
+                wsRef.current.send(JSON.stringify({ action: "pong" }));
+              } catch (error) {
+                console.warn("⚠️ Failed to send pong response:", error);
+              }
+            }
             return;
           }
 
@@ -107,7 +113,11 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
           // Route all messages to global subscribers (one queue per tab)
           globalSubscriptionsRef.current.forEach((callback) => {
-            callback(message);
+            try {
+              callback(message);
+            } catch (error) {
+              console.error("❌ Error in WebSocket message callback:", error);
+            }
           });
         } catch (error) {
           console.error("❌ Failed to parse WebSocket message:", error);
@@ -157,13 +167,22 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       reconnectTimeoutRef.current = null;
     }
 
-    // Close WebSocket connection
+    // Close WebSocket connection safely
     if (wsRef.current) {
-      wsRef.current.close(1000, "Manual disconnect");
+      const ws = wsRef.current;
+      // Check if WebSocket is still in a valid state before closing
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        try {
+          ws.close(1000, "Manual disconnect");
+        } catch (error) {
+          console.warn("⚠️ Error closing WebSocket:", error);
+        }
+      }
       wsRef.current = null;
     }
 
     setIsConnected(false);
+    setConnectionId(null);
     reconnectAttempts.current = 0;
   }, []);
 
@@ -185,7 +204,11 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
   const sendMessage = useCallback((message: any) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(message));
+      try {
+        wsRef.current.send(JSON.stringify(message));
+      } catch (error) {
+        console.warn("⚠️ Failed to send WebSocket message:", error);
+      }
     } else {
       console.warn("⚠️ Cannot send message: WebSocket not connected");
     }
@@ -199,7 +222,19 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     return () => {
       disconnect();
     };
-  }, [connect, disconnect, user?.userId]);
+  }, [connect, disconnect]);
+
+  // Reconnect when user changes (new JWT needed)
+  useEffect(() => {
+    if (isConnected && user?.userId) {
+      console.log("🔄 User changed, reconnecting WebSocket for new JWT");
+      disconnect();
+      // Small delay to ensure cleanup completes
+      setTimeout(() => {
+        connect();
+      }, 100);
+    }
+  }, [user?.userId, isConnected, connect, disconnect]);
 
   // Keep connection alive with periodic pings
   useEffect(() => {
