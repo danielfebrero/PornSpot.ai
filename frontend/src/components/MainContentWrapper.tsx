@@ -24,6 +24,7 @@ export function MainContentWrapper({ children }: MainContentWrapperProps) {
     return <main className="flex-1">{children}</main>;
   }
 
+  // Auth routes need a flex parent to vertically center content
   if (pathname.startsWith(`/${locale}/auth`)) {
     return (
       <main className="container mx-auto px-4 py-4 md:py-8 flex-1 flex">
