@@ -82,6 +82,12 @@ const LORA_MODELS = [
     name: "Pierced Nipples",
     description: "Generate images with pierced nipples and barbell details",
   },
+  {
+    id: "bdsm_SDXL_1_",
+    name: "BDSM",
+    description:
+      "Bondage, discipline, dominance, submission, sadism, and masochism",
+  },
 ];
 
 export function GenerateClient() {

@@ -70,7 +70,8 @@ export function createComfyUIWorkflow(
       },
     },
 
-    // Default LoRA chain (will be modified based on selectedLoras)
+    // LoRA chain (will be modified based on selectedLoras)
+    // Chain: 11 → 23 → 25 → 21 → 20 → 10
     "23": {
       class_type: "LoraLoader",
       inputs: {
@@ -86,14 +87,29 @@ export function createComfyUIWorkflow(
       },
     },
 
+    "25": {
+      class_type: "LoraLoader",
+      inputs: {
+        lora_name: "bdsm_SDXL_1_.safetensors",
+        strength_model: 0,
+        strength_clip: 1,
+        model: ["23", 0],
+        clip: ["23", 1],
+      },
+      _meta: {
+        title: "Load LoRA",
+        estTimeUnits: 1,
+      },
+    },
+
     "21": {
       class_type: "LoraLoader",
       inputs: {
         lora_name: "add-detail-xl.safetensors",
         strength_model: 0,
         strength_clip: 1.0000000000000002,
-        model: ["23", 0],
-        clip: ["23", 1],
+        model: ["25", 0],
+        clip: ["25", 1],
       },
       _meta: {
         title: "Load LoRA",
@@ -224,6 +240,7 @@ export function createComfyUIWorkflow(
     // Map LoRA names to node IDs based on the template structure
     const loraNodeMap: { [key: string]: string } = {
       Harness_Straps_sdxl: "23",
+      bdsm_SDXL_1_: "25",
       "add-detail-xl": "21",
       "Pierced_Nipples_XL_Barbell_Edition-000013": "20",
       leaked_nudes_style_v1_fixed: "10",

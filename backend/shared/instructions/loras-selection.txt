@@ -21,6 +21,10 @@ Use this LoRA when the user prompt requires additional details or enhancements t
 
 Use this LoRA when the user prompt involves harness, straps, garter, cupless bra or similar accessories.
 
+# bdsm_SDXL_1_
+
+Use this LoRA when the user prompt involves BDSM themes, such as bondage, discipline, dominance, submission, sadism, and masochism.
+
 # Examples
 
 - "A close-up shot of a model with pierced nipples wearing a barbell earring." → "['Pierced_Nipples_XL_Barbell_Edition-000013', 'add-detail-xl']"
@@ -28,6 +32,7 @@ Use this LoRA when the user prompt involves harness, straps, garter, cupless bra
 - "A candid photo of a group of friends at a beach party, with one redhead giving a blowjob to a friend." → "['leaked_nudes_style_v1_fixed', 'add-detail-xl']
 - "abstract art, fluid dynamics, vibrant color gradients, digital art, contemporary style, smooth textures, artistic composition, high resolution" → "[]"
 - "woman, 18, garter, cupless bra, giving a blowjob" → "['leaked_nudes_style_v1_fixed', 'Harness_Straps_sdxl', 'add-detail-xl']"
+- "woman tied up with rope" → "['leaked_nudes_style_v1_fixed', 'bdsm_SDXL_1_', 'add-detail-xl']"
 
 # Response format
 
