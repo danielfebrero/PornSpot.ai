@@ -229,6 +229,12 @@ export function GenerateClient() {
     // Show progress card immediately on click
     setShowProgressCard(true);
 
+    console.log({
+      optimizePrompt: settings.optimizePrompt,
+      prompt: settings.prompt,
+      optimizedPromptCache: optimizedPromptCache,
+      originalPromptBeforeOptimization: originalPromptBeforeOptimization,
+    });
     // Handle magic text animation for optimization
     if (settings.optimizePrompt && settings.prompt !== optimizedPromptCache) {
       handleResetMagicText();
