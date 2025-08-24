@@ -57,8 +57,8 @@ export const ContentGrid: React.FC<ContentGridProps> = ({
       contentCardProps={{
         canLike: true,
         canBookmark: true,
-        canFullscreen: false,
-        canAddToAlbum: false,
+        canFullscreen: true,
+        canAddToAlbum: true,
         canDownload: false,
         canDelete: false,
       }}
