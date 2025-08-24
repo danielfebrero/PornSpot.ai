@@ -141,7 +141,7 @@ export default async function LocaleLayout({
                                   <div className="container mx-auto py-4">
                                     <div className="text-center">
                                       <p className="text-muted-foreground">
-                                        &copy; 2024 PornSpot.ai. All rights
+                                        &copy; 2025 PornSpot.ai. All rights
                                         reserved.
                                       </p>
                                     </div>
