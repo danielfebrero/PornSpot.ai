@@ -20,7 +20,7 @@ export function AuthLayoutContent({ children }: AuthLayoutContentProps) {
     if (isCodeValidated) {
       return (
         // <div className="lg:flex lg:gap-12 lg:items-start">
-        <div className="lg:flex">
+        <div className="flex justify-center">
           {/* Form Card */}
           <div className="lg:w-96 lg:flex-shrink-0">
             <div className="bg-card border border-border rounded-lg shadow-lg p-6">
