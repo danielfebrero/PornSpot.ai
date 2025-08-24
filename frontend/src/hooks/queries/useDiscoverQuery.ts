@@ -22,7 +22,7 @@ interface UseDiscoverParams
 
 // Hook for fetching mixed content (albums and media) with infinite scroll support
 export function useDiscover(params: UseDiscoverParams = {}) {
-  const { limit = 12, initialData, ...restParams } = params;
+  const { limit = 20, initialData, ...restParams } = params;
 
   // Transform initial data for TanStack Query if provided
   const transformedInitialData = initialData

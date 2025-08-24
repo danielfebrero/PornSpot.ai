@@ -49,7 +49,7 @@ export function DiscoverClient({
     isFetchingNextPage,
     refetch,
   } = useDiscover({
-    limit: 12,
+    limit: 20,
     tag,
     // Pass initial data only for non-tagged requests
     ...(shouldUseInitialData && {

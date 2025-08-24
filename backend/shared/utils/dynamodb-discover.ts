@@ -229,24 +229,56 @@ export class DynamoDBDiscoverService {
       ExclusiveStartKey: lastEvaluatedKey,
     };
 
-    const result = await docClient.send(new QueryCommand(queryParams));
-    const albumEntities = (result.Items as AlbumEntity[]) || [];
+    try {
+      const result = await docClient.send(new QueryCommand(queryParams));
+      const albumEntities = (result.Items as AlbumEntity[]) || [];
 
-    // Convert AlbumEntity to Album format
-    const albums: Album[] = await Promise.all(
-      albumEntities.map((entity) =>
-        DynamoDBService.convertAlbumEntityToAlbum(entity)
-      )
-    );
+      // Convert AlbumEntity to Album format
+      const albums: Album[] = await Promise.all(
+        albumEntities.map((entity) =>
+          DynamoDBService.convertAlbumEntityToAlbum(entity)
+        )
+      );
 
-    return {
-      albums,
-      lastEvaluatedKey: result.LastEvaluatedKey,
-    };
+      return {
+        albums,
+        lastEvaluatedKey: result.LastEvaluatedKey,
+      };
+    } catch (error: any) {
+      // Handle ValidationException for invalid starting key
+      if (error.name === "ValidationException" && 
+          error.message?.includes("provided starting key is invalid")) {
+        console.warn("⚠️ Invalid starting key in GSI5 query for albums, retrying from beginning:", error.message);
+        
+        // Retry without the lastEvaluatedKey (start from beginning)
+        const retryParams: QueryCommandInput = {
+          ...queryParams,
+          ExclusiveStartKey: undefined,
+        };
+        
+        const result = await docClient.send(new QueryCommand(retryParams));
+        const albumEntities = (result.Items as AlbumEntity[]) || [];
+
+        // Convert AlbumEntity to Album format
+        const albums: Album[] = await Promise.all(
+          albumEntities.map((entity) =>
+            DynamoDBService.convertAlbumEntityToAlbum(entity)
+          )
+        );
+
+        return {
+          albums,
+          lastEvaluatedKey: result.LastEvaluatedKey,
+        };
+      }
+      
+      // Re-throw other errors
+      throw error;
+    }
   }
 
-  /**
-   * Query public media using GSI5
+    /**
+   * Query public media via GSI5 for recent content
    * GSI5PK: MEDIA, GSI5SK: isPublic (string)
    */
   static async queryPublicMediaViaGSI5(
@@ -269,18 +301,48 @@ export class DynamoDBDiscoverService {
       ExclusiveStartKey: lastEvaluatedKey,
     };
 
-    const result = await docClient.send(new QueryCommand(queryParams));
-    const mediaEntities = (result.Items as MediaEntity[]) || [];
+    try {
+      const result = await docClient.send(new QueryCommand(queryParams));
+      const mediaEntities = (result.Items as MediaEntity[]) || [];
 
-    // Convert MediaEntity to Media format
-    const media: Media[] = mediaEntities.map((entity) =>
-      DynamoDBService.convertMediaEntityToMedia(entity)
-    );
+      // Convert MediaEntity to Media format
+      const media: Media[] = mediaEntities.map((entity) =>
+        DynamoDBService.convertMediaEntityToMedia(entity)
+      );
 
-    return {
-      media,
-      lastEvaluatedKey: result.LastEvaluatedKey,
-    };
+      return {
+        media,
+        lastEvaluatedKey: result.LastEvaluatedKey,
+      };
+    } catch (error: any) {
+      // Handle ValidationException for invalid starting key
+      if (error.name === "ValidationException" && 
+          error.message?.includes("provided starting key is invalid")) {
+        console.warn("⚠️ Invalid starting key in GSI5 query, retrying from beginning:", error.message);
+        
+        // Retry without the lastEvaluatedKey (start from beginning)
+        const retryParams: QueryCommandInput = {
+          ...queryParams,
+          ExclusiveStartKey: undefined,
+        };
+        
+        const result = await docClient.send(new QueryCommand(retryParams));
+        const mediaEntities = (result.Items as MediaEntity[]) || [];
+
+        // Convert MediaEntity to Media format
+        const media: Media[] = mediaEntities.map((entity) =>
+          DynamoDBService.convertMediaEntityToMedia(entity)
+        );
+
+        return {
+          media,
+          lastEvaluatedKey: result.LastEvaluatedKey,
+        };
+      }
+      
+      // Re-throw other errors
+      throw error;
+    }
   }
 }
 
