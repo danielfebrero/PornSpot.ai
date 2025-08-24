@@ -171,7 +171,10 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     if (wsRef.current) {
       const ws = wsRef.current;
       // Check if WebSocket is still in a valid state before closing
-      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+      if (
+        ws.readyState === WebSocket.OPEN ||
+        ws.readyState === WebSocket.CONNECTING
+      ) {
         try {
           ws.close(1000, "Manual disconnect");
         } catch (error) {
