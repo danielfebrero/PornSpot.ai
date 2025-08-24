@@ -1,4 +1,3 @@
-import { getTranslations } from "next-intl/server";
 import { AuthLayoutContent } from "@/components/user/AuthLayoutContent";
 import { InvitationProvider } from "@/contexts/InvitationContext";
 import {
@@ -12,8 +11,6 @@ interface AuthLayoutProps {
 }
 
 export default async function AuthLayout({ children }: AuthLayoutProps) {
-  const t = await getTranslations("site");
-
   return (
     <PageErrorBoundary context="Auth Layout">
       <div className="bg-background flex-1 flex items-center justify-center">
