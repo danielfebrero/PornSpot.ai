@@ -108,7 +108,7 @@ export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
       <StarsBackground />
 
       <div className="relative z-10 w-full max-w-md mx-auto">
-        <div className="bg-black/20 backdrop-blur-lg p-8 shadow-2xl">
+        <div className="backdrop-blur-lg rounded-2xl p-8">
           <div className="text-center mb-8">
             <div className="mb-6">
               <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">
@@ -185,9 +185,9 @@ export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
 
           <div className="mt-8 text-center">
             <p className="text-gray-400 text-xs">
-              Need an invitation code? Join our{" "}
+              Need an invitation code? Join our Fabularius.ai{" "}
               <a
-                href="https://discord.gg/pornspot"
+                href="https://discord.gg/hU7uc84nwK"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-purple-400 hover:text-purple-300 transition-colors"
@@ -196,7 +196,7 @@ export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
               </a>{" "}
               or{" "}
               <a
-                href="https://reddit.com/r/pornspot"
+                href="https://reddit.com/r/fabularius"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-purple-400 hover:text-purple-300 transition-colors"
