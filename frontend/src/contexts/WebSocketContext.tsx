@@ -42,29 +42,31 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       process.env.NEXT_PUBLIC_WEBSOCKET_URL ||
       "wss://your-websocket-api-id.execute-api.region.amazonaws.com/stage";
 
-    // Generate JWT token for authenticated users before connecting
-    try {
-      console.log(
-        "🔑 Attempting to generate JWT token for WebSocket authentication"
-      );
-      const jwtResponse = await userApi.generateJwt();
-      const jwtToken = jwtResponse.token;
+    if (user?.userId) {
+      // Generate JWT token for authenticated users before connecting
+      try {
+        console.log(
+          "🔑 Attempting to generate JWT token for WebSocket authentication"
+        );
+        const jwtResponse = await userApi.generateJwt();
+        const jwtToken = jwtResponse.token;
 
-      if (jwtToken) {
-        const separator = wsUrl.includes("?") ? "&" : "?";
-        wsUrl += `${separator}token=${jwtToken}`;
-        console.log("🍪 Added JWT token to WebSocket URL");
+        if (jwtToken) {
+          const separator = wsUrl.includes("?") ? "&" : "?";
+          wsUrl += `${separator}token=${jwtToken}`;
+          console.log("🍪 Added JWT token to WebSocket URL");
+        }
+      } catch (error) {
+        console.log(
+          "🔓 No JWT token available (user not authenticated), connecting as anonymous:",
+          error
+        );
       }
-    } catch (error) {
-      console.log(
-        "🔓 No JWT token available (user not authenticated), connecting as anonymous:",
-        error
-      );
     }
 
     console.log("WebSocket URL:", wsUrl.replace(/token=[^&]+/, "token=***"));
     return wsUrl;
-  }, []);
+  }, [user?.userId]);
 
   const connect = useCallback(async () => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
