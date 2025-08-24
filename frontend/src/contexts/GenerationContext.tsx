@@ -14,6 +14,8 @@ import { GenerationQueueStatus } from "@/types/websocket";
 import { GenerationWebSocketMessage } from "@/types/shared-types/websocket";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import { generateApi } from "@/lib/api/generate";
+import { useUserContext } from "./UserContext";
+import { set } from "lodash";
 
 // Default generation settings following the pattern from GenerateClient
 const DEFAULT_SETTINGS: GenerationSettings = {
@@ -167,6 +169,8 @@ interface GenerationProviderProps {
 }
 
 export function GenerationProvider({ children }: GenerationProviderProps) {
+  const { user } = useUserContext();
+
   // Initialize settings from localStorage or defaults
   const [settings, setSettings] = useState<GenerationSettings>(
     () => DEFAULT_SETTINGS
@@ -825,6 +829,14 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
       },
     }));
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      // User is authenticated, reset context state
+      resetSettings();
+      setUiState(DEFAULT_UI_STATE);
+    }
+  }, [user, resetSettings]);
 
   const contextValue: GenerationContextType = {
     // Settings

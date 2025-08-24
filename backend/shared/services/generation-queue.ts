@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export interface QueueEntry {
   queueId: string;
-  userId: string;
+  userId: string | null; // Allow null for anonymous users
   connectionId?: string;
   status: "pending" | "processing" | "completed" | "failed" | "timeout";
   prompt: string;
@@ -63,7 +63,7 @@ export class GenerationQueueService {
    * Add a new generation request to the queue
    */
   async addToQueue(
-    userId: string,
+    userId: string | null,
     prompt: string,
     parameters: QueueEntry["parameters"],
     connectionId?: string,
@@ -105,7 +105,7 @@ export class GenerationQueueService {
           SK: `ENTRY`,
           GSI1PK: `QUEUE#STATUS#${queueEntry.status}`,
           GSI1SK: `PRIORITY#${priority.toString().padStart(10, "0")}#${now}`,
-          GSI3PK: `QUEUE#USER#${userId}`,
+          GSI3PK: `QUEUE#USER#${userId || "ANONYMOUS"}`, // Use 'ANONYMOUS' for null userId
           GSI3SK: `${queueEntry.status}#${now}#${queueId}`,
           ...queueEntry,
           TTL: Math.floor(new Date(queueEntry.timeoutAt).getTime() / 1000), // DynamoDB TTL in seconds
@@ -367,7 +367,13 @@ export class GenerationQueueService {
   /**
    * Get user's queue entries
    */
-  async getUserQueueEntries(userId: string): Promise<QueueEntry[]> {
+  async getUserQueueEntries(userId: string | null): Promise<QueueEntry[]> {
+    if (!userId) {
+      // For anonymous users, we cannot retrieve their queue entries
+      // since they don't have a persistent identifier
+      return [];
+    }
+
     const result = await this.dynamoDB.send(
       new QueryCommand({
         TableName: this.tableName,
@@ -377,6 +383,31 @@ export class GenerationQueueService {
           ":gsi3pk": `QUEUE#USER#${userId}`,
         },
         ScanIndexForward: false, // Most recent first (newest status changes first)
+      })
+    );
+
+    return (result.Items || []) as QueueEntry[];
+  }
+
+  async getUserQueueEntriesByStatus(
+    userId: string | null,
+    status: string
+  ): Promise<QueueEntry[]> {
+    if (!userId) {
+      return [];
+    }
+
+    const result = await this.dynamoDB.send(
+      new QueryCommand({
+        TableName: this.tableName,
+        IndexName: "GSI3",
+        KeyConditionExpression:
+          "GSI3PK = :gsi3pk and begins_with(GSI3SK, :gsi3sk)",
+        ExpressionAttributeValues: {
+          ":gsi3pk": `QUEUE#USER#${userId}`,
+          ":gsi3sk": `${status}#`,
+        },
+        ScanIndexForward: false,
       })
     );
 
@@ -506,5 +537,27 @@ export class GenerationQueueService {
         });
       }
     }
+  }
+
+  /**
+   * Get count of pending generations for a user
+   */
+  async getUserPendingCount(userId: string): Promise<number> {
+    const userEntries = await this.getUserQueueEntriesByStatus(
+      userId,
+      "pending"
+    );
+    return userEntries.length;
+  }
+
+  /**
+   * Get count of processing generations for a user
+   */
+  async getUserProcessingCount(userId: string): Promise<number> {
+    const userEntries = await this.getUserQueueEntriesByStatus(
+      userId,
+      "processing"
+    );
+    return userEntries.length;
   }
 }

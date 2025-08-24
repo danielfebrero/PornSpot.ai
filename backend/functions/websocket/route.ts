@@ -344,7 +344,7 @@ async function createMediaEntitiesFirst(
       // Create MediaEntity for database storage using shared utility
       const mediaEntity: MediaEntity = createMediaEntity({
         mediaId,
-        userId: queueEntry.userId,
+        userId: queueEntry.userId || "ANONYMOUS",
         filename: s3Key, // Use S3 key as filename
         originalFilename: queueEntry.filename || image.filename, // Use actual ComfyUI filename
         mimeType: `image/${fileExtension}`, // Use actual file extension for MIME type
@@ -373,7 +373,7 @@ async function createMediaEntitiesFirst(
   }
 
   // Update user metrics for generated media
-  if (createdEntities.length > 0) {
+  if (createdEntities.length > 0 && queueEntry.userId) {
     try {
       // Increment totalGeneratedMedias metric for each created media
       await DynamoDBService.incrementUserProfileMetric(
@@ -406,62 +406,169 @@ async function downloadAndUploadImage(
   comfyuiEndpoint: string,
   mediaId: string
 ): Promise<string | null> {
-  try {
-    // Download image from ComfyUI
-    const imageUrl = `${comfyuiEndpoint}/view?filename=${encodeURIComponent(
-      image.filename
-    )}&subfolder=${encodeURIComponent(
-      image.subfolder
-    )}&type=${encodeURIComponent(image.type)}`;
+  // Download image from ComfyUI
+  const imageUrl = `${comfyuiEndpoint}/view?filename=${encodeURIComponent(
+    image.filename
+  )}&subfolder=${encodeURIComponent(image.subfolder)}&type=${encodeURIComponent(
+    image.type
+  )}`;
 
-    console.log(`Downloading image from: ${imageUrl}`);
+  console.log(`Downloading image from: ${imageUrl}`);
 
-    const response = await axios.get(imageUrl, {
-      responseType: "arraybuffer",
-      timeout: 30000, // 30 second timeout
-    });
+  // Retry logic for downloading images with better timeout handling
+  const maxRetries = 3;
+  const retryDelays = [1000, 2000, 5000]; // Progressive backoff: 1s, 2s, 5s
+  let lastError: Error | null = null;
 
-    if (response.status !== 200) {
-      throw new Error(`Failed to download image: HTTP ${response.status}`);
-    }
-
-    const imageBuffer = Buffer.from(response.data);
-
-    // Generate file extension for the image
-    const fileExtension = image.filename.split(".").pop() || "png";
-    const customFilename = `${mediaId}.${fileExtension}`;
-
-    // Upload to S3 with custom filename
-    const result = await s3Service.uploadGeneratedImageWithCustomFilename(
-      imageBuffer,
-      queueEntry.queueId,
-      customFilename,
-      `image/${fileExtension}`
-    );
-
-    console.log(`Successfully uploaded image to S3: ${result.publicUrl}`);
-
-    // Update media entity in DynamoDB with image dimensions, file size, and URL
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      const updateData: Partial<MediaEntity> = {
-        size: imageBuffer.length, // File size in bytes
-        updatedAt: new Date().toISOString(),
-      };
-
-      await DynamoDBService.updateMedia(mediaId, updateData);
       console.log(
-        `Successfully updated media entity ${mediaId} with URL, size (${imageBuffer.length} bytes), and dimensions`
+        `Download attempt ${attempt + 1}/${maxRetries} for ${image.filename}`
       );
-    } catch (dbError) {
-      console.error(`Failed to update media entity ${mediaId}:`, dbError);
-      // Don't throw here - the upload was successful, DB update is secondary
-    }
 
-    return result.publicUrl;
-  } catch (error) {
-    console.error(`Failed to download/upload image ${image.filename}:`, error);
-    return null;
+      const response = await axios.get(imageUrl, {
+        responseType: "arraybuffer",
+        timeout: 10000, // Timeout to 10 seconds
+        maxRedirects: 5,
+        headers: {
+          Accept: "image/*",
+          "User-Agent": "PornSpot-ImageDownloader/1.0",
+        },
+        // Prevent axios from throwing on HTTP error status codes
+        validateStatus: (status) => status < 500, // Only retry on 5xx errors
+      });
+
+      if (response.status !== 200) {
+        throw new Error(`Failed to download image: HTTP ${response.status}`);
+      }
+
+      console.log(
+        `Successfully downloaded image ${image.filename} on attempt ${
+          attempt + 1
+        }`
+      );
+
+      const imageBuffer = Buffer.from(response.data);
+
+      // Validate that we actually got image data
+      if (imageBuffer.length === 0) {
+        throw new Error("Downloaded image is empty");
+      }
+
+      console.log(`Downloaded image size: ${imageBuffer.length} bytes`);
+
+      // Generate file extension for the image
+      const fileExtension = image.filename.split(".").pop() || "png";
+      const customFilename = `${mediaId}.${fileExtension}`;
+
+      // Upload to S3 with custom filename
+      const result = await s3Service.uploadGeneratedImageWithCustomFilename(
+        imageBuffer,
+        queueEntry.queueId,
+        customFilename,
+        `image/${fileExtension}`
+      );
+
+      console.log(`Successfully uploaded image to S3: ${result.publicUrl}`);
+
+      // Update media entity in DynamoDB with image dimensions, file size, and URL
+      try {
+        const updateData: Partial<MediaEntity> = {
+          size: imageBuffer.length, // File size in bytes
+          updatedAt: new Date().toISOString(),
+        };
+
+        await DynamoDBService.updateMedia(mediaId, updateData);
+        console.log(
+          `Successfully updated media entity ${mediaId} with URL, size (${imageBuffer.length} bytes), and dimensions`
+        );
+      } catch (dbError) {
+        console.error(`Failed to update media entity ${mediaId}:`, dbError);
+        // Don't throw here - the upload was successful, DB update is secondary
+      }
+
+      return result.publicUrl;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+
+      const isTimeout =
+        (error as any)?.code === "ECONNABORTED" ||
+        (error instanceof Error && error.message.includes("timeout"));
+      const isNetworkError =
+        (error as any)?.code === "ENOTFOUND" ||
+        (error as any)?.code === "ECONNREFUSED" ||
+        (error instanceof Error && error.message.includes("network"));
+      const isServerError = (error as any)?.response?.status >= 500;
+
+      console.error(
+        `Download attempt ${attempt + 1} failed for ${image.filename}:`,
+        {
+          message: lastError.message,
+          code: (error as any)?.code,
+          status: (error as any)?.response?.status,
+          isTimeout,
+          isNetworkError,
+          isServerError,
+        }
+      );
+
+      // Don't retry on client errors (4xx) except 408, 429
+      if (
+        (error as any)?.response?.status >= 400 &&
+        (error as any)?.response?.status < 500 &&
+        (error as any)?.response?.status !== 408 &&
+        (error as any)?.response?.status !== 429
+      ) {
+        console.error(
+          `Non-retryable client error ${
+            (error as any)?.response?.status
+          }, not retrying`
+        );
+        break;
+      }
+
+      // If this was the last attempt, don't wait
+      if (attempt === maxRetries - 1) {
+        break;
+      }
+
+      // Wait before retry with progressive backoff
+      const delay = retryDelays[attempt] || 5000;
+      console.log(`Waiting ${delay}ms before retry...`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
   }
+
+  // All attempts failed, handle the error
+  console.error(
+    `All ${maxRetries} download attempts failed for ${image.filename}`
+  );
+
+  const isTimeout =
+    lastError &&
+    ((lastError as any).code === "ECONNABORTED" ||
+      lastError.message.includes("timeout"));
+
+  // Update queue entry status to failed
+  try {
+    await queueService.updateQueueEntry(queueEntry.queueId, {
+      status: "failed",
+      errorMessage: isTimeout
+        ? `Image download timeout after ${maxRetries} attempts: ${lastError?.message}`
+        : `Image download failed after ${maxRetries} attempts: ${lastError?.message}`,
+      completedAt: Date.now().toString(),
+    });
+    console.log(
+      `Updated queue entry ${queueEntry.queueId} status to failed due to ${
+        isTimeout ? "timeout" : "error"
+      } after ${maxRetries} attempts`
+    );
+  } catch (updateError) {
+    console.error(`Failed to update queue entry status:`, updateError);
+  }
+
+  // Don't throw error, return null to allow processing of other images
+  return null;
 }
 
 async function handleGetClientConnectionId(
@@ -567,6 +674,27 @@ export async function handleGenerationComplete(
       }
 
       if (uploadedImageUrls.length === 0) {
+        await queueService.updateQueueEntry(queueEntry.queueId, {
+          status: "failed",
+          errorMessage: "Failed to upload any generated images",
+          completedAt: Date.now().toString(),
+        });
+        if (WEBSOCKET_ENDPOINT && queueEntry.connectionId) {
+          const failureMessage = {
+            type: "failed",
+            queueId: queueEntry.queueId,
+            promptId: queueEntry.comfyPromptId,
+            timestamp: new Date().toISOString(),
+            status: "failed",
+            message: "Generation failed",
+            error: "Failed to upload any generated images",
+          };
+
+          await sendMessageToConnection(
+            queueEntry.connectionId,
+            failureMessage
+          );
+        }
         throw new Error("Failed to upload any generated images");
       }
 

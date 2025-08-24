@@ -1,0 +1,410 @@
+import { APIGatewayProxyEvent } from "aws-lambda";
+import { GenerationQueueService } from "./generation-queue";
+import { DynamoDBService } from "../utils/dynamodb";
+import { extractClientIP } from "../utils/ip-extraction";
+import { createHash } from "crypto";
+
+export interface SimplifiedRateLimitResult {
+  allowed: boolean;
+  reason?: string;
+  remaining?: number | "unlimited";
+}
+
+/**
+ * Simplified rate limiting service that enforces:
+ * 1. One generation at a time per user (pending/processing check)
+ * 2. Daily/monthly quota based on usage stats
+ * 3. IP-based quota check for all users (to prevent multi-account abuse)
+ * 4. Anonymous users: one request per IP per day
+ */
+export class SimplifiedRateLimitingService {
+  private static instance: SimplifiedRateLimitingService;
+  private queueService: GenerationQueueService;
+
+  private constructor() {
+    this.queueService = GenerationQueueService.getInstance();
+  }
+
+  public static getInstance(): SimplifiedRateLimitingService {
+    if (!this.instance) {
+      this.instance = new SimplifiedRateLimitingService();
+    }
+    return this.instance;
+  }
+
+  /**
+   * Main rate limit check for both authenticated and anonymous users
+   */
+  async checkRateLimit(
+    event: APIGatewayProxyEvent,
+    user?: {
+      userId: string;
+      plan: "free" | "starter" | "pro" | "unlimited";
+      role: "user" | "admin" | "moderator";
+    }
+  ): Promise<SimplifiedRateLimitResult> {
+    try {
+      // Check for authenticated users
+      if (user) {
+        // 1. Check for pending/processing generations (one at a time)
+        const concurrentCheck = await this.checkConcurrentGeneration(
+          user.userId
+        );
+        if (!concurrentCheck.allowed) {
+          return concurrentCheck;
+        }
+
+        // 2. Check daily/monthly quota based on plan
+        const quotaCheck = await this.checkUserQuota(
+          user.userId,
+          user.plan,
+          event
+        );
+        if (!quotaCheck.allowed) {
+          return quotaCheck;
+        }
+
+        // 3. Check IP-based quota (prevent multi-account abuse)
+        const ipQuotaCheck = await this.checkIPQuotaForUser(
+          event,
+          user.plan,
+          user.userId
+        );
+        if (!ipQuotaCheck.allowed) {
+          return ipQuotaCheck;
+        }
+
+        return {
+          allowed: true,
+          remaining:
+            Math.min(
+              quotaCheck.remaining === "unlimited"
+                ? Infinity
+                : (quotaCheck.remaining as number),
+              ipQuotaCheck.remaining === "unlimited"
+                ? Infinity
+                : (ipQuotaCheck.remaining as number)
+            ) === Infinity
+              ? "unlimited"
+              : Math.min(
+                  quotaCheck.remaining === "unlimited"
+                    ? Infinity
+                    : (quotaCheck.remaining as number),
+                  ipQuotaCheck.remaining === "unlimited"
+                    ? Infinity
+                    : (ipQuotaCheck.remaining as number)
+                ),
+        };
+      } else {
+        // Anonymous user - check IP limit (1 per day)
+        return await this.checkAnonymousIPLimit(event);
+      }
+    } catch (error) {
+      console.error("Rate limit check failed:", error);
+      // Fail open to avoid blocking legitimate requests
+      return { allowed: true };
+    }
+  }
+
+  /**
+   * Record generation for both authenticated and anonymous users
+   * Records both IP and user tracking with cross-references to enable union-based counting
+   */
+  async recordGeneration(
+    event: APIGatewayProxyEvent,
+    user?: { userId: string; plan: string },
+    batchCount: number = 1
+  ): Promise<void> {
+    try {
+      const clientIP = extractClientIP(event);
+      const hashedIP = createHash("sha256").update(clientIP).digest("hex");
+      const today = new Date().toISOString().split("T")[0];
+      const now = new Date().toISOString();
+
+      if (user) {
+        // For authenticated users, record both IP and user tracking with cross-references
+        for (let i = 0; i < batchCount; i++) {
+          const generationId = `${now}#${i}`;
+
+          // Record IP generation with userId for union counting
+          const ipRecord = {
+            PK: `IP#${hashedIP}`,
+            SK: `GEN#${today}#${generationId}`,
+            GSI1PK: `IP#${hashedIP}`,
+            GSI1SK: today,
+            userId: user.userId,
+            plan: user.plan,
+            generatedAt: now,
+            TTL: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days retention
+          };
+
+          // Record user generation with IP for union counting
+          const userRecord = {
+            PK: `USER#${user.userId}`,
+            SK: `GEN#${today}#${generationId}`,
+            GSI1PK: `USER#${user.userId}`,
+            GSI1SK: today,
+            hashedIP: hashedIP,
+            plan: user.plan,
+            generatedAt: now,
+            TTL: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days retention
+          };
+
+          await DynamoDBService.createIPGenerationRecord(ipRecord);
+          await DynamoDBService.createUserGenerationRecord(userRecord);
+        }
+        console.log(
+          `Recorded ${batchCount} generations - IP: ${hashedIP.substring(
+            0,
+            8
+          )}..., User: ${user.userId}`
+        );
+      } else {
+        // For anonymous users, record only IP generation
+        for (let i = 0; i < batchCount; i++) {
+          const generationId = `${now}#${i}`;
+
+          const ipRecord = {
+            PK: `IP#${hashedIP}`,
+            SK: `GEN#${today}#${generationId}`,
+            GSI1PK: `IP#${hashedIP}`,
+            GSI1SK: today,
+            generatedAt: now,
+            TTL: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days retention for anonymous
+          };
+
+          await DynamoDBService.createIPGenerationRecord(ipRecord);
+        }
+        console.log(
+          `Recorded ${batchCount} anonymous generations for IP: ${hashedIP.substring(
+            0,
+            8
+          )}...`
+        );
+      }
+    } catch (error) {
+      console.error("Failed to record generation:", error);
+      // Don't throw - this shouldn't block the generation
+    }
+  }
+
+  /**
+   * Check if user has pending or processing generations (one at a time rule)
+   */
+  private async checkConcurrentGeneration(
+    userId: string
+  ): Promise<SimplifiedRateLimitResult> {
+    try {
+      const pendingCount = await this.queueService.getUserPendingCount(userId);
+      const processingCount = await this.queueService.getUserProcessingCount(
+        userId
+      );
+
+      if (pendingCount > 0 || processingCount > 0) {
+        return {
+          allowed: false,
+          reason:
+            "You can only generate one image at a time. Please wait for your current generation to complete.",
+          remaining: 0,
+        };
+      }
+
+      return { allowed: true };
+    } catch (error) {
+      console.error("Error checking concurrent generations:", error);
+      // On error, allow the generation to proceed
+      return { allowed: true };
+    }
+  }
+
+  /**
+   * Check user quota based on their plan
+   * Uses union-based counting to avoid double-counting generations
+   */
+  private async checkUserQuota(
+    userId: string,
+    plan: "free" | "starter" | "pro" | "unlimited",
+    event: APIGatewayProxyEvent
+  ): Promise<SimplifiedRateLimitResult> {
+    try {
+      // Pro and unlimited plans have no limits
+      if (plan === "pro" || plan === "unlimited") {
+        return { allowed: true, remaining: "unlimited" };
+      }
+
+      const clientIP = extractClientIP(event);
+      const hashedIP = createHash("sha256").update(clientIP).digest("hex");
+      const today = new Date().toISOString().split("T")[0] as string;
+
+      // Define limits based on plan
+      const limits = {
+        free: { daily: 1, monthly: 30 },
+        starter: { daily: 50, monthly: 300 },
+      };
+
+      const planLimits = limits[plan];
+
+      // Count distinct generations for this user today (using union-based counting)
+      const dailyUsage = await DynamoDBService.countDistinctGenerationsForUser(
+        userId,
+        hashedIP,
+        today,
+        today
+      );
+
+      // Count distinct generations for this user this month
+      const monthStart = `${today.substring(0, 7)}-01`; // YYYY-MM-01
+      const monthlyUsage =
+        await DynamoDBService.countDistinctGenerationsForUser(
+          userId,
+          hashedIP,
+          monthStart,
+          today
+        );
+
+      // Check daily limit
+      if (dailyUsage >= planLimits.daily) {
+        return {
+          allowed: false,
+          reason: `Daily limit reached (${planLimits.daily} images per day for ${plan} plan)`,
+          remaining: 0,
+        };
+      }
+
+      // Check monthly limit
+      if (monthlyUsage >= planLimits.monthly) {
+        return {
+          allowed: false,
+          reason: `Monthly limit reached (${planLimits.monthly} images per month for ${plan} plan)`,
+          remaining: 0,
+        };
+      }
+
+      // Return the most restrictive remaining count
+      const dailyRemaining = planLimits.daily - dailyUsage;
+      const monthlyRemaining = planLimits.monthly - monthlyUsage;
+
+      return {
+        allowed: true,
+        remaining: Math.min(dailyRemaining, monthlyRemaining),
+      };
+    } catch (error) {
+      console.error("Error checking user quota:", error);
+      // On error, allow the generation to proceed
+      return { allowed: true };
+    }
+  }
+
+  /**
+   * Check IP-based quota for authenticated users (prevents multi-account abuse)
+   * Uses union-based counting to avoid double-counting generations
+   */
+  private async checkIPQuotaForUser(
+    event: APIGatewayProxyEvent,
+    plan: "free" | "starter" | "pro" | "unlimited",
+    userId: string
+  ): Promise<SimplifiedRateLimitResult> {
+    try {
+      // Pro and unlimited plans have no IP limits
+      if (plan === "pro" || plan === "unlimited") {
+        return { allowed: true, remaining: "unlimited" };
+      }
+
+      const clientIP = extractClientIP(event);
+      const hashedIP = createHash("sha256").update(clientIP).digest("hex");
+      const today = new Date().toISOString().split("T")[0]; // Always defined
+
+      // Define IP limits based on plan (same as user limits to prevent abuse)
+      const ipLimits = {
+        free: { daily: 1, monthly: 30 },
+        starter: { daily: 50, monthly: 300 },
+      };
+
+      const planLimits = ipLimits[plan];
+
+      // Count distinct generations for this IP today (using union-based counting)
+      const dailyGenerations =
+        await DynamoDBService.countDistinctGenerationsForIP(
+          hashedIP,
+          userId,
+          today as string,
+          today as string
+        );
+
+      // Count distinct generations for this IP this month
+      const monthStart = `${today?.substring(0, 7)}-01`; // YYYY-MM-01
+      const monthlyGenerations =
+        await DynamoDBService.countDistinctGenerationsForIP(
+          hashedIP,
+          userId,
+          monthStart,
+          today as string
+        );
+
+      // Check daily IP limit
+      if (dailyGenerations >= planLimits.daily) {
+        return {
+          allowed: false,
+          reason: `IP daily limit reached (${planLimits.daily} images per day per IP for ${plan} plan). This prevents multi-account abuse.`,
+          remaining: 0,
+        };
+      }
+
+      // Check monthly IP limit
+      if (monthlyGenerations >= planLimits.monthly) {
+        return {
+          allowed: false,
+          reason: `IP monthly limit reached (${planLimits.monthly} images per month per IP for ${plan} plan). This prevents multi-account abuse.`,
+          remaining: 0,
+        };
+      }
+
+      // Return the most restrictive remaining count
+      const dailyRemaining = planLimits.daily - dailyGenerations;
+      const monthlyRemaining = planLimits.monthly - monthlyGenerations;
+
+      return {
+        allowed: true,
+        remaining: Math.min(dailyRemaining, monthlyRemaining),
+      };
+    } catch (error) {
+      console.error("Error checking IP quota for user:", error);
+      // On error, allow the generation to proceed
+      return { allowed: true };
+    }
+  }
+
+  /**
+   * Check anonymous IP generation limit (1 per IP per day)
+   */
+  private async checkAnonymousIPLimit(
+    event: APIGatewayProxyEvent
+  ): Promise<SimplifiedRateLimitResult> {
+    try {
+      const clientIP = extractClientIP(event);
+      const hashedIP = createHash("sha256").update(clientIP).digest("hex");
+
+      // Check if this IP has already generated today
+      const existingRecords =
+        await DynamoDBService.getIPGenerationRecordsForToday(
+          `IP#${hashedIP}`,
+          1
+        );
+
+      if (existingRecords.length > 0) {
+        return {
+          allowed: false,
+          reason:
+            "Anonymous users can only generate one image per day per IP address",
+          remaining: 0,
+        };
+      }
+
+      return { allowed: true, remaining: 1 };
+    } catch (error) {
+      console.error("Error checking anonymous IP limit:", error);
+      // On error, allow the generation to proceed
+      return { allowed: true };
+    }
+  }
+}

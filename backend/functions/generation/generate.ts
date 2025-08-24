@@ -14,10 +14,13 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { PlanUtil } from "@shared/utils/plan";
-import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
+import {
+  LambdaHandlerUtil,
+  OptionalAuthResult,
+} from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 import { getGenerationPermissions } from "@shared/utils/permissions";
-import { getRateLimitingService } from "@shared/services/rate-limiting";
+import { SimplifiedRateLimitingService } from "@shared/services/simple-rate-limiting";
 import {
   GenerationQueueService,
   QueueEntry,
@@ -97,7 +100,11 @@ const CONFIG = {
   },
   VALIDATION_LIMITS: {
     prompt: { maxLength: 1000 },
-    negativePrompt: { maxLength: 500 },
+    negativePrompt: {
+      maxLength: 500,
+      defaultValue:
+        "ugly, distorted bad teeth, bad hands, distorted face, missing fingers, multiple limbs, distorted arms, distorted legs, low quality, distorted fingers, weird legs, distorted eyes,pixelated, extra fingers, watermark",
+    },
   },
   MODELS: {
     moderation: "mistralai/mistral-medium-3.1",
@@ -420,7 +427,12 @@ class ValidationService {
       };
     }
 
-    if (negativePrompt?.trim() && !permissions.canUseNegativePrompt) {
+    if (
+      negativePrompt?.trim() &&
+      !permissions.canUseNegativePrompt &&
+      negativePrompt?.trim() !==
+        CONFIG.VALIDATION_LIMITS.negativePrompt.defaultValue
+    ) {
       return {
         message: "Negative prompts require a Pro plan",
         field: "negativePrompt",
@@ -578,35 +590,6 @@ class GenerationService {
       prompt: finalPrompt,
       negativePrompt: negativePrompt?.trim(),
     };
-  }
-
-  static checkGenerationLimits(
-    user: User,
-    requestedCount: number
-  ): { allowed: boolean; remaining: number | "unlimited" } {
-    const planKey =
-      user.planInfo.plan.toLowerCase() as keyof typeof CONFIG.PLAN_LIMITS;
-    const limits = CONFIG.PLAN_LIMITS[planKey] ?? CONFIG.PLAN_LIMITS.free;
-    const usage = user.usageStats;
-
-    // Check monthly limit
-    if (limits.monthly !== "unlimited") {
-      const monthlyRemaining = limits.monthly - usage.imagesGeneratedThisMonth;
-      if (monthlyRemaining < requestedCount) {
-        return { allowed: false, remaining: monthlyRemaining };
-      }
-    }
-
-    // Check daily limit
-    if (limits.daily !== "unlimited") {
-      const dailyRemaining = limits.daily - usage.imagesGeneratedToday;
-      if (dailyRemaining < requestedCount) {
-        return { allowed: false, remaining: dailyRemaining };
-      }
-      return { allowed: true, remaining: dailyRemaining };
-    }
-
-    return { allowed: true, remaining: "unlimited" };
   }
 
   static generateWorkflowData(params: WorkflowFinalParams): WorkflowData {
@@ -985,7 +968,7 @@ class PromptProcessor {
 
 const handleGenerate = async (
   event: APIGatewayProxyEvent,
-  auth: AuthResult
+  auth: OptionalAuthResult
 ): Promise<APIGatewayProxyResult> => {
   const timer = new PerformanceTimer("Generation Handler");
 
@@ -996,14 +979,13 @@ const handleGenerate = async (
 
   // Parse request and fetch user
   const requestBody: GenerationRequest = LambdaHandlerUtil.parseJsonBody(event);
-  const userEntity = await DynamoDBService.getUserById(auth.userId);
-
-  if (!userEntity) {
-    return ResponseUtil.notFound(event, "User not found");
+  let enhancedUser: User | null = null;
+  if (auth.userId) {
+    const userEntity = await DynamoDBService.getUserById(auth.userId);
+    enhancedUser = await PlanUtil.enhanceUser(userEntity!);
   }
 
-  const enhancedUser = await PlanUtil.enhanceUser(userEntity);
-  const userPlan = enhancedUser.planInfo.plan;
+  const userPlan = enhancedUser?.planInfo.plan || "free";
   const permissions = getGenerationPermissions(userPlan);
 
   // Validate request
@@ -1020,23 +1002,18 @@ const handleGenerate = async (
     "Prompt"
   );
 
-  // Check limits
-  const limitCheck = GenerationService.checkGenerationLimits(
-    enhancedUser,
-    requestBody.batchCount || 1
-  );
-  if (!limitCheck.allowed) {
-    return ResponseUtil.forbidden(
-      event,
-      `Generation limit exceeded. Remaining: ${limitCheck.remaining}`
-    );
-  }
-
-  // Check rate limits
-  const rateLimitingService = getRateLimitingService();
-  const rateLimitResult = await rateLimitingService.checkRateLimit(
-    auth.userId,
-    userPlan
+  // Check simplified rate limits (single image at a time + usage stats + IP limit for anonymous)
+  const simplifiedRateLimitingService =
+    SimplifiedRateLimitingService.getInstance();
+  const rateLimitResult = await simplifiedRateLimitingService.checkRateLimit(
+    event,
+    enhancedUser
+      ? {
+          userId: enhancedUser.userId,
+          plan: enhancedUser.planInfo.plan,
+          role: enhancedUser.role as "user" | "admin" | "moderator",
+        }
+      : undefined
   );
   if (!rateLimitResult.allowed) {
     return ResponseUtil.forbidden(
@@ -1045,18 +1022,35 @@ const handleGenerate = async (
     );
   }
 
-  // Get WebSocket connection
-  const connectionId =
-    requestBody.connectionId &&
-    (await DynamoDBService.isValidUserConnectionId(
-      auth.userId,
-      requestBody.connectionId
-    ))
-      ? requestBody.connectionId
-      : await DynamoDBService.getActiveConnectionIdForUser(auth.userId);
+  // Anonymous users can only generate 1 image at a time (already enforced by rate limiting)
+  if (!enhancedUser) {
+    const batchCount = requestBody.batchCount || 1;
+    if (batchCount > 1) {
+      return ResponseUtil.forbidden(
+        event,
+        "Anonymous users can only generate 1 image at a time"
+      );
+    }
+  }
 
-  if (!connectionId) {
-    console.warn("No active WebSocket connection for user:", auth.userId);
+  // Get WebSocket connection (only for authenticated users)
+  let connectionId: string | null = null;
+  if (auth.userId) {
+    connectionId =
+      requestBody.connectionId &&
+      (await DynamoDBService.isValidUserConnectionId(
+        auth.userId,
+        requestBody.connectionId
+      ))
+        ? requestBody.connectionId
+        : await DynamoDBService.getActiveConnectionIdForUser(auth.userId);
+
+    if (!connectionId) {
+      console.warn("No active WebSocket connection for user:", auth.userId);
+    }
+  } else {
+    console.log("Anonymous user - no WebSocket connection available");
+    connectionId = requestBody.connectionId || null;
   }
 
   // Initialize queue
@@ -1068,7 +1062,7 @@ const handleGenerate = async (
 
   const queueService = GenerationQueueService.getInstance();
   const queueEntry = await queueService.addToQueue(
-    auth.userId,
+    auth.userId || null, // Allow null for anonymous users
     validatedPrompt.trim(),
     initialWorkflowParams,
     connectionId || undefined,
@@ -1076,6 +1070,41 @@ const handleGenerate = async (
   );
 
   timer.checkpoint("Queue entry added");
+
+  // Update user usage statistics for authenticated users
+  if (auth.userId) {
+    try {
+      await PlanUtil.updateUserUsageStats(auth.userId, requestBody.batchCount);
+      console.log(`✅ Updated usage stats for user: ${auth.userId}`);
+    } catch (error) {
+      console.error(
+        `❌ Failed to update usage stats for user ${auth.userId}:`,
+        error
+      );
+      // Don't fail the generation if stats update fails
+    }
+  }
+
+  // Record IP generation for both authenticated and anonymous users
+  try {
+    await simplifiedRateLimitingService.recordGeneration(
+      event,
+      enhancedUser
+        ? {
+            userId: enhancedUser.userId,
+            plan: enhancedUser.planInfo.plan,
+          }
+        : undefined
+    );
+    console.log(
+      `✅ Recorded IP generation for ${
+        enhancedUser ? "authenticated" : "anonymous"
+      } user`
+    );
+  } catch (error) {
+    console.error("❌ Failed to record IP generation:", error);
+    // Don't fail the generation if IP recording fails
+  }
 
   // Process prompt with unified workflow
   const processingResult = await PromptProcessor.processPrompt(
@@ -1097,6 +1126,6 @@ const handleGenerate = async (
 };
 
 // Export handler with authentication wrapper
-export const handler = LambdaHandlerUtil.withAuth(handleGenerate, {
+export const handler = LambdaHandlerUtil.withOptionalAuth(handleGenerate, {
   requireBody: true,
 });

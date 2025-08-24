@@ -3225,4 +3225,292 @@ export class DynamoDBService {
       return null;
     }
   }
+
+  // Rate limiting helpers
+  static async createIPGenerationRecord(record: {
+    PK: string;
+    SK: string;
+    userId?: string;
+    plan?: string;
+    generatedAt: string;
+    TTL: number;
+  }): Promise<void> {
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: record,
+      })
+    );
+  }
+
+  static async createUserGenerationRecord(record: {
+    PK: string;
+    SK: string;
+    hashedIP?: string;
+    plan?: string;
+    generatedAt: string;
+    TTL: number;
+  }): Promise<void> {
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: record,
+      })
+    );
+  }
+
+  static async getIPGenerationRecord(
+    pk: string,
+    sk: string
+  ): Promise<any | null> {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: pk,
+          SK: sk,
+        },
+      })
+    );
+
+    return result.Item || null;
+  }
+
+  static async getIPGenerationRecordsForToday(
+    pk: string,
+    limit: number
+  ): Promise<any[]> {
+    const today = new Date().toISOString().split("T")[0];
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        KeyConditionExpression: "GSI1PK = :gsi1pk and GSI1SK = :gsi1sk",
+        ExpressionAttributeValues: {
+          ":gsi1pk": pk,
+          ":gsi1sk": today,
+        },
+        Limit: limit,
+      })
+    );
+
+    return result.Items || [];
+  }
+
+  static async queryIPGenerationRecords(
+    pk: string,
+    skStartsWith: string
+  ): Promise<any[]> {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        KeyConditionExpression: "PK = :pk AND begins_with(SK, :skPrefix)",
+        ExpressionAttributeValues: {
+          ":pk": pk,
+          ":skPrefix": skStartsWith,
+        },
+      })
+    );
+
+    return result.Items || [];
+  }
+
+  static async queryUserGenerationRecords(
+    pk: string,
+    skStartsWith: string
+  ): Promise<any[]> {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        KeyConditionExpression: "PK = :pk AND begins_with(SK, :skPrefix)",
+        ExpressionAttributeValues: {
+          ":pk": pk,
+          ":skPrefix": skStartsWith,
+        },
+      })
+    );
+
+    return result.Items || [];
+  }
+
+  static async countIPGenerations(
+    hashedIP: string,
+    startDate: string,
+    endDate: string
+  ): Promise<number> {
+    try {
+      const items = await this.queryIPGenerationRecords(
+        `IP#${hashedIP}`,
+        `GEN#${startDate}`
+      );
+
+      // Filter items that are within the date range
+      const filteredItems = items.filter((item) => {
+        const sk = item.SK as string;
+        if (!sk.startsWith("GEN#")) return false;
+
+        // Extract date from SK format: GEN#YYYY-MM-DD#...
+        const datePart = sk.split("#")[1];
+        return datePart && datePart >= startDate && datePart <= endDate;
+      });
+
+      return filteredItems.length;
+    } catch (error) {
+      console.error("Error counting IP generations:", error);
+      return 0; // On error, assume no generations to avoid blocking
+    }
+  }
+
+  static async countUserGenerations(
+    userId: string,
+    startDate: string,
+    endDate: string
+  ): Promise<number> {
+    try {
+      const items = await this.queryUserGenerationRecords(
+        `USER#${userId}`,
+        `GEN#${startDate}`
+      );
+
+      // Filter items that are within the date range
+      const filteredItems = items.filter((item) => {
+        const sk = item.SK as string;
+        if (!sk.startsWith("GEN#")) return false;
+
+        // Extract date from SK format: GEN#YYYY-MM-DD#...
+        const datePart = sk.split("#")[1];
+        return datePart && datePart >= startDate && datePart <= endDate;
+      });
+
+      return filteredItems.length;
+    } catch (error) {
+      console.error("Error counting user generations:", error);
+      return 0; // On error, assume no generations to avoid blocking
+    }
+  }
+
+  /**
+   * Count distinct generations for IP quota checking using union of IP and user records
+   * This prevents double-counting when the same generation appears in both IP and user records
+   */
+  static async countDistinctGenerationsForIP(
+    hashedIP: string,
+    userId: string,
+    startDate: string,
+    endDate: string
+  ): Promise<number> {
+    try {
+      // Get generations from IP records for this IP
+      const ipItems = await this.queryIPGenerationRecords(
+        `IP#${hashedIP}`,
+        `GEN#${startDate}`
+      );
+
+      // Get generations from user records for this user
+      const userItems = await this.queryUserGenerationRecords(
+        `USER#${userId}`,
+        `GEN#${startDate}`
+      );
+
+      // Create a set of unique generation IDs to avoid double counting
+      const uniqueGenerations = new Set<string>();
+
+      // Process IP records
+      ipItems.forEach((item) => {
+        const sk = item.SK as string;
+        if (sk.startsWith("GEN#")) {
+          const datePart = sk.split("#")[1];
+          if (datePart && datePart >= startDate && datePart <= endDate) {
+            uniqueGenerations.add(sk);
+          }
+        }
+      });
+
+      // Process user records
+      userItems.forEach((item) => {
+        const sk = item.SK as string;
+        if (sk.startsWith("GEN#")) {
+          const datePart = sk.split("#")[1];
+          if (datePart && datePart >= startDate && datePart <= endDate) {
+            uniqueGenerations.add(sk);
+          }
+        }
+      });
+
+      return uniqueGenerations.size;
+    } catch (error) {
+      console.error("Error counting distinct generations for IP:", error);
+      return 0; // On error, assume no generations to avoid blocking
+    }
+  }
+
+  /**
+   * Count distinct generations for user quota checking using union of IP and user records
+   * This prevents double-counting when the same generation appears in both IP and user records
+   */
+  static async countDistinctGenerationsForUser(
+    userId: string,
+    hashedIP: string,
+    startDate: string,
+    endDate: string
+  ): Promise<number> {
+    try {
+      // Get generations from user records for this user
+      const userItems = await this.queryUserGenerationRecords(
+        `USER#${userId}`,
+        `GEN#${startDate}`
+      );
+
+      // Get generations from IP records for this IP
+      const ipItems = await this.queryIPGenerationRecords(
+        `IP#${hashedIP}`,
+        `GEN#${startDate}`
+      );
+
+      // Create a set of unique generation IDs to avoid double counting
+      const uniqueGenerations = new Set<string>();
+
+      // Process user records
+      userItems.forEach((item) => {
+        const sk = item.SK as string;
+        if (sk.startsWith("GEN#")) {
+          const datePart = sk.split("#")[1];
+          if (datePart && datePart >= startDate && datePart <= endDate) {
+            uniqueGenerations.add(sk);
+          }
+        }
+      });
+
+      // Process IP records
+      ipItems.forEach((item) => {
+        const sk = item.SK as string;
+        if (sk.startsWith("GEN#")) {
+          const datePart = sk.split("#")[1];
+          if (datePart && datePart >= startDate && datePart <= endDate) {
+            uniqueGenerations.add(sk);
+          }
+        }
+      });
+
+      return uniqueGenerations.size;
+    } catch (error) {
+      console.error("Error counting distinct generations for user:", error);
+      return 0; // On error, assume no generations to avoid blocking
+    }
+  }
+
+  static async getUserByIdWithStats(
+    userId: string
+  ): Promise<UserEntity | null> {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `USER#${userId}`,
+          SK: "PROFILE",
+        },
+      })
+    );
+
+    return (result.Item as UserEntity) || null;
+  }
 }

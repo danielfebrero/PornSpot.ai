@@ -8,6 +8,13 @@ export interface AuthResult {
   userRole?: string;
 }
 
+export interface OptionalAuthResult {
+  userId: string | null;
+  userRole?: string;
+  userEmail?: string;
+  authSource: "authorizer" | "session" | "anonymous";
+}
+
 export interface AdminAuthResult {
   adminId: string;
   username: string;
@@ -34,6 +41,11 @@ export interface LambdaHandlerConfig {
 export type AuthenticatedHandler = (
   event: APIGatewayProxyEvent,
   auth: AuthResult
+) => Promise<APIGatewayProxyResult>;
+
+export type OptionalAuthHandler = (
+  event: APIGatewayProxyEvent,
+  auth: OptionalAuthResult
 ) => Promise<APIGatewayProxyResult>;
 
 export type AdminAuthenticatedHandler = (
@@ -212,6 +224,109 @@ export class LambdaHandlerUtil {
   }
 
   /**
+   * Wrap a handler that allows optional authentication.
+   * The handler will receive auth information if available, but won't fail if no auth is present.
+   */
+  static withOptionalAuth(
+    handler: OptionalAuthHandler,
+    config: LambdaHandlerConfig = {}
+  ) {
+    return async (
+      event: APIGatewayProxyEvent
+    ): Promise<APIGatewayProxyResult> => {
+      try {
+        // Handle OPTIONS requests
+        if (event.httpMethod === "OPTIONS") {
+          return ResponseUtil.noContent(event);
+        }
+
+        // Validate required path parameters (optionally by method)
+        if (
+          config.validatePathParams &&
+          (!config.validatePathParamsMethods ||
+            config.validatePathParamsMethods.includes(event.httpMethod))
+        ) {
+          for (const param of config.validatePathParams) {
+            if (!event.pathParameters?.[param]) {
+              return ResponseUtil.badRequest(
+                event,
+                `${param} is required in path`
+              );
+            }
+          }
+        }
+
+        // Validate request body if required (supports method-scoped array)
+        const requireBody = Array.isArray(config.requireBody)
+          ? config.requireBody.includes(event.httpMethod)
+          : !!config.requireBody;
+        if (requireBody && !event.body) {
+          return ResponseUtil.badRequest(event, "Request body is required");
+        }
+
+        // Validate required query string parameters
+        if (config.validateQueryParams) {
+          for (const param of config.validateQueryParams) {
+            const value = event.queryStringParameters?.[param];
+            if (
+              value === undefined ||
+              value === null ||
+              String(value).trim() === ""
+            ) {
+              return ResponseUtil.badRequest(
+                event,
+                `${param} is required in query`
+              );
+            }
+          }
+        }
+
+        // Handle optional authentication - always allow anonymous access
+        const authResult = await UserAuthUtil.allowAnonymous(event, {
+          includeRole: config.includeRole || false,
+        });
+
+        // The allowAnonymous method shouldn't return error responses, but check just in case
+        if (UserAuthUtil.isErrorResponse(authResult)) {
+          console.error("❌ Unexpected error in optional auth:", authResult);
+          // For optional auth, we still continue with anonymous access rather than failing
+          const anonymousAuth: OptionalAuthResult = {
+            userId: null,
+            authSource: "anonymous",
+            ...(config.includeRole && { userRole: "anonymous" }),
+          };
+          return await handler(event, anonymousAuth);
+        }
+
+        const auth: OptionalAuthResult = {
+          userId: authResult.userId,
+          authSource: authResult.authSource,
+          ...(authResult.userRole && { userRole: authResult.userRole }),
+          ...(authResult.userEmail && { userEmail: authResult.userEmail }),
+        };
+
+        if (auth.userId) {
+          console.log("✅ Optional auth - authenticated user:", auth.userId);
+          if (auth.userRole) {
+            console.log("🎭 User role:", auth.userRole);
+          }
+        } else {
+          console.log("ℹ️ Optional auth - anonymous user");
+        }
+
+        // Call the actual handler
+        return await handler(event, auth);
+      } catch (error) {
+        console.error("❌ Lambda handler error:", error);
+        return ResponseUtil.internalError(
+          event,
+          error instanceof Error ? error.message : "Internal server error"
+        );
+      }
+    };
+  }
+
+  /**
    * Helper to parse JSON body with error handling
    */
   static parseJsonBody<T>(event: APIGatewayProxyEvent): T {
@@ -318,15 +433,16 @@ export class LambdaHandlerUtil {
 
         // Check if user has admin role
         if (authResult.userRole !== "admin") {
-          console.log(`❌ Access denied: User role '${authResult.userRole}' is not admin`);
-          return ResponseUtil.forbidden(
-            event,
-            "Admin access required"
+          console.log(
+            `❌ Access denied: User role '${authResult.userRole}' is not admin`
           );
+          return ResponseUtil.forbidden(event, "Admin access required");
         }
 
         // Get user details for admin context
-        const userEntity = await DynamoDBService.getUserById(authResult.userId!);
+        const userEntity = await DynamoDBService.getUserById(
+          authResult.userId!
+        );
         if (!userEntity) {
           console.log("❌ Admin user not found in database");
           return ResponseUtil.unauthorized(event, "Admin user not found");

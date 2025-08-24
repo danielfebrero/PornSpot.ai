@@ -48,7 +48,7 @@
 
 [ ] Review how to generate images for anonymous users as they cannot generate jwt tokens.
 
-[ ] If I login after website load, make sure to get a new jwt token and websocket connection.
+[x] If I login after website load, make sure to get a new jwt token and websocket connection.
 
 [ ] Verify the entire mobile and tablet experience.
 
@@ -61,3 +61,5 @@
 [x] Add default cover image if no cover is selected.
 
 [ ] Add more parameters (cfg_scale, seed, steps, etc) to generation page and show them on Media page.
+
+[ ] Button to cancel generation pending job (for if the pipeline fail and do not update queue entry status, such as missing websocket message).

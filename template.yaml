@@ -2407,7 +2407,7 @@ Resources:
             Path: /generation/generate
             Method: POST
             Auth:
-              Authorizer: UserAuthorizer
+              Authorizer: NONE
         OptionsGenerate:
           Type: Api
           Properties:

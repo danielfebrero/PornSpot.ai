@@ -202,7 +202,10 @@ export class PlanUtil {
   /**
    * Update user usage statistics in database
    */
-  static async updateUserUsageStats(userId: string): Promise<void> {
+  static async updateUserUsageStats(
+    userId: string,
+    increment: number
+  ): Promise<void> {
     try {
       const user = await DynamoDBService.getUserById(userId);
       if (!user) {
@@ -239,8 +242,8 @@ export class PlanUtil {
       }
 
       // Increment counts
-      monthlyCount += 1;
-      dailyCount += 1;
+      monthlyCount += increment;
+      dailyCount += increment;
 
       // Update user in database
       await DynamoDBService.updateUser(userId, {
