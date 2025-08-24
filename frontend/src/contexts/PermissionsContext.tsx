@@ -37,6 +37,9 @@ interface PermissionsContextType {
   canUseNegativePrompt: () => boolean;
   canCreatePrivateContent: () => boolean;
   canUseCustomSizes: () => boolean;
+  canUseCfgScale: () => boolean;
+  canUseSeed: () => boolean;
+  canUseSteps: () => boolean;
 
   // Role-based permission checks
   canAccessAdmin: () => boolean;
@@ -216,6 +219,36 @@ export function PermissionsProvider({
     return planPermissions.canSelectImageSizes && !!user.planInfo?.isActive;
   };
 
+  const canUseCfgScale = (): boolean => {
+    // TEMPORARY: Until September 30, 2025, everyone can use CFG scale
+    if (isTemporaryUnlimitedPeriod()) {
+      return true;
+    }
+
+    if (!user || !planPermissions) return false;
+    return planPermissions.canUseCfgScale && !!user.planInfo?.isActive;
+  };
+
+  const canUseSeed = (): boolean => {
+    // TEMPORARY: Until September 30, 2025, everyone can use seed
+    if (isTemporaryUnlimitedPeriod()) {
+      return true;
+    }
+
+    if (!user || !planPermissions) return false;
+    return planPermissions.canUseSeed && !!user.planInfo?.isActive;
+  };
+
+  const canUseSteps = (): boolean => {
+    // TEMPORARY: Until September 30, 2025, everyone can use steps
+    if (isTemporaryUnlimitedPeriod()) {
+      return true;
+    }
+
+    if (!user || !planPermissions) return false;
+    return planPermissions.canUseSteps && !!user.planInfo?.isActive;
+  };
+
   // Role-based permission checks
   const canAccessAdmin = (): boolean => {
     if (!user || !rolePermissions) return false;
@@ -324,6 +357,9 @@ export function PermissionsProvider({
     canUseNegativePrompt,
     canCreatePrivateContent,
     canUseCustomSizes,
+    canUseCfgScale,
+    canUseSeed,
+    canUseSteps,
     canAccessAdmin,
     canManageUsers,
     canModerateContent,

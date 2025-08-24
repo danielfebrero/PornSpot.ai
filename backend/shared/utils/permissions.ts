@@ -55,6 +55,22 @@ function loadPermissionsConfig(): PermissionsConfig {
     // Return default configuration as fallback
     return {
       planPermissions: {
+        anonymous: {
+          imagesPerMonth: 30,
+          imagesPerDay: 1,
+          canUseNegativePrompt: false,
+          canUseBulkGeneration: false,
+          canUseLoRAModels: false,
+          canSelectImageSizes: false,
+          canCreatePrivateContent: false,
+          canBookmark: true,
+          canLike: true,
+          canComment: true,
+          canShare: true,
+          canUseCfgScale: false,
+          canUseSeed: false,
+          canUseSteps: false,
+        },
         free: {
           imagesPerMonth: 30,
           imagesPerDay: 1,
@@ -67,6 +83,9 @@ function loadPermissionsConfig(): PermissionsConfig {
           canLike: true,
           canComment: true,
           canShare: true,
+          canUseCfgScale: false,
+          canUseSeed: false,
+          canUseSteps: false,
         },
         starter: {
           imagesPerMonth: 300,
@@ -80,6 +99,9 @@ function loadPermissionsConfig(): PermissionsConfig {
           canLike: true,
           canComment: true,
           canShare: true,
+          canUseCfgScale: false,
+          canUseSeed: false,
+          canUseSteps: false,
         },
         unlimited: {
           imagesPerMonth: "unlimited",
@@ -93,6 +115,9 @@ function loadPermissionsConfig(): PermissionsConfig {
           canLike: true,
           canComment: true,
           canShare: true,
+          canUseCfgScale: false,
+          canUseSeed: false,
+          canUseSteps: false,
         },
         pro: {
           imagesPerMonth: "unlimited",
@@ -106,6 +131,9 @@ function loadPermissionsConfig(): PermissionsConfig {
           canLike: true,
           canComment: true,
           canShare: true,
+          canUseCfgScale: true,
+          canUseSeed: true,
+          canUseSteps: true,
         },
       },
       rolePermissions: {
@@ -175,6 +203,26 @@ export function getRolePermissions(role: UserRole): RolePermissions {
 export function getGenerationPermissions(
   plan: UserPlan
 ): GenerationPermissions {
+  // Special promotion: Until September 30, 2025, all authenticated users (all plans)
+  // get access to all generation features
+  const currentDate = new Date();
+  const promotionEndDate = new Date("2025-09-30T23:59:59Z");
+
+  if (currentDate <= promotionEndDate && plan !== "anonymous") {
+    // During promotion period, all plans get full pro-level generation permissions
+    return {
+      canUseBulkGeneration: true,
+      canUseLoRAModels: true,
+      canSelectImageSizes: true,
+      canUseNegativePrompt: true,
+      canCreatePrivateContent: true,
+      canUseCfgScale: true,
+      canUseSeed: true,
+      canUseSteps: true,
+    };
+  }
+
+  // After promotion ends, revert to normal plan-based permissions
   const planPerms = getPlanPermissions(plan);
 
   return {
@@ -183,6 +231,9 @@ export function getGenerationPermissions(
     canSelectImageSizes: planPerms.canSelectImageSizes,
     canUseNegativePrompt: planPerms.canUseNegativePrompt,
     canCreatePrivateContent: planPerms.canCreatePrivateContent,
+    canUseCfgScale: planPerms.canUseCfgScale,
+    canUseSeed: planPerms.canUseSeed,
+    canUseSteps: planPerms.canUseSteps,
   };
 }
 

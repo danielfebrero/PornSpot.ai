@@ -149,6 +149,9 @@ export function GenerateClient() {
     canUseNegativePrompt,
     canUseCustomSizes,
     canCreatePrivateContent,
+    canUseCfgScale,
+    canUseSeed,
+    canUseSteps,
   } = useUserPermissions();
 
   const router = useLocaleRouter();
@@ -861,6 +864,178 @@ export function GenerateClient() {
                     ? "Generated images will be visible to all users"
                     : "Generated images will be private to your account"}
                 </p>
+              </div>
+            </div>
+
+            {/* Advanced Generation Parameters */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* CFG Scale */}
+              <div
+                className={cn(
+                  "bg-card border border-border rounded-2xl shadow-lg p-6 transition-all",
+                  !canUseCfgScale() && "opacity-50"
+                )}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center",
+                      canUseCfgScale()
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    <Sparkles className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-foreground">CFG Scale</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Prompt adherence
+                    </p>
+                  </div>
+                  {!canUseCfgScale() && (
+                    <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
+                      <Crown className="h-3 w-3" />
+                      <span className="text-xs font-medium">Pro</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <div
+                    className={cn(
+                      !canUseCfgScale() && "pointer-events-none opacity-50"
+                    )}
+                  >
+                    <Slider
+                      value={[settings.cfgScale || 4.5]}
+                      onValueChange={(value) =>
+                        canUseCfgScale() && updateSettings("cfgScale", value[0])
+                      }
+                      min={1}
+                      max={10}
+                      step={0.1}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>1</span>
+                    <span className="font-medium text-foreground">
+                      {settings.cfgScale || 4.5}
+                    </span>
+                    <span>10</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Steps */}
+              <div
+                className={cn(
+                  "bg-card border border-border rounded-2xl shadow-lg p-6 transition-all",
+                  !canUseSteps() && "opacity-50"
+                )}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center",
+                      canUseSteps()
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    <RotateCcw className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-foreground">Steps</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Generation quality
+                    </p>
+                  </div>
+                  {!canUseSteps() && (
+                    <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
+                      <Crown className="h-3 w-3" />
+                      <span className="text-xs font-medium">Pro</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <div
+                    className={cn(
+                      !canUseSteps() && "pointer-events-none opacity-50"
+                    )}
+                  >
+                    <Slider
+                      value={[settings.steps || 30]}
+                      onValueChange={(value) =>
+                        canUseSteps() && updateSettings("steps", value[0])
+                      }
+                      min={5}
+                      max={60}
+                      step={1}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>5</span>
+                    <span className="font-medium text-foreground">
+                      {settings.steps || 30}
+                    </span>
+                    <span>60</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seed */}
+              <div
+                className={cn(
+                  "bg-card border border-border rounded-2xl shadow-lg p-6 transition-all",
+                  !canUseSeed() && "opacity-50"
+                )}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center",
+                      canUseSeed()
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    <Grid3X3 className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-foreground">Seed</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Reproducibility
+                    </p>
+                  </div>
+                  {!canUseSeed() && (
+                    <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
+                      <Crown className="h-3 w-3" />
+                      <span className="text-xs font-medium">Pro</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <Input
+                    type="number"
+                    value={settings.seed !== undefined ? settings.seed : -1}
+                    onChange={(e) =>
+                      canUseSeed() &&
+                      updateSettings("seed", parseInt(e.target.value) || -1)
+                    }
+                    disabled={!canUseSeed()}
+                    placeholder="-1 (random)"
+                    min={-1}
+                    className="w-full"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Use -1 for random seed
+                  </p>
+                </div>
               </div>
             </div>
 

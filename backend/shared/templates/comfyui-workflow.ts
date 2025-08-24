@@ -324,6 +324,7 @@ export const DEFAULT_WORKFLOW_PARAMS: Partial<WorkflowParameters> = {
   batchSize: 1,
   steps: 30,
   cfgScale: 4.5,
+  seed: -1,
   sampler: "dpmpp_3m_sde_gpu",
   scheduler: "exponential",
   negativePrompt:

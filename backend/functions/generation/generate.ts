@@ -105,6 +105,9 @@ const CONFIG = {
       defaultValue:
         "ugly, distorted bad teeth, bad hands, distorted face, missing fingers, multiple limbs, distorted arms, distorted legs, low quality, distorted fingers, weird legs, distorted eyes,pixelated, extra fingers, watermark",
     },
+    cfgScale: { min: 1, max: 10, default: 4.5 },
+    steps: { min: 5, max: 60, default: 30 },
+    seed: { min: -1, max: 2147483647, default: -1 }, // Max 32-bit signed integer
   },
   MODELS: {
     moderation: "mistralai/mistral-medium-3.1",
@@ -377,6 +380,9 @@ class ValidationService {
       this.validateLoraUsage,
       this.validateImageSize,
       this.validatePrivateContent,
+      this.validateCfgScale,
+      this.validateSteps,
+      this.validateSeed,
     ];
 
     for (const validator of validators) {
@@ -511,6 +517,99 @@ class ValidationService {
 
     return null;
   }
+
+  private static validateCfgScale(
+    requestBody: GenerationRequest,
+    permissions: any
+  ): ValidationError | null {
+    const { cfgScale } = requestBody;
+
+    // If cfgScale is not provided, use default value
+    if (cfgScale === undefined || cfgScale === null) {
+      return null;
+    }
+
+    // Check permission for using CFG Scale
+    if (!permissions.canUseCfgScale) {
+      return {
+        message: "CFG Scale control requires a Pro plan",
+        field: "cfgScale",
+      };
+    }
+
+    // Validate range
+    const { min, max } = CONFIG.VALIDATION_LIMITS.cfgScale;
+    if (cfgScale < min || cfgScale > max) {
+      return {
+        message: `CFG Scale must be between ${min} and ${max}`,
+        field: "cfgScale",
+      };
+    }
+
+    return null;
+  }
+
+  private static validateSteps(
+    requestBody: GenerationRequest,
+    permissions: any
+  ): ValidationError | null {
+    const { steps } = requestBody;
+
+    // If steps is not provided, use default value
+    if (steps === undefined || steps === null) {
+      return null;
+    }
+
+    // Check permission for using Steps
+    if (!permissions.canUseSteps) {
+      return {
+        message: "Steps control requires a Pro plan",
+        field: "steps",
+      };
+    }
+
+    // Validate range and ensure it's an integer
+    const { min, max } = CONFIG.VALIDATION_LIMITS.steps;
+    if (!Number.isInteger(steps) || steps < min || steps > max) {
+      return {
+        message: `Steps must be an integer between ${min} and ${max}`,
+        field: "steps",
+      };
+    }
+
+    return null;
+  }
+
+  private static validateSeed(
+    requestBody: GenerationRequest,
+    permissions: any
+  ): ValidationError | null {
+    const { seed } = requestBody;
+
+    // If seed is not provided, use default value
+    if (seed === undefined || seed === null) {
+      return null;
+    }
+
+    // Check permission for using Seed
+    if (!permissions.canUseSeed) {
+      return {
+        message: "Seed control requires a Pro plan",
+        field: "seed",
+      };
+    }
+
+    // Validate range and ensure it's an integer
+    const { min, max } = CONFIG.VALIDATION_LIMITS.seed;
+    if (!Number.isInteger(seed) || seed < min || seed > max) {
+      return {
+        message: `Seed must be an integer between ${min} and ${max} (use -1 for random)`,
+        field: "seed",
+      };
+    }
+
+    return null;
+  }
 }
 
 // ====================================
@@ -557,6 +656,9 @@ class GenerationService {
       selectedLoras = [],
       loraSelectionMode = "auto",
       optimizePrompt = true,
+      cfgScale = CONFIG.VALIDATION_LIMITS.cfgScale.default,
+      steps = CONFIG.VALIDATION_LIMITS.steps.default,
+      seed = CONFIG.VALIDATION_LIMITS.seed.default,
     } = requestBody;
 
     const dimensions = this.calculateImageDimensions(
@@ -580,8 +682,8 @@ class GenerationService {
     return {
       width: dimensions.width,
       height: dimensions.height,
-      steps: DEFAULT_WORKFLOW_PARAMS.steps!,
-      cfg_scale: DEFAULT_WORKFLOW_PARAMS.cfgScale!,
+      steps: steps,
+      cfg_scale: cfgScale,
       batch_size: batchCount,
       loraSelectionMode,
       loraStrengths,
@@ -589,6 +691,7 @@ class GenerationService {
       optimizePrompt,
       prompt: finalPrompt,
       negativePrompt: negativePrompt?.trim(),
+      seed: seed,
     };
   }
 
@@ -985,7 +1088,7 @@ const handleGenerate = async (
     enhancedUser = await PlanUtil.enhanceUser(userEntity!);
   }
 
-  const userPlan = enhancedUser?.planInfo.plan || "free";
+  const userPlan = enhancedUser?.planInfo.plan || "anonymous";
   const permissions = getGenerationPermissions(userPlan);
 
   // Validate request

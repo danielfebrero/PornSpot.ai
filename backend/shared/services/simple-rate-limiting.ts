@@ -3,6 +3,7 @@ import { GenerationQueueService } from "./generation-queue";
 import { DynamoDBService } from "../utils/dynamodb";
 import { extractClientIP } from "../utils/ip-extraction";
 import { createHash } from "crypto";
+import { UserPlan } from "@shared/shared-types";
 
 export interface SimplifiedRateLimitResult {
   allowed: boolean;
@@ -43,7 +44,7 @@ export class SimplifiedRateLimitingService {
     event: APIGatewayProxyEvent,
     user?: {
       userId: string;
-      plan: "free" | "starter" | "pro" | "unlimited";
+      plan: UserPlan;
       role: "user" | "admin" | "moderator";
     }
   ): Promise<SimplifiedRateLimitResult> {
@@ -220,7 +221,7 @@ export class SimplifiedRateLimitingService {
    */
   private async checkUserQuota(
     userId: string,
-    plan: "free" | "starter" | "pro" | "unlimited",
+    plan: UserPlan,
     event: APIGatewayProxyEvent
   ): Promise<SimplifiedRateLimitResult> {
     try {
@@ -243,6 +244,7 @@ export class SimplifiedRateLimitingService {
 
       // Define limits based on plan
       const limits = {
+        anonymous: { daily: 1, monthly: 30 },
         free: { daily: 1, monthly: 30 },
         starter: { daily: 50, monthly: 300 },
       };
@@ -306,7 +308,7 @@ export class SimplifiedRateLimitingService {
    */
   private async checkIPQuotaForUser(
     event: APIGatewayProxyEvent,
-    plan: "free" | "starter" | "pro" | "unlimited",
+    plan: UserPlan,
     userId: string
   ): Promise<SimplifiedRateLimitResult> {
     try {
@@ -328,6 +330,7 @@ export class SimplifiedRateLimitingService {
 
       // Define IP limits based on plan (same as user limits to prevent abuse)
       const ipLimits = {
+        anonymous: { daily: 1, monthly: 30 },
         free: { daily: 1, monthly: 30 },
         starter: { daily: 50, monthly: 300 },
       };

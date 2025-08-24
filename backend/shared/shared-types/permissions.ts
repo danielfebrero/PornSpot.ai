@@ -1,6 +1,6 @@
 // Shared permission and plan types
 
-export type UserPlan = "free" | "starter" | "unlimited" | "pro";
+export type UserPlan = "anonymous" | "free" | "starter" | "unlimited" | "pro";
 
 export type UserRole = "user" | "admin" | "moderator";
 
@@ -51,6 +51,9 @@ export interface GenerationPermissions {
   canUseLoRAModels: boolean;
   canSelectImageSizes: boolean;
   canCreatePrivateContent: boolean;
+  canUseCfgScale: boolean;
+  canUseSeed: boolean;
+  canUseSteps: boolean;
 }
 
 // Configuration types for permissions system

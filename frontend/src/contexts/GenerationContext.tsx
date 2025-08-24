@@ -30,6 +30,9 @@ const DEFAULT_SETTINGS: GenerationSettings = {
   loraSelectionMode: "auto",
   optimizePrompt: true,
   isPublic: true,
+  cfgScale: 4.5,
+  steps: 30,
+  seed: -1,
 };
 
 // UI state for the generation interface

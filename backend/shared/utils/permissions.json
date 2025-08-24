@@ -1,5 +1,22 @@
 {
   "planPermissions": {
+    "anonymous": {
+      "imagesPerMonth": 30,
+      "imagesPerDay": 1,
+      "canGenerateImages": true,
+      "canUseNegativePrompt": false,
+      "canUseBulkGeneration": false,
+      "canUseLoRAModels": false,
+      "canSelectImageSizes": false,
+      "canCreatePrivateContent": false,
+      "canBookmark": true,
+      "canLike": true,
+      "canComment": true,
+      "canShare": true,
+      "canUseCfgScale": false,
+      "canUseSeed": false,
+      "canUseSteps": false
+    },
     "free": {
       "imagesPerMonth": 30,
       "imagesPerDay": 1,
@@ -12,7 +29,10 @@
       "canBookmark": true,
       "canLike": true,
       "canComment": true,
-      "canShare": true
+      "canShare": true,
+      "canUseCfgScale": false,
+      "canUseSeed": false,
+      "canUseSteps": false
     },
     "starter": {
       "imagesPerMonth": 300,
@@ -26,7 +46,10 @@
       "canBookmark": true,
       "canLike": true,
       "canComment": true,
-      "canShare": true
+      "canShare": true,
+      "canUseCfgScale": false,
+      "canUseSeed": false,
+      "canUseSteps": false
     },
     "unlimited": {
       "imagesPerMonth": "unlimited",
@@ -40,7 +63,10 @@
       "canBookmark": true,
       "canLike": true,
       "canComment": true,
-      "canShare": true
+      "canShare": true,
+      "canUseCfgScale": false,
+      "canUseSeed": false,
+      "canUseSteps": false
     },
     "pro": {
       "imagesPerMonth": "unlimited",
@@ -54,7 +80,10 @@
       "canBookmark": true,
       "canLike": true,
       "canComment": true,
-      "canShare": true
+      "canShare": true,
+      "canUseCfgScale": true,
+      "canUseSeed": true,
+      "canUseSteps": true
     }
   },
   "rolePermissions": {

@@ -13,6 +13,9 @@ export interface GenerationSettings {
   optimizePrompt: boolean;
   isPublic?: boolean;
   connectionId?: string;
+  cfgScale?: number;
+  steps?: number;
+  seed?: number;
 }
 
 export interface GenerationRequest extends GenerationSettings {}
@@ -55,4 +58,5 @@ export interface WorkflowFinalParams {
   optimizePrompt: boolean;
   prompt: string;
   negativePrompt: string;
+  seed?: number;
 }
