@@ -156,7 +156,7 @@ export function DiscoverClient({
             items={items}
             loadMore={loadMore}
             loading={isActuallyLoading || isFetchingNextPage}
-            hasMore={true}
+            hasMore={hasNextPage}
             error={displayError}
           />
         </SectionErrorBoundary>

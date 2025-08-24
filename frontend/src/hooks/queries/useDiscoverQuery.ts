@@ -7,6 +7,7 @@ import {
   DiscoverContent,
   DiscoverParams,
 } from "@/types/shared-types";
+import { last } from "lodash";
 
 interface UseDiscoverParams
   extends Omit<DiscoverParams, "cursorAlbums" | "cursorMedia"> {
@@ -63,10 +64,12 @@ export function useDiscover(params: UseDiscoverParams = {}) {
     getNextPageParam: (lastPage: DiscoverContent) => {
       // Always return cursors for next page since hasNext is always true by default
       // The backend will handle when to stop returning items
-      return {
-        albums: lastPage.cursors.albums,
-        media: lastPage.cursors.media,
-      };
+      return lastPage.cursors.albums || lastPage.cursors.media
+        ? {
+            albums: lastPage.cursors.albums,
+            media: lastPage.cursors.media,
+          }
+        : undefined;
     },
     getPreviousPageParam: () => undefined, // We don't support backward pagination
     // Fresh data for 30 seconds, then stale-while-revalidate
