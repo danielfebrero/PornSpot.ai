@@ -2428,6 +2428,16 @@ Resources:
                 - dynamodb:DeleteItem
               Resource:
                 - !GetAtt MediaTable.Arn
+            - Effect: Allow
+              Action:
+                - execute-api:ManageConnections
+              Resource: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/${Environment}/POST/@connections/*"
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/openrouter-api-key"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/comfyui-api-endpoint"
 
   # AI Generation Usage Stats Function
   GenerationUsageStatsFunction:

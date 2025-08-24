@@ -76,8 +76,8 @@
 
 [ ] On generate page, revert to original prompt is not showing anymore.
 
-[ ] The magic text effect do not happen anymore.
+[ ] The magic text effect does not happen anymore.
 
-[ ] On refresh generate page, it sometimes fail and show an error.
+[x] On refresh generate page, it sometimes fail and show an error.
 
-[ ] On generate page, "remaining generation" is not in sync with server rate limit.
+[x] On generate page, "remaining generation" is not in sync with server rate limit.

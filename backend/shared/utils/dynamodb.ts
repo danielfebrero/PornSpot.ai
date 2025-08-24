@@ -3276,37 +3276,17 @@ export class DynamoDBService {
     return result.Item || null;
   }
 
-  static async getIPGenerationRecordsForToday(
-    pk: string,
-    limit: number
-  ): Promise<any[]> {
-    const today = new Date().toISOString().split("T")[0];
-    const result = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        KeyConditionExpression: "GSI1PK = :gsi1pk and GSI1SK = :gsi1sk",
-        ExpressionAttributeValues: {
-          ":gsi1pk": pk,
-          ":gsi1sk": today,
-        },
-        Limit: limit,
-      })
-    );
-
-    return result.Items || [];
-  }
-
   static async queryIPGenerationRecords(
-    pk: string,
-    skStartsWith: string
+    clientIp: string,
+    startDate: string
   ): Promise<any[]> {
     const result = await docClient.send(
       new QueryCommand({
         TableName: TABLE_NAME,
         KeyConditionExpression: "PK = :pk AND begins_with(SK, :skPrefix)",
         ExpressionAttributeValues: {
-          ":pk": pk,
-          ":skPrefix": skStartsWith,
+          ":pk": `IP#${clientIp}`,
+          ":skPrefix": `GEN#${startDate}`,
         },
       })
     );
@@ -3315,16 +3295,16 @@ export class DynamoDBService {
   }
 
   static async queryUserGenerationRecords(
-    pk: string,
-    skStartsWith: string
+    userId: string,
+    startDate: string
   ): Promise<any[]> {
     const result = await docClient.send(
       new QueryCommand({
         TableName: TABLE_NAME,
         KeyConditionExpression: "PK = :pk AND begins_with(SK, :skPrefix)",
         ExpressionAttributeValues: {
-          ":pk": pk,
-          ":skPrefix": skStartsWith,
+          ":pk": `USER#${userId}`,
+          ":skPrefix": `GEN#${startDate}`,
         },
       })
     );
@@ -3333,15 +3313,12 @@ export class DynamoDBService {
   }
 
   static async countIPGenerations(
-    hashedIP: string,
+    clientIp: string,
     startDate: string,
     endDate: string
   ): Promise<number> {
     try {
-      const items = await this.queryIPGenerationRecords(
-        `IP#${hashedIP}`,
-        `GEN#${startDate}`
-      );
+      const items = await this.queryIPGenerationRecords(clientIp, startDate);
 
       // Filter items that are within the date range
       const filteredItems = items.filter((item) => {
@@ -3366,10 +3343,7 @@ export class DynamoDBService {
     endDate: string
   ): Promise<number> {
     try {
-      const items = await this.queryUserGenerationRecords(
-        `USER#${userId}`,
-        `GEN#${startDate}`
-      );
+      const items = await this.queryUserGenerationRecords(userId, startDate);
 
       // Filter items that are within the date range
       const filteredItems = items.filter((item) => {
@@ -3393,22 +3367,19 @@ export class DynamoDBService {
    * This prevents double-counting when the same generation appears in both IP and user records
    */
   static async countDistinctGenerationsForIP(
-    hashedIP: string,
+    clientIp: string,
     userId: string,
     startDate: string,
     endDate: string
   ): Promise<number> {
     try {
       // Get generations from IP records for this IP
-      const ipItems = await this.queryIPGenerationRecords(
-        `IP#${hashedIP}`,
-        `GEN#${startDate}`
-      );
+      const ipItems = await this.queryIPGenerationRecords(clientIp, startDate);
 
       // Get generations from user records for this user
       const userItems = await this.queryUserGenerationRecords(
-        `USER#${userId}`,
-        `GEN#${startDate}`
+        userId,
+        startDate
       );
 
       // Create a set of unique generation IDs to avoid double counting
@@ -3449,22 +3420,19 @@ export class DynamoDBService {
    */
   static async countDistinctGenerationsForUser(
     userId: string,
-    hashedIP: string,
+    clientIp: string,
     startDate: string,
     endDate: string
   ): Promise<number> {
     try {
       // Get generations from user records for this user
       const userItems = await this.queryUserGenerationRecords(
-        `USER#${userId}`,
-        `GEN#${startDate}`
+        userId,
+        startDate
       );
 
       // Get generations from IP records for this IP
-      const ipItems = await this.queryIPGenerationRecords(
-        `IP#${hashedIP}`,
-        `GEN#${startDate}`
-      );
+      const ipItems = await this.queryIPGenerationRecords(clientIp, startDate);
 
       // Create a set of unique generation IDs to avoid double counting
       const uniqueGenerations = new Set<string>();

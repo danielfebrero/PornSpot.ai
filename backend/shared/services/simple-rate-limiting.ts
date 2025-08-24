@@ -117,7 +117,6 @@ export class SimplifiedRateLimitingService {
   ): Promise<void> {
     try {
       const clientIP = extractClientIP(event);
-      const hashedIP = createHash("sha256").update(clientIP).digest("hex");
       const today = new Date().toISOString().split("T")[0];
       const now = new Date().toISOString();
 
@@ -128,9 +127,9 @@ export class SimplifiedRateLimitingService {
 
           // Record IP generation with userId for union counting
           const ipRecord = {
-            PK: `IP#${hashedIP}`,
+            PK: `IP#${clientIP}`,
             SK: `GEN#${today}#${generationId}`,
-            GSI1PK: `IP#${hashedIP}`,
+            GSI1PK: `IP#${clientIP}`,
             GSI1SK: today,
             userId: user.userId,
             plan: user.plan,
@@ -144,7 +143,7 @@ export class SimplifiedRateLimitingService {
             SK: `GEN#${today}#${generationId}`,
             GSI1PK: `USER#${user.userId}`,
             GSI1SK: today,
-            hashedIP: hashedIP,
+            hashedIP: clientIP,
             plan: user.plan,
             generatedAt: now,
             TTL: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days retention
@@ -154,10 +153,7 @@ export class SimplifiedRateLimitingService {
           await DynamoDBService.createUserGenerationRecord(userRecord);
         }
         console.log(
-          `Recorded ${batchCount} generations - IP: ${hashedIP.substring(
-            0,
-            8
-          )}..., User: ${user.userId}`
+          `Recorded ${batchCount} generations - IP: ${clientIP}..., User: ${user.userId}`
         );
       } else {
         // For anonymous users, record only IP generation
@@ -165,9 +161,9 @@ export class SimplifiedRateLimitingService {
           const generationId = `${now}#${i}`;
 
           const ipRecord = {
-            PK: `IP#${hashedIP}`,
+            PK: `IP#${clientIP}`,
             SK: `GEN#${today}#${generationId}`,
-            GSI1PK: `IP#${hashedIP}`,
+            GSI1PK: `IP#${clientIP}`,
             GSI1SK: today,
             generatedAt: now,
             TTL: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days retention for anonymous
@@ -176,10 +172,7 @@ export class SimplifiedRateLimitingService {
           await DynamoDBService.createIPGenerationRecord(ipRecord);
         }
         console.log(
-          `Recorded ${batchCount} anonymous generations for IP: ${hashedIP.substring(
-            0,
-            8
-          )}...`
+          `Recorded ${batchCount} anonymous generations for IP: ${clientIP}...`
         );
       }
     } catch (error) {
@@ -311,7 +304,6 @@ export class SimplifiedRateLimitingService {
       }
 
       const clientIP = extractClientIP(event);
-      const hashedIP = createHash("sha256").update(clientIP).digest("hex");
       const today = new Date().toISOString().split("T")[0]; // Always defined
 
       // Define IP limits based on plan (same as user limits to prevent abuse)
@@ -325,7 +317,7 @@ export class SimplifiedRateLimitingService {
       // Count distinct generations for this IP today (using union-based counting)
       const dailyGenerations =
         await DynamoDBService.countDistinctGenerationsForIP(
-          hashedIP,
+          clientIP,
           userId,
           today as string,
           today as string
@@ -335,7 +327,7 @@ export class SimplifiedRateLimitingService {
       const monthStart = `${today?.substring(0, 7)}-01`; // YYYY-MM-01
       const monthlyGenerations =
         await DynamoDBService.countDistinctGenerationsForIP(
-          hashedIP,
+          clientIP,
           userId,
           monthStart,
           today as string
@@ -382,15 +374,15 @@ export class SimplifiedRateLimitingService {
   ): Promise<SimplifiedRateLimitResult> {
     try {
       const clientIP = extractClientIP(event);
-      const hashedIP = createHash("sha256").update(clientIP).digest("hex");
       const today = new Date().toISOString().split("T")[0] as string; // Assert it's a string
 
       // Count generations for this IP today using the new GEN# format
       const dailyGenerations = await DynamoDBService.countIPGenerations(
-        hashedIP,
+        clientIP,
         today,
         today
       );
+      console.log("Daily generations for anonymous IP:", dailyGenerations);
 
       if (dailyGenerations > 0) {
         return {

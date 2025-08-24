@@ -46,7 +46,7 @@
 
 [x] Review or implement Change password.
 
-[ ] Review how to generate images for anonymous users as they cannot generate jwt tokens.
+[x] Review how to generate images for anonymous users as they cannot generate jwt tokens.
 
 [x] If I login after website load, make sure to get a new jwt token and websocket connection.
 
