@@ -2428,6 +2428,42 @@ Resources:
                 - dynamodb:DeleteItem
               Resource:
                 - !GetAtt MediaTable.Arn
+
+  # AI Generation Usage Stats Function
+  GenerationUsageStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-generation-usage-stats-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/generation/usage-stats.handler"]
+      Events:
+        UsageStatsGet:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generation/usage-stats
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        OptionsUsageStats:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generation/usage-stats
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+              Resource:
+                - !GetAtt MediaTable.Arn
                 - !Sub "${MediaTable.Arn}/index/*"
             - Effect: Allow
               Action:

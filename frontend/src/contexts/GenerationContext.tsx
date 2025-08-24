@@ -15,7 +15,6 @@ import { GenerationWebSocketMessage } from "@/types/shared-types/websocket";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import { generateApi } from "@/lib/api/generate";
 import { useUserContext } from "./UserContext";
-import { set } from "lodash";
 
 // Default generation settings following the pattern from GenerateClient
 const DEFAULT_SETTINGS: GenerationSettings = {
@@ -667,15 +666,6 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
   const updateSettings = useCallback(
     (key: keyof GenerationSettings, value: unknown) => {
       setSettings((prev) => ({ ...prev, [key]: value }));
-
-      // If the prompt is being changed manually, clear the optimization cache
-      if (key === "prompt") {
-        setUiState((prev) => ({
-          ...prev,
-          optimizedPromptCache: "",
-          originalPromptBeforeOptimization: "",
-        }));
-      }
     },
     []
   );

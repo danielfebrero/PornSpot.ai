@@ -1,6 +1,14 @@
 import { GenerationResponse, GenerationSettings } from "@/types";
 import { ApiUtil } from "../api-util";
 
+export interface UsageStatsResponse {
+  allowed: boolean;
+  reason?: string;
+  remaining?: number | "unlimited";
+  userId: string | null;
+  plan?: "free" | "starter" | "pro" | "unlimited";
+}
+
 // Generate API Functions
 export const generateApi = {
   // Generate image
@@ -14,6 +22,19 @@ export const generateApi = {
         method: "POST",
         body: request,
         credentials: "include", // No credentials needed for public view count endpoint
+      }
+    );
+
+    return ApiUtil.extractData(response);
+  },
+
+  // Get usage statistics
+  getUsageStats: async (): Promise<UsageStatsResponse> => {
+    const response = await ApiUtil.request<UsageStatsResponse>(
+      "/generation/usage-stats",
+      {
+        method: "GET",
+        credentials: "include",
       }
     );
 

@@ -9,6 +9,7 @@ import {
 } from "@/types/permissions";
 import { User } from "@/types";
 import { getPlanPermissions } from "@/utils/permissions";
+import { useUsageStats } from "@/hooks/queries/useGenerationQuery";
 
 interface PermissionsContextType {
   user: User | null;
@@ -56,6 +57,10 @@ export function PermissionsProvider({
 }: PermissionsProviderProps) {
   const [planPermissions, setPlanPermissions] =
     React.useState<PlanPermissions | null>(null);
+
+  // Get real-time usage stats from API
+  const { data: usageStats } = useUsageStats();
+
   React.useEffect(() => {
     const fetchPlanPermissions = async () => {
       const permissions = await getPlanPermissions(
@@ -86,6 +91,12 @@ export function PermissionsProvider({
 
   // Plan-based permission checks
   const canGenerateImages = (): boolean => {
+    // Use API usage stats if available, otherwise fallback to user data
+    if (usageStats) {
+      return usageStats.allowed;
+    }
+
+    // Fallback to local data
     if (!user || !planPermissions) return false;
     return !!user.planInfo?.isActive;
   };
@@ -93,6 +104,14 @@ export function PermissionsProvider({
   const canGenerateImagesCount = (
     count: number = 1
   ): { allowed: boolean; remaining: number | "unlimited" } => {
+    // Use API usage stats if available
+    if (usageStats) {
+      const remaining = usageStats.remaining || 0;
+      const allowed = remaining === "unlimited" || remaining >= count;
+      return { allowed, remaining };
+    }
+
+    // Fallback to local user data
     if (!user || !planPermissions || !user.planInfo?.isActive) {
       return { allowed: false, remaining: 0 };
     }

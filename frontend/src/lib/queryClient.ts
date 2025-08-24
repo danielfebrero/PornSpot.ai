@@ -172,6 +172,12 @@ export const queryKeys = {
     byTarget: (targetType: "album" | "media", targetId: string) =>
       ["comments", targetType, targetId] as const,
   },
+
+  // Generation
+  generation: {
+    all: () => ["generation"] as const,
+    usageStats: () => ["generation", "usage-stats"] as const,
+  },
 } as const;
 
 // Utility functions for cache invalidation

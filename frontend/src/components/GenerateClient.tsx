@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -19,6 +19,7 @@ import { GradientTextarea } from "@/components/ui/GradientTextarea";
 import { MagicText, MagicTextHandle } from "@/components/ui/MagicText";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { useGenerationContext } from "@/contexts/GenerationContext";
+import { useDecrementUsageStats } from "@/hooks/queries/useGenerationQuery";
 import {
   ImageIcon,
   Crown,
@@ -34,6 +35,7 @@ import { useLocaleRouter } from "@/lib/navigation";
 import { GenerationProgressCard } from "./ui/GenerationProgressCard";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { useWebSocket } from "@/contexts/WebSocketContext";
+import { set } from "lodash";
 
 const IMAGE_SIZES = [
   {
@@ -86,6 +88,9 @@ export function GenerateClient() {
   const magicTextRef = useRef<MagicTextHandle>(null);
   const { fetchConnectionId, isConnected } = useWebSocket();
 
+  // Hook for optimistic usage stats updates
+  const decrementUsageStats = useDecrementUsageStats();
+
   // Use GenerationContext for all generation state and functionality
   const {
     settings,
@@ -129,7 +134,6 @@ export function GenerateClient() {
     currentNodeIndex,
     optimizationStream,
     optimizationToken,
-    optimizedPrompt,
     generateImages,
     clearResults,
     stopGeneration,
@@ -226,26 +230,23 @@ export function GenerateClient() {
   const handleGenerate = async () => {
     if (!canGenerateImages() || !allowed || !settings.prompt.trim()) return;
 
+    // Optimistically decrement usage stats
+    decrementUsageStats(settings.batchCount || 1);
+
     // Show progress card immediately on click
     setShowProgressCard(true);
 
-    console.log({
-      optimizePrompt: settings.optimizePrompt,
-      prompt: settings.prompt,
-      optimizedPromptCache: optimizedPromptCache,
-      originalPromptBeforeOptimization: originalPromptBeforeOptimization,
-    });
+    // Clear any previous results
+    clearResults();
+
     // Handle magic text animation for optimization
     if (settings.optimizePrompt && settings.prompt !== optimizedPromptCache) {
+      // Store the original prompt before optimization for potential reversion
+      setOriginalPromptBeforeOptimization(settings.prompt);
       handleResetMagicText();
       setShowMagicText(true);
       magicTextRef.current?.startStreaming();
-      // Store the original prompt before optimization for potential reversion
-      setOriginalPromptBeforeOptimization(settings.prompt);
     }
-
-    // Clear any previous results
-    clearResults();
 
     if (settings.prompt === optimizedPromptCache) {
       await generateImages({ ...settings, optimizePrompt: false });
@@ -453,6 +454,8 @@ export function GenerateClient() {
                   value={settings.prompt}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                     updateSettings("prompt", e.target.value);
+                    setOptimizedPromptCache("");
+                    setOriginalPromptBeforeOptimization("");
                   }}
                   className="w-full h-40 md:h-32 text-lg p-6 border-2 border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 resize-none transition-all"
                 />
