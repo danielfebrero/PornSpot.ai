@@ -321,7 +321,7 @@ const UserAlbumsPage: React.FC = () => {
           canAddToAlbum: false,
           canDownload: false,
           canDelete: false,
-          showTags: false,
+          showTags: true,
           customActions: (item) => [
             {
               label: "Edit Album",

@@ -193,7 +193,7 @@ const UserLikesPage: React.FC = () => {
             canAddToAlbum: true,
             canDownload: true,
             canDelete: false,
-            showTags: true,
+            showTags: false,
             showCounts: true,
           }}
           mediaList={likes

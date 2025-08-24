@@ -167,6 +167,7 @@ const UserBookmarksPage: React.FC = () => {
             canAddToAlbum: true,
             canDownload: true,
             canDelete: false,
+            showTags: false,
           }}
           mediaList={allBookmarkItems.filter(
             (item): item is Media => item.type === "media"
