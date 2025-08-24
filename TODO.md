@@ -61,3 +61,5 @@
 [ ] Add more parameters (cfg_scale, seed, steps, etc) to generation page and show them on Media page.
 
 [ ] Button to cancel generation pending job (for if the pipeline fail and do not update queue entry status, such as missing websocket message).
+
+[ ] Implement payments.

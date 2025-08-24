@@ -231,4 +231,18 @@ export const userApi = {
     );
     return ApiUtil.extractData(response);
   },
+
+  // Validate invitation code for private beta
+  validateInviteCode: async (
+    code: string
+  ): Promise<{
+    valid: boolean;
+    message?: string;
+  }> => {
+    const response = await ApiUtil.post<{
+      valid: boolean;
+      message?: string;
+    }>("/user/auth/invite-code", { code });
+    return ApiUtil.extractData(response);
+  },
 };

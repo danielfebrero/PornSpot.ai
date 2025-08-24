@@ -1049,6 +1049,32 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
 
+  InviteCodeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-invite-code-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/auth/invite-code.handler"]
+      Events:
+        PostInviteCode:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/auth/invite-code
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        OptionsInviteCode:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/auth/invite-code
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+
   AdminLogoutFunction:
     Type: AWS::Serverless::Function
     Properties:
