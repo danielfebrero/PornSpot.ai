@@ -120,7 +120,7 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
             disabled={isToggling}
             className={cn(
               config.button,
-              "transition-colors duration-200",
+              "transition-colors duration-200 hover:bg-transparent",
               isBookmarked && "text-blue-500 hover:text-blue-600",
               !isBookmarked && "text-gray-500 hover:text-blue-500",
               className

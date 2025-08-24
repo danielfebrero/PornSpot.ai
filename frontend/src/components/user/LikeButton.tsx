@@ -121,7 +121,7 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
             disabled={isToggling}
             className={cn(
               config.button,
-              "transition-colors duration-200",
+              "transition-colors duration-200 hover:bg-transparent",
               isLiked && "text-red-500 hover:text-red-600",
               !isLiked && "text-gray-500 hover:text-red-500",
               className

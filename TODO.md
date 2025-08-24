@@ -14,13 +14,11 @@
 
 [x] Optimize filter by tags using indexes.
 
-[ ] When not logged in and try to like/bookmark, we need a visual feedback.
+[x] When not logged in and try to like/bookmark, we need a visual feedback.
 
 [x] On hover/tap an album card, I want to see changing thumbnails.
 
 [ ] Write tests for backend and frontend.
-
-[ ] Rework Welcome email.
 
 [x] Implement admin users page.
 
@@ -42,7 +40,7 @@
 
 [ ] Remove all console logs.
 
-[ ] Implement additional image credit, so we can do promotions and offer 5 images on signup.
+[ ] Implement additional image credit, so we can do promotions and offer 10 images on signup.
 
 [x] Review or implement Change password.
 
