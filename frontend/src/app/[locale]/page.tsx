@@ -1,11 +1,11 @@
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { discoverApi } from "@/lib/api/discover";
-import { Album, Media, UnifiedPaginationMeta } from "@/types";
+import { Album, DiscoverCursors, Media } from "@/types";
 import { DiscoverClient } from "@/components/DiscoverClient";
 import { locales } from "@/i18n";
 import { generateHomepageMetadata } from "@/lib/opengraph";
-import EvilPrefetch from "@/components/EvilPrefetch";
+// import EvilPrefetch from "@/components/EvilPrefetch";
 
 // Generate static pages for all locales at build time
 export async function generateStaticParams() {
@@ -13,7 +13,7 @@ export async function generateStaticParams() {
 }
 
 // Enable ISR for this page - static generation with revalidation
-export const revalidate = 3600; // Revalidate every hour
+export const revalidate = 60 * 10; // Revalidate every 10 minutes
 export const dynamic = "force-static"; // Force static generation at build time
 export const dynamicParams = true; // Allow dynamic params (for tags)
 
@@ -46,19 +46,17 @@ export default async function DiscoverPage({
 
   const tag = searchParams.tag;
   let items: (Album | Media)[] = [];
-  let pagination: UnifiedPaginationMeta | null = null;
+  let pagination: DiscoverCursors | null = null;
   let error: string | null = null;
 
   try {
     const result = await discoverApi.getDiscover({
-      isPublic: true,
-      limit: 12,
-      includeContentPreview: true,
+      limit: 20,
       ...(tag && { tag }), // Include tag if provided
     });
 
     items = result.items || [];
-    pagination = result.pagination || null;
+    pagination = result.cursors || null;
   } catch (fetchError) {
     console.error("Exception while fetching albums:", fetchError);
     error = String(fetchError);
@@ -67,7 +65,7 @@ export default async function DiscoverPage({
   return (
     <>
       {/* SEO-friendly hidden content for search engines */}
-      <EvilPrefetch data="test" />
+      {/* <EvilPrefetch data="test" /> */}
       <div className="sr-only">
         <h1>{t("welcomeTitle")}</h1>
         <p>{t("welcomeDescription")}</p>

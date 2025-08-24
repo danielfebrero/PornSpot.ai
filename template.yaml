@@ -492,12 +492,41 @@ Resources:
       ImageConfig:
         Command: ["functions/albums/get.handler"]
       Events:
-        Api:
+        GetAlbums:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
             Path: /albums
             Method: GET
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
+  GetDiscoverFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-get-discover-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/discover/get.handler"]
+      Events:
+        GetDiscover:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /discover
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        OptionsGetDiscover:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /discover
+            Method: OPTIONS
             Auth:
               Authorizer: NONE
       Policies:

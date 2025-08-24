@@ -64,8 +64,14 @@
 
 [ ] Implement payments.
 
-[ ] Implement Discover page algorithm that mix recent/popular contents and albums.
+[x] Implement Discover page algorithm that mix recent/popular contents and albums.
 
 [x] Set custom max image size.
 
 [ ] Add more LoRA.
+
+[ ] When navigating then going backward, we must not lose infinite scroll position.
+
+[x] Revalidate Discover page every 10 minutes.
+
+[ ] Update documentation (data models, apis...).

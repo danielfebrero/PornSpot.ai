@@ -182,12 +182,8 @@ export const queryKeys = {
   // Discover
   discover: {
     all: () => ["discover"] as const,
-    list: (params?: {
-      isPublic?: boolean;
-      includeContentPreview?: boolean;
-      limit?: number;
-      tag?: string;
-    }) => ["discover", "list", params] as const,
+    list: (params?: { limit?: number; tag?: string }) =>
+      ["discover", "list", params] as const,
   },
 } as const;
 

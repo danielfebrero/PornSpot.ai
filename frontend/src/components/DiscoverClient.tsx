@@ -2,7 +2,7 @@
 
 import { ContentGrid } from "./ContentGrid";
 import { useBulkViewCounts } from "@/hooks/queries/useViewCountsQuery";
-import { Album, Media } from "@/types";
+import { Album, DiscoverCursors, Media } from "@/types";
 import { useSearchParams } from "next/navigation";
 import { useLocaleRouter } from "@/lib/navigation";
 import { useEffect, useRef, useMemo } from "react";
@@ -14,10 +14,7 @@ import { useDiscover } from "@/hooks/queries/useDiscoverQuery";
 
 interface DiscoverClientProps {
   initialContent: (Album | Media)[];
-  initialPagination: {
-    hasNext: boolean;
-    cursor: string | null;
-  } | null;
+  initialPagination: DiscoverCursors | null;
   initialError: string | null;
   initialTag?: string; // Add optional initialTag prop
 }
@@ -52,15 +49,13 @@ export function DiscoverClient({
     isFetchingNextPage,
     refetch,
   } = useDiscover({
-    isPublic: true,
-    includeContentPreview: true,
     limit: 12,
     tag,
     // Pass initial data only for non-tagged requests
     ...(shouldUseInitialData && {
       initialData: {
         items: initialContent,
-        pagination: initialPagination || undefined,
+        cursors: initialPagination || undefined,
       },
     }),
   });

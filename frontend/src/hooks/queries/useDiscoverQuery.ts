@@ -1,16 +1,21 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { discoverApi } from "@/lib/api";
 import { queryKeys } from "@/lib/queryClient";
-import { Album, Media } from "@/types";
-import { DiscoverResponse, DiscoverParams } from "@/lib/api/discover";
+import {
+  Album,
+  Media,
+  DiscoverContent,
+  DiscoverParams,
+} from "@/types/shared-types";
 
-interface UseDiscoverParams extends Omit<DiscoverParams, "cursor"> {
+interface UseDiscoverParams
+  extends Omit<DiscoverParams, "cursorAlbums" | "cursorMedia"> {
   // SSG/ISR support
   initialData?: {
     items: (Album | Media)[];
-    pagination?: {
-      hasNext: boolean;
-      cursor: string | null;
+    cursors?: {
+      albums: string | null;
+      media: string | null;
     };
   };
 }
@@ -25,40 +30,50 @@ export function useDiscover(params: UseDiscoverParams = {}) {
         pages: [
           {
             items: initialData.items,
-            pagination: {
-              hasNext: initialData.pagination?.hasNext || false,
-              cursor: initialData.pagination?.cursor || null,
-              limit: limit,
+            cursors: initialData.cursors || { albums: null, media: null },
+            metadata: {
+              totalItems: initialData.items.length,
+              albumCount: 0,
+              mediaCount: 0,
+              diversificationApplied: true,
+              timeWindow: "0-7 days ago",
             },
           },
         ],
-        pageParams: [undefined as string | undefined],
+        pageParams: [{ albums: null, media: null }],
       }
     : undefined;
 
   return useInfiniteQuery({
     queryKey: queryKeys.discover.list(restParams), // Exclude initialData from query key
-    queryFn: async ({ pageParam }): Promise<DiscoverResponse> => {
+    queryFn: async ({ pageParam }): Promise<DiscoverContent> => {
       return await discoverApi.getDiscover({
         ...restParams,
         limit,
-        cursor: pageParam,
+        cursorAlbums: pageParam?.albums || undefined,
+        cursorMedia: pageParam?.media || undefined,
       });
     },
-    initialPageParam: undefined as string | undefined,
+    initialPageParam: { albums: null, media: null } as {
+      albums: string | null;
+      media: string | null;
+    },
     // Use initial data from SSG/ISR if provided
     initialData: transformedInitialData,
-    getNextPageParam: (lastPage: DiscoverResponse) => {
-      return lastPage.pagination?.hasNext
-        ? lastPage.pagination.cursor
-        : undefined;
+    getNextPageParam: (lastPage: DiscoverContent) => {
+      // Always return cursors for next page since hasNext is always true by default
+      // The backend will handle when to stop returning items
+      return {
+        albums: lastPage.cursors.albums,
+        media: lastPage.cursors.media,
+      };
     },
     getPreviousPageParam: () => undefined, // We don't support backward pagination
     // Fresh data for 30 seconds, then stale-while-revalidate
     staleTime: 30 * 1000,
-    // Enable background refetching for public content
-    refetchOnWindowFocus: restParams.isPublic === true,
-    // Refetch interval for public content discovery
-    refetchInterval: restParams.isPublic === true ? 3 * 60 * 1000 : false, // 3 minutes
+    // Enable background refetching for discover content
+    refetchOnWindowFocus: true,
+    // Refetch interval for discover content
+    refetchInterval: 3 * 60 * 1000, // 3 minutes
   });
 }
