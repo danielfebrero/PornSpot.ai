@@ -208,8 +208,8 @@ export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
         </div>
 
         {/* Additional magical elements */}
-        <div className="absolute -top-10 -left-10 w-20 h-20 bg-gradient-to-br from-pink-400/30 to-purple-600/30 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+        <div className="absolute -top-10 -left-10 w-20 h-20 bg-gradient-to-br from-pink-400/30 to-purple-600/30 rounded-full blur-xl animate-pulse pointer-events-none"></div>
+        <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-2xl animate-pulse delay-1000 pointer-events-none"></div>
       </div>
     </div>
   );
