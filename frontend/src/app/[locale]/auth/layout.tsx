@@ -16,8 +16,8 @@ export default async function AuthLayout({ children }: AuthLayoutProps) {
 
   return (
     <PageErrorBoundary context="Auth Layout">
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
+      <div className="bg-background flex-1 flex items-center justify-center">
+        <div className="container mx-auto px-4 py-8 w-full">
           <div className="flex items-center justify-center">
             <div className="w-full max-w-md lg:max-w-6xl">
               <AuthErrorBoundary>
