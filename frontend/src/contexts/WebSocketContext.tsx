@@ -30,6 +30,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
   const { user } = useUserContext();
+  const useReconnectedUserRef = useRef<boolean>(!!user);
 
   const fetchConnectionId = useCallback(() => {
     wsRef.current?.send(JSON.stringify({ action: "get_client_connectionId" }));
@@ -231,17 +232,16 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
   // Reconnect when user changes (new JWT needed)
   useEffect(() => {
-    if (user?.userId) {
+    if (user && !useReconnectedUserRef.current) {
       console.log("🔄 User changed, reconnecting WebSocket for new JWT");
-      if (isConnected) {
-        disconnect();
-      }
+      useReconnectedUserRef.current = true;
+      disconnect!();
       // Small delay to ensure cleanup completes
       setTimeout(() => {
-        connect();
+        connect!();
       }, 100);
     }
-  }, [user?.userId, isConnected, connect, disconnect]);
+  }, [user, connect, disconnect]);
 
   // Keep connection alive with periodic pings
   useEffect(() => {
