@@ -54,7 +54,7 @@
 
 [x] Hardcode things in negative prompt to prevent CSM.
 
-[ ] Implement private beta: invitation code wall + free users get all pro features.
+[x] Implement private beta: invitation code wall + free users get all pro features.
 
 [x] Add default cover image if no cover is selected.
 
@@ -67,3 +67,5 @@
 [ ] Implement Discover page algorithm that mix recent/popular contents and albums.
 
 [ ] Set custom max image size.
+
+[ ] Add more LoRA.

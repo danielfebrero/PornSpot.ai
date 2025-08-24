@@ -525,15 +525,15 @@ class GenerationService {
   ): { width: number; height: number } {
     if (imageSize === "custom") {
       return {
-        width: customWidth || 1024,
-        height: customHeight || 1024,
+        width: Math.max(Math.min(customWidth || 1024, 2048), 64),
+        height: Math.max(Math.min(customHeight || 1024, 2048), 64),
       };
     }
 
     const [widthStr, heightStr] = imageSize.split("x");
     return {
-      width: parseInt(widthStr || "1024", 10),
-      height: parseInt(heightStr || "1024", 10),
+      width: Math.max(Math.min(parseInt(widthStr || "1024", 10), 2048), 64),
+      height: Math.max(Math.min(parseInt(heightStr || "1024", 10), 2048), 64),
     };
   }
 
@@ -580,8 +580,8 @@ class GenerationService {
     return {
       width: dimensions.width,
       height: dimensions.height,
-      steps: 20,
-      cfg_scale: 7.0,
+      steps: DEFAULT_WORKFLOW_PARAMS.steps!,
+      cfg_scale: DEFAULT_WORKFLOW_PARAMS.cfgScale!,
       batch_size: batchCount,
       loraSelectionMode,
       loraStrengths,
@@ -598,9 +598,9 @@ class GenerationService {
         prompt: params.prompt,
         negativePrompt:
           params.negativePrompt || DEFAULT_WORKFLOW_PARAMS.negativePrompt!,
-        width: params.width,
-        height: params.height,
-        batchSize: params.batch_size,
+        width: params.width || DEFAULT_WORKFLOW_PARAMS.width!,
+        height: params.height || DEFAULT_WORKFLOW_PARAMS.height!,
+        batchSize: params.batch_size || DEFAULT_WORKFLOW_PARAMS.batchSize!,
         steps: params.steps || DEFAULT_WORKFLOW_PARAMS.steps!,
         cfgScale: params.cfg_scale || DEFAULT_WORKFLOW_PARAMS.cfgScale!,
         sampler: DEFAULT_WORKFLOW_PARAMS.sampler,
