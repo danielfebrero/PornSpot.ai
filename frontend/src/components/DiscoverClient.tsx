@@ -76,15 +76,6 @@ export function DiscoverClient({
   // Prefetch view counts in the background
   useBulkViewCounts(viewCountTargets, { enabled: viewCountTargets.length > 0 });
 
-  // Create pagination object compatible with existing ContentGrid component
-  const pagination = useMemo(
-    () => ({
-      hasNext: hasNextPage || false,
-      cursor: null, // TanStack Query handles this internally
-    }),
-    [hasNextPage]
-  );
-
   // Force refetch when tag changes (but not on initial load)
   useEffect(() => {
     if (prevTag.current !== tag) {
@@ -165,7 +156,7 @@ export function DiscoverClient({
             items={items}
             loadMore={loadMore}
             loading={isActuallyLoading || isFetchingNextPage}
-            hasMore={pagination?.hasNext || false}
+            hasMore={true}
             error={displayError}
           />
         </SectionErrorBoundary>

@@ -116,6 +116,7 @@ function parseDiscoverCursors(
       // Extract depth from cursor if available
       if (cursors.albums?.depth) {
         cursorDepth = Math.max(cursorDepth, cursors.albums.depth);
+        delete cursors.albums.depth;
       }
     } catch (error) {
       console.warn("Invalid cursorAlbums:", error);
@@ -128,6 +129,7 @@ function parseDiscoverCursors(
       cursors.media = PaginationUtil.decodeCursor(params["cursorMedia"]);
       if (cursors.media?.depth) {
         cursorDepth = Math.max(cursorDepth, cursors.media.depth);
+        delete cursors.media.depth;
       }
     } catch (error) {
       console.warn("Invalid cursorMedia:", error);
@@ -474,8 +476,7 @@ const handleGetDiscover = async (
     albumsCursorWithDepth = recycledAlbumsResult.lastEvaluatedKey
       ? {
           ...recycledAlbumsResult.lastEvaluatedKey,
-          depth: nextDepth,
-          recycled: true,
+          depth: 1,
         }
       : undefined;
   } else if (albumsResult.lastEvaluatedKey) {
