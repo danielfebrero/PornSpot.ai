@@ -118,7 +118,7 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
             variant={variant}
             size="icon"
             onClick={handleLike}
-            disabled={isToggling || !user}
+            disabled={isToggling}
             className={cn(
               config.button,
               "transition-colors duration-200",

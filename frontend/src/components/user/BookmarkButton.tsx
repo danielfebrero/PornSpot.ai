@@ -117,7 +117,7 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
             variant={variant}
             size="icon"
             onClick={handleBookmark}
-            disabled={isToggling || !user}
+            disabled={isToggling}
             className={cn(
               config.button,
               "transition-colors duration-200",
