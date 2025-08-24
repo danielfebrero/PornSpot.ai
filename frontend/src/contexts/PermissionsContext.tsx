@@ -11,6 +11,16 @@ import { User } from "@/types";
 import { getPlanPermissions } from "@/utils/permissions";
 import { useUsageStats } from "@/hooks/queries/useGenerationQuery";
 
+/**
+ * TEMPORARY: Until September 30, 2025, all users (including anonymous) get unlimited access to all features
+ * This is a promotional period. After this date, normal plan-based permissions will be enforced.
+ */
+const isTemporaryUnlimitedPeriod = (): boolean => {
+  const temporaryEndDate = new Date("2025-09-30T23:59:59.999Z");
+  const currentDate = new Date();
+  return currentDate < temporaryEndDate;
+};
+
 interface PermissionsContextType {
   user: User | null;
   planPermissions: PlanPermissions | null;
@@ -91,6 +101,11 @@ export function PermissionsProvider({
 
   // Plan-based permission checks
   const canGenerateImages = (): boolean => {
+    // TEMPORARY: Until September 30, 2025, everyone can generate images
+    if (isTemporaryUnlimitedPeriod()) {
+      return true;
+    }
+
     // Use API usage stats if available, otherwise fallback to user data
     if (usageStats) {
       return usageStats.allowed;
@@ -152,26 +167,51 @@ export function PermissionsProvider({
   };
 
   const canUseBulkGeneration = (): boolean => {
+    // TEMPORARY: Until September 30, 2025, everyone can use bulk generation
+    if (isTemporaryUnlimitedPeriod()) {
+      return true;
+    }
+
     if (!user || !planPermissions) return false;
     return planPermissions.canUseBulkGeneration && !!user.planInfo?.isActive;
   };
 
   const canUseLoRAModels = (): boolean => {
+    // TEMPORARY: Until September 30, 2025, everyone can use LoRA models
+    if (isTemporaryUnlimitedPeriod()) {
+      return true;
+    }
+
     if (!user || !planPermissions) return false;
     return planPermissions.canUseLoRAModels && !!user.planInfo?.isActive;
   };
 
   const canUseNegativePrompt = (): boolean => {
+    // TEMPORARY: Until September 30, 2025, everyone can use negative prompts
+    if (isTemporaryUnlimitedPeriod()) {
+      return true;
+    }
+
     if (!user || !planPermissions) return false;
     return planPermissions.canUseNegativePrompt && !!user.planInfo?.isActive;
   };
 
   const canCreatePrivateContent = (): boolean => {
+    // TEMPORARY: Until September 30, 2025, everyone can create private content
+    if (isTemporaryUnlimitedPeriod()) {
+      return true;
+    }
+
     if (!user || !planPermissions) return false;
     return planPermissions.canCreatePrivateContent && !!user.planInfo?.isActive;
   };
 
   const canUseCustomSizes = (): boolean => {
+    // TEMPORARY: Until September 30, 2025, everyone can use custom sizes
+    if (isTemporaryUnlimitedPeriod()) {
+      return true;
+    }
+
     if (!user || !planPermissions) return false;
     return planPermissions.canSelectImageSizes && !!user.planInfo?.isActive;
   };

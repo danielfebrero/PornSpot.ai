@@ -65,3 +65,5 @@
 [ ] Implement payments.
 
 [ ] Implement Discover page algorithm that mix recent/popular contents and albums.
+
+[ ] Set custom max image size.

@@ -16,6 +16,10 @@ export interface SimplifiedRateLimitResult {
  * 2. Daily/monthly quota based on usage stats
  * 3. IP-based quota check for all users (to prevent multi-account abuse)
  * 4. Anonymous users: one request per IP per day
+ *
+ * TEMPORARY CHANGE: Until September 30, 2025, all registered users (except anonymous)
+ * receive unlimited quota regardless of their plan. This is a promotional period.
+ * After this date, normal plan-based quotas will be enforced.
  */
 export class SimplifiedRateLimitingService {
   private static instance: SimplifiedRateLimitingService;
@@ -220,6 +224,14 @@ export class SimplifiedRateLimitingService {
     event: APIGatewayProxyEvent
   ): Promise<SimplifiedRateLimitResult> {
     try {
+      // TEMPORARY: Until September 30, 2025, all registered users get unlimited quota
+      const temporaryUnlimitedEndDate = new Date("2025-09-30T23:59:59.999Z");
+      const currentDate = new Date();
+
+      if (currentDate < temporaryUnlimitedEndDate) {
+        return { allowed: true, remaining: "unlimited" };
+      }
+
       // Pro and unlimited plans have no limits
       if (plan === "pro" || plan === "unlimited") {
         return { allowed: true, remaining: "unlimited" };
@@ -298,6 +310,14 @@ export class SimplifiedRateLimitingService {
     userId: string
   ): Promise<SimplifiedRateLimitResult> {
     try {
+      // TEMPORARY: Until September 30, 2025, all registered users get unlimited quota
+      const temporaryUnlimitedEndDate = new Date("2025-09-30T23:59:59.999Z");
+      const currentDate = new Date();
+
+      if (currentDate < temporaryUnlimitedEndDate) {
+        return { allowed: true, remaining: "unlimited" };
+      }
+
       // Pro and unlimited plans have no IP limits
       if (plan === "pro" || plan === "unlimited") {
         return { allowed: true, remaining: "unlimited" };

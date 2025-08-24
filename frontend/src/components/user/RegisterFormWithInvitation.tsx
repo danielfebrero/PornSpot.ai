@@ -11,11 +11,16 @@ export function RegisterFormWithInvitation() {
     setIsCodeValidated(true);
   };
 
-  if (!isCodeValidated) {
-    // Le mur d'invitation gère son propre layout full-screen
-    return <InvitationWall onCodeValidated={handleCodeValidated} />;
+  // Check if current date is after September 30, 2025
+  const currentDate = new Date();
+  const invitationEndDate = new Date("2025-09-30T23:59:59");
+  const isInvitationPeriodActive = currentDate <= invitationEndDate;
+
+  // If invitation period has ended, bypass the invitation wall
+  if (!isInvitationPeriodActive || isCodeValidated) {
+    return <RegisterForm />;
   }
 
-  // Une fois le code validé, on retourne au layout standard avec le RegisterForm
-  return <RegisterForm />;
+  // During invitation period, show the invitation wall if code not validated
+  return <InvitationWall onCodeValidated={handleCodeValidated} />;
 }
