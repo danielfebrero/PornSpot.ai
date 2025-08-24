@@ -22,6 +22,14 @@ export function MainContentWrapper({ children }: MainContentWrapperProps) {
     return <main className="flex-1">{children}</main>;
   }
 
+  if (pathname.startsWith("/auth")) {
+    return (
+      <main className="container mx-auto px-4 py-4 md:py-8 flex-1 flex">
+        {children}
+      </main>
+    );
+  }
+
   // Default: apply padding for discover page, albums, etc.
   return (
     <main className="container mx-auto px-4 py-4 md:py-8 flex-1">
