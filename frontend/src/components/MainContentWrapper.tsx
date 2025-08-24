@@ -10,6 +10,8 @@ interface MainContentWrapperProps {
 export function MainContentWrapper({ children }: MainContentWrapperProps) {
   const pathname = usePathname();
 
+  console.log({ pathname });
+
   // Routes that don't need padding (admin routes handle their own padding)
   const noPaddingRoutes = ["/admin", "/user"];
 
