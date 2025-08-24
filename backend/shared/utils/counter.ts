@@ -13,20 +13,23 @@ interface DynamoDBClientConfig {
 
 export class CounterUtil {
   /**
-   * Generic increment operation for any entity counter
+   * Generic increment operation for any entity counter with GSI6SK popularity update
    */
   private static async incrementCounter(
     pk: string,
     sk: string,
     counterField: string,
-    increment: number = 1
+    increment: number = 1,
+    popularityMultiplier: number = 0
   ): Promise<void> {
-    const { DynamoDBDocumentClient, UpdateCommand } = await import("@aws-sdk/lib-dynamodb");
+    const { DynamoDBDocumentClient, UpdateCommand } = await import(
+      "@aws-sdk/lib-dynamodb"
+    );
     const { DynamoDBClient } = await import("@aws-sdk/client-dynamodb");
-    
+
     const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
     const clientConfig: DynamoDBClientConfig = {};
-    
+
     if (isLocal) {
       clientConfig.endpoint = "http://pornspot-local-aws:4566";
       clientConfig.region = "us-east-1";
@@ -35,19 +38,31 @@ export class CounterUtil {
         secretAccessKey: "test",
       };
     }
-    
+
     const client = new DynamoDBClient(clientConfig);
     const docClient = DynamoDBDocumentClient.from(client);
     const TABLE_NAME = process.env["DYNAMODB_TABLE"]!;
+
+    // Calculate GSI6SK increment based on popularity multiplier
+    const gsi6Increment = increment * popularityMultiplier;
+
+    let updateExpression = `ADD ${counterField} :inc`;
+    const expressionAttributeValues: Record<string, any> = {
+      ":inc": increment,
+    };
+
+    // Only update GSI6SK if there's a popularity multiplier
+    if (popularityMultiplier > 0) {
+      updateExpression += ", GSI6SK :gsi6Inc";
+      expressionAttributeValues[":gsi6Inc"] = gsi6Increment;
+    }
 
     await docClient.send(
       new UpdateCommand({
         TableName: TABLE_NAME,
         Key: { PK: pk, SK: sk },
-        UpdateExpression: `ADD ${counterField} :inc`,
-        ExpressionAttributeValues: {
-          ":inc": increment,
-        },
+        UpdateExpression: updateExpression,
+        ExpressionAttributeValues: expressionAttributeValues,
       })
     );
   }
@@ -63,7 +78,8 @@ export class CounterUtil {
       `ALBUM#${albumId}`,
       "METADATA",
       "likeCount",
-      increment
+      increment,
+      10 // Like counts contribute 10x to popularity score
     );
   }
 
@@ -75,7 +91,8 @@ export class CounterUtil {
       `ALBUM#${albumId}`,
       "METADATA",
       "bookmarkCount",
-      increment
+      increment,
+      10 // Bookmark counts contribute 10x to popularity score
     );
   }
 
@@ -87,7 +104,8 @@ export class CounterUtil {
       `ALBUM#${albumId}`,
       "METADATA",
       "viewCount",
-      increment
+      increment,
+      1 // View counts contribute 1x to popularity score
     );
   }
 
@@ -99,7 +117,8 @@ export class CounterUtil {
       `ALBUM#${albumId}`,
       "METADATA",
       "commentCount",
-      increment
+      increment,
+      3 // Comment counts contribute 3x to popularity score
     );
   }
 
@@ -107,12 +126,14 @@ export class CounterUtil {
     albumId: string,
     increment: number = 1
   ): Promise<void> {
-    const { DynamoDBDocumentClient, UpdateCommand } = await import("@aws-sdk/lib-dynamodb");
+    const { DynamoDBDocumentClient, UpdateCommand } = await import(
+      "@aws-sdk/lib-dynamodb"
+    );
     const { DynamoDBClient } = await import("@aws-sdk/client-dynamodb");
-    
+
     const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
     const clientConfig: DynamoDBClientConfig = {};
-    
+
     if (isLocal) {
       clientConfig.endpoint = "http://pornspot-local-aws:4566";
       clientConfig.region = "us-east-1";
@@ -121,7 +142,7 @@ export class CounterUtil {
         secretAccessKey: "test",
       };
     }
-    
+
     const client = new DynamoDBClient(clientConfig);
     const docClient = DynamoDBDocumentClient.from(client);
     const TABLE_NAME = process.env["DYNAMODB_TABLE"]!;
@@ -150,7 +171,8 @@ export class CounterUtil {
       `MEDIA#${mediaId}`,
       "METADATA",
       "likeCount",
-      increment
+      increment,
+      10 // Like counts contribute 10x to popularity score
     );
   }
 
@@ -162,7 +184,8 @@ export class CounterUtil {
       `MEDIA#${mediaId}`,
       "METADATA",
       "bookmarkCount",
-      increment
+      increment,
+      10 // Bookmark counts contribute 10x to popularity score
     );
   }
 
@@ -174,7 +197,8 @@ export class CounterUtil {
       `MEDIA#${mediaId}`,
       "METADATA",
       "viewCount",
-      increment
+      increment,
+      1 // View counts contribute 1x to popularity score
     );
   }
 
@@ -186,7 +210,8 @@ export class CounterUtil {
       `MEDIA#${mediaId}`,
       "METADATA",
       "commentCount",
-      increment
+      increment,
+      3 // Comment counts contribute 3x to popularity score
     );
   }
 
@@ -201,7 +226,8 @@ export class CounterUtil {
       `COMMENT#${commentId}`,
       "METADATA",
       "likeCount",
-      increment
+      increment,
+      0 // Comment likes don't affect popularity score
     );
   }
 
@@ -246,7 +272,10 @@ export class CounterUtil {
             case "like":
               return this.incrementAlbumLikeCount(op.entityId, op.increment);
             case "bookmark":
-              return this.incrementAlbumBookmarkCount(op.entityId, op.increment);
+              return this.incrementAlbumBookmarkCount(
+                op.entityId,
+                op.increment
+              );
             case "view":
               return this.incrementAlbumViewCount(op.entityId, op.increment);
             case "comment":
@@ -260,7 +289,10 @@ export class CounterUtil {
             case "like":
               return this.incrementMediaLikeCount(op.entityId, op.increment);
             case "bookmark":
-              return this.incrementMediaBookmarkCount(op.entityId, op.increment);
+              return this.incrementMediaBookmarkCount(
+                op.entityId,
+                op.increment
+              );
             case "view":
               return this.incrementMediaViewCount(op.entityId, op.increment);
             case "comment":

@@ -84,6 +84,13 @@ export function createMediaEntity(
     GSI5PK: "MEDIA",
     GSI5SK: options.isPublic !== undefined ? String(options.isPublic) : "true",
 
+    // GSI6: Popularity score
+    GSI6PK: "POPULARITY",
+    GSI6SK: 0,
+
+    GSI7PK: "CONTENT",
+    GSI7SK: `${now}`,
+
     // Entity metadata
     EntityType: "Media" as const,
     id: options.mediaId,

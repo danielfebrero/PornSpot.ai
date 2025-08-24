@@ -77,6 +77,14 @@ Resources:
           AttributeType: S
         - AttributeName: GSI5SK
           AttributeType: S
+        - AttributeName: GSI6PK
+          AttributeType: S
+        - AttributeName: GSI6SK
+          AttributeType: N
+        - AttributeName: GSI7PK
+          AttributeType: S
+        - AttributeName: GSI7SK
+          AttributeType: S
         - AttributeName: isPublic
           AttributeType: S
         - AttributeName: createdAt
@@ -124,6 +132,22 @@ Resources:
             - AttributeName: GSI5PK
               KeyType: HASH
             - AttributeName: GSI5SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI6
+          KeySchema:
+            - AttributeName: GSI6PK
+              KeyType: HASH
+            - AttributeName: GSI6SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI7
+          KeySchema:
+            - AttributeName: GSI7PK
+              KeyType: HASH
+            - AttributeName: GSI7SK
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
