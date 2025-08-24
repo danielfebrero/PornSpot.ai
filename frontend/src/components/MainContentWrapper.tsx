@@ -10,21 +10,21 @@ interface MainContentWrapperProps {
 export function MainContentWrapper({ children }: MainContentWrapperProps) {
   const pathname = usePathname();
 
-  console.log({ pathname });
+  const locale = pathname.split("/")[1] || "en";
 
   // Routes that don't need padding (admin routes handle their own padding)
   const noPaddingRoutes = ["/admin", "/user"];
 
   // Check if current route should have no padding
   const shouldHaveNoPadding = noPaddingRoutes.some((route) =>
-    pathname.startsWith(route)
+    pathname.startsWith(`${locale}${route}`)
   );
 
   if (shouldHaveNoPadding) {
     return <main className="flex-1">{children}</main>;
   }
 
-  if (pathname.startsWith("/auth")) {
+  if (pathname.startsWith(`/${locale}/auth`)) {
     return (
       <main className="container mx-auto px-4 py-4 md:py-8 flex-1 flex">
         {children}
