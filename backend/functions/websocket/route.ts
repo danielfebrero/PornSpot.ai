@@ -339,6 +339,9 @@ async function createMediaEntitiesFirst(
           mediaIds.length > 1
             ? mediaIds.filter((id) => id !== mediaId)
             : undefined,
+        cfgScale: queueEntry.parameters.cfg_scale || 4.5,
+        steps: queueEntry.parameters.steps || 30,
+        seed: queueEntry.parameters.seed || -1,
       });
 
       // Create MediaEntity for database storage using shared utility

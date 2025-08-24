@@ -152,6 +152,9 @@ export function createGenerationMetadata(options: {
   customWidth?: number;
   customHeight?: number;
   bulkSiblings?: string[];
+  cfgScale: number;
+  steps: number;
+  seed: number;
 }): Metadata {
   return {
     prompt: options.prompt.trim(),
@@ -176,5 +179,8 @@ export function createGenerationMetadata(options: {
     ...(options.customWidth && { customWidth: options.customWidth }),
     ...(options.customHeight && { customHeight: options.customHeight }),
     ...(options.bulkSiblings && { bulkSiblings: options.bulkSiblings }),
+    cfgScale: options.cfgScale,
+    steps: options.steps,
+    seed: options.seed,
   };
 }

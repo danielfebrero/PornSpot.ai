@@ -916,7 +916,8 @@ export function GenerateClient() {
                     <Slider
                       value={[settings.cfgScale || 4.5]}
                       onValueChange={(value) =>
-                        canUseCfgScale() && updateSettings("cfgScale", value[0])
+                        canUseCfgScale() &&
+                        updateSettings("cfgScale", value[0].toFixed(1))
                       }
                       min={1}
                       max={10}

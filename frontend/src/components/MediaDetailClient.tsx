@@ -22,6 +22,7 @@ import {
   Bot,
   Palette,
   Hash,
+  Sliders,
 } from "lucide-react";
 import { Media, MediaWithSiblings } from "@/types";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
@@ -104,6 +105,9 @@ const useMediaMetadata = (media: Media) => {
       bulkSiblings: metadata.bulkSiblings || [],
       imageSize:
         media.width && media.height ? `${media.width} × ${media.height}` : null,
+      cfgScale: metadata.cfgScale || 4.5,
+      steps: metadata.steps || 30,
+      seed: metadata.seed || -1,
     };
   }, [media]);
 };
@@ -463,38 +467,59 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                 </MetaSection>
               )}
 
-            {Array.isArray(media.bulkSiblings) &&
-              media.bulkSiblings.length > 0 && (
-                <MetaSection
-                  icon={<Layers className="w-5 h-5" />}
-                  title="Related Images"
-                >
-                  <HorizontalScroll
-                    itemWidth="150px"
-                    gap="small"
-                    showArrows={true}
-                    className="w-full"
-                  >
-                    {media.bulkSiblings.map((sibling: Media, index: number) => (
-                      <ContentCard
-                        item={sibling}
-                        key={sibling.id}
-                        canFullscreen={true}
-                        canBookmark={true}
-                        canLike={true}
-                        canAddToAlbum={true}
-                        mediaList={media.bulkSiblings}
-                        currentIndex={index}
-                      />
-                    ))}
-                  </HorizontalScroll>
-                </MetaSection>
-              )}
+            <MetaSection
+              icon={<Sliders className="w-5 h-5" />}
+              title="Other Controls"
+            >
+              <div className="space-y-2">
+                <InfoPill
+                  icon={<Hash className="w-4 h-4" />}
+                  label="CFG Scale"
+                  value={String(metadata.cfgScale)}
+                />
+                <InfoPill
+                  icon={<Hash className="w-4 h-4" />}
+                  label="Steps"
+                  value={String(metadata.steps)}
+                />
+                <InfoPill
+                  icon={<Hash className="w-4 h-4" />}
+                  label="Seed"
+                  value={String(metadata.seed)}
+                />
+              </div>
+            </MetaSection>
+
+            <MetaSection
+              icon={<Layers className="w-5 h-5" />}
+              title="Related Images"
+              defaultOpen={media.bulkSiblings && media.bulkSiblings.length > 0}
+            >
+              <HorizontalScroll
+                itemWidth="150px"
+                gap="small"
+                showArrows={true}
+                className="w-full"
+              >
+                {media.bulkSiblings?.map((sibling: Media, index: number) => (
+                  <ContentCard
+                    item={sibling}
+                    key={sibling.id}
+                    canFullscreen={true}
+                    canBookmark={true}
+                    canLike={true}
+                    canAddToAlbum={true}
+                    mediaList={media.bulkSiblings}
+                    currentIndex={index}
+                  />
+                ))}
+              </HorizontalScroll>
+            </MetaSection>
 
             <MetaSection
               icon={<FolderOpen className="w-5 h-5" />}
               title="In Albums"
-              defaultOpen
+              defaultOpen={media.albums && media.albums.length > 0}
             >
               {media.albums && media.albums.length > 0 ? (
                 <HorizontalScroll
