@@ -383,15 +383,16 @@ export class SimplifiedRateLimitingService {
     try {
       const clientIP = extractClientIP(event);
       const hashedIP = createHash("sha256").update(clientIP).digest("hex");
+      const today = new Date().toISOString().split("T")[0] as string; // Assert it's a string
 
-      // Check if this IP has already generated today
-      const existingRecords =
-        await DynamoDBService.getIPGenerationRecordsForToday(
-          `IP#${hashedIP}`,
-          1
-        );
+      // Count generations for this IP today using the new GEN# format
+      const dailyGenerations = await DynamoDBService.countIPGenerations(
+        hashedIP,
+        today,
+        today
+      );
 
-      if (existingRecords.length > 0) {
+      if (dailyGenerations > 0) {
         return {
           allowed: false,
           reason:

@@ -226,12 +226,6 @@ export function GenerateClient() {
   const handleGenerate = async () => {
     if (!canGenerateImages() || !allowed || !settings.prompt.trim()) return;
 
-    console.log({
-      prompt: settings.prompt,
-      optimizedPrompt,
-      optimizationStream,
-    });
-
     // Show progress card immediately on click
     setShowProgressCard(true);
 
@@ -295,6 +289,14 @@ export function GenerateClient() {
     if (!isConnected) return;
     fetchConnectionId();
   }, [fetchConnectionId, isConnected]);
+
+  useEffect(() => {
+    console.log({
+      settings,
+      optimizedPromptCache,
+      originalPromptBeforeOptimization,
+    });
+  }, [settings, optimizedPromptCache, originalPromptBeforeOptimization]);
 
   return (
     <div
