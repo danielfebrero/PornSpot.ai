@@ -16,13 +16,14 @@ import {
   OptionalAuthResult,
 } from "@shared/utils/lambda-handler";
 import { SimplifiedRateLimitingService } from "@shared/services/simple-rate-limiting";
+import { UserPlan } from "@shared";
 
 export interface UsageStatsResponse {
   allowed: boolean;
   reason?: string;
   remaining?: number | "unlimited";
   userId: string | null;
-  plan?: "free" | "starter" | "pro" | "unlimited";
+  plan?: UserPlan;
 }
 
 /**
@@ -44,7 +45,7 @@ async function handleUsageStats(
     let user:
       | {
           userId: string;
-          plan: "free" | "starter" | "pro" | "unlimited";
+          plan: UserPlan;
           role: "user" | "admin" | "moderator";
         }
       | undefined;
@@ -55,7 +56,7 @@ async function handleUsageStats(
       if (userEntity) {
         user = {
           userId: auth.userId,
-          plan: userEntity.plan || "free",
+          plan: userEntity.plan || "anonymous",
           role: userEntity.role as "user" | "admin" | "moderator",
         };
       }

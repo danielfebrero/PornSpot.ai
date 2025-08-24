@@ -7,6 +7,7 @@ export async function createMockUser(
   overrides?: Partial<User>
 ): Promise<User> {
   const mockUsage = {
+    anonymous: { month: 25, day: 0, storage: 0.1 },
     free: { month: 25, day: 0, storage: 0.1 },
     starter: { month: 150, day: 5, storage: 2.5 },
     unlimited: { month: 1200, day: 40, storage: 15.8 },

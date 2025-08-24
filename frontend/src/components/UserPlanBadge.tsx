@@ -9,6 +9,12 @@ interface UserPlanBadgeProps {
 
 export function UserPlanBadge({ plan }: UserPlanBadgeProps) {
   const planConfig = {
+    anonymous: {
+      name: "Anonymous",
+      icon: User,
+      className:
+        "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
+    },
     free: {
       name: "Free",
       icon: User,
