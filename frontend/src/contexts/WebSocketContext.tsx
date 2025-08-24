@@ -233,13 +233,15 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   useEffect(() => {
     if (user?.userId) {
       console.log("🔄 User changed, reconnecting WebSocket for new JWT");
-      disconnect();
+      if (isConnected) {
+        disconnect();
+      }
       // Small delay to ensure cleanup completes
       setTimeout(() => {
         connect();
       }, 100);
     }
-  }, [user?.userId, connect, disconnect]);
+  }, [user?.userId, isConnected, connect, disconnect]);
 
   // Keep connection alive with periodic pings
   useEffect(() => {
