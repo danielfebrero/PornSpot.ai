@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 
 interface FileUploadProps {
@@ -22,6 +23,8 @@ export function FileUpload({
   const [isDragOver, setIsDragOver] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations("common");
+  const tFileUpload = useTranslations("admin.fileUpload");
 
   const validateFiles = (
     files: File[]
@@ -46,7 +49,7 @@ export function FileUpload({
         });
 
         if (!isValidType) {
-          newErrors.push(`${file.name} is not a supported file type`);
+          newErrors.push(`${file.name} ${tFileUpload("unsupportedFileType")}`);
           return;
         }
       }
@@ -169,15 +172,21 @@ export function FileUpload({
 
           <div>
             <p className="text-lg font-medium text-gray-900">
-              {isDragOver ? "Drop files here" : "Upload files"}
+              {isDragOver
+                ? tFileUpload("dropFilesHere")
+                : tFileUpload("uploadFiles")}
             </p>
             <p className="text-sm text-gray-500 mt-1">
-              Drag and drop files here, or click to select
+              {tFileUpload("clickToSelect")}
             </p>
           </div>
 
           <div className="text-xs text-gray-400 space-y-1">
-            {accept !== "*/*" && <p>Accepted types: {accept}</p>}
+            {accept !== "*/*" && (
+              <p>
+                {tFileUpload("acceptedTypes")}: {accept}
+              </p>
+            )}
           </div>
 
           <Button
@@ -186,14 +195,16 @@ export function FileUpload({
             disabled={disabled}
             className="pointer-events-none"
           >
-            {disabled ? "Uploading..." : "Choose Files"}
+            {disabled ? tFileUpload("uploading") : tFileUpload("chooseFiles")}
           </Button>
         </div>
       </div>
 
       {isUploading && (
         <div className="mt-4 space-y-3">
-          <h4 className="text-sm font-medium text-gray-700">Upload Progress</h4>
+          <h4 className="text-sm font-medium text-gray-700">
+            {tFileUpload("uploadProgress")}
+          </h4>
           {Object.entries(uploadProgress).map(([fileId, progress]) => (
             <div key={fileId} className="flex items-center gap-3">
               <div className="flex-1 bg-gray-200 rounded-full h-2">
@@ -211,7 +222,7 @@ export function FileUpload({
       {errors.length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <h4 className="text-sm font-medium text-red-800 mb-2">
-            Upload Errors:
+            {tFileUpload("uploadErrors")}
           </h4>
           <ul className="text-sm text-red-700 space-y-1">
             {errors.map((error, index) => (

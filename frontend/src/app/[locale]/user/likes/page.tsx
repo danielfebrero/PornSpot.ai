@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Heart, Grid, List } from "lucide-react";
 import { useLikesQuery } from "@/hooks/queries/useLikesQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
@@ -34,6 +35,9 @@ interface LikesPageData {
  * - Lightbox infinite navigation with automatic content loading
  */
 const UserLikesPage: React.FC = () => {
+  const t = useTranslations("common");
+  const tUser = useTranslations("user");
+
   // Use TanStack Query hook for likes
   const {
     data: likesData,
@@ -102,12 +106,12 @@ const UserLikesPage: React.FC = () => {
         <div className="text-red-500 mb-4">
           <Heart className="h-12 w-12 mx-auto mb-2" />
           <p className="text-lg font-medium text-foreground">
-            Failed to load likes
+            {tUser("failedToLoadLikes")}
           </p>
           <p className="text-sm text-muted-foreground mt-1">{error?.message}</p>
         </div>
         <Button onClick={refresh} variant="outline">
-          Try Again
+          {t("retry")}
         </Button>
       </div>
     );
@@ -126,16 +130,18 @@ const UserLikesPage: React.FC = () => {
                   <Heart className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-foreground">Likes</h1>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    {tUser("likes")}
+                  </h1>
                   <p className="text-sm text-muted-foreground">
-                    Your liked content
+                    {tUser("yourLikedContent")}
                   </p>
                 </div>
               </div>
             </div>
             <div className="flex justify-center">
               <span className="bg-red-500/20 text-red-600 text-sm font-semibold px-3 py-1.5 rounded-full">
-                {totalCount.toLocaleString()} likes
+                {totalCount.toLocaleString()} {tUser("likesCount")}
               </span>
             </div>
           </div>
@@ -147,13 +153,17 @@ const UserLikesPage: React.FC = () => {
                 <Heart className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-foreground">Likes</h1>
-                <p className="text-muted-foreground">Your liked content</p>
+                <h1 className="text-3xl font-bold text-foreground">
+                  {tUser("likes")}
+                </h1>
+                <p className="text-muted-foreground">
+                  {tUser("yourLikedContent")}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
               <span className="bg-red-500/20 text-red-600 text-sm font-semibold px-3 py-1.5 rounded-full">
-                {totalCount.toLocaleString()} likes
+                {totalCount.toLocaleString()} {tUser("likesCount")}
               </span>
             </div>
 
@@ -208,13 +218,12 @@ const UserLikesPage: React.FC = () => {
                 <Heart className="h-10 w-10 text-red-500" />
               </div>
             ),
-            title: "No likes yet",
-            description:
-              "Start exploring content and like what you enjoy! Discover amazing albums and media from our community.",
+            title: tUser("noLikesYet"),
+            description: tUser("startExploringContent"),
           }}
           loadingState={{
-            loadingText: "Loading more likes...",
-            noMoreText: "All your likes loaded",
+            loadingText: tUser("loadingMoreLikes"),
+            noMoreText: tUser("allLikesLoaded"),
             skeletonCount: 8,
           }}
           error={error ? String(error) : null}

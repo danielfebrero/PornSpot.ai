@@ -11,6 +11,7 @@ import {
   ComponentErrorBoundary,
 } from "./ErrorBoundaries";
 import { useDiscover } from "@/hooks/queries/useDiscoverQuery";
+import { useTranslations } from "next-intl";
 
 interface DiscoverClientProps {
   initialContent: (Album | Media)[];
@@ -29,6 +30,7 @@ export function DiscoverClient({
   const router = useLocaleRouter();
   const tag = searchParams.get("tag") || initialTag || undefined;
   const prevTag = useRef<string | undefined>(tag);
+  const t = useTranslations("discover");
 
   // For pages with tags, we need fresh data since SSG doesn't pre-render all tag combinations
   // For the main discover page (no tag), we can use the SSG initial data
@@ -133,7 +135,7 @@ export function DiscoverClient({
                       />
                     </svg>
                     <span className="text-foreground font-medium">
-                      Filtering by tag:
+                      {t("filteringByTag")}
                     </span>
                   </div>
                   <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-admin-primary text-admin-primary-foreground">
@@ -144,7 +146,7 @@ export function DiscoverClient({
                   onClick={() => router.push("/")}
                   className="text-admin-primary hover:text-admin-primary/80 transition-colors text-sm font-medium"
                 >
-                  Clear filter
+                  {t("clearFilter")}
                 </button>
               </div>
             </div>

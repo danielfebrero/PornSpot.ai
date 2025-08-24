@@ -17,6 +17,7 @@ import {
   CommentsErrorBoundary,
 } from "./ErrorBoundaries";
 import { useUserContext } from "@/contexts/UserContext";
+import { useTranslations } from "next-intl";
 
 interface AlbumDetailClientProps {
   album: Album;
@@ -25,6 +26,7 @@ interface AlbumDetailClientProps {
 export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
   const router = useRouter();
   const { user } = useUserContext();
+  const t = useTranslations("albumDetail");
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -33,7 +35,7 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
       {/* Header */}
       <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm border-border">
         <div className="flex items-center h-16 gap-4 md:px-4">
-          <Tooltip content="Go Back" side="bottom">
+          <Tooltip content={t("goBack")} side="bottom">
             <button
               onClick={() => router.back()}
               className="p-2 transition-colors rounded-full hover:bg-muted"
@@ -67,13 +69,13 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
               {/* Media Count */}
               <div className="flex items-center gap-1">
                 <span>{album.mediaCount}</span>
-                <span>{album.mediaCount === 1 ? "item" : "items"}</span>
+                <span>{album.mediaCount === 1 ? t("item") : t("items")}</span>
               </div>
             </div>
           </div>
           <ShareDropdown
             trigger={({ toggle }: { toggle: () => void }) => (
-              <Tooltip content="Share" side="bottom">
+              <Tooltip content={t("share")} side="bottom">
                 <button
                   onClick={toggle}
                   className="p-2 transition-colors rounded-full hover:bg-muted"
@@ -92,7 +94,7 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
                     close();
                   }}
                 >
-                  Copy link
+                  {t("copyLink")}
                 </button>
                 <a
                   className="flex items-center w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
@@ -159,7 +161,7 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
                 <div className="flex items-center gap-3 mb-6">
                   <MessageCircle className="w-5 h-5 text-primary" />
                   <h2 className="text-lg font-semibold text-foreground">
-                    Comments
+                    {t("comments")}
                   </h2>
                 </div>
                 <CommentsErrorBoundary>

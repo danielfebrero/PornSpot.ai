@@ -84,6 +84,27 @@
     "breadcrumb": "Breadcrumb",
     "pagination": "Pagination"
   },
+  "comments": {
+    "anonymousUser": "Anonymous User",
+    "edited": "edited",
+    "writeComment": "Write a comment...",
+    "editComment": "Edit comment",
+    "deleteComment": "Delete comment",
+    "justNow": "just now",
+    "minAgo": "{count}m ago",
+    "hourAgo": "{count}h ago",
+    "dayAgo": "{count}d ago",
+    "loading": "Loading...",
+    "loadMoreComments": "Load more comments",
+    "noCommentsYet": "No comments yet.",
+    "beFirstToComment": "No comments yet. Be the first to comment!",
+    "submitShortcut": "Press Cmd+Enter to submit",
+    "noMediaFound": "No media found",
+    "albumDoesntContainMediaFiles": "This album doesn't contain any media files yet.",
+    "loadingMoreMedia": "Loading more media...",
+    "noMoreMediaToLoad": "No more media to load",
+    "failedToLoadMoreMedia": "Failed to load more media"
+  },
   "auth": {
     "signIn": "Sign In",
     "signUp": "Sign Up",
@@ -142,6 +163,7 @@
       "emailInvalid": "Please enter a valid email address",
       "passwordRequired": "Password is required",
       "passwordTooShort": "Password must be at least 8 characters",
+      "confirmPasswordRequired": "Please confirm your password",
       "passwordsDoNotMatch": "Passwords do not match",
       "usernameRequired": "Username is required",
       "usernameTooShort": "Username must be at least 3 characters",
@@ -173,7 +195,10 @@
       "loginFailed": "Login failed",
       "registrationFailed": "Registration failed",
       "verificationFailed": "Verification failed",
-      "sessionExpired": "Session expired"
+      "sessionExpired": "Session expired",
+      "failedToCheckUsernameAvailability": "Failed to check username availability",
+      "registrationFailedTryAgain": "Registration failed. Please try again.",
+      "unexpectedErrorOccurred": "An unexpected error occurred"
     },
     "actions": {
       "signOut": "Sign Out",
@@ -185,7 +210,24 @@
       "meta": {
         "title": "Authentication Error - PornSpot.ai",
         "description": "An error occurred during authentication"
-      }
+      },
+      "processingTitle": "Processing error...",
+      "processingMessage": "Please wait while we process your authentication error.",
+      "unknownError": "An unknown authentication error occurred.",
+      "authCancelled": "Authentication Cancelled",
+      "authFailed": "Authentication Failed",
+      "authError": "Authentication Error",
+      "somethingWentWrong": "Something Went Wrong",
+      "whatCanYouDo": "What can you do?",
+      "tryDifferentMethod": "Try signing in again with a different method",
+      "allowPermissions": "Make sure you allow permissions when prompted",
+      "checkBlockedPopups": "Check if your browser is blocking pop-ups",
+      "clearCookies": "Clear your browser cookies and try again",
+      "tryAgain": "Try Again",
+      "createNewAccount": "Create New Account",
+      "backToDiscover": "Back to Discover",
+      "stillTrouble": "Still having trouble?",
+      "contactSupport": "Contact Support"
     },
     "register": {
       "meta": {
@@ -350,7 +392,15 @@
       "uploadComplete": "Upload Complete",
       "uploadFailed": "Upload Failed",
       "maxFileSize": "Maximum file size",
-      "allowedFormats": "Allowed formats"
+      "allowedFormats": "Allowed formats",
+      "uploadFiles": "Upload files",
+      "dropFilesHere": "Drop files here",
+      "clickToSelect": "Drag and drop files here, or click to select",
+      "acceptedTypes": "Accepted types",
+      "chooseFiles": "Choose Files",
+      "uploadProgress": "Upload Progress",
+      "uploadErrors": "Upload Errors:",
+      "unsupportedFileType": "is not a supported file type"
     },
     "coverImage": {
       "select": "Select Cover Image",
@@ -362,8 +412,22 @@
   "user": {
     "albums": {
       "myAlbums": "My Albums",
+      "albums": "Albums",
+      "personalCollections": "Your personal collections",
+      "personalPhotoCollections": "Your personal photo collections",
+      "albumsCount": "{count} albums",
+      "create": "Create",
       "createAlbum": "Create Album",
+      "editAlbum": "Edit Album",
+      "deleteAlbum": "Delete Album",
       "noAlbums": "You haven't created any albums yet",
+      "noAlbumsYet": "No albums yet",
+      "createFirstAlbum": "Create your first album to organize your content and start building your collection!",
+      "unableToLoad": "Unable to load albums",
+      "errorMessage": "{error}. Please try refreshing the page or contact support if the problem persists.",
+      "refreshPage": "Refresh Page",
+      "loadingAlbums": "Loading albums...",
+      "allAlbumsLoaded": "All albums loaded",
       "albumCreated": "Album created successfully",
       "albumUpdated": "Album updated successfully",
       "albumDeleted": "Album deleted successfully"
@@ -413,7 +477,15 @@
       "likeAdded": "Liked",
       "likeRemoved": "Like removed",
       "removeLike": "Remove Like",
-      "loginToLike": "Login to like"
+      "loginToLike": "Login to like",
+      "likes": "Likes",
+      "yourLikedContent": "Your liked content",
+      "likesCount": "likes",
+      "failedToLoadLikes": "Failed to load likes",
+      "noLikesYet": "No likes yet",
+      "startExploringContent": "Start exploring content and like what you enjoy! Discover amazing albums and media from our community.",
+      "loadingMoreLikes": "Loading more likes...",
+      "allLikesLoaded": "All your likes loaded"
     },
     "menu": {
       "account": "Account",
@@ -429,7 +501,9 @@
       "unverified": "Unverified",
       "emailNotVerified": "Email not verified",
       "signingOut": "Signing out...",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "notAuthenticated": "Not authenticated",
+      "pleaseLogin": "Please log in to view your profile."
     },
     "settings": {
       "title": "Settings",
@@ -564,6 +638,7 @@
         "actionCannotBeUndone": "This action cannot be undone"
       }
     }
+    }
   },
   "media": {
     "details": {
@@ -639,6 +714,12 @@
       "unpublish": "Unpublish",
       "addToAlbum": "Add to Album",
       "removeFromAlbum": "Remove from Album"
+    },
+    "deleteDialog": {
+      "title": "Delete Album",
+      "confirmMessage": "Are you sure you want to delete the album",
+      "warningMessage": "This action cannot be undone. All media in this album will also be deleted.",
+      "deleting": "Deleting..."
     }
   },
   "generate": {
@@ -695,7 +776,92 @@
       "completed": "Completed",
       "failed": "Generation failed",
       "cancelled": "Cancelled"
-    }
+    },
+    "imageSizes": {
+      "square": "Square (1024x1024)",
+      "landscape": "Landscape (1536x1024)",
+      "portrait": "Portrait (1024x1536)",
+      "wide": "Wide (1792x1024)",
+      "tall": "Tall (1024x1792)",
+      "custom": "Custom Size"
+    },
+    "loraModels": {
+      "leakedAmateur": "Realistic amateur style with natural lighting",
+      "addDetailXL": "Enhanced detail and sharpness for high-quality images",
+      "harnessStraps": "Leather accessories including harnesses, straps, and garters",
+      "piercedNipples": "Body jewelry and piercings with realistic metallic effects",
+      "bdsm": "Bondage and BDSM themed accessories and scenarios"
+    },
+    "promptPlaceholder": "A woman, 21, in an MMF threesome with double penetration, clearly enjoying an orgasm. Keep it amateur, not too polished, with a good view of her and both men.",
+    "optimizePrompt": "Optimize prompt",
+    "viewingOriginalPrompt": "Viewing original",
+    "promptOptimized": "Prompt optimized",
+    "stopOptimization": "Stop optimization",
+    "stopGeneration": "Stop generation",
+    "image": "image",
+    "images": "images",
+    "loraSelection": "LoRA Selection",
+    "automatic": "Automatic",
+    "manual": "Manual",
+    "public": "Public",
+    "private": "Private",
+    "generatedImagesPublic": "Generated images will be public",
+    "generatedImagesPrivate": "Generated images will be private",
+    "cfgScale": "CFG Scale",
+    "advancedControls": "Advanced Controls",
+    "fineTuneGeneration": "Fine-tune your generation with professional parameters",
+    "imageSize": "Image Size",
+    "chooseDimensions": "Choose dimensions",
+    "width": "Width",
+    "height": "Height",
+    "batchCount": "Batch Count",
+    "generateMultiple": "Generate multiple",
+    "visibility": "Visibility",
+    "publicOrPrivateContent": "Public or private content",
+    "advancedQualityDescription": "with advanced customization and professional quality",
+    "generationsRemaining": "generations remaining",
+    "generationComplete": "Generation Complete",
+    "generationLimitReached": "Generation limit reached",
+    "recentGenerations": "Recent Generations",
+    "detailedDescriptionTip": "The more detailed your description, the better your results",
+    "steps": "Steps",
+    "inferenceSteps": "Inference steps",
+    "generationQuality": "Generation quality",
+    "seed": "Seed",
+    "reproducibility": "Reproducibility",
+    "useRandomSeed": "Use -1 for random seed",
+    "loraModelsSection": "LoRA Models",
+    "enhanceYourStyle": "Enhance your style",
+    "automaticLoraDescription": "Automatically select LoRA models based on your prompt",
+    "manuallySelectLora": "Manually select and configure LoRA models",
+    "strength": "Strength",
+    "value": "Value",
+    "strengthAutoDescription": "Strength will be set automatically based on",
+    "modelsStrengths": "models strengths",
+    "availableLoraModels": "Available LoRA Models",
+    "loraClickTip": "💡 Click on any LoRA model to switch to manual selection and configure it",
+    "negativePrompt": "Negative Prompt",
+    "whatToAvoid": "What to avoid",
+    "descriptiveTip": "Be descriptive for better results",
+    "pro": "Pro",
+    "generateImages": "Generate {count} Images",
+    "generateSingle": "Generate",
+    "aiImageGenerator": "AI Image Generator",
+    "transformImagination": "Transform your imagination into stunning AI-generated artwork",
+    "imagesGenerated": "Images Generated",
+    "describeVision": "Describe Your Vision",
+    "revertToOriginal": "Revert to original",
+    "previous": "Previous",
+    "thePrompt": "the prompt",
+    "upgradeToSelectLora": "Upgrade to Pro to manually select and configure LoRA",
+    "upgradeToPro": "Upgrade to Pro",
+    "selected": "selected",
+    "proFeature": "(Pro feature)",
+    "auto": "Auto",
+    "randomSeedPlaceholder": "Enter seed (use -1 for random)",
+    "upgradeToSelectLoraModels": "Upgrade to Pro to manually select and configure LoRA models strengths",
+    "strengthAutoDescriptionComplete": "Strength will be set automatically based on the prompt",
+    "promptAdherence": "Prompt adherence"
   },
   "pricing": {
     "metaTitle": "Pricing - {siteName} | AI Generated Plans",
@@ -816,6 +982,14 @@
     }
   },
   "usage": {
+    "thisMonth": "this month",
+    "today": "today",
+    "imagesGenerated": "Images generated {period}",
+    "unlimitedUsage": "✨ Unlimited usage",
+    "usage": "Usage",
+    "plan": "{plan} Plan",
+    "dailyLimitText": "Daily limit",
+    "monthlyLimitText": "Monthly limit",
     "dailyLimit": {
       "title": "Daily Limit",
       "remaining": "Remaining today",
@@ -1040,5 +1214,81 @@
       "contactSupport": "Contact Support",
       "termsOfService": "Terms of Service"
     }
+  },
+  "albumDetail": {
+    "goBack": "Go Back",
+    "item": "item",
+    "items": "items",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "comments": "Comments"
+  },
+  "discover": {
+    "filteringByTag": "Filtering by tag:",
+    "clearFilter": "Clear filter"
+  },
+  "mediaDetail": {
+    "goBack": "Go Back",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "mediaDetails": "Media Details",
+    "prompts": "Prompts",
+    "prompt": "Prompt",
+    "negativePrompt": "Negative Prompt",
+    "loraModels": "LoRA Models",
+    "otherControls": "Other Controls",
+    "relatedImages": "Related Images",
+    "inAlbums": "In Albums",
+    "comments": "Comments"
+  },
+  "userPlan": {
+    "anonymous": "Anonymous",
+    "free": "Free",
+    "starter": "Starter",
+    "unlimited": "Unlimited",
+    "pro": "Pro"
+  },
+  "errorBoundary": {
+    "appLevel": {
+      "title": "Something went wrong",
+      "description": "We encountered an unexpected error. Please try refreshing the page or return to the homepage.",
+      "tryAgain": "Try Again",
+      "goToHomepage": "Go to Homepage"
+    },
+    "pageLevel": {
+      "title": "Page Error",
+      "description": "This page encountered an error and couldn't load properly.",
+      "retry": "Retry",
+      "goBack": "Go Back"
+    },
+    "sectionLevel": {
+      "title": "Section Error",
+      "description": "This section couldn't load properly.",
+      "retrySection": "Retry Section"
+    },
+    "componentLevel": {
+      "title": "Component Error",
+      "description": "This component failed to render.",
+      "retry": "Retry"
+    }
+  },
+  "invitationWall": {
+    "title": "Private Beta Access",
+    "betaUntilDate": "🌟 Until September 30, PornSpot is in private beta",
+    "allUsersGetPro": "✨ All registered users get",
+    "fullProFeatures": "full Pro features",
+    "includingUnlimited": "🚀 Including",
+    "unlimitedImageGeneration": "unlimited image generation",
+    "enterCodeLabel": "Enter your invitation code",
+    "codePlaceholder": "Your magical code...",
+    "codeRequired": "Invitation code is required",
+    "invalidCodeError": "Invalid invitation code",
+    "validationError": "Unable to validate invitation code. Please try again.",
+    "validatingButton": "Validating...",
+    "enterPortalButton": "✨ Enter the Magic Portal",
+    "needCodeText": "Need an invitation code? Join our Fabularius.ai",
+    "discordLink": "Discord",
+    "orText": "or",
+    "redditLink": "Reddit"
   }
 }

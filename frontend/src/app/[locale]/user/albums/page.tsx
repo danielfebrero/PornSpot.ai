@@ -16,11 +16,13 @@ import { EditAlbumDialog } from "@/components/albums/EditAlbumDialog";
 import { DeleteAlbumDialog } from "@/components/albums/DeleteAlbumDialog";
 import { Album, UnifiedAlbumsResponse } from "@/types";
 import { useUserContext } from "@/contexts/UserContext";
+import { useTranslations } from "next-intl";
 
 const UserAlbumsPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [editingAlbum, setEditingAlbum] = useState<Album | null>(null);
   const [deletingAlbum, setDeletingAlbum] = useState<Album | null>(null);
+  const t = useTranslations("user.albums");
 
   // Get current user info
   const { user } = useUserContext();
@@ -203,17 +205,16 @@ const UserAlbumsPage: React.FC = () => {
             </svg>
           </div>
           <h3 className="text-xl font-semibold text-foreground mb-3">
-            Unable to load albums
+            {t("unableToLoad")}
           </h3>
           <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-            {error}. Please try refreshing the page or contact support if the
-            problem persists.
+            {t("errorMessage", { error })}
           </p>
           <Button
             onClick={() => window.location.reload()}
             className="bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-primary-foreground shadow-lg"
           >
-            Refresh Page
+            {t("refreshPage")}
           </Button>
         </div>
       </div>
@@ -232,21 +233,23 @@ const UserAlbumsPage: React.FC = () => {
                 <FolderOpen className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Albums</h1>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {t("albums")}
+                </h1>
                 <p className="text-sm text-muted-foreground">
-                  Your personal collections
+                  {t("personalCollections")}
                 </p>
               </div>
             </div>
           </div>
           <div className="flex items-center justify-between">
             <span className="bg-admin-primary/20 text-admin-primary text-sm font-semibold px-3 py-1.5 rounded-full">
-              {totalCount.toLocaleString()} albums
+              {t("albumsCount", { count: totalCount.toLocaleString() })}
             </span>
             <LocaleLink href="/user/albums/create">
               <Button className="bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-primary-foreground shadow-lg flex items-center space-x-2">
                 <Plus className="h-4 w-4" />
-                <span>Create</span>
+                <span>{t("create")}</span>
               </Button>
             </LocaleLink>
           </div>
@@ -259,13 +262,15 @@ const UserAlbumsPage: React.FC = () => {
               <FolderOpen className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Albums</h1>
+              <h1 className="text-3xl font-bold text-foreground">
+                {t("albums")}
+              </h1>
               <p className="text-muted-foreground">
-                Your personal photo collections
+                {t("personalPhotoCollections")}
               </p>
             </div>
             <span className="bg-admin-primary/20 text-admin-primary text-sm font-semibold px-3 py-1.5 rounded-full">
-              {totalCount.toLocaleString()} albums
+              {t("albumsCount", { count: totalCount.toLocaleString() })}
             </span>
           </div>
 
@@ -273,7 +278,7 @@ const UserAlbumsPage: React.FC = () => {
             <LocaleLink href="/user/albums/create">
               <Button className="bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-primary-foreground shadow-lg flex items-center space-x-2">
                 <Plus className="h-4 w-4" />
-                <span>Create Album</span>
+                <span>{t("createAlbum")}</span>
               </Button>
             </LocaleLink>
             <Button
@@ -324,13 +329,13 @@ const UserAlbumsPage: React.FC = () => {
           showTags: true,
           customActions: (item) => [
             {
-              label: "Edit Album",
+              label: t("editAlbum"),
               icon: <Edit2 className="h-4 w-4" />,
               onClick: () => handleEditAlbum(item as Album),
               variant: "default" as const,
             },
             {
-              label: "Delete Album",
+              label: t("deleteAlbum"),
               icon: <Trash2 className="h-4 w-4" />,
               onClick: () => handleDeleteAlbum(item as Album),
               variant: "destructive" as const,
@@ -343,23 +348,22 @@ const UserAlbumsPage: React.FC = () => {
               <FolderOpen className="h-10 w-10 text-admin-primary" />
             </div>
           ),
-          title: "No albums yet",
-          description:
-            "Create your first album to organize your content and start building your collection!",
+          title: t("noAlbumsYet"),
+          description: t("createFirstAlbum"),
           action: (
             <div className="flex justify-center space-x-4">
               <LocaleLink href="/user/albums/create">
                 <Button className="bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-primary-foreground shadow-lg flex items-center space-x-2">
                   <Plus className="h-4 w-4" />
-                  <span>Create Album</span>
+                  <span>{t("createAlbum")}</span>
                 </Button>
               </LocaleLink>
             </div>
           ),
         }}
         loadingState={{
-          loadingText: "Loading albums...",
-          noMoreText: "All albums loaded",
+          loadingText: t("loadingAlbums"),
+          noMoreText: t("allAlbumsLoaded"),
         }}
         error={error}
       />

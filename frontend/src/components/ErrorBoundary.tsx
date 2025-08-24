@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { Button } from "./ui/Button";
+import { useTranslations } from "next-intl";
 
 // Backward compatibility - re-export the original ErrorBoundary as a component-level boundary
 import { ComponentErrorBoundary } from "./ErrorBoundaries";
@@ -10,6 +11,13 @@ interface Props {
   onError?: (_error: Error, _errorInfo: ErrorInfo) => void;
   resetKeys?: string[];
   context?: string;
+  translations?: {
+    title: string;
+    tryAgain: string;
+    errorDetails: string;
+    error: string;
+    componentStack: string;
+  };
 }
 
 interface State {
@@ -119,7 +127,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   override render() {
     const { hasError, error, errorInfo } = this.state;
-    const { children, fallback } = this.props;
+    const { children, fallback, translations } = this.props;
 
     if (hasError) {
       // Custom fallback UI
@@ -138,7 +146,7 @@ export class ErrorBoundary extends Component<Props, State> {
         >
           <div className="space-y-2">
             <h2 className="text-2xl font-bold text-destructive">
-              Something went wrong
+              {translations?.title || "Something went wrong"}
             </h2>
             {error && <p className="text-muted-foreground">{error.message}</p>}
             {errorMessage && errorMessage !== error?.message && (
@@ -152,7 +160,7 @@ export class ErrorBoundary extends Component<Props, State> {
               variant="default"
               className="min-w-[120px]"
             >
-              Try again
+              {translations?.tryAgain || "Try again"}
             </Button>
           </div>
 
@@ -160,17 +168,21 @@ export class ErrorBoundary extends Component<Props, State> {
           {process.env.NODE_ENV === "development" && error && errorInfo && (
             <details className="mt-8 w-full max-w-2xl">
               <summary className="cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground">
-                Error Details
+                {translations?.errorDetails || "Error Details"}
               </summary>
               <div className="mt-4 space-y-4 text-left">
                 <div>
-                  <h4 className="font-medium">Error:</h4>
+                  <h4 className="font-medium">
+                    {translations?.error || "Error"}:
+                  </h4>
                   <pre className="mt-1 overflow-auto rounded bg-muted p-2 text-xs">
                     {error.toString()}
                   </pre>
                 </div>
                 <div>
-                  <h4 className="font-medium">Component Stack:</h4>
+                  <h4 className="font-medium">
+                    {translations?.componentStack || "Component Stack"}:
+                  </h4>
                   <pre className="mt-1 overflow-auto rounded bg-muted p-2 text-xs">
                     {errorInfo.componentStack}
                   </pre>

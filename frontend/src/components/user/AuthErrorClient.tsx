@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import LocaleLink from "@/components/ui/LocaleLink";
 
 export function AuthErrorClient() {
   const searchParams = useSearchParams();
   const [isAnimated, setIsAnimated] = useState(false);
+  const tAuth = useTranslations("auth.error");
 
-  const errorMessage =
-    searchParams.get("error") || "An unknown authentication error occurred.";
+  const errorMessage = searchParams.get("error") || tAuth("unknownError");
 
   useEffect(() => {
     // Trigger animation after component mounts
@@ -23,18 +24,18 @@ export function AuthErrorClient() {
     };
   }, []);
 
-  const getErrorTitle = (error: string) => {
-    if (error.includes("cancelled") || error.includes("access_denied")) {
-      return "Authentication Cancelled";
+  function getErrorTitle(error: string): string {
+    switch (error) {
+      case "auth_cancelled":
+        return "authCancelled";
+      case "auth_failed":
+        return "authFailed";
+      case "auth_error":
+        return "authError";
+      default:
+        return "somethingWentWrong";
     }
-    if (error.includes("Invalid") || error.includes("token")) {
-      return "Authentication Failed";
-    }
-    if (error.includes("Missing")) {
-      return "Authentication Error";
-    }
-    return "Something Went Wrong";
-  };
+  }
 
   const getErrorIcon = (error: string) => {
     if (error.includes("cancelled") || error.includes("access_denied")) {
@@ -60,7 +61,7 @@ export function AuthErrorClient() {
             isAnimated ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          {getErrorTitle(errorMessage)}
+          {tAuth(getErrorTitle(errorMessage))}
         </h2>
 
         <p
@@ -83,13 +84,13 @@ export function AuthErrorClient() {
             </div>
             <div className="text-left">
               <h3 className="font-semibold text-foreground text-sm mb-1">
-                What can you do?
+                {tAuth("whatCanYouDo")}
               </h3>
               <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Try signing in again with a different method</li>
-                <li>• Make sure you allow permissions when prompted</li>
-                <li>• Check if your browser is blocking pop-ups</li>
-                <li>• Clear your browser cookies and try again</li>
+                <li>• {tAuth("tryDifferentMethod")}</li>
+                <li>• {tAuth("allowPermissions")}</li>
+                <li>• {tAuth("checkBlockedPopups")}</li>
+                <li>• {tAuth("clearCookies")}</li>
               </ul>
             </div>
           </div>
@@ -107,19 +108,19 @@ export function AuthErrorClient() {
             variant="primary"
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
           >
-            Try Again
+            {tAuth("tryAgain")}
           </Button>
         </LocaleLink>
 
         <LocaleLink href="/auth/register" className="block">
           <Button variant="outline" className="w-full">
-            Create New Account
+            {tAuth("createNewAccount")}
           </Button>
         </LocaleLink>
 
         <LocaleLink href="/" className="block">
           <Button variant="ghost" className="w-full">
-            Back to Discover
+            {tAuth("backToDiscover")}
           </Button>
         </LocaleLink>
       </div>
@@ -131,12 +132,12 @@ export function AuthErrorClient() {
         }`}
       >
         <p>
-          Still having trouble?{" "}
+          {tAuth("stillTrouble")}{" "}
           <LocaleLink
             href="/contact"
             className="text-primary hover:text-primary/80 underline underline-offset-2 transition-colors"
           >
-            Contact Support
+            {tAuth("contactSupport")}
           </LocaleLink>
         </p>
       </div>

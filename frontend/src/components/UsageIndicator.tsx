@@ -2,6 +2,7 @@
 
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { BarChart3 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface UsageIndicatorProps {
   type: "daily" | "monthly";
@@ -16,6 +17,7 @@ export function UsageIndicator({
 }: UsageIndicatorProps) {
   const { user, getPlanLimits, formatUsageText, getUsagePercentage } =
     useUserPermissions();
+  const t = useTranslations("usage");
 
   if (!user) return null;
 
@@ -29,7 +31,7 @@ export function UsageIndicator({
     ? usageStats.imagesGeneratedThisMonth
     : usageStats.imagesGeneratedToday;
   const limit = isMonthly ? limits.imagesPerMonth : limits.imagesPerDay;
-  const period = isMonthly ? "this month" : "today";
+  const period = isMonthly ? t("thisMonth") : t("today");
 
   const percentage = getUsagePercentage(used, limit);
   const isUnlimited = limit === "unlimited";
@@ -61,7 +63,7 @@ export function UsageIndicator({
       {showText && (
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">
-            Images generated {period}
+            {t("imagesGenerated", { period })}
           </span>
           <span className="font-medium">
             {formatUsageText(used, limit, "images")}
@@ -86,7 +88,7 @@ export function UsageIndicator({
 
       {isUnlimited && showText && (
         <div className="text-xs text-green-600 dark:text-green-400">
-          ✨ Unlimited usage
+          {t("unlimitedUsage")}
         </div>
       )}
     </div>
@@ -96,6 +98,7 @@ export function UsageIndicator({
 // Quick usage stats component for headers/sidebars
 export function QuickUsageStats() {
   const { user, getCurrentPlan } = useUserPermissions();
+  const t = useTranslations("usage");
 
   if (!user) return null;
 
@@ -104,20 +107,24 @@ export function QuickUsageStats() {
   return (
     <div className="bg-card border rounded-lg p-3 space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">Usage</span>
+        <span className="text-sm font-medium">{t("usage")}</span>
         <span className="text-xs text-muted-foreground capitalize">
-          {plan} Plan
+          {t("plan", { plan })}
         </span>
       </div>
 
       <div className="space-y-1">
         <UsageIndicator type="daily" compact={false} showText={false} />
-        <div className="text-xs text-muted-foreground">Daily limit</div>
+        <div className="text-xs text-muted-foreground">
+          {t("dailyLimitText")}
+        </div>
       </div>
 
       <div className="space-y-1">
         <UsageIndicator type="monthly" compact={false} showText={false} />
-        <div className="text-xs text-muted-foreground">Monthly limit</div>
+        <div className="text-xs text-muted-foreground">
+          {t("monthlyLimitText")}
+        </div>
       </div>
     </div>
   );

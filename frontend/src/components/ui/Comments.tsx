@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { MessageCircle, Send, Loader2 } from "lucide-react";
 import { Comment } from "@/types";
 import { CommentItem } from "@/components/ui/Comment";
@@ -35,6 +36,8 @@ export function Comments({
 }: CommentsProps) {
   const [newComment, setNewComment] = useState("");
   const { isMobileInterface: isMobile } = useDevice();
+  const t = useTranslations("common");
+  const tComments = useTranslations("comments");
 
   // Use TanStack Query for fetching comments (enabled to support optimistic updates)
   const {
@@ -221,7 +224,7 @@ export function Comments({
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Write a comment..."
+              placeholder={tComments("writeComment")}
               className="flex-1 p-3 text-sm border border-border rounded-lg bg-background text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-h-[44px] max-h-[120px]"
               maxLength={1000}
               rows={1}
@@ -240,7 +243,7 @@ export function Comments({
             </Button>
           </div>
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            {!isMobile && <span>Press Cmd+Enter to submit</span>}
+            {!isMobile && <span>{tComments("submitShortcut")}</span>}
             <span className={cn(!isMobile && "ml-auto")}>
               {newComment.length}/1000
             </span>
@@ -308,10 +311,10 @@ export function Comments({
                 {loadingMore ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Loading...
+                    {tComments("loading")}
                   </>
                 ) : (
-                  "Load more comments"
+                  tComments("loadMoreComments")
                 )}
               </Button>
             </div>
@@ -322,8 +325,8 @@ export function Comments({
           <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
           <p className="text-sm">
             {canComment
-              ? "No comments yet. Be the first to comment!"
-              : "No comments yet."}
+              ? tComments("beFirstToComment")
+              : tComments("noCommentsYet")}
           </p>
         </div>
       )}

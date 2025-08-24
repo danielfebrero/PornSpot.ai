@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 
 interface ConfirmDialogProps {
@@ -21,11 +22,16 @@ export function ConfirmDialog({
   onConfirm,
   title,
   message,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  confirmText,
+  cancelText,
   confirmVariant = "primary",
   loading = false,
 }: ConfirmDialogProps) {
+  const t = useTranslations("common");
+
+  // Use default translated values if not provided
+  const defaultConfirmText = confirmText || t("confirm");
+  const defaultCancelText = cancelText || t("cancel");
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -98,7 +104,7 @@ export function ConfirmDialog({
               disabled={loading}
               className="px-6"
             >
-              {cancelText}
+              {defaultCancelText}
             </Button>
             <Button
               onClick={onConfirm}
@@ -130,10 +136,10 @@ export function ConfirmDialog({
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Processing...
+                  {t("processing")}
                 </div>
               ) : (
-                confirmText
+                defaultConfirmText
               )}
             </Button>
           </div>

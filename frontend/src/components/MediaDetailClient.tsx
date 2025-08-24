@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import { Media, MediaWithSiblings } from "@/types";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
-import { useNavigationLoading } from "@/contexts/NavigationLoadingContext";
 import { ShareDropdown } from "@/components/ui/ShareDropdown";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { ContentCard } from "@/components/ui/ContentCard";
@@ -38,6 +37,7 @@ import { cn } from "@/lib/utils";
 import { formatFileSize, isVideo } from "@/lib/utils";
 import { formatDistanceToNow } from "@/lib/dateUtils";
 import { useUserContext } from "@/contexts/UserContext";
+import { useTranslations } from "next-intl";
 
 // --- PROPS INTERFACES ---
 
@@ -174,9 +174,9 @@ const GenerationPrompt: FC<GenerationPromptProps> = ({ title, prompt }) => (
 
 export function MediaDetailClient({ media }: MediaDetailClientProps) {
   const router = useLocaleRouter();
-  const { startNavigation } = useNavigationLoading();
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const [viewTracked, setViewTracked] = useState(false);
+  const t = useTranslations("mediaDetail");
   const metadata = useMediaMetadata(media);
   const { user } = useUserContext();
   const hasTrackedView = useRef(false);
@@ -277,7 +277,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
       {/* Header */}
       <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm border-border">
         <div className="flex items-center h-16 gap-4 md:px-4">
-          <Tooltip content="Go Back" side="bottom">
+          <Tooltip content={t("goBack")} side="bottom">
             <button
               onClick={() => router.back()}
               className="p-2 transition-colors rounded-full hover:bg-muted"
@@ -326,7 +326,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
           </div>
           <ShareDropdown
             trigger={({ toggle }: { toggle: () => void }) => (
-              <Tooltip content="Share" side="bottom">
+              <Tooltip content={t("share")} side="bottom">
                 <button
                   onClick={toggle}
                   className="p-2 transition-colors rounded-full hover:bg-muted"
@@ -345,7 +345,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                     close();
                   }}
                 >
-                  Copy link
+                  {t("copyLink")}
                 </button>
                 <a
                   className="flex items-center w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
@@ -402,7 +402,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
           <aside className="space-y-6">
             <MetaSection
               icon={<Info className="w-5 h-5" />}
-              title="Media Details"
+              title={t("mediaDetails")}
               defaultOpen
             >
               <div className="space-y-3">
@@ -431,14 +431,17 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
             </MetaSection>
 
             {metadata.prompt && (
-              <MetaSection icon={<Bot className="w-5 h-5" />} title="Prompts">
+              <MetaSection
+                icon={<Bot className="w-5 h-5" />}
+                title={t("prompts")}
+              >
                 <GenerationPrompt
-                  title="Prompt"
+                  title={t("prompt")}
                   prompt={String(metadata.prompt)}
                 />
                 {metadata.negativePrompt && (
                   <GenerationPrompt
-                    title="Negative Prompt"
+                    title={t("negativePrompt")}
                     prompt={String(metadata.negativePrompt)}
                   />
                 )}
@@ -449,7 +452,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
               metadata.loraModels.length > 0 && (
                 <MetaSection
                   icon={<Palette className="w-5 h-5" />}
-                  title="LoRA Models"
+                  title={t("loraModels")}
                 >
                   <div className="space-y-2">
                     {metadata.loraModels.map((lora: string, index: number) => (
@@ -469,7 +472,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
 
             <MetaSection
               icon={<Sliders className="w-5 h-5" />}
-              title="Other Controls"
+              title={t("otherControls")}
             >
               <div className="space-y-2">
                 <InfoPill
@@ -492,7 +495,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
 
             <MetaSection
               icon={<Layers className="w-5 h-5" />}
-              title="Related Images"
+              title={t("relatedImages")}
               defaultOpen={media.bulkSiblings && media.bulkSiblings.length > 0}
             >
               {media.bulkSiblings && media.bulkSiblings.length > 0 ? (
@@ -525,7 +528,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
 
             <MetaSection
               icon={<FolderOpen className="w-5 h-5" />}
-              title="In Albums"
+              title={t("inAlbums")}
               defaultOpen={media.albums && media.albums.length > 0}
             >
               {media.albums && media.albums.length > 0 ? (
@@ -562,7 +565,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
 
             <MetaSection
               icon={<MessageCircle className="w-5 h-5" />}
-              title="Comments"
+              title={t("comments")}
               defaultOpen
             >
               <Comments

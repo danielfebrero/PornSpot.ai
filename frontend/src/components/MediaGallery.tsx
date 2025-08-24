@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useLayoutEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { VirtualizedGrid } from "./ui/VirtualizedGrid";
 import { useAlbumMedia } from "@/hooks/queries/useMediaQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
@@ -17,6 +18,8 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({
   className,
   canRemoveFromAlbum,
 }) => {
+  const t = useTranslations("common");
+
   // Use TanStack Query to fetch album media with caching and optimistic updates
   const {
     data: mediaData,
@@ -91,9 +94,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({
     try {
       await fetchNextPage();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load more media"
-      );
+      setError(err instanceof Error ? err.message : t("failedToLoadMoreMedia"));
     }
   };
 
@@ -142,12 +143,12 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({
               />
             </svg>
           ),
-          title: "No media found",
-          description: "This album doesn't contain any media files yet.",
+          title: t("noMediaFound"),
+          description: t("albumDoesntContainMediaFiles"),
         }}
         loadingState={{
-          loadingText: "Loading more media...",
-          noMoreText: "No more media to load",
+          loadingText: t("loadingMoreMedia"),
+          noMoreText: t("noMoreMediaToLoad"),
         }}
         error={error}
         onRetry={handleLoadMore}

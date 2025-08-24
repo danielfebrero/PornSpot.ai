@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Edit, Trash2, Heart, User } from "lucide-react";
 import { Comment } from "@/types";
 import { Button } from "@/components/ui/Button";
@@ -29,12 +30,14 @@ export function CommentItem({
   likeCount,
   className,
 }: CommentItemProps) {
+  const t = useTranslations("common");
+  const tComments = useTranslations("comments");
   const [showActions, setShowActions] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
 
   const isOwner = currentUserId === comment.userId;
-  const timeAgo = formatTimeAgo(comment.createdAt);
+  const timeAgo = formatTimeAgo(comment.createdAt, tComments);
 
   const handleEdit = () => {
     if (editContent.trim() && editContent !== comment.content) {
@@ -76,12 +79,12 @@ export function CommentItem({
               </LocaleLink>
             ) : (
               <span className="text-sm font-medium text-muted-foreground">
-                Anonymous User
+                {tComments("anonymousUser")}
               </span>
             )}
             <span className="text-xs text-muted-foreground">
               {timeAgo}
-              {comment.isEdited && " (edited)"}
+              {comment.isEdited && ` (${tComments("edited")})`}
             </span>
           </div>
 
@@ -94,14 +97,14 @@ export function CommentItem({
                 className="w-full p-2 text-sm border border-border rounded-md bg-background text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 rows={3}
                 maxLength={1000}
-                placeholder="Write a comment..."
+                placeholder={tComments("writeComment")}
               />
               <div className="flex items-center gap-2">
                 <Button size="sm" variant="default" onClick={handleEdit}>
-                  Save
+                  {t("save")}
                 </Button>
                 <Button size="sm" variant="ghost" onClick={handleCancelEdit}>
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <span className="text-xs text-muted-foreground ml-auto">
                   {editContent.length}/1000
@@ -145,7 +148,7 @@ export function CommentItem({
                       "opacity-0 pointer-events-none"
                   )}
                 >
-                  <Tooltip content="Edit comment" side="top">
+                  <Tooltip content={tComments("editComment")} side="top">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -155,7 +158,7 @@ export function CommentItem({
                       <Edit className="w-3 h-3" />
                     </Button>
                   </Tooltip>
-                  <Tooltip content="Delete comment" side="top">
+                  <Tooltip content={tComments("deleteComment")} side="top">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -175,7 +178,10 @@ export function CommentItem({
   );
 }
 
-function formatTimeAgo(dateString: string): string {
+function formatTimeAgo(
+  dateString: string,
+  t: (key: string, values?: Record<string, string | number>) => string
+): string {
   const now = new Date();
   const date = new Date(dateString);
   const diffInMs = now.getTime() - date.getTime();
@@ -184,13 +190,13 @@ function formatTimeAgo(dateString: string): string {
   const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
   if (diffInMinutes < 1) {
-    return "just now";
+    return t("justNow");
   } else if (diffInMinutes < 60) {
-    return `${diffInMinutes}m ago`;
+    return t("minAgo", { count: diffInMinutes });
   } else if (diffInHours < 24) {
-    return `${diffInHours}h ago`;
+    return t("hourAgo", { count: diffInHours });
   } else if (diffInDays < 7) {
-    return `${diffInDays}d ago`;
+    return t("dayAgo", { count: diffInDays });
   } else {
     return date.toLocaleDateString("en-US", {
       month: "short",

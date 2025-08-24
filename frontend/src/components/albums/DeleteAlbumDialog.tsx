@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 
 interface DeleteAlbumDialogProps {
@@ -18,6 +19,8 @@ export function DeleteAlbumDialog({
   onConfirm,
   loading = false,
 }: DeleteAlbumDialogProps) {
+  const t = useTranslations("common");
+  const tAlbums = useTranslations("albums");
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -64,22 +67,21 @@ export function DeleteAlbumDialog({
             </div>
             <div className="flex-1">
               <h3 className="text-xl font-semibold leading-6 text-foreground">
-                Delete Album
+                {tAlbums("deleteDialog.title")}
               </h3>
             </div>
           </div>
 
           <div className="mt-4">
             <p className="text-muted-foreground leading-relaxed">
-              Are you sure you want to delete the album{" "}
+              {tAlbums("deleteDialog.confirmMessage")}{" "}
               <span className="font-semibold text-foreground">
                 &ldquo;{albumTitle}&rdquo;
               </span>
               ?
             </p>
             <p className="text-muted-foreground leading-relaxed mt-2">
-              This action cannot be undone. All media in this album will also be
-              deleted.
+              {tAlbums("deleteDialog.warningMessage")}
             </p>
           </div>
 
@@ -90,7 +92,7 @@ export function DeleteAlbumDialog({
               disabled={loading}
               className="px-6"
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               onClick={onConfirm}
@@ -118,10 +120,10 @@ export function DeleteAlbumDialog({
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Deleting...
+                  {tAlbums("deleteDialog.deleting")}
                 </div>
               ) : (
-                "Delete Album"
+                tAlbums("actions.delete")
               )}
             </Button>
           </div>

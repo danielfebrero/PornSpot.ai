@@ -84,6 +84,27 @@
     "breadcrumb": "面包屑",
     "pagination": "分页"
   },
+  "comments": {
+    "anonymousUser": "匿名用户",
+    "edited": "已编辑",
+    "writeComment": "写评论...",
+    "editComment": "编辑评论",
+    "deleteComment": "删除评论",
+    "justNow": "刚刚",
+    "minAgo": "{count}分钟前",
+    "hourAgo": "{count}小时前",
+    "dayAgo": "{count}天前",
+    "loading": "加载中...",
+    "loadMoreComments": "加载更多评论",
+    "noCommentsYet": "暂无评论。",
+    "beFirstToComment": "暂无评论。成为第一个评论的人！",
+    "submitShortcut": "按 Cmd+Enter 提交",
+    "noMediaFound": "未找到媒体",
+    "albumDoesntContainMediaFiles": "该专辑尚未包含任何媒体文件。",
+    "loadingMoreMedia": "正在加载更多媒体...",
+    "noMoreMediaToLoad": "没有更多媒体可加载",
+    "failedToLoadMoreMedia": "加载更多媒体失败"
+  },
   "auth": {
     "signIn": "登录",
     "signUp": "注册",
@@ -173,7 +194,10 @@
       "loginFailed": "登录失败",
       "registrationFailed": "注册失败",
       "verificationFailed": "验证失败",
-      "sessionExpired": "会话已过期"
+      "sessionExpired": "会话已过期",
+      "failedToCheckUsernameAvailability": "检查用户名可用性失败",
+      "registrationFailedTryAgain": "注册失败。请重试。",
+      "unexpectedErrorOccurred": "发生了意外错误"
     },
     "actions": {
       "signOut": "退出登录",
@@ -183,9 +207,26 @@
     },
     "error": {
       "meta": {
-        "title": "认证错误 - PornSpot.ai",
-        "description": "认证过程中发生错误"
-      }
+        "title": "身份验证错误 - PornSpot.ai",
+        "description": "身份验证过程中发生错误"
+      },
+      "processingTitle": "处理错误中...",
+      "processingMessage": "请稍候，我们正在处理您的身份验证错误。",
+      "unknownError": "发生了未知的身份验证错误。",
+      "authCancelled": "身份验证已取消",
+      "authFailed": "身份验证失败",
+      "authError": "身份验证错误",
+      "somethingWentWrong": "出现了问题",
+      "whatCanYouDo": "您可以做什么？",
+      "tryDifferentMethod": "尝试使用不同方法重新登录",
+      "allowPermissions": "确保在提示时允许权限",
+      "checkBlockedPopups": "检查浏览器是否阻止弹出窗口",
+      "clearCookies": "清除浏览器cookie并重试",
+      "tryAgain": "重试",
+      "createNewAccount": "创建新账户",
+      "backToDiscover": "返回发现",
+      "stillTrouble": "仍有问题？",
+      "contactSupport": "联系客服"
     },
     "register": {
       "meta": {
@@ -333,8 +374,22 @@
   "user": {
     "albums": {
       "myAlbums": "我的相册",
+      "albums": "相册",
+      "personalCollections": "您的个人收藏",
+      "personalPhotoCollections": "您的个人照片收藏",
+      "albumsCount": "{count} 个相册",
+      "create": "创建",
       "createAlbum": "创建相册",
+      "editAlbum": "编辑相册",
+      "deleteAlbum": "删除相册",
       "noAlbums": "您还没有创建任何相册",
+      "noAlbumsYet": "还没有相册",
+      "createFirstAlbum": "创建您的第一个相册来整理内容并开始构建您的收藏！",
+      "unableToLoad": "无法加载相册",
+      "errorMessage": "{error}。请尝试刷新页面，如果问题仍然存在，请联系客服。",
+      "refreshPage": "刷新页面",
+      "loadingAlbums": "正在加载相册...",
+      "allAlbumsLoaded": "所有相册已加载",
       "albumCreated": "相册创建成功",
       "albumUpdated": "相册更新成功",
       "albumDeleted": "相册删除成功"
@@ -384,7 +439,15 @@
       "likeAdded": "已点赞",
       "likeRemoved": "已取消点赞",
       "removeLike": "取消点赞",
-      "loginToLike": "登录以点赞"
+      "loginToLike": "登录以点赞",
+      "likes": "点赞",
+      "yourLikedContent": "您点赞的内容",
+      "likesCount": "点赞",
+      "failedToLoadLikes": "加载点赞失败",
+      "noLikesYet": "暂无点赞",
+      "startExploringContent": "开始探索内容并点赞您喜欢的！发现我们社区中的精彩专辑和媒体。",
+      "loadingMoreLikes": "正在加载更多点赞...",
+      "allLikesLoaded": "所有点赞已加载"
     },
     "menu": {
       "account": "账户",
@@ -400,7 +463,9 @@
       "unverified": "未验证",
       "emailNotVerified": "邮箱未验证",
       "signingOut": "退出中...",
-      "signOut": "退出登录"
+      "signOut": "退出登录",
+      "notAuthenticated": "未认证",
+      "pleaseLogin": "请登录查看您的个人资料。"
     },
     "settings": {
       "title": "设置",
@@ -666,7 +731,91 @@
       "completed": "已完成",
       "failed": "生成失败",
       "cancelled": "已取消"
-    }
+    },
+    "imageSizes": {
+      "square": "正方形 (1024x1024)",
+      "landscape": "横向 (1536x1024)",
+      "portrait": "纵向 (1024x1536)",
+      "wide": "宽幅 (1792x1024)",
+      "tall": "高幅 (1024x1792)",
+      "custom": "自定义尺寸"
+    },
+    "loraModelsSection": {
+      "leakedAmateur": "自然光线下的真实业余风格",
+      "addDetailXL": "增强细节和清晰度以获得高质量图像",
+      "harnessStraps": "皮革配饰包括马具、皮带和吊袜带",
+      "piercedNipples": "具有真实金属效果的身体珠宝和穿孔",
+      "bdsm": "BDSM和束缚主题配饰和场景"
+    },
+    "advancedControls": "高级控制",
+    "fineTuneGeneration": "微调生成",
+    "imageSize": "图像尺寸",
+    "chooseDimensions": "选择尺寸",
+    "width": "宽度",
+    "height": "高度",
+    "batchCount": "批次计数",
+    "generateMultiple": "同时生成多张图像",
+    "visibility": "可见性",
+    "qualityDescriptions": {
+      "low": "低质量 - 快速生成",
+      "medium": "中等质量 - 速度与质量的平衡",
+      "high": "高质量 - 更好的细节",
+      "ultra": "超高质量 - 最大细节"
+    },
+    "strengthLabels": {
+      "veryLow": "非常低",
+      "low": "低",
+      "medium": "中等",
+      "high": "高",
+      "veryHigh": "非常高"
+    },
+    "promptOptimization": "提示优化",
+    "optimizePrompt": "优化提示",
+    "viewOptimizedPrompt": "查看优化后的提示",
+    "useOptimizedPrompt": "使用优化后的提示",
+    "availableLoraModels": "可用的LoRA模型",
+    "loraClickTip": "💡 点击LoRA模型切换到手动选择并配置它",
+    "negativePrompt": "负面提示",
+    "whatToAvoid": "要避免的内容",
+    "descriptiveTip": "详细描述可获得更好的结果",
+    "pro": "专业版",
+    "generateImages": "生成{count}张图片",
+    "generateSingle": "生成",
+    "aiImageGenerator": "AI图像生成器",
+    "transformImagination": "将您的想象力转化为令人惊叹的AI生成艺术作品",
+    "imagesGenerated": "已生成图像",
+    "describeVision": "描述您的愿景",
+    "revertToOriginal": "恢复原始",
+    "previous": "上一个",
+    "thePrompt": "提示",
+    "upgradeToSelectLora": "升级到专业版以手动选择和配置LoRA",
+    "upgradeToPro": "升级到专业版",
+    "selected": "已选择",
+    "proFeature": "（专业版功能）",
+    "auto": "自动",
+    "newRandomSeedPlaceholder": "输入种子（使用-1表示随机）",
+    "upgradeToSelectLoraModels": "升级到专业版以手动选择和配置LoRA模型强度",
+    "strengthAutoDescriptionComplete": "强度将根据提示自动设置",
+    "promptAdherence": "提示遵循度",
+    "promptPlaceholder": "一个21岁的女性在MMF三人行中进行双重插入，明显享受高潮。保持业余感，不要太精致，要有她和两个男人的良好视角。",
+    "randomSeedPlaceholder": "-1 (随机)",
+    "negativePromptPlaceholder": "模糊、低质量、扭曲、解剖结构不良...",
+    "stopOptimization": "停止优化",
+    "stopGeneration": "停止生成",
+    "viewingOriginalPrompt": "查看原始提示",
+    "promptOptimized": "提示已优化",
+    "image": "图像",
+    "cfgScale": "CFG比例",
+    "public": "公开",
+    "private": "私人",
+    "generatedImagesPublic": "生成的图像将对所有用户可见",
+    "generatedImagesPrivate": "生成的图像将是您账户的私人内容",
+    "useRandomSeed": "使用-1表示随机种子",
+    "loraSelection": "LoRA选择",
+    "automaticLoraDescription": "我们将自动为您的图像选择最佳的LoRA模型和设置",
+    "manuallySelectLora": "手动选择和配置LoRA模型",
+    "automatic": "自动",
+    "manual": "手动"
   },
   "pricing": {
     "metaTitle": "价格 - {siteName} | AI生成计划",
@@ -787,19 +936,27 @@
     }
   },
   "usage": {
+    "thisMonth": "本月",
+    "today": "今天",
+    "imagesGenerated": "{period}生成的图像",
+    "unlimitedUsage": "✨ 无限使用",
+    "usage": "使用情况",
+    "plan": "{plan} 计划",
+    "dailyLimitText": "每日限制",
+    "monthlyLimitText": "每月限制",
     "dailyLimit": {
-      "title": "每日限额",
-      "remaining": "今日剩余",
-      "used": "今日已用",
+      "title": "每日限制",
+      "remaining": "今天剩余",
+      "used": "今天已用",
       "resets": "重置时间",
-      "exceeded": "已超出每日限额"
+      "exceeded": "超出每日限制"
     },
     "monthlyLimit": {
-      "title": "每月限额",
+      "title": "每月限制",
       "remaining": "本月剩余",
       "used": "本月已用",
       "resets": "重置日期",
-      "exceeded": "已超出每月限额"
+      "exceeded": "超出每月限制"
     }
   },
   "permissions": {
@@ -1011,5 +1168,81 @@
       "contactSupport": "联系支持",
       "termsOfService": "服务条款"
     }
+  },
+  "albumDetail": {
+    "goBack": "返回",
+    "item": "项目",
+    "items": "项目",
+    "share": "分享",
+    "copyLink": "复制链接",
+    "comments": "评论"
+  },
+  "discover": {
+    "filteringByTag": "按标签过滤:",
+    "clearFilter": "清除过滤器"
+  },
+  "mediaDetail": {
+    "goBack": "返回",
+    "share": "分享",
+    "copyLink": "复制链接",
+    "mediaDetails": "媒体详情",
+    "prompts": "提示词",
+    "prompt": "提示词",
+    "negativePrompt": "负面提示词",
+    "loraModels": "LoRA模型",
+    "otherControls": "其他控制",
+    "relatedImages": "相关图片",
+    "inAlbums": "在相册中",
+    "comments": "评论"
+  },
+  "userPlan": {
+    "anonymous": "匿名",
+    "free": "免费",
+    "starter": "入门",
+    "unlimited": "无限制",
+    "pro": "专业版"
+  },
+  "errorBoundary": {
+    "appLevel": {
+      "title": "出了点问题",
+      "description": "我们遇到了意外错误。请刷新页面或返回主页。",
+      "tryAgain": "重试",
+      "goToHomepage": "返回主页"
+    },
+    "pageLevel": {
+      "title": "页面错误",
+      "description": "此页面遇到错误，无法正确加载。",
+      "retry": "重试",
+      "goBack": "返回"
+    },
+    "sectionLevel": {
+      "title": "区域错误",
+      "description": "此区域无法正确加载。",
+      "retrySection": "重试区域"
+    },
+    "componentLevel": {
+      "title": "组件错误",
+      "description": "此组件无法渲染。",
+      "retry": "重试"
+    }
+  },
+  "invitationWall": {
+    "title": "私人测试版访问",
+    "betaUntilDate": "🌟 在9月30日之前，PornSpot处于私人测试版",
+    "allUsersGetPro": "✨ 所有注册用户都能获得",
+    "fullProFeatures": "完整的专业版功能",
+    "includingUnlimited": "🚀 包括",
+    "unlimitedImageGeneration": "无限图像生成",
+    "enterCodeLabel": "输入您的邀请码",
+    "codePlaceholder": "您的神奇密码...",
+    "codeRequired": "需要邀请码",
+    "invalidCodeError": "无效的邀请码",
+    "validationError": "无法验证邀请码。请重试。",
+    "validatingButton": "验证中...",
+    "enterPortalButton": "✨ 进入魔法门户",
+    "needCodeText": "需要邀请码？加入我们的 Fabularius.ai",
+    "discordLink": "Discord",
+    "orText": "或",
+    "redditLink": "Reddit"
   }
 }

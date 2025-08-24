@@ -39,13 +39,9 @@ function AuthErrorFallback() {
         <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
 
-      <h2 className="text-2xl font-bold text-foreground mb-2">
-        Processing error...
-      </h2>
+      <h2 className="text-2xl font-bold text-foreground mb-2">Loading...</h2>
 
-      <p className="text-muted-foreground text-lg">
-        Please wait while we process your authentication error.
-      </p>
+      <p className="text-muted-foreground text-lg">Please wait...</p>
     </div>
   );
 }

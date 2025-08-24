@@ -3,6 +3,33 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { Button } from "./ui/Button";
 import { RefreshCw, AlertTriangle, Home, ArrowLeft } from "lucide-react";
+import { useTranslations } from "next-intl";
+
+// Translations interface for class components
+interface ErrorBoundaryTranslations {
+  appLevel: {
+    title: string;
+    description: string;
+    tryAgain: string;
+    goToHomepage: string;
+  };
+  pageLevel: {
+    title: string;
+    description: string;
+    retry: string;
+    goBack: string;
+  };
+  sectionLevel: {
+    title: string;
+    description: string;
+    retrySection: string;
+  };
+  componentLevel: {
+    title: string;
+    description: string;
+    retry: string;
+  };
+}
 
 // Base Error Boundary Props
 interface BaseErrorBoundaryProps {
@@ -12,6 +39,7 @@ interface BaseErrorBoundaryProps {
   resetKeys?: string[];
   level?: "app" | "page" | "section" | "component";
   context?: string;
+  translations?: ErrorBoundaryTranslations;
 }
 
 interface ErrorBoundaryState {
@@ -120,12 +148,20 @@ export class AppErrorBoundary extends Component<
 
   override render() {
     const { hasError, error } = this.state;
-    const { children, fallback } = this.props;
+    const { children, fallback, translations } = this.props;
 
     if (hasError) {
       if (fallback) {
         return fallback;
       }
+
+      const t = translations?.appLevel || {
+        title: "Something went wrong",
+        description:
+          "We encountered an unexpected error. Please try refreshing the page or return to the homepage.",
+        tryAgain: "Try Again",
+        goToHomepage: "Go to Homepage",
+      };
 
       return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -134,13 +170,8 @@ export class AppErrorBoundary extends Component<
               <div className="w-20 h-20 mx-auto bg-destructive/10 rounded-full flex items-center justify-center">
                 <AlertTriangle className="w-10 h-10 text-destructive" />
               </div>
-              <h1 className="text-2xl font-bold text-foreground">
-                Something went wrong
-              </h1>
-              <p className="text-muted-foreground">
-                We encountered an unexpected error. Please try refreshing the
-                page or return to the homepage.
-              </p>
+              <h1 className="text-2xl font-bold text-foreground">{t.title}</h1>
+              <p className="text-muted-foreground">{t.description}</p>
               {error && process.env.NODE_ENV === "development" && (
                 <p className="text-sm text-destructive font-mono">
                   {error.message}
@@ -155,7 +186,7 @@ export class AppErrorBoundary extends Component<
                 className="w-full"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Try Again
+                {t.tryAgain}
               </Button>
               <Button
                 onClick={this.handleGoHome}
@@ -163,7 +194,7 @@ export class AppErrorBoundary extends Component<
                 className="w-full"
               >
                 <Home className="w-4 h-4 mr-2" />
-                Go to Homepage
+                {t.goToHomepage}
               </Button>
             </div>
           </div>
@@ -273,12 +304,20 @@ export class PageErrorBoundary extends Component<
 
   override render() {
     const { hasError, error } = this.state;
-    const { children, fallback, context } = this.props;
+    const { children, fallback, context, translations } = this.props;
 
     if (hasError) {
       if (fallback) {
         return fallback;
       }
+
+      const t = translations?.pageLevel || {
+        title: "Page Error",
+        description:
+          "This page encountered an error and couldn't load properly.",
+        retry: "Retry",
+        goBack: "Go Back",
+      };
 
       return (
         <div className="min-h-[400px] flex items-center justify-center p-8">
@@ -288,10 +327,10 @@ export class PageErrorBoundary extends Component<
                 <AlertTriangle className="w-8 h-8 text-destructive" />
               </div>
               <h2 className="text-xl font-semibold text-foreground">
-                Page Error
+                {t.title}
               </h2>
               <p className="text-muted-foreground">
-                This page encountered an error and couldn&apos;t load properly.
+                {t.description}
                 {context && ` (${context})`}
               </p>
               {error && process.env.NODE_ENV === "development" && (
@@ -304,11 +343,11 @@ export class PageErrorBoundary extends Component<
             <div className="flex gap-3">
               <Button onClick={this.handleRetry} variant="default" size="sm">
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Retry
+                {t.retry}
               </Button>
               <Button onClick={this.handleGoBack} variant="outline" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Go Back
+                {t.goBack}
               </Button>
             </div>
           </div>
@@ -409,12 +448,18 @@ export class SectionErrorBoundary extends Component<
 
   override render() {
     const { hasError, error } = this.state;
-    const { children, fallback, context } = this.props;
+    const { children, fallback, context, translations } = this.props;
 
     if (hasError) {
       if (fallback) {
         return fallback;
       }
+
+      const t = translations?.sectionLevel || {
+        title: "Section Error",
+        description: "This section couldn't load properly.",
+        retrySection: "Retry Section",
+      };
 
       return (
         <div className="bg-card border border-border rounded-lg p-6 text-center space-y-4">
@@ -422,11 +467,9 @@ export class SectionErrorBoundary extends Component<
             <AlertTriangle className="w-6 h-6 text-destructive" />
           </div>
           <div className="space-y-2">
-            <h3 className="text-lg font-medium text-foreground">
-              Section Error
-            </h3>
+            <h3 className="text-lg font-medium text-foreground">{t.title}</h3>
             <p className="text-sm text-muted-foreground">
-              This section couldn&apos;t load properly.
+              {t.description}
               {context && ` (${context})`}
             </p>
             {error && process.env.NODE_ENV === "development" && (
@@ -437,7 +480,7 @@ export class SectionErrorBoundary extends Component<
           </div>
           <Button onClick={this.handleRetry} variant="outline" size="sm">
             <RefreshCw className="w-4 h-4 mr-2" />
-            Retry Section
+            {t.retrySection}
           </Button>
         </div>
       );
@@ -536,12 +579,18 @@ export class ComponentErrorBoundary extends Component<
 
   override render() {
     const { hasError, error } = this.state;
-    const { children, fallback, context } = this.props;
+    const { children, fallback, context, translations } = this.props;
 
     if (hasError) {
       if (fallback) {
         return fallback;
       }
+
+      const t = translations?.componentLevel || {
+        title: "Component Error",
+        description: "This component failed to render.",
+        retry: "Retry",
+      };
 
       return (
         <div className="bg-muted/50 border border-border rounded p-4 text-center space-y-3">
@@ -549,11 +598,9 @@ export class ComponentErrorBoundary extends Component<
             <AlertTriangle className="w-4 h-4 text-destructive" />
           </div>
           <div className="space-y-1">
-            <p className="text-sm font-medium text-foreground">
-              Component Error
-            </p>
+            <p className="text-sm font-medium text-foreground">{t.title}</p>
             <p className="text-xs text-muted-foreground">
-              This component failed to render.
+              {t.description}
               {context && ` (${context})`}
             </p>
             {error && process.env.NODE_ENV === "development" && (
@@ -569,7 +616,7 @@ export class ComponentErrorBoundary extends Component<
             className="text-xs"
           >
             <RefreshCw className="w-3 h-3 mr-1" />
-            Retry
+            {t.retry}
           </Button>
         </div>
       );
@@ -582,54 +629,368 @@ export class ComponentErrorBoundary extends Component<
 // Convenience wrapper components with predefined contexts
 export const AlbumGridErrorBoundary: React.FC<{ children: ReactNode }> = ({
   children,
-}) => (
-  <SectionErrorBoundary context="Album Grid">{children}</SectionErrorBoundary>
-);
+}) => {
+  const t = useTranslations("errorBoundary");
+  const translations: ErrorBoundaryTranslations = {
+    appLevel: {
+      title: t("appLevel.title"),
+      description: t("appLevel.description"),
+      tryAgain: t("appLevel.tryAgain"),
+      goToHomepage: t("appLevel.goToHomepage"),
+    },
+    pageLevel: {
+      title: t("pageLevel.title"),
+      description: t("pageLevel.description"),
+      retry: t("pageLevel.retry"),
+      goBack: t("pageLevel.goBack"),
+    },
+    sectionLevel: {
+      title: t("sectionLevel.title"),
+      description: t("sectionLevel.description"),
+      retrySection: t("sectionLevel.retrySection"),
+    },
+    componentLevel: {
+      title: t("componentLevel.title"),
+      description: t("componentLevel.description"),
+      retry: t("componentLevel.retry"),
+    },
+  };
+
+  return (
+    <SectionErrorBoundary context="Album Grid" translations={translations}>
+      {children}
+    </SectionErrorBoundary>
+  );
+};
 
 export const MediaGalleryErrorBoundary: React.FC<{ children: ReactNode }> = ({
   children,
-}) => (
-  <SectionErrorBoundary context="Media Gallery">
-    {children}
-  </SectionErrorBoundary>
-);
+}) => {
+  const t = useTranslations("errorBoundary");
+  const translations: ErrorBoundaryTranslations = {
+    appLevel: {
+      title: t("appLevel.title"),
+      description: t("appLevel.description"),
+      tryAgain: t("appLevel.tryAgain"),
+      goToHomepage: t("appLevel.goToHomepage"),
+    },
+    pageLevel: {
+      title: t("pageLevel.title"),
+      description: t("pageLevel.description"),
+      retry: t("pageLevel.retry"),
+      goBack: t("pageLevel.goBack"),
+    },
+    sectionLevel: {
+      title: t("sectionLevel.title"),
+      description: t("sectionLevel.description"),
+      retrySection: t("sectionLevel.retrySection"),
+    },
+    componentLevel: {
+      title: t("componentLevel.title"),
+      description: t("componentLevel.description"),
+      retry: t("componentLevel.retry"),
+    },
+  };
+
+  return (
+    <SectionErrorBoundary context="Media Gallery" translations={translations}>
+      {children}
+    </SectionErrorBoundary>
+  );
+};
 
 export const ProfileErrorBoundary: React.FC<{ children: ReactNode }> = ({
   children,
-}) => (
-  <SectionErrorBoundary context="User Profile">{children}</SectionErrorBoundary>
-);
+}) => {
+  const t = useTranslations("errorBoundary");
+  const translations: ErrorBoundaryTranslations = {
+    appLevel: {
+      title: t("appLevel.title"),
+      description: t("appLevel.description"),
+      tryAgain: t("appLevel.tryAgain"),
+      goToHomepage: t("appLevel.goToHomepage"),
+    },
+    pageLevel: {
+      title: t("pageLevel.title"),
+      description: t("pageLevel.description"),
+      retry: t("pageLevel.retry"),
+      goBack: t("pageLevel.goBack"),
+    },
+    sectionLevel: {
+      title: t("sectionLevel.title"),
+      description: t("sectionLevel.description"),
+      retrySection: t("sectionLevel.retrySection"),
+    },
+    componentLevel: {
+      title: t("componentLevel.title"),
+      description: t("componentLevel.description"),
+      retry: t("componentLevel.retry"),
+    },
+  };
+
+  return (
+    <SectionErrorBoundary context="User Profile" translations={translations}>
+      {children}
+    </SectionErrorBoundary>
+  );
+};
 
 export const AdminErrorBoundary: React.FC<{ children: ReactNode }> = ({
   children,
-}) => (
-  <SectionErrorBoundary context="Admin Panel">{children}</SectionErrorBoundary>
-);
+}) => {
+  const t = useTranslations("errorBoundary");
+  const translations: ErrorBoundaryTranslations = {
+    appLevel: {
+      title: t("appLevel.title"),
+      description: t("appLevel.description"),
+      tryAgain: t("appLevel.tryAgain"),
+      goToHomepage: t("appLevel.goToHomepage"),
+    },
+    pageLevel: {
+      title: t("pageLevel.title"),
+      description: t("pageLevel.description"),
+      retry: t("pageLevel.retry"),
+      goBack: t("pageLevel.goBack"),
+    },
+    sectionLevel: {
+      title: t("sectionLevel.title"),
+      description: t("sectionLevel.description"),
+      retrySection: t("sectionLevel.retrySection"),
+    },
+    componentLevel: {
+      title: t("componentLevel.title"),
+      description: t("componentLevel.description"),
+      retry: t("componentLevel.retry"),
+    },
+  };
+
+  return (
+    <SectionErrorBoundary context="Admin Panel" translations={translations}>
+      {children}
+    </SectionErrorBoundary>
+  );
+};
 
 export const AuthErrorBoundary: React.FC<{ children: ReactNode }> = ({
   children,
-}) => (
-  <SectionErrorBoundary context="Authentication">
-    {children}
-  </SectionErrorBoundary>
-);
+}) => {
+  const t = useTranslations("errorBoundary");
+  const translations: ErrorBoundaryTranslations = {
+    appLevel: {
+      title: t("appLevel.title"),
+      description: t("appLevel.description"),
+      tryAgain: t("appLevel.tryAgain"),
+      goToHomepage: t("appLevel.goToHomepage"),
+    },
+    pageLevel: {
+      title: t("pageLevel.title"),
+      description: t("pageLevel.description"),
+      retry: t("pageLevel.retry"),
+      goBack: t("pageLevel.goBack"),
+    },
+    sectionLevel: {
+      title: t("sectionLevel.title"),
+      description: t("sectionLevel.description"),
+      retrySection: t("sectionLevel.retrySection"),
+    },
+    componentLevel: {
+      title: t("componentLevel.title"),
+      description: t("componentLevel.description"),
+      retry: t("componentLevel.retry"),
+    },
+  };
+
+  return (
+    <SectionErrorBoundary context="Authentication" translations={translations}>
+      {children}
+    </SectionErrorBoundary>
+  );
+};
 
 export const CommentsErrorBoundary: React.FC<{ children: ReactNode }> = ({
   children,
-}) => (
-  <ComponentErrorBoundary context="Comments">{children}</ComponentErrorBoundary>
-);
+}) => {
+  const t = useTranslations("errorBoundary");
+  const translations: ErrorBoundaryTranslations = {
+    appLevel: {
+      title: t("appLevel.title"),
+      description: t("appLevel.description"),
+      tryAgain: t("appLevel.tryAgain"),
+      goToHomepage: t("appLevel.goToHomepage"),
+    },
+    pageLevel: {
+      title: t("pageLevel.title"),
+      description: t("pageLevel.description"),
+      retry: t("pageLevel.retry"),
+      goBack: t("pageLevel.goBack"),
+    },
+    sectionLevel: {
+      title: t("sectionLevel.title"),
+      description: t("sectionLevel.description"),
+      retrySection: t("sectionLevel.retrySection"),
+    },
+    componentLevel: {
+      title: t("componentLevel.title"),
+      description: t("componentLevel.description"),
+      retry: t("componentLevel.retry"),
+    },
+  };
+
+  return (
+    <ComponentErrorBoundary context="Comments" translations={translations}>
+      {children}
+    </ComponentErrorBoundary>
+  );
+};
 
 export const ContentCardErrorBoundary: React.FC<{ children: ReactNode }> = ({
   children,
-}) => (
-  <ComponentErrorBoundary context="Content Card">
-    {children}
-  </ComponentErrorBoundary>
-);
+}) => {
+  const t = useTranslations("errorBoundary");
+  const translations: ErrorBoundaryTranslations = {
+    appLevel: {
+      title: t("appLevel.title"),
+      description: t("appLevel.description"),
+      tryAgain: t("appLevel.tryAgain"),
+      goToHomepage: t("appLevel.goToHomepage"),
+    },
+    pageLevel: {
+      title: t("pageLevel.title"),
+      description: t("pageLevel.description"),
+      retry: t("pageLevel.retry"),
+      goBack: t("pageLevel.goBack"),
+    },
+    sectionLevel: {
+      title: t("sectionLevel.title"),
+      description: t("sectionLevel.description"),
+      retrySection: t("sectionLevel.retrySection"),
+    },
+    componentLevel: {
+      title: t("componentLevel.title"),
+      description: t("componentLevel.description"),
+      retry: t("componentLevel.retry"),
+    },
+  };
+
+  return (
+    <ComponentErrorBoundary context="Content Card" translations={translations}>
+      {children}
+    </ComponentErrorBoundary>
+  );
+};
 
 export const LightboxErrorBoundary: React.FC<{ children: ReactNode }> = ({
   children,
-}) => (
-  <ComponentErrorBoundary context="Lightbox">{children}</ComponentErrorBoundary>
-);
+}) => {
+  const t = useTranslations("errorBoundary");
+  const translations: ErrorBoundaryTranslations = {
+    appLevel: {
+      title: t("appLevel.title"),
+      description: t("appLevel.description"),
+      tryAgain: t("appLevel.tryAgain"),
+      goToHomepage: t("appLevel.goToHomepage"),
+    },
+    pageLevel: {
+      title: t("pageLevel.title"),
+      description: t("pageLevel.description"),
+      retry: t("pageLevel.retry"),
+      goBack: t("pageLevel.goBack"),
+    },
+    sectionLevel: {
+      title: t("sectionLevel.title"),
+      description: t("sectionLevel.description"),
+      retrySection: t("sectionLevel.retrySection"),
+    },
+    componentLevel: {
+      title: t("componentLevel.title"),
+      description: t("componentLevel.description"),
+      retry: t("componentLevel.retry"),
+    },
+  };
+
+  return (
+    <ComponentErrorBoundary context="Lightbox" translations={translations}>
+      {children}
+    </ComponentErrorBoundary>
+  );
+};
+
+// Main wrapper components that use translations
+export const TranslatedAppErrorBoundary: React.FC<{
+  children: ReactNode;
+  fallback?: ReactNode;
+  onError?: (_error: Error, _errorInfo: ErrorInfo) => void;
+  resetKeys?: string[];
+}> = ({ children, ...props }) => {
+  const t = useTranslations("errorBoundary");
+  const translations: ErrorBoundaryTranslations = {
+    appLevel: {
+      title: t("appLevel.title"),
+      description: t("appLevel.description"),
+      tryAgain: t("appLevel.tryAgain"),
+      goToHomepage: t("appLevel.goToHomepage"),
+    },
+    pageLevel: {
+      title: t("pageLevel.title"),
+      description: t("pageLevel.description"),
+      retry: t("pageLevel.retry"),
+      goBack: t("pageLevel.goBack"),
+    },
+    sectionLevel: {
+      title: t("sectionLevel.title"),
+      description: t("sectionLevel.description"),
+      retrySection: t("sectionLevel.retrySection"),
+    },
+    componentLevel: {
+      title: t("componentLevel.title"),
+      description: t("componentLevel.description"),
+      retry: t("componentLevel.retry"),
+    },
+  };
+
+  return (
+    <AppErrorBoundary translations={translations} {...props}>
+      {children}
+    </AppErrorBoundary>
+  );
+};
+
+export const TranslatedPageErrorBoundary: React.FC<{
+  children: ReactNode;
+  context?: string;
+  fallback?: ReactNode;
+  onError?: (_error: Error, _errorInfo: ErrorInfo) => void;
+  resetKeys?: string[];
+}> = ({ children, ...props }) => {
+  const t = useTranslations("errorBoundary");
+  const translations: ErrorBoundaryTranslations = {
+    appLevel: {
+      title: t("appLevel.title"),
+      description: t("appLevel.description"),
+      tryAgain: t("appLevel.tryAgain"),
+      goToHomepage: t("appLevel.goToHomepage"),
+    },
+    pageLevel: {
+      title: t("pageLevel.title"),
+      description: t("pageLevel.description"),
+      retry: t("pageLevel.retry"),
+      goBack: t("pageLevel.goBack"),
+    },
+    sectionLevel: {
+      title: t("sectionLevel.title"),
+      description: t("sectionLevel.description"),
+      retrySection: t("sectionLevel.retrySection"),
+    },
+    componentLevel: {
+      title: t("componentLevel.title"),
+      description: t("componentLevel.description"),
+      retry: t("componentLevel.retry"),
+    },
+  };
+
+  return (
+    <PageErrorBoundary translations={translations} {...props}>
+      {children}
+    </PageErrorBoundary>
+  );
+};

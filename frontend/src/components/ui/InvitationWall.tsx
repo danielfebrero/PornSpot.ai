@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { userApi } from "@/lib/api";
@@ -57,30 +58,29 @@ const StarsBackground = () => {
   );
 };
 
-// Validation schema for invitation code
-const inviteCodeSchema = z.object({
-  code: z.string().min(1, "Invitation code is required"),
-});
-
-type InviteCodeFormData = z.infer<typeof inviteCodeSchema>;
-
 interface InvitationWallProps {
   onCodeValidated: () => void;
 }
 
 export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
+  const t = useTranslations("invitationWall");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Validation schema for invitation code
+  const inviteCodeSchema = z.object({
+    code: z.string().min(1, t("codeRequired")),
+  });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<InviteCodeFormData>({
+  } = useForm<z.infer<typeof inviteCodeSchema>>({
     resolver: zodResolver(inviteCodeSchema),
   });
 
-  const onSubmit = async (data: InviteCodeFormData) => {
+  const onSubmit = async (data: z.infer<typeof inviteCodeSchema>) => {
     setIsLoading(true);
     setError(null);
 
@@ -91,13 +91,11 @@ export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
         // Code is valid, proceed to registration
         onCodeValidated();
       } else {
-        setError(response.message || "Invalid invitation code");
+        setError(response.message || t("invalidCodeError"));
       }
     } catch (err: any) {
       console.error("Invitation code validation error:", err);
-      setError(
-        err?.message || "Unable to validate invitation code. Please try again."
-      );
+      setError(err?.message || t("validationError"));
     } finally {
       setIsLoading(false);
     }
@@ -118,23 +116,21 @@ export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
             </div>
 
             <h2 className="text-2xl font-semibold text-white mb-4">
-              Private Beta Access
+              {t("title")}
             </h2>
 
             <div className="text-gray-300 space-y-3 mb-6">
+              <p className="text-sm">{t("betaUntilDate")}</p>
               <p className="text-sm">
-                🌟 Until September 30, PornSpot is in private beta
-              </p>
-              <p className="text-sm">
-                ✨ All registered users get{" "}
+                {t("allUsersGetPro")}{" "}
                 <span className="text-yellow-400 font-semibold">
-                  full Pro features
+                  {t("fullProFeatures")}
                 </span>
               </p>
               <p className="text-sm">
-                🚀 Including{" "}
+                {t("includingUnlimited")}{" "}
                 <span className="text-pink-400 font-semibold">
-                  unlimited image generation
+                  {t("unlimitedImageGeneration")}
                 </span>
               </p>
             </div>
@@ -146,13 +142,13 @@ export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
                 htmlFor="code"
                 className="block text-sm font-medium text-gray-200"
               >
-                Enter your invitation code
+                {t("enterCodeLabel")}
               </label>
               <div className="relative">
                 <Input
                   id="code"
                   type="text"
-                  placeholder="Your magical code..."
+                  placeholder={t("codePlaceholder")}
                   className="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300"
                   autoComplete="off"
                   {...register("code")}
@@ -173,11 +169,11 @@ export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
               {isLoading ? (
                 <div className="flex items-center justify-center space-x-2">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Validating...</span>
+                  <span>{t("validatingButton")}</span>
                 </div>
               ) : (
                 <span className="flex items-center justify-center space-x-2">
-                  <span>✨ Enter the Magic Portal</span>
+                  <span>{t("enterPortalButton")}</span>
                 </span>
               )}
             </Button>
@@ -185,23 +181,23 @@ export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
 
           <div className="mt-8 text-center">
             <p className="text-gray-400 text-xs">
-              Need an invitation code? Join our Fabularius.ai{" "}
+              {t("needCodeText")}{" "}
               <a
                 href="https://discord.gg/hU7uc84nwK"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-purple-400 hover:text-purple-300 transition-colors"
               >
-                Discord
+                {t("discordLink")}
               </a>{" "}
-              or{" "}
+              {t("orText")}{" "}
               <a
                 href="https://reddit.com/r/fabularius"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-purple-400 hover:text-purple-300 transition-colors"
               >
-                Reddit
+                {t("redditLink")}
               </a>
             </p>
           </div>

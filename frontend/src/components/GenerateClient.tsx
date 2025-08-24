@@ -35,64 +35,81 @@ import { useLocaleRouter } from "@/lib/navigation";
 import { GenerationProgressCard } from "./ui/GenerationProgressCard";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { useWebSocket } from "@/contexts/WebSocketContext";
-import { set } from "lodash";
-
-const IMAGE_SIZES = [
-  {
-    value: "1024x1024",
-    label: "1024×1024 (Square)",
-    width: 1024,
-    height: 1024,
-  },
-  {
-    value: "1536x1024",
-    label: "1536×1024 (Landscape)",
-    width: 1536,
-    height: 1024,
-  },
-  {
-    value: "1024x1536",
-    label: "1024×1536 (Portrait)",
-    width: 1024,
-    height: 1536,
-  },
-  { value: "1792x1024", label: "1792×1024 (Wide)", width: 1792, height: 1024 },
-  { value: "1024x1792", label: "1024×1792 (Tall)", width: 1024, height: 1792 },
-  { value: "custom", label: "Custom", width: 1024, height: 1024 },
-];
-
-const LORA_MODELS = [
-  {
-    id: "leaked_nudes_style_v1_fixed",
-    name: "Leaked amateur",
-    description: "Generate amateur-style images",
-  },
-  {
-    id: "add-detail-xl",
-    name: "Add detail XL",
-    description: "Increases fine details",
-  },
-  {
-    id: "Harness_Straps_sdxl",
-    name: "Harness, Straps, Garter and Cupless bra",
-    description: "Generate images with harness and more",
-  },
-  {
-    id: "Pierced_Nipples_XL_Barbell_Edition-000013",
-    name: "Pierced Nipples",
-    description: "Generate images with pierced nipples and barbell details",
-  },
-  {
-    id: "bdsm_SDXL_1_",
-    name: "BDSM",
-    description:
-      "Bondage, discipline, dominance, submission, sadism, and masochism",
-  },
-];
+import { useTranslations } from "next-intl";
 
 export function GenerateClient() {
   const magicTextRef = useRef<MagicTextHandle>(null);
   const { fetchConnectionId, isConnected } = useWebSocket();
+  const t = useTranslations("generate");
+
+  // Image sizes with translations
+  const IMAGE_SIZES = [
+    {
+      value: "1024x1024",
+      label: t("imageSizes.square"),
+      width: 1024,
+      height: 1024,
+    },
+    {
+      value: "1536x1024",
+      label: t("imageSizes.landscape"),
+      width: 1536,
+      height: 1024,
+    },
+    {
+      value: "1024x1536",
+      label: t("imageSizes.portrait"),
+      width: 1024,
+      height: 1536,
+    },
+    {
+      value: "1792x1024",
+      label: t("imageSizes.wide"),
+      width: 1792,
+      height: 1024,
+    },
+    {
+      value: "1024x1792",
+      label: t("imageSizes.tall"),
+      width: 1024,
+      height: 1792,
+    },
+    {
+      value: "custom",
+      label: t("imageSizes.custom"),
+      width: 1024,
+      height: 1024,
+    },
+  ];
+
+  // LoRA models with translated descriptions only
+  const LORA_MODELS = [
+    {
+      id: "leaked_nudes_style_v1_fixed",
+      name: "Leaked amateur",
+      description: t("loraModels.leakedAmateur"),
+    },
+    {
+      id: "add-detail-xl",
+      name: "Add detail XL",
+      description: t("loraModels.addDetailXL"),
+    },
+    {
+      id: "Harness_Straps_sdxl",
+      name: "Harness, Straps, Garter and Cupless bra",
+      description: t("loraModels.harnessStraps"),
+    },
+    {
+      id: "Pierced_Nipples_XL_Barbell_Edition-000013",
+      name: "Pierced Nipples",
+      description: t("loraModels.piercedNipples"),
+    },
+    {
+      id: "bdsm_SDXL_1_",
+      name: "BDSM",
+      description: t("loraModels.bdsm"),
+    },
+  ];
 
   // Hook for optimistic usage stats updates
   const decrementUsageStats = useDecrementUsageStats();
@@ -332,12 +349,11 @@ export function GenerateClient() {
               </div>
 
               <div className="space-y-4">
-                <h1 className="text-5xl md:text-6xl font-bold text-foreground">
-                  AI Image Generator
+                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  {t("aiImageGenerator")}
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                  Transform your imagination into stunning AI-generated artwork
-                  with advanced customization and professional quality
+                  {t("transformImagination")}
                 </p>
               </div>
 
@@ -363,7 +379,7 @@ export function GenerateClient() {
                 {remaining !== "unlimited" && (
                   <div className="bg-muted/50 rounded-full px-4 py-2">
                     <span className="text-sm text-muted-foreground">
-                      {remaining} generations remaining
+                      {remaining} {t("generationsRemaining")}
                     </span>
                   </div>
                 )}
@@ -393,7 +409,7 @@ export function GenerateClient() {
                   <div className="flex items-center justify-center gap-2 mb-4">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                     <span className="text-sm font-medium text-foreground">
-                      Generation Complete
+                      {t("generationComplete")}
                     </span>
                   </div>
                   <div className="w-full max-w-md mx-auto">
@@ -419,7 +435,7 @@ export function GenerateClient() {
                   <div className="flex items-center justify-center gap-2 mb-4">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                     <span className="text-sm font-medium text-foreground">
-                      {filteredGeneratedImages.length} Images Generated
+                      {filteredGeneratedImages.length} {t("imagesGenerated")}
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
@@ -449,17 +465,17 @@ export function GenerateClient() {
           <div className="bg-card border border-border rounded-2xl shadow-lg p-6 space-y-6">
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-semibold text-foreground">
-                Describe Your Vision
+                {t("describeVision")}
               </h2>
               <p className="text-muted-foreground">
-                The more detailed your description, the better your results
+                {t("detailedDescriptionTip")}
               </p>
             </div>
 
             <div className="space-y-2">
               <div className="relative">
                 <GradientTextarea
-                  placeholder="A woman, 21, in an MMF threesome with double penetration, clearly enjoying an orgasm. Keep it amateur, not too polished, with a good view of her and both men."
+                  placeholder={t("promptPlaceholder")}
                   value={settings.prompt}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                     updateSettings("prompt", e.target.value);
@@ -481,7 +497,7 @@ export function GenerateClient() {
               </div>
               <div className="flex justify-between items-center">
                 <div className="text-xs text-muted-foreground">
-                  Be descriptive for better results
+                  {t("descriptiveTip")}
                 </div>
                 <div
                   className={cn(
@@ -505,7 +521,7 @@ export function GenerateClient() {
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-foreground">
-                      Optimize prompt
+                      {t("optimizePrompt")}
                     </h4>
                   </div>
                 </div>
@@ -524,8 +540,8 @@ export function GenerateClient() {
                   <div className="flex items-center gap-2">
                     <span>
                       {settings.prompt === originalPromptBeforeOptimization
-                        ? "Viewing original prompt"
-                        : "Prompt optimized"}
+                        ? t("viewingOriginalPrompt")
+                        : t("promptOptimized")}
                     </span>
                   </div>
                   {settings.prompt !== originalPromptBeforeOptimization && (
@@ -535,7 +551,7 @@ export function GenerateClient() {
                         onClick={revertToOriginalPrompt}
                         className="text-primary hover:text-primary/80 underline underline-offset-2 transition-colors"
                       >
-                        Revert to original
+                        {t("revertToOriginal")}
                       </button>
                     </div>
                   )}
@@ -571,12 +587,12 @@ export function GenerateClient() {
                     <Sparkles className="w-6 h-6 text-white animate-pulse" />
                     <div className="absolute inset-0 bg-white/20 rounded-full animate-ping" />
                   </div>
-                  <span>Stop Optimization</span>
+                  <span>{t("stopOptimization")}</span>
                 </div>
               ) : isGenerating ? (
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span>Stop Generation</span>
+                  <span>{t("stopGeneration")}</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
@@ -584,10 +600,10 @@ export function GenerateClient() {
                     <Zap className="h-5 w-5" />
                   </div>
                   <span>
-                    Generate{" "}
                     {settings.batchCount > 1
-                      ? `${settings.batchCount} Images`
-                      : "Image"}
+                      ? t("generateImages", { count: settings.batchCount })
+                      : t("generateSingle")}{" "}
+                    {settings.batchCount === 1 && t("image")}
                   </span>
                 </div>
               )}
@@ -597,7 +613,7 @@ export function GenerateClient() {
             {!allowed && (
               <div className="absolute inset-x-0 -bottom-8 flex justify-center">
                 <div className="bg-destructive/10 text-destructive text-sm px-3 py-1 rounded-full">
-                  Generation limit reached
+                  {t("generationLimitReached")}
                 </div>
               </div>
             )}
@@ -608,10 +624,10 @@ export function GenerateClient() {
             <div className="bg-card border border-border rounded-2xl shadow-lg p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-foreground">
-                  Recent Generations
+                  {t("recentGenerations")}
                 </h3>
                 <div className="text-sm text-muted-foreground">
-                  {filteredAllGeneratedImages.length} images
+                  {filteredAllGeneratedImages.length} {t("images")}
                 </div>
               </div>
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
@@ -624,7 +640,7 @@ export function GenerateClient() {
                     <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-border group-hover:border-primary transition-colors cursor-pointer shadow-md hover:shadow-lg">
                       <img
                         src={composeMediaUrl(image.url)}
-                        alt={`Previous ${index + 1}`}
+                        alt={`${t("previous")} ${index + 1}`}
                         width={80}
                         height={80}
                         className="w-full h-full object-cover transition-transform group-hover:scale-110"
@@ -645,11 +661,9 @@ export function GenerateClient() {
           <div className="space-y-6">
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-semibold text-foreground">
-                Advanced Controls
+                {t("advancedControls")}
               </h2>
-              <p className="text-muted-foreground">
-                Fine-tune your generation with professional parameters
-              </p>
+              <p className="text-muted-foreground">{t("fineTuneGeneration")}</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
@@ -673,16 +687,16 @@ export function GenerateClient() {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-foreground">
-                      Image Size
+                      {t("imageSize")}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      Choose dimensions
+                      {t("chooseDimensions")}
                     </p>
                   </div>
                   {!canUseCustomSizes() && (
                     <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
                       <Crown className="h-3 w-3" />
-                      <span className="text-xs font-medium">Pro</span>
+                      <span className="text-xs font-medium">{t("pro")}</span>
                     </div>
                   )}
                 </div>
@@ -716,7 +730,7 @@ export function GenerateClient() {
                   <div className="grid grid-cols-2 gap-3 mt-4">
                     <div>
                       <label className="text-xs font-medium text-muted-foreground mb-2 block">
-                        Width
+                        {t("width")}
                       </label>
                       <Input
                         type="number"
@@ -735,7 +749,7 @@ export function GenerateClient() {
                     </div>
                     <div>
                       <label className="text-xs font-medium text-muted-foreground mb-2 block">
-                        Height
+                        {t("height")}
                       </label>
                       <Input
                         type="number"
@@ -776,16 +790,16 @@ export function GenerateClient() {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-foreground">
-                      Batch Count
+                      {t("batchCount")}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      Generate multiple
+                      {t("generateMultiple")}
                     </p>
                   </div>
                   {!canUseBulk && (
                     <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
                       <Crown className="h-3 w-3" />
-                      <span className="text-xs font-medium">Pro</span>
+                      <span className="text-xs font-medium">{t("pro")}</span>
                     </div>
                   )}
                 </div>
@@ -832,16 +846,16 @@ export function GenerateClient() {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-foreground">
-                      Visibility
+                      {t("visibility")}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      Public or private content
+                      {t("publicOrPrivateContent")}
                     </p>
                   </div>
                   {!canCreatePrivateContent() && (
                     <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
                       <Crown className="h-3 w-3" />
-                      <span className="text-xs font-medium">Pro</span>
+                      <span className="text-xs font-medium">{t("pro")}</span>
                     </div>
                   )}
                 </div>
@@ -851,7 +865,7 @@ export function GenerateClient() {
                     <div className="flex items-center gap-2">
                       <ImageIcon className="h-4 w-4 text-muted-foreground" />
                       <span className="text-sm text-muted-foreground">
-                        {settings.isPublic ? "Public" : "Private"}
+                        {settings.isPublic ? t("public") : t("private")}
                       </span>
                     </div>
                   </div>
@@ -867,8 +881,8 @@ export function GenerateClient() {
 
                 <p className="text-xs text-muted-foreground mt-3">
                   {settings.isPublic
-                    ? "Generated images will be visible to all users"
-                    : "Generated images will be private to your account"}
+                    ? t("generatedImagesPublic")
+                    : t("generatedImagesPrivate")}
                 </p>
               </div>
             </div>
@@ -894,15 +908,17 @@ export function GenerateClient() {
                     <Sparkles className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">CFG Scale</h3>
+                    <h3 className="font-semibold text-foreground">
+                      {t("cfgScale")}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
-                      Prompt adherence
+                      {t("promptAdherence")}
                     </p>
                   </div>
                   {!canUseCfgScale() && (
                     <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
                       <Crown className="h-3 w-3" />
-                      <span className="text-xs font-medium">Pro</span>
+                      <span className="text-xs font-medium">{t("pro")}</span>
                     </div>
                   )}
                 </div>
@@ -954,15 +970,17 @@ export function GenerateClient() {
                     <RotateCcw className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">Steps</h3>
+                    <h3 className="font-semibold text-foreground">
+                      {t("steps")}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
-                      Generation quality
+                      {t("inferenceSteps")}
                     </p>
                   </div>
                   {!canUseSteps() && (
                     <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
                       <Crown className="h-3 w-3" />
-                      <span className="text-xs font-medium">Pro</span>
+                      <span className="text-xs font-medium">{t("pro")}</span>
                     </div>
                   )}
                 </div>
@@ -1013,15 +1031,17 @@ export function GenerateClient() {
                     <Grid3X3 className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">Seed</h3>
+                    <h3 className="font-semibold text-foreground">
+                      {t("seed")}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
-                      Reproducibility
+                      {t("reproducibility")}
                     </p>
                   </div>
                   {!canUseSeed() && (
                     <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
                       <Crown className="h-3 w-3" />
-                      <span className="text-xs font-medium">Pro</span>
+                      <span className="text-xs font-medium">{t("pro")}</span>
                     </div>
                   )}
                 </div>
@@ -1035,12 +1055,12 @@ export function GenerateClient() {
                       updateSettings("seed", parseInt(e.target.value) || -1)
                     }
                     disabled={!canUseSeed()}
-                    placeholder="-1 (random)"
+                    placeholder={t("randomSeedPlaceholder")}
                     min={-1}
                     className="w-full"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Use -1 for random seed
+                    {t("useRandomSeed")}
                   </p>
                 </div>
               </div>
@@ -1058,15 +1078,17 @@ export function GenerateClient() {
                   <Crown className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-foreground">LoRA Models</h3>
+                  <h3 className="font-semibold text-foreground">
+                    {t("loraModelsSection")}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
-                    Enhance your style
+                    {t("enhanceYourStyle")}
                   </p>
                 </div>
                 {!canUseLoras && (
                   <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
                     <Crown className="h-3 w-3" />
-                    <span className="text-xs font-medium">Pro</span>
+                    <span className="text-xs font-medium">{t("pro")}</span>
                   </div>
                 )}
               </div>
@@ -1076,12 +1098,12 @@ export function GenerateClient() {
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <h4 className="text-sm font-medium text-foreground">
-                      LoRA Selection
+                      {t("loraSelection")}
                     </h4>
                     <p className="text-xs text-muted-foreground">
                       {settings.loraSelectionMode === "auto"
-                        ? "We will automatically choose the best LoRA models and settings for your image"
-                        : "Manually select and configure LoRA models"}
+                        ? t("automaticLoraDescription")
+                        : t("manuallySelectLora")}
                     </p>
                   </div>
                 </div>
@@ -1095,7 +1117,7 @@ export function GenerateClient() {
                         : "bg-background text-muted-foreground hover:bg-background/80 border border-border"
                     )}
                   >
-                    Automatic
+                    {t("automatic")}
                   </button>
                   <button
                     onClick={() => updateLoraSelectionMode("manual")}
@@ -1109,7 +1131,7 @@ export function GenerateClient() {
                         "opacity-50 cursor-not-allowed hover:bg-background"
                     )}
                   >
-                    Manual
+                    {t("manual")}
                     {!canUseLoras && <Crown className="h-3 w-3 ml-1 inline" />}
                   </button>
                 </div>
@@ -1179,7 +1201,7 @@ export function GenerateClient() {
                             <div className="pt-3 space-y-3">
                               <div className="flex items-center justify-between">
                                 <span className="text-xs font-medium text-foreground">
-                                  Strength
+                                  {t("strength")}
                                 </span>
                                 <div className="flex items-center gap-2">
                                   <button
@@ -1227,7 +1249,8 @@ export function GenerateClient() {
                                 <div className="space-y-2">
                                   <div className="flex items-center justify-between">
                                     <span className="text-xs text-muted-foreground">
-                                      Value: {strengthSettings.value.toFixed(2)}
+                                      {t("value")}:{" "}
+                                      {strengthSettings.value.toFixed(2)}
                                     </span>
                                     <span className="text-xs text-muted-foreground">
                                       0.0 - 1.5
@@ -1261,8 +1284,7 @@ export function GenerateClient() {
 
                               {strengthSettings.mode === "auto" && (
                                 <div className="text-xs text-muted-foreground text-center py-1">
-                                  Strength will be set automatically based on
-                                  the prompt
+                                  {t("strengthAutoDescriptionComplete")}
                                 </div>
                               )}
                             </div>
@@ -1278,19 +1300,20 @@ export function GenerateClient() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <h5 className="text-sm font-medium text-foreground">
-                        Available LoRA Models
+                        {t("availableLoraModels")}
                       </h5>
                       {!canUseLoras && (
                         <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
                           <Crown className="h-3 w-3" />
-                          <span className="text-xs font-medium">Pro</span>
+                          <span className="text-xs font-medium">
+                            {t("pro")}
+                          </span>
                         </div>
                       )}
                     </div>
                     {canUseLoras && (
                       <p className="text-xs text-muted-foreground mb-2">
-                        💡 Click on any LoRA model to switch to manual selection
-                        and configure it
+                        {t("loraClickTip")}
                       </p>
                     )}
                     <div className="grid gap-2">
@@ -1334,8 +1357,7 @@ export function GenerateClient() {
                     {!canUseLoras && (
                       <div className="text-center pt-3">
                         <p className="text-xs text-muted-foreground mb-3">
-                          Upgrade to Pro to manually select and configure LoRA
-                          models strengths
+                          {t("upgradeToSelectLoraModels")}
                         </p>
                         <Button
                           onClick={() => router.push("/pricing")}
@@ -1343,7 +1365,7 @@ export function GenerateClient() {
                           className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
                         >
                           <Crown className="h-3 w-3 mr-1" />
-                          Upgrade to Pro
+                          {t("upgradeToPro")}
                         </Button>
                       </div>
                     )}
@@ -1361,8 +1383,9 @@ export function GenerateClient() {
                   >
                     <p className="text-xs text-primary font-medium text-center">
                       {settings.selectedLoras.length} LoRA
-                      {settings.selectedLoras.length !== 1 ? "s" : ""} selected
-                      {!canUseLoras && " (Pro feature)"}
+                      {settings.selectedLoras.length !== 1 ? "s" : ""}{" "}
+                      {t("selected")}
+                      {!canUseLoras && ` ${t("proFeature")}`}
                     </p>
                     <div className="grid gap-1">
                       {settings.selectedLoras.map((loraId) => {
@@ -1378,7 +1401,7 @@ export function GenerateClient() {
                             <span className="text-primary/80">{lora.name}</span>
                             <span className="text-primary/60">
                               {strength.mode === "auto"
-                                ? "Auto"
+                                ? t("auto")
                                 : `${strength.value.toFixed(2)}`}
                             </span>
                           </div>
@@ -1409,20 +1432,22 @@ export function GenerateClient() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground">
-                    Negative Prompt
+                    {t("negativePrompt")}
                   </h3>
-                  <p className="text-sm text-muted-foreground">What to avoid</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("whatToAvoid")}
+                  </p>
                 </div>
                 {!canUseNegativePrompts && (
                   <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
                     <Crown className="h-3 w-3" />
-                    <span className="text-xs font-medium">Pro</span>
+                    <span className="text-xs font-medium">{t("pro")}</span>
                   </div>
                 )}
               </div>
 
               <Textarea
-                placeholder="blurry, low quality, distorted, bad anatomy..."
+                placeholder={t("negativePromptPlaceholder")}
                 value={settings.negativePrompt}
                 disabled={!canUseNegativePrompts}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {

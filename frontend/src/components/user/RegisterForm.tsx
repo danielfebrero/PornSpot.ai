@@ -15,33 +15,33 @@ import { userApi } from "@/lib/api";
 import LocaleLink from "@/components/ui/LocaleLink";
 
 // Validation schema
-const registerSchema = z
-  .object({
-    email: z
-      .string()
-      .min(1, "Email is required")
-      .email("Please enter a valid email address"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      ),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-    username: z
-      .string()
-      .min(3, "Username must be at least 3 characters")
-      .max(30, "Username must not exceed 30 characters")
-      .regex(
-        /^[a-zA-Z0-9_-]+$/,
-        "Username can only contain letters, numbers, underscores, and hyphens"
-      ),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don&apos;t match",
-    path: ["confirmPassword"],
-  });
+const createRegisterSchema = (tAuth: (key: string) => string) =>
+  z
+    .object({
+      email: z
+        .string()
+        .min(1, tAuth("validation.emailRequired"))
+        .email(tAuth("validation.emailInvalid")),
+      password: z
+        .string()
+        .min(8, tAuth("validation.passwordTooShort"))
+        .regex(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+          tAuth("messages.passwordRequirements")
+        ),
+      confirmPassword: z
+        .string()
+        .min(1, tAuth("validation.confirmPasswordRequired")),
+      username: z
+        .string()
+        .min(3, tAuth("validation.usernameTooShort"))
+        .max(30, tAuth("messages.usernameTooLong"))
+        .regex(/^[a-zA-Z0-9_-]+$/, tAuth("validation.usernameInvalid")),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: tAuth("validation.passwordsDoNotMatch"),
+      path: ["confirmPassword"],
+    });
 
 // Username availability states
 type UsernameStatus = "idle" | "checking" | "available" | "taken" | "error";
@@ -58,6 +58,8 @@ export function RegisterForm() {
   const router = useLocaleRouter();
 
   const tAuth = useTranslations("auth");
+
+  const registerSchema = createRegisterSchema(tAuth);
 
   const {
     register,
@@ -120,7 +122,7 @@ export function RegisterForm() {
         setUsernameMessage(
           error instanceof Error
             ? error.message
-            : "Failed to check username availability"
+            : tAuth("failedToCheckUsernameAvailability")
         );
       }
     },
@@ -170,14 +172,14 @@ export function RegisterForm() {
       } else {
         setFormError("root", {
           type: "manual",
-          message: error || "Registration failed. Please try again.",
+          message: error || tAuth("registrationFailedTryAgain"),
         });
       }
     } catch (err) {
       setFormError("root", {
         type: "manual",
         message:
-          err instanceof Error ? err.message : "An unexpected error occurred",
+          err instanceof Error ? err.message : tAuth("unexpectedErrorOccurred"),
       });
     }
   };

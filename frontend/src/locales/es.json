@@ -81,8 +81,29 @@
     "sidebar": "Barra lateral",
     "header": "Encabezado",
     "footer": "Pie de página",
-    "breadcrumb": "Ruta de navegación",
+    "breadcrumb": "Miga de pan",
     "pagination": "Paginación"
+  },
+  "comments": {
+    "anonymousUser": "Usuario anónimo",
+    "edited": "editado",
+    "writeComment": "Escribe un comentario...",
+    "editComment": "Editar comentario",
+    "deleteComment": "Eliminar comentario",
+    "justNow": "justo ahora",
+    "minAgo": "hace {count} min",
+    "hourAgo": "hace {count}h",
+    "dayAgo": "hace {count}d",
+    "loading": "Cargando...",
+    "loadMoreComments": "Cargar más comentarios",
+    "noCommentsYet": "Aún no hay comentarios.",
+    "beFirstToComment": "Aún no hay comentarios. ¡Sé el primero en comentar!",
+    "submitShortcut": "Presiona Cmd+Enter para enviar",
+    "noMediaFound": "No se encontraron medios",
+    "albumDoesntContainMediaFiles": "Este álbum aún no contiene archivos multimedia.",
+    "loadingMoreMedia": "Cargando más medios...",
+    "noMoreMediaToLoad": "No hay más medios para cargar",
+    "failedToLoadMoreMedia": "Error al cargar más medios"
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -173,7 +194,10 @@
       "loginFailed": "Error al iniciar sesión",
       "registrationFailed": "Error en el registro",
       "verificationFailed": "Error en la verificación",
-      "sessionExpired": "Sesión expirada"
+      "sessionExpired": "Sesión expirada",
+      "failedToCheckUsernameAvailability": "Error al verificar la disponibilidad del nombre de usuario",
+      "registrationFailedTryAgain": "Error en el registro. Por favor, inténtalo de nuevo.",
+      "unexpectedErrorOccurred": "Ha ocurrido un error inesperado"
     },
     "actions": {
       "signOut": "Cerrar sesión",
@@ -185,7 +209,24 @@
       "meta": {
         "title": "Error de autenticación - PornSpot.ai",
         "description": "Ocurrió un error durante la autenticación"
-      }
+      },
+      "processingTitle": "Procesando error...",
+      "processingMessage": "Espere mientras procesamos su error de autenticación.",
+      "unknownError": "Se produjo un error de autenticación desconocido.",
+      "authCancelled": "Autenticación cancelada",
+      "authFailed": "Falló la autenticación",
+      "authError": "Error de autenticación",
+      "somethingWentWrong": "Algo salió mal",
+      "whatCanYouDo": "¿Qué puedes hacer?",
+      "tryDifferentMethod": "Intenta iniciar sesión nuevamente con un método diferente",
+      "allowPermissions": "Asegúrate de permitir los permisos cuando se te soliciten",
+      "checkBlockedPopups": "Verifica si tu navegador está bloqueando ventanas emergentes",
+      "clearCookies": "Borra las cookies de tu navegador e inténtalo de nuevo",
+      "tryAgain": "Intentar de nuevo",
+      "createNewAccount": "Crear nueva cuenta",
+      "backToDiscover": "Volver a Descubrir",
+      "stillTrouble": "¿Todavía tienes problemas?",
+      "contactSupport": "Contactar soporte"
     },
     "register": {
       "meta": {
@@ -333,8 +374,22 @@
   "user": {
     "albums": {
       "myAlbums": "Mis álbumes",
+      "albums": "Álbumes",
+      "personalCollections": "Tus colecciones personales",
+      "personalPhotoCollections": "Tus colecciones de fotos personales",
+      "albumsCount": "{count} álbumes",
+      "create": "Crear",
       "createAlbum": "Crear álbum",
-      "noAlbums": "No has creado ningún álbum aún",
+      "editAlbum": "Editar álbum",
+      "deleteAlbum": "Eliminar álbum",
+      "noAlbums": "Aún no has creado ningún álbum",
+      "noAlbumsYet": "Aún no hay álbumes",
+      "createFirstAlbum": "¡Crea tu primer álbum para organizar tu contenido y comenzar a construir tu colección!",
+      "unableToLoad": "No se pueden cargar los álbumes",
+      "errorMessage": "{error}. Por favor intenta actualizar la página o contacta soporte si el problema persiste.",
+      "refreshPage": "Actualizar página",
+      "loadingAlbums": "Cargando álbumes...",
+      "allAlbumsLoaded": "Todos los álbumes cargados",
       "albumCreated": "Álbum creado exitosamente",
       "albumUpdated": "Álbum actualizado exitosamente",
       "albumDeleted": "Álbum eliminado exitosamente"
@@ -384,7 +439,15 @@
       "likeAdded": "Me gusta añadido",
       "likeRemoved": "Me gusta removido",
       "removeLike": "Quitar me gusta",
-      "loginToLike": "Inicia sesión para dar me gusta"
+      "loginToLike": "Inicia sesión para dar me gusta",
+      "likes": "Me gusta",
+      "yourLikedContent": "Tu contenido que te gusta",
+      "likesCount": "me gusta",
+      "failedToLoadLikes": "Error al cargar me gusta",
+      "noLikesYet": "Aún no hay me gusta",
+      "startExploringContent": "¡Comienza a explorar contenido y dale me gusta a lo que disfrutes! Descubre álbumes y medios increíbles de nuestra comunidad.",
+      "loadingMoreLikes": "Cargando más me gusta...",
+      "allLikesLoaded": "Todos tus me gusta cargados"
     },
     "menu": {
       "account": "Cuenta",
@@ -400,7 +463,9 @@
       "unverified": "No verificado",
       "emailNotVerified": "Email no verificado",
       "signingOut": "Cerrando sesión...",
-      "signOut": "Cerrar sesión"
+      "signOut": "Cerrar sesión",
+      "notAuthenticated": "No autenticado",
+      "pleaseLogin": "Por favor inicia sesión para ver tu perfil."
     },
     "settings": {
       "title": "Configuración",
@@ -666,7 +731,92 @@
       "completed": "Completado",
       "failed": "Generación fallida",
       "cancelled": "Cancelado"
-    }
+    },
+    "imageSizes": {
+      "square": "Cuadrado (1024x1024)",
+      "landscape": "Paisaje (1536x1024)",
+      "portrait": "Retrato (1024x1536)",
+      "wide": "Ancho (1792x1024)",
+      "tall": "Alto (1024x1792)",
+      "custom": "Tamaño personalizado"
+    },
+    "loraModels": {
+      "leakedAmateur": "Estilo amateur realista con iluminación natural",
+      "addDetailXL": "Detalle mejorado y nitidez para imágenes de alta calidad",
+      "harnessStraps": "Accesorios de cuero incluyendo arneses, correas y ligueros",
+      "piercedNipples": "Joyería corporal y perforaciones con efectos metálicos realistas",
+      "bdsm": "Accesorios y escenarios temáticos de BDSM y bondage"
+    },
+    "promptPlaceholder": "Una mujer de 21 años en un trío MMF con doble penetración, disfrutando claramente de un orgasmo. Manténlo amateur, no muy pulido, con una buena vista de ella y ambos hombres.",
+    "optimizePrompt": "Optimizar prompt",
+    "viewingOriginalPrompt": "Viendo original",
+    "promptOptimized": "Prompt optimizado",
+    "stopOptimization": "Detener optimización",
+    "stopGeneration": "Detener generación",
+    "image": "imagen",
+    "images": "imágenes",
+    "loraSelection": "Selección LoRA",
+    "automatic": "Automático",
+    "manual": "Manual",
+    "public": "Público",
+    "private": "Privado",
+    "generatedImagesPublic": "Las imágenes generadas serán públicas",
+    "generatedImagesPrivate": "Las imágenes generadas serán privadas",
+    "cfgScale": "Escala CFG",
+    "advancedControls": "Controles Avanzados",
+    "fineTuneGeneration": "Ajusta tu generación con parámetros profesionales",
+    "imageSize": "Tamaño de Imagen",
+    "chooseDimensions": "Elegir dimensiones",
+    "width": "Ancho",
+    "height": "Alto",
+    "batchCount": "Cantidad de Lotes",
+    "generateMultiple": "Generar múltiples",
+    "visibility": "Visibilidad",
+    "publicOrPrivateContent": "Contenido público o privado",
+    "advancedQualityDescription": "con personalización avanzada y calidad profesional",
+    "generationsRemaining": "generaciones restantes",
+    "generationComplete": "Generación Completa",
+    "generationLimitReached": "Límite de generación alcanzado",
+    "recentGenerations": "Generaciones Recientes",
+    "detailedDescriptionTip": "Cuanto más detallada sea tu descripción, mejores serán tus resultados",
+    "steps": "Pasos",
+    "inferenceSteps": "Pasos de inferencia",
+    "generationQuality": "Calidad de generación",
+    "seed": "Semilla",
+    "reproducibility": "Reproducibilidad",
+    "useRandomSeed": "Usa -1 para semilla aleatoria",
+    "loraModelsSection": "Modelos LoRA",
+    "enhanceYourStyle": "Mejora tu estilo",
+    "automaticLoraDescription": "Selección automática de modelos LoRA basada en tu prompt",
+    "manuallySelectLora": "Seleccionar y configurar manualmente los modelos LoRA",
+    "strength": "Fuerza",
+    "value": "Valor",
+    "strengthAutoDescription": "La fuerza se establecerá automáticamente basada en",
+    "modelsStrengths": "las fuerzas de los modelos",
+    "availableLoraModels": "Modelos LoRA Disponibles",
+    "loraClickTip": "💡 Haz clic en cualquier modelo LoRA para cambiar a selección manual y configurarlo",
+    "negativePrompt": "Prompt Negativo",
+    "whatToAvoid": "Qué evitar",
+    "descriptiveTip": "Sé descriptivo para mejores resultados",
+    "pro": "Pro",
+    "generateImages": "Generar {count} imágenes",
+    "generateSingle": "Generar",
+    "aiImageGenerator": "Generador de Imágenes IA",
+    "transformImagination": "Transforma tu imaginación en obras de arte impresionantes generadas por IA",
+    "imagesGenerated": "Imágenes Generadas",
+    "describeVision": "Describe Tu Visión",
+    "revertToOriginal": "Volver al original",
+    "previous": "Anterior",
+    "thePrompt": "el prompt",
+    "upgradeToSelectLora": "Actualiza a Pro para seleccionar y configurar manualmente LoRA",
+    "upgradeToPro": "Actualizar a Pro",
+    "selected": "seleccionado",
+    "proFeature": "(Función Pro)",
+    "auto": "Auto",
+    "randomSeedPlaceholder": "Ingresa semilla (usa -1 para aleatorio)",
+    "upgradeToSelectLoraModels": "Actualiza a Pro para seleccionar y configurar manualmente las fuerzas de los modelos LoRA",
+    "strengthAutoDescriptionComplete": "La fuerza se establecerá automáticamente basada en el prompt",
+    "promptAdherence": "Adherencia al prompt"
   },
   "pricing": {
     "metaTitle": "Precios - {siteName} | Planes Generados por IA",
@@ -787,6 +937,14 @@
     }
   },
   "usage": {
+    "thisMonth": "este mes",
+    "today": "hoy",
+    "imagesGenerated": "Imágenes generadas {period}",
+    "unlimitedUsage": "✨ Uso ilimitado",
+    "usage": "Uso",
+    "plan": "Plan {plan}",
+    "dailyLimitText": "Límite diario",
+    "monthlyLimitText": "Límite mensual",
     "dailyLimit": {
       "title": "Límite diario",
       "remaining": "Restante hoy",
@@ -1011,5 +1169,81 @@
       "contactSupport": "Contactar Soporte",
       "termsOfService": "Términos de Servicio"
     }
+  },
+  "albumDetail": {
+    "goBack": "Volver",
+    "item": "elemento",
+    "items": "elementos",
+    "share": "Compartir",
+    "copyLink": "Copiar enlace",
+    "comments": "Comentarios"
+  },
+  "discover": {
+    "filteringByTag": "Filtrado por etiqueta:",
+    "clearFilter": "Limpiar filtro"
+  },
+  "mediaDetail": {
+    "goBack": "Volver",
+    "share": "Compartir",
+    "copyLink": "Copiar enlace",
+    "mediaDetails": "Detalles del medio",
+    "prompts": "Prompts",
+    "prompt": "Prompt",
+    "negativePrompt": "Prompt negativo",
+    "loraModels": "Modelos LoRA",
+    "otherControls": "Otros controles",
+    "relatedImages": "Imágenes relacionadas",
+    "inAlbums": "En álbumes",
+    "comments": "Comentarios"
+  },
+  "userPlan": {
+    "anonymous": "Anónimo",
+    "free": "Gratis",
+    "starter": "Inicial",
+    "unlimited": "Ilimitado",
+    "pro": "Pro"
+  },
+  "errorBoundary": {
+    "appLevel": {
+      "title": "Algo salió mal",
+      "description": "Encontramos un error inesperado. Por favor actualiza la página o regresa a la página principal.",
+      "tryAgain": "Intentar de nuevo",
+      "goToHomepage": "Ir al inicio"
+    },
+    "pageLevel": {
+      "title": "Error de página",
+      "description": "Esta página encontró un error y no pudo cargarse correctamente.",
+      "retry": "Reintentar",
+      "goBack": "Volver"
+    },
+    "sectionLevel": {
+      "title": "Error de sección",
+      "description": "Esta sección no pudo cargarse correctamente.",
+      "retrySection": "Reintentar sección"
+    },
+    "componentLevel": {
+      "title": "Error de componente",
+      "description": "Este componente falló al renderizarse.",
+      "retry": "Reintentar"
+    }
+  },
+  "invitationWall": {
+    "title": "Acceso Beta Privado",
+    "betaUntilDate": "🌟 Hasta el 30 de septiembre, PornSpot está en beta privada",
+    "allUsersGetPro": "✨ Todos los usuarios registrados obtienen",
+    "fullProFeatures": "todas las funciones Pro completas",
+    "includingUnlimited": "🚀 Incluyendo",
+    "unlimitedImageGeneration": "generación ilimitada de imágenes",
+    "enterCodeLabel": "Ingresa tu código de invitación",
+    "codePlaceholder": "Tu código mágico...",
+    "codeRequired": "Código de invitación requerido",
+    "invalidCodeError": "Código de invitación inválido",
+    "validationError": "No se pudo validar el código de invitación. Por favor inténtalo de nuevo.",
+    "validatingButton": "Validando...",
+    "enterPortalButton": "✨ Entrar al Portal Mágico",
+    "needCodeText": "¿Necesitas un código de invitación? Únete a nuestro Fabularius.ai",
+    "discordLink": "Discord",
+    "orText": "o",
+    "redditLink": "Reddit"
   }
 }
