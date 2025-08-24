@@ -8,9 +8,11 @@ import {
   useToggleLike,
 } from "@/hooks/queries/useInteractionsQuery";
 import { InteractionButtonSkeleton } from "@/components/ui/Skeleton";
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
+import { TemporaryTooltip } from "@/components/ui/TemporaryTooltip";
+import { useTemporaryTooltip } from "@/hooks/useTemporaryTooltip";
+import { useEffect } from "react";
 
 interface LikeButtonProps {
   targetType: "album" | "media";
@@ -32,7 +34,13 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
   className,
 }) => {
   const { user } = useUserContext();
-  const { redirectToLogin } = useAuthRedirect();
+  const {
+    isVisible: tooltipVisible,
+    showTooltip,
+    cleanup,
+  } = useTemporaryTooltip({
+    duration: 1000,
+  });
 
   const t = useTranslations("common");
   const tUser = useTranslations("user.likes");
@@ -48,6 +56,11 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
   // Extract status from query data
   const currentStatus = interactionData?.statuses?.[0];
   const isLiked = currentStatus?.userLiked ?? false;
+
+  // Cleanup tooltip timeout on unmount
+  useEffect(() => {
+    return cleanup;
+  }, [cleanup]);
   const likeCount = currentStatus?.likeCount ?? 0;
 
   // Size configurations
@@ -73,8 +86,8 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
 
   const handleLike = async () => {
     if (!user) {
-      // Redirect to login page with current page as return URL
-      redirectToLogin();
+      // Show temporary tooltip before redirecting
+      showTooltip();
       return;
     }
 
@@ -96,34 +109,40 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
       {user && isLoading ? (
         <InteractionButtonSkeleton size={size} className={className} />
       ) : (
-        <Button
-          variant={variant}
-          size="icon"
-          onClick={handleLike}
-          disabled={isToggling || !user}
-          className={cn(
-            config.button,
-            "transition-colors duration-200",
-            isLiked && "text-red-500 hover:text-red-600",
-            !isLiked && "text-gray-500 hover:text-red-500",
-            className
-          )}
-          title={
-            !user
-              ? tUser("loginToLike")
-              : isLiked
-              ? tUser("removeLike")
-              : t("like")
-          }
+        <TemporaryTooltip
+          content={tUser("loginToLike")}
+          isVisible={tooltipVisible}
+          position="top"
         >
-          <Heart
+          <Button
+            variant={variant}
+            size="icon"
+            onClick={handleLike}
+            disabled={isToggling || !user}
             className={cn(
-              config.icon,
-              "transition-all duration-200",
-              isLiked && "fill-current"
+              config.button,
+              "transition-colors duration-200",
+              isLiked && "text-red-500 hover:text-red-600",
+              !isLiked && "text-gray-500 hover:text-red-500",
+              className
             )}
-          />
-        </Button>
+            title={
+              !user
+                ? tUser("loginToLike")
+                : isLiked
+                ? tUser("removeLike")
+                : t("like")
+            }
+          >
+            <Heart
+              className={cn(
+                config.icon,
+                "transition-all duration-200",
+                isLiked && "fill-current"
+              )}
+            />
+          </Button>
+        </TemporaryTooltip>
       )}
 
       {showCount && likeCount > 0 && (

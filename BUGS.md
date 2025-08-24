@@ -72,11 +72,11 @@
 
 [x] Trop d’appels aux API Location ou History dans un court laps de temps dans Lightbox.
 
-[ ] On register, I do not receive the welcome email.
+[x] On register, I do not receive the welcome email. WONT FIX, DO NOT SEND WELCOME EMAIL ANYMORE.
 
-[ ] On generate page, revert to original prompt is not showing anymore.
+[x] On generate page, revert to original prompt is not showing anymore.
 
-[ ] The magic text effect does not happen anymore.
+[x] The magic text effect does not happen anymore.
 
 [x] On refresh generate page, it sometimes fail and show an error.
 

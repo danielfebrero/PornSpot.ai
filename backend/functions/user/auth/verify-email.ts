@@ -1,7 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { UserUtil } from "@shared/utils/user";
-import { EmailService } from "@shared/utils/email";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { SessionUtil } from "@shared/utils/session";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
@@ -65,21 +64,21 @@ const handleVerifyEmail = async (
   }
 
   // Send welcome email
-  try {
-    const emailResult = await EmailService.sendWelcomeEmail(
-      updatedUser.email,
-      updatedUser.username
-    );
+  // try {
+  //   const emailResult = await EmailService.sendWelcomeEmail(
+  //     updatedUser.email,
+  //     updatedUser.username
+  //   );
 
-    console.log("Welcome email sent:", {
-      success: emailResult.success,
-      messageId: emailResult.messageId,
-      email: updatedUser.email,
-    });
-  } catch (error) {
-    console.error("Failed to send welcome email:", error);
-    // Don't fail the verification if welcome email fails
-  }
+  //   console.log("Welcome email sent:", {
+  //     success: emailResult.success,
+  //     messageId: emailResult.messageId,
+  //     email: updatedUser.email,
+  //   });
+  // } catch (error) {
+  //   console.error("Failed to send welcome email:", error);
+  //   // Don't fail the verification if welcome email fails
+  // }
 
   // Create a new session to automatically log the user in
   return SessionUtil.createUserSessionResponse(

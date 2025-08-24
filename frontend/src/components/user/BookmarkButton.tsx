@@ -8,9 +8,11 @@ import {
   useToggleBookmark,
 } from "@/hooks/queries/useInteractionsQuery";
 import { InteractionButtonSkeleton } from "@/components/ui/Skeleton";
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
+import { TemporaryTooltip } from "@/components/ui/TemporaryTooltip";
+import { useTemporaryTooltip } from "@/hooks/useTemporaryTooltip";
+import { useEffect } from "react";
 
 interface BookmarkButtonProps {
   targetType: "album" | "media";
@@ -32,7 +34,13 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   className,
 }) => {
   const { user } = useUserContext();
-  const { redirectToLogin } = useAuthRedirect();
+  const {
+    isVisible: tooltipVisible,
+    showTooltip,
+    cleanup,
+  } = useTemporaryTooltip({
+    duration: 1000,
+  });
 
   const t = useTranslations("common");
   const tUser = useTranslations("user.bookmarks");
@@ -48,6 +56,11 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   const currentStatus = interactionData?.statuses?.[0];
   const isBookmarked = currentStatus?.userBookmarked ?? false;
   const bookmarkCount = currentStatus?.bookmarkCount ?? 0;
+
+  // Cleanup tooltip timeout on unmount
+  useEffect(() => {
+    return cleanup;
+  }, [cleanup]);
 
   // Size configurations
   const sizeConfig = {
@@ -72,8 +85,8 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
 
   const handleBookmark = async () => {
     if (!user) {
-      // Redirect to login page with current page as return URL
-      redirectToLogin();
+      // Show temporary tooltip before redirecting
+      showTooltip();
       return;
     }
 
@@ -95,34 +108,40 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
       {user && isLoading ? (
         <InteractionButtonSkeleton size={size} className={className} />
       ) : (
-        <Button
-          variant={variant}
-          size="icon"
-          onClick={handleBookmark}
-          disabled={isToggling || !user}
-          className={cn(
-            config.button,
-            "transition-colors duration-200",
-            isBookmarked && "text-blue-500 hover:text-blue-600",
-            !isBookmarked && "text-gray-500 hover:text-blue-500",
-            className
-          )}
-          title={
-            !user
-              ? tUser("loginToBookmark")
-              : isBookmarked
-              ? tUser("removeBookmark")
-              : t("bookmark")
-          }
+        <TemporaryTooltip
+          content={tUser("loginToBookmark")}
+          isVisible={tooltipVisible}
+          position="top"
         >
-          <Bookmark
+          <Button
+            variant={variant}
+            size="icon"
+            onClick={handleBookmark}
+            disabled={isToggling || !user}
             className={cn(
-              config.icon,
-              "transition-all duration-200",
-              isBookmarked && "fill-current"
+              config.button,
+              "transition-colors duration-200",
+              isBookmarked && "text-blue-500 hover:text-blue-600",
+              !isBookmarked && "text-gray-500 hover:text-blue-500",
+              className
             )}
-          />
-        </Button>
+            title={
+              !user
+                ? tUser("loginToBookmark")
+                : isBookmarked
+                ? tUser("removeBookmark")
+                : t("bookmark")
+            }
+          >
+            <Bookmark
+              className={cn(
+                config.icon,
+                "transition-all duration-200",
+                isBookmarked && "fill-current"
+              )}
+            />
+          </Button>
+        </TemporaryTooltip>
       )}
 
       {showCount && bookmarkCount > 0 && (
