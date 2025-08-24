@@ -239,14 +239,14 @@ export function PricingClient() {
 
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-6">
-              <div>
+              {/* <div>
                 <h3 className="text-lg font-semibold text-foreground mb-2">
                   {t("faq.questions.changePlan.question")}
                 </h3>
                 <p className="text-muted-foreground">
                   {t("faq.questions.changePlan.answer")}
                 </p>
-              </div>
+              </div> */}
 
               <div>
                 <h3 className="text-lg font-semibold text-foreground mb-2">
@@ -263,6 +263,14 @@ export function PricingClient() {
                 </h3>
                 <p className="text-muted-foreground">
                   {t("faq.questions.freeTrial.answer")}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  {t("faq.questions.commercialUse.question")}
+                </h3>
+                <p className="text-muted-foreground">
+                  {t("faq.questions.commercialUse.answer")}
                 </p>
               </div>
             </div>
@@ -292,15 +300,6 @@ export function PricingClient() {
                 </h3>
                 <p className="text-muted-foreground">
                   {t("faq.questions.refunds.answer")}
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  {t("faq.questions.commercialUse.question")}
-                </h3>
-                <p className="text-muted-foreground">
-                  {t("faq.questions.commercialUse.answer")}
                 </p>
               </div>
             </div>
