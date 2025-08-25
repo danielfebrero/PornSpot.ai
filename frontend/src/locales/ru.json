@@ -472,6 +472,17 @@
     }
   },
   "user": {
+    "medias": {
+      "medias": "Медиа",
+      "personalMediaGallery": "Ваша персональная медиагалерея",
+      "mediasCount": "медиа",
+      "generate": "Генерировать",
+      "generateMedia": "Генерировать медиа",
+      "noMediaYet": "Пока нет медиа",
+      "startCreatingMedia": "Начните создавать контент с помощью ИИ, чтобы увидеть его здесь!",
+      "loadingMoreMedia": "Загрузка дополнительных медиа...",
+      "noMoreMediaToLoad": "Больше медиа для загрузки нет"
+    },
     "dashboard": {
       "welcome": "Добро пожаловать обратно",
       "recentActivity": "Недавняя активность",

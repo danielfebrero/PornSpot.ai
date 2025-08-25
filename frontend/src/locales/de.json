@@ -469,6 +469,17 @@
     }
   },
   "user": {
+    "medias": {
+      "medias": "Medien",
+      "personalMediaGallery": "Ihre persönliche Mediengalerie",
+      "mediasCount": "Medien",
+      "generate": "Generieren",
+      "generateMedia": "Medien generieren",
+      "noMediaYet": "Noch keine Medien",
+      "startCreatingMedia": "Beginnen Sie mit der Erstellung von KI-generierten Medien, um sie hier zu sehen!",
+      "loadingMoreMedia": "Laden weiterer Medien...",
+      "noMoreMediaToLoad": "Keine weiteren Medien zu laden"
+    },
     "albums": {
       "myAlbums": "Meine Alben",
       "albums": "Alben",

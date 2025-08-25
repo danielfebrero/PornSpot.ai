@@ -471,6 +471,17 @@
     }
   },
   "user": {
+    "medias": {
+      "medias": "媒体",
+      "personalMediaGallery": "您的个人媒体画廊",
+      "mediasCount": "媒体",
+      "generate": "生成",
+      "generateMedia": "生成媒体",
+      "noMediaYet": "还没有媒体",
+      "startCreatingMedia": "开始创建AI生成的媒体，在这里查看！",
+      "loadingMoreMedia": "加载更多媒体...",
+      "noMoreMediaToLoad": "没有更多媒体可加载"
+    },
     "albums": {
       "myAlbums": "我的相册",
       "albums": "相册",

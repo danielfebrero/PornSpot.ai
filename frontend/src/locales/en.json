@@ -507,6 +507,17 @@
     }
   },
   "user": {
+    "medias": {
+      "medias": "Medias",
+      "personalMediaGallery": "Your personal media gallery",
+      "mediasCount": "medias",
+      "generate": "Generate",
+      "generateMedia": "Generate Media",
+      "noMediaYet": "No media yet",
+      "startCreatingMedia": "Start creating AI-generated media to see them here!",
+      "loadingMoreMedia": "Loading more media...",
+      "noMoreMediaToLoad": "No more media to load"
+    },
     "albums": {
       "myAlbums": "My Albums",
       "albums": "Albums",
