@@ -79,3 +79,5 @@
 [ ] Update documentation (data models, apis...).
 
 [ ] Notification system on like received and comment received.
+
+[ ] In media page, do not show loRA safetensor name but loRA name.

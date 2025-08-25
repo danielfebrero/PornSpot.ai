@@ -71,15 +71,45 @@ export function createComfyUIWorkflow(
     },
 
     // LoRA chain (will be modified based on selectedLoras)
-    // Chain: 11 → 23 → 25 → 21 → 20 → 10
+    // Chain: 11 → 28 → 27 → 23 → 25 → 24 → 22 → 21 → 20 → 16 → 10
+    "28": {
+      class_type: "LoraLoader",
+      inputs: {
+        lora_name: "Sextoy_Dildo_Pussy_v2_XL.safetensors",
+        strength_model: 0,
+        strength_clip: 1,
+        model: ["11", 0],
+        clip: ["11", 1],
+      },
+      _meta: {
+        title: "Load LoRA",
+        estTimeUnits: 1,
+      },
+    },
+
+    "27": {
+      class_type: "LoraLoader",
+      inputs: {
+        lora_name: "RealDownblouseXLv3.safetensors",
+        strength_model: 0,
+        strength_clip: 1,
+        model: ["28", 0],
+        clip: ["28", 1],
+      },
+      _meta: {
+        title: "Load LoRA",
+        estTimeUnits: 1,
+      },
+    },
+
     "23": {
       class_type: "LoraLoader",
       inputs: {
         lora_name: "Harness_Straps_sdxl.safetensors",
         strength_model: 0,
         strength_clip: 1,
-        model: ["11", 0],
-        clip: ["11", 1],
+        model: ["27", 0],
+        clip: ["27", 1],
       },
       _meta: {
         title: "Load LoRA",
@@ -102,14 +132,44 @@ export function createComfyUIWorkflow(
       },
     },
 
+    "24": {
+      class_type: "LoraLoader",
+      inputs: {
+        lora_name: "Body Tattoo_alpha1.0_rank4_noxattn_last.safetensors",
+        strength_model: 0,
+        strength_clip: 1,
+        model: ["25", 0],
+        clip: ["25", 1],
+      },
+      _meta: {
+        title: "Load LoRA",
+        estTimeUnits: 1,
+      },
+    },
+
+    "22": {
+      class_type: "LoraLoader",
+      inputs: {
+        lora_name: "Doggystyle anal XL.safetensors",
+        strength_model: 0,
+        strength_clip: 1.0000000000000002,
+        model: ["24", 0],
+        clip: ["24", 1],
+      },
+      _meta: {
+        title: "Load LoRA",
+        estTimeUnits: 1,
+      },
+    },
+
     "21": {
       class_type: "LoraLoader",
       inputs: {
         lora_name: "add-detail-xl.safetensors",
         strength_model: 0,
         strength_clip: 1.0000000000000002,
-        model: ["25", 0],
-        clip: ["25", 1],
+        model: ["22", 0],
+        clip: ["22", 1],
       },
       _meta: {
         title: "Load LoRA",
@@ -132,14 +192,29 @@ export function createComfyUIWorkflow(
       },
     },
 
+    "16": {
+      class_type: "LoraLoader",
+      inputs: {
+        lora_name: "orgasmface_SDXL.safetensors",
+        strength_model: 0,
+        strength_clip: 1.0000000000000002,
+        model: ["20", 0],
+        clip: ["20", 1],
+      },
+      _meta: {
+        title: "Load LoRA",
+        estTimeUnits: 1,
+      },
+    },
+
     "10": {
       class_type: "LoraLoader",
       inputs: {
         lora_name: "leaked_nudes_style_v1_fixed.safetensors",
         strength_model: 0,
         strength_clip: 1.0000000000000002,
-        model: ["20", 0],
-        clip: ["20", 1],
+        model: ["16", 0],
+        clip: ["16", 1],
       },
       _meta: {
         title: "Load LoRA",
@@ -239,10 +314,15 @@ export function createComfyUIWorkflow(
   if (params.selectedLoras && params.selectedLoras.length > 0) {
     // Map LoRA names to node IDs based on the template structure
     const loraNodeMap: { [key: string]: string } = {
+      Sextoy_Dildo_Pussy_v2_XL: "28",
+      RealDownblouseXLv3: "27",
       Harness_Straps_sdxl: "23",
       bdsm_SDXL_1_: "25",
+      "Body Tattoo_alpha1.0_rank4_noxattn_last": "24",
+      "Doggystyle anal XL": "22",
       "add-detail-xl": "21",
       "Pierced_Nipples_XL_Barbell_Edition-000013": "20",
+      orgasmface_SDXL: "16",
       leaked_nudes_style_v1_fixed: "10",
     };
 

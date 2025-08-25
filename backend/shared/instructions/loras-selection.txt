@@ -25,14 +25,39 @@ Use this LoRA when the user prompt involves harness, straps, garter, cupless bra
 
 Use this LoRA when the user prompt involves BDSM themes, such as bondage, discipline, dominance, submission, sadism, and masochism.
 
+# Body Tattoo_alpha1.0_rank4_noxattn_last
+
+Use this LoRA when the user prompt involves characters with many tattoos.
+
+# Doggystyle anal XL
+
+Use this LoRA when the user prompt involves doggystyle anal sex.
+
+# orgasmface_SDXL
+
+Use this LoRA when the user prompt involves a woman having an orgasm or extreme pleasure.
+
+# RealDownblouseXLv3
+
+Use this LoRA when the user prompt involves woman downblouse.
+
+# Sextoy_Dildo_Pussy_v2_XL
+
+Use this LoRA when the user prompt involves a woman using a sextoy or a dildo inside her pussy.
+
 # Examples
 
 - "A close-up shot of a model with pierced nipples wearing a barbell earring." → "['Pierced_Nipples_XL_Barbell_Edition-000013', 'add-detail-xl']"
 - "A woman, 18, pierced nipples, topless, having fun at the beach." → "['leaked_nudes_style_v1_fixed', 'Pierced_Nipples_XL_Barbell_Edition-000013', 'add-detail-xl']
 - "A candid photo of a group of friends at a beach party, with one redhead giving a blowjob to a friend." → "['leaked_nudes_style_v1_fixed', 'add-detail-xl']
 - "abstract art, fluid dynamics, vibrant color gradients, digital art, contemporary style, smooth textures, artistic composition, high resolution" → "[]"
-- "woman, 18, garter, cupless bra, giving a blowjob" → "['leaked_nudes_style_v1_fixed', 'Harness_Straps_sdxl', 'add-detail-xl']"
-- "woman tied up with rope" → "['leaked_nudes_style_v1_fixed', 'bdsm_SDXL_1_', 'add-detail-xl']"
+- "woman, 18, garter, cupless bra, giving a blowjob." → "['leaked_nudes_style_v1_fixed', 'Harness_Straps_sdxl', 'add-detail-xl']"
+- "woman tied up with rope." → "['leaked_nudes_style_v1_fixed', 'bdsm_SDXL_1_', 'add-detail-xl']"
+- "a woman full body tattoo, on her knees, giving a blowjob." → "['leaked_nudes_style_v1_fixed', 'Body Tattoo_alpha1.0_rank4_noxattn_last', 'add-detail-xl']"
+- "a woman fucked in the ass, doggystyle, enjoying it." → "['leaked_nudes_style_v1_fixed', 'Doggystyle anal XL', 'add-detail-xl']"
+- "woman, threesome, double penetration, having an orgasm." → "['leaked_nudes_style_v1_fixed', 'orgasmface_SDXL', 'add-detail-xl']"
+- "group of woman, drinking wine at the bar, downblouse." → "['leaked_nudes_style_v1_fixed', 'RealDownblouseXLv3', 'add-detail-xl']"
+- "woman masturbating with a sextoy and having an orgasm. → "['leaked_nudes_style_v1_fixed', 'Sextoy_Dildo_Pussy_v2_XL', 'add-detail-xl', 'orgasmface_SDXL']"
 
 # Response format
 
