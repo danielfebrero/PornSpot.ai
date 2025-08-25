@@ -83,3 +83,5 @@
 [ ] In media page, do not show loRA safetensor name but loRA name.
 
 [ ] Mass delete image feature.
+
+[ ] Boost my media feature to appear on the Discover page.

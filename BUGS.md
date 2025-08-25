@@ -89,3 +89,5 @@
 [x] On generate page, when I navigate, it add again last images to recent images.
 
 [ ] In lightbox, I do not see the like and bookmark icons.
+
+[ ] Creating media/album should not invalidate the Discover cache. It should only optimistically remove deleted content.
