@@ -525,7 +525,11 @@ class ValidationService {
     const { cfgScale } = requestBody;
 
     // If cfgScale is not provided, use default value
-    if (cfgScale === undefined || cfgScale === null) {
+    if (
+      cfgScale === undefined ||
+      cfgScale === null ||
+      cfgScale === DEFAULT_WORKFLOW_PARAMS.cfgScale
+    ) {
       return null;
     }
 
@@ -556,7 +560,11 @@ class ValidationService {
     const { steps } = requestBody;
 
     // If steps is not provided, use default value
-    if (steps === undefined || steps === null) {
+    if (
+      steps === undefined ||
+      steps === null ||
+      steps === DEFAULT_WORKFLOW_PARAMS.steps
+    ) {
       return null;
     }
 
@@ -587,7 +595,11 @@ class ValidationService {
     const { seed } = requestBody;
 
     // If seed is not provided, use default value
-    if (seed === undefined || seed === null) {
+    if (
+      seed === undefined ||
+      seed === null ||
+      seed === DEFAULT_WORKFLOW_PARAMS.seed
+    ) {
       return null;
     }
 
