@@ -188,7 +188,7 @@ Resources:
             AllowedOrigins:
               - http://localhost:3000
               - !Sub "https://dev.${DomainName}"
-              - !Sub "https://staging.${DomainName}"
+              - !Sub "https://stage.${DomainName}"
               - !Sub "https://www.${DomainName}"
               - !Sub "https://${DomainName}"
               - "https://*.vercel.app"
