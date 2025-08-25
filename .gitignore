@@ -195,3 +195,6 @@ backups/
 
 # Turbo cache
 .turbo/
+
+# docker
+backend/.docker-image-uri
