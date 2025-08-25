@@ -182,7 +182,11 @@ export function PermissionsProvider({
 
   const canUseBulkGeneration = (): boolean => {
     // TEMPORARY: Until September 30, 2025, everyone can use bulk generation
-    if (isTemporaryUnlimitedPeriod()) {
+    if (
+      isTemporaryUnlimitedPeriod() &&
+      user?.role &&
+      user?.role !== "anonymous"
+    ) {
       return true;
     }
 
@@ -192,7 +196,11 @@ export function PermissionsProvider({
 
   const canUseLoRAModels = (): boolean => {
     // TEMPORARY: Until September 30, 2025, everyone can use LoRA models
-    if (isTemporaryUnlimitedPeriod()) {
+    if (
+      isTemporaryUnlimitedPeriod() &&
+      user?.role &&
+      user?.role !== "anonymous"
+    ) {
       return true;
     }
 
@@ -202,7 +210,11 @@ export function PermissionsProvider({
 
   const canUseNegativePrompt = (): boolean => {
     // TEMPORARY: Until September 30, 2025, everyone can use negative prompts
-    if (isTemporaryUnlimitedPeriod()) {
+    if (
+      isTemporaryUnlimitedPeriod() &&
+      user?.role &&
+      user?.role !== "anonymous"
+    ) {
       return true;
     }
 
@@ -212,7 +224,11 @@ export function PermissionsProvider({
 
   const canCreatePrivateContent = (): boolean => {
     // TEMPORARY: Until September 30, 2025, everyone can create private content
-    if (isTemporaryUnlimitedPeriod()) {
+    if (
+      isTemporaryUnlimitedPeriod() &&
+      user?.role &&
+      user?.role !== "anonymous"
+    ) {
       return true;
     }
 
@@ -222,7 +238,11 @@ export function PermissionsProvider({
 
   const canUseCustomSizes = (): boolean => {
     // TEMPORARY: Until September 30, 2025, everyone can use custom sizes
-    if (isTemporaryUnlimitedPeriod()) {
+    if (
+      isTemporaryUnlimitedPeriod() &&
+      user?.role &&
+      user?.role !== "anonymous"
+    ) {
       return true;
     }
 
@@ -232,7 +252,11 @@ export function PermissionsProvider({
 
   const canUseCfgScale = (): boolean => {
     // TEMPORARY: Until September 30, 2025, everyone can use CFG scale
-    if (isTemporaryUnlimitedPeriod()) {
+    if (
+      isTemporaryUnlimitedPeriod() &&
+      user?.role &&
+      user?.role !== "anonymous"
+    ) {
       return true;
     }
 
@@ -242,7 +266,11 @@ export function PermissionsProvider({
 
   const canUseSeed = (): boolean => {
     // TEMPORARY: Until September 30, 2025, everyone can use seed
-    if (isTemporaryUnlimitedPeriod()) {
+    if (
+      isTemporaryUnlimitedPeriod() &&
+      user?.role &&
+      user?.role !== "anonymous"
+    ) {
       return true;
     }
 
@@ -252,7 +280,11 @@ export function PermissionsProvider({
 
   const canUseSteps = (): boolean => {
     // TEMPORARY: Until September 30, 2025, everyone can use steps
-    if (isTemporaryUnlimitedPeriod()) {
+    if (
+      isTemporaryUnlimitedPeriod() &&
+      user?.role &&
+      user?.role !== "anonymous"
+    ) {
       return true;
     }
 
