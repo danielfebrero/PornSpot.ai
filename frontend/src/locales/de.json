@@ -542,7 +542,15 @@
       "bookmarkAdded": "Zu Lesezeichen hinzugefügt",
       "bookmarkRemoved": "Aus Lesezeichen entfernt",
       "removeBookmark": "Lesezeichen entfernen",
-      "loginToBookmark": "Anmelden, um Lesezeichen zu setzen"
+      "loginToBookmark": "Anmelden, um Lesezeichen zu setzen",
+      "bookmarks": "Lesezeichen",
+      "yourSavedFavorites": "Ihre gespeicherten Favoriten",
+      "bookmarksCount": "Lesezeichen",
+      "failedToLoadBookmarks": "Lesezeichen konnten nicht geladen werden",
+      "noBookmarksYet": "Noch keine Lesezeichen",
+      "startExploringContent": "Beginnen Sie, Inhalte zu erkunden und setzen Sie Lesezeichen für das, was Sie später speichern möchten!",
+      "loadingMoreBookmarks": "Laden weiterer Lesezeichen...",
+      "noMoreBookmarksToLoad": "Keine weiteren Lesezeichen zu laden"
     },
     "likes": {
       "myLikes": "Meine Likes",

@@ -542,7 +542,15 @@
       "bookmarkAdded": "Añadido a marcadores",
       "bookmarkRemoved": "Removido de marcadores",
       "removeBookmark": "Quitar marcador",
-      "loginToBookmark": "Inicia sesión para marcar"
+      "loginToBookmark": "Inicia sesión para marcar",
+      "bookmarks": "Marcadores",
+      "yourSavedFavorites": "Tus favoritos guardados",
+      "bookmarksCount": "marcadores",
+      "failedToLoadBookmarks": "Error al cargar marcadores",
+      "noBookmarksYet": "Aún no hay marcadores",
+      "startExploringContent": "¡Comienza a explorar contenido y marca lo que quieras guardar para más tarde!",
+      "loadingMoreBookmarks": "Cargando más marcadores...",
+      "noMoreBookmarksToLoad": "No hay más marcadores para cargar"
     },
     "likes": {
       "myLikes": "Mis me gusta",

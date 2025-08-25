@@ -580,7 +580,15 @@
       "bookmarkAdded": "Added to bookmarks",
       "bookmarkRemoved": "Removed from bookmarks",
       "removeBookmark": "Remove Bookmark",
-      "loginToBookmark": "Login to bookmark"
+      "loginToBookmark": "Login to bookmark",
+      "bookmarks": "Bookmarks",
+      "yourSavedFavorites": "Your saved favorites",
+      "bookmarksCount": "bookmarks",
+      "failedToLoadBookmarks": "Failed to load bookmarks",
+      "noBookmarksYet": "No bookmarks yet",
+      "startExploringContent": "Start exploring content and bookmark what you want to save for later!",
+      "loadingMoreBookmarks": "Loading more bookmarks...",
+      "noMoreBookmarksToLoad": "No more bookmarks to load"
     },
     "likes": {
       "myLikes": "My Likes",

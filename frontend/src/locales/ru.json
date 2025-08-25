@@ -553,7 +553,15 @@
       "bookmarkAdded": "Добавлено в закладки",
       "bookmarkRemoved": "Удалено из закладок",
       "removeBookmark": "Удалить закладку",
-      "loginToBookmark": "Войдите, чтобы добавить в закладки"
+      "loginToBookmark": "Войдите, чтобы добавить в закладки",
+      "bookmarks": "Закладки",
+      "yourSavedFavorites": "Ваше сохраненное избранное",
+      "bookmarksCount": "закладки",
+      "failedToLoadBookmarks": "Не удалось загрузить закладки",
+      "noBookmarksYet": "Пока нет закладок",
+      "startExploringContent": "Начните изучать контент и добавляйте в закладки то, что хотите сохранить на потом!",
+      "loadingMoreBookmarks": "Загрузка дополнительных закладок...",
+      "noMoreBookmarksToLoad": "Больше закладок для загрузки нет"
     },
     "likes": {
       "myLikes": "Мои лайки",

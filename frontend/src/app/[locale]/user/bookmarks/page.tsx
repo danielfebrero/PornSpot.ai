@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Bookmark, Grid, List } from "lucide-react";
 import { useBookmarksQuery } from "@/hooks/queries/useBookmarksQuery";
 import { Button } from "@/components/ui/Button";
@@ -14,6 +15,8 @@ interface BookmarkPageData {
 }
 
 const UserBookmarksPage: React.FC = () => {
+  const t = useTranslations("user.bookmarks");
+  const tCommon = useTranslations("common");
   // Use TanStack Query hook for bookmarks
   const {
     data: bookmarksData,
@@ -76,12 +79,12 @@ const UserBookmarksPage: React.FC = () => {
         <div className="text-admin-primary mb-4">
           <Bookmark className="h-12 w-12 mx-auto mb-2" />
           <p className="text-lg font-medium text-foreground">
-            Failed to load bookmarks
+            {t("failedToLoadBookmarks")}
           </p>
           <p className="text-sm text-muted-foreground mt-1">{error?.message}</p>
         </div>
         <Button onClick={refresh} variant="outline">
-          Try Again
+          {tCommon("retry")}
         </Button>
       </div>
     );
@@ -101,17 +104,17 @@ const UserBookmarksPage: React.FC = () => {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-foreground">
-                    Bookmarks
+                    {t("bookmarks")}
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    Your saved favorites
+                    {t("yourSavedFavorites")}
                   </p>
                 </div>
               </div>
             </div>
             <div className="flex justify-center">
               <span className="bg-blue-500/20 text-blue-600 text-sm font-semibold px-3 py-1.5 rounded-full">
-                {totalCount.toLocaleString()} bookmarks
+                {totalCount.toLocaleString()} {t("bookmarksCount")}
               </span>
             </div>
           </div>
@@ -124,12 +127,12 @@ const UserBookmarksPage: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-foreground">
-                  Bookmarks
+                  {t("bookmarks")}
                 </h1>
-                <p className="text-muted-foreground">Your saved favorites</p>
+                <p className="text-muted-foreground">{t("yourSavedFavorites")}</p>
               </div>
               <span className="bg-blue-500/20 text-blue-600 text-sm font-semibold px-3 py-1.5 rounded-full">
-                {totalCount.toLocaleString()} bookmarks
+                {totalCount.toLocaleString()} {t("bookmarksCount")}
               </span>
             </div>
 
@@ -176,13 +179,12 @@ const UserBookmarksPage: React.FC = () => {
             icon: (
               <Bookmark className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             ),
-            title: "No bookmarks yet",
-            description:
-              "Start exploring content and bookmark what you want to save for later!",
+            title: t("noBookmarksYet"),
+            description: t("startExploringContent"),
           }}
           loadingState={{
-            loadingText: "Loading more bookmarks...",
-            noMoreText: "No more bookmarks to load",
+            loadingText: t("loadingMoreBookmarks"),
+            noMoreText: t("noMoreBookmarksToLoad"),
           }}
           error={error ? String(error) : null}
           onRetry={refresh}

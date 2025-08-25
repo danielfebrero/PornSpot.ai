@@ -580,7 +580,15 @@
       "bookmarkAdded": "Ajouté aux favoris",
       "bookmarkRemoved": "Retiré des favoris",
       "removeBookmark": "Retirer des favoris",
-      "loginToBookmark": "Connectez-vous pour ajouter aux favoris"
+      "loginToBookmark": "Connectez-vous pour ajouter aux favoris",
+      "bookmarks": "Favoris",
+      "yourSavedFavorites": "Vos favoris sauvegardés",
+      "bookmarksCount": "favoris",
+      "failedToLoadBookmarks": "Échec du chargement des favoris",
+      "noBookmarksYet": "Pas encore de favoris",
+      "startExploringContent": "Commencez à explorer le contenu et ajoutez en favoris ce que vous voulez sauvegarder !",
+      "loadingMoreBookmarks": "Chargement de plus de favoris...",
+      "noMoreBookmarksToLoad": "Plus de favoris à charger"
     },
     "likes": {
       "myLikes": "Mes j'aime",

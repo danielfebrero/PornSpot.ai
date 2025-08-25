@@ -544,7 +544,15 @@
       "bookmarkAdded": "已添加到收藏",
       "bookmarkRemoved": "已从收藏中移除",
       "removeBookmark": "移除收藏",
-      "loginToBookmark": "登录以收藏"
+      "loginToBookmark": "登录以收藏",
+      "bookmarks": "收藏",
+      "yourSavedFavorites": "您保存的收藏",
+      "bookmarksCount": "收藏",
+      "failedToLoadBookmarks": "加载收藏失败",
+      "noBookmarksYet": "还没有收藏",
+      "startExploringContent": "开始探索内容并收藏您想要保存的内容！",
+      "loadingMoreBookmarks": "加载更多收藏...",
+      "noMoreBookmarksToLoad": "没有更多收藏可加载"
     },
     "likes": {
       "myLikes": "我的点赞",
