@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { formatDistanceToNow } from "@/lib/dateUtils";
+import { useDateUtils } from "@/hooks/useDateUtils";
 import {
   User,
   UserCheck,
@@ -30,6 +30,7 @@ export default function AdminUsersPage() {
   const t = useTranslations("admin.userManagementPage");
   const tCommon = useTranslations("common");
   const router = useRouter();
+  const { formatRelativeTime } = useDateUtils();
   const {
     data: usersData,
     isLoading,
@@ -290,7 +291,7 @@ export default function AdminUsersPage() {
 
                         <span className="flex items-center space-x-1">
                           <Calendar className="w-3 h-3" />
-                          <span>{formatDistanceToNow(user.createdAt)}</span>
+                          <span>{formatRelativeTime(user.createdAt)}</span>
                         </span>
 
                         {user.lastLoginAt && (
@@ -298,7 +299,7 @@ export default function AdminUsersPage() {
                             <Clock className="w-3 h-3" />
                             <span>
                               {t("lastActive")}{" "}
-                              {formatDistanceToNow(user.lastActive!)}
+                              {formatRelativeTime(user.lastActive!)}
                             </span>
                           </span>
                         )}

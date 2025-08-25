@@ -71,98 +71,104 @@
       "failedToLoad": "Не удалось загрузить",
       "networkResponse": "Сетевой ответ был некорректным"
     },
-    "profile": {
-      "username": "Имя пользователя",
-      "bio": "Биография",
-      "location": "Местоположение",
-      "website": "Веб-сайт",
-      "enterUsername": "Введите имя пользователя",
-      "tellUsAboutYourself": "Расскажите о себе",
-      "cityCountry": "Город, Страна",
-      "websitePlaceholder": "https://ваш-сайт.com",
-      "pleaseSelectImageFile": "Пожалуйста, выберите файл изображения",
-      "fileSizeMustBeLessThan10MB": "Размер файла должен быть менее 10 МБ",
-      "invalidFileProvided": "Предоставлен недействительный файл",
-      "usernameAlreadyTaken": "Имя пользователя уже занято",
-      "stillCheckingUsernameAvailability": "Ещё проверяем доступность имени пользователя",
-      "joined": "Присоединился",
-      "lastActive": "Последняя активность",
-      "noBioYetAddOne": "Биографии пока нет. Добавьте её, отредактировав свой профиль!",
-      "userHasntAddedBio": "Этот пользователь ещё не добавил биографию.",
-      "savingProfileAndAvatar": "Сохранение профиля и аватара...",
-      "saving": "Сохранение...",
-      "uploadingAvatar": "Загрузка аватара...",
-      "checkingUsername": "Проверка имени пользователя...",
-      "usernameTaken": "Имя пользователя занято",
-      "likesReceived": "Полученные лайки",
-      "contentBookmarked": "Полученные закладки",
-      "totalMediaViews": "Всего просмотров медиа",
-      "profileViews": "Просмотры профиля",
-      "totalMedias": "Сгенерированные медиа",
-      "totalAlbums": "Созданные альбомы",
-      "lastLikedContent": "Последний понравившийся контент",
-      "youHaventLikedContent": "Вы ещё не лайкнули ни одного контента.",
-      "userHaventLikedContent": "Этот пользователь ещё не лайкнул ни одного контента.",
-      "viewAllLikedContent": "Посмотреть весь понравившийся контент",
-      "lastGeneratedMedias": "Последние сгенерированные медиа",
-      "youHaventGeneratedMedia": "Вы ещё не сгенерировали ни одного медиа.",
-      "userHaventGeneratedMedia": "Этот пользователь ещё не сгенерировал ни одного медиа.",
-      "viewAllGeneratedMedias": "Посмотреть все сгенерированные медиа",
-      "lastCreatedAlbums": "Последние созданные альбомы",
-      "youHaventCreatedAlbums": "Вы ещё не создали ни одного альбома.",
-      "userHaventCreatedAlbums": "Этот пользователь ещё не создал ни одного альбома.",
-      "viewAllAlbums": "Посмотреть все альбомы",
-      "lastComments": "Последние комментарии",
+    "dateTime": {
+      "justNow": "только что",
+      "minutesAgo": "{count}м назад",
+      "hoursAgo": "{count}ч назад",
+      "daysAgo": "{count}д назад"
+    }
+  },
+  "profile": {
+    "username": "Имя пользователя",
+    "bio": "Биография",
+    "location": "Местоположение",
+    "website": "Веб-сайт",
+    "enterUsername": "Введите имя пользователя",
+    "tellUsAboutYourself": "Расскажите о себе",
+    "cityCountry": "Город, Страна",
+    "websitePlaceholder": "https://ваш-сайт.com",
+    "pleaseSelectImageFile": "Пожалуйста, выберите файл изображения",
+    "fileSizeMustBeLessThan10MB": "Размер файла должен быть менее 10 МБ",
+    "invalidFileProvided": "Предоставлен недействительный файл",
+    "usernameAlreadyTaken": "Имя пользователя уже занято",
+    "stillCheckingUsernameAvailability": "Ещё проверяем доступность имени пользователя",
+    "joined": "Присоединился",
+    "lastActive": "Последняя активность",
+    "noBioYetAddOne": "Биографии пока нет. Добавьте её, отредактировав свой профиль!",
+    "userHasntAddedBio": "Этот пользователь ещё не добавил биографию.",
+    "savingProfileAndAvatar": "Сохранение профиля и аватара...",
+    "saving": "Сохранение...",
+    "uploadingAvatar": "Загрузка аватара...",
+    "checkingUsername": "Проверка имени пользователя...",
+    "usernameTaken": "Имя пользователя занято",
+    "likesReceived": "Полученные лайки",
+    "contentBookmarked": "Полученные закладки",
+    "totalMediaViews": "Всего просмотров медиа",
+    "profileViews": "Просмотры профиля",
+    "totalMedias": "Сгенерированные медиа",
+    "totalAlbums": "Созданные альбомы",
+    "lastLikedContent": "Последний понравившийся контент",
+    "youHaventLikedContent": "Вы ещё не лайкнули ни одного контента.",
+    "userHaventLikedContent": "Этот пользователь ещё не лайкнул ни одного контента.",
+    "viewAllLikedContent": "Посмотреть весь понравившийся контент",
+    "lastGeneratedMedias": "Последние сгенерированные медиа",
+    "youHaventGeneratedMedia": "Вы ещё не сгенерировали ни одного медиа.",
+    "userHaventGeneratedMedia": "Этот пользователь ещё не сгенерировал ни одного медиа.",
+    "viewAllGeneratedMedias": "Посмотреть все сгенерированные медиа",
+    "lastCreatedAlbums": "Последние созданные альбомы",
+    "youHaventCreatedAlbums": "Вы ещё не создали ни одного альбома.",
+    "userHaventCreatedAlbums": "Этот пользователь ещё не создал ни одного альбома.",
+    "viewAllAlbums": "Посмотреть все альбомы",
+    "lastComments": "Последние комментарии",
+    "failedToLoadComments": "Не удалось загрузить комментарии",
+    "noCommentsYet": "Комментариев пока нет",
+    "viewAllComments": "Посмотреть все комментарии",
+    "albums": {
+      "albumsNotFound": "Альбомы не найдены",
+      "userAlbumsTitle": "Альбомы {username}",
+      "albumCount": "{count, plural, =0 {Нет альбомов} =1 {1 альбом} few {# альбома} other {# альбомов}}",
+      "noAlbumsYet": "Альбомов пока нет",
+      "noPublicAlbumsDescription": "{username} ещё не создал ни одного публичного альбома.",
+      "loadingMoreAlbums": "Загрузка дополнительных альбомов...",
+      "noMoreAlbums": "Больше альбомов для загрузки нет"
+    },
+    "likes": {
+      "error": {
+        "title": "Ошибка загрузки лайков",
+        "message": "Не удалось загрузить понравившийся контент"
+      },
+      "title": "Понравившийся {username} контент",
+      "count": "{count, plural, =0 {Нет лайков} =1 {1 лайк} few {# лайка} other {# лайков}}",
+      "empty": {
+        "title": "Понравившегося контента пока нет",
+        "description": "{username} ещё не лайкнул ни одного контента."
+      },
+      "loading": {
+        "loadingMore": "Загрузка дополнительных лайков...",
+        "noMore": "Больше лайков для загрузки нет"
+      }
+    },
+    "comments": {
       "failedToLoadComments": "Не удалось загрузить комментарии",
-      "noCommentsYet": "Комментариев пока нет",
-      "viewAllComments": "Посмотреть все комментарии",
-      "albums": {
-        "albumsNotFound": "Альбомы не найдены",
-        "userAlbumsTitle": "Альбомы {username}",
-        "albumCount": "{count, plural, =0 {Нет альбомов} =1 {1 альбом} few {# альбома} other {# альбомов}}",
-        "noAlbumsYet": "Альбомов пока нет",
-        "noPublicAlbumsDescription": "{username} ещё не создал ни одного публичного альбома.",
-        "loadingMoreAlbums": "Загрузка дополнительных альбомов...",
-        "noMoreAlbums": "Больше альбомов для загрузки нет"
+      "errorOccurred": "Произошла ошибка",
+      "tryAgain": "Попробовать снова",
+      "userCommentsTitle": "Комментарии {username}",
+      "commentsMade": "{count, plural, =0 {Нет комментариев} =1 {1 комментарий написан} few {# комментария написано} other {# комментариев написано}}",
+      "commentsLoaded": "{count, plural, =0 {Нет комментариев} =1 {1 комментарий загружен} few {# комментария загружено} other {# комментариев загружено}}",
+      "noCommentsYet": "Комментариев пока нет"
+    },
+    "media": {
+      "title": "Медиа {username}",
+      "count": "{count, plural, =0 {Нет медиа} =1 {1 медиа} few {# медиа} other {# медиа}}",
+      "noMediaYet": "Медиа пока нет",
+      "empty": {
+        "title": "Медиа пока нет",
+        "description": "{username} ещё не сгенерировал ни одного медиа.",
+        "unavailable": "Медиа недоступно"
       },
-      "likes": {
-        "error": {
-          "title": "Ошибка загрузки лайков",
-          "message": "Не удалось загрузить понравившийся контент"
-        },
-        "title": "Понравившийся {username} контент",
-        "count": "{count, plural, =0 {Нет лайков} =1 {1 лайк} few {# лайка} other {# лайков}}",
-        "empty": {
-          "title": "Понравившегося контента пока нет",
-          "description": "{username} ещё не лайкнул ни одного контента."
-        },
-        "loading": {
-          "loadingMore": "Загрузка дополнительных лайков...",
-          "noMore": "Больше лайков для загрузки нет"
-        }
-      },
-      "comments": {
-        "failedToLoadComments": "Не удалось загрузить комментарии",
-        "errorOccurred": "Произошла ошибка",
-        "tryAgain": "Попробовать снова",
-        "userCommentsTitle": "Комментарии {username}",
-        "commentsMade": "{count, plural, =0 {Нет комментариев} =1 {1 комментарий написан} few {# комментария написано} other {# комментариев написано}}",
-        "commentsLoaded": "{count, plural, =0 {Нет комментариев} =1 {1 комментарий загружен} few {# комментария загружено} other {# комментариев загружено}}",
-        "noCommentsYet": "Комментариев пока нет"
-      },
-      "media": {
-        "title": "Медиа {username}",
-        "count": "{count, plural, =0 {Нет медиа} =1 {1 медиа} few {# медиа} other {# медиа}}",
-        "noMediaYet": "Медиа пока нет",
-        "empty": {
-          "title": "Медиа пока нет",
-          "description": "{username} ещё не сгенерировал ни одного медиа.",
-          "unavailable": "Медиа недоступно"
-        },
-        "loading": {
-          "loadingMore": "Загрузка дополнительных медиа...",
-          "noMore": "Больше медиа для загрузки нет"
-        }
+      "loading": {
+        "loadingMore": "Загрузка дополнительных медиа...",
+        "noMore": "Больше медиа для загрузки нет"
       }
     },
     "ui": {

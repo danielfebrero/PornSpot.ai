@@ -71,98 +71,104 @@
       "failedToLoad": "Failed to load",
       "networkResponse": "Network response was not ok"
     },
-    "profile": {
-      "username": "Username",
-      "bio": "Bio",
-      "location": "Location",
-      "website": "Website",
-      "enterUsername": "Enter username",
-      "tellUsAboutYourself": "Tell us about yourself",
-      "cityCountry": "City, Country",
-      "websitePlaceholder": "https://yoursite.com",
-      "pleaseSelectImageFile": "Please select an image file",
-      "fileSizeMustBeLessThan10MB": "File size must be less than 10MB",
-      "invalidFileProvided": "Invalid file provided",
-      "usernameAlreadyTaken": "Username is already taken",
-      "stillCheckingUsernameAvailability": "Still checking username availability",
-      "joined": "Joined",
-      "lastActive": "Last active",
-      "noBioYetAddOne": "No bio yet. Add one by editing your profile!",
-      "userHasntAddedBio": "This user hasn't added a bio yet.",
-      "savingProfileAndAvatar": "Saving profile & avatar...",
-      "saving": "Saving...",
-      "uploadingAvatar": "Uploading avatar...",
-      "checkingUsername": "Checking username...",
-      "usernameTaken": "Username taken",
-      "likesReceived": "Likes Received",
-      "contentBookmarked": "Bookmarks Received",
-      "totalMediaViews": "Total Media Views",
-      "profileViews": "Profile Views",
-      "totalMedias": "Generated Medias",
-      "totalAlbums": "Created Albums",
-      "lastLikedContent": "Last Liked Content",
-      "youHaventLikedContent": "You haven't liked any content yet.",
-      "userHaventLikedContent": "This user hasn't liked any content yet.",
-      "viewAllLikedContent": "View All Liked Content",
-      "lastGeneratedMedias": "Last Generated Medias",
-      "youHaventGeneratedMedia": "You haven't generated any media yet.",
-      "userHaventGeneratedMedia": "This user hasn't generated any media yet.",
-      "viewAllGeneratedMedias": "View All Generated Medias",
-      "lastCreatedAlbums": "Last Created Albums",
-      "youHaventCreatedAlbums": "You haven't created any albums yet.",
-      "userHaventCreatedAlbums": "This user hasn't created any albums yet.",
-      "viewAllAlbums": "View All Albums",
-      "lastComments": "Last Comments",
+    "dateTime": {
+      "justNow": "just now",
+      "minutesAgo": "{count}m ago",
+      "hoursAgo": "{count}h ago",
+      "daysAgo": "{count}d ago"
+    }
+  },
+  "profile": {
+    "username": "Username",
+    "bio": "Bio",
+    "location": "Location",
+    "website": "Website",
+    "enterUsername": "Enter username",
+    "tellUsAboutYourself": "Tell us about yourself",
+    "cityCountry": "City, Country",
+    "websitePlaceholder": "https://yoursite.com",
+    "pleaseSelectImageFile": "Please select an image file",
+    "fileSizeMustBeLessThan10MB": "File size must be less than 10MB",
+    "invalidFileProvided": "Invalid file provided",
+    "usernameAlreadyTaken": "Username is already taken",
+    "stillCheckingUsernameAvailability": "Still checking username availability",
+    "joined": "Joined",
+    "lastActive": "Last active",
+    "noBioYetAddOne": "No bio yet. Add one by editing your profile!",
+    "userHasntAddedBio": "This user hasn't added a bio yet.",
+    "savingProfileAndAvatar": "Saving profile & avatar...",
+    "saving": "Saving...",
+    "uploadingAvatar": "Uploading avatar...",
+    "checkingUsername": "Checking username...",
+    "usernameTaken": "Username taken",
+    "likesReceived": "Likes Received",
+    "contentBookmarked": "Bookmarks Received",
+    "totalMediaViews": "Total Media Views",
+    "profileViews": "Profile Views",
+    "totalMedias": "Generated Medias",
+    "totalAlbums": "Created Albums",
+    "lastLikedContent": "Last Liked Content",
+    "youHaventLikedContent": "You haven't liked any content yet.",
+    "userHaventLikedContent": "This user hasn't liked any content yet.",
+    "viewAllLikedContent": "View All Liked Content",
+    "lastGeneratedMedias": "Last Generated Medias",
+    "youHaventGeneratedMedia": "You haven't generated any media yet.",
+    "userHaventGeneratedMedia": "This user hasn't generated any media yet.",
+    "viewAllGeneratedMedias": "View All Generated Medias",
+    "lastCreatedAlbums": "Last Created Albums",
+    "youHaventCreatedAlbums": "You haven't created any albums yet.",
+    "userHaventCreatedAlbums": "This user hasn't created any albums yet.",
+    "viewAllAlbums": "View All Albums",
+    "lastComments": "Last Comments",
+    "failedToLoadComments": "Failed to load comments",
+    "noCommentsYet": "No comments yet",
+    "viewAllComments": "View All Comments",
+    "albums": {
+      "albumsNotFound": "Albums not found",
+      "userAlbumsTitle": "{username}'s Albums",
+      "albumCount": "{count, plural, =0 {No albums} =1 {1 album} other {# albums}}",
+      "noAlbumsYet": "No albums yet",
+      "noPublicAlbumsDescription": "{username} hasn't created any public albums yet.",
+      "loadingMoreAlbums": "Loading more albums...",
+      "noMoreAlbums": "No more albums to load"
+    },
+    "likes": {
+      "error": {
+        "title": "Error Loading Likes",
+        "message": "Failed to load liked content"
+      },
+      "title": "{username}'s Liked Content",
+      "count": "{count, plural, =0 {No likes yet} =1 {1 like} other {# likes}}",
+      "empty": {
+        "title": "No liked content yet",
+        "description": "{username} hasn't liked any content yet."
+      },
+      "loading": {
+        "loadingMore": "Loading more likes...",
+        "noMore": "No more likes to load"
+      }
+    },
+    "comments": {
       "failedToLoadComments": "Failed to load comments",
-      "noCommentsYet": "No comments yet",
-      "viewAllComments": "View All Comments",
-      "albums": {
-        "albumsNotFound": "Albums not found",
-        "userAlbumsTitle": "{username}'s Albums",
-        "albumCount": "{count, plural, =0 {No albums} =1 {1 album} other {# albums}}",
-        "noAlbumsYet": "No albums yet",
-        "noPublicAlbumsDescription": "{username} hasn't created any public albums yet.",
-        "loadingMoreAlbums": "Loading more albums...",
-        "noMoreAlbums": "No more albums to load"
+      "errorOccurred": "An error occurred",
+      "tryAgain": "Try Again",
+      "userCommentsTitle": "{username}'s Comments",
+      "commentsMade": "{count, plural, =0 {No comments} =1 {1 comment made} other {# comments made}}",
+      "commentsLoaded": "{count, plural, =0 {No comments} =1 {1 comment loaded} other {# comments loaded}}",
+      "noCommentsYet": "No comments yet"
+    },
+    "media": {
+      "title": "{username}'s Media",
+      "count": "{count, plural, =0 {No media} =1 {1 media} other {# media}}",
+      "noMediaYet": "No media yet",
+      "empty": {
+        "title": "No media yet",
+        "description": "{username} hasn't generated any media yet.",
+        "unavailable": "Media unavailable"
       },
-      "likes": {
-        "error": {
-          "title": "Error Loading Likes",
-          "message": "Failed to load liked content"
-        },
-        "title": "{username}'s Liked Content",
-        "count": "{count, plural, =0 {No likes yet} =1 {1 like} other {# likes}}",
-        "empty": {
-          "title": "No liked content yet",
-          "description": "{username} hasn't liked any content yet."
-        },
-        "loading": {
-          "loadingMore": "Loading more likes...",
-          "noMore": "No more likes to load"
-        }
-      },
-      "comments": {
-        "failedToLoadComments": "Failed to load comments",
-        "errorOccurred": "An error occurred",
-        "tryAgain": "Try Again",
-        "userCommentsTitle": "{username}'s Comments",
-        "commentsMade": "{count, plural, =0 {No comments} =1 {1 comment made} other {# comments made}}",
-        "commentsLoaded": "{count, plural, =0 {No comments} =1 {1 comment loaded} other {# comments loaded}}",
-        "noCommentsYet": "No comments yet"
-      },
-      "media": {
-        "title": "{username}'s Media",
-        "count": "{count, plural, =0 {No media} =1 {1 media} other {# media}}",
-        "noMediaYet": "No media yet",
-        "empty": {
-          "title": "No media yet",
-          "description": "{username} hasn't generated any media yet.",
-          "unavailable": "Media unavailable"
-        },
-        "loading": {
-          "loadingMore": "Loading more media...",
-          "noMore": "No more media to load"
-        }
+      "loading": {
+        "loadingMore": "Loading more media...",
+        "noMore": "No more media to load"
       }
     },
     "ui": {

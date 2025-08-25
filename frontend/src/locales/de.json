@@ -71,98 +71,104 @@
       "failedToLoad": "Laden fehlgeschlagen",
       "networkResponse": "Netzwerkantwort war nicht in Ordnung"
     },
-    "profile": {
-      "username": "Benutzername",
-      "bio": "Bio",
-      "location": "Standort",
-      "website": "Webseite",
-      "enterUsername": "Benutzername eingeben",
-      "tellUsAboutYourself": "Erzählen Sie uns von sich",
-      "cityCountry": "Stadt, Land",
-      "websitePlaceholder": "https://ihre-seite.com",
-      "pleaseSelectImageFile": "Bitte wählen Sie eine Bilddatei aus",
-      "fileSizeMustBeLessThan10MB": "Die Dateigröße muss weniger als 10 MB betragen",
-      "invalidFileProvided": "Ungültige Datei bereitgestellt",
-      "usernameAlreadyTaken": "Benutzername ist bereits vergeben",
-      "stillCheckingUsernameAvailability": "Verfügbarkeit des Benutzernamens wird noch überprüft",
-      "joined": "Beigetreten",
-      "lastActive": "Zuletzt aktiv",
-      "noBioYetAddOne": "Noch keine Bio. Fügen Sie eine hinzu, indem Sie Ihr Profil bearbeiten!",
-      "userHasntAddedBio": "Dieser Benutzer hat noch keine Bio hinzugefügt.",
-      "savingProfileAndAvatar": "Profil und Avatar werden gespeichert...",
-      "saving": "Speichern...",
-      "uploadingAvatar": "Avatar wird hochgeladen...",
-      "checkingUsername": "Benutzername wird überprüft...",
-      "usernameTaken": "Benutzername vergeben",
-      "likesReceived": "Erhaltene Likes",
-      "contentBookmarked": "Erhaltene Lesezeichen",
-      "totalMediaViews": "Gesamte Medienaufrufe",
-      "profileViews": "Profilaufrufe",
-      "totalMedias": "Generierte Medien",
-      "totalAlbums": "Erstellte Alben",
-      "lastLikedContent": "Zuletzt gelikter Inhalt",
-      "youHaventLikedContent": "Sie haben noch keinen Inhalt geliked.",
-      "userHaventLikedContent": "Dieser Benutzer hat noch keinen Inhalt geliked.",
-      "viewAllLikedContent": "Alle gelikten Inhalte anzeigen",
-      "lastGeneratedMedias": "Zuletzt generierte Medien",
-      "youHaventGeneratedMedia": "Sie haben noch keine Medien generiert.",
-      "userHaventGeneratedMedia": "Dieser Benutzer hat noch keine Medien generiert.",
-      "viewAllGeneratedMedias": "Alle generierten Medien anzeigen",
-      "lastCreatedAlbums": "Zuletzt erstellte Alben",
-      "youHaventCreatedAlbums": "Sie haben noch keine Alben erstellt.",
-      "userHaventCreatedAlbums": "Dieser Benutzer hat noch keine Alben erstellt.",
-      "viewAllAlbums": "Alle Alben anzeigen",
-      "lastComments": "Letzte Kommentare",
+    "dateTime": {
+      "justNow": "gerade eben",
+      "minutesAgo": "vor {count}m",
+      "hoursAgo": "vor {count}h",
+      "daysAgo": "vor {count}T"
+    }
+  },
+  "profile": {
+    "username": "Benutzername",
+    "bio": "Bio",
+    "location": "Standort",
+    "website": "Webseite",
+    "enterUsername": "Benutzername eingeben",
+    "tellUsAboutYourself": "Erzählen Sie uns von sich",
+    "cityCountry": "Stadt, Land",
+    "websitePlaceholder": "https://ihre-seite.com",
+    "pleaseSelectImageFile": "Bitte wählen Sie eine Bilddatei aus",
+    "fileSizeMustBeLessThan10MB": "Die Dateigröße muss weniger als 10 MB betragen",
+    "invalidFileProvided": "Ungültige Datei bereitgestellt",
+    "usernameAlreadyTaken": "Benutzername ist bereits vergeben",
+    "stillCheckingUsernameAvailability": "Verfügbarkeit des Benutzernamens wird noch überprüft",
+    "joined": "Beigetreten",
+    "lastActive": "Zuletzt aktiv",
+    "noBioYetAddOne": "Noch keine Bio. Fügen Sie eine hinzu, indem Sie Ihr Profil bearbeiten!",
+    "userHasntAddedBio": "Dieser Benutzer hat noch keine Bio hinzugefügt.",
+    "savingProfileAndAvatar": "Profil und Avatar werden gespeichert...",
+    "saving": "Speichern...",
+    "uploadingAvatar": "Avatar wird hochgeladen...",
+    "checkingUsername": "Benutzername wird überprüft...",
+    "usernameTaken": "Benutzername vergeben",
+    "likesReceived": "Erhaltene Likes",
+    "contentBookmarked": "Erhaltene Lesezeichen",
+    "totalMediaViews": "Gesamte Medienaufrufe",
+    "profileViews": "Profilaufrufe",
+    "totalMedias": "Generierte Medien",
+    "totalAlbums": "Erstellte Alben",
+    "lastLikedContent": "Zuletzt gelikter Inhalt",
+    "youHaventLikedContent": "Sie haben noch keinen Inhalt geliked.",
+    "userHaventLikedContent": "Dieser Benutzer hat noch keinen Inhalt geliked.",
+    "viewAllLikedContent": "Alle gelikten Inhalte anzeigen",
+    "lastGeneratedMedias": "Zuletzt generierte Medien",
+    "youHaventGeneratedMedia": "Sie haben noch keine Medien generiert.",
+    "userHaventGeneratedMedia": "Dieser Benutzer hat noch keine Medien generiert.",
+    "viewAllGeneratedMedias": "Alle generierten Medien anzeigen",
+    "lastCreatedAlbums": "Zuletzt erstellte Alben",
+    "youHaventCreatedAlbums": "Sie haben noch keine Alben erstellt.",
+    "userHaventCreatedAlbums": "Dieser Benutzer hat noch keine Alben erstellt.",
+    "viewAllAlbums": "Alle Alben anzeigen",
+    "lastComments": "Letzte Kommentare",
+    "failedToLoadComments": "Kommentare konnten nicht geladen werden",
+    "noCommentsYet": "Noch keine Kommentare",
+    "viewAllComments": "Alle Kommentare anzeigen",
+    "albums": {
+      "albumsNotFound": "Alben nicht gefunden",
+      "userAlbumsTitle": "{username}s Alben",
+      "albumCount": "{count, plural, =0 {Keine Alben} =1 {1 Album} other {# Alben}}",
+      "noAlbumsYet": "Noch keine Alben",
+      "noPublicAlbumsDescription": "{username} hat noch keine öffentlichen Alben erstellt.",
+      "loadingMoreAlbums": "Weitere Alben werden geladen...",
+      "noMoreAlbums": "Keine weiteren Alben zu laden"
+    },
+    "likes": {
+      "error": {
+        "title": "Fehler beim Laden der Likes",
+        "message": "Gelikte Inhalte konnten nicht geladen werden"
+      },
+      "title": "Von {username} gelikte Inhalte",
+      "count": "{count, plural, =0 {Noch keine Likes} =1 {1 Like} other {# Likes}}",
+      "empty": {
+        "title": "Noch keine gelikten Inhalte",
+        "description": "{username} hat noch keine Inhalte geliked."
+      },
+      "loading": {
+        "loadingMore": "Weitere Likes werden geladen...",
+        "noMore": "Keine weiteren Likes zu laden"
+      }
+    },
+    "comments": {
       "failedToLoadComments": "Kommentare konnten nicht geladen werden",
-      "noCommentsYet": "Noch keine Kommentare",
-      "viewAllComments": "Alle Kommentare anzeigen",
-      "albums": {
-        "albumsNotFound": "Alben nicht gefunden",
-        "userAlbumsTitle": "{username}s Alben",
-        "albumCount": "{count, plural, =0 {Keine Alben} =1 {1 Album} other {# Alben}}",
-        "noAlbumsYet": "Noch keine Alben",
-        "noPublicAlbumsDescription": "{username} hat noch keine öffentlichen Alben erstellt.",
-        "loadingMoreAlbums": "Weitere Alben werden geladen...",
-        "noMoreAlbums": "Keine weiteren Alben zu laden"
+      "errorOccurred": "Ein Fehler ist aufgetreten",
+      "tryAgain": "Erneut versuchen",
+      "userCommentsTitle": "Kommentare von {username}",
+      "commentsMade": "{count, plural, =0 {Keine Kommentare} =1 {1 Kommentar verfasst} other {# Kommentare verfasst}}",
+      "commentsLoaded": "{count, plural, =0 {Keine Kommentare} =1 {1 Kommentar geladen} other {# Kommentare geladen}}",
+      "noCommentsYet": "Noch keine Kommentare"
+    },
+    "media": {
+      "title": "Medien von {username}",
+      "count": "{count, plural, =0 {Keine Medien} =1 {1 Medium} other {# Medien}}",
+      "noMediaYet": "Noch keine Medien",
+      "empty": {
+        "title": "Noch keine Medien",
+        "description": "{username} hat noch keine Medien generiert.",
+        "unavailable": "Medien nicht verfügbar"
       },
-      "likes": {
-        "error": {
-          "title": "Fehler beim Laden der Likes",
-          "message": "Gelikte Inhalte konnten nicht geladen werden"
-        },
-        "title": "Von {username} gelikte Inhalte",
-        "count": "{count, plural, =0 {Noch keine Likes} =1 {1 Like} other {# Likes}}",
-        "empty": {
-          "title": "Noch keine gelikten Inhalte",
-          "description": "{username} hat noch keine Inhalte geliked."
-        },
-        "loading": {
-          "loadingMore": "Weitere Likes werden geladen...",
-          "noMore": "Keine weiteren Likes zu laden"
-        }
-      },
-      "comments": {
-        "failedToLoadComments": "Kommentare konnten nicht geladen werden",
-        "errorOccurred": "Ein Fehler ist aufgetreten",
-        "tryAgain": "Erneut versuchen",
-        "userCommentsTitle": "Kommentare von {username}",
-        "commentsMade": "{count, plural, =0 {Keine Kommentare} =1 {1 Kommentar verfasst} other {# Kommentare verfasst}}",
-        "commentsLoaded": "{count, plural, =0 {Keine Kommentare} =1 {1 Kommentar geladen} other {# Kommentare geladen}}",
-        "noCommentsYet": "Noch keine Kommentare"
-      },
-      "media": {
-        "title": "Medien von {username}",
-        "count": "{count, plural, =0 {Keine Medien} =1 {1 Medium} other {# Medien}}",
-        "noMediaYet": "Noch keine Medien",
-        "empty": {
-          "title": "Noch keine Medien",
-          "description": "{username} hat noch keine Medien generiert.",
-          "unavailable": "Medien nicht verfügbar"
-        },
-        "loading": {
-          "loadingMore": "Weitere Medien werden geladen...",
-          "noMore": "Keine weiteren Medien zu laden"
-        }
+      "loading": {
+        "loadingMore": "Weitere Medien werden geladen...",
+        "noMore": "Keine weiteren Medien zu laden"
       }
     },
     "ui": {

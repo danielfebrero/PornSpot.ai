@@ -71,98 +71,104 @@
       "failedToLoad": "Échec du chargement",
       "networkResponse": "La réponse réseau n'était pas correcte"
     },
-    "profile": {
-      "username": "Nom d'utilisateur",
-      "bio": "Bio",
-      "location": "Localisation",
-      "website": "Site web",
-      "enterUsername": "Entrez votre nom d'utilisateur",
-      "tellUsAboutYourself": "Parlez-nous de vous",
-      "cityCountry": "Ville, Pays",
-      "websitePlaceholder": "https://votre-site.com",
-      "pleaseSelectImageFile": "Veuillez sélectionner un fichier image",
-      "fileSizeMustBeLessThan10MB": "La taille du fichier doit être inférieure à 10 Mo",
-      "invalidFileProvided": "Fichier fourni invalide",
-      "usernameAlreadyTaken": "Ce nom d'utilisateur est déjà pris",
-      "stillCheckingUsernameAvailability": "Vérification de la disponibilité du nom d'utilisateur en cours",
-      "joined": "Inscrit",
-      "lastActive": "Dernière activité",
-      "noBioYetAddOne": "Aucune bio pour le moment. Ajoutez-en une en modifiant votre profil !",
-      "userHasntAddedBio": "Cet utilisateur n'a pas encore ajouté de bio.",
-      "savingProfileAndAvatar": "Sauvegarde du profil et de l'avatar...",
-      "saving": "Sauvegarde...",
-      "uploadingAvatar": "Téléchargement de l'avatar...",
-      "checkingUsername": "Vérification du nom d'utilisateur...",
-      "usernameTaken": "Nom d'utilisateur pris",
-      "likesReceived": "J'aime reçus",
-      "contentBookmarked": "Favoris reçus",
-      "totalMediaViews": "Vues totales des médias",
-      "profileViews": "Vues du profil",
-      "totalMedias": "Médias générés",
-      "totalAlbums": "Albums créés",
-      "lastLikedContent": "Dernier contenu aimé",
-      "youHaventLikedContent": "Vous n'avez encore aimé aucun contenu.",
-      "userHaventLikedContent": "Cet utilisateur n'a encore aimé aucun contenu.",
-      "viewAllLikedContent": "Voir tout le contenu aimé",
-      "lastGeneratedMedias": "Derniers médias générés",
-      "youHaventGeneratedMedia": "Vous n'avez encore généré aucun média.",
-      "userHaventGeneratedMedia": "Cet utilisateur n'a encore généré aucun média.",
-      "viewAllGeneratedMedias": "Voir tous les médias générés",
-      "lastCreatedAlbums": "Derniers albums créés",
-      "youHaventCreatedAlbums": "Vous n'avez encore créé aucun album.",
-      "userHaventCreatedAlbums": "Cet utilisateur n'a encore créé aucun album.",
-      "viewAllAlbums": "Voir tous les albums",
-      "lastComments": "Derniers commentaires",
+    "dateTime": {
+      "justNow": "à l'instant",
+      "minutesAgo": "il y a {count}m",
+      "hoursAgo": "il y a {count}h",
+      "daysAgo": "il y a {count}j"
+    }
+  },
+  "profile": {
+    "username": "Nom d'utilisateur",
+    "bio": "Bio",
+    "location": "Localisation",
+    "website": "Site web",
+    "enterUsername": "Entrez votre nom d'utilisateur",
+    "tellUsAboutYourself": "Parlez-nous de vous",
+    "cityCountry": "Ville, Pays",
+    "websitePlaceholder": "https://votre-site.com",
+    "pleaseSelectImageFile": "Veuillez sélectionner un fichier image",
+    "fileSizeMustBeLessThan10MB": "La taille du fichier doit être inférieure à 10 Mo",
+    "invalidFileProvided": "Fichier fourni invalide",
+    "usernameAlreadyTaken": "Ce nom d'utilisateur est déjà pris",
+    "stillCheckingUsernameAvailability": "Vérification de la disponibilité du nom d'utilisateur en cours",
+    "joined": "Inscrit",
+    "lastActive": "Dernière activité",
+    "noBioYetAddOne": "Aucune bio pour le moment. Ajoutez-en une en modifiant votre profil !",
+    "userHasntAddedBio": "Cet utilisateur n'a pas encore ajouté de bio.",
+    "savingProfileAndAvatar": "Sauvegarde du profil et de l'avatar...",
+    "saving": "Sauvegarde...",
+    "uploadingAvatar": "Téléchargement de l'avatar...",
+    "checkingUsername": "Vérification du nom d'utilisateur...",
+    "usernameTaken": "Nom d'utilisateur pris",
+    "likesReceived": "J'aime reçus",
+    "contentBookmarked": "Favoris reçus",
+    "totalMediaViews": "Vues totales des médias",
+    "profileViews": "Vues du profil",
+    "totalMedias": "Médias générés",
+    "totalAlbums": "Albums créés",
+    "lastLikedContent": "Dernier contenu aimé",
+    "youHaventLikedContent": "Vous n'avez encore aimé aucun contenu.",
+    "userHaventLikedContent": "Cet utilisateur n'a encore aimé aucun contenu.",
+    "viewAllLikedContent": "Voir tout le contenu aimé",
+    "lastGeneratedMedias": "Derniers médias générés",
+    "youHaventGeneratedMedia": "Vous n'avez encore généré aucun média.",
+    "userHaventGeneratedMedia": "Cet utilisateur n'a encore généré aucun média.",
+    "viewAllGeneratedMedias": "Voir tous les médias générés",
+    "lastCreatedAlbums": "Derniers albums créés",
+    "youHaventCreatedAlbums": "Vous n'avez encore créé aucun album.",
+    "userHaventCreatedAlbums": "Cet utilisateur n'a encore créé aucun album.",
+    "viewAllAlbums": "Voir tous les albums",
+    "lastComments": "Derniers commentaires",
+    "failedToLoadComments": "Échec du chargement des commentaires",
+    "noCommentsYet": "Aucun commentaire pour le moment",
+    "viewAllComments": "Voir tous les commentaires",
+    "albums": {
+      "albumsNotFound": "Albums non trouvés",
+      "userAlbumsTitle": "Albums de {username}",
+      "albumCount": "{count, plural, =0 {Aucun album} =1 {1 album} other {# albums}}",
+      "noAlbumsYet": "Aucun album pour le moment",
+      "noPublicAlbumsDescription": "{username} n'a encore créé aucun album public.",
+      "loadingMoreAlbums": "Chargement d'autres albums...",
+      "noMoreAlbums": "Plus d'albums à charger"
+    },
+    "likes": {
+      "error": {
+        "title": "Erreur de chargement des j'aime",
+        "message": "Échec du chargement du contenu aimé"
+      },
+      "title": "Contenu aimé par {username}",
+      "count": "{count, plural, =0 {Aucun j'aime} =1 {1 j'aime} other {# j'aime}}",
+      "empty": {
+        "title": "Aucun contenu aimé pour le moment",
+        "description": "{username} n'a encore aimé aucun contenu."
+      },
+      "loading": {
+        "loadingMore": "Chargement d'autres j'aime...",
+        "noMore": "Plus de j'aime à charger"
+      }
+    },
+    "comments": {
       "failedToLoadComments": "Échec du chargement des commentaires",
-      "noCommentsYet": "Aucun commentaire pour le moment",
-      "viewAllComments": "Voir tous les commentaires",
-      "albums": {
-        "albumsNotFound": "Albums non trouvés",
-        "userAlbumsTitle": "Albums de {username}",
-        "albumCount": "{count, plural, =0 {Aucun album} =1 {1 album} other {# albums}}",
-        "noAlbumsYet": "Aucun album pour le moment",
-        "noPublicAlbumsDescription": "{username} n'a encore créé aucun album public.",
-        "loadingMoreAlbums": "Chargement d'autres albums...",
-        "noMoreAlbums": "Plus d'albums à charger"
+      "errorOccurred": "Une erreur s'est produite",
+      "tryAgain": "Réessayer",
+      "userCommentsTitle": "Commentaires de {username}",
+      "commentsMade": "{count, plural, =0 {Aucun commentaire} =1 {1 commentaire publié} other {# commentaires publiés}}",
+      "commentsLoaded": "{count, plural, =0 {Aucun commentaire} =1 {1 commentaire chargé} other {# commentaires chargés}}",
+      "noCommentsYet": "Aucun commentaire pour le moment"
+    },
+    "media": {
+      "title": "Médias de {username}",
+      "count": "{count, plural, =0 {Aucun média} =1 {1 média} other {# médias}}",
+      "noMediaYet": "Aucun média pour le moment",
+      "empty": {
+        "title": "Aucun média pour le moment",
+        "description": "{username} n'a encore généré aucun média.",
+        "unavailable": "Média indisponible"
       },
-      "likes": {
-        "error": {
-          "title": "Erreur de chargement des j'aime",
-          "message": "Échec du chargement du contenu aimé"
-        },
-        "title": "Contenu aimé par {username}",
-        "count": "{count, plural, =0 {Aucun j'aime} =1 {1 j'aime} other {# j'aime}}",
-        "empty": {
-          "title": "Aucun contenu aimé pour le moment",
-          "description": "{username} n'a encore aimé aucun contenu."
-        },
-        "loading": {
-          "loadingMore": "Chargement d'autres j'aime...",
-          "noMore": "Plus de j'aime à charger"
-        }
-      },
-      "comments": {
-        "failedToLoadComments": "Échec du chargement des commentaires",
-        "errorOccurred": "Une erreur s'est produite",
-        "tryAgain": "Réessayer",
-        "userCommentsTitle": "Commentaires de {username}",
-        "commentsMade": "{count, plural, =0 {Aucun commentaire} =1 {1 commentaire publié} other {# commentaires publiés}}",
-        "commentsLoaded": "{count, plural, =0 {Aucun commentaire} =1 {1 commentaire chargé} other {# commentaires chargés}}",
-        "noCommentsYet": "Aucun commentaire pour le moment"
-      },
-      "media": {
-        "title": "Médias de {username}",
-        "count": "{count, plural, =0 {Aucun média} =1 {1 média} other {# médias}}",
-        "noMediaYet": "Aucun média pour le moment",
-        "empty": {
-          "title": "Aucun média pour le moment",
-          "description": "{username} n'a encore généré aucun média.",
-          "unavailable": "Média indisponible"
-        },
-        "loading": {
-          "loadingMore": "Chargement d'autres médias...",
-          "noMore": "Plus de médias à charger"
-        }
+      "loading": {
+        "loadingMore": "Chargement d'autres médias...",
+        "noMore": "Plus de médias à charger"
       }
     },
     "ui": {

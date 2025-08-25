@@ -71,98 +71,104 @@
       "failedToLoad": "加载失败",
       "networkResponse": "网络响应异常"
     },
-    "profile": {
-      "username": "用户名",
-      "bio": "个人简介",
-      "location": "位置",
-      "website": "网站",
-      "enterUsername": "输入用户名",
-      "tellUsAboutYourself": "介绍一下自己",
-      "cityCountry": "城市，国家",
-      "websitePlaceholder": "https://您的网站.com",
-      "pleaseSelectImageFile": "请选择图片文件",
-      "fileSizeMustBeLessThan10MB": "文件大小必须小于10MB",
-      "invalidFileProvided": "提供的文件无效",
-      "usernameAlreadyTaken": "用户名已被占用",
-      "stillCheckingUsernameAvailability": "仍在检查用户名可用性",
-      "joined": "加入时间",
-      "lastActive": "最后活动",
-      "noBioYetAddOne": "还没有个人简介。编辑您的资料来添加一个吧！",
-      "userHasntAddedBio": "该用户尚未添加个人简介。",
-      "savingProfileAndAvatar": "保存资料和头像中...",
-      "saving": "保存中...",
-      "uploadingAvatar": "上传头像中...",
-      "checkingUsername": "检查用户名中...",
-      "usernameTaken": "用户名已占用",
-      "likesReceived": "收到的赞",
-      "contentBookmarked": "收到的收藏",
-      "totalMediaViews": "媒体总浏览量",
-      "profileViews": "资料浏览量",
-      "totalMedias": "生成的媒体",
-      "totalAlbums": "创建的相册",
-      "lastLikedContent": "最新喜欢的内容",
-      "youHaventLikedContent": "您还没有喜欢任何内容。",
-      "userHaventLikedContent": "该用户还没有喜欢任何内容。",
-      "viewAllLikedContent": "查看所有喜欢的内容",
-      "lastGeneratedMedias": "最新生成的媒体",
-      "youHaventGeneratedMedia": "您还没有生成任何媒体。",
-      "userHaventGeneratedMedia": "该用户还没有生成任何媒体。",
-      "viewAllGeneratedMedias": "查看所有生成的媒体",
-      "lastCreatedAlbums": "最新创建的相册",
-      "youHaventCreatedAlbums": "您还没有创建任何相册。",
-      "userHaventCreatedAlbums": "该用户还没有创建任何相册。",
-      "viewAllAlbums": "查看所有相册",
-      "lastComments": "最新评论",
+    "dateTime": {
+      "justNow": "刚刚",
+      "minutesAgo": "{count}分钟前",
+      "hoursAgo": "{count}小时前",
+      "daysAgo": "{count}天前"
+    }
+  },
+  "profile": {
+    "username": "用户名",
+    "bio": "个人简介",
+    "location": "位置",
+    "website": "网站",
+    "enterUsername": "输入用户名",
+    "tellUsAboutYourself": "介绍一下自己",
+    "cityCountry": "城市，国家",
+    "websitePlaceholder": "https://您的网站.com",
+    "pleaseSelectImageFile": "请选择图片文件",
+    "fileSizeMustBeLessThan10MB": "文件大小必须小于10MB",
+    "invalidFileProvided": "提供的文件无效",
+    "usernameAlreadyTaken": "用户名已被占用",
+    "stillCheckingUsernameAvailability": "仍在检查用户名可用性",
+    "joined": "加入时间",
+    "lastActive": "最后活动",
+    "noBioYetAddOne": "还没有个人简介。编辑您的资料来添加一个吧！",
+    "userHasntAddedBio": "该用户尚未添加个人简介。",
+    "savingProfileAndAvatar": "保存资料和头像中...",
+    "saving": "保存中...",
+    "uploadingAvatar": "上传头像中...",
+    "checkingUsername": "检查用户名中...",
+    "usernameTaken": "用户名已占用",
+    "likesReceived": "收到的赞",
+    "contentBookmarked": "收到的收藏",
+    "totalMediaViews": "媒体总浏览量",
+    "profileViews": "资料浏览量",
+    "totalMedias": "生成的媒体",
+    "totalAlbums": "创建的相册",
+    "lastLikedContent": "最新喜欢的内容",
+    "youHaventLikedContent": "您还没有喜欢任何内容。",
+    "userHaventLikedContent": "该用户还没有喜欢任何内容。",
+    "viewAllLikedContent": "查看所有喜欢的内容",
+    "lastGeneratedMedias": "最新生成的媒体",
+    "youHaventGeneratedMedia": "您还没有生成任何媒体。",
+    "userHaventGeneratedMedia": "该用户还没有生成任何媒体。",
+    "viewAllGeneratedMedias": "查看所有生成的媒体",
+    "lastCreatedAlbums": "最新创建的相册",
+    "youHaventCreatedAlbums": "您还没有创建任何相册。",
+    "userHaventCreatedAlbums": "该用户还没有创建任何相册。",
+    "viewAllAlbums": "查看所有相册",
+    "lastComments": "最新评论",
+    "failedToLoadComments": "加载评论失败",
+    "noCommentsYet": "暂无评论",
+    "viewAllComments": "查看所有评论",
+    "albums": {
+      "albumsNotFound": "未找到相册",
+      "userAlbumsTitle": "{username} 的相册",
+      "albumCount": "{count, plural, =0 {无相册} other {# 个相册}}",
+      "noAlbumsYet": "暂无相册",
+      "noPublicAlbumsDescription": "{username} 尚未创建任何公开相册。",
+      "loadingMoreAlbums": "加载更多相册...",
+      "noMoreAlbums": "没有更多相册可加载"
+    },
+    "likes": {
+      "error": {
+        "title": "加载点赞失败",
+        "message": "无法加载喜欢的内容"
+      },
+      "title": "{username} 喜欢的内容",
+      "count": "{count, plural, =0 {没有点赞} other {# 个点赞}}",
+      "empty": {
+        "title": "暂无喜欢的内容",
+        "description": "{username} 还没有喜欢任何内容。"
+      },
+      "loading": {
+        "loadingMore": "加载更多点赞...",
+        "noMore": "没有更多点赞可加载"
+      }
+    },
+    "comments": {
       "failedToLoadComments": "加载评论失败",
-      "noCommentsYet": "暂无评论",
-      "viewAllComments": "查看所有评论",
-      "albums": {
-        "albumsNotFound": "未找到相册",
-        "userAlbumsTitle": "{username} 的相册",
-        "albumCount": "{count, plural, =0 {无相册} other {# 个相册}}",
-        "noAlbumsYet": "暂无相册",
-        "noPublicAlbumsDescription": "{username} 尚未创建任何公开相册。",
-        "loadingMoreAlbums": "加载更多相册...",
-        "noMoreAlbums": "没有更多相册可加载"
+      "errorOccurred": "发生错误",
+      "tryAgain": "重试",
+      "userCommentsTitle": "{username} 的评论",
+      "commentsMade": "{count, plural, =0 {没有评论} other {发表了 # 条评论}}",
+      "commentsLoaded": "{count, plural, =0 {没有评论} other {已加载 # 条评论}}",
+      "noCommentsYet": "暂无评论"
+    },
+    "media": {
+      "title": "{username} 的媒体",
+      "count": "{count, plural, =0 {没有媒体} other {# 个媒体}}",
+      "noMediaYet": "暂无媒体",
+      "empty": {
+        "title": "暂无媒体",
+        "description": "{username} 还没有生成任何媒体。",
+        "unavailable": "媒体不可用"
       },
-      "likes": {
-        "error": {
-          "title": "加载点赞失败",
-          "message": "无法加载喜欢的内容"
-        },
-        "title": "{username} 喜欢的内容",
-        "count": "{count, plural, =0 {没有点赞} other {# 个点赞}}",
-        "empty": {
-          "title": "暂无喜欢的内容",
-          "description": "{username} 还没有喜欢任何内容。"
-        },
-        "loading": {
-          "loadingMore": "加载更多点赞...",
-          "noMore": "没有更多点赞可加载"
-        }
-      },
-      "comments": {
-        "failedToLoadComments": "加载评论失败",
-        "errorOccurred": "发生错误",
-        "tryAgain": "重试",
-        "userCommentsTitle": "{username} 的评论",
-        "commentsMade": "{count, plural, =0 {没有评论} other {发表了 # 条评论}}",
-        "commentsLoaded": "{count, plural, =0 {没有评论} other {已加载 # 条评论}}",
-        "noCommentsYet": "暂无评论"
-      },
-      "media": {
-        "title": "{username} 的媒体",
-        "count": "{count, plural, =0 {没有媒体} other {# 个媒体}}",
-        "noMediaYet": "暂无媒体",
-        "empty": {
-          "title": "暂无媒体",
-          "description": "{username} 还没有生成任何媒体。",
-          "unavailable": "媒体不可用"
-        },
-        "loading": {
-          "loadingMore": "加载更多媒体...",
-          "noMore": "没有更多媒体可加载"
-        }
+      "loading": {
+        "loadingMore": "加载更多媒体...",
+        "noMore": "没有更多媒体可加载"
       }
     },
     "ui": {

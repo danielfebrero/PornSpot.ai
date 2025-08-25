@@ -2,10 +2,20 @@
  * Date utility functions for formatting dates and time distances
  */
 
+interface DateTimeTranslations {
+  justNow: string;
+  minutesAgo: string;
+  hoursAgo: string;
+  daysAgo: string;
+}
+
 /**
  * Format a date string to a relative time display (e.g., "2h ago", "3d ago")
  */
-export function formatDistanceToNow(date: Date | string): string {
+export function formatDistanceToNow(
+  date: Date | string,
+  t?: DateTimeTranslations
+): string {
   const now = new Date();
   const dateObj = new Date(date);
   const diffInMs = now.getTime() - dateObj.getTime();
@@ -14,13 +24,22 @@ export function formatDistanceToNow(date: Date | string): string {
   const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
   if (diffInMinutes < 1) {
-    return "just now";
+    return t?.justNow ?? "just now";
   } else if (diffInMinutes < 60) {
-    return `${diffInMinutes}m ago`;
+    return (
+      t?.minutesAgo.replace("{count}", diffInMinutes.toString()) ??
+      `${diffInMinutes}m ago`
+    );
   } else if (diffInHours < 24) {
-    return `${diffInHours}h ago`;
+    return (
+      t?.hoursAgo.replace("{count}", diffInHours.toString()) ??
+      `${diffInHours}h ago`
+    );
   } else if (diffInDays < 7) {
-    return `${diffInDays}d ago`;
+    return (
+      t?.daysAgo.replace("{count}", diffInDays.toString()) ??
+      `${diffInDays}d ago`
+    );
   } else {
     return dateObj.toLocaleDateString("en-US", {
       month: "short",

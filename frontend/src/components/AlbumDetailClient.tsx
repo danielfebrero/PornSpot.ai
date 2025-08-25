@@ -10,7 +10,7 @@ import { ViewTracker } from "@/components/ui/ViewTracker";
 import { MediaGallery } from "@/components/MediaGallery";
 import { Comments } from "@/components/ui/Comments";
 import LocaleLink from "@/components/ui/LocaleLink";
-import { formatDistanceToNow } from "@/lib/dateUtils";
+import { useDateUtils } from "@/hooks/useDateUtils";
 import {
   SectionErrorBoundary,
   MediaGalleryErrorBoundary,
@@ -27,6 +27,7 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
   const router = useRouter();
   const { user } = useUserContext();
   const t = useTranslations("albumDetail");
+  const { formatRelativeTime } = useDateUtils();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -50,7 +51,7 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
               {/* Creation Date */}
               <div className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                <span>{formatDistanceToNow(album.createdAt)}</span>
+                <span>{formatRelativeTime(album.createdAt)}</span>
               </div>
 
               {/* Creator Username */}

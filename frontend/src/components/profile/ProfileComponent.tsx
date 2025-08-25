@@ -23,7 +23,7 @@ import { useCommentsQuery } from "@/hooks/queries/useCommentsQuery";
 import { useUserMedia } from "@/hooks/queries/useMediaQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { useUsernameAvailability } from "@/hooks/useUsernameAvailability";
-import { formatDistanceToNow } from "@/lib/dateUtils";
+import { useDateUtils } from "@/hooks/useDateUtils";
 import { userApi } from "@/lib/api/user";
 import {
   User,
@@ -81,6 +81,7 @@ export default function ProfileComponent({
   const tProfile = useTranslations("common.profile");
   const { isMobile } = useDevice();
   const { user: loggedInUser, refetch } = useUserContext();
+  const { formatRelativeTime } = useDateUtils();
 
   // Use the abstracted username availability hook
   const {
@@ -1163,7 +1164,7 @@ export default function ProfileComponent({
                                   &ldquo;{comment.content}&rdquo;
                                 </p>
                                 <p className="text-xs text-muted-foreground mt-1">
-                                  {formatDistanceToNow(
+                                  {formatRelativeTime(
                                     new Date(comment.createdAt)
                                   )}
                                 </p>

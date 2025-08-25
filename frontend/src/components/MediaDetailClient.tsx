@@ -35,7 +35,7 @@ import { MediaPlayer } from "@/components/ui/MediaPlayer";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { cn } from "@/lib/utils";
 import { formatFileSize, isVideo } from "@/lib/utils";
-import { formatDistanceToNow } from "@/lib/dateUtils";
+import { useDateUtils } from "@/hooks/useDateUtils";
 import { useUserContext } from "@/contexts/UserContext";
 import { useTranslations } from "next-intl";
 
@@ -179,6 +179,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
   const t = useTranslations("mediaDetail");
   const metadata = useMediaMetadata(media);
   const { user } = useUserContext();
+  const { formatRelativeTime } = useDateUtils();
   const hasTrackedView = useRef(false);
   const trackViewMutation = useTrackView();
 
@@ -294,7 +295,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
               {/* Creation Date */}
               <div className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                <span>{formatDistanceToNow(media.createdAt)}</span>
+                <span>{formatRelativeTime(media.createdAt)}</span>
               </div>
 
               {/* Creator Username */}
