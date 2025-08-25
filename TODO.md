@@ -91,3 +91,5 @@
 [ ] Be able to change images titles.
 
 [ ] Remove usage stats from Admin default page. Dedicate a page to analytics.
+
+[ ] Ability to follow users.

@@ -8,6 +8,7 @@ const VALID_INVITATION_CODES = [
   "DISCORD69",
   "FRIENDS123",
   "HN777",
+  "X42069",
 ];
 
 interface InvitationCodeRequest {
