@@ -23,6 +23,7 @@ This document describes the `delete-all-dynamodb-items.js` script for completely
 ## Usage Examples
 
 ### Safe Preview (Recommended First Step)
+
 ```bash
 # Preview what would be deleted from production
 node scripts/delete-all-dynamodb-items.js --env=prod --dry-run
@@ -32,12 +33,14 @@ node scripts/delete-all-dynamodb-items.js --env=staging --dry-run
 ```
 
 ### Local Development
+
 ```bash
 # Delete all local development data
 node scripts/delete-all-dynamodb-items.js --env=local --confirm
 ```
 
 ### Staging Environment
+
 ```bash
 # Delete staging data with backup
 node scripts/delete-all-dynamodb-items.js --env=staging --confirm --backup
@@ -47,6 +50,7 @@ node scripts/delete-all-dynamodb-items.js --env=staging --confirm
 ```
 
 ### Production Environment (High Risk)
+
 ```bash
 # ALWAYS create backup when deleting production data
 node scripts/delete-all-dynamodb-items.js --env=prod --confirm --backup
@@ -54,33 +58,37 @@ node scripts/delete-all-dynamodb-items.js --env=prod --confirm --backup
 
 ## Command Options
 
-| Option | Description | Required |
-|--------|-------------|----------|
-| `--env=ENV` | Environment: local, dev, staging, prod | Yes |
-| `--dry-run` | Preview mode - no actual deletion | Optional |
-| `--confirm` | Actually perform deletion (mutually exclusive with dry-run) | Yes (unless dry-run) |
-| `--backup` | Create JSON backup before deletion | Optional (recommended for prod) |
-| `--help` | Show help message | Optional |
+| Option      | Description                                                 | Required                        |
+| ----------- | ----------------------------------------------------------- | ------------------------------- |
+| `--env=ENV` | Environment: local, dev, staging, prod                      | Yes                             |
+| `--dry-run` | Preview mode - no actual deletion                           | Optional                        |
+| `--confirm` | Actually perform deletion (mutually exclusive with dry-run) | Yes (unless dry-run)            |
+| `--backup`  | Create JSON backup before deletion                          | Optional (recommended for prod) |
+| `--help`    | Show help message                                           | Optional                        |
 
 ## Safety Features
 
 ### 1. Explicit Confirmation Required
+
 - Script requires `--confirm` flag for actual deletion
 - Production deletions require typing "DELETE ALL PRODUCTION DATA"
 - No accidental deletions possible
 
 ### 2. Dry-Run Mode
+
 - Use `--dry-run` to preview what would be deleted
 - Shows item counts by type (USER, ALBUM, MEDIA, etc.)
 - No data is modified in dry-run mode
 
 ### 3. Backup Functionality
+
 - `--backup` flag creates complete JSON backup
 - Backup saved to `backups/dynamodb/` directory
 - Includes timestamp in filename
 - Can be used for restoration if needed
 
 ### 4. Progress Tracking
+
 - Real-time progress display
 - Batch processing to handle large datasets
 - Error handling and retry logic
@@ -89,6 +97,7 @@ node scripts/delete-all-dynamodb-items.js --env=prod --confirm --backup
 ## Output Examples
 
 ### Dry Run Output
+
 ```
 🚀 DynamoDB Items Deletion Script
    Environment: prod
@@ -117,6 +126,7 @@ node scripts/delete-all-dynamodb-items.js --env=prod --confirm --backup
 ```
 
 ### Production Deletion with Backup
+
 ```
 🚀 DynamoDB Items Deletion Script
    Environment: prod
@@ -164,11 +174,13 @@ The script includes comprehensive error handling:
 ## Recovery Procedures
 
 ### If Deletion Fails Midway
+
 1. Check the final report for completion status
 2. Re-run with same parameters to delete remaining items
 3. Use backup file for restoration if needed
 
 ### If Backup is Needed for Restoration
+
 1. Locate backup file in `backups/dynamodb/` directory
 2. Use the `restore-dynamodb-table.sh` script
 3. Or manually restore using AWS CLI batch-write operations
@@ -176,6 +188,7 @@ The script includes comprehensive error handling:
 ## Best Practices
 
 ### For Production Use
+
 1. **Always run dry-run first** to understand scope
 2. **Always create backup** with `--backup` flag
 3. **Verify backup integrity** before proceeding
@@ -183,6 +196,7 @@ The script includes comprehensive error handling:
 5. **Have rollback plan** ready with backup file
 
 ### For Development Use
+
 1. Use local or staging environments for testing
 2. Regular cleanup helps maintain development environments
 3. Consider automated cleanup in CI/CD pipelines
@@ -192,15 +206,19 @@ The script includes comprehensive error handling:
 ### Common Issues
 
 **Error: "Invalid environment"**
+
 - Solution: Use one of: local, dev, staging, prod
 
 **Error: "Must specify either --dry-run or --confirm"**
+
 - Solution: Choose exactly one execution mode
 
 **Error: "Access denied"**
+
 - Solution: Check AWS credentials and DynamoDB permissions
 
 **Error: "Table not found"**
+
 - Solution: Verify environment and table naming convention
 
 ### Performance Considerations

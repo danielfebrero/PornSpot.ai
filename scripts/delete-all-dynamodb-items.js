@@ -115,14 +115,14 @@ const docClient = DynamoDBDocumentClient.from(ddbClient);
 
 // Colors for output
 const colors = {
-  reset: '\x1b[0m',
-  bright: '\x1b[1m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  magenta: '\x1b[35m',
-  cyan: '\x1b[36m',
+  reset: "\x1b[0m",
+  bright: "\x1b[1m",
+  red: "\x1b[31m",
+  green: "\x1b[32m",
+  yellow: "\x1b[33m",
+  blue: "\x1b[34m",
+  magenta: "\x1b[35m",
+  cyan: "\x1b[36m",
 };
 
 function log(message, color = colors.reset) {
@@ -179,9 +179,12 @@ const stats = {
 async function createBackup() {
   if (!CREATE_BACKUP) return null;
 
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const backupDir = path.join(__dirname, '..', 'backups', 'dynamodb');
-  const backupFile = path.join(backupDir, `${ENVIRONMENT}-full-backup-${timestamp}.json`);
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const backupDir = path.join(__dirname, "..", "backups", "dynamodb");
+  const backupFile = path.join(
+    backupDir,
+    `${ENVIRONMENT}-full-backup-${timestamp}.json`
+  );
 
   log(`📦 Creating backup: ${backupFile}`, colors.blue);
 
@@ -209,7 +212,7 @@ async function createBackup() {
         allItems.push(...result.Items);
       }
       lastEvaluatedKey = result.LastEvaluatedKey;
-      
+
       process.stdout.write(`\r📦 Backing up items: ${allItems.length}`);
     } catch (error) {
       log(`\n❌ Error during backup: ${error.message}`, colors.red);
@@ -219,8 +222,11 @@ async function createBackup() {
 
   // Write backup to file
   fs.writeFileSync(backupFile, JSON.stringify(allItems, null, 2));
-  log(`\n✅ Backup created: ${allItems.length} items saved to ${backupFile}`, colors.green);
-  
+  log(
+    `\n✅ Backup created: ${allItems.length} items saved to ${backupFile}`,
+    colors.green
+  );
+
   return backupFile;
 }
 
@@ -234,11 +240,23 @@ async function getProductionConfirmation() {
   });
 
   return new Promise((resolve) => {
-    log(`\n${colors.red}🚨 PRODUCTION DELETION WARNING 🚨${colors.reset}`, colors.bright);
-    log(`You are about to delete ALL items from: ${colors.yellow}${TABLE_NAME}${colors.reset}`, colors.red);
-    log(`Environment: ${colors.yellow}${ENVIRONMENT}${colors.reset}`, colors.red);
-    log(`This operation is ${colors.red}IRREVERSIBLE${colors.reset} and will destroy ALL data!`, colors.red);
-    
+    log(
+      `\n${colors.red}🚨 PRODUCTION DELETION WARNING 🚨${colors.reset}`,
+      colors.bright
+    );
+    log(
+      `You are about to delete ALL items from: ${colors.yellow}${TABLE_NAME}${colors.reset}`,
+      colors.red
+    );
+    log(
+      `Environment: ${colors.yellow}${ENVIRONMENT}${colors.reset}`,
+      colors.red
+    );
+    log(
+      `This operation is ${colors.red}IRREVERSIBLE${colors.reset} and will destroy ALL data!`,
+      colors.red
+    );
+
     if (CREATE_BACKUP) {
       log(`✅ Backup will be created before deletion`, colors.green);
     } else {
@@ -258,10 +276,10 @@ async function getProductionConfirmation() {
 // Count items by type for reporting
 function analyzeItems(items) {
   const types = {};
-  
-  items.forEach(item => {
-    const pk = item.PK || 'UNKNOWN';
-    const type = pk.split('#')[0] || 'UNKNOWN';
+
+  items.forEach((item) => {
+    const pk = item.PK || "UNKNOWN";
+    const type = pk.split("#")[0] || "UNKNOWN";
     types[type] = (types[type] || 0) + 1;
   });
 
@@ -272,7 +290,7 @@ function analyzeItems(items) {
 async function deleteItemsBatch(items) {
   if (items.length === 0) return { deleted: 0, failed: 0 };
 
-  const deleteRequests = items.map(item => ({
+  const deleteRequests = items.map((item) => ({
     DeleteRequest: {
       Key: {
         PK: item.PK,
@@ -297,11 +315,13 @@ async function deleteItemsBatch(items) {
     }
 
     try {
-      await docClient.send(new BatchWriteCommand({
-        RequestItems: {
-          [TABLE_NAME]: batch,
-        },
-      }));
+      await docClient.send(
+        new BatchWriteCommand({
+          RequestItems: {
+            [TABLE_NAME]: batch,
+          },
+        })
+      );
       deleted += batch.length;
       stats.batches++;
     } catch (error) {
@@ -315,8 +335,11 @@ async function deleteItemsBatch(items) {
 
 // Main deletion process
 async function deleteAllItems() {
-  log(`\n🔍 Scanning table: ${colors.yellow}${TABLE_NAME}${colors.reset}`, colors.blue);
-  
+  log(
+    `\n🔍 Scanning table: ${colors.yellow}${TABLE_NAME}${colors.reset}`,
+    colors.blue
+  );
+
   let lastEvaluatedKey = undefined;
   let totalProcessed = 0;
 
@@ -332,11 +355,11 @@ async function deleteAllItems() {
 
     try {
       const result = await docClient.send(new ScanCommand(scanParams));
-      
+
       if (result.Items && result.Items.length > 0) {
         const items = result.Items;
         stats.totalItems += items.length;
-        
+
         // Analyze items for reporting
         if (totalProcessed === 0) {
           const types = analyzeItems(items);
@@ -350,11 +373,13 @@ async function deleteAllItems() {
         const { deleted, failed } = await deleteItemsBatch(items);
         stats.deletedItems += deleted;
         stats.failedItems += failed;
-        
+
         totalProcessed += items.length;
-        
+
         const action = DRY_RUN ? "would delete" : "deleted";
-        process.stdout.write(`\r🗑️  ${action}: ${stats.deletedItems}/${stats.totalItems} items (${stats.batches} batches)`);
+        process.stdout.write(
+          `\r🗑️  ${action}: ${stats.deletedItems}/${stats.totalItems} items (${stats.batches} batches)`
+        );
       }
 
       lastEvaluatedKey = result.LastEvaluatedKey;
@@ -371,21 +396,27 @@ async function deleteAllItems() {
 function generateReport() {
   const duration = Math.round((Date.now() - stats.startTime) / 1000);
   const action = DRY_RUN ? "would be deleted" : "deleted";
-  
+
   log(`\n📈 Final Report:`, colors.bright);
   log(`   Environment: ${ENVIRONMENT}`, colors.blue);
   log(`   Table: ${TABLE_NAME}`, colors.blue);
-  log(`   Items ${action}: ${stats.deletedItems}`, stats.deletedItems > 0 ? colors.green : colors.yellow);
-  
+  log(
+    `   Items ${action}: ${stats.deletedItems}`,
+    stats.deletedItems > 0 ? colors.green : colors.yellow
+  );
+
   if (stats.failedItems > 0) {
     log(`   Failed deletions: ${stats.failedItems}`, colors.red);
   }
-  
+
   log(`   Batches processed: ${stats.batches}`, colors.blue);
   log(`   Duration: ${duration} seconds`, colors.blue);
-  
+
   if (DRY_RUN) {
-    log(`\n💡 This was a dry run. No items were actually deleted.`, colors.yellow);
+    log(
+      `\n💡 This was a dry run. No items were actually deleted.`,
+      colors.yellow
+    );
     log(`   Use --confirm to perform actual deletion.`, colors.yellow);
   } else if (stats.deletedItems > 0) {
     log(`\n✅ Deletion completed successfully!`, colors.green);
@@ -401,8 +432,12 @@ async function main() {
     log(`🚀 DynamoDB Items Deletion Script`, colors.bright);
     log(`   Environment: ${colors.yellow}${ENVIRONMENT}${colors.reset}`);
     log(`   Table: ${colors.yellow}${TABLE_NAME}${colors.reset}`);
-    log(`   Mode: ${DRY_RUN ? colors.green + 'DRY RUN' : colors.red + 'LIVE DELETION'}${colors.reset}`);
-    
+    log(
+      `   Mode: ${
+        DRY_RUN ? colors.green + "DRY RUN" : colors.red + "LIVE DELETION"
+      }${colors.reset}`
+    );
+
     if (CREATE_BACKUP && !DRY_RUN) {
       log(`   Backup: ${colors.green}Enabled${colors.reset}`);
     }
@@ -429,7 +464,6 @@ async function main() {
     if (backupFile) {
       log(`\n💾 Backup location: ${backupFile}`, colors.blue);
     }
-
   } catch (error) {
     log(`\n💥 Script failed with error: ${error.message}`, colors.red);
     console.error(error.stack);
@@ -438,14 +472,20 @@ async function main() {
 }
 
 // Handle graceful shutdown
-process.on('SIGINT', () => {
-  log(`\n\n⚠️  Script interrupted by user. Some items may have been deleted.`, colors.yellow);
+process.on("SIGINT", () => {
+  log(
+    `\n\n⚠️  Script interrupted by user. Some items may have been deleted.`,
+    colors.yellow
+  );
   generateReport();
   process.exit(1);
 });
 
-process.on('SIGTERM', () => {
-  log(`\n\n⚠️  Script terminated. Some items may have been deleted.`, colors.yellow);
+process.on("SIGTERM", () => {
+  log(
+    `\n\n⚠️  Script terminated. Some items may have been deleted.`,
+    colors.yellow
+  );
   generateReport();
   process.exit(1);
 });

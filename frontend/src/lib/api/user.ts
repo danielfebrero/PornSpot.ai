@@ -185,13 +185,10 @@ export const userApi = {
   uploadAvatar: async (
     filename: string,
     contentType: string
-  ): Promise<{
-    success: boolean;
-    data: { uploadUrl: string; avatarKey: string };
-  }> => {
+  ): Promise<{ uploadUrl: string; avatarKey: string }> => {
     const response = await ApiUtil.post<{
-      success: boolean;
-      data: { uploadUrl: string; avatarKey: string };
+      uploadUrl: string;
+      avatarKey: string;
     }>("/user/profile/avatar/upload", { filename, contentType });
     return ApiUtil.extractData(response);
   },
