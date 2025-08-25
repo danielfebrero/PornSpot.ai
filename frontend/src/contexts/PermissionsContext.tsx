@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  ReactNode,
+  useState,
+  useEffect,
+} from "react";
 import {
   UserPlan,
   PlanPermissions,
@@ -9,7 +15,10 @@ import {
 } from "@/types/permissions";
 import { User } from "@/types";
 import { getPlanPermissions } from "@/utils/permissions";
-import { useUsageStats } from "@/hooks/queries/useGenerationQuery";
+import {
+  useUsageStats,
+  useRefreshUsageStats,
+} from "@/hooks/queries/useGenerationQuery";
 
 /**
  * TEMPORARY: Until September 30, 2025, all users (including anonymous) get unlimited access to all features
@@ -69,20 +78,22 @@ export function PermissionsProvider({
   user,
 }: PermissionsProviderProps) {
   const [planPermissions, setPlanPermissions] =
-    React.useState<PlanPermissions | null>(null);
+    useState<PlanPermissions | null>(null);
 
   // Get real-time usage stats from API
   const { data: usageStats } = useUsageStats();
+  const refreshUsageStats = useRefreshUsageStats();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchPlanPermissions = async () => {
       const permissions = await getPlanPermissions(
-        user?.planInfo?.plan || "free"
+        user?.planInfo?.plan || "anonymous"
       );
       setPlanPermissions(permissions);
     };
     fetchPlanPermissions();
-  }, [user]);
+    refreshUsageStats();
+  }, [refreshUsageStats, user]);
 
   // Basic role permissions - in the future this should be loaded from API
   const rolePermissions: RolePermissions | null = user

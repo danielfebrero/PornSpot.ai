@@ -19,10 +19,7 @@ import { GradientTextarea } from "@/components/ui/GradientTextarea";
 import { MagicText, MagicTextHandle } from "@/components/ui/MagicText";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { useGenerationContext } from "@/contexts/GenerationContext";
-import {
-  useDecrementUsageStats,
-  useRefreshUsageStats,
-} from "@/hooks/queries/useGenerationQuery";
+import { useDecrementUsageStats } from "@/hooks/queries/useGenerationQuery";
 import {
   ImageIcon,
   Crown,
@@ -44,7 +41,6 @@ export function GenerateClient() {
   const magicTextRef = useRef<MagicTextHandle>(null);
   const { fetchConnectionId, isConnected } = useWebSocket();
   const t = useTranslations("generate");
-  const refreshUsageStats = useRefreshUsageStats();
 
   // Image sizes with translations
   const IMAGE_SIZES = [
@@ -351,10 +347,6 @@ export function GenerateClient() {
     if (!isConnected) return;
     fetchConnectionId();
   }, [fetchConnectionId, isConnected]);
-
-  useEffect(() => {
-    refreshUsageStats();
-  }, [refreshUsageStats]);
 
   return (
     <div
