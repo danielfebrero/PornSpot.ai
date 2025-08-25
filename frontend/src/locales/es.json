@@ -180,7 +180,12 @@
       "codePlaceholder": "Ingresa el código",
       "verify": "Verificar",
       "invalidCode": "Código de verificación inválido.",
-      "resendFailed": "Error al reenviar el email de verificación."
+      "resendFailed": "Error al reenviar el email de verificación.",
+      "emailVerificationRequired": "Verificación de email requerida",
+      "verificationMessage": "Por favor verifica tu dirección de email para acceder a todas las funciones. Enviamos un enlace de verificación a",
+      "emailSentSuccess": "✓ Email de verificación enviado exitosamente! Por favor revisa tu bandeja de entrada.",
+      "dismiss": "Descartar",
+      "troubleshootMessage": "¿No ves el email? Revisa tu carpeta de spam o intenta de nuevo en unos minutos."
     },
     "oauth": {
       "continueWith": "Continuar con",

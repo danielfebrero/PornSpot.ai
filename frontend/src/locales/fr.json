@@ -181,7 +181,12 @@
       "codePlaceholder": "Entrez le code",
       "verify": "Vérifier",
       "invalidCode": "Code de vérification invalide.",
-      "resendFailed": "Échec de l'envoi de l'email de vérification."
+      "resendFailed": "Échec de l'envoi de l'email de vérification.",
+      "emailVerificationRequired": "Vérification d'email requise",
+      "verificationMessage": "Veuillez vérifier votre adresse email pour accéder à toutes les fonctionnalités. Nous avons envoyé un lien de vérification à",
+      "emailSentSuccess": "✓ Email de vérification envoyé avec succès ! Veuillez vérifier votre boîte de réception.",
+      "dismiss": "Ignorer",
+      "troubleshootMessage": "Vous ne voyez pas l'email ? Vérifiez votre dossier spam ou réessayez dans quelques minutes."
     },
     "oauth": {
       "continueWith": "Continuer avec",

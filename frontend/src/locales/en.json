@@ -181,7 +181,12 @@
       "codePlaceholder": "Enter the code",
       "verify": "Verify",
       "invalidCode": "Invalid verification code.",
-      "resendFailed": "Failed to resend verification email."
+      "resendFailed": "Failed to resend verification email.",
+      "emailVerificationRequired": "Email Verification Required",
+      "verificationMessage": "Please verify your email address to access all features. We sent a verification link to",
+      "emailSentSuccess": "✓ Verification email sent successfully! Please check your inbox.",
+      "dismiss": "Dismiss",
+      "troubleshootMessage": "Don't see the email? Check your spam folder or try again in a few minutes."
     },
     "oauth": {
       "continueWith": "Continue with",

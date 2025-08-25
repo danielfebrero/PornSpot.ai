@@ -180,7 +180,12 @@
       "codePlaceholder": "输入验证码",
       "verify": "验证",
       "invalidCode": "无效的验证码。",
-      "resendFailed": "重新发送验证邮件失败。"
+      "resendFailed": "重新发送验证邮件失败。",
+      "emailVerificationRequired": "需要邮箱验证",
+      "verificationMessage": "请验证您的邮箱地址以访问所有功能。我们已向以下地址发送验证链接",
+      "emailSentSuccess": "✓ 验证邮件发送成功！请检查您的收件箱。",
+      "dismiss": "忽略",
+      "troubleshootMessage": "没看到邮件？请检查垃圾邮件文件夹或几分钟后重试。"
     },
     "oauth": {
       "continueWith": "继续使用",

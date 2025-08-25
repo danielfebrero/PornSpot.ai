@@ -180,7 +180,12 @@
       "codePlaceholder": "Code eingeben",
       "verify": "Verifizieren",
       "invalidCode": "Ungültiger Bestätigungscode.",
-      "resendFailed": "Fehler beim erneuten Senden der Bestätigungs-E-Mail."
+      "resendFailed": "Fehler beim erneuten Senden der Bestätigungs-E-Mail.",
+      "emailVerificationRequired": "E-Mail-Verifizierung erforderlich",
+      "verificationMessage": "Bitte verifizieren Sie Ihre E-Mail-Adresse, um auf alle Funktionen zugreifen zu können. Wir haben einen Bestätigungslink gesendet an",
+      "emailSentSuccess": "✓ Bestätigungs-E-Mail erfolgreich gesendet! Bitte überprüfen Sie Ihren Posteingang.",
+      "dismiss": "Verwerfen",
+      "troubleshootMessage": "E-Mail nicht erhalten? Überprüfen Sie Ihren Spam-Ordner oder versuchen Sie es in ein paar Minuten erneut."
     },
     "oauth": {
       "continueWith": "Fortfahren mit",
