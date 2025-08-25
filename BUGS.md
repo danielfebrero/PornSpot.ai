@@ -87,3 +87,5 @@
 [ ] On settings page, in quotas section, the monthly usage indicate it's based on billing cycle but currently it's based on 1-30 cycle - use billing cycle instead.
 
 [x] On generate page, when I navigate, it add again last images to recent images.
+
+[ ] In lightbox, I do not see the like and bookmark icons.

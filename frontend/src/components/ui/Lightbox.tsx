@@ -412,7 +412,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                     onDelete={() => {
                       onDelete!(currentMedia.id);
                     }}
-                    showCounts={false}
+                    showCounts={true}
                     disableHoverEffects={true}
                     preferredThumbnailSize="originalSize"
                     useAllAvailableSpace={true}
