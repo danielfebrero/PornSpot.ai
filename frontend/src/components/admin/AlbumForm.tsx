@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TagManager } from "@/components/ui/TagManager";
 import { CoverImageSelector } from "@/components/admin/CoverImageSelector";
+import { useTranslations } from "next-intl";
 
 interface AlbumFormData {
   title: string;
@@ -40,24 +41,25 @@ export function AlbumForm({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const t = useTranslations("admin.albumForm");
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.title.trim()) {
-      newErrors["title"] = "Title is required";
+      newErrors["title"] = t("validation.titleRequired");
     } else if (formData.title.trim().length < 2) {
-      newErrors["title"] = "Title must be at least 2 characters";
+      newErrors["title"] = t("validation.titleMinLength");
     } else if (formData.title.trim().length > 100) {
-      newErrors["title"] = "Title must be less than 100 characters";
+      newErrors["title"] = t("validation.titleMaxLength");
     }
 
     if (formData.tags && formData.tags.length > 20) {
-      newErrors["tags"] = "Maximum 20 tags allowed";
+      newErrors["tags"] = t("validation.maxTags");
     }
 
     if (formData.tags && formData.tags.some((tag) => tag.length > 50)) {
-      newErrors["tags"] = "Each tag must be less than 50 characters";
+      newErrors["tags"] = t("validation.tagMaxLength");
     }
 
     setErrors(newErrors);
@@ -118,14 +120,14 @@ export function AlbumForm({
               htmlFor="title"
               className="block text-sm font-semibold text-foreground mb-2"
             >
-              Album Title *
+              {t("albumTitle")} *
             </label>
             <Input
               id="title"
               type="text"
               value={formData.title}
               onChange={(e) => handleInputChange("title", e.target.value)}
-              placeholder="Enter a compelling album title"
+              placeholder={t("titlePlaceholder")}
               className={
                 errors["title"]
                   ? "border-destructive focus:border-destructive focus:ring-destructive"
@@ -154,9 +156,9 @@ export function AlbumForm({
           <TagManager
             tags={formData.tags || []}
             onTagsChange={(newTags) => handleInputChange("tags", newTags)}
-            label="Tags"
-            placeholder="Add descriptive tags"
-            helpText="Help users discover your album with relevant tags"
+            label={t("tags")}
+            placeholder={t("tagsPlaceholder")}
+            helpText={t("tagsHelpText")}
             maxTags={20}
             maxTagLength={50}
             showCounter={true}
@@ -187,11 +189,10 @@ export function AlbumForm({
                   htmlFor="isPublic"
                   className="block text-sm font-medium text-foreground cursor-pointer"
                 >
-                  Make this album public
+                  {t("makePublic")}
                 </label>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Public albums are visible to all visitors. Private albums are
-                  only accessible to you.
+                  {t("publicDescription")}
                 </p>
               </div>
             </div>
@@ -221,7 +222,7 @@ export function AlbumForm({
           disabled={loading}
           className="px-6"
         >
-          Cancel
+          {t("cancel")}
         </Button>
         <Button
           type="submit"
@@ -249,7 +250,7 @@ export function AlbumForm({
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              Saving...
+              {t("saving")}
             </div>
           ) : (
             submitText

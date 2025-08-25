@@ -272,7 +272,19 @@
         "description": "认证成功"
       },
       "loading": "加载中...",
-      "processingAuth": "请稍候，我们正在完成您的身份验证。"
+      "processingAuth": "请稍候，我们正在完成您的身份验证。",
+      "welcomeNew": "🎉 欢迎来到 PornSpot.ai！",
+      "welcomeBack": "🎉 欢迎回来！",
+      "accountCreated": "您的账户已成功创建，现在您已登录。",
+      "signedInSuccess": "您已成功登录到您的账户。",
+      "gettingStarted": "开始使用",
+      "exploreDescription": "探索AI生成的内容，创建您自己的相册，发现PornSpot.ai所提供的一切！",
+      "exploreButton": "探索 PornSpot.ai",
+      "completeProfile": "完善您的个人资料",
+      "autoRedirect": "将在",
+      "second": "秒后",
+      "seconds": "秒后",
+      "goNow": "立即前往"
     },
     "verifyEmail": {
       "meta": {
@@ -440,6 +452,24 @@
       "createBeautifulPhotoAlbum": "创建一个美丽的相册来展示您的艺术作品",
       "createAlbum": "创建相册",
       "failedToCreateAlbum": "创建相册失败"
+    },
+    "albumForm": {
+      "albumTitle": "相册标题",
+      "titlePlaceholder": "输入一个引人注目的相册标题",
+      "tags": "标签",
+      "tagsPlaceholder": "添加描述性标签",
+      "tagsHelpText": "帮助用户通过相关标签发现您的相册",
+      "makePublic": "将此相册设为公开",
+      "publicDescription": "公开相册对所有访客可见。私有相册只有您可以访问。",
+      "cancel": "取消",
+      "saving": "保存中...",
+      "validation": {
+        "titleRequired": "标题是必填项",
+        "titleMinLength": "标题必须至少包含2个字符",
+        "titleMaxLength": "标题必须少于100个字符",
+        "maxTags": "最多允许20个标签",
+        "tagMaxLength": "每个标签必须少于50个字符"
+      }
     },
     "fileUpload": {
       "selectFiles": "选择文件",

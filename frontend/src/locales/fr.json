@@ -273,7 +273,19 @@
         "description": "Authentification réussie"
       },
       "loading": "Chargement...",
-      "processingAuth": "Veuillez patienter pendant que nous finalisons votre authentification."
+      "processingAuth": "Veuillez patienter pendant que nous finalisons votre authentification.",
+      "welcomeNew": "🎉 Bienvenue sur PornSpot.ai !",
+      "welcomeBack": "🎉 Bon retour !",
+      "accountCreated": "Votre compte a été créé avec succès et vous êtes maintenant connecté.",
+      "signedInSuccess": "Vous vous êtes connecté avec succès à votre compte.",
+      "gettingStarted": "Commencer",
+      "exploreDescription": "Explorez le contenu généré par IA, créez vos propres albums et découvrez ce que PornSpot.ai a à offrir !",
+      "exploreButton": "Explorer PornSpot.ai",
+      "completeProfile": "Compléter votre profil",
+      "autoRedirect": "Redirection automatique vers découvrir dans",
+      "second": "seconde",
+      "seconds": "secondes",
+      "goNow": "Y aller maintenant"
     },
     "forgotPassword": {
       "meta": {
@@ -468,6 +480,24 @@
       "deleteAlbumConfirmTitle": "Supprimer l'album",
       "deleteAlbumConfirmMessage": "Êtes-vous sûr de vouloir supprimer \"{albumTitle}\" ? Cette action ne peut pas être annulée et supprimera également tous les médias de cet album.",
       "delete": "Supprimer"
+    },
+    "albumForm": {
+      "albumTitle": "Titre de l'album",
+      "titlePlaceholder": "Entrez un titre d'album convaincant",
+      "tags": "Étiquettes",
+      "tagsPlaceholder": "Ajouter des étiquettes descriptives",
+      "tagsHelpText": "Aidez les utilisateurs à découvrir votre album avec des étiquettes pertinentes",
+      "makePublic": "Rendre cet album public",
+      "publicDescription": "Les albums publics sont visibles par tous les visiteurs. Les albums privés ne sont accessibles qu'à vous.",
+      "cancel": "Annuler",
+      "saving": "Enregistrement...",
+      "validation": {
+        "titleRequired": "Le titre est requis",
+        "titleMinLength": "Le titre doit comporter au moins 2 caractères",
+        "titleMaxLength": "Le titre doit comporter moins de 100 caractères",
+        "maxTags": "Maximum 20 étiquettes autorisées",
+        "tagMaxLength": "Chaque étiquette doit comporter moins de 50 caractères"
+      }
     },
     "fileUpload": {
       "selectFiles": "Sélectionner les fichiers",

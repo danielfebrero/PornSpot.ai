@@ -272,7 +272,19 @@
         "description": "Authentifizierung erfolgreich"
       },
       "loading": "Wird geladen...",
-      "processingAuth": "Bitte warten Sie, während wir Ihre Authentifizierung abschließen."
+      "processingAuth": "Bitte warten Sie, während wir Ihre Authentifizierung abschließen.",
+      "welcomeNew": "🎉 Willkommen bei PornSpot.ai!",
+      "welcomeBack": "🎉 Willkommen zurück!",
+      "accountCreated": "Ihr Konto wurde erfolgreich erstellt und Sie sind jetzt angemeldet.",
+      "signedInSuccess": "Sie haben sich erfolgreich in Ihr Konto eingeloggt.",
+      "gettingStarted": "Erste Schritte",
+      "exploreDescription": "Entdecken Sie KI-generierten Inhalte, erstellen Sie Ihre eigenen Alben und entdecken Sie, was PornSpot.ai zu bieten hat!",
+      "exploreButton": "PornSpot.ai erkunden",
+      "completeProfile": "Profil vervollständigen",
+      "autoRedirect": "Automatische Weiterleitung zur Entdeckungsseite in",
+      "second": "Sekunde",
+      "seconds": "Sekunden",
+      "goNow": "Jetzt gehen"
     },
     "verifyEmail": {
       "meta": {
@@ -438,6 +450,24 @@
       "deleteAlbumConfirmTitle": "Album löschen",
       "deleteAlbumConfirmMessage": "Sind Sie sicher, dass Sie \"{albumTitle}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden und löscht auch alle Medien in diesem Album.",
       "delete": "Löschen"
+    },
+    "albumForm": {
+      "albumTitle": "Album-Titel",
+      "titlePlaceholder": "Geben Sie einen überzeugenden Album-Titel ein",
+      "tags": "Tags",
+      "tagsPlaceholder": "Beschreibende Tags hinzufügen",
+      "tagsHelpText": "Helfen Sie Benutzern, Ihr Album mit relevanten Tags zu entdecken",
+      "makePublic": "Dieses Album öffentlich machen",
+      "publicDescription": "Öffentliche Alben sind für alle Besucher sichtbar. Private Alben sind nur für Sie zugänglich.",
+      "cancel": "Abbrechen",
+      "saving": "Speichern...",
+      "validation": {
+        "titleRequired": "Titel ist erforderlich",
+        "titleMinLength": "Titel muss mindestens 2 Zeichen lang sein",
+        "titleMaxLength": "Titel muss weniger als 100 Zeichen lang sein",
+        "maxTags": "Maximal 20 Tags erlaubt",
+        "tagMaxLength": "Jeder Tag muss weniger als 50 Zeichen lang sein"
+      }
     },
     "fileUpload": {
       "selectFiles": "Dateien auswählen",

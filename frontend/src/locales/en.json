@@ -273,7 +273,19 @@
         "description": "Authentication successful"
       },
       "loading": "Loading...",
-      "processingAuth": "Please wait while we complete your authentication."
+      "processingAuth": "Please wait while we complete your authentication.",
+      "welcomeNew": "🎉 Welcome to PornSpot.ai!",
+      "welcomeBack": "🎉 Welcome back!",
+      "accountCreated": "Your account has been successfully created and you're now signed in.",
+      "signedInSuccess": "You have successfully signed in to your account.",
+      "gettingStarted": "Getting Started",
+      "exploreDescription": "Explore AI-generated content, create your own albums, and discover what PornSpot.ai has to offer!",
+      "exploreButton": "Explore PornSpot.ai",
+      "completeProfile": "Complete Your Profile",
+      "autoRedirect": "Automatically redirecting to discover in",
+      "second": "second",
+      "seconds": "seconds",
+      "goNow": "Go now"
     },
     "forgotPassword": {
       "meta": {
@@ -468,6 +480,24 @@
       "deleteAlbumConfirmTitle": "Delete Album",
       "deleteAlbumConfirmMessage": "Are you sure you want to delete \"{albumTitle}\"? This action cannot be undone and will also delete all media in this album.",
       "delete": "Delete"
+    },
+    "albumForm": {
+      "albumTitle": "Album Title",
+      "titlePlaceholder": "Enter a compelling album title",
+      "tags": "Tags",
+      "tagsPlaceholder": "Add descriptive tags",
+      "tagsHelpText": "Help users discover your album with relevant tags",
+      "makePublic": "Make this album public",
+      "publicDescription": "Public albums are visible to all visitors. Private albums are only accessible to you.",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "validation": {
+        "titleRequired": "Title is required",
+        "titleMinLength": "Title must be at least 2 characters",
+        "titleMaxLength": "Title must be less than 100 characters",
+        "maxTags": "Maximum 20 tags allowed",
+        "tagMaxLength": "Each tag must be less than 50 characters"
+      }
     },
     "fileUpload": {
       "selectFiles": "Select Files",
