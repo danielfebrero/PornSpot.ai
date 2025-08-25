@@ -62,6 +62,7 @@
     "maximize": "Agrandir",
     "failedToUpdate": "Échec de la mise à jour",
     "filteredBy": "Filtré par",
+    "noMoreMediaToLoad": "Plus de médias à charger",
     "errors": {
       "loadingAlbums": "Erreur lors du chargement des albums",
       "refreshPage": "Veuillez actualiser la page",
@@ -526,15 +527,15 @@
   },
   "site": {
     "name": "PornSpot.ai",
-    "title": "PornSpot.ai - Images et vidéos pornographiques générées par IA",
-    "description": "Découvrez et créez du contenu adulte généré par IA. Générez des images et vidéos personnalisées avec des prompts, sélections LoRA, et plus.",
+    "title": "PornSpot.ai - Images pornographiques générées par IA",
+    "description": "Découvrez et créez du contenu adulte généré par IA. Générez des images personnalisées avec des prompts, sélections LoRA, et plus.",
     "tagline": "Contenu généré par IA",
     "meta": {
       "title": "PornSpot.ai - Découvrez du porno généré par IA",
-      "description": "Parcourez et générez des images et vidéos porno alimentées par IA. Gratuit pour commencer, avec des plans premium pour une création illimitée. Explorez le contenu adulte généré par IA : images, vidéos, et plus."
+      "description": "Parcourez et générez des images porno alimentées par IA. Gratuit pour commencer, avec des plans premium pour une création illimitée. Explorez le contenu adulte généré par IA : images et plus."
     },
     "welcomeTitle": "Bienvenue sur PornSpot.ai - Contenu adulte généré par IA",
-    "welcomeDescription": "Explorez et créez du contenu adulte généré par IA : images, vidéos, et plus.",
+    "welcomeDescription": "Explorez et créez du contenu adulte généré par IA : images et plus.",
     "welcome": "Bienvenue sur PornSpot.ai",
     "subtitle": "Créez du contenu adulte époustouflant généré par IA",
     "getStarted": "Commencer",
@@ -550,7 +551,6 @@
       "aiPorn": "porno IA",
       "aiGeneratedContent": "contenu généré par IA",
       "adultContent": "contenu adulte",
-      "aiVideos": "vidéos IA",
       "aiImages": "images IA",
       "generatedPorn": "porno généré"
     }

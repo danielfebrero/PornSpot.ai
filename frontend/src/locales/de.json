@@ -62,6 +62,7 @@
     "maximize": "Maximieren",
     "failedToUpdate": "Aktualisierung fehlgeschlagen",
     "filteredBy": "Gefiltert nach",
+    "noMoreMediaToLoad": "Keine weiteren Medien zu laden",
     "errors": {
       "loadingAlbums": "Fehler beim Laden der Alben",
       "refreshPage": "Bitte aktualisieren Sie die Seite",
@@ -496,15 +497,15 @@
   },
   "site": {
     "name": "PornSpot.ai",
-    "title": "PornSpot.ai - KI-generierte pornografische Bilder und Videos",
-    "description": "Entdecken und erstellen Sie KI-generierte Erwachseneninhalte. Generieren Sie benutzerdefinierte Bilder und Videos mit Prompts, LoRA-Auswahlen und mehr.",
+    "title": "PornSpot.ai - KI-generierte pornografische Bilder",
+    "description": "Entdecken und erstellen Sie KI-generierte Erwachseneninhalte. Generieren Sie benutzerdefinierte Bilder mit Prompts, LoRA-Auswahlen und mehr.",
     "tagline": "KI-generierte Inhalte",
     "meta": {
       "title": "PornSpot.ai - Entdecken Sie KI-generierte Pornos",
-      "description": "Durchsuchen und generieren Sie KI-gestützte Pornobilder und -videos. Kostenlos zum Starten, mit Premium-Plänen für unbegrenzte Erstellung. Erkunden Sie KI-generierte Erwachseneninhalte: Bilder, Videos und mehr."
+      "description": "Durchsuchen und generieren Sie KI-gestützte Pornobilder. Kostenlos zum Starten, mit Premium-Plänen für unbegrenzte Erstellung. Erkunden Sie KI-generierte Erwachseneninhalte: Bilder und mehr."
     },
     "welcomeTitle": "Willkommen bei PornSpot.ai - KI-generierte Erwachseneninhalte",
-    "welcomeDescription": "Erkunden und erstellen Sie KI-generierte Erwachseneninhalte: Bilder, Videos und mehr.",
+    "welcomeDescription": "Erkunden und erstellen Sie KI-generierte Erwachseneninhalte: Bilder und mehr.",
     "welcome": "Willkommen bei PornSpot.ai",
     "subtitle": "Erstellen Sie atemberaubende KI-generierte Erwachseneninhalte",
     "getStarted": "Loslegen",
@@ -520,7 +521,6 @@
       "aiPorn": "KI-Pornos",
       "aiGeneratedContent": "KI-generierte Inhalte",
       "adultContent": "Erwachseneninhalte",
-      "aiVideos": "KI-Videos",
       "aiImages": "KI-Bilder",
       "generatedPorn": "generierte Pornos"
     }

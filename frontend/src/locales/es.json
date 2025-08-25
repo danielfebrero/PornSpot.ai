@@ -62,6 +62,7 @@
     "maximize": "Maximizar",
     "failedToUpdate": "Error al actualizar",
     "filteredBy": "Filtrado por",
+    "noMoreMediaToLoad": "No hay más medios para cargar",
     "errors": {
       "loadingAlbums": "Error cargando álbumes",
       "refreshPage": "Por favor actualiza la página",
@@ -496,15 +497,15 @@
   },
   "site": {
     "name": "PornSpot.ai",
-    "title": "PornSpot.ai - Imágenes y videos pornográficos generados por IA",
-    "description": "Descubre y crea contenido adulto generado por IA. Genera imágenes y videos personalizados con prompts, selecciones LoRA, y más.",
+    "title": "PornSpot.ai - Imágenes pornográficas generadas por IA",
+    "description": "Descubre y crea contenido adulto generado por IA. Genera imágenes personalizadas con prompts, selecciones LoRA, y más.",
     "tagline": "Contenido generado por IA",
     "meta": {
       "title": "PornSpot.ai - Descubre porno generado por IA",
-      "description": "Navega y genera imágenes y videos porno impulsados por IA. Gratis para empezar, con planes premium para creación ilimitada. Explora contenido adulto generado por IA: imágenes, videos, y más."
+      "description": "Navega y genera imágenes porno impulsadas por IA. Gratis para empezar, con planes premium para creación ilimitada. Explora contenido adulto generado por IA: imágenes y más."
     },
     "welcomeTitle": "Bienvenido a PornSpot.ai - Contenido adulto generado por IA",
-    "welcomeDescription": "Explora y crea contenido adulto generado por IA: imágenes, videos, y más.",
+    "welcomeDescription": "Explora y crea contenido adulto generado por IA: imágenes y más.",
     "welcome": "Bienvenido a PornSpot.ai",
     "subtitle": "Crea contenido adulto impresionante generado por IA",
     "getStarted": "Comenzar",
@@ -520,7 +521,6 @@
       "aiPorn": "porno IA",
       "aiGeneratedContent": "contenido generado por IA",
       "adultContent": "contenido adulto",
-      "aiVideos": "videos IA",
       "aiImages": "imágenes IA",
       "generatedPorn": "porno generado"
     }

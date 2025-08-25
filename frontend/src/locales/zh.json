@@ -62,6 +62,7 @@
     "maximize": "最大化",
     "failedToUpdate": "更新失败",
     "filteredBy": "筛选条件",
+    "noMoreMediaToLoad": "没有更多媒体可加载",
     "errors": {
       "loadingAlbums": "加载相册时出错",
       "refreshPage": "请刷新页面",
@@ -496,15 +497,15 @@
   },
   "site": {
     "name": "PornSpot.ai",
-    "title": "PornSpot.ai - AI生成的色情图片和视频",
-    "description": "发现并创建AI生成的成人内容。使用提示词、LoRA选择等生成自定义图片和视频。",
+    "title": "PornSpot.ai - AI生成的色情图片",
+    "description": "发现并创建AI生成的成人内容。使用提示词、LoRA选择等生成自定义图片。",
     "tagline": "AI生成内容",
     "meta": {
       "title": "PornSpot.ai - 发现AI生成的色情内容",
-      "description": "浏览和生成AI驱动的色情图片和视频。免费开始，提供高级套餐以无限制创作。探索AI生成的成人内容：图片、视频等。"
+      "description": "浏览和生成AI驱动的色情图片。免费开始，提供高级套餐以无限制创作。探索AI生成的成人内容：图片等。"
     },
     "welcomeTitle": "欢迎来到PornSpot.ai - AI生成的成人内容",
-    "welcomeDescription": "探索和创建AI生成的成人内容：图片、视频等。",
+    "welcomeDescription": "探索和创建AI生成的成人内容：图片等。",
     "welcome": "欢迎来到PornSpot.ai",
     "subtitle": "创建令人惊艳的AI生成成人内容",
     "getStarted": "开始使用",
@@ -520,7 +521,6 @@
       "aiPorn": "AI色情",
       "aiGeneratedContent": "AI生成内容",
       "adultContent": "成人内容",
-      "aiVideos": "AI视频",
       "aiImages": "AI图像",
       "generatedPorn": "生成色情"
     }

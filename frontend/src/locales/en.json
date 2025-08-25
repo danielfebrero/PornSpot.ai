@@ -62,6 +62,7 @@
     "maximize": "Maximize",
     "failedToUpdate": "Failed to update",
     "filteredBy": "Filtered by",
+    "noMoreMediaToLoad": "No more media to load",
     "errors": {
       "loadingAlbums": "Error loading albums",
       "refreshPage": "Please try refreshing the page",
@@ -526,15 +527,15 @@
   },
   "site": {
     "name": "PornSpot.ai",
-    "title": "PornSpot.ai - AI-Generated Pornographic Images and Videos",
-    "description": "Discover and create AI-generated adult content. Generate custom images and videos with prompts, LoRA selections, and more.",
+    "title": "PornSpot.ai - AI-Generated Pornographic Images",
+    "description": "Discover and create AI-generated adult content. Generate custom images with prompts, LoRA selections, and more.",
     "tagline": "AI-Generated Content",
     "meta": {
       "title": "PornSpot.ai - Discover AI Generated Porn",
-      "description": "Browse and generate AI-powered porn images and videos. Free to start, with premium plans for unlimited creation. Explore AI-generated adult content: images, videos, and more."
+      "description": "Browse and generate AI-powered porn images. Free to start, with premium plans for unlimited creation. Explore AI-generated adult content: images and more."
     },
     "welcomeTitle": "Welcome to PornSpot.ai - AI Generated Adult Content",
-    "welcomeDescription": "Explore and create AI-generated adult content: images, videos, and more.",
+    "welcomeDescription": "Explore and create AI-generated adult content: images and more.",
     "welcome": "Welcome to PornSpot.ai",
     "subtitle": "Create stunning AI-generated adult content",
     "getStarted": "Get Started",
@@ -550,7 +551,6 @@
       "aiPorn": "AI porn",
       "aiGeneratedContent": "AI generated content",
       "adultContent": "adult content",
-      "aiVideos": "AI videos",
       "aiImages": "AI images",
       "generatedPorn": "generated porn"
     }

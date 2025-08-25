@@ -55,7 +55,6 @@ export async function generateOpenGraphMetadata(
     t("keywords.aiPorn"),
     t("keywords.aiGeneratedContent"),
     t("keywords.adultContent"),
-    t("keywords.aiVideos"),
     t("keywords.aiImages"),
     t("keywords.generatedPorn"),
   ];
