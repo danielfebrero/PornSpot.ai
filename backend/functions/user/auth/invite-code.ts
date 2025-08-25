@@ -3,7 +3,12 @@ import { ResponseUtil } from "@shared/utils/response";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 
 // Valid invitation codes for private beta
-const VALID_INVITATION_CODES = ["REDDIT420", "DISCORD69", "FRIENDS123"];
+const VALID_INVITATION_CODES = [
+  "REDDIT420",
+  "DISCORD69",
+  "FRIENDS123",
+  "HN777",
+];
 
 interface InvitationCodeRequest {
   code: string;
