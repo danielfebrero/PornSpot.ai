@@ -671,6 +671,7 @@ class GenerationService {
       cfgScale = CONFIG.VALIDATION_LIMITS.cfgScale.default,
       steps = CONFIG.VALIDATION_LIMITS.steps.default,
       seed = CONFIG.VALIDATION_LIMITS.seed.default,
+      isPublic = true,
     } = requestBody;
 
     const dimensions = this.calculateImageDimensions(
@@ -704,6 +705,7 @@ class GenerationService {
       prompt: finalPrompt,
       negativePrompt: negativePrompt?.trim(),
       seed: seed,
+      isPublic,
     };
   }
 
