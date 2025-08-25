@@ -249,7 +249,8 @@ export function VirtualizedGrid<T extends GridItem>({
                 customActions={resolvedCustomActions}
                 mediaList={
                   dynamicType === "media"
-                    ? mediaList || (items as Media[])
+                    ? mediaList ||
+                      (items.filter((item) => item.type === "media") as Media[])
                     : undefined
                 }
                 currentIndex={row.startIndex}
@@ -289,7 +290,10 @@ export function VirtualizedGrid<T extends GridItem>({
                   customActions={resolvedCustomActions}
                   mediaList={
                     dynamicType === "media"
-                      ? mediaList || (items as Media[])
+                      ? mediaList ||
+                        (items.filter(
+                          (item) => item.type === "media"
+                        ) as Media[])
                       : undefined
                   }
                   currentIndex={row.startIndex + itemIndex}

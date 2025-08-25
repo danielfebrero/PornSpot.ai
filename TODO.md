@@ -87,3 +87,7 @@
 [ ] Boost my media feature to appear on the Discover page.
 
 [ ] Feature to change media/album privacy after generation.
+
+[ ] Be able to change images titles.
+
+[ ] Remove usage stats from Admin default page. Dedicate a page to analytics.
