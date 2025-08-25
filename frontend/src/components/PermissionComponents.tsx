@@ -179,7 +179,9 @@ export function FeatureAvailability({ feature }: { feature: string }) {
       </span>
       {!available && (
         <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">
-          {plan === "free" ? t("paidPlan") : t("proPlan")}
+          {plan === "free" || plan === "anonymous"
+            ? t("paidPlan")
+            : t("proPlan")}
         </span>
       )}
     </div>

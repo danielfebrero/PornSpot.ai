@@ -29,6 +29,10 @@ export function PermissionsWrapper({ children }: PermissionsWrapperProps) {
       return;
     }
 
+    if (!user) {
+      return;
+    }
+
     // Only process if user has actually changed (prevent unnecessary re-processing)
     const currentUserId = user?.userId || null;
     if (currentUserId === lastProcessedUserId && userWithPermissions !== null) {
