@@ -170,81 +170,81 @@
         "loadingMore": "Загрузка дополнительных медиа...",
         "noMore": "Больше медиа для загрузки нет"
       }
-    },
-    "ui": {
-      "virtualizedGrid": {
-        "noContentFound": "Контент не найден",
-        "noContentToDisplay": "Нет контента для отображения.",
-        "errorLoading": "Ошибка загрузки",
-        "tryAgain": "Попробовать снова",
-        "loadingMoreContent": "Загрузка дополнительного контента...",
-        "noMoreContentToLoad": "Больше нет контента для загрузки"
-      },
-      "generationProgressCard": {
-        "generationFailed": "Генерация не удалась",
-        "pleaseTryAgain": "Пожалуйста, попробуйте снова",
-        "queuedForGeneration": "В очереди на генерацию",
-        "waitingToStart": "Ожидание запуска",
-        "retryingGeneration": "Повторная попытка генерации",
-        "attemptWithAI": "Попытка {retryCount}/{maxRetries} - ИИ работает...",
-        "generationComplete": "Генерация завершена",
-        "yourImageIsReady": "Ваше изображение готово",
-        "creatingYourMasterpiece": "Создание вашего шедевра",
-        "aiIsWorkingItsMagic": "ИИ творит чудеса...",
-        "readyToGenerate": "Готов к генерации",
-        "startWhenYouReReady": "Начните, когда будете готовы",
-        "failed": "Неудача",
-        "processing": "Обработка",
-        "waiting": "Ожидание",
-        "generationStoppedDueToError": "Генерация остановлена из-за ошибки",
-        "waitingInQueueToStart": "Ожидание в очереди для запуска...",
-        "allNodesCompletedSuccessfully": "Все узлы завершены успешно",
-        "readyToBeginProcessing": "Готов к началу обработки",
-        "workflowProgress": "Прогресс рабочего процесса",
-        "step": "Шаг",
-        "of": "из",
-        "initializing": "Инициализация..."
-      },
-      "lightbox": {
-        "close": "Закрыть",
-        "previousMedia": "Предыдущий медиа",
-        "nextMedia": "Следующий медиа",
-        "swipeToNavigate": "Проведите для навигации"
-      },
-      "virtualizedCommentsList": {
-        "noCommentsYet": "Пока нет комментариев",
-        "userHasntMadeComments": "Этот пользователь еще не делал комментариев. Заходите позже!",
-        "errorLoading": "Ошибка загрузки",
-        "tryAgain": "Попробовать снова",
-        "loadingMoreComments": "Загрузка дополнительных комментариев...",
-        "noMoreCommentsToLoad": "Больше нет комментариев для загрузки"
-      }
-    },
-    "permissionComponents": {
-      "upgradeRequired": "Требуется обновление",
-      "featureRequiresUpgrade": "Эта функция требует план {planType}. Вы сейчас на {currentPlan}.",
-      "proPlan": "Pro",
-      "higherPlan": "более высокий",
-      "upgradePlan": "Обновить план",
-      "yourPlan": "Ваш план: {planName}",
-      "upgrade": "Обновить",
-      "imagesThisMonth": "Изображения в этом месяце",
-      "unlimited": "неограниченно",
-      "remaining": "осталось",
-      "imagesToday": "Изображения сегодня",
-      "features": {
-        "bulk-generation": "Массовая генерация",
-        "lora-models": "Модели LoRA",
-        "negative-prompt": "Негативный промпт",
-        "private-content": "Приватный контент"
-      },
-      "paidPlan": "Платный план",
-      "generationLimitReached": "Лимит генерации достигнут",
-      "reachedGenerationLimit": "Вы достигли лимита генерации на сегодня.",
-      "upgradeForUnlimited": "Обновитесь для неограниченных генераций.",
-      "upgradeNow": "Обновить сейчас",
-      "generationsRemaining": "У вас осталось {count} генераци{pluralSuffix} сегодня."
     }
+  },
+  "ui": {
+    "virtualizedGrid": {
+      "noContentFound": "Контент не найден",
+      "noContentToDisplay": "Нет контента для отображения.",
+      "errorLoading": "Ошибка загрузки",
+      "tryAgain": "Попробовать снова",
+      "loadingMoreContent": "Загрузка дополнительного контента...",
+      "noMoreContentToLoad": "Больше нет контента для загрузки"
+    },
+    "generationProgressCard": {
+      "generationFailed": "Генерация не удалась",
+      "pleaseTryAgain": "Пожалуйста, попробуйте снова",
+      "queuedForGeneration": "В очереди на генерацию",
+      "waitingToStart": "Ожидание запуска",
+      "retryingGeneration": "Повторная попытка генерации",
+      "attemptWithAI": "Попытка {retryCount}/{maxRetries} - ИИ работает...",
+      "generationComplete": "Генерация завершена",
+      "yourImageIsReady": "Ваше изображение готово",
+      "creatingYourMasterpiece": "Создание вашего шедевра",
+      "aiIsWorkingItsMagic": "ИИ творит чудеса...",
+      "readyToGenerate": "Готов к генерации",
+      "startWhenYouReReady": "Начните, когда будете готовы",
+      "failed": "Неудача",
+      "processing": "Обработка",
+      "waiting": "Ожидание",
+      "generationStoppedDueToError": "Генерация остановлена из-за ошибки",
+      "waitingInQueueToStart": "Ожидание в очереди для запуска...",
+      "allNodesCompletedSuccessfully": "Все узлы завершены успешно",
+      "readyToBeginProcessing": "Готов к началу обработки",
+      "workflowProgress": "Прогресс рабочего процесса",
+      "step": "Шаг",
+      "of": "из",
+      "initializing": "Инициализация..."
+    },
+    "lightbox": {
+      "close": "Закрыть",
+      "previousMedia": "Предыдущий медиа",
+      "nextMedia": "Следующий медиа",
+      "swipeToNavigate": "Проведите для навигации"
+    },
+    "virtualizedCommentsList": {
+      "noCommentsYet": "Пока нет комментариев",
+      "userHasntMadeComments": "Этот пользователь еще не делал комментариев. Заходите позже!",
+      "errorLoading": "Ошибка загрузки",
+      "tryAgain": "Попробовать снова",
+      "loadingMoreComments": "Загрузка дополнительных комментариев...",
+      "noMoreCommentsToLoad": "Больше нет комментариев для загрузки"
+    }
+  },
+  "permissionComponents": {
+    "upgradeRequired": "Требуется обновление",
+    "featureRequiresUpgrade": "Эта функция требует план {planType}. Вы сейчас на {currentPlan}.",
+    "proPlan": "Pro",
+    "higherPlan": "более высокий",
+    "upgradePlan": "Обновить план",
+    "yourPlan": "Ваш план: {planName}",
+    "upgrade": "Обновить",
+    "imagesThisMonth": "Изображения в этом месяце",
+    "unlimited": "неограниченно",
+    "remaining": "осталось",
+    "imagesToday": "Изображения сегодня",
+    "features": {
+      "bulk-generation": "Массовая генерация",
+      "lora-models": "Модели LoRA",
+      "negative-prompt": "Негативный промпт",
+      "private-content": "Приватный контент"
+    },
+    "paidPlan": "Платный план",
+    "generationLimitReached": "Лимит генерации достигнут",
+    "reachedGenerationLimit": "Вы достигли лимита генерации на сегодня.",
+    "upgradeForUnlimited": "Обновитесь для неограниченных генераций.",
+    "upgradeNow": "Обновить сейчас",
+    "generationsRemaining": "У вас осталось {count} генераци{pluralSuffix} сегодня."
   },
   "navigation": {
     "medias": "Медиа",

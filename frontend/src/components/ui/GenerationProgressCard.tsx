@@ -40,7 +40,7 @@ export function GenerationProgressCard({
   }>;
   currentNodeIndex: number;
 }) {
-  const t = useTranslations("common.ui.generationProgressCard");
+  const t = useTranslations("ui.generationProgressCard");
 
   const progressPercentage =
     progress > 0 && maxProgress > 0

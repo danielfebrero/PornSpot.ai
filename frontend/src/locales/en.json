@@ -170,81 +170,81 @@
         "loadingMore": "Loading more media...",
         "noMore": "No more media to load"
       }
-    },
-    "ui": {
-      "virtualizedGrid": {
-        "noContentFound": "No content found",
-        "noContentToDisplay": "No content to display.",
-        "errorLoading": "Error loading",
-        "tryAgain": "Try Again",
-        "loadingMoreContent": "Loading more content...",
-        "noMoreContentToLoad": "No more content to load"
-      },
-      "generationProgressCard": {
-        "generationFailed": "Generation Failed",
-        "pleaseTryAgain": "Please try again",
-        "queuedForGeneration": "Queued for Generation",
-        "waitingToStart": "Waiting to start",
-        "retryingGeneration": "Retrying Generation",
-        "attemptWithAI": "Attempt {retryCount}/{maxRetries} - AI is working...",
-        "generationComplete": "Generation Complete",
-        "yourImageIsReady": "Your image is ready",
-        "creatingYourMasterpiece": "Creating Your Masterpiece",
-        "aiIsWorkingItsMagic": "AI is working its magic...",
-        "readyToGenerate": "Ready to Generate",
-        "startWhenYouReReady": "Start when you're ready",
-        "failed": "Failed",
-        "processing": "Processing",
-        "waiting": "Waiting",
-        "generationStoppedDueToError": "Generation stopped due to error",
-        "waitingInQueueToStart": "Waiting in queue to start...",
-        "allNodesCompletedSuccessfully": "All nodes completed successfully",
-        "readyToBeginProcessing": "Ready to begin processing",
-        "workflowProgress": "Workflow Progress",
-        "step": "Step",
-        "of": "of",
-        "initializing": "Initializing..."
-      },
-      "lightbox": {
-        "close": "Close",
-        "previousMedia": "Previous media",
-        "nextMedia": "Next media",
-        "swipeToNavigate": "Swipe to navigate"
-      },
-      "virtualizedCommentsList": {
-        "noCommentsYet": "No comments yet",
-        "userHasntMadeComments": "This user hasn't made any comments yet. Check back later!",
-        "errorLoading": "Error loading",
-        "tryAgain": "Try Again",
-        "loadingMoreComments": "Loading more comments...",
-        "noMoreCommentsToLoad": "No more comments to load"
-      }
-    },
-    "permissionComponents": {
-      "upgradeRequired": "Upgrade Required",
-      "featureRequiresUpgrade": "This feature requires a {planType} plan. You're currently on {currentPlan}.",
-      "proPlan": "Pro",
-      "higherPlan": "higher",
-      "upgradePlan": "Upgrade Plan",
-      "yourPlan": "Your Plan: {planName}",
-      "upgrade": "Upgrade",
-      "imagesThisMonth": "Images this month",
-      "unlimited": "unlimited",
-      "remaining": "remaining",
-      "imagesToday": "Images today",
-      "features": {
-        "bulk-generation": "Bulk Generation",
-        "lora-models": "LoRA Models",
-        "negative-prompt": "Negative Prompt",
-        "private-content": "Private Content"
-      },
-      "paidPlan": "Paid Plan",
-      "generationLimitReached": "Generation Limit Reached",
-      "reachedGenerationLimit": "You've reached your generation limit for today.",
-      "upgradeForUnlimited": "Upgrade for unlimited generations.",
-      "upgradeNow": "Upgrade Now",
-      "generationsRemaining": "You have {count} generation{pluralSuffix} remaining today."
     }
+  },
+  "ui": {
+    "virtualizedGrid": {
+      "noContentFound": "No content found",
+      "noContentToDisplay": "No content to display.",
+      "errorLoading": "Error loading",
+      "tryAgain": "Try Again",
+      "loadingMoreContent": "Loading more content...",
+      "noMoreContentToLoad": "No more content to load"
+    },
+    "generationProgressCard": {
+      "generationFailed": "Generation Failed",
+      "pleaseTryAgain": "Please try again",
+      "queuedForGeneration": "Queued for Generation",
+      "waitingToStart": "Waiting to start",
+      "retryingGeneration": "Retrying Generation",
+      "attemptWithAI": "Attempt {retryCount}/{maxRetries} - AI is working...",
+      "generationComplete": "Generation Complete",
+      "yourImageIsReady": "Your image is ready",
+      "creatingYourMasterpiece": "Creating Your Masterpiece",
+      "aiIsWorkingItsMagic": "AI is working its magic...",
+      "readyToGenerate": "Ready to Generate",
+      "startWhenYouReReady": "Start when you're ready",
+      "failed": "Failed",
+      "processing": "Processing",
+      "waiting": "Waiting",
+      "generationStoppedDueToError": "Generation stopped due to error",
+      "waitingInQueueToStart": "Waiting in queue to start...",
+      "allNodesCompletedSuccessfully": "All nodes completed successfully",
+      "readyToBeginProcessing": "Ready to begin processing",
+      "workflowProgress": "Workflow Progress",
+      "step": "Step",
+      "of": "of",
+      "initializing": "Initializing..."
+    },
+    "lightbox": {
+      "close": "Close",
+      "previousMedia": "Previous media",
+      "nextMedia": "Next media",
+      "swipeToNavigate": "Swipe to navigate"
+    },
+    "virtualizedCommentsList": {
+      "noCommentsYet": "No comments yet",
+      "userHasntMadeComments": "This user hasn't made any comments yet. Check back later!",
+      "errorLoading": "Error loading",
+      "tryAgain": "Try Again",
+      "loadingMoreComments": "Loading more comments...",
+      "noMoreCommentsToLoad": "No more comments to load"
+    }
+  },
+  "permissionComponents": {
+    "upgradeRequired": "Upgrade Required",
+    "featureRequiresUpgrade": "This feature requires a {planType} plan. You're currently on {currentPlan}.",
+    "proPlan": "Pro",
+    "higherPlan": "higher",
+    "upgradePlan": "Upgrade Plan",
+    "yourPlan": "Your Plan: {planName}",
+    "upgrade": "Upgrade",
+    "imagesThisMonth": "Images this month",
+    "unlimited": "unlimited",
+    "remaining": "remaining",
+    "imagesToday": "Images today",
+    "features": {
+      "bulk-generation": "Bulk Generation",
+      "lora-models": "LoRA Models",
+      "negative-prompt": "Negative Prompt",
+      "private-content": "Private Content"
+    },
+    "paidPlan": "Paid Plan",
+    "generationLimitReached": "Generation Limit Reached",
+    "reachedGenerationLimit": "You've reached your generation limit for today.",
+    "upgradeForUnlimited": "Upgrade for unlimited generations.",
+    "upgradeNow": "Upgrade Now",
+    "generationsRemaining": "You have {count} generation{pluralSuffix} remaining today."
   },
   "navigation": {
     "medias": "Medias",

@@ -170,81 +170,81 @@
         "loadingMore": "Cargando más medios...",
         "noMore": "No hay más medios para cargar"
       }
-    },
-    "ui": {
-      "virtualizedGrid": {
-        "noContentFound": "No se encontró contenido",
-        "noContentToDisplay": "No hay contenido para mostrar.",
-        "errorLoading": "Error al cargar",
-        "tryAgain": "Intentar de nuevo",
-        "loadingMoreContent": "Cargando más contenido...",
-        "noMoreContentToLoad": "No hay más contenido para cargar"
-      },
-      "generationProgressCard": {
-        "generationFailed": "Generación falló",
-        "pleaseTryAgain": "Por favor inténtalo de nuevo",
-        "queuedForGeneration": "En cola para generación",
-        "waitingToStart": "Esperando para empezar",
-        "retryingGeneration": "Reintentando generación",
-        "attemptWithAI": "Intento {retryCount}/{maxRetries} - IA trabajando...",
-        "generationComplete": "Generación completa",
-        "yourImageIsReady": "Tu imagen está lista",
-        "creatingYourMasterpiece": "Creando tu obra maestra",
-        "aiIsWorkingItsMagic": "La IA está haciendo su magia...",
-        "readyToGenerate": "Listo para generar",
-        "startWhenYouReReady": "Comienza cuando estés listo",
-        "failed": "Falló",
-        "processing": "Procesando",
-        "waiting": "Esperando",
-        "generationStoppedDueToError": "Generación detenida por error",
-        "waitingInQueueToStart": "Esperando en cola para empezar...",
-        "allNodesCompletedSuccessfully": "Todos los nodos completados exitosamente",
-        "readyToBeginProcessing": "Listo para comenzar procesamiento",
-        "workflowProgress": "Progreso del flujo de trabajo",
-        "step": "Paso",
-        "of": "de",
-        "initializing": "Inicializando..."
-      },
-      "lightbox": {
-        "close": "Cerrar",
-        "previousMedia": "Medio anterior",
-        "nextMedia": "Siguiente medio",
-        "swipeToNavigate": "Desliza para navegar"
-      },
-      "virtualizedCommentsList": {
-        "noCommentsYet": "Aún no hay comentarios",
-        "userHasntMadeComments": "Este usuario aún no ha hecho comentarios. ¡Vuelve más tarde!",
-        "errorLoading": "Error al cargar",
-        "tryAgain": "Intentar de nuevo",
-        "loadingMoreComments": "Cargando más comentarios...",
-        "noMoreCommentsToLoad": "No hay más comentarios para cargar"
-      }
-    },
-    "permissionComponents": {
-      "upgradeRequired": "Actualización requerida",
-      "featureRequiresUpgrade": "Esta función requiere un plan {planType}. Actualmente tienes {currentPlan}.",
-      "proPlan": "Pro",
-      "higherPlan": "superior",
-      "upgradePlan": "Actualizar plan",
-      "yourPlan": "Tu plan: {planName}",
-      "upgrade": "Actualizar",
-      "imagesThisMonth": "Imágenes este mes",
-      "unlimited": "ilimitado",
-      "remaining": "restantes",
-      "imagesToday": "Imágenes hoy",
-      "features": {
-        "bulk-generation": "Generación masiva",
-        "lora-models": "Modelos LoRA",
-        "negative-prompt": "Prompt negativo",
-        "private-content": "Contenido privado"
-      },
-      "paidPlan": "Plan de pago",
-      "generationLimitReached": "Límite de generación alcanzado",
-      "reachedGenerationLimit": "Has alcanzado tu límite de generación para hoy.",
-      "upgradeForUnlimited": "Actualiza para generaciones ilimitadas.",
-      "upgradeNow": "Actualizar ahora",
-      "generationsRemaining": "Te quedan {count} generación{pluralSuffix} hoy."
     }
+  },
+  "ui": {
+    "virtualizedGrid": {
+      "noContentFound": "No se encontró contenido",
+      "noContentToDisplay": "No hay contenido para mostrar.",
+      "errorLoading": "Error al cargar",
+      "tryAgain": "Intentar de nuevo",
+      "loadingMoreContent": "Cargando más contenido...",
+      "noMoreContentToLoad": "No hay más contenido para cargar"
+    },
+    "generationProgressCard": {
+      "generationFailed": "Generación falló",
+      "pleaseTryAgain": "Por favor inténtalo de nuevo",
+      "queuedForGeneration": "En cola para generación",
+      "waitingToStart": "Esperando para empezar",
+      "retryingGeneration": "Reintentando generación",
+      "attemptWithAI": "Intento {retryCount}/{maxRetries} - IA trabajando...",
+      "generationComplete": "Generación completa",
+      "yourImageIsReady": "Tu imagen está lista",
+      "creatingYourMasterpiece": "Creando tu obra maestra",
+      "aiIsWorkingItsMagic": "La IA está haciendo su magia...",
+      "readyToGenerate": "Listo para generar",
+      "startWhenYouReReady": "Comienza cuando estés listo",
+      "failed": "Falló",
+      "processing": "Procesando",
+      "waiting": "Esperando",
+      "generationStoppedDueToError": "Generación detenida por error",
+      "waitingInQueueToStart": "Esperando en cola para empezar...",
+      "allNodesCompletedSuccessfully": "Todos los nodos completados exitosamente",
+      "readyToBeginProcessing": "Listo para comenzar procesamiento",
+      "workflowProgress": "Progreso del flujo de trabajo",
+      "step": "Paso",
+      "of": "de",
+      "initializing": "Inicializando..."
+    },
+    "lightbox": {
+      "close": "Cerrar",
+      "previousMedia": "Medio anterior",
+      "nextMedia": "Siguiente medio",
+      "swipeToNavigate": "Desliza para navegar"
+    },
+    "virtualizedCommentsList": {
+      "noCommentsYet": "Aún no hay comentarios",
+      "userHasntMadeComments": "Este usuario aún no ha hecho comentarios. ¡Vuelve más tarde!",
+      "errorLoading": "Error al cargar",
+      "tryAgain": "Intentar de nuevo",
+      "loadingMoreComments": "Cargando más comentarios...",
+      "noMoreCommentsToLoad": "No hay más comentarios para cargar"
+    }
+  },
+  "permissionComponents": {
+    "upgradeRequired": "Actualización requerida",
+    "featureRequiresUpgrade": "Esta función requiere un plan {planType}. Actualmente tienes {currentPlan}.",
+    "proPlan": "Pro",
+    "higherPlan": "superior",
+    "upgradePlan": "Actualizar plan",
+    "yourPlan": "Tu plan: {planName}",
+    "upgrade": "Actualizar",
+    "imagesThisMonth": "Imágenes este mes",
+    "unlimited": "ilimitado",
+    "remaining": "restantes",
+    "imagesToday": "Imágenes hoy",
+    "features": {
+      "bulk-generation": "Generación masiva",
+      "lora-models": "Modelos LoRA",
+      "negative-prompt": "Prompt negativo",
+      "private-content": "Contenido privado"
+    },
+    "paidPlan": "Plan de pago",
+    "generationLimitReached": "Límite de generación alcanzado",
+    "reachedGenerationLimit": "Has alcanzado tu límite de generación para hoy.",
+    "upgradeForUnlimited": "Actualiza para generaciones ilimitadas.",
+    "upgradeNow": "Actualizar ahora",
+    "generationsRemaining": "Te quedan {count} generación{pluralSuffix} hoy."
   },
   "navigation": {
     "medias": "Medios",

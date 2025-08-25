@@ -23,7 +23,7 @@ export function PermissionGate({
   action,
   showUpgrade = false,
 }: PermissionGateProps) {
-  const t = useTranslations("common.permissionComponents");
+  const t = useTranslations("permissionComponents");
   const { hasPermission, getCurrentPlan } = usePermissions();
 
   const hasAccess = hasPermission({ feature, action });
@@ -66,7 +66,7 @@ export function PermissionGate({
 
 // Usage limit display component
 export function UsageLimitsDisplay() {
-  const t = useTranslations("common.permissionComponents");
+  const t = useTranslations("permissionComponents");
   const { user, canGenerateImagesCount, getPlanLimits, getCurrentPlan } =
     usePermissions();
 
@@ -138,7 +138,7 @@ export function UsageLimitsDisplay() {
 
 // Feature availability indicator
 export function FeatureAvailability({ feature }: { feature: string }) {
-  const t = useTranslations("common.permissionComponents");
+  const t = useTranslations("permissionComponents");
   const { getPlanLimits, getCurrentPlan } = usePermissions();
 
   const limits = getPlanLimits();
@@ -188,7 +188,7 @@ export function FeatureAvailability({ feature }: { feature: string }) {
 
 // Generation limit warning
 export function GenerationLimitWarning() {
-  const t = useTranslations("common.permissionComponents");
+  const t = useTranslations("permissionComponents");
   const { canGenerateImagesCount, getCurrentPlan } = usePermissions();
 
   const { allowed, remaining } = canGenerateImagesCount(1);

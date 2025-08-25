@@ -170,81 +170,81 @@
         "loadingMore": "加载更多媒体...",
         "noMore": "没有更多媒体可加载"
       }
-    },
-    "ui": {
-      "virtualizedGrid": {
-        "noContentFound": "未找到内容",
-        "noContentToDisplay": "没有内容可显示。",
-        "errorLoading": "加载错误",
-        "tryAgain": "重试",
-        "loadingMoreContent": "加载更多内容...",
-        "noMoreContentToLoad": "没有更多内容可加载"
-      },
-      "generationProgressCard": {
-        "generationFailed": "生成失败",
-        "pleaseTryAgain": "请重试",
-        "queuedForGeneration": "排队等待生成",
-        "waitingToStart": "等待开始",
-        "retryingGeneration": "重试生成",
-        "attemptWithAI": "第 {retryCount}/{maxRetries} 次尝试 - AI 正在工作...",
-        "generationComplete": "生成完成",
-        "yourImageIsReady": "您的图片已准备好",
-        "creatingYourMasterpiece": "正在创建您的杰作",
-        "aiIsWorkingItsMagic": "AI 正在施展魔法...",
-        "readyToGenerate": "准备生成",
-        "startWhenYouReReady": "准备好时开始",
-        "failed": "失败",
-        "processing": "处理中",
-        "waiting": "等待",
-        "generationStoppedDueToError": "由于错误生成已停止",
-        "waitingInQueueToStart": "在队列中等待开始...",
-        "allNodesCompletedSuccessfully": "所有节点已成功完成",
-        "readyToBeginProcessing": "准备开始处理",
-        "workflowProgress": "工作流程进度",
-        "step": "步骤",
-        "of": "共",
-        "initializing": "初始化中..."
-      },
-      "lightbox": {
-        "close": "关闭",
-        "previousMedia": "上一个媒体",
-        "nextMedia": "下一个媒体",
-        "swipeToNavigate": "滑动导航"
-      },
-      "virtualizedCommentsList": {
-        "noCommentsYet": "暂无评论",
-        "userHasntMadeComments": "该用户还没有发表评论。请稍后再来看看！",
-        "errorLoading": "加载错误",
-        "tryAgain": "重试",
-        "loadingMoreComments": "加载更多评论...",
-        "noMoreCommentsToLoad": "没有更多评论可加载"
-      }
-    },
-    "permissionComponents": {
-      "upgradeRequired": "需要升级",
-      "featureRequiresUpgrade": "此功能需要{planType}计划。您当前使用的是{currentPlan}。",
-      "proPlan": "专业版",
-      "higherPlan": "更高级的",
-      "upgradePlan": "升级计划",
-      "yourPlan": "您的计划：{planName}",
-      "upgrade": "升级",
-      "imagesThisMonth": "本月图片",
-      "unlimited": "无限制",
-      "remaining": "剩余",
-      "imagesToday": "今日图片",
-      "features": {
-        "bulk-generation": "批量生成",
-        "lora-models": "LoRA模型",
-        "negative-prompt": "负面提示词",
-        "private-content": "私人内容"
-      },
-      "paidPlan": "付费计划",
-      "generationLimitReached": "生成限制已达到",
-      "reachedGenerationLimit": "您已达到今日的生成限制。",
-      "upgradeForUnlimited": "升级以获得无限生成。",
-      "upgradeNow": "立即升级",
-      "generationsRemaining": "您今天还剩{count}次生成{pluralSuffix}。"
     }
+  },
+  "ui": {
+    "virtualizedGrid": {
+      "noContentFound": "未找到内容",
+      "noContentToDisplay": "没有内容可显示。",
+      "errorLoading": "加载错误",
+      "tryAgain": "重试",
+      "loadingMoreContent": "加载更多内容...",
+      "noMoreContentToLoad": "没有更多内容可加载"
+    },
+    "generationProgressCard": {
+      "generationFailed": "生成失败",
+      "pleaseTryAgain": "请重试",
+      "queuedForGeneration": "排队等待生成",
+      "waitingToStart": "等待开始",
+      "retryingGeneration": "重试生成",
+      "attemptWithAI": "第 {retryCount}/{maxRetries} 次尝试 - AI 正在工作...",
+      "generationComplete": "生成完成",
+      "yourImageIsReady": "您的图片已准备好",
+      "creatingYourMasterpiece": "正在创建您的杰作",
+      "aiIsWorkingItsMagic": "AI 正在施展魔法...",
+      "readyToGenerate": "准备生成",
+      "startWhenYouReReady": "准备好时开始",
+      "failed": "失败",
+      "processing": "处理中",
+      "waiting": "等待",
+      "generationStoppedDueToError": "由于错误生成已停止",
+      "waitingInQueueToStart": "在队列中等待开始...",
+      "allNodesCompletedSuccessfully": "所有节点已成功完成",
+      "readyToBeginProcessing": "准备开始处理",
+      "workflowProgress": "工作流程进度",
+      "step": "步骤",
+      "of": "共",
+      "initializing": "初始化中..."
+    },
+    "lightbox": {
+      "close": "关闭",
+      "previousMedia": "上一个媒体",
+      "nextMedia": "下一个媒体",
+      "swipeToNavigate": "滑动导航"
+    },
+    "virtualizedCommentsList": {
+      "noCommentsYet": "暂无评论",
+      "userHasntMadeComments": "该用户还没有发表评论。请稍后再来看看！",
+      "errorLoading": "加载错误",
+      "tryAgain": "重试",
+      "loadingMoreComments": "加载更多评论...",
+      "noMoreCommentsToLoad": "没有更多评论可加载"
+    }
+  },
+  "permissionComponents": {
+    "upgradeRequired": "需要升级",
+    "featureRequiresUpgrade": "此功能需要{planType}计划。您当前使用的是{currentPlan}。",
+    "proPlan": "专业版",
+    "higherPlan": "更高级的",
+    "upgradePlan": "升级计划",
+    "yourPlan": "您的计划：{planName}",
+    "upgrade": "升级",
+    "imagesThisMonth": "本月图片",
+    "unlimited": "无限制",
+    "remaining": "剩余",
+    "imagesToday": "今日图片",
+    "features": {
+      "bulk-generation": "批量生成",
+      "lora-models": "LoRA模型",
+      "negative-prompt": "负面提示词",
+      "private-content": "私人内容"
+    },
+    "paidPlan": "付费计划",
+    "generationLimitReached": "生成限制已达到",
+    "reachedGenerationLimit": "您已达到今日的生成限制。",
+    "upgradeForUnlimited": "升级以获得无限生成。",
+    "upgradeNow": "立即升级",
+    "generationsRemaining": "您今天还剩{count}次生成{pluralSuffix}。"
   },
   "navigation": {
     "medias": "媒体",
