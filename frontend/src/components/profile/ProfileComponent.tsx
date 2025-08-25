@@ -215,13 +215,13 @@ export default function ProfileComponent({
 
     // Validate file type
     if (!file.type || !file.type.startsWith("image/")) {
-      console.error("Please select an image file");
+      console.error(tProfile("pleaseSelectImageFile"));
       return;
     }
 
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      console.error("File size must be less than 10MB");
+      console.error(tProfile("fileSizeMustBeLessThan10MB"));
       return;
     }
 
@@ -249,7 +249,7 @@ export default function ProfileComponent({
 
       // Validate file parameter
       if (!file || !file.type || !file.name) {
-        throw new Error("Invalid file provided");
+        throw new Error(tProfile("invalidFileProvided"));
       }
 
       // Step 1: Get presigned upload URL
@@ -351,13 +351,13 @@ export default function ProfileComponent({
         formData.username !== currentUser?.username &&
         usernameStatus === "taken"
       ) {
-        console.error("Username is already taken");
+        console.error(tProfile("usernameAlreadyTaken"));
         // In a real app, you'd show an error message to the user
         return;
       }
 
       if (usernameStatus === "checking") {
-        console.error("Still checking username availability");
+        console.error(tProfile("stillCheckingUsernameAvailability"));
         // In a real app, you'd show a message asking user to wait
         return;
       }
@@ -665,7 +665,7 @@ export default function ProfileComponent({
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Calendar className="w-4 h-4" />
                               <span>
-                                Joined{" "}
+                                {tProfile("joined")}{" "}
                                 {new Date(
                                   currentUser?.createdAt ||
                                     new Date().toISOString()
@@ -677,7 +677,7 @@ export default function ProfileComponent({
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Shield className="w-4 h-4" />
                                 <span>
-                                  Last active{" "}
+                                  {tProfile("lastActive")}{" "}
                                   {new Date(
                                     currentUser.lastActive
                                   ).toLocaleDateString()}
@@ -725,8 +725,8 @@ export default function ProfileComponent({
                                 ) : (
                                   <p className="text-sm text-muted-foreground italic">
                                     {isOwner
-                                      ? "No bio yet. Add one by editing your profile!"
-                                      : "This user hasn't added a bio yet."}
+                                      ? tProfile("noBioYetAddOne")
+                                      : tProfile("userHasntAddedBio")}
                                   </p>
                                 )}
                               </div>
@@ -755,14 +755,14 @@ export default function ProfileComponent({
                               <Save className="w-4 h-4" />
                               {isSaving
                                 ? selectedAvatarFile
-                                  ? "Saving profile & avatar..."
-                                  : "Saving..."
+                                  ? tProfile("savingProfileAndAvatar")
+                                  : tProfile("saving")
                                 : isUploadingAvatar
-                                ? "Uploading avatar..."
+                                ? tProfile("uploadingAvatar")
                                 : usernameStatus === "checking"
-                                ? "Checking username..."
+                                ? tProfile("checkingUsername")
                                 : usernameStatus === "taken"
-                                ? "Username taken"
+                                ? tProfile("usernameTaken")
                                 : t("save")}
                             </Button>
                             <Button
@@ -800,37 +800,37 @@ export default function ProfileComponent({
             {[
               {
                 icon: Heart,
-                label: "Likes Received",
+                label: tProfile("likesReceived"),
                 value: user?.profileInsights?.totalLikesReceived ?? 0,
                 color: "text-red-600",
               },
               {
                 icon: Bookmark,
-                label: "Content Bookmarked",
+                label: tProfile("contentBookmarked"),
                 value: user?.profileInsights?.totalBookmarksReceived ?? 0,
                 color: "text-purple-600",
               },
               {
                 icon: Eye,
-                label: "Total Media Views",
+                label: tProfile("totalMediaViews"),
                 value: user?.profileInsights?.totalMediaViews ?? 0,
                 color: "text-blue-600",
               },
               {
                 icon: User,
-                label: "Profile Views",
+                label: tProfile("profileViews"),
                 value: user?.profileInsights?.totalProfileViews ?? 0,
                 color: "text-green-600",
               },
               {
                 icon: ImageIcon,
-                label: "Total Medias",
+                label: tProfile("totalMedias"),
                 value: user?.profileInsights?.totalGeneratedMedias ?? 0,
                 color: "text-orange-600",
               },
               {
                 icon: FolderOpen,
-                label: "Total Albums",
+                label: tProfile("totalAlbums"),
                 value: user?.profileInsights?.totalAlbums ?? 0,
                 color: "text-indigo-600",
               },
@@ -866,7 +866,7 @@ export default function ProfileComponent({
                 >
                   <Heart className="w-5 h-5 text-red-500" />
                   <h2 className="text-lg font-semibold text-foreground">
-                    Last Liked Content
+                    {tProfile("lastLikedContent")}
                   </h2>
                 </div>
               </CardHeader>
@@ -923,15 +923,15 @@ export default function ProfileComponent({
                     <Heart className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
                     <p className="text-muted-foreground text-sm">
                       {isOwner
-                        ? "You haven't liked any content yet."
-                        : "This user hasn't liked any content yet."}
+                        ? tProfile("youHaventLikedContent")
+                        : tProfile("userHaventLikedContent")}
                     </p>
                   </div>
                 )}
                 <div className="text-center pt-4">
                   <LocaleLink href={`/profile/${displayName}/likes`}>
                     <Button variant="outline" size="sm" className="text-xs">
-                      View All Liked Content
+                      {tProfile("viewAllLikedContent")}
                     </Button>
                   </LocaleLink>
                 </div>
@@ -950,7 +950,7 @@ export default function ProfileComponent({
                 >
                   <ImageIcon className="w-5 h-5 text-blue-500" />
                   <h2 className="text-lg font-semibold text-foreground">
-                    Last Generated Medias
+                    {tProfile("lastGeneratedMedias")}
                   </h2>
                 </div>
               </CardHeader>
@@ -999,15 +999,15 @@ export default function ProfileComponent({
                     <ImageIcon className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
                     <p className="text-muted-foreground text-sm">
                       {isOwner
-                        ? "You haven't generated any media yet."
-                        : "This user hasn't generated any media yet."}
+                        ? tProfile("youHaventGeneratedMedia")
+                        : tProfile("userHaventGeneratedMedia")}
                     </p>
                   </div>
                 )}
                 <div className="text-center pt-4">
                   <LocaleLink href={`/profile/${displayName}/media`}>
                     <Button variant="outline" size="sm" className="text-xs">
-                      View All Generated Medias
+                      {tProfile("viewAllGeneratedMedias")}
                     </Button>
                   </LocaleLink>
                 </div>
@@ -1026,7 +1026,7 @@ export default function ProfileComponent({
                 >
                   <FolderOpen className="w-5 h-5 text-green-500" />
                   <h2 className="text-lg font-semibold text-foreground">
-                    Last Created Albums
+                    {tProfile("lastCreatedAlbums")}
                   </h2>
                 </div>
               </CardHeader>
@@ -1077,15 +1077,15 @@ export default function ProfileComponent({
                     <FolderOpen className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
                     <p className="text-muted-foreground text-sm">
                       {isOwner
-                        ? "You haven't created any albums yet."
-                        : "This user hasn't created any albums yet."}
+                        ? tProfile("youHaventCreatedAlbums")
+                        : tProfile("userHaventCreatedAlbums")}
                     </p>
                   </div>
                 )}
                 <div className="text-center pt-4">
                   <LocaleLink href={`/profile/${displayName}/albums`}>
                     <Button variant="outline" size="sm" className="text-xs">
-                      View All Albums
+                      {tProfile("viewAllAlbums")}
                     </Button>
                   </LocaleLink>
                 </div>
@@ -1104,7 +1104,7 @@ export default function ProfileComponent({
                 >
                   <Mail className="w-5 h-5 text-purple-500" />
                   <h2 className="text-lg font-semibold text-foreground">
-                    Last Comments
+                    {tProfile("lastComments")}
                   </h2>
                 </div>
               </CardHeader>
@@ -1127,11 +1127,11 @@ export default function ProfileComponent({
                     </div>
                   ) : commentsError ? (
                     <div className="text-center py-4 text-muted-foreground">
-                      Failed to load comments
+                      {tProfile("failedToLoadComments")}
                     </div>
                   ) : recentComments.length === 0 ? (
                     <div className="text-center py-4 text-muted-foreground">
-                      No comments yet
+                      {tProfile("noCommentsYet")}
                     </div>
                   ) : (
                     recentComments
@@ -1176,7 +1176,7 @@ export default function ProfileComponent({
                   <div className="text-center pt-2">
                     <LocaleLink href={`/profile/${displayName}/comments`}>
                       <Button variant="outline" size="sm" className="text-xs">
-                        View All Comments
+                        {tProfile("viewAllComments")}
                       </Button>
                     </LocaleLink>
                   </div>
