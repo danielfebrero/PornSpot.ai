@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useLocaleRouter } from "@/lib/navigation";
 import { Album } from "@/types";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
@@ -12,6 +13,8 @@ import {
 } from "@/hooks/queries/useAdminAlbumsQuery";
 
 export default function AdminAlbumsPage() {
+  const t = useTranslations("admin.albums");
+  const tCommon = useTranslations("common");
   const router = useLocaleRouter();
   const {
     albums,
@@ -128,9 +131,11 @@ export default function AdminAlbumsPage() {
               </svg>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Albums</h1>
+              <h1 className="text-3xl font-bold text-foreground">
+                {t("albums")}
+              </h1>
               <p className="text-muted-foreground">
-                Manage your photo albums and collections
+                {t("manageYourPhotoAlbums")}
               </p>
             </div>
           </div>
@@ -152,7 +157,7 @@ export default function AdminAlbumsPage() {
               />
             </svg>
             <p className="text-destructive font-medium">
-              {error?.message || "An error occurred"}
+              {error?.message || tCommon("anErrorOccurred")}
             </p>
           </div>
         </div>
@@ -173,7 +178,7 @@ export default function AdminAlbumsPage() {
               />
             </svg>
             <p className="text-destructive font-medium">
-              {error?.message || "An error occurred"}
+              {error?.message || tCommon("anErrorOccurred")}
             </p>
           </div>
         </div>
@@ -205,19 +210,19 @@ export default function AdminAlbumsPage() {
           showCounts: true,
           customActions: (item) => [
             {
-              label: "Edit Album",
+              label: t("editAlbum"),
               icon: <Edit className="h-4 w-4" />,
               onClick: () => handleEdit((item as Album).id),
               variant: "default" as const,
             },
             {
-              label: "Manage Media",
+              label: t("manageMedia"),
               icon: <ImageIcon className="h-4 w-4" />,
               onClick: () => handleManageMedia((item as Album).id),
               variant: "default" as const,
             },
             {
-              label: "Delete Album",
+              label: t("deleteAlbum"),
               icon: <Trash2 className="h-4 w-4" />,
               onClick: () => handleDeleteClick(item as Album),
               variant: "destructive" as const,
@@ -236,13 +241,12 @@ export default function AdminAlbumsPage() {
               </svg>
             </div>
           ),
-          title: "No albums found",
-          description:
-            "Create your first album to get started with organizing content.",
+          title: t("noAlbumsFound"),
+          description: t("createFirstAlbumToGetStarted"),
         }}
         loadingState={{
-          loadingText: "Loading albums...",
-          noMoreText: "All albums loaded",
+          loadingText: t("loadingAlbums"),
+          noMoreText: t("allAlbumsLoaded"),
           skeletonCount: 8,
         }}
         error={error ? String(error) : null}
@@ -252,9 +256,11 @@ export default function AdminAlbumsPage() {
         isOpen={deleteConfirm.isOpen}
         onClose={() => setDeleteConfirm({ isOpen: false })}
         onConfirm={handleConfirmDelete}
-        title="Delete Album"
-        message={`Are you sure you want to delete "${deleteConfirm.albumTitle}"? This action cannot be undone and will also delete all media in this album.`}
-        confirmText="Delete"
+        title={t("deleteAlbumConfirmTitle")}
+        message={t("deleteAlbumConfirmMessage", {
+          albumTitle: deleteConfirm.albumTitle || "",
+        })}
+        confirmText={t("delete")}
         confirmVariant="danger"
       />
     </div>

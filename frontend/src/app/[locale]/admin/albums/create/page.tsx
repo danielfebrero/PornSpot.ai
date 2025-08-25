@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useLocaleRouter } from "@/lib/navigation";
 import { AlbumForm } from "@/components/admin/AlbumForm";
 import { useCreateAdminAlbum } from "@/hooks/queries/useAdminAlbumsQuery";
 
 export default function CreateAlbumPage() {
+  const t = useTranslations("admin.albums");
   const router = useLocaleRouter();
   const createAlbumMutation = useCreateAdminAlbum();
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +24,7 @@ export default function CreateAlbumPage() {
       const album = await createAlbumMutation.mutateAsync(data);
       router.push(`/admin/albums/${album.id}/media`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create album");
+      setError(err instanceof Error ? err.message : t("failedToCreateAlbum"));
     }
   };
 
@@ -44,11 +46,11 @@ export default function CreateAlbumPage() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-foreground">
-            Create New Album
+            {t("createNewAlbum")}
           </h1>
         </div>
         <p className="text-muted-foreground">
-          Create a beautiful photo album to showcase your artwork
+          {t("createBeautifulPhotoAlbum")}
         </p>
       </div>
 
@@ -75,7 +77,7 @@ export default function CreateAlbumPage() {
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         loading={createAlbumMutation.isPending}
-        submitText="Create Album"
+        submitText={t("createAlbum")}
       />
     </div>
   );

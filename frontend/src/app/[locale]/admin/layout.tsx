@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { AdminProvider } from "@/contexts/AdminContext";
 import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
 import { DesktopNavigation } from "@/components/ui/DesktopNavigation";
@@ -39,29 +40,30 @@ function AdminLayoutContent({
   children: React.ReactNode;
   locale: string;
 }) {
+  const t = useTranslations("admin.navigation");
   const pathname = usePathname();
   const isLoginPage = pathname === `/${locale}/admin/login`;
 
   const adminNavigationItems = [
     {
       href: "/admin",
-      label: "Dashboard",
+      label: t("dashboard"),
       icon: LayoutDashboard,
       exactPath: true,
     },
     {
       href: "/admin/albums",
-      label: "Albums",
+      label: t("albums"),
       icon: FolderOpen,
     },
     {
       href: "/admin/media",
-      label: "Media",
+      label: t("media"),
       icon: Image,
     },
     {
       href: "/admin/users",
-      label: "Users",
+      label: t("users"),
       icon: Users,
     },
   ];

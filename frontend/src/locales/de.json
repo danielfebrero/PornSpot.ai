@@ -58,6 +58,7 @@
     "preview": "Vorschau",
     "fullscreen": "Vollbild",
     "minimize": "Minimieren",
+    "anErrorOccurred": "Ein Fehler ist aufgetreten",
     "maximize": "Maximieren",
     "failedToUpdate": "Aktualisierung fehlgeschlagen",
     "filteredBy": "Gefiltert nach",
@@ -178,7 +179,27 @@
     "oauth": {
       "continueWith": "Fortfahren mit",
       "signInWith": "Anmelden mit",
-      "or": "oder"
+      "or": "oder",
+      "callback": {
+        "completingSignIn": "Anmeldung wird abgeschlossen...",
+        "pleaseWaitGoogle": "Bitte warten Sie, während wir Ihre Google-Anmeldung abschließen.",
+        "processingAuthentication": "Authentifizierung wird verarbeitet...",
+        "pleaseWaitProcess": "Bitte warten Sie, während wir Ihre Anfrage bearbeiten.",
+        "welcomeBack": "🎉 Willkommen zurück!",
+        "successfullySignedIn": "Erfolgreich mit Google angemeldet!",
+        "redirectingDashboard": "Weiterleitung zum Dashboard...",
+        "authenticationFailed": "Authentifizierung fehlgeschlagen",
+        "missingAuthCode": "Autorisierungscode vom OAuth-Anbieter fehlt. Bitte versuchen Sie sich erneut anzumelden.",
+        "oauthFailed": "OAuth-Authentifizierung fehlgeschlagen.",
+        "unexpectedError": "Ein unerwarteter Fehler ist bei der OAuth-Authentifizierung aufgetreten.",
+        "whatCanYouDo": "Was können Sie tun?",
+        "trySignInAgain": "Versuchen Sie sich erneut mit Google anzumelden",
+        "allowPermissions": "Stellen Sie sicher, dass Sie Berechtigungen erteilen, wenn Sie dazu aufgefordert werden",
+        "checkBlockedPopups": "Überprüfen Sie, ob Ihr Browser Pop-ups blockiert",
+        "clearCookies": "Löschen Sie Ihre Browser-Cookies und versuchen Sie es erneut",
+        "tryAgain": "Erneut versuchen",
+        "goToDiscover": "Zu Entdecken gehen"
+      }
     },
     "google": {
       "signIn": "Mit Google anmelden",
@@ -238,13 +259,16 @@
       "meta": {
         "title": "Erfolgreich - PornSpot.ai",
         "description": "Authentifizierung erfolgreich"
-      }
+      },
+      "loading": "Wird geladen...",
+      "processingAuth": "Bitte warten Sie, während wir Ihre Authentifizierung abschließen."
     },
     "verifyEmail": {
       "meta": {
         "title": "E-Mail verifizieren - PornSpot.ai",
         "description": "Verifizieren Sie Ihre E-Mail-Adresse"
-      }
+      },
+      "loadingVerification": "Verifizierung wird geladen..."
     },
     "whyRegister": {
       "title": "Warum registrieren?",
@@ -311,6 +335,16 @@
     "createAlbum": "Album erstellen",
     "users": "Benutzer",
     "settings": "Einstellungen",
+    "dashboard": {
+      "totalAlbums": "Gesamte Alben",
+      "totalMedia": "Gesamte Medien",
+      "publicAlbums": "Öffentliche Alben",
+      "storageUsed": "Speicher verwendet",
+      "failedToLoad": "Laden fehlgeschlagen",
+      "updatedJustNow": "Gerade aktualisiert",
+      "welcomeBack": "Willkommen zurück, {username}!",
+      "manageGalleryContent": "Verwalten Sie Ihre Galerie-Inhalte von diesem Admin-Dashboard aus."
+    },
     "stats": {
       "totalUsers": "Gesamte Benutzer",
       "totalAlbums": "Gesamte Alben",
@@ -338,6 +372,12 @@
       "banned": "Gesperrt"
     },
     "media": {
+      "media": "Medien",
+      "manageAndReviewAllMediaContent": "Alle Medieninhalte verwalten und überprüfen",
+      "noMediaFound": "Keine Medien gefunden",
+      "mediaContentWillAppearHere": "Medieninhalte werden hier angezeigt, sobald sie auf die Plattform hochgeladen wurden.",
+      "loadingMedia": "Medien laden...",
+      "allMediaLoaded": "Alle Medien geladen",
       "approve": "Genehmigen",
       "reject": "Ablehnen",
       "pending": "Ausstehend",
@@ -345,7 +385,19 @@
       "rejected": "Abgelehnt",
       "moderate": "Moderieren",
       "flag": "Melden",
-      "unflag": "Meldung aufheben"
+      "unflag": "Meldung aufheben",
+      "manageMedia": "Medien verwalten",
+      "uploadAndManageAlbumMedia": "Album-Medien hochladen und verwalten",
+      "uploadAndManageMediaFor": "Medien hochladen und verwalten für",
+      "backToAlbums": "Zurück zu Alben",
+      "albumNotFound": "Album nicht gefunden",
+      "failedToUpdateCoverImage": "Fehler beim Aktualisieren des Coverbilds",
+      "mediaCount": "Medienanzahl:",
+      "albumId": "Album-ID:",
+      "status": "Status:",
+      "public": "Öffentlich",
+      "private": "Privat",
+      "items": "Elemente"
     },
     "albums": {
       "publish": "Veröffentlichen",
@@ -353,7 +405,28 @@
       "feature": "Hervorheben",
       "unfeature": "Hervorhebung entfernen",
       "archive": "Archivieren",
-      "unarchive": "Archivierung aufheben"
+      "unarchive": "Archivierung aufheben",
+      "editAlbum": "Album bearbeiten",
+      "updateAlbumDetailsAndSettings": "Album-Details und Einstellungen aktualisieren",
+      "albumNotFound": "Album nicht gefunden",
+      "loadingAlbum": "Album wird geladen...",
+      "updateAlbum": "Album aktualisieren",
+      "failedToUpdateAlbum": "Fehler beim Aktualisieren des Albums",
+      "createNewAlbum": "Neues Album erstellen",
+      "createBeautifulPhotoAlbum": "Erstellen Sie ein schönes Fotoalbum, um Ihre Kunstwerke zu präsentieren",
+      "createAlbum": "Album erstellen",
+      "failedToCreateAlbum": "Fehler beim Erstellen des Albums",
+      "albums": "Alben",
+      "manageYourPhotoAlbums": "Verwalten Sie Ihre Fotoalben und Sammlungen",
+      "manageMedia": "Medien verwalten",
+      "deleteAlbum": "Album löschen",
+      "noAlbumsFound": "Keine Alben gefunden",
+      "createFirstAlbumToGetStarted": "Erstellen Sie Ihr erstes Album, um mit der Organisation von Inhalten zu beginnen.",
+      "loadingAlbums": "Alben werden geladen...",
+      "allAlbumsLoaded": "Alle Alben geladen",
+      "deleteAlbumConfirmTitle": "Album löschen",
+      "deleteAlbumConfirmMessage": "Sind Sie sicher, dass Sie \"{albumTitle}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden und löscht auch alle Medien in diesem Album.",
+      "delete": "Löschen"
     },
     "fileUpload": {
       "selectFiles": "Dateien auswählen",
@@ -369,6 +442,30 @@
       "change": "Titelbild ändern",
       "remove": "Titelbild entfernen",
       "upload": "Titelbild hochladen"
+    },
+    "userManagementPage": {
+      "userManagement": "Benutzerverwaltung",
+      "userManagementDescription": "Benutzerkonten verwalten, Profile anzeigen und Konten bei Bedarf deaktivieren",
+      "usersLabel": "Benutzer",
+      "partial": "teilweise",
+      "usersList": "Benutzerliste",
+      "noUsersFound": "Keine Benutzer gefunden",
+      "disabled": "Deaktiviert",
+      "lastActive": "Zuletzt aktiv",
+      "view": "Anzeigen",
+      "disable": "Deaktivieren",
+      "enable": "Aktivieren",
+      "disabling": "Deaktivierung...",
+      "enabling": "Aktivierung...",
+      "loadMore": "Mehr laden",
+      "loadingError": "Ladefehler",
+      "loadingErrorDescription": "Ein Fehler ist beim Laden der Benutzerliste aufgetreten. Bitte versuchen Sie es später erneut.",
+      "failedToDisableUser": "Fehler beim Deaktivieren des Benutzers.",
+      "failedToEnableUser": "Fehler beim Aktivieren des Benutzers.",
+      "disableUserConfirmTitle": "Benutzer deaktivieren",
+      "disableUserConfirmMessage": "Sind Sie sicher, dass Sie diesen Benutzer deaktivieren möchten? Diese Aktion entfernt auch alle aktiven Sitzungen.",
+      "enableUserConfirmTitle": "Benutzer aktivieren",
+      "enableUserConfirmMessage": "Sind Sie sicher, dass Sie diesen Benutzer aktivieren möchten?"
     }
   },
   "user": {
@@ -465,7 +562,69 @@
       "signingOut": "Abmelden...",
       "signOut": "Abmelden",
       "notAuthenticated": "Nicht authentifiziert",
-      "pleaseLogin": "Bitte melden Sie sich an, um Ihr Profil zu sehen."
+      "pleaseLogin": "Bitte melden Sie sich an, um Ihr Profil zu sehen.",
+      "albums": {
+        "albumsNotFound": "Alben nicht gefunden",
+        "userAlbumsTitle": "{username}s Alben",
+        "albumCount": "{count, plural, =0 {0 Alben} =1 {1 Album} other {# Alben}}",
+        "noAlbumsYet": "Noch keine Alben",
+        "noPublicAlbumsDescription": "{username} hat noch keine öffentlichen Alben erstellt.",
+        "loadingMoreAlbums": "Lade weitere Alben...",
+        "noMoreAlbums": "Keine weiteren Alben"
+      },
+      "comments": {
+        "failedToLoadComments": "Fehler beim Laden der Kommentare",
+        "errorOccurred": "Ein Fehler ist aufgetreten",
+        "tryAgain": "Erneut versuchen",
+        "userCommentsTitle": "{username}s Kommentare",
+        "commentsMade": "{count, plural, =0 {0 Kommentare geschrieben} =1 {1 Kommentar geschrieben} other {# Kommentare geschrieben}}",
+        "commentsLoaded": "{count, plural, =0 {0 Kommentare geladen} =1 {1 Kommentar geladen} other {# Kommentare geladen}}",
+        "noCommentsYet": "Noch keine Kommentare"
+      },
+      "likes": {
+        "title": "{username}s Likes",
+        "count": "{count, plural, =0 {0 Likes} =1 {1 Like} other {# Likes}}",
+        "error": {
+          "title": "Fehler beim Laden der Likes",
+          "message": "Fehler beim Laden der Likes"
+        },
+        "empty": {
+          "title": "Noch keine Likes",
+          "description": "{username} hat noch keinen Inhalt geliked."
+        },
+        "loading": {
+          "loadingMore": "Weitere Likes laden...",
+          "noMore": "Keine weiteren Likes"
+        }
+      },
+      "media": {
+        "title": "{username}s Medien",
+        "count": "{count, plural, =0 {0 Elemente} =1 {1 Element} other {# Elemente}}",
+        "noMediaYet": "Noch keine Medien",
+        "error": {
+          "title": "Medien können nicht geladen werden",
+          "message": "Fehler beim Laden der Benutzermedien"
+        },
+        "empty": {
+          "title": "Keine Medien gefunden",
+          "description": "{username} hat noch keine Medien erstellt.",
+          "unavailable": "Die Medien dieses Benutzers sind nicht verfügbar."
+        },
+        "loading": {
+          "loadingMore": "Medien laden...",
+          "noMore": "Keine weiteren Medien"
+        }
+      },
+      "public": {
+        "authRequired": {
+          "title": "Authentifizierung erforderlich",
+          "message": "Sie müssen angemeldet sein, um dieses Profil zu sehen."
+        },
+        "notFound": {
+          "title": "Profil nicht gefunden",
+          "message": "Das gesuchte Benutzerprofil existiert nicht oder wurde privat gemacht."
+        }
+      }
     },
     "settings": {
       "title": "Einstellungen",

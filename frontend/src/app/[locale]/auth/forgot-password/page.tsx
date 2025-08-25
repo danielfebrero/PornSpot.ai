@@ -6,6 +6,7 @@ import {
   generateTranslatedOpenGraphMetadata,
   generateSiteUrl,
 } from "@/lib/opengraph";
+import { getTranslations } from "next-intl/server";
 
 type ForgotPasswordPageProps = {
   params: { locale: string };
@@ -34,18 +35,22 @@ export async function generateMetadata({
   });
 }
 
-function ForgotPasswordFallback() {
+async function ForgotPasswordFallback({ locale }: { locale: string }) {
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+
   return (
     <div className="text-center space-y-4">
       <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p className="text-muted-foreground">Loading forgot password form...</p>
+      <p className="text-muted-foreground">{tCommon("loading")}</p>
     </div>
   );
 }
 
-export default function ForgotPasswordPage() {
+export default function ForgotPasswordPage({
+  params,
+}: ForgotPasswordPageProps) {
   return (
-    <Suspense fallback={<ForgotPasswordFallback />}>
+    <Suspense fallback={<ForgotPasswordFallback locale={params.locale} />}>
       <ForgotPasswordForm />
     </Suspense>
   );

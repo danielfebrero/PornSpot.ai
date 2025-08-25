@@ -3,14 +3,17 @@
 import { useAdminContext } from "@/contexts/AdminContext";
 import { useAdminStatsQuery } from "@/hooks/queries/useAdminStatsQuery";
 import { Card } from "@/components/ui/Card";
+import { useTranslations } from "next-intl";
 
 export default function AdminDashboard() {
   const { user } = useAdminContext();
   const { data: stats, isLoading: loading, error } = useAdminStatsQuery();
+  const t = useTranslations("admin.dashboard");
+  const tCommon = useTranslations("common");
 
   const getStatValue = (key: string, fallback: string = "—") => {
-    if (loading) return "Loading...";
-    if (error) return "Error";
+    if (loading) return tCommon("loading");
+    if (error) return tCommon("error");
     if (!stats) return fallback;
 
     const value = stats[key as keyof typeof stats];
@@ -24,14 +27,14 @@ export default function AdminDashboard() {
   };
 
   const getStatDescription = (loading: boolean, error: Error | null) => {
-    if (loading) return "Loading...";
-    if (error) return "Failed to load";
-    return "Updated just now";
+    if (loading) return tCommon("loading");
+    if (error) return t("failedToLoad");
+    return t("updatedJustNow");
   };
 
   const statsConfig = [
     {
-      title: "Total Albums",
+      title: t("totalAlbums"),
       value: getStatValue("totalAlbums"),
       description: getStatDescription(loading, error),
       icon: (
@@ -51,7 +54,7 @@ export default function AdminDashboard() {
       ),
     },
     {
-      title: "Total Media",
+      title: t("totalMedia"),
       value: getStatValue("totalMedia"),
       description: getStatDescription(loading, error),
       icon: (
@@ -71,7 +74,7 @@ export default function AdminDashboard() {
       ),
     },
     {
-      title: "Public Albums",
+      title: t("publicAlbums"),
       value: getStatValue("publicAlbums"),
       description: getStatDescription(loading, error),
       icon: (
@@ -97,7 +100,7 @@ export default function AdminDashboard() {
       ),
     },
     {
-      title: "Storage Used",
+      title: t("storageUsed"),
       value: getStatValue("storageUsed"),
       description: getStatDescription(loading, error),
       icon: (
@@ -123,10 +126,10 @@ export default function AdminDashboard() {
       {/* Welcome Section */}
       <div className="px-4 sm:px-0 py-4 sm:py-0">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-          Welcome back, {user?.username}!
+          {t("welcomeBack", { username: user?.username || "" })}
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground">
-          Manage your gallery content from this admin dashboard.
+          {t("manageGalleryContent")}
         </p>
       </div>
 

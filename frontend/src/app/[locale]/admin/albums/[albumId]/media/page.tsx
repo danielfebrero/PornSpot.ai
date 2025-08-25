@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useLocaleRouter } from "@/lib/navigation";
 import { MediaManager } from "@/components/admin/MediaManager";
 import {
@@ -18,6 +19,7 @@ interface MediaManagementPageProps {
 export default function MediaManagementPage({
   params,
 }: MediaManagementPageProps) {
+  const t = useTranslations("admin.media");
   const router = useLocaleRouter();
   const { data: album, isLoading: albumLoading } = useAdminAlbum(
     params.albumId
@@ -55,7 +57,7 @@ export default function MediaManagementPage({
       });
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to update cover image"
+        err instanceof Error ? err.message : t("failedToUpdateCoverImage")
       );
     }
   };
@@ -122,7 +124,7 @@ export default function MediaManagementPage({
                 clipRule="evenodd"
               />
             </svg>
-            Back to Albums
+            {t("backToAlbums")}
           </button>
         </div>
         <div className="bg-gradient-to-r from-admin-primary/10 to-admin-secondary/10 rounded-xl p-6 border border-admin-primary/20">
@@ -140,9 +142,13 @@ export default function MediaManagementPage({
                 />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-foreground">Manage Media</h1>
+            <h1 className="text-3xl font-bold text-foreground">
+              {t("manageMedia")}
+            </h1>
           </div>
-          <p className="text-muted-foreground">Upload and manage album media</p>
+          <p className="text-muted-foreground">
+            {t("uploadAndManageAlbumMedia")}
+          </p>
         </div>
         <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
           <div className="flex items-center">
@@ -158,7 +164,7 @@ export default function MediaManagementPage({
               />
             </svg>
             <p className="text-destructive font-medium">
-              {error || "Album not found"}
+              {error || t("albumNotFound")}
             </p>
           </div>
         </div>
@@ -180,7 +186,7 @@ export default function MediaManagementPage({
               clipRule="evenodd"
             />
           </svg>
-          Back to Albums
+          {t("backToAlbums")}
         </button>
       </div>
 
@@ -203,7 +209,7 @@ export default function MediaManagementPage({
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-                Manage Media
+                {t("manageMedia")}
               </h1>
               <p className="text-sm text-muted-foreground line-clamp-1">
                 &quot;{album.title}&quot;
@@ -216,10 +222,10 @@ export default function MediaManagementPage({
             <div className="flex items-center justify-between py-2 px-3 bg-card/50 rounded-lg">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-admin-secondary rounded-full"></div>
-                <span className="text-muted-foreground">Media Count:</span>
+                <span className="text-muted-foreground">{t("mediaCount")}</span>
               </div>
               <span className="font-semibold text-foreground">
-                {album.mediaCount} items
+                {album.mediaCount} {t("items")}
               </span>
             </div>
             <div className="flex items-center justify-between py-2 px-3 bg-card/50 rounded-lg">
@@ -229,7 +235,7 @@ export default function MediaManagementPage({
                     album.isPublic ? "bg-admin-success" : "bg-muted-foreground"
                   }`}
                 ></div>
-                <span className="text-muted-foreground">Status:</span>
+                <span className="text-muted-foreground">{t("status")}</span>
               </div>
               <span
                 className={`font-semibold ${
@@ -238,7 +244,7 @@ export default function MediaManagementPage({
                     : "text-muted-foreground"
                 }`}
               >
-                {album.isPublic ? "Public" : "Private"}
+                {album.isPublic ? t("public") : t("private")}
               </span>
             </div>
           </div>
@@ -262,10 +268,10 @@ export default function MediaManagementPage({
             </div>
             <div>
               <h1 className="text-3xl font-bold text-foreground">
-                Manage Media
+                {t("manageMedia")}
               </h1>
               <p className="text-muted-foreground">
-                Upload and manage media for &quot;{album.title}&quot;
+                {t("uploadAndManageMediaFor")} &quot;{album.title}&quot;
               </p>
             </div>
           </div>
@@ -274,14 +280,14 @@ export default function MediaManagementPage({
           <div className="flex items-center gap-6 text-sm">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-admin-primary rounded-full"></div>
-              <span className="text-muted-foreground">Album ID:</span>
+              <span className="text-muted-foreground">{t("albumId")}</span>
               <span className="font-mono text-foreground">{album.id}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-admin-secondary rounded-full"></div>
-              <span className="text-muted-foreground">Media Count:</span>
+              <span className="text-muted-foreground">{t("mediaCount")}</span>
               <span className="font-semibold text-foreground">
-                {album.mediaCount} items
+                {album.mediaCount} {t("items")}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -290,7 +296,7 @@ export default function MediaManagementPage({
                   album.isPublic ? "bg-admin-success" : "bg-muted-foreground"
                 }`}
               ></div>
-              <span className="text-muted-foreground">Status:</span>
+              <span className="text-muted-foreground">{t("status")}</span>
               <span
                 className={`font-semibold ${
                   album.isPublic
@@ -298,7 +304,7 @@ export default function MediaManagementPage({
                     : "text-muted-foreground"
                 }`}
               >
-                {album.isPublic ? "Public" : "Private"}
+                {album.isPublic ? t("public") : t("private")}
               </span>
             </div>
           </div>

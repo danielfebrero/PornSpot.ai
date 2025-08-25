@@ -1,11 +1,15 @@
 "use client";
 
 import { useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import { Image as ImageIcon } from "lucide-react";
 import { useAdminMediaData } from "@/hooks/queries/useAdminMediaQuery";
 
 export default function AdminMediaPage() {
+  const t = useTranslations("admin.media");
+  const tCommon = useTranslations("common");
+
   const {
     media,
     isLoading: loading,
@@ -70,9 +74,11 @@ export default function AdminMediaPage() {
               <ImageIcon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Media</h1>
+              <h1 className="text-3xl font-bold text-foreground">
+                {t("media")}
+              </h1>
               <p className="text-muted-foreground">
-                Manage and review all media content
+                {t("manageAndReviewAllMediaContent")}
               </p>
             </div>
           </div>
@@ -94,7 +100,7 @@ export default function AdminMediaPage() {
               />
             </svg>
             <p className="text-destructive font-medium">
-              {error?.message || "An error occurred"}
+              {error?.message || tCommon("anErrorOccurred")}
             </p>
           </div>
         </div>
@@ -131,13 +137,12 @@ export default function AdminMediaPage() {
               <ImageIcon className="h-10 w-10 text-admin-primary" />
             </div>
           ),
-          title: "No media found",
-          description:
-            "Media content will appear here once uploaded to the platform.",
+          title: t("noMediaFound"),
+          description: t("mediaContentWillAppearHere"),
         }}
         loadingState={{
-          loadingText: "Loading media...",
-          noMoreText: "All media loaded",
+          loadingText: t("loadingMedia"),
+          noMoreText: t("allMediaLoaded"),
           skeletonCount: 8,
         }}
         error={error ? String(error) : null}

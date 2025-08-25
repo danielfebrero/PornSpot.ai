@@ -32,18 +32,20 @@ export async function generateMetadata({
   };
 }
 
-function RegisterFallback() {
+async function RegisterFallback({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: "common" });
+
   return (
     <div className="text-center space-y-4">
       <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p className="text-muted-foreground">Loading registration form...</p>
+      <p className="text-muted-foreground">{t("loading")}</p>
     </div>
   );
 }
 
-export default function RegisterPage() {
+export default function RegisterPage({ params }: RegisterPageProps) {
   return (
-    <Suspense fallback={<RegisterFallback />}>
+    <Suspense fallback={<RegisterFallback locale={params.locale} />}>
       <RegisterFormWithInvitation />
     </Suspense>
   );

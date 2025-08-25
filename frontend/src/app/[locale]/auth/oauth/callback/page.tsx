@@ -9,6 +9,7 @@ import { invalidateQueries } from "@/lib/queryClient";
 import useGoogleAuth from "@/hooks/useGoogleAuth";
 import { useReturnUrl } from "@/contexts/ReturnUrlContext";
 import { useUserContext } from "@/contexts/UserContext";
+import { useTranslations } from "next-intl";
 
 type CallbackState = "loading" | "success" | "error";
 
@@ -16,6 +17,7 @@ function OAuthCallbackContent() {
   const [state, setState] = useState<CallbackState>("loading");
   const [message, setMessage] = useState("");
   const [isAnimated, setIsAnimated] = useState(false);
+  const t = useTranslations("auth.oauth.callback");
   const { validateOAuthState, clearOAuthState, getStoredReturnUrl } =
     useGoogleAuth();
   const { getReturnUrl, clearReturnUrl } = useReturnUrl();
@@ -83,9 +85,7 @@ function OAuthCallbackContent() {
         // Check for required parameters
         if (!code) {
           setState("error");
-          setMessage(
-            "Missing authorization code from OAuth provider. Please try signing in again."
-          );
+          setMessage(t("missingAuthCode"));
           hasProcessedRef.current = true;
 
           // Mark as processed with error
@@ -119,7 +119,7 @@ function OAuthCallbackContent() {
 
         if (response.user) {
           setState("success");
-          setMessage("Successfully signed in with Google!");
+          setMessage(t("successfullySignedIn"));
 
           // Get stored return URL from both sources (priority to new context)
           const contextReturnUrl = getReturnUrl(false); // Don't clear yet
@@ -149,7 +149,7 @@ function OAuthCallbackContent() {
           router.push(redirectUrl);
         } else {
           setState("error");
-          setMessage("OAuth authentication failed.");
+          setMessage(t("oauthFailed"));
           hasProcessedRef.current = true;
 
           // Mark as processed with error
@@ -159,11 +159,7 @@ function OAuthCallbackContent() {
         }
       } catch (err) {
         setState("error");
-        setMessage(
-          err instanceof Error
-            ? err.message
-            : "An unexpected error occurred during OAuth authentication."
-        );
+        setMessage(err instanceof Error ? err.message : t("unexpectedError"));
         hasProcessedRef.current = true;
 
         // Mark as processed with error
@@ -185,6 +181,7 @@ function OAuthCallbackContent() {
     clearReturnUrl,
     checkAuth,
     router,
+    t,
   ]);
 
   const renderContent = () => {
@@ -207,7 +204,7 @@ function OAuthCallbackContent() {
                   : "translate-y-4 opacity-0"
               }`}
             >
-              Completing sign in...
+              {t("completingSignIn")}
             </h2>
 
             <p
@@ -217,7 +214,7 @@ function OAuthCallbackContent() {
                   : "translate-y-4 opacity-0"
               }`}
             >
-              Please wait while we complete your Google sign in.
+              {t("pleaseWaitGoogle")}
             </p>
           </div>
         );
@@ -252,7 +249,7 @@ function OAuthCallbackContent() {
                   : "translate-y-4 opacity-0"
               }`}
             >
-              🎉 Welcome back!
+              {t("welcomeBack")}
             </h2>
 
             <p
@@ -272,7 +269,7 @@ function OAuthCallbackContent() {
                   : "translate-y-4 opacity-0"
               }`}
             >
-              Redirecting you to the dashboard...
+              {t("redirectingDashboard")}
             </p>
 
             <div
@@ -325,7 +322,7 @@ function OAuthCallbackContent() {
                   : "translate-y-4 opacity-0"
               }`}
             >
-              Authentication Failed
+              {t("authenticationFailed")}
             </h2>
 
             <p
@@ -352,13 +349,13 @@ function OAuthCallbackContent() {
                 </div>
                 <div className="text-left">
                   <h3 className="font-semibold text-foreground text-sm mb-1">
-                    What can you do?
+                    {t("whatCanYouDo")}
                   </h3>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Try signing in again with Google</li>
-                    <li>• Make sure you allow permissions when prompted</li>
-                    <li>• Check if your browser is blocking pop-ups</li>
-                    <li>• Clear your browser cookies and try again</li>
+                    <li>• {t("trySignInAgain")}</li>
+                    <li>• {t("allowPermissions")}</li>
+                    <li>• {t("checkBlockedPopups")}</li>
+                    <li>• {t("clearCookies")}</li>
                   </ul>
                 </div>
               </div>
@@ -375,14 +372,14 @@ function OAuthCallbackContent() {
                 onClick={() => router.push("/auth/login")}
                 className="w-full max-w-sm bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
               >
-                Try Again
+                {t("tryAgain")}
               </Button>
 
               <button
                 onClick={() => router.push("/")}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                Go to Discover
+                {t("goToDiscover")}
               </button>
             </div>
           </div>
@@ -397,6 +394,8 @@ function OAuthCallbackContent() {
 }
 
 export default function OAuthCallbackPage() {
+  const t = useTranslations("auth.oauth.callback");
+
   return (
     <Suspense
       fallback={
@@ -406,11 +405,11 @@ export default function OAuthCallbackPage() {
           </div>
 
           <h2 className="text-2xl font-bold text-foreground mb-2">
-            Processing authentication...
+            {t("processingAuthentication")}
           </h2>
 
           <p className="text-muted-foreground text-lg">
-            Please wait while we process your request.
+            {t("pleaseWaitProcess")}
           </p>
         </div>
       }

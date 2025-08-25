@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useLocaleRouter } from "@/lib/navigation";
 import { AlbumForm } from "@/components/admin/AlbumForm";
 import {
@@ -15,6 +16,7 @@ interface EditAlbumPageProps {
 }
 
 export default function EditAlbumPage({ params }: EditAlbumPageProps) {
+  const t = useTranslations("admin.albums");
   const router = useLocaleRouter();
   const {
     data: album,
@@ -39,7 +41,7 @@ export default function EditAlbumPage({ params }: EditAlbumPageProps) {
       });
       router.push("/admin/albums");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update album");
+      setError(err instanceof Error ? err.message : t("failedToUpdateAlbum"));
     }
   };
 
@@ -52,7 +54,7 @@ export default function EditAlbumPage({ params }: EditAlbumPageProps) {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center space-y-4">
           <div className="w-8 h-8 border-4 border-admin-primary border-t-transparent rounded-full animate-spin"></div>
-          <div className="text-muted-foreground">Loading album...</div>
+          <div className="text-muted-foreground">{t("loadingAlbum")}</div>
         </div>
       </div>
     );
@@ -72,10 +74,12 @@ export default function EditAlbumPage({ params }: EditAlbumPageProps) {
                 <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-foreground">Edit Album</h1>
+            <h1 className="text-3xl font-bold text-foreground">
+              {t("editAlbum")}
+            </h1>
           </div>
           <p className="text-muted-foreground">
-            Update album details and settings
+            {t("updateAlbumDetailsAndSettings")}
           </p>
         </div>
         <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
@@ -112,9 +116,11 @@ export default function EditAlbumPage({ params }: EditAlbumPageProps) {
                 <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-foreground">Edit Album</h1>
+            <h1 className="text-3xl font-bold text-foreground">
+              {t("editAlbum")}
+            </h1>
           </div>
-          <p className="text-muted-foreground">Album not found</p>
+          <p className="text-muted-foreground">{t("albumNotFound")}</p>
         </div>
       </div>
     );
@@ -133,10 +139,12 @@ export default function EditAlbumPage({ params }: EditAlbumPageProps) {
               <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Edit Album</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            {t("editAlbum")}
+          </h1>
         </div>
         <p className="text-muted-foreground">
-          Update album details and settings
+          {t("updateAlbumDetailsAndSettings")}
         </p>
       </div>
 
@@ -169,7 +177,7 @@ export default function EditAlbumPage({ params }: EditAlbumPageProps) {
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         loading={updateAlbumMutation.isPending}
-        submitText="Update Album"
+        submitText={t("updateAlbum")}
         albumId={params.albumId}
       />
     </div>

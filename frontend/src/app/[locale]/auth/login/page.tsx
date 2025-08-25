@@ -6,6 +6,7 @@ import {
   generateTranslatedOpenGraphMetadata,
   generateSiteUrl,
 } from "@/lib/opengraph";
+import { getTranslations } from "next-intl/server";
 
 type LoginPageProps = {
   params: { locale: string };
@@ -34,18 +35,20 @@ export async function generateMetadata({
   });
 }
 
-function LoginFallback() {
+async function LoginFallback({ locale }: { locale: string }) {
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+
   return (
     <div className="text-center space-y-4">
       <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p className="text-muted-foreground">Loading login form...</p>
+      <p className="text-muted-foreground">{tCommon("loading")}</p>
     </div>
   );
 }
 
-export default function LoginPage() {
+export default function LoginPage({ params }: LoginPageProps) {
   return (
-    <Suspense fallback={<LoginFallback />}>
+    <Suspense fallback={<LoginFallback locale={params.locale} />}>
       <LoginForm />
     </Suspense>
   );

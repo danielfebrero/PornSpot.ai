@@ -58,6 +58,7 @@
     "preview": "Preview",
     "fullscreen": "Fullscreen",
     "minimize": "Minimize",
+    "anErrorOccurred": "An error occurred",
     "maximize": "Maximize",
     "failedToUpdate": "Failed to update",
     "filteredBy": "Filtered by",
@@ -179,7 +180,27 @@
     "oauth": {
       "continueWith": "Continue with",
       "signInWith": "Sign in with",
-      "or": "or"
+      "or": "or",
+      "callback": {
+        "completingSignIn": "Completing sign in...",
+        "pleaseWaitGoogle": "Please wait while we complete your Google sign in.",
+        "processingAuthentication": "Processing authentication...",
+        "pleaseWaitProcess": "Please wait while we process your request.",
+        "welcomeBack": "🎉 Welcome back!",
+        "successfullySignedIn": "Successfully signed in with Google!",
+        "redirectingDashboard": "Redirecting you to the dashboard...",
+        "authenticationFailed": "Authentication Failed",
+        "missingAuthCode": "Missing authorization code from OAuth provider. Please try signing in again.",
+        "oauthFailed": "OAuth authentication failed.",
+        "unexpectedError": "An unexpected error occurred during OAuth authentication.",
+        "whatCanYouDo": "What can you do?",
+        "trySignInAgain": "Try signing in again with Google",
+        "allowPermissions": "Make sure you allow permissions when prompted",
+        "checkBlockedPopups": "Check if your browser is blocking pop-ups",
+        "clearCookies": "Clear your browser cookies and try again",
+        "tryAgain": "Try Again",
+        "goToDiscover": "Go to Discover"
+      }
     },
     "google": {
       "signIn": "Sign in with Google",
@@ -239,7 +260,9 @@
       "meta": {
         "title": "Success - PornSpot.ai",
         "description": "Authentication successful"
-      }
+      },
+      "loading": "Loading...",
+      "processingAuth": "Please wait while we complete your authentication."
     },
     "forgotPassword": {
       "meta": {
@@ -274,7 +297,8 @@
       "meta": {
         "title": "Verify Email - PornSpot.ai",
         "description": "Verify your email address"
-      }
+      },
+      "loadingVerification": "Loading verification..."
     },
     "whyRegister": {
       "title": "Why Register?",
@@ -341,6 +365,16 @@
     "createAlbum": "Create Album",
     "users": "Users",
     "settings": "Settings",
+    "dashboard": {
+      "totalAlbums": "Total Albums",
+      "totalMedia": "Total Media",
+      "publicAlbums": "Public Albums",
+      "storageUsed": "Storage Used",
+      "failedToLoad": "Failed to load",
+      "updatedJustNow": "Updated just now",
+      "welcomeBack": "Welcome back, {username}!",
+      "manageGalleryContent": "Manage your gallery content from this admin dashboard."
+    },
     "stats": {
       "totalUsers": "Total Users",
       "totalAlbums": "Total Albums",
@@ -368,6 +402,12 @@
       "banned": "Banned"
     },
     "media": {
+      "media": "Media",
+      "manageAndReviewAllMediaContent": "Manage and review all media content",
+      "noMediaFound": "No media found",
+      "mediaContentWillAppearHere": "Media content will appear here once uploaded to the platform.",
+      "loadingMedia": "Loading media...",
+      "allMediaLoaded": "All media loaded",
       "approve": "Approve",
       "reject": "Reject",
       "pending": "Pending",
@@ -375,7 +415,19 @@
       "rejected": "Rejected",
       "moderate": "Moderate",
       "flag": "Flag",
-      "unflag": "Unflag"
+      "unflag": "Unflag",
+      "manageMedia": "Manage Media",
+      "uploadAndManageAlbumMedia": "Upload and manage album media",
+      "uploadAndManageMediaFor": "Upload and manage media for",
+      "backToAlbums": "Back to Albums",
+      "albumNotFound": "Album not found",
+      "failedToUpdateCoverImage": "Failed to update cover image",
+      "mediaCount": "Media Count:",
+      "albumId": "Album ID:",
+      "status": "Status:",
+      "public": "Public",
+      "private": "Private",
+      "items": "items"
     },
     "albums": {
       "publish": "Publish",
@@ -383,7 +435,28 @@
       "feature": "Feature",
       "unfeature": "Unfeature",
       "archive": "Archive",
-      "unarchive": "Unarchive"
+      "unarchive": "Unarchive",
+      "editAlbum": "Edit Album",
+      "updateAlbumDetailsAndSettings": "Update album details and settings",
+      "albumNotFound": "Album not found",
+      "loadingAlbum": "Loading album...",
+      "updateAlbum": "Update Album",
+      "failedToUpdateAlbum": "Failed to update album",
+      "createNewAlbum": "Create New Album",
+      "createBeautifulPhotoAlbum": "Create a beautiful photo album to showcase your artwork",
+      "createAlbum": "Create Album",
+      "failedToCreateAlbum": "Failed to create album",
+      "albums": "Albums",
+      "manageYourPhotoAlbums": "Manage your photo albums and collections",
+      "manageMedia": "Manage Media",
+      "deleteAlbum": "Delete Album",
+      "noAlbumsFound": "No albums found",
+      "createFirstAlbumToGetStarted": "Create your first album to get started with organizing content.",
+      "loadingAlbums": "Loading albums...",
+      "allAlbumsLoaded": "All albums loaded",
+      "deleteAlbumConfirmTitle": "Delete Album",
+      "deleteAlbumConfirmMessage": "Are you sure you want to delete \"{albumTitle}\"? This action cannot be undone and will also delete all media in this album.",
+      "delete": "Delete"
     },
     "fileUpload": {
       "selectFiles": "Select Files",
@@ -407,6 +480,30 @@
       "change": "Change Cover Image",
       "remove": "Remove Cover Image",
       "upload": "Upload Cover Image"
+    },
+    "userManagementPage": {
+      "userManagement": "User Management",
+      "userManagementDescription": "Manage user accounts, view profiles, and disable accounts if necessary",
+      "usersLabel": "Users",
+      "partial": "partial",
+      "usersList": "Users List",
+      "noUsersFound": "No users found",
+      "disabled": "Disabled",
+      "lastActive": "Last active",
+      "view": "View",
+      "disable": "Disable",
+      "enable": "Enable",
+      "disabling": "Disabling...",
+      "enabling": "Enabling...",
+      "loadMore": "Load More",
+      "loadingError": "Loading Error",
+      "loadingErrorDescription": "An error occurred while loading the users list. Please try again later.",
+      "failedToDisableUser": "Error disabling the user.",
+      "failedToEnableUser": "Error enabling the user.",
+      "disableUserConfirmTitle": "Disable User",
+      "disableUserConfirmMessage": "Are you sure you want to disable this user? This action will also remove all their active sessions.",
+      "enableUserConfirmTitle": "Enable User",
+      "enableUserConfirmMessage": "Are you sure you want to enable this user?"
     }
   },
   "user": {
@@ -503,7 +600,69 @@
       "signingOut": "Signing out...",
       "signOut": "Sign out",
       "notAuthenticated": "Not authenticated",
-      "pleaseLogin": "Please log in to view your profile."
+      "pleaseLogin": "Please log in to view your profile.",
+      "albums": {
+        "albumsNotFound": "Albums not found",
+        "userAlbumsTitle": "{username}'s Albums",
+        "albumCount": "{count, plural, =0 {0 albums} =1 {1 album} other {# albums}}",
+        "noAlbumsYet": "No albums yet",
+        "noPublicAlbumsDescription": "{username} hasn't created any public albums yet.",
+        "loadingMoreAlbums": "Loading more albums...",
+        "noMoreAlbums": "No more albums"
+      },
+      "comments": {
+        "failedToLoadComments": "Failed to load comments",
+        "errorOccurred": "An error occurred",
+        "tryAgain": "Try Again",
+        "userCommentsTitle": "{username}'s Comments",
+        "commentsMade": "{count, plural, =0 {0 comments made} =1 {1 comment made} other {# comments made}}",
+        "commentsLoaded": "{count, plural, =0 {0 comments loaded} =1 {1 comment loaded} other {# comments loaded}}",
+        "noCommentsYet": "No comments yet"
+      },
+      "likes": {
+        "title": "{username}'s Likes",
+        "count": "{count, plural, =0 {0 likes} =1 {1 like} other {# likes}}",
+        "error": {
+          "title": "Error loading likes",
+          "message": "Failed to load likes"
+        },
+        "empty": {
+          "title": "No likes yet",
+          "description": "{username} hasn't liked any content yet."
+        },
+        "loading": {
+          "loadingMore": "Loading more likes...",
+          "noMore": "No more likes"
+        }
+      },
+      "media": {
+        "title": "{username}'s Media",
+        "count": "{count, plural, =0 {0 items} =1 {1 item} other {# items}}",
+        "noMediaYet": "No media yet",
+        "error": {
+          "title": "Unable to load media",
+          "message": "Failed to load user media"
+        },
+        "empty": {
+          "title": "No media found",
+          "description": "{username} hasn't generated any media yet.",
+          "unavailable": "This user's media is not available."
+        },
+        "loading": {
+          "loadingMore": "Loading media...",
+          "noMore": "No more media"
+        }
+      },
+      "public": {
+        "authRequired": {
+          "title": "Authentication Required",
+          "message": "You must be logged in to view this profile."
+        },
+        "notFound": {
+          "title": "Profile not found",
+          "message": "The user profile you're looking for doesn't exist or has been made private."
+        }
+      }
     },
     "settings": {
       "title": "Settings",

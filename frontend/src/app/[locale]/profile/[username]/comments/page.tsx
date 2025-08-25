@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Mail, Grid, List, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
@@ -15,6 +16,7 @@ import { useDevice } from "@/contexts/DeviceContext";
 export default function UserCommentsPage() {
   const params = useParams();
   const username = params.username as string;
+  const t = useTranslations("profile.comments");
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
@@ -100,13 +102,13 @@ export default function UserCommentsPage() {
         <div className="text-center">
           <Mail className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-foreground mb-2">
-            Failed to load comments
+            {t("failedToLoadComments")}
           </h2>
           <p className="text-muted-foreground mb-4">
-            {(error as Error)?.message || "An error occurred"}
+            {(error as Error)?.message || t("errorOccurred")}
           </p>
           <Button onClick={() => window.location.reload()} variant="outline">
-            Try Again
+            {t("tryAgain")}
           </Button>
         </div>
       </div>
@@ -135,7 +137,7 @@ export default function UserCommentsPage() {
                   <div className="flex items-center gap-2">
                     <Mail className="w-4 h-4 text-blue-500 shrink-0" />
                     <h1 className="text-lg font-bold text-foreground">
-                      {displayName}&apos;s Comments
+                      {t("userCommentsTitle", { username: displayName })}
                     </h1>
                   </div>
                 </div>
@@ -157,22 +159,14 @@ export default function UserCommentsPage() {
 
                     <div>
                       <h1 className="text-2xl font-bold text-foreground">
-                        {displayName}&apos;s Comments
+                        {t("userCommentsTitle", { username: displayName })}
                       </h1>
                       <p className="text-muted-foreground">
-                        {totalCount > 0 ? (
-                          <>
-                            {totalCount} comment{totalCount !== 1 ? "s" : ""}{" "}
-                            made
-                          </>
-                        ) : comments.length > 0 ? (
-                          <>
-                            {comments.length} comment
-                            {comments.length !== 1 ? "s" : ""} loaded
-                          </>
-                        ) : (
-                          "No comments yet"
-                        )}
+                        {totalCount > 0
+                          ? t("commentsMade", { count: totalCount })
+                          : comments.length > 0
+                          ? t("commentsLoaded", { count: comments.length })
+                          : t("noCommentsYet")}
                       </p>
                     </div>
                   </div>

@@ -32,18 +32,20 @@ export async function generateMetadata({
   };
 }
 
-function VerifyEmailFallback() {
+async function VerifyEmailFallback({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: "auth.verifyEmail" });
+
   return (
     <div className="text-center space-y-4">
       <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p className="text-muted-foreground">Loading verification...</p>
+      <p className="text-muted-foreground">{t("loadingVerification")}</p>
     </div>
   );
 }
 
-export default function VerifyEmailPage() {
+export default function VerifyEmailPage({ params }: VerifyEmailPageProps) {
   return (
-    <Suspense fallback={<VerifyEmailFallback />}>
+    <Suspense fallback={<VerifyEmailFallback locale={params.locale} />}>
       <VerifyEmailClient />
     </Suspense>
   );

@@ -58,6 +58,7 @@
     "preview": "Vista previa",
     "fullscreen": "Pantalla completa",
     "minimize": "Minimizar",
+    "anErrorOccurred": "Ocurrió un error",
     "maximize": "Maximizar",
     "failedToUpdate": "Error al actualizar",
     "filteredBy": "Filtrado por",
@@ -178,7 +179,27 @@
     "oauth": {
       "continueWith": "Continuar con",
       "signInWith": "Iniciar sesión con",
-      "or": "o"
+      "or": "o",
+      "callback": {
+        "completingSignIn": "Completando inicio de sesión...",
+        "pleaseWaitGoogle": "Por favor espere mientras completamos su inicio de sesión con Google.",
+        "processingAuthentication": "Procesando autenticación...",
+        "pleaseWaitProcess": "Por favor espere mientras procesamos su solicitud.",
+        "welcomeBack": "🎉 ¡Bienvenido de vuelta!",
+        "successfullySignedIn": "¡Inicio de sesión con Google exitoso!",
+        "redirectingDashboard": "Redirigiendo al panel de control...",
+        "authenticationFailed": "Fallo en la autenticación",
+        "missingAuthCode": "Código de autorización faltante del proveedor OAuth. Por favor intente iniciar sesión nuevamente.",
+        "oauthFailed": "Fallo en la autenticación OAuth.",
+        "unexpectedError": "Ocurrió un error inesperado durante la autenticación OAuth.",
+        "whatCanYouDo": "¿Qué puedes hacer?",
+        "trySignInAgain": "Intenta iniciar sesión nuevamente con Google",
+        "allowPermissions": "Asegúrate de permitir los permisos cuando se solicite",
+        "checkBlockedPopups": "Verifica si tu navegador está bloqueando ventanas emergentes",
+        "clearCookies": "Borra las cookies de tu navegador e intenta nuevamente",
+        "tryAgain": "Intentar de nuevo",
+        "goToDiscover": "Ir a Descubrir"
+      }
     },
     "google": {
       "signIn": "Iniciar sesión con Google",
@@ -238,13 +259,16 @@
       "meta": {
         "title": "Éxito - PornSpot.ai",
         "description": "Autenticación exitosa"
-      }
+      },
+      "loading": "Cargando...",
+      "processingAuth": "Por favor espere mientras completamos su autenticación."
     },
     "verifyEmail": {
       "meta": {
         "title": "Verificar email - PornSpot.ai",
         "description": "Verifica tu dirección de correo electrónico"
-      }
+      },
+      "loadingVerification": "Cargando verificación..."
     },
     "whyRegister": {
       "title": "¿Por qué registrarse?",
@@ -311,6 +335,16 @@
     "createAlbum": "Crear álbum",
     "users": "Usuarios",
     "settings": "Configuración",
+    "dashboard": {
+      "totalAlbums": "Total de álbumes",
+      "totalMedia": "Total de medios",
+      "publicAlbums": "Álbumes públicos",
+      "storageUsed": "Almacenamiento usado",
+      "failedToLoad": "Error al cargar",
+      "updatedJustNow": "Actualizado ahora mismo",
+      "welcomeBack": "¡Bienvenido de vuelta, {username}!",
+      "manageGalleryContent": "Gestiona el contenido de tu galería desde este panel de administración."
+    },
     "stats": {
       "totalUsers": "Total de usuarios",
       "totalAlbums": "Total de álbumes",
@@ -338,6 +372,12 @@
       "banned": "Baneado"
     },
     "media": {
+      "media": "Medios",
+      "manageAndReviewAllMediaContent": "Gestionar y revisar todo el contenido multimedia",
+      "noMediaFound": "No se encontraron medios",
+      "mediaContentWillAppearHere": "El contenido multimedia aparecerá aquí una vez subido a la plataforma.",
+      "loadingMedia": "Cargando medios...",
+      "allMediaLoaded": "Todos los medios cargados",
       "approve": "Aprobar",
       "reject": "Rechazar",
       "pending": "Pendiente",
@@ -345,7 +385,19 @@
       "rejected": "Rechazado",
       "moderate": "Moderar",
       "flag": "Reportar",
-      "unflag": "Quitar reporte"
+      "unflag": "Quitar reporte",
+      "manageMedia": "Gestionar medios",
+      "uploadAndManageAlbumMedia": "Subir y gestionar medios del álbum",
+      "uploadAndManageMediaFor": "Subir y gestionar medios para",
+      "backToAlbums": "Volver a álbumes",
+      "albumNotFound": "Álbum no encontrado",
+      "failedToUpdateCoverImage": "Error al actualizar la imagen de portada",
+      "mediaCount": "Cantidad de medios:",
+      "albumId": "ID del álbum:",
+      "status": "Estado:",
+      "public": "Público",
+      "private": "Privado",
+      "items": "elementos"
     },
     "albums": {
       "publish": "Publicar",
@@ -353,7 +405,28 @@
       "feature": "Destacar",
       "unfeature": "Quitar destacado",
       "archive": "Archivar",
-      "unarchive": "Desarchivar"
+      "unarchive": "Desarchivar",
+      "editAlbum": "Editar álbum",
+      "updateAlbumDetailsAndSettings": "Actualizar detalles y configuración del álbum",
+      "albumNotFound": "Álbum no encontrado",
+      "loadingAlbum": "Cargando álbum...",
+      "updateAlbum": "Actualizar álbum",
+      "failedToUpdateAlbum": "Error al actualizar el álbum",
+      "createNewAlbum": "Crear nuevo álbum",
+      "createBeautifulPhotoAlbum": "Crea un hermoso álbum de fotos para mostrar tu arte",
+      "createAlbum": "Crear álbum",
+      "failedToCreateAlbum": "Error al crear el álbum",
+      "albums": "Álbumes",
+      "manageYourPhotoAlbums": "Gestiona tus álbumes de fotos y colecciones",
+      "manageMedia": "Gestionar medios",
+      "deleteAlbum": "Eliminar álbum",
+      "noAlbumsFound": "No se encontraron álbumes",
+      "createFirstAlbumToGetStarted": "Crea tu primer álbum para comenzar a organizar contenido.",
+      "loadingAlbums": "Cargando álbumes...",
+      "allAlbumsLoaded": "Todos los álbumes cargados",
+      "deleteAlbumConfirmTitle": "Eliminar álbum",
+      "deleteAlbumConfirmMessage": "¿Estás seguro de que quieres eliminar \"{albumTitle}\"? Esta acción no se puede deshacer y también eliminará todos los medios de este álbum.",
+      "delete": "Eliminar"
     },
     "fileUpload": {
       "selectFiles": "Seleccionar archivos",
@@ -369,6 +442,30 @@
       "change": "Cambiar imagen de portada",
       "remove": "Quitar imagen de portada",
       "upload": "Subir imagen de portada"
+    },
+    "userManagementPage": {
+      "userManagement": "Gestión de usuarios",
+      "userManagementDescription": "Gestiona cuentas de usuario, consulta perfiles y desactiva cuentas si es necesario",
+      "usersLabel": "Usuarios",
+      "partial": "parciales",
+      "usersList": "Lista de usuarios",
+      "noUsersFound": "No se encontraron usuarios",
+      "disabled": "Desactivado",
+      "lastActive": "Última actividad",
+      "view": "Ver",
+      "disable": "Desactivar",
+      "enable": "Reactivar",
+      "disabling": "Desactivando...",
+      "enabling": "Reactivando...",
+      "loadMore": "Cargar más",
+      "loadingError": "Error de carga",
+      "loadingErrorDescription": "Ocurrió un error al cargar la lista de usuarios. Por favor, inténtalo de nuevo más tarde.",
+      "failedToDisableUser": "Error al desactivar el usuario.",
+      "failedToEnableUser": "Error al reactivar el usuario.",
+      "disableUserConfirmTitle": "Desactivar usuario",
+      "disableUserConfirmMessage": "¿Estás seguro de que quieres desactivar este usuario? Esta acción también eliminará todas sus sesiones activas.",
+      "enableUserConfirmTitle": "Reactivar usuario",
+      "enableUserConfirmMessage": "¿Estás seguro de que quieres reactivar este usuario?"
     }
   },
   "user": {
@@ -465,7 +562,69 @@
       "signingOut": "Cerrando sesión...",
       "signOut": "Cerrar sesión",
       "notAuthenticated": "No autenticado",
-      "pleaseLogin": "Por favor inicia sesión para ver tu perfil."
+      "pleaseLogin": "Por favor inicia sesión para ver tu perfil.",
+      "albums": {
+        "albumsNotFound": "Álbumes no encontrados",
+        "userAlbumsTitle": "Álbumes de {username}",
+        "albumCount": "{count, plural, =0 {0 álbumes} =1 {1 álbum} other {# álbumes}}",
+        "noAlbumsYet": "Aún no hay álbumes",
+        "noPublicAlbumsDescription": "{username} aún no ha creado álbumes públicos.",
+        "loadingMoreAlbums": "Cargando más álbumes...",
+        "noMoreAlbums": "No hay más álbumes"
+      },
+      "comments": {
+        "failedToLoadComments": "Error al cargar comentarios",
+        "errorOccurred": "Ocurrió un error",
+        "tryAgain": "Intentar de nuevo",
+        "userCommentsTitle": "Comentarios de {username}",
+        "commentsMade": "{count, plural, =0 {0 comentarios hechos} =1 {1 comentario hecho} other {# comentarios hechos}}",
+        "commentsLoaded": "{count, plural, =0 {0 comentarios cargados} =1 {1 comentario cargado} other {# comentarios cargados}}",
+        "noCommentsYet": "Aún no hay comentarios"
+      },
+      "likes": {
+        "title": "Me gusta de {username}",
+        "count": "{count, plural, =0 {0 me gusta} =1 {1 me gusta} other {# me gusta}}",
+        "error": {
+          "title": "Error al cargar los me gusta",
+          "message": "Error al cargar los me gusta"
+        },
+        "empty": {
+          "title": "Aún no hay me gusta",
+          "description": "{username} aún no ha dado me gusta a ningún contenido."
+        },
+        "loading": {
+          "loadingMore": "Cargando más me gusta...",
+          "noMore": "No hay más me gusta"
+        }
+      },
+      "media": {
+        "title": "Medios de {username}",
+        "count": "{count, plural, =0 {0 elementos} =1 {1 elemento} other {# elementos}}",
+        "noMediaYet": "Aún no hay medios",
+        "error": {
+          "title": "No se pueden cargar los medios",
+          "message": "Error al cargar los medios del usuario"
+        },
+        "empty": {
+          "title": "No se encontraron medios",
+          "description": "{username} aún no ha generado ningún medio.",
+          "unavailable": "Los medios de este usuario no están disponibles."
+        },
+        "loading": {
+          "loadingMore": "Cargando medios...",
+          "noMore": "No hay más medios"
+        }
+      },
+      "public": {
+        "authRequired": {
+          "title": "Autenticación requerida",
+          "message": "Debes iniciar sesión para ver este perfil."
+        },
+        "notFound": {
+          "title": "Perfil no encontrado",
+          "message": "El perfil de usuario que buscas no existe o se ha hecho privado."
+        }
+      }
     },
     "settings": {
       "title": "Configuración",

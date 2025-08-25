@@ -58,6 +58,7 @@
     "preview": "预览",
     "fullscreen": "全屏",
     "minimize": "最小化",
+    "anErrorOccurred": "发生错误",
     "maximize": "最大化",
     "failedToUpdate": "更新失败",
     "filteredBy": "筛选条件",
@@ -178,7 +179,27 @@
     "oauth": {
       "continueWith": "继续使用",
       "signInWith": "登录使用",
-      "or": "或"
+      "or": "或",
+      "callback": {
+        "completingSignIn": "完成登录中...",
+        "pleaseWaitGoogle": "请等待我们完成您的Google登录。",
+        "processingAuthentication": "处理身份验证中...",
+        "pleaseWaitProcess": "请等待我们处理您的请求。",
+        "welcomeBack": "🎉 欢迎回来！",
+        "successfullySignedIn": "Google登录成功！",
+        "redirectingDashboard": "正在重定向到仪表板...",
+        "authenticationFailed": "身份验证失败",
+        "missingAuthCode": "缺少OAuth提供商的授权码。请尝试重新登录。",
+        "oauthFailed": "OAuth身份验证失败。",
+        "unexpectedError": "OAuth身份验证过程中发生意外错误。",
+        "whatCanYouDo": "您可以怎么做？",
+        "trySignInAgain": "尝试再次使用Google登录",
+        "allowPermissions": "确保在提示时允许权限",
+        "checkBlockedPopups": "检查您的浏览器是否阻止弹出窗口",
+        "clearCookies": "清除浏览器cookie并重试",
+        "tryAgain": "再试一次",
+        "goToDiscover": "转到发现"
+      }
     },
     "google": {
       "signIn": "使用Google登录",
@@ -238,13 +259,16 @@
       "meta": {
         "title": "成功 - PornSpot.ai",
         "description": "认证成功"
-      }
+      },
+      "loading": "加载中...",
+      "processingAuth": "请稍候，我们正在完成您的身份验证。"
     },
     "verifyEmail": {
       "meta": {
         "title": "验证邮箱 - PornSpot.ai",
         "description": "验证您的邮箱地址"
-      }
+      },
+      "loadingVerification": "正在加载验证..."
     },
     "whyRegister": {
       "title": "为什么要注册？",
@@ -311,6 +335,16 @@
     "createAlbum": "创建相册",
     "users": "用户",
     "settings": "设置",
+    "dashboard": {
+      "totalAlbums": "总相册数",
+      "totalMedia": "总媒体数",
+      "publicAlbums": "公开相册",
+      "storageUsed": "已使用存储",
+      "failedToLoad": "加载失败",
+      "updatedJustNow": "刚刚更新",
+      "welcomeBack": "欢迎回来，{username}！",
+      "manageGalleryContent": "从此管理员仪表板管理您的画廊内容。"
+    },
     "stats": {
       "totalUsers": "总用户数",
       "totalAlbums": "总相册数",
@@ -338,6 +372,12 @@
       "banned": "被封禁"
     },
     "media": {
+      "media": "媒体",
+      "manageAndReviewAllMediaContent": "管理和审查所有媒体内容",
+      "noMediaFound": "未找到媒体",
+      "mediaContentWillAppearHere": "媒体内容上传到平台后将显示在此处。",
+      "loadingMedia": "加载媒体中...",
+      "allMediaLoaded": "所有媒体已加载",
       "approve": "批准",
       "reject": "拒绝",
       "pending": "待审核",
@@ -345,15 +385,50 @@
       "rejected": "已拒绝",
       "moderate": "审核",
       "flag": "举报",
-      "unflag": "取消举报"
+      "unflag": "取消举报",
+      "manageMedia": "管理媒体",
+      "uploadAndManageAlbumMedia": "上传和管理相册媒体",
+      "uploadAndManageMediaFor": "上传和管理媒体",
+      "backToAlbums": "返回相册",
+      "albumNotFound": "未找到相册",
+      "failedToUpdateCoverImage": "更新封面图片失败",
+      "mediaCount": "媒体数量：",
+      "albumId": "相册ID：",
+      "status": "状态：",
+      "public": "公开",
+      "private": "私有",
+      "items": "项"
     },
     "albums": {
+      "albums": "相册",
+      "manageYourPhotoAlbums": "管理您的相册",
+      "manageMedia": "管理媒体",
+      "deleteAlbum": "删除相册",
+      "deleteAlbumConfirmMessage": "您确定要删除相册\"{{albumTitle}}\"吗？所有媒体文件也将被删除。",
+      "albumDeletedSuccessfully": "相册删除成功",
+      "noAlbumsFound": "未找到相册",
+      "youHaventCreatedAnyAlbumsYet": "您还没有创建任何相册。",
+      "createYourFirstAlbum": "创建您的第一个相册",
+      "emptyState": "无相册",
+      "loadingAlbums": "加载相册中...",
+      "confirmedAction": "已确认操作",
+      "failedToDeleteAlbum": "删除相册失败",
       "publish": "发布",
       "unpublish": "取消发布",
       "feature": "推荐",
       "unfeature": "取消推荐",
       "archive": "归档",
-      "unarchive": "取消归档"
+      "unarchive": "取消归档",
+      "editAlbum": "编辑相册",
+      "updateAlbumDetailsAndSettings": "更新相册详情和设置",
+      "albumNotFound": "未找到相册",
+      "loadingAlbum": "加载相册中...",
+      "updateAlbum": "更新相册",
+      "failedToUpdateAlbum": "更新相册失败",
+      "createNewAlbum": "创建新相册",
+      "createBeautifulPhotoAlbum": "创建一个美丽的相册来展示您的艺术作品",
+      "createAlbum": "创建相册",
+      "failedToCreateAlbum": "创建相册失败"
     },
     "fileUpload": {
       "selectFiles": "选择文件",
@@ -369,6 +444,30 @@
       "change": "更换封面图片",
       "remove": "移除封面图片",
       "upload": "上传封面图片"
+    },
+    "userManagementPage": {
+      "userManagement": "用户管理",
+      "userManagementDescription": "管理用户账户，查看资料，必要时禁用账户",
+      "usersLabel": "用户",
+      "partial": "部分",
+      "usersList": "用户列表",
+      "noUsersFound": "未找到用户",
+      "disabled": "已禁用",
+      "lastActive": "最后活跃",
+      "view": "查看",
+      "disable": "禁用",
+      "enable": "启用",
+      "disabling": "禁用中...",
+      "enabling": "启用中...",
+      "loadMore": "加载更多",
+      "loadingError": "加载错误",
+      "loadingErrorDescription": "加载用户列表时发生错误。请稍后重试。",
+      "failedToDisableUser": "禁用用户时出错。",
+      "failedToEnableUser": "启用用户时出错。",
+      "disableUserConfirmTitle": "禁用用户",
+      "disableUserConfirmMessage": "您确定要禁用此用户吗？此操作还将删除其所有活跃会话。",
+      "enableUserConfirmTitle": "启用用户",
+      "enableUserConfirmMessage": "您确定要启用此用户吗？"
     }
   },
   "user": {
@@ -465,7 +564,69 @@
       "signingOut": "退出中...",
       "signOut": "退出登录",
       "notAuthenticated": "未认证",
-      "pleaseLogin": "请登录查看您的个人资料。"
+      "pleaseLogin": "请登录查看您的个人资料。",
+      "albums": {
+        "albumsNotFound": "未找到专辑",
+        "userAlbumsTitle": "{username}的专辑",
+        "albumCount": "{count, plural, =0 {0个专辑} other {#个专辑}}",
+        "noAlbumsYet": "还没有专辑",
+        "noPublicAlbumsDescription": "{username}还没有创建任何公开专辑。",
+        "loadingMoreAlbums": "加载更多专辑...",
+        "noMoreAlbums": "没有更多专辑"
+      },
+      "comments": {
+        "failedToLoadComments": "加载评论失败",
+        "errorOccurred": "发生错误",
+        "tryAgain": "重试",
+        "userCommentsTitle": "{username}的评论",
+        "commentsMade": "{count, plural, =0 {已发表0条评论} other {已发表#条评论}}",
+        "commentsLoaded": "{count, plural, =0 {已加载0条评论} other {已加载#条评论}}",
+        "noCommentsYet": "还没有评论"
+      },
+      "likes": {
+        "title": "{username}的点赞",
+        "count": "{count, plural, =0 {0个点赞} other {#个点赞}}",
+        "error": {
+          "title": "加载点赞失败",
+          "message": "加载点赞失败"
+        },
+        "empty": {
+          "title": "还没有点赞",
+          "description": "{username}还没有点赞任何内容。"
+        },
+        "loading": {
+          "loadingMore": "加载更多点赞...",
+          "noMore": "没有更多点赞"
+        }
+      },
+      "media": {
+        "title": "{username}的媒体",
+        "count": "{count, plural, =0 {0个项目} other {#个项目}}",
+        "noMediaYet": "还没有媒体",
+        "error": {
+          "title": "无法加载媒体",
+          "message": "加载用户媒体失败"
+        },
+        "empty": {
+          "title": "未找到媒体",
+          "description": "{username}还没有生成任何媒体。",
+          "unavailable": "此用户的媒体不可用。"
+        },
+        "loading": {
+          "loadingMore": "加载媒体中...",
+          "noMore": "没有更多媒体"
+        }
+      },
+      "public": {
+        "authRequired": {
+          "title": "需要认证",
+          "message": "您必须登录才能查看此个人资料。"
+        },
+        "notFound": {
+          "title": "找不到个人资料",
+          "message": "您要查找的用户个人资料不存在或已设为私密。"
+        }
+      }
     },
     "settings": {
       "title": "设置",

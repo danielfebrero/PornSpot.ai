@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   useAdminUsersQuery,
   useDisableUserMutation,
@@ -26,6 +27,8 @@ import {
 } from "lucide-react";
 
 export default function AdminUsersPage() {
+  const t = useTranslations("admin.userManagementPage");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const {
     data: usersData,
@@ -82,7 +85,7 @@ export default function AdminUsersPage() {
       await disableUserMutation.mutateAsync(disableConfirm.userId);
     } catch (error) {
       console.error("Failed to disable user:", error);
-      alert("Erreur lors de la désactivation de l'utilisateur.");
+      alert(t("failedToDisableUser"));
     } finally {
       setDisablingUser(null);
     }
@@ -101,7 +104,7 @@ export default function AdminUsersPage() {
       await enableUserMutation.mutateAsync(enableConfirm.userId);
     } catch (error) {
       console.error("Failed to enable user:", error);
-      alert("Erreur lors de la réactivation de l'utilisateur.");
+      alert(t("failedToEnableUser"));
     } finally {
       setEnablingUser(null);
     }
@@ -176,14 +179,13 @@ export default function AdminUsersPage() {
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <AlertCircle className="w-12 h-12 text-red-500" />
         <h2 className="text-xl font-semibold text-foreground">
-          Erreur de chargement
+          {t("loadingError")}
         </h2>
         <p className="text-muted-foreground text-center max-w-md">
-          Une erreur s&apos;est produite lors du chargement de la liste des
-          utilisateurs. Veuillez réessayer plus tard.
+          {t("loadingErrorDescription")}
         </p>
         <Button onClick={() => window.location.reload()} variant="outline">
-          Réessayer
+          {tCommon("retry")}
         </Button>
       </div>
     );
@@ -200,11 +202,10 @@ export default function AdminUsersPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                Gestion des utilisateurs
+                {t("userManagement")}
               </h1>
               <p className="text-muted-foreground">
-                Gérez les comptes utilisateurs, consultez les profils et
-                désactivez les comptes si nécessaire
+                {t("userManagementDescription")}
               </p>
             </div>
           </div>
@@ -213,7 +214,8 @@ export default function AdminUsersPage() {
               {allUsers.length}
             </div>
             <div className="text-sm text-muted-foreground">
-              Utilisateurs{hasNextPage ? " (partiels)" : ""}
+              {t("usersLabel")}
+              {hasNextPage ? ` (${t("partial")})` : ""}
             </div>
           </div>
         </div>
@@ -223,13 +225,13 @@ export default function AdminUsersPage() {
       <Card className="overflow-hidden">
         <div className="p-6">
           <h2 className="text-lg font-semibold mb-4 text-foreground">
-            Liste des utilisateurs
+            {t("usersList")}
           </h2>
 
           {allUsers.length === 0 ? (
             <div className="text-center py-8">
               <User className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">Aucun utilisateur trouvé</p>
+              <p className="text-muted-foreground">{t("noUsersFound")}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -268,7 +270,7 @@ export default function AdminUsersPage() {
                         {!user.isActive && (
                           <Badge className="bg-red-100 text-red-800 border-red-200">
                             <UserX className="w-3 h-3 mr-1" />
-                            Désactivé
+                            {t("disabled")}
                           </Badge>
                         )}
                         {user.isEmailVerified ? (
@@ -295,7 +297,7 @@ export default function AdminUsersPage() {
                           <span className="flex items-center space-x-1">
                             <Clock className="w-3 h-3" />
                             <span>
-                              Last active{" "}
+                              {t("lastActive")}{" "}
                               {formatDistanceToNow(user.lastActive!)}
                             </span>
                           </span>
@@ -312,7 +314,7 @@ export default function AdminUsersPage() {
                       className="whitespace-nowrap"
                     >
                       <Eye className="w-4 h-4 mr-1" />
-                      Voir
+                      {t("view")}
                     </Button>
 
                     {user.isActive ? (
@@ -325,8 +327,8 @@ export default function AdminUsersPage() {
                       >
                         <UserX className="w-4 h-4 mr-1" />
                         {disablingUser === user.userId
-                          ? "Désactivation..."
-                          : "Désactiver"}
+                          ? t("disabling")
+                          : t("disable")}
                       </Button>
                     ) : (
                       <Button
@@ -338,8 +340,8 @@ export default function AdminUsersPage() {
                       >
                         <UserCheck className="w-4 h-4 mr-1" />
                         {enablingUser === user.userId
-                          ? "Réactivation..."
-                          : "Réactiver"}
+                          ? t("enabling")
+                          : t("enable")}
                       </Button>
                     )}
                   </div>
@@ -358,10 +360,10 @@ export default function AdminUsersPage() {
                     {isFetchingNextPage ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Chargement...
+                        {tCommon("loading")}
                       </>
                     ) : (
-                      "Charger plus"
+                      t("loadMore")
                     )}
                   </Button>
                 </div>
@@ -375,9 +377,9 @@ export default function AdminUsersPage() {
         isOpen={disableConfirm.isOpen}
         onClose={() => setDisableConfirm({ isOpen: false })}
         onConfirm={handleConfirmDisableUser}
-        title="Désactiver l'utilisateur"
-        message="Êtes-vous sûr de vouloir désactiver cet utilisateur ? Cette action supprimera également toutes ses sessions actives."
-        confirmText="Désactiver"
+        title={t("disableUserConfirmTitle")}
+        message={t("disableUserConfirmMessage")}
+        confirmText={t("disable")}
         confirmVariant="danger"
       />
 
@@ -385,9 +387,9 @@ export default function AdminUsersPage() {
         isOpen={enableConfirm.isOpen}
         onClose={() => setEnableConfirm({ isOpen: false })}
         onConfirm={handleConfirmEnableUser}
-        title="Réactiver l'utilisateur"
-        message="Êtes-vous sûr de vouloir réactiver cet utilisateur ?"
-        confirmText="Réactiver"
+        title={t("enableUserConfirmTitle")}
+        message={t("enableUserConfirmMessage")}
+        confirmText={t("enable")}
         confirmVariant="primary"
       />
     </div>

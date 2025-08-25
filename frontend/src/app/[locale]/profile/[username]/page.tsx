@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import ProfileComponent from "@/components/profile/ProfileComponent";
 import { usePublicProfile } from "@/hooks/queries/useUserQuery";
 import { ViewTracker } from "@/components/ui/ViewTracker";
@@ -9,6 +10,7 @@ import { useUserContext } from "@/contexts/UserContext";
 export default function PublicProfilePage() {
   const params = useParams();
   const username = params.username as string;
+  const t = useTranslations("profile.public");
 
   // Get current user authentication status
   const { user, loading: authLoading } = useUserContext();
@@ -29,10 +31,10 @@ export default function PublicProfilePage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-foreground">
-            Authentication Required
+            {t("authRequired.title")}
           </h2>
           <p className="text-muted-foreground mt-2">
-            You must be logged in to view this profile.
+            {t("authRequired.message")}
           </p>
         </div>
       </div>
@@ -45,12 +47,9 @@ export default function PublicProfilePage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-foreground">
-            Profile not found
+            {t("notFound.title")}
           </h2>
-          <p className="text-muted-foreground mt-2">
-            The user profile you&apos;re looking for doesn&apos;t exist or has
-            been made private.
-          </p>
+          <p className="text-muted-foreground mt-2">{t("notFound.message")}</p>
         </div>
       </div>
     );

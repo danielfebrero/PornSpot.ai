@@ -32,23 +32,27 @@ export async function generateMetadata({
   };
 }
 
-function AuthErrorFallback() {
+async function AuthErrorFallback({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: "auth.error" });
+
   return (
     <div className="text-center">
       <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/20 mb-6">
         <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
 
-      <h2 className="text-2xl font-bold text-foreground mb-2">Loading...</h2>
+      <h2 className="text-2xl font-bold text-foreground mb-2">
+        {t("processingTitle")}
+      </h2>
 
-      <p className="text-muted-foreground text-lg">Please wait...</p>
+      <p className="text-muted-foreground text-lg">{t("processingMessage")}</p>
     </div>
   );
 }
 
-export default function AuthErrorPage() {
+export default function AuthErrorPage({ params }: AuthErrorPageProps) {
   return (
-    <Suspense fallback={<AuthErrorFallback />}>
+    <Suspense fallback={<AuthErrorFallback locale={params.locale} />}>
       <AuthErrorClient />
     </Suspense>
   );

@@ -81,3 +81,5 @@
 [x] On refresh generate page, it sometimes fail and show an error.
 
 [x] On generate page, "remaining generation" is not in sync with server rate limit.
+
+[ ] On User Albums Create page, thumbnails overlap and show be infinite scroll.

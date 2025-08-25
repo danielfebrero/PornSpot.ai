@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { locales } from "@/i18n";
 import { Suspense } from "react";
 import { ResetPasswordForm } from "@/components/user/ResetPasswordForm";
@@ -34,18 +35,20 @@ export async function generateMetadata({
   });
 }
 
-function ResetPasswordFallback() {
+async function ResetPasswordFallback({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: "common" });
+
   return (
     <div className="text-center space-y-4">
       <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p className="text-muted-foreground">Loading reset password form...</p>
+      <p className="text-muted-foreground">{t("loading")}</p>
     </div>
   );
 }
 
-export default function ResetPasswordPage() {
+export default function ResetPasswordPage({ params }: ResetPasswordPageProps) {
   return (
-    <Suspense fallback={<ResetPasswordFallback />}>
+    <Suspense fallback={<ResetPasswordFallback locale={params.locale} />}>
       <ResetPasswordForm />
     </Suspense>
   );

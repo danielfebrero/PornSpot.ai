@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ImageIcon, Grid, List, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
@@ -18,6 +19,7 @@ import { useDevice } from "@/contexts/DeviceContext";
 export default function UserMediaPage() {
   const params = useParams();
   const username = params.username as string;
+  const t = useTranslations("profile.media");
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -137,10 +139,10 @@ export default function UserMediaPage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-foreground">
-            Unable to load media
+            {t("error.title")}
           </h2>
           <p className="text-muted-foreground mt-2">
-            {error?.message || "Failed to load user media"}
+            {error?.message || t("error.message")}
           </p>
         </div>
       </div>
@@ -169,7 +171,7 @@ export default function UserMediaPage() {
                   <div className="flex items-center gap-2">
                     <ImageIcon className="w-4 h-4 text-blue-500 shrink-0" />
                     <h1 className="text-lg font-bold text-foreground">
-                      {displayName}&apos;s Media
+                      {t("title", { username: displayName })}
                     </h1>
                   </div>
                 </div>
@@ -191,17 +193,12 @@ export default function UserMediaPage() {
 
                     <div>
                       <h1 className="text-2xl font-bold text-foreground">
-                        {displayName}&apos;s Media
+                        {t("title", { username: displayName })}
                       </h1>
                       <p className="text-muted-foreground">
-                        {media.length > 0 ? (
-                          <>
-                            {media.length}{" "}
-                            {media.length === 1 ? "item" : "items"}
-                          </>
-                        ) : (
-                          "No media yet"
-                        )}
+                        {media.length > 0
+                          ? t("count", { count: media.length })
+                          : t("noMediaYet")}
                       </p>
                     </div>
                   </div>
@@ -245,15 +242,15 @@ export default function UserMediaPage() {
             mediaList={media}
             emptyState={{
               icon: <ImageIcon className="w-16 h-16 text-muted-foreground" />,
-              title: "No media found",
+              title: t("empty.title"),
               description: user
-                ? `${displayName} hasn't generated any media yet.`
-                : "This user's media is not available.",
+                ? t("empty.description", { username: displayName })
+                : t("empty.unavailable"),
             }}
             loadingState={{
               skeletonCount: 12,
-              loadingText: "Loading media...",
-              noMoreText: "No more media",
+              loadingText: t("loading.loadingMore"),
+              noMoreText: t("loading.noMore"),
             }}
             error={error ? String(error) : null}
             className={cn(isMobile && "px-0", !isMobile && "px-4")}

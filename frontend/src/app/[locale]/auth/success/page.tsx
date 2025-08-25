@@ -32,7 +32,9 @@ export async function generateMetadata({
   };
 }
 
-function AuthSuccessFallback() {
+async function AuthSuccessFallback({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: "auth.success" });
+
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -52,18 +54,18 @@ function AuthSuccessFallback() {
             />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Loading...</h2>
-        <p className="text-muted-foreground">
-          Please wait while we complete your authentication.
-        </p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          {t("loading")}
+        </h2>
+        <p className="text-muted-foreground">{t("processingAuth")}</p>
       </div>
     </div>
   );
 }
 
-export default function AuthSuccessPage() {
+export default function AuthSuccessPage({ params }: AuthSuccessPageProps) {
   return (
-    <Suspense fallback={<AuthSuccessFallback />}>
+    <Suspense fallback={<AuthSuccessFallback locale={params.locale} />}>
       <AuthSuccessClient />
     </Suspense>
   );

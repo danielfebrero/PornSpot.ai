@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Heart, Grid, List, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
@@ -17,6 +18,7 @@ import { useDevice } from "@/contexts/DeviceContext";
 export default function UserLikesPage() {
   const params = useParams();
   const username = params.username as string;
+  const t = useTranslations("profile.likes");
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -146,10 +148,10 @@ export default function UserLikesPage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-foreground">
-            Error loading likes
+            {t("error.title")}
           </h2>
           <p className="text-muted-foreground mt-2">
-            {likesError?.message || "Failed to load likes"}
+            {likesError?.message || t("error.message")}
           </p>
         </div>
       </div>
@@ -178,7 +180,7 @@ export default function UserLikesPage() {
                   <div className="flex items-center gap-2">
                     <Heart className="w-4 h-4 text-red-500 shrink-0" />
                     <h1 className="text-lg font-bold text-foreground">
-                      {displayName}&apos;s Likes
+                      {t("title", { username: displayName })}
                     </h1>
                   </div>
                 </div>
@@ -200,11 +202,11 @@ export default function UserLikesPage() {
                     <div className="flex items-center gap-2">
                       <Heart className="w-5 h-5 text-red-500" />
                       <h1 className="text-2xl font-bold text-foreground">
-                        {displayName}&apos;s Likes
+                        {t("title", { username: displayName })}
                       </h1>
                     </div>
                     <p className="text-muted-foreground">
-                      {likes.length} {likes.length === 1 ? "like" : "likes"}
+                      {t("count", { count: likes.length })}
                     </p>
                   </div>
 
@@ -259,13 +261,13 @@ export default function UserLikesPage() {
             mediaList={mediaItems}
             emptyState={{
               icon: <Heart className="w-16 h-16 text-muted-foreground" />,
-              title: "No likes yet",
-              description: `${displayName} hasn't liked any content yet.`,
+              title: t("empty.title"),
+              description: t("empty.description", { username: displayName }),
             }}
             loadingState={{
               skeletonCount: 6,
-              loadingText: "Loading more likes...",
-              noMoreText: "No more likes",
+              loadingText: t("loading.loadingMore"),
+              noMoreText: t("loading.noMore"),
             }}
             error={likesError ? String(likesError) : null}
             className={cn(isMobile && "px-0", !isMobile && "px-4")}
