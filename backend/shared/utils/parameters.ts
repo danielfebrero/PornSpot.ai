@@ -36,7 +36,7 @@ export class ParameterStoreService {
       let processedParameterName = parameterName;
       if (
         parameterName.startsWith("/prod") ||
-        parameterName.startsWith("/staging") ||
+        parameterName.startsWith("/stage") ||
         parameterName.startsWith("/dev")
       ) {
         processedParameterName = `/pornspot-ai${parameterName}`;
