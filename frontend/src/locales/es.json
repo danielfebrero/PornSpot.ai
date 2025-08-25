@@ -115,7 +115,55 @@
       "lastComments": "Últimos comentarios",
       "failedToLoadComments": "Error al cargar comentarios",
       "noCommentsYet": "Aún no hay comentarios",
-      "viewAllComments": "Ver todos los comentarios"
+      "viewAllComments": "Ver todos los comentarios",
+      "albums": {
+        "albumsNotFound": "Álbumes no encontrados",
+        "userAlbumsTitle": "Álbumes de {username}",
+        "albumCount": "{count, plural, =0 {Sin álbumes} =1 {1 álbum} other {# álbumes}}",
+        "noAlbumsYet": "Aún no hay álbumes",
+        "noPublicAlbumsDescription": "{username} aún no ha creado ningún álbum público.",
+        "loadingMoreAlbums": "Cargando más álbumes...",
+        "noMoreAlbums": "No hay más álbumes para cargar"
+      },
+      "likes": {
+        "error": {
+          "title": "Error al cargar los me gusta",
+          "message": "Error al cargar el contenido gustado"
+        },
+        "title": "Contenido gustado por {username}",
+        "count": "{count, plural, =0 {Sin me gusta} =1 {1 me gusta} other {# me gusta}}",
+        "empty": {
+          "title": "Aún no hay contenido gustado",
+          "description": "{username} aún no ha dado me gusta a ningún contenido."
+        },
+        "loading": {
+          "loadingMore": "Cargando más me gusta...",
+          "noMore": "No hay más me gusta para cargar"
+        }
+      },
+      "comments": {
+        "failedToLoadComments": "Error al cargar comentarios",
+        "errorOccurred": "Ocurrió un error",
+        "tryAgain": "Intentar de nuevo",
+        "userCommentsTitle": "Comentarios de {username}",
+        "commentsMade": "{count, plural, =0 {Sin comentarios} =1 {1 comentario hecho} other {# comentarios hechos}}",
+        "commentsLoaded": "{count, plural, =0 {Sin comentarios} =1 {1 comentario cargado} other {# comentarios cargados}}",
+        "noCommentsYet": "Aún no hay comentarios"
+      },
+      "media": {
+        "title": "Medios de {username}",
+        "count": "{count, plural, =0 {Sin medios} =1 {1 medio} other {# medios}}",
+        "noMediaYet": "Aún no hay medios",
+        "empty": {
+          "title": "Aún no hay medios",
+          "description": "{username} aún no ha generado ningún medio.",
+          "unavailable": "Medios no disponibles"
+        },
+        "loading": {
+          "loadingMore": "Cargando más medios...",
+          "noMore": "No hay más medios para cargar"
+        }
+      }
     },
     "ui": {
       "virtualizedGrid": {
@@ -1430,12 +1478,12 @@
     "chooseFile": "Elige un archivo",
     "noDataAvailable": "No hay datos disponibles"
   },
-  "albumGrid": {
-    "noAlbumsTitle": "No se encontraron álbumes",
-    "noAlbumsDescription": "No hay álbumes públicos para mostrar en este momento.",
-    "loadingMore": "Cargando más álbumes...",
-    "noMoreToLoad": "No hay más álbumes que cargar",
-    "errorLoading": "Error cargando más álbumes:",
+  "contentGrid": {
+    "noContentsTitle": "No se encontró contenido",
+    "noContentsDescription": "No hay contenido público para mostrar en este momento.",
+    "loadingMore": "Cargando más contenido...",
+    "noMoreToLoad": "No hay más contenido que cargar",
+    "errorLoading": "Error cargando más contenido:",
     "tryAgain": "Intentar de nuevo"
   },
   "album": {

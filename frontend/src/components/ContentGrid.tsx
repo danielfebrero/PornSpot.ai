@@ -23,7 +23,7 @@ export const ContentGrid: React.FC<ContentGridProps> = ({
   hasMore = false,
   error = null,
 }) => {
-  const t = useTranslations("albumGrid");
+  const t = useTranslations("contentGrid");
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();
@@ -79,8 +79,8 @@ export const ContentGrid: React.FC<ContentGridProps> = ({
             />
           </svg>
         ),
-        title: t("noAlbumsTitle"),
-        description: t("noAlbumsDescription"),
+        title: t("noContentsTitle"),
+        description: t("noContentsDescription"),
       }}
       loadingState={{
         loadingText: t("loadingMore"),

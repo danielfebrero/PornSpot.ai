@@ -115,7 +115,55 @@
       "lastComments": "Letzte Kommentare",
       "failedToLoadComments": "Kommentare konnten nicht geladen werden",
       "noCommentsYet": "Noch keine Kommentare",
-      "viewAllComments": "Alle Kommentare anzeigen"
+      "viewAllComments": "Alle Kommentare anzeigen",
+      "albums": {
+        "albumsNotFound": "Alben nicht gefunden",
+        "userAlbumsTitle": "{username}s Alben",
+        "albumCount": "{count, plural, =0 {Keine Alben} =1 {1 Album} other {# Alben}}",
+        "noAlbumsYet": "Noch keine Alben",
+        "noPublicAlbumsDescription": "{username} hat noch keine öffentlichen Alben erstellt.",
+        "loadingMoreAlbums": "Weitere Alben werden geladen...",
+        "noMoreAlbums": "Keine weiteren Alben zu laden"
+      },
+      "likes": {
+        "error": {
+          "title": "Fehler beim Laden der Likes",
+          "message": "Gelikte Inhalte konnten nicht geladen werden"
+        },
+        "title": "Von {username} gelikte Inhalte",
+        "count": "{count, plural, =0 {Noch keine Likes} =1 {1 Like} other {# Likes}}",
+        "empty": {
+          "title": "Noch keine gelikten Inhalte",
+          "description": "{username} hat noch keine Inhalte geliked."
+        },
+        "loading": {
+          "loadingMore": "Weitere Likes werden geladen...",
+          "noMore": "Keine weiteren Likes zu laden"
+        }
+      },
+      "comments": {
+        "failedToLoadComments": "Kommentare konnten nicht geladen werden",
+        "errorOccurred": "Ein Fehler ist aufgetreten",
+        "tryAgain": "Erneut versuchen",
+        "userCommentsTitle": "Kommentare von {username}",
+        "commentsMade": "{count, plural, =0 {Keine Kommentare} =1 {1 Kommentar verfasst} other {# Kommentare verfasst}}",
+        "commentsLoaded": "{count, plural, =0 {Keine Kommentare} =1 {1 Kommentar geladen} other {# Kommentare geladen}}",
+        "noCommentsYet": "Noch keine Kommentare"
+      },
+      "media": {
+        "title": "Medien von {username}",
+        "count": "{count, plural, =0 {Keine Medien} =1 {1 Medium} other {# Medien}}",
+        "noMediaYet": "Noch keine Medien",
+        "empty": {
+          "title": "Noch keine Medien",
+          "description": "{username} hat noch keine Medien generiert.",
+          "unavailable": "Medien nicht verfügbar"
+        },
+        "loading": {
+          "loadingMore": "Weitere Medien werden geladen...",
+          "noMore": "Keine weiteren Medien zu laden"
+        }
+      }
     },
     "ui": {
       "virtualizedGrid": {
@@ -1430,12 +1478,12 @@
     "chooseFile": "Datei auswählen",
     "noDataAvailable": "Keine Daten verfügbar"
   },
-  "albumGrid": {
-    "noAlbumsTitle": "Keine Alben gefunden",
-    "noAlbumsDescription": "Es gibt momentan keine öffentlichen Alben anzuzeigen.",
-    "loadingMore": "Weitere Alben werden geladen...",
-    "noMoreToLoad": "Keine weiteren Alben zu laden",
-    "errorLoading": "Fehler beim Laden weiterer Alben:",
+  "contentGrid": {
+    "noContentsTitle": "Kein Inhalt gefunden",
+    "noContentsDescription": "Es gibt momentan keinen öffentlichen Inhalt anzuzeigen.",
+    "loadingMore": "Weitere Inhalte werden geladen...",
+    "noMoreToLoad": "Keine weiteren Inhalte zu laden",
+    "errorLoading": "Fehler beim Laden weiterer Inhalte:",
     "tryAgain": "Erneut versuchen"
   },
   "album": {

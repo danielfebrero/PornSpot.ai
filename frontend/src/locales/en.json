@@ -115,7 +115,55 @@
       "lastComments": "Last Comments",
       "failedToLoadComments": "Failed to load comments",
       "noCommentsYet": "No comments yet",
-      "viewAllComments": "View All Comments"
+      "viewAllComments": "View All Comments",
+      "albums": {
+        "albumsNotFound": "Albums not found",
+        "userAlbumsTitle": "{username}'s Albums",
+        "albumCount": "{count, plural, =0 {No albums} =1 {1 album} other {# albums}}",
+        "noAlbumsYet": "No albums yet",
+        "noPublicAlbumsDescription": "{username} hasn't created any public albums yet.",
+        "loadingMoreAlbums": "Loading more albums...",
+        "noMoreAlbums": "No more albums to load"
+      },
+      "likes": {
+        "error": {
+          "title": "Error Loading Likes",
+          "message": "Failed to load liked content"
+        },
+        "title": "{username}'s Liked Content",
+        "count": "{count, plural, =0 {No likes yet} =1 {1 like} other {# likes}}",
+        "empty": {
+          "title": "No liked content yet",
+          "description": "{username} hasn't liked any content yet."
+        },
+        "loading": {
+          "loadingMore": "Loading more likes...",
+          "noMore": "No more likes to load"
+        }
+      },
+      "comments": {
+        "failedToLoadComments": "Failed to load comments",
+        "errorOccurred": "An error occurred",
+        "tryAgain": "Try Again",
+        "userCommentsTitle": "{username}'s Comments",
+        "commentsMade": "{count, plural, =0 {No comments} =1 {1 comment made} other {# comments made}}",
+        "commentsLoaded": "{count, plural, =0 {No comments} =1 {1 comment loaded} other {# comments loaded}}",
+        "noCommentsYet": "No comments yet"
+      },
+      "media": {
+        "title": "{username}'s Media",
+        "count": "{count, plural, =0 {No media} =1 {1 media} other {# media}}",
+        "noMediaYet": "No media yet",
+        "empty": {
+          "title": "No media yet",
+          "description": "{username} hasn't generated any media yet.",
+          "unavailable": "Media unavailable"
+        },
+        "loading": {
+          "loadingMore": "Loading more media...",
+          "noMore": "No more media to load"
+        }
+      }
     },
     "ui": {
       "virtualizedGrid": {
@@ -1474,12 +1522,12 @@
     "chooseFile": "Choose a file",
     "noDataAvailable": "No data available"
   },
-  "albumGrid": {
-    "noAlbumsTitle": "No albums found",
-    "noAlbumsDescription": "There are no public albums to display at the moment.",
-    "loadingMore": "Loading more albums...",
-    "noMoreToLoad": "No more albums to load",
-    "errorLoading": "Error loading more albums:",
+  "contentGrid": {
+    "noContentsTitle": "No content found",
+    "noContentsDescription": "There is no public content to display at the moment.",
+    "loadingMore": "Loading more content...",
+    "noMoreToLoad": "No more content to load",
+    "errorLoading": "Error loading more content:",
     "tryAgain": "Try Again"
   },
   "album": {

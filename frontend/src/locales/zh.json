@@ -115,7 +115,55 @@
       "lastComments": "最新评论",
       "failedToLoadComments": "加载评论失败",
       "noCommentsYet": "暂无评论",
-      "viewAllComments": "查看所有评论"
+      "viewAllComments": "查看所有评论",
+      "albums": {
+        "albumsNotFound": "未找到相册",
+        "userAlbumsTitle": "{username} 的相册",
+        "albumCount": "{count, plural, =0 {无相册} other {# 个相册}}",
+        "noAlbumsYet": "暂无相册",
+        "noPublicAlbumsDescription": "{username} 尚未创建任何公开相册。",
+        "loadingMoreAlbums": "加载更多相册...",
+        "noMoreAlbums": "没有更多相册可加载"
+      },
+      "likes": {
+        "error": {
+          "title": "加载点赞失败",
+          "message": "无法加载喜欢的内容"
+        },
+        "title": "{username} 喜欢的内容",
+        "count": "{count, plural, =0 {没有点赞} other {# 个点赞}}",
+        "empty": {
+          "title": "暂无喜欢的内容",
+          "description": "{username} 还没有喜欢任何内容。"
+        },
+        "loading": {
+          "loadingMore": "加载更多点赞...",
+          "noMore": "没有更多点赞可加载"
+        }
+      },
+      "comments": {
+        "failedToLoadComments": "加载评论失败",
+        "errorOccurred": "发生错误",
+        "tryAgain": "重试",
+        "userCommentsTitle": "{username} 的评论",
+        "commentsMade": "{count, plural, =0 {没有评论} other {发表了 # 条评论}}",
+        "commentsLoaded": "{count, plural, =0 {没有评论} other {已加载 # 条评论}}",
+        "noCommentsYet": "暂无评论"
+      },
+      "media": {
+        "title": "{username} 的媒体",
+        "count": "{count, plural, =0 {没有媒体} other {# 个媒体}}",
+        "noMediaYet": "暂无媒体",
+        "empty": {
+          "title": "暂无媒体",
+          "description": "{username} 还没有生成任何媒体。",
+          "unavailable": "媒体不可用"
+        },
+        "loading": {
+          "loadingMore": "加载更多媒体...",
+          "noMore": "没有更多媒体可加载"
+        }
+      }
     },
     "ui": {
       "virtualizedGrid": {
@@ -1431,12 +1479,12 @@
     "chooseFile": "选择文件",
     "noDataAvailable": "暂无数据"
   },
-  "albumGrid": {
-    "noAlbumsTitle": "未找到相册",
-    "noAlbumsDescription": "目前没有可显示的公开相册。",
-    "loadingMore": "加载更多相册...",
-    "noMoreToLoad": "没有更多相册可加载",
-    "errorLoading": "加载更多相册时出错：",
+  "contentGrid": {
+    "noContentsTitle": "未找到内容",
+    "noContentsDescription": "目前没有可显示的公开内容。",
+    "loadingMore": "加载更多内容...",
+    "noMoreToLoad": "没有更多内容可加载",
+    "errorLoading": "加载更多内容时出错：",
     "tryAgain": "重试"
   },
   "album": {

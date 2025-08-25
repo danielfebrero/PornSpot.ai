@@ -24,7 +24,7 @@
 
 [x] User albums virtualizedGrid is not set to load more for infinite loading.
 
-[ ] Translate all hardcoded strings.
+[x] Translate all hardcoded strings.
 
 [x] We should show siblings on media page.
 

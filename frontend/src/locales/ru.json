@@ -115,7 +115,55 @@
       "lastComments": "Последние комментарии",
       "failedToLoadComments": "Не удалось загрузить комментарии",
       "noCommentsYet": "Комментариев пока нет",
-      "viewAllComments": "Посмотреть все комментарии"
+      "viewAllComments": "Посмотреть все комментарии",
+      "albums": {
+        "albumsNotFound": "Альбомы не найдены",
+        "userAlbumsTitle": "Альбомы {username}",
+        "albumCount": "{count, plural, =0 {Нет альбомов} =1 {1 альбом} few {# альбома} other {# альбомов}}",
+        "noAlbumsYet": "Альбомов пока нет",
+        "noPublicAlbumsDescription": "{username} ещё не создал ни одного публичного альбома.",
+        "loadingMoreAlbums": "Загрузка дополнительных альбомов...",
+        "noMoreAlbums": "Больше альбомов для загрузки нет"
+      },
+      "likes": {
+        "error": {
+          "title": "Ошибка загрузки лайков",
+          "message": "Не удалось загрузить понравившийся контент"
+        },
+        "title": "Понравившийся {username} контент",
+        "count": "{count, plural, =0 {Нет лайков} =1 {1 лайк} few {# лайка} other {# лайков}}",
+        "empty": {
+          "title": "Понравившегося контента пока нет",
+          "description": "{username} ещё не лайкнул ни одного контента."
+        },
+        "loading": {
+          "loadingMore": "Загрузка дополнительных лайков...",
+          "noMore": "Больше лайков для загрузки нет"
+        }
+      },
+      "comments": {
+        "failedToLoadComments": "Не удалось загрузить комментарии",
+        "errorOccurred": "Произошла ошибка",
+        "tryAgain": "Попробовать снова",
+        "userCommentsTitle": "Комментарии {username}",
+        "commentsMade": "{count, plural, =0 {Нет комментариев} =1 {1 комментарий написан} few {# комментария написано} other {# комментариев написано}}",
+        "commentsLoaded": "{count, plural, =0 {Нет комментариев} =1 {1 комментарий загружен} few {# комментария загружено} other {# комментариев загружено}}",
+        "noCommentsYet": "Комментариев пока нет"
+      },
+      "media": {
+        "title": "Медиа {username}",
+        "count": "{count, plural, =0 {Нет медиа} =1 {1 медиа} few {# медиа} other {# медиа}}",
+        "noMediaYet": "Медиа пока нет",
+        "empty": {
+          "title": "Медиа пока нет",
+          "description": "{username} ещё не сгенерировал ни одного медиа.",
+          "unavailable": "Медиа недоступно"
+        },
+        "loading": {
+          "loadingMore": "Загрузка дополнительных медиа...",
+          "noMore": "Больше медиа для загрузки нет"
+        }
+      }
     },
     "ui": {
       "virtualizedGrid": {
@@ -1441,12 +1489,12 @@
     "chooseFile": "Выберите файл",
     "noDataAvailable": "Нет доступных данных"
   },
-  "albumGrid": {
-    "noAlbumsTitle": "Альбомов не найдено",
-    "noAlbumsDescription": "В данный момент нет публичных альбомов для отображения.",
-    "loadingMore": "Загрузка дополнительных альбомов...",
-    "noMoreToLoad": "Больше альбомов для загрузки нет",
-    "errorLoading": "Ошибка загрузки дополнительных альбомов:",
+  "contentGrid": {
+    "noContentsTitle": "Контент не найден",
+    "noContentsDescription": "В данный момент нет публичного контента для отображения.",
+    "loadingMore": "Загрузка дополнительного контента...",
+    "noMoreToLoad": "Больше контента для загрузки нет",
+    "errorLoading": "Ошибка загрузки дополнительного контента:",
     "tryAgain": "Попробовать снова"
   },
   "album": {

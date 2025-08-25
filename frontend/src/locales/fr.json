@@ -115,7 +115,55 @@
       "lastComments": "Derniers commentaires",
       "failedToLoadComments": "Échec du chargement des commentaires",
       "noCommentsYet": "Aucun commentaire pour le moment",
-      "viewAllComments": "Voir tous les commentaires"
+      "viewAllComments": "Voir tous les commentaires",
+      "albums": {
+        "albumsNotFound": "Albums non trouvés",
+        "userAlbumsTitle": "Albums de {username}",
+        "albumCount": "{count, plural, =0 {Aucun album} =1 {1 album} other {# albums}}",
+        "noAlbumsYet": "Aucun album pour le moment",
+        "noPublicAlbumsDescription": "{username} n'a encore créé aucun album public.",
+        "loadingMoreAlbums": "Chargement d'autres albums...",
+        "noMoreAlbums": "Plus d'albums à charger"
+      },
+      "likes": {
+        "error": {
+          "title": "Erreur de chargement des j'aime",
+          "message": "Échec du chargement du contenu aimé"
+        },
+        "title": "Contenu aimé par {username}",
+        "count": "{count, plural, =0 {Aucun j'aime} =1 {1 j'aime} other {# j'aime}}",
+        "empty": {
+          "title": "Aucun contenu aimé pour le moment",
+          "description": "{username} n'a encore aimé aucun contenu."
+        },
+        "loading": {
+          "loadingMore": "Chargement d'autres j'aime...",
+          "noMore": "Plus de j'aime à charger"
+        }
+      },
+      "comments": {
+        "failedToLoadComments": "Échec du chargement des commentaires",
+        "errorOccurred": "Une erreur s'est produite",
+        "tryAgain": "Réessayer",
+        "userCommentsTitle": "Commentaires de {username}",
+        "commentsMade": "{count, plural, =0 {Aucun commentaire} =1 {1 commentaire publié} other {# commentaires publiés}}",
+        "commentsLoaded": "{count, plural, =0 {Aucun commentaire} =1 {1 commentaire chargé} other {# commentaires chargés}}",
+        "noCommentsYet": "Aucun commentaire pour le moment"
+      },
+      "media": {
+        "title": "Médias de {username}",
+        "count": "{count, plural, =0 {Aucun média} =1 {1 média} other {# médias}}",
+        "noMediaYet": "Aucun média pour le moment",
+        "empty": {
+          "title": "Aucun média pour le moment",
+          "description": "{username} n'a encore généré aucun média.",
+          "unavailable": "Média indisponible"
+        },
+        "loading": {
+          "loadingMore": "Chargement d'autres médias...",
+          "noMore": "Plus de médias à charger"
+        }
+      }
     },
     "ui": {
       "virtualizedGrid": {
@@ -1474,12 +1522,12 @@
     "chooseFile": "Choisissez un fichier",
     "noDataAvailable": "Aucune donnée disponible"
   },
-  "albumGrid": {
-    "noAlbumsTitle": "Aucun album trouvé",
-    "noAlbumsDescription": "Il n'y a pas d'albums publics à afficher pour le moment.",
-    "loadingMore": "Chargement d'autres albums...",
-    "noMoreToLoad": "Plus d'albums à charger",
-    "errorLoading": "Erreur lors du chargement d'autres albums :",
+  "contentGrid": {
+    "noContentsTitle": "Aucun contenu trouvé",
+    "noContentsDescription": "Il n'y a pas de contenu public à afficher pour le moment.",
+    "loadingMore": "Chargement d'autres contenus...",
+    "noMoreToLoad": "Plus de contenus à charger",
+    "errorLoading": "Erreur lors du chargement d'autres contenus :",
     "tryAgain": "Réessayer"
   },
   "album": {
