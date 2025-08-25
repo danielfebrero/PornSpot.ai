@@ -85,3 +85,5 @@
 [ ] Mass delete image feature.
 
 [ ] Boost my media feature to appear on the Discover page.
+
+[ ] Feature to change media/album privacy after generation.

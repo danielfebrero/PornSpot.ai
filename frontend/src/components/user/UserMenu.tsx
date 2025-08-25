@@ -126,7 +126,7 @@ export function UserMenu({ user }: UserMenuProps) {
 
           <div className="p-2">
             {/* Mobile Navigation Items - Only show on mobile */}
-            <div className="sm:hidden">
+            <div className="md:hidden">
               <button
                 onClick={() =>
                   handleMenuItemClick(() => router.push("/pricing"))
