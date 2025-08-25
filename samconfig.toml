@@ -60,24 +60,24 @@ confirm_changeset = true
 fail_on_empty_changeset = false
 stack_name = "pornspot-ai-dev"
 
-[staging]
-[staging.global]
-[staging.global.parameters]
-stack_name = "pornspot-ai-staging"
+[stage]
+[stage.global]
+[stage.global.parameters]
+stack_name = "pornspot-ai-stage"
 s3_bucket = "pornspot-sam-deployments"
 s3_prefix = "pornspot-ai"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "Environment=staging"
+parameter_overrides = "Environment=stage"
 resolve_image_repos = true
 
-[staging.deploy]
-[staging.deploy.parameters]
+[stage.deploy]
+[stage.deploy.parameters]
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 fail_on_empty_changeset = false
-stack_name = "pornspot-ai-staging"
+stack_name = "pornspot-ai-stage"
 
 [prod]
 [prod.global]
