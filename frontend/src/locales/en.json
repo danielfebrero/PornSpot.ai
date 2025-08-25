@@ -1526,7 +1526,8 @@
     "enterPrompt": "Enter your prompt here...",
     "selectOption": "Select an option",
     "chooseFile": "Choose a file",
-    "noDataAvailable": "No data available"
+    "noDataAvailable": "No data available",
+    "noItems": "No items"
   },
   "contentGrid": {
     "noContentsTitle": "No content found",

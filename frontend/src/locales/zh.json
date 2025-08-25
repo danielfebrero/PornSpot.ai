@@ -1483,7 +1483,8 @@
     "enterPrompt": "在这里输入您的提示词...",
     "selectOption": "选择一个选项",
     "chooseFile": "选择文件",
-    "noDataAvailable": "暂无数据"
+    "noDataAvailable": "暂无数据",
+    "noItems": "无项目"
   },
   "contentGrid": {
     "noContentsTitle": "未找到内容",

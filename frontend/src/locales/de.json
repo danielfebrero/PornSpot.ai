@@ -1482,7 +1482,8 @@
     "enterPrompt": "Geben Sie hier Ihren Prompt ein...",
     "selectOption": "Option auswählen",
     "chooseFile": "Datei auswählen",
-    "noDataAvailable": "Keine Daten verfügbar"
+    "noDataAvailable": "Keine Daten verfügbar",
+    "noItems": "Keine Artikel"
   },
   "contentGrid": {
     "noContentsTitle": "Kein Inhalt gefunden",

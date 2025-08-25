@@ -8,6 +8,8 @@
 
 [ ] Set up dev environment, ssm parameters, subdomains, etc.
 
+[x] Set up stage environment, ssm parameters, subdomains, etc.
+
 [x] Deleting a recent image from the list under the main images should remove it from the page instantly and close the lightbox.
 
 [x] Navigating to another page should not lose the current state of image generation.

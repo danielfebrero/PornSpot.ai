@@ -1493,7 +1493,8 @@
     "enterPrompt": "Введите ваш промпт здесь...",
     "selectOption": "Выберите опцию",
     "chooseFile": "Выберите файл",
-    "noDataAvailable": "Нет доступных данных"
+    "noDataAvailable": "Нет доступных данных",
+    "noItems": "Нет элементов"
   },
   "contentGrid": {
     "noContentsTitle": "Контент не найден",
