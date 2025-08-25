@@ -38,12 +38,12 @@ export function PermissionsWrapper({ children }: PermissionsWrapperProps) {
 
     const loadUserPermissions = async () => {
       try {
-        const userWithPerms = user ? user : await createMockUser("free");
+        const userWithPerms = user ? user : await createMockUser("anonymous");
         setUserWithPermissions(userWithPerms);
       } catch (error) {
         console.error("Failed to load user permissions:", error);
-        // Fallback to a basic free user
-        const fallbackUser = await createMockUser("free");
+        // Fallback to a basic anonymous user
+        const fallbackUser = await createMockUser("anonymous");
         setUserWithPermissions(fallbackUser);
       }
     };
