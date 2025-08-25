@@ -514,7 +514,10 @@
       "noImages": "未找到图片。请先上传一些图片以添加到您的相册中。",
       "failedToFetchImages": "获取用户媒体失败",
       "createAlbum": "创建相册",
-      "creating": "创建中..."
+      "creating": "创建中...",
+      "loadingMore": "加载更多...",
+      "allImagesLoaded": "所有图片已加载",
+      "scrollToLoadMore": "滚动以加载更多"
     },
     "images": {
       "myImages": "我的图片",

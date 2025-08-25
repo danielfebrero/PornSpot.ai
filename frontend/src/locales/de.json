@@ -512,7 +512,10 @@
       "noImages": "Keine Bilder gefunden. Laden Sie zuerst einige Bilder hoch, um sie zu Ihrem Album hinzuzufügen.",
       "failedToFetchImages": "Fehler beim Laden der Benutzermedien",
       "createAlbum": "Album erstellen",
-      "creating": "Erstelle..."
+      "creating": "Erstelle...",
+      "loadingMore": "Lade mehr...",
+      "allImagesLoaded": "Alle Bilder geladen",
+      "scrollToLoadMore": "Scrollen, um mehr zu laden"
     },
     "images": {
       "myImages": "Meine Bilder",

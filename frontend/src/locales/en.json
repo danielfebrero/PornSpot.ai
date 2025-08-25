@@ -550,7 +550,10 @@
       "noImages": "No images found. Upload some images first to add them to your album.",
       "failedToFetchImages": "Failed to fetch user media",
       "createAlbum": "Create Album",
-      "creating": "Creating..."
+      "creating": "Creating...",
+      "loadingMore": "Loading more...",
+      "allImagesLoaded": "All images loaded",
+      "scrollToLoadMore": "Scroll to load more"
     },
     "images": {
       "myImages": "My Images",

@@ -300,12 +300,12 @@ export function UserAlbumForm({
         )}
 
         {!mediaLoading && !mediaError && userMedia.length > 0 && (
-          <div className="space-y-4">
-            <div
-              ref={gridContainerRef}
-              onScroll={handleScroll}
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 max-h-96 overflow-y-auto p-3 border border-border rounded-lg bg-card/50"
-            >
+          <div
+            className="space-y-4 max-h-96 overflow-y-auto bg-card/50 border border-border rounded-lg"
+            ref={gridContainerRef}
+            onScroll={handleScroll}
+          >
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 p-3  ">
               {userMedia.map((media) => (
                 <div
                   key={media.id}

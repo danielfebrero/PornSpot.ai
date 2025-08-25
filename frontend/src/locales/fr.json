@@ -550,7 +550,10 @@
       "noImages": "Aucune image trouvée. Téléversez d'abord des images pour les ajouter à votre album.",
       "failedToFetchImages": "Échec du chargement des médias utilisateur",
       "createAlbum": "Créer un album",
-      "creating": "Création..."
+      "creating": "Création...",
+      "loadingMore": "Chargement en cours...",
+      "allImagesLoaded": "Toutes les images sont chargées",
+      "scrollToLoadMore": "Faites défiler pour charger plus"
     },
     "images": {
       "myImages": "Mes images",

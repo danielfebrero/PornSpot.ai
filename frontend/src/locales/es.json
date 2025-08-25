@@ -512,7 +512,10 @@
       "noImages": "No se encontraron imágenes. Sube algunas imágenes primero para agregarlas a tu álbum.",
       "failedToFetchImages": "Error al cargar los medios del usuario",
       "createAlbum": "Crear álbum",
-      "creating": "Creando..."
+      "creating": "Creando...",
+      "loadingMore": "Cargando más...",
+      "allImagesLoaded": "Todas las imágenes cargadas",
+      "scrollToLoadMore": "Desplázate para cargar más"
     },
     "images": {
       "myImages": "Mis imágenes",
