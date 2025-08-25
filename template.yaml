@@ -692,7 +692,7 @@ Resources:
             Path: /albums/{albumId}/media
             Method: POST
             Auth:
-              Authorizer: AdminAuthorizer
+              Authorizer: UserAuthorizer
         OptionsUploadMedia:
           Type: Api
           Properties:
