@@ -323,14 +323,6 @@ export function GenerateClient() {
     fetchConnectionId();
   }, [fetchConnectionId, isConnected]);
 
-  useEffect(() => {
-    console.log({
-      settings,
-      optimizedPromptCache,
-      originalPromptBeforeOptimization,
-    });
-  }, [settings, optimizedPromptCache, originalPromptBeforeOptimization]);
-
   return (
     <div
       className="min-h-screen bg-background"

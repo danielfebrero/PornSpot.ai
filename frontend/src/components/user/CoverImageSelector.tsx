@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import ResponsivePicture from "@/components/ui/ResponsivePicture";
 import {
@@ -28,6 +29,7 @@ export function CoverImageSelector({
   onCoverSelect,
   disabled = false,
 }: CoverImageSelectorProps) {
+  const t = useTranslations("user.coverImageSelector");
   const [isOpen, setIsOpen] = useState(false);
 
   const selectedCount = selectedMedia.filter((media) => media.selected).length;
@@ -54,7 +56,9 @@ export function CoverImageSelector({
   return (
     <div className="border border-border rounded-lg p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-foreground">Cover Image</h3>
+        <h3 className="text-sm font-medium text-foreground">
+          {t("coverImage")}
+        </h3>
         <Button
           type="button"
           variant="ghost"
@@ -65,11 +69,11 @@ export function CoverImageSelector({
         >
           {isOpen ? (
             <>
-              Hide Images <ChevronUp className="ml-1 h-4 w-4" />
+              {t("hideImages")} <ChevronUp className="ml-1 h-4 w-4" />
             </>
           ) : (
             <>
-              Choose from Selected ({selectedCount}){" "}
+              {t("chooseFromSelected", { count: selectedCount })}{" "}
               <ChevronDown className="ml-1 h-4 w-4" />
             </>
           )}
@@ -79,7 +83,7 @@ export function CoverImageSelector({
       {currentCoverMedia && (
         <div className="mb-4">
           <div className="text-xs text-muted-foreground mb-2">
-            Current Cover:
+            {t("currentCover")}:
           </div>
           <div className="relative w-20 h-20 border border-border rounded overflow-hidden bg-muted">
             <ResponsivePicture
@@ -102,7 +106,7 @@ export function CoverImageSelector({
         <div className="space-y-3">
           {selectedMediaItems.length === 0 ? (
             <div className="text-muted-foreground text-sm py-4 text-center">
-              No images selected
+              {t("noImagesSelected")}
             </div>
           ) : (
             <div className="grid grid-cols-4 gap-2">
@@ -162,8 +166,8 @@ export function CoverImageSelector({
           <div className="flex justify-between items-center pt-2 border-t border-border">
             <div className="text-sm text-muted-foreground">
               {currentCoverImageId
-                ? "Cover image selected"
-                : "No cover selected"}
+                ? t("coverImageSelected")
+                : t("noCoverSelected")}
             </div>
             <div className="space-x-2">
               {currentCoverImageId && (
@@ -174,11 +178,11 @@ export function CoverImageSelector({
                   size="sm"
                   className="text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
                 >
-                  Clear Selection
+                  {t("clearSelection")}
                 </Button>
               )}
               <Button type="button" onClick={() => setIsOpen(false)} size="sm">
-                Done
+                {t("done")}
               </Button>
             </div>
           </div>

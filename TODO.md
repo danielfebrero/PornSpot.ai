@@ -38,7 +38,7 @@
 
 [x] Always show lora models and strength on media page, even if selected automatically.
 
-[ ] Remove all console logs.
+[x] Remove all console logs.
 
 [ ] Implement additional image credit, so we can do promotions and offer 10 images on signup.
 
@@ -75,3 +75,5 @@
 [x] Revalidate Discover page every 10 minutes.
 
 [ ] Update documentation (data models, apis...).
+
+[ ] Notification system on like received and comment received.

@@ -46,26 +46,21 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     if (user?.userId) {
       // Generate JWT token for authenticated users before connecting
       try {
-        console.log(
-          "🔑 Attempting to generate JWT token for WebSocket authentication"
-        );
         const jwtResponse = await userApi.generateJwt();
         const jwtToken = jwtResponse.token;
 
         if (jwtToken) {
           const separator = wsUrl.includes("?") ? "&" : "?";
           wsUrl += `${separator}token=${jwtToken}`;
-          console.log("🍪 Added JWT token to WebSocket URL");
         }
       } catch (error) {
-        console.log(
+        console.error(
           "🔓 No JWT token available (user not authenticated), connecting as anonymous:",
           error
         );
       }
     }
 
-    console.log("WebSocket URL:", wsUrl.replace(/token=[^&]+/, "token=***"));
     return wsUrl;
   }, [user?.userId]);
 
@@ -76,12 +71,10 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
     try {
       const wsUrl = await getWebSocketUrl();
-      console.log("🔌 Connecting to WebSocket:", wsUrl);
 
       wsRef.current = new WebSocket(wsUrl);
 
       wsRef.current.onopen = () => {
-        console.log("✅ WebSocket connected");
         setIsConnected(true);
         reconnectAttempts.current = 0;
 
@@ -95,7 +88,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       wsRef.current.onmessage = (event) => {
         try {
           const message: GenerationWebSocketMessage = JSON.parse(event.data);
-          console.log("📨 WebSocket message received:", message);
 
           // Handle ping messages
           if (message.type === "ping") {
@@ -128,7 +120,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       };
 
       wsRef.current.onclose = (event) => {
-        console.log("🔌 WebSocket disconnected:", event.code, event.reason);
         setIsConnected(false);
 
         // Attempt to reconnect if it wasn't a manual close
@@ -142,9 +133,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
             30000
           ); // Exponential backoff, max 30s
 
-          console.log(
-            `🔄 Attempting to reconnect in ${delay}ms (attempt ${reconnectAttempts.current})`
-          );
           reconnectTimeoutRef.current = setTimeout(() => {
             connect();
           }, delay);
@@ -162,8 +150,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   }, [getWebSocketUrl]);
 
   const disconnect = useCallback(() => {
-    console.log("🔌 Manually disconnecting WebSocket");
-
     // Clear reconnect timeout
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
@@ -194,7 +180,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
   const subscribe = useCallback(
     (callback: (message: GenerationWebSocketMessage) => void) => {
-      console.log("📝 Subscribing to WebSocket messages");
       globalSubscriptionsRef.current.add(callback);
     },
     []
@@ -202,7 +187,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
   const unsubscribe = useCallback(
     (callback: (message: GenerationWebSocketMessage) => void) => {
-      console.log("📝 Unsubscribing from WebSocket messages");
       globalSubscriptionsRef.current.delete(callback);
     },
     []

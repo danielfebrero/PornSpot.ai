@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { usePermissions } from "@/contexts/PermissionsContext";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -22,6 +23,7 @@ export function PermissionGate({
   action,
   showUpgrade = false,
 }: PermissionGateProps) {
+  const t = useTranslations("common.permissionComponents");
   const { hasPermission, getCurrentPlan } = usePermissions();
 
   const hasAccess = hasPermission({ feature, action });
@@ -41,16 +43,18 @@ export function PermissionGate({
           <Crown className="h-8 w-8 text-amber-600" />
           <div className="flex-1">
             <h3 className="font-semibold text-amber-900 dark:text-amber-100">
-              Upgrade Required
+              {t("upgradeRequired")}
             </h3>
             <p className="text-sm text-amber-700 dark:text-amber-200">
-              This feature requires a{" "}
-              {feature === "generation" ? "Pro" : "higher"} plan. You&apos;re
-              currently on {getCurrentPlan()}.
+              {t("featureRequiresUpgrade", {
+                planType:
+                  feature === "generation" ? t("proPlan") : t("higherPlan"),
+                currentPlan: getCurrentPlan(),
+              })}
             </p>
           </div>
           <Button variant="outline" size="sm">
-            Upgrade Plan
+            {t("upgradePlan")}
           </Button>
         </CardContent>
       </Card>
@@ -62,6 +66,7 @@ export function PermissionGate({
 
 // Usage limit display component
 export function UsageLimitsDisplay() {
+  const t = useTranslations("common.permissionComponents");
   const { user, canGenerateImagesCount, getPlanLimits, getCurrentPlan } =
     usePermissions();
 
@@ -78,12 +83,14 @@ export function UsageLimitsDisplay() {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold">
-            Your Plan: {planName.charAt(0).toUpperCase() + planName.slice(1)}
+            {t("yourPlan", {
+              planName: planName.charAt(0).toUpperCase() + planName.slice(1),
+            })}
           </h3>
           {planName !== "pro" && (
             <Button variant="outline" size="sm">
               <Crown className="h-4 w-4 mr-2" />
-              Upgrade
+              {t("upgrade")}
             </Button>
           )}
         </div>
@@ -92,7 +99,7 @@ export function UsageLimitsDisplay() {
         {/* Monthly Images */}
         <div className="flex justify-between items-center">
           <span className="text-sm text-muted-foreground">
-            Images this month
+            {t("imagesThisMonth")}
           </span>
           <div className="text-right">
             <div className="font-medium">
@@ -103,8 +110,8 @@ export function UsageLimitsDisplay() {
             </div>
             {limits.imagesPerMonth !== "unlimited" && (
               <div className="text-xs text-muted-foreground">
-                {typeof remaining === "number" ? remaining : "unlimited"}{" "}
-                remaining
+                {typeof remaining === "number" ? remaining : t("unlimited")}{" "}
+                {t("remaining")}
               </div>
             )}
           </div>
@@ -112,7 +119,9 @@ export function UsageLimitsDisplay() {
 
         {/* Daily Images */}
         <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">Images today</span>
+          <span className="text-sm text-muted-foreground">
+            {t("imagesToday")}
+          </span>
           <div className="text-right">
             <div className="font-medium">
               {user.usageStats.imagesGeneratedToday}
@@ -129,6 +138,7 @@ export function UsageLimitsDisplay() {
 
 // Feature availability indicator
 export function FeatureAvailability({ feature }: { feature: string }) {
+  const t = useTranslations("common.permissionComponents");
   const { getPlanLimits, getCurrentPlan } = usePermissions();
 
   const limits = getPlanLimits();
@@ -165,11 +175,11 @@ export function FeatureAvailability({ feature }: { feature: string }) {
           available ? "text-foreground" : "text-muted-foreground"
         }`}
       >
-        {feature.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+        {t(`features.${feature}`)}
       </span>
       {!available && (
         <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">
-          {plan === "free" ? "Paid Plan" : "Pro Plan"}
+          {plan === "free" ? t("paidPlan") : t("proPlan")}
         </span>
       )}
     </div>
@@ -178,6 +188,7 @@ export function FeatureAvailability({ feature }: { feature: string }) {
 
 // Generation limit warning
 export function GenerationLimitWarning() {
+  const t = useTranslations("common.permissionComponents");
   const { canGenerateImagesCount, getCurrentPlan } = usePermissions();
 
   const { allowed, remaining } = canGenerateImagesCount(1);
@@ -193,18 +204,18 @@ export function GenerationLimitWarning() {
           <AlertTriangle className="h-6 w-6 text-red-600" />
           <div className="flex-1">
             <h3 className="font-semibold text-red-900 dark:text-red-100">
-              Generation Limit Reached
+              {t("generationLimitReached")}
             </h3>
             <p className="text-sm text-red-700 dark:text-red-200">
-              You&apos;ve reached your generation limit for today.
+              {t("reachedGenerationLimit")}
               {getCurrentPlan() !== "unlimited" &&
                 getCurrentPlan() !== "pro" &&
-                " Upgrade for unlimited generations."}
+                ` ${t("upgradeForUnlimited")}`}
             </p>
           </div>
           {getCurrentPlan() !== "unlimited" && getCurrentPlan() !== "pro" && (
             <Button variant="outline" size="sm">
-              Upgrade Now
+              {t("upgradeNow")}
             </Button>
           )}
         </CardContent>
@@ -219,8 +230,10 @@ export function GenerationLimitWarning() {
           <AlertTriangle className="h-5 w-5 text-amber-600" />
           <div className="flex-1">
             <p className="text-sm text-amber-700 dark:text-amber-200">
-              You have {remaining} generation{remaining !== 1 ? "s" : ""}{" "}
-              remaining today.
+              {t("generationsRemaining", {
+                count: remaining,
+                pluralSuffix: remaining !== 1 ? "s" : "",
+              })}
             </p>
           </div>
         </CardContent>

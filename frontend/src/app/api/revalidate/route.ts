@@ -3,20 +3,10 @@ import { revalidateTag, revalidatePath } from "next/cache";
 import { locales } from "@/i18n";
 
 export async function POST(request: NextRequest) {
-  console.log("Revalidation request received");
-
   const secret = request.nextUrl.searchParams.get("secret");
   const tag = request.nextUrl.searchParams.get("tag");
   const path = request.nextUrl.searchParams.get("path");
   const type = request.nextUrl.searchParams.get("type") || "tag"; // 'tag', 'path', or 'homepage'
-
-  console.log("Revalidation params:", {
-    hasSecret: !!secret,
-    tag,
-    path,
-    type,
-    envSecret: !!process.env.REVALIDATE_SECRET,
-  });
 
   if (secret !== process.env.REVALIDATE_SECRET) {
     console.error("Invalid revalidation secret");
@@ -26,13 +16,11 @@ export async function POST(request: NextRequest) {
   try {
     if (type === "homepage" || (!tag && !path)) {
       // Revalidate homepage for all locales
-      console.log("Revalidating homepage for all locales");
       revalidateTag("albums");
       revalidateTag("homepage");
 
       for (const locale of locales) {
         revalidatePath(`/${locale}`);
-        console.log(`Revalidated path: /${locale}`);
       }
 
       return NextResponse.json({
@@ -45,14 +33,10 @@ export async function POST(request: NextRequest) {
 
     if (type === "static-pages") {
       // Revalidate static pages (generate, pricing) for all locales
-      console.log("Revalidating static pages for all locales");
 
       for (const locale of locales) {
         revalidatePath(`/${locale}/generate`);
         revalidatePath(`/${locale}/pricing`);
-        console.log(
-          `Revalidated paths: /${locale}/generate, /${locale}/pricing`
-        );
       }
 
       return NextResponse.json({
@@ -74,12 +58,10 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      console.log(`Revalidating album ${albumId} for all locales`);
       revalidateTag(`album-${albumId}`);
 
       for (const locale of locales) {
         revalidatePath(`/${locale}/albums/${albumId}`);
-        console.log(`Revalidated path: /${locale}/albums/${albumId}`);
       }
 
       return NextResponse.json({
@@ -101,12 +83,10 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      console.log(`Revalidating media ${mediaId} for all locales`);
       revalidateTag(`media-${mediaId}`);
 
       for (const locale of locales) {
         revalidatePath(`/${locale}/media/${mediaId}`);
-        console.log(`Revalidated path: /${locale}/media/${mediaId}`);
       }
 
       return NextResponse.json({
@@ -119,15 +99,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (tag) {
-      console.log(`Revalidating tag: ${tag}`);
       revalidateTag(tag);
-      console.log(`Successfully revalidated tag: ${tag}`);
     }
 
     if (path) {
-      console.log(`Revalidating path: ${path}`);
       revalidatePath(path);
-      console.log(`Successfully revalidated path: ${path}`);
     }
 
     if (!tag && !path) {

@@ -70,6 +70,90 @@
       "checkConnection": "Проверьте подключение к интернету",
       "failedToLoad": "Не удалось загрузить",
       "networkResponse": "Сетевой ответ был некорректным"
+    },
+    "profile": {
+      "username": "Имя пользователя",
+      "bio": "Биография",
+      "location": "Местоположение",
+      "website": "Веб-сайт",
+      "enterUsername": "Введите имя пользователя",
+      "tellUsAboutYourself": "Расскажите о себе",
+      "cityCountry": "Город, Страна",
+      "websitePlaceholder": "https://ваш-сайт.com"
+    },
+    "ui": {
+      "virtualizedGrid": {
+        "noContentFound": "Контент не найден",
+        "noContentToDisplay": "Нет контента для отображения.",
+        "errorLoading": "Ошибка загрузки",
+        "tryAgain": "Попробовать снова",
+        "loadingMoreContent": "Загрузка дополнительного контента...",
+        "noMoreContentToLoad": "Больше нет контента для загрузки"
+      },
+      "generationProgressCard": {
+        "generationFailed": "Генерация не удалась",
+        "pleaseTryAgain": "Пожалуйста, попробуйте снова",
+        "queuedForGeneration": "В очереди на генерацию",
+        "waitingToStart": "Ожидание запуска",
+        "retryingGeneration": "Повторная попытка генерации",
+        "attemptWithAI": "Попытка {retryCount}/{maxRetries} - ИИ работает...",
+        "generationComplete": "Генерация завершена",
+        "yourImageIsReady": "Ваше изображение готово",
+        "creatingYourMasterpiece": "Создание вашего шедевра",
+        "aiIsWorkingItsMagic": "ИИ творит чудеса...",
+        "readyToGenerate": "Готов к генерации",
+        "startWhenYouReReady": "Начните, когда будете готовы",
+        "failed": "Неудача",
+        "processing": "Обработка",
+        "waiting": "Ожидание",
+        "generationStoppedDueToError": "Генерация остановлена из-за ошибки",
+        "waitingInQueueToStart": "Ожидание в очереди для запуска...",
+        "allNodesCompletedSuccessfully": "Все узлы завершены успешно",
+        "readyToBeginProcessing": "Готов к началу обработки",
+        "workflowProgress": "Прогресс рабочего процесса",
+        "step": "Шаг",
+        "of": "из",
+        "initializing": "Инициализация..."
+      },
+      "lightbox": {
+        "close": "Закрыть",
+        "previousMedia": "Предыдущий медиа",
+        "nextMedia": "Следующий медиа",
+        "swipeToNavigate": "Проведите для навигации"
+      },
+      "virtualizedCommentsList": {
+        "noCommentsYet": "Пока нет комментариев",
+        "userHasntMadeComments": "Этот пользователь еще не делал комментариев. Заходите позже!",
+        "errorLoading": "Ошибка загрузки",
+        "tryAgain": "Попробовать снова",
+        "loadingMoreComments": "Загрузка дополнительных комментариев...",
+        "noMoreCommentsToLoad": "Больше нет комментариев для загрузки"
+      }
+    },
+    "permissionComponents": {
+      "upgradeRequired": "Требуется обновление",
+      "featureRequiresUpgrade": "Эта функция требует план {planType}. Вы сейчас на {currentPlan}.",
+      "proPlan": "Pro",
+      "higherPlan": "более высокий",
+      "upgradePlan": "Обновить план",
+      "yourPlan": "Ваш план: {planName}",
+      "upgrade": "Обновить",
+      "imagesThisMonth": "Изображения в этом месяце",
+      "unlimited": "неограниченно",
+      "remaining": "осталось",
+      "imagesToday": "Изображения сегодня",
+      "features": {
+        "bulk-generation": "Массовая генерация",
+        "lora-models": "Модели LoRA",
+        "negative-prompt": "Негативный промпт",
+        "private-content": "Приватный контент"
+      },
+      "paidPlan": "Платный план",
+      "generationLimitReached": "Лимит генерации достигнут",
+      "reachedGenerationLimit": "Вы достигли лимита генерации на сегодня.",
+      "upgradeForUnlimited": "Обновитесь для неограниченных генераций.",
+      "upgradeNow": "Обновить сейчас",
+      "generationsRemaining": "У вас осталось {count} генераци{pluralSuffix} сегодня."
     }
   },
   "navigation": {
@@ -510,6 +594,44 @@
       "disableUserConfirmMessage": "Вы уверены, что хотите отключить этого пользователя? Это действие также удалит все его активные сессии.",
       "enableUserConfirmTitle": "Включить пользователя",
       "enableUserConfirmMessage": "Вы уверены, что хотите включить этого пользователя?"
+    },
+    "albumTable": {
+      "loadingAlbums": "Загрузка альбомов...",
+      "noAlbumsFound": "Альбомы не найдены",
+      "createFirstAlbum": "Создайте свой первый альбом для начала",
+      "headers": {
+        "album": "Альбом",
+        "status": "Статус",
+        "mediaCount": "Количество медиа",
+        "created": "Создан",
+        "actions": "Действия"
+      },
+      "status": {
+        "public": "Публичный",
+        "private": "Приватный"
+      },
+      "items": "элементов",
+      "moreTagsCount": "+{count} ещё",
+      "actions": {
+        "media": "Медиа"
+      }
+    },
+    "mediaManager": {
+      "uploadMedia": "Загрузить медиа",
+      "albumCover": "Обложка альбома",
+      "selectCoverDescription": "Выберите изображение обложки для этого альбома из загруженных медиа",
+      "updatingCover": "Обновление изображения обложки...",
+      "mediaLibrary": "Медиатека",
+      "deleteSelected": "Удалить выбранные",
+      "selectAllMedia": "Выбрать все медиа",
+      "noMediaUploaded": "Медиа еще не загружены",
+      "uploadFirstMedia": "Загрузите ваши первые медиафайлы для начала работы",
+      "view": "Просмотр",
+      "remove": "Удалить",
+      "delete": "Удалить",
+      "deleteMedia": "Удалить медиа",
+      "deleteSelectedConfirm": "Вы уверены, что хотите удалить {count} выбранных медиаэлементов? Это действие нельзя отменить.",
+      "deleteItemConfirm": "Вы уверены, что хотите удалить \"{filename}\"? Это действие нельзя отменить."
     }
   },
   "user": {
@@ -536,7 +658,7 @@
       "myAlbums": "Мои альбомы",
       "albums": "Альбомы",
       "personalCollections": "Ваши личные коллекции",
-      "personalPhotoCollections": "Ваши личные фотоколлекции",
+      "personalPhotoCollections": "Ваши личные медиаколлекции",
       "albumsCount": "{count} альбомов",
       "create": "Создать",
       "createAlbum": "Создать альбом",
@@ -836,6 +958,34 @@
         "confirmAction": "Вы уверены?",
         "actionCannotBeUndone": "Это действие нельзя отменить"
       }
+    },
+    "coverImageSelector": {
+      "coverImage": "Обложка",
+      "hideImages": "Скрыть изображения",
+      "chooseFromSelected": "Выбрать из выбранных ({count})",
+      "currentCover": "Текущая обложка",
+      "noImagesSelected": "Изображения не выбраны",
+      "coverImageSelected": "Обложка выбрана",
+      "noCoverSelected": "Обложка не выбрана",
+      "clearSelection": "Очистить выбор",
+      "done": "Готово"
+    },
+    "verifyEmail": {
+      "emailVerificationFailed": "Проверка электронной почты не удалась. Ссылка может быть просроченной или недействительной.",
+      "emailVerifiedSuccessfully": "Ваша электронная почта была успешно подтверждена, и вы теперь вошли в систему!",
+      "unexpectedErrorOccurred": "Произошла неожиданная ошибка во время проверки.",
+      "invalidVerificationLink": "Недействительная ссылка для подтверждения. Токен не предоставлен.",
+      "verifyingEmail": "Проверка вашей электронной почты...",
+      "pleaseWaitVerification": "Пожалуйста, подождите, пока мы проверяем ваш адрес электронной почты.",
+      "emailVerified": "Электронная почта подтверждена!",
+      "accountFullyActivated": "Ваша учетная запись теперь полностью активирована, и вы автоматически вошли в систему. Теперь вы можете получить доступ ко всем функциям.",
+      "goToHomepage": "Перейти на главную",
+      "loginToAccount": "Войти в вашу учетную запись",
+      "verificationFailed": "Проверка не удалась",
+      "tryRequestingNewEmail": "Пожалуйста, попробуйте запросить новое письмо для подтверждения или обратитесь в службу поддержки, если проблема не исчезнет.",
+      "backToLogin": "Вернуться к входу",
+      "invalidLink": "Недействительная ссылка",
+      "makeSureCompleteLink": "Пожалуйста, убедитесь, что вы используете полную ссылку для подтверждения из вашего электронного письма."
     }
   },
   "media": {
@@ -912,6 +1062,39 @@
       "unpublish": "Снять с публикации",
       "addToAlbum": "Добавить в альбом",
       "removeFromAlbum": "Удалить из альбома"
+    },
+    "coverImageSelector": {
+      "coverImage": "Изображение обложки",
+      "errorLoading": "Ошибка загрузки медиа альбома",
+      "unknownError": "Неизвестная ошибка",
+      "hideImages": "Скрыть изображения",
+      "chooseFromAlbum": "Выбрать из альбома",
+      "currentCover": "Текущая обложка",
+      "loadingImages": "Загрузка изображений альбома...",
+      "noImagesFound": "Изображения в этом альбоме не найдены",
+      "coverSelected": "Изображение обложки выбрано",
+      "noCoverSelected": "Обложка не выбрана",
+      "clearSelection": "Очистить выбор",
+      "done": "Готово"
+    },
+    "editAlbumDialog": {
+      "editAlbum": "Редактировать альбом",
+      "title": "Название",
+      "titlePlaceholder": "Введите название альбома...",
+      "tags": "Теги",
+      "tagsPlaceholder": "Добавить тег...",
+      "tagsHelpText": "Добавьте теги, чтобы помочь пользователям найти ваш альбом",
+      "privateAlbum": "Приватный альбом",
+      "proOnly": "Только Pro",
+      "privateDescription": "Сделать этот альбом видимым только для вас",
+      "proPrivateDescription": "Приватные альбомы доступны для Pro пользователей",
+      "albumImages": "Изображения альбома",
+      "selectImagesDescription": "Выберите изображения для включения в этот альбом. Вы можете выбрать из ваших собственных изображений и добавленных изображений.",
+      "noMediaAvailable": "Нет доступных медиа",
+      "allMediaLoaded": "Все медиа загружены",
+      "cancel": "Отмена",
+      "saving": "Сохранение...",
+      "saveChanges": "Сохранить изменения"
     }
   },
   "generate": {

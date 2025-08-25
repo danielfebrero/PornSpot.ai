@@ -43,12 +43,6 @@ export function useGoogleAuth() {
 
     const storedState = sessionStorage.getItem("google_oauth_state");
 
-    console.log("OAuth State Validation:", {
-      receivedState,
-      storedState,
-      matches: storedState === receivedState,
-    });
-
     if (!storedState || storedState !== receivedState) {
       return false;
     }

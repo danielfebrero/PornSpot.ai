@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { useAdminAlbumMedia } from "@/hooks/queries/useAdminMediaQuery";
 import { Media } from "@/types";
 import ResponsivePicture from "@/components/ui/ResponsivePicture";
+import { useTranslations } from "next-intl";
 import {
   composeMediaUrl,
   composeThumbnailUrls,
@@ -25,6 +26,9 @@ export function CoverImageSelector({
   onCoverSelect,
   disabled = false,
 }: CoverImageSelectorProps) {
+  const t = useTranslations("common");
+  const tCover = useTranslations("admin.coverImageSelector");
+
   // Use TanStack Query hook for admin album media
   const {
     data: mediaData,
@@ -60,7 +64,7 @@ export function CoverImageSelector({
     return (
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">
-          Cover Image
+          {tCover("coverImage")}
         </label>
         <div className="space-y-3">
           {selectedCoverUrl ? (
@@ -74,18 +78,20 @@ export function CoverImageSelector({
                   composeMediaUrl(selectedCoverUrl),
                   "medium"
                 )}
-                alt="Current cover"
+                alt={tCover("currentCover")}
                 className="w-32 h-32 object-cover rounded-lg border-2 border-admin-primary"
               />
               <div className="absolute -top-2 -right-2">
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-admin-primary/10 text-admin-primary">
-                  Current Cover
+                  {tCover("currentCover")}
                 </span>
               </div>
             </div>
           ) : (
             <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-              <span className="text-gray-500 text-sm">No cover selected</span>
+              <span className="text-gray-500 text-sm">
+                {tCover("noCoverSelected")}
+              </span>
             </div>
           )}
           <div>
@@ -96,7 +102,7 @@ export function CoverImageSelector({
               disabled={disabled}
               className="border-admin-primary/30 text-admin-primary hover:bg-admin-primary hover:text-admin-primary-foreground"
             >
-              {selectedCoverUrl ? "Change Cover" : "Select Cover"}
+              {selectedCoverUrl ? tCover("changeCover") : tCover("selectCover")}
             </Button>
             {selectedCoverUrl && (
               <Button
@@ -106,7 +112,7 @@ export function CoverImageSelector({
                 disabled={disabled}
                 className="ml-2 text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
               >
-                Remove Cover
+                {tCover("removeCover")}
               </Button>
             )}
           </div>
@@ -118,12 +124,12 @@ export function CoverImageSelector({
   return (
     <div>
       <label className="block text-sm font-medium text-foreground mb-2">
-        Cover Image
+        {tCover("coverImage")}
       </label>
       <div className="bg-card border border-border rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-sm font-medium text-foreground">
-            Select from album images ({imageMedia.length} available)
+            {tCover("selectFromAlbumImages", { count: imageMedia.length })}
           </h4>
           <Button
             type="button"
@@ -131,20 +137,22 @@ export function CoverImageSelector({
             onClick={() => setIsOpen(false)}
             size="sm"
           >
-            Close
+            {t("close")}
           </Button>
         </div>
 
         {loading && (
           <div className="text-center py-8">
-            <div className="text-muted-foreground">Loading images...</div>
+            <div className="text-muted-foreground">
+              {tCover("loadingImages")}
+            </div>
           </div>
         )}
 
         {error && (
           <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3 mb-4">
             <p className="text-destructive text-sm">
-              {error?.message || "Unknown error"}
+              {error?.message || t("unknownError")}
             </p>
           </div>
         )}
@@ -152,10 +160,10 @@ export function CoverImageSelector({
         {!loading && !error && imageMedia.length === 0 && (
           <div className="text-center py-8">
             <div className="text-muted-foreground">
-              No images available in this album
+              {tCover("noImagesAvailable")}
             </div>
             <p className="text-sm text-muted-foreground/70 mt-1">
-              Upload some images first to select a cover
+              {tCover("uploadImagesFirst")}
             </p>
           </div>
         )}
@@ -220,7 +228,9 @@ export function CoverImageSelector({
 
         <div className="mt-4 flex justify-between items-center">
           <div className="text-sm text-muted-foreground">
-            {selectedCoverUrl ? "Cover image selected" : "No cover selected"}
+            {selectedCoverUrl
+              ? tCover("coverImageSelected")
+              : tCover("noCoverSelected")}
           </div>
           <div className="space-x-2">
             {selectedCoverUrl && (
@@ -231,7 +241,7 @@ export function CoverImageSelector({
                 size="sm"
                 className="text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
               >
-                Clear Selection
+                {tCover("clearSelection")}
               </Button>
             )}
             <Button
@@ -240,7 +250,7 @@ export function CoverImageSelector({
               size="sm"
               className="bg-admin-primary hover:bg-admin-primary/90 text-admin-primary-foreground"
             >
-              Done
+              {t("done")}
             </Button>
           </div>
         </div>

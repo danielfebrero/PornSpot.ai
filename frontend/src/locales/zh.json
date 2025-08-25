@@ -70,6 +70,90 @@
       "checkConnection": "请检查您的网络连接",
       "failedToLoad": "加载失败",
       "networkResponse": "网络响应异常"
+    },
+    "profile": {
+      "username": "用户名",
+      "bio": "个人简介",
+      "location": "位置",
+      "website": "网站",
+      "enterUsername": "输入用户名",
+      "tellUsAboutYourself": "介绍一下自己",
+      "cityCountry": "城市，国家",
+      "websitePlaceholder": "https://您的网站.com"
+    },
+    "ui": {
+      "virtualizedGrid": {
+        "noContentFound": "未找到内容",
+        "noContentToDisplay": "没有内容可显示。",
+        "errorLoading": "加载错误",
+        "tryAgain": "重试",
+        "loadingMoreContent": "加载更多内容...",
+        "noMoreContentToLoad": "没有更多内容可加载"
+      },
+      "generationProgressCard": {
+        "generationFailed": "生成失败",
+        "pleaseTryAgain": "请重试",
+        "queuedForGeneration": "排队等待生成",
+        "waitingToStart": "等待开始",
+        "retryingGeneration": "重试生成",
+        "attemptWithAI": "第 {retryCount}/{maxRetries} 次尝试 - AI 正在工作...",
+        "generationComplete": "生成完成",
+        "yourImageIsReady": "您的图片已准备好",
+        "creatingYourMasterpiece": "正在创建您的杰作",
+        "aiIsWorkingItsMagic": "AI 正在施展魔法...",
+        "readyToGenerate": "准备生成",
+        "startWhenYouReReady": "准备好时开始",
+        "failed": "失败",
+        "processing": "处理中",
+        "waiting": "等待",
+        "generationStoppedDueToError": "由于错误生成已停止",
+        "waitingInQueueToStart": "在队列中等待开始...",
+        "allNodesCompletedSuccessfully": "所有节点已成功完成",
+        "readyToBeginProcessing": "准备开始处理",
+        "workflowProgress": "工作流程进度",
+        "step": "步骤",
+        "of": "共",
+        "initializing": "初始化中..."
+      },
+      "lightbox": {
+        "close": "关闭",
+        "previousMedia": "上一个媒体",
+        "nextMedia": "下一个媒体",
+        "swipeToNavigate": "滑动导航"
+      },
+      "virtualizedCommentsList": {
+        "noCommentsYet": "暂无评论",
+        "userHasntMadeComments": "该用户还没有发表评论。请稍后再来看看！",
+        "errorLoading": "加载错误",
+        "tryAgain": "重试",
+        "loadingMoreComments": "加载更多评论...",
+        "noMoreCommentsToLoad": "没有更多评论可加载"
+      }
+    },
+    "permissionComponents": {
+      "upgradeRequired": "需要升级",
+      "featureRequiresUpgrade": "此功能需要{planType}计划。您当前使用的是{currentPlan}。",
+      "proPlan": "专业版",
+      "higherPlan": "更高级的",
+      "upgradePlan": "升级计划",
+      "yourPlan": "您的计划：{planName}",
+      "upgrade": "升级",
+      "imagesThisMonth": "本月图片",
+      "unlimited": "无限制",
+      "remaining": "剩余",
+      "imagesToday": "今日图片",
+      "features": {
+        "bulk-generation": "批量生成",
+        "lora-models": "LoRA模型",
+        "negative-prompt": "负面提示词",
+        "private-content": "私人内容"
+      },
+      "paidPlan": "付费计划",
+      "generationLimitReached": "生成限制已达到",
+      "reachedGenerationLimit": "您已达到今日的生成限制。",
+      "upgradeForUnlimited": "升级以获得无限生成。",
+      "upgradeNow": "立即升级",
+      "generationsRemaining": "您今天还剩{count}次生成{pluralSuffix}。"
     }
   },
   "navigation": {
@@ -509,6 +593,44 @@
       "disableUserConfirmMessage": "您确定要禁用此用户吗？此操作还将删除其所有活跃会话。",
       "enableUserConfirmTitle": "启用用户",
       "enableUserConfirmMessage": "您确定要启用此用户吗？"
+    },
+    "albumTable": {
+      "loadingAlbums": "正在加载相册...",
+      "noAlbumsFound": "未找到相册",
+      "createFirstAlbum": "创建您的第一个相册开始",
+      "headers": {
+        "album": "相册",
+        "status": "状态",
+        "mediaCount": "媒体数量",
+        "created": "创建时间",
+        "actions": "操作"
+      },
+      "status": {
+        "public": "公开",
+        "private": "私有"
+      },
+      "items": "项",
+      "moreTagsCount": "+{count} 更多",
+      "actions": {
+        "media": "媒体"
+      }
+    },
+    "mediaManager": {
+      "uploadMedia": "上传媒体",
+      "albumCover": "相册封面",
+      "selectCoverDescription": "从已上传的媒体中为此相册选择封面图片",
+      "updatingCover": "正在更新封面图片...",
+      "mediaLibrary": "媒体库",
+      "deleteSelected": "删除选中项",
+      "selectAllMedia": "选择所有媒体",
+      "noMediaUploaded": "尚未上传媒体",
+      "uploadFirstMedia": "上传您的第一批媒体文件开始",
+      "view": "查看",
+      "remove": "移除",
+      "delete": "删除",
+      "deleteMedia": "删除媒体",
+      "deleteSelectedConfirm": "您确定要删除 {count} 个选中的媒体项吗？此操作无法撤销。",
+      "deleteItemConfirm": "您确定要删除 \"{filename}\" 吗？此操作无法撤销。"
     }
   },
   "user": {
@@ -527,7 +649,7 @@
       "myAlbums": "我的相册",
       "albums": "相册",
       "personalCollections": "您的个人收藏",
-      "personalPhotoCollections": "您的个人照片收藏",
+      "personalPhotoCollections": "您的个人媒体收藏",
       "albumsCount": "{count} 个相册",
       "create": "创建",
       "createAlbum": "创建相册",
@@ -826,6 +948,34 @@
         "confirmAction": "您确定吗？",
         "actionCannotBeUndone": "此操作无法撤销"
       }
+    },
+    "coverImageSelector": {
+      "coverImage": "封面图片",
+      "hideImages": "隐藏图片",
+      "chooseFromSelected": "从已选择的项目中选择 ({count})",
+      "currentCover": "当前封面",
+      "noImagesSelected": "未选择图片",
+      "coverImageSelected": "已选择封面图片",
+      "noCoverSelected": "未选择封面",
+      "clearSelection": "清除选择",
+      "done": "完成"
+    },
+    "verifyEmail": {
+      "emailVerificationFailed": "邮箱验证失败。链接可能已过期或无效。",
+      "emailVerifiedSuccessfully": "您的邮箱已成功验证，您现在已登录！",
+      "unexpectedErrorOccurred": "验证过程中发生意外错误。",
+      "invalidVerificationLink": "无效的验证链接。未提供令牌。",
+      "verifyingEmail": "正在验证您的邮箱...",
+      "pleaseWaitVerification": "请稍候，我们正在验证您的邮箱地址。",
+      "emailVerified": "邮箱已验证！",
+      "accountFullyActivated": "您的账户现已完全激活，您已自动登录。现在可以访问所有功能。",
+      "goToHomepage": "前往首页",
+      "loginToAccount": "登录您的账户",
+      "verificationFailed": "验证失败",
+      "tryRequestingNewEmail": "请尝试请求新的验证邮件，或如果问题持续存在，请联系支持。",
+      "backToLogin": "返回登录",
+      "invalidLink": "无效链接",
+      "makeSureCompleteLink": "请确保您使用的是邮件中完整的验证链接。"
     }
   },
   "media": {
@@ -902,6 +1052,39 @@
       "unpublish": "取消发布",
       "addToAlbum": "添加到相册",
       "removeFromAlbum": "从相册中移除"
+    },
+    "coverImageSelector": {
+      "coverImage": "封面图片",
+      "errorLoading": "加载相册媒体时出错",
+      "unknownError": "未知错误",
+      "hideImages": "隐藏图片",
+      "chooseFromAlbum": "从相册中选择",
+      "currentCover": "当前封面",
+      "loadingImages": "正在加载相册图片...",
+      "noImagesFound": "此相册中未找到图片",
+      "coverSelected": "封面图片已选择",
+      "noCoverSelected": "未选择封面",
+      "clearSelection": "清除选择",
+      "done": "完成"
+    },
+    "editAlbumDialog": {
+      "editAlbum": "编辑相册",
+      "title": "标题",
+      "titlePlaceholder": "输入相册标题...",
+      "tags": "标签",
+      "tagsPlaceholder": "添加标签...",
+      "tagsHelpText": "添加标签帮助用户发现您的相册",
+      "privateAlbum": "私有相册",
+      "proOnly": "仅专业版",
+      "privateDescription": "使此相册仅对您可见",
+      "proPrivateDescription": "私有相册可供专业版用户使用",
+      "albumImages": "相册图片",
+      "selectImagesDescription": "选择要包含在此相册中的图片。您可以从自己的图片和已添加的图片中选择。",
+      "noMediaAvailable": "没有可用的媒体",
+      "allMediaLoaded": "所有媒体已加载",
+      "cancel": "取消",
+      "saving": "保存中...",
+      "saveChanges": "保存更改"
     }
   },
   "generate": {

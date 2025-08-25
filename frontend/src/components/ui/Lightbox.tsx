@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Media } from "@/types/index";
 import { cn, isVideo } from "@/lib/utils";
 import { ContentCard } from "@/components/ui/ContentCard";
@@ -40,6 +41,8 @@ export const Lightbox: React.FC<LightboxProps> = ({
   onPrevious,
   onDelete,
 }) => {
+  const t = useTranslations("common.ui.lightbox");
+
   const [isMounted, setIsMounted] = useState(false);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
 
@@ -462,7 +465,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
             handleClose();
           }}
           className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white z-20"
-          aria-label="Close"
+          aria-label={t("close")}
           data-testid="lightbox-close"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -502,7 +505,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                   ? "opacity-30 cursor-not-allowed"
                   : "cursor-pointer hover:scale-110"
               )}
-              aria-label="Previous media"
+              aria-label={t("previousMedia")}
               data-testid="lightbox-prev"
               disabled={currentIndex === 0}
               initial={{ opacity: 0, x: -20 }}
@@ -540,7 +543,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                   ? "opacity-30 cursor-not-allowed"
                   : "cursor-pointer hover:scale-110"
               )}
-              aria-label="Next media"
+              aria-label={t("nextMedia")}
               data-testid="lightbox-next"
               disabled={currentIndex === media.length - 1 && !hasNextPage}
               initial={{ opacity: 0, x: 20 }}
@@ -600,7 +603,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                   d="M7 16l-4-4m0 0l4-4m-4 4h18"
                 />
               </svg>
-              <span>Swipe to navigate</span>
+              <span>{t("swipeToNavigate")}</span>
               <svg
                 className="w-4 h-4"
                 fill="none"

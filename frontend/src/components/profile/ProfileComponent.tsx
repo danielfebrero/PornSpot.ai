@@ -78,6 +78,7 @@ export default function ProfileComponent({
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
 
   const t = useTranslations("common");
+  const tProfile = useTranslations("common.profile");
   const { isMobile } = useDevice();
   const { user: loggedInUser, refetch } = useUserContext();
 
@@ -520,7 +521,7 @@ export default function ProfileComponent({
                         <div className="space-y-4">
                           <div className="relative">
                             <Input
-                              label="Username"
+                              label={tProfile("username")}
                               value={formData.username}
                               onChange={(e) =>
                                 setFormData((prev) => ({
@@ -529,7 +530,7 @@ export default function ProfileComponent({
                                 }))
                               }
                               onKeyDown={handleKeyDown}
-                              placeholder="Enter username"
+                              placeholder={tProfile("enterUsername")}
                               className="text-lg font-semibold"
                             />
 
@@ -608,7 +609,7 @@ export default function ProfileComponent({
                               )}
                           </div>
                           <Input
-                            label="Bio"
+                            label={tProfile("bio")}
                             value={formData.bio}
                             onChange={(e) =>
                               setFormData((prev) => ({
@@ -617,12 +618,12 @@ export default function ProfileComponent({
                               }))
                             }
                             onKeyDown={handleKeyDown}
-                            placeholder="Tell us about yourself"
+                            placeholder={tProfile("tellUsAboutYourself")}
                             className="text-sm"
                           />
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Input
-                              label="Location"
+                              label={tProfile("location")}
                               value={formData.location}
                               onChange={(e) =>
                                 setFormData((prev) => ({
@@ -631,11 +632,11 @@ export default function ProfileComponent({
                                 }))
                               }
                               onKeyDown={handleKeyDown}
-                              placeholder="City, Country"
+                              placeholder={tProfile("cityCountry")}
                               className="text-sm"
                             />
                             <Input
-                              label="Website"
+                              label={tProfile("website")}
                               value={formData.website}
                               onChange={(e) =>
                                 setFormData((prev) => ({
@@ -644,7 +645,7 @@ export default function ProfileComponent({
                                 }))
                               }
                               onKeyDown={handleKeyDown}
-                              placeholder="https://yoursite.com"
+                              placeholder={tProfile("websitePlaceholder")}
                               className="text-sm"
                             />
                           </div>

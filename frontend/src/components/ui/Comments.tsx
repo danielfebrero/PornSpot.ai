@@ -90,14 +90,6 @@ export function Comments({
     const statusMap: Record<string, { isLiked: boolean; likeCount: number }> =
       {};
 
-    // DEBUG: Check the exact structure
-    console.log("[DEBUG] interactionStatusData structure:", {
-      hasData: !!(interactionStatusData as any)?.data,
-      hasStatuses: !!interactionStatusData?.statuses,
-      hasDataStatuses: !!(interactionStatusData as any)?.data?.statuses,
-      raw: interactionStatusData,
-    });
-
     // Handle both possible structures
     const statuses =
       interactionStatusData?.statuses ||

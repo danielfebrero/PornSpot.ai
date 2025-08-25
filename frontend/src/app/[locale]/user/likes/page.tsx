@@ -72,7 +72,6 @@ const UserLikesPage: React.FC = () => {
         targetType: like.targetType as "album" | "media",
         targetId: like.targetId,
       }));
-      console.log("Likes changed, prefetching targets", { likes, targets });
       prefetch(targets).catch((error) => {
         console.error(
           "Failed to prefetch user likes interaction status:",

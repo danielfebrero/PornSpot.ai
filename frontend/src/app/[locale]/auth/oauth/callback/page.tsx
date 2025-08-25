@@ -49,9 +49,6 @@ function OAuthCallbackContent() {
       if (typeof window !== "undefined") {
         const alreadyProcessed = sessionStorage.getItem(requestKey);
         if (alreadyProcessed) {
-          console.log(
-            "OAuth callback already processed for this request, skipping"
-          );
           return;
         }
         // Mark this request as being processed
@@ -60,9 +57,6 @@ function OAuthCallbackContent() {
 
       // Prevent multiple simultaneous calls
       if (isProcessingRef.current || hasProcessedRef.current) {
-        console.log(
-          "OAuth callback already processed or in progress, skipping"
-        );
         return;
       }
 
@@ -107,8 +101,6 @@ function OAuthCallbackContent() {
                 ? sessionStorage.getItem("google_oauth_state")
                 : null,
           });
-        } else if (stateParam) {
-          console.log("OAuth state validation passed");
         }
 
         // Exchange authorization code for tokens

@@ -70,6 +70,90 @@
       "checkConnection": "Überprüfen Sie Ihre Internetverbindung",
       "failedToLoad": "Laden fehlgeschlagen",
       "networkResponse": "Netzwerkantwort war nicht in Ordnung"
+    },
+    "profile": {
+      "username": "Benutzername",
+      "bio": "Bio",
+      "location": "Standort",
+      "website": "Webseite",
+      "enterUsername": "Benutzername eingeben",
+      "tellUsAboutYourself": "Erzählen Sie uns von sich",
+      "cityCountry": "Stadt, Land",
+      "websitePlaceholder": "https://ihre-seite.com"
+    },
+    "ui": {
+      "virtualizedGrid": {
+        "noContentFound": "Kein Inhalt gefunden",
+        "noContentToDisplay": "Kein Inhalt zum Anzeigen.",
+        "errorLoading": "Fehler beim Laden",
+        "tryAgain": "Erneut versuchen",
+        "loadingMoreContent": "Weitere Inhalte werden geladen...",
+        "noMoreContentToLoad": "Keine weiteren Inhalte zu laden"
+      },
+      "generationProgressCard": {
+        "generationFailed": "Generierung fehlgeschlagen",
+        "pleaseTryAgain": "Bitte versuchen Sie es erneut",
+        "queuedForGeneration": "In der Warteschlange für Generierung",
+        "waitingToStart": "Wartet auf Start",
+        "retryingGeneration": "Generierung wird wiederholt",
+        "attemptWithAI": "Versuch {retryCount}/{maxRetries} - KI arbeitet...",
+        "generationComplete": "Generierung abgeschlossen",
+        "yourImageIsReady": "Ihr Bild ist fertig",
+        "creatingYourMasterpiece": "Ihr Meisterwerk wird erstellt",
+        "aiIsWorkingItsMagic": "KI zaubert...",
+        "readyToGenerate": "Bereit zu generieren",
+        "startWhenYouReReady": "Starten Sie, wenn Sie bereit sind",
+        "failed": "Fehlgeschlagen",
+        "processing": "Verarbeitung",
+        "waiting": "Wartend",
+        "generationStoppedDueToError": "Generierung aufgrund eines Fehlers gestoppt",
+        "waitingInQueueToStart": "Warten in der Warteschlange zum Starten...",
+        "allNodesCompletedSuccessfully": "Alle Knoten erfolgreich abgeschlossen",
+        "readyToBeginProcessing": "Bereit, mit der Verarbeitung zu beginnen",
+        "workflowProgress": "Workflow-Fortschritt",
+        "step": "Schritt",
+        "of": "von",
+        "initializing": "Initialisierung..."
+      },
+      "lightbox": {
+        "close": "Schließen",
+        "previousMedia": "Vorheriges Medium",
+        "nextMedia": "Nächstes Medium",
+        "swipeToNavigate": "Wischen zum Navigieren"
+      },
+      "virtualizedCommentsList": {
+        "noCommentsYet": "Noch keine Kommentare",
+        "userHasntMadeComments": "Dieser Benutzer hat noch keine Kommentare gemacht. Schauen Sie später noch einmal vorbei!",
+        "errorLoading": "Fehler beim Laden",
+        "tryAgain": "Erneut versuchen",
+        "loadingMoreComments": "Weitere Kommentare werden geladen...",
+        "noMoreCommentsToLoad": "Keine weiteren Kommentare zu laden"
+      }
+    },
+    "permissionComponents": {
+      "upgradeRequired": "Upgrade erforderlich",
+      "featureRequiresUpgrade": "Diese Funktion erfordert einen {planType} Plan. Sie sind derzeit auf {currentPlan}.",
+      "proPlan": "Pro",
+      "higherPlan": "höheren",
+      "upgradePlan": "Plan upgraden",
+      "yourPlan": "Ihr Plan: {planName}",
+      "upgrade": "Upgraden",
+      "imagesThisMonth": "Bilder diesen Monat",
+      "unlimited": "unbegrenzt",
+      "remaining": "verbleibend",
+      "imagesToday": "Bilder heute",
+      "features": {
+        "bulk-generation": "Bulk-Generierung",
+        "lora-models": "LoRA-Modelle",
+        "negative-prompt": "Negativer Prompt",
+        "private-content": "Privater Inhalt"
+      },
+      "paidPlan": "Bezahlter Plan",
+      "generationLimitReached": "Generierungslimit erreicht",
+      "reachedGenerationLimit": "Sie haben Ihr Generierungslimit für heute erreicht.",
+      "upgradeForUnlimited": "Upgraden Sie für unbegrenzte Generierungen.",
+      "upgradeNow": "Jetzt upgraden",
+      "generationsRemaining": "Sie haben heute noch {count} Generierung{pluralSuffix} übrig."
     }
   },
   "navigation": {
@@ -507,6 +591,44 @@
       "disableUserConfirmMessage": "Sind Sie sicher, dass Sie diesen Benutzer deaktivieren möchten? Diese Aktion entfernt auch alle aktiven Sitzungen.",
       "enableUserConfirmTitle": "Benutzer aktivieren",
       "enableUserConfirmMessage": "Sind Sie sicher, dass Sie diesen Benutzer aktivieren möchten?"
+    },
+    "albumTable": {
+      "loadingAlbums": "Alben werden geladen...",
+      "noAlbumsFound": "Keine Alben gefunden",
+      "createFirstAlbum": "Erstellen Sie Ihr erstes Album, um zu beginnen",
+      "headers": {
+        "album": "Album",
+        "status": "Status",
+        "mediaCount": "Medienanzahl",
+        "created": "Erstellt",
+        "actions": "Aktionen"
+      },
+      "status": {
+        "public": "Öffentlich",
+        "private": "Privat"
+      },
+      "items": "Elemente",
+      "moreTagsCount": "+{count} weitere",
+      "actions": {
+        "media": "Medien"
+      }
+    },
+    "mediaManager": {
+      "uploadMedia": "Medien hochladen",
+      "albumCover": "Album-Cover",
+      "selectCoverDescription": "Wählen Sie ein Cover-Bild für dieses Album aus den hochgeladenen Medien",
+      "updatingCover": "Cover-Bild wird aktualisiert...",
+      "mediaLibrary": "Medienbibliothek",
+      "deleteSelected": "Ausgewählte löschen",
+      "selectAllMedia": "Alle Medien auswählen",
+      "noMediaUploaded": "Noch keine Medien hochgeladen",
+      "uploadFirstMedia": "Laden Sie Ihre ersten Mediendateien hoch, um zu beginnen",
+      "view": "Ansehen",
+      "remove": "Entfernen",
+      "delete": "Löschen",
+      "deleteMedia": "Medien löschen",
+      "deleteSelectedConfirm": "Sind Sie sicher, dass Sie {count} ausgewählte Medienelemente löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteItemConfirm": "Sind Sie sicher, dass Sie \"{filename}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
     }
   },
   "user": {
@@ -525,7 +647,7 @@
       "myAlbums": "Meine Alben",
       "albums": "Alben",
       "personalCollections": "Ihre persönlichen Sammlungen",
-      "personalPhotoCollections": "Ihre persönlichen Fotosammlungen",
+      "personalPhotoCollections": "Ihre persönlichen Mediensammlungen",
       "albumsCount": "{count} Alben",
       "create": "Erstellen",
       "createAlbum": "Album erstellen",
@@ -824,6 +946,34 @@
         "confirmAction": "Sind Sie sicher?",
         "actionCannotBeUndone": "Diese Aktion kann nicht rückgängig gemacht werden"
       }
+    },
+    "coverImageSelector": {
+      "coverImage": "Titelbild",
+      "hideImages": "Bilder ausblenden",
+      "chooseFromSelected": "Aus Ausgewählten wählen ({count})",
+      "currentCover": "Aktuelles Titelbild",
+      "noImagesSelected": "Keine Bilder ausgewählt",
+      "coverImageSelected": "Titelbild ausgewählt",
+      "noCoverSelected": "Kein Titelbild ausgewählt",
+      "clearSelection": "Auswahl löschen",
+      "done": "Fertig"
+    },
+    "verifyEmail": {
+      "emailVerificationFailed": "E-Mail-Verifizierung fehlgeschlagen. Der Link ist möglicherweise abgelaufen oder ungültig.",
+      "emailVerifiedSuccessfully": "Ihre E-Mail wurde erfolgreich verifiziert und Sie sind jetzt angemeldet!",
+      "unexpectedErrorOccurred": "Ein unerwarteter Fehler ist bei der Verifizierung aufgetreten.",
+      "invalidVerificationLink": "Ungültiger Verifizierungslink. Kein Token bereitgestellt.",
+      "verifyingEmail": "Ihre E-Mail wird verifiziert...",
+      "pleaseWaitVerification": "Bitte warten Sie, während wir Ihre E-Mail-Adresse verifizieren.",
+      "emailVerified": "E-Mail verifiziert!",
+      "accountFullyActivated": "Ihr Konto ist jetzt vollständig aktiviert und Sie sind automatisch angemeldet. Sie können jetzt auf alle Funktionen zugreifen.",
+      "goToHomepage": "Zur Startseite",
+      "loginToAccount": "Bei Ihrem Konto anmelden",
+      "verificationFailed": "Verifizierung fehlgeschlagen",
+      "tryRequestingNewEmail": "Bitte versuchen Sie, eine neue Verifizierungs-E-Mail anzufordern oder kontaktieren Sie den Support, wenn das Problem weiterhin besteht.",
+      "backToLogin": "Zurück zur Anmeldung",
+      "invalidLink": "Ungültiger Link",
+      "makeSureCompleteLink": "Bitte stellen Sie sicher, dass Sie den vollständigen Verifizierungslink aus Ihrer E-Mail verwenden."
     }
   },
   "media": {
@@ -900,6 +1050,39 @@
       "unpublish": "Veröffentlichung rückgängig machen",
       "addToAlbum": "Zum Album hinzufügen",
       "removeFromAlbum": "Aus Album entfernen"
+    },
+    "coverImageSelector": {
+      "coverImage": "Cover-Bild",
+      "errorLoading": "Fehler beim Laden der Album-Medien",
+      "unknownError": "Unbekannter Fehler",
+      "hideImages": "Bilder verbergen",
+      "chooseFromAlbum": "Aus Album wählen",
+      "currentCover": "Aktuelles Cover",
+      "loadingImages": "Album-Bilder werden geladen...",
+      "noImagesFound": "Keine Bilder in diesem Album gefunden",
+      "coverSelected": "Cover-Bild ausgewählt",
+      "noCoverSelected": "Kein Cover ausgewählt",
+      "clearSelection": "Auswahl löschen",
+      "done": "Fertig"
+    },
+    "editAlbumDialog": {
+      "editAlbum": "Album bearbeiten",
+      "title": "Titel",
+      "titlePlaceholder": "Album-Titel eingeben...",
+      "tags": "Tags",
+      "tagsPlaceholder": "Tag hinzufügen...",
+      "tagsHelpText": "Fügen Sie Tags hinzu, um Benutzern zu helfen, Ihr Album zu entdecken",
+      "privateAlbum": "Privates Album",
+      "proOnly": "Nur Pro",
+      "privateDescription": "Dieses Album nur für Sie sichtbar machen",
+      "proPrivateDescription": "Private Alben sind für Pro-Benutzer verfügbar",
+      "albumImages": "Album-Bilder",
+      "selectImagesDescription": "Wählen Sie Bilder aus, die in diesem Album enthalten sein sollen. Sie können aus Ihren eigenen Bildern und hinzugefügten Bildern wählen.",
+      "noMediaAvailable": "Keine Medien verfügbar",
+      "allMediaLoaded": "Alle Medien geladen",
+      "cancel": "Abbrechen",
+      "saving": "Speichern...",
+      "saveChanges": "Änderungen speichern"
     }
   },
   "generate": {

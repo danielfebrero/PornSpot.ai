@@ -70,6 +70,90 @@
       "checkConnection": "Vérifiez votre connexion internet",
       "failedToLoad": "Échec du chargement",
       "networkResponse": "La réponse réseau n'était pas correcte"
+    },
+    "profile": {
+      "username": "Nom d'utilisateur",
+      "bio": "Bio",
+      "location": "Localisation",
+      "website": "Site web",
+      "enterUsername": "Entrez votre nom d'utilisateur",
+      "tellUsAboutYourself": "Parlez-nous de vous",
+      "cityCountry": "Ville, Pays",
+      "websitePlaceholder": "https://votre-site.com"
+    },
+    "ui": {
+      "virtualizedGrid": {
+        "noContentFound": "Aucun contenu trouvé",
+        "noContentToDisplay": "Aucun contenu à afficher.",
+        "errorLoading": "Erreur de chargement",
+        "tryAgain": "Réessayer",
+        "loadingMoreContent": "Chargement de plus de contenu...",
+        "noMoreContentToLoad": "Plus de contenu à charger"
+      },
+      "generationProgressCard": {
+        "generationFailed": "Génération échouée",
+        "pleaseTryAgain": "Veuillez réessayer",
+        "queuedForGeneration": "En file d'attente pour la génération",
+        "waitingToStart": "En attente de démarrage",
+        "retryingGeneration": "Nouvelle tentative de génération",
+        "attemptWithAI": "Tentative {retryCount}/{maxRetries} - L'IA travaille...",
+        "generationComplete": "Génération terminée",
+        "yourImageIsReady": "Votre image est prête",
+        "creatingYourMasterpiece": "Création de votre chef-d'œuvre",
+        "aiIsWorkingItsMagic": "L'IA fait sa magie...",
+        "readyToGenerate": "Prêt à générer",
+        "startWhenYouReReady": "Commencez quand vous êtes prêt",
+        "failed": "Échoué",
+        "processing": "Traitement",
+        "waiting": "En attente",
+        "generationStoppedDueToError": "Génération arrêtée en raison d'une erreur",
+        "waitingInQueueToStart": "En attente dans la file pour commencer...",
+        "allNodesCompletedSuccessfully": "Tous les nœuds terminés avec succès",
+        "readyToBeginProcessing": "Prêt à commencer le traitement",
+        "workflowProgress": "Progression du flux de travail",
+        "step": "Étape",
+        "of": "de",
+        "initializing": "Initialisation..."
+      },
+      "lightbox": {
+        "close": "Fermer",
+        "previousMedia": "Média précédent",
+        "nextMedia": "Média suivant",
+        "swipeToNavigate": "Glissez pour naviguer"
+      },
+      "virtualizedCommentsList": {
+        "noCommentsYet": "Aucun commentaire pour le moment",
+        "userHasntMadeComments": "Cet utilisateur n'a pas encore fait de commentaires. Revenez plus tard !",
+        "errorLoading": "Erreur de chargement",
+        "tryAgain": "Réessayer",
+        "loadingMoreComments": "Chargement de plus de commentaires...",
+        "noMoreCommentsToLoad": "Plus de commentaires à charger"
+      }
+    },
+    "permissionComponents": {
+      "upgradeRequired": "Mise à niveau requise",
+      "featureRequiresUpgrade": "Cette fonctionnalité nécessite un plan {planType}. Vous êtes actuellement sur {currentPlan}.",
+      "proPlan": "Pro",
+      "higherPlan": "supérieur",
+      "upgradePlan": "Mettre à niveau le plan",
+      "yourPlan": "Votre plan : {planName}",
+      "upgrade": "Mettre à niveau",
+      "imagesThisMonth": "Images ce mois-ci",
+      "unlimited": "illimité",
+      "remaining": "restantes",
+      "imagesToday": "Images aujourd'hui",
+      "features": {
+        "bulk-generation": "Génération en lot",
+        "lora-models": "Modèles LoRA",
+        "negative-prompt": "Prompt négatif",
+        "private-content": "Contenu privé"
+      },
+      "paidPlan": "Plan payant",
+      "generationLimitReached": "Limite de génération atteinte",
+      "reachedGenerationLimit": "Vous avez atteint votre limite de génération pour aujourd'hui.",
+      "upgradeForUnlimited": "Mettez à niveau pour des générations illimitées.",
+      "upgradeNow": "Mettre à niveau maintenant",
+      "generationsRemaining": "Il vous reste {count} génération{pluralSuffix} aujourd'hui."
     }
   },
   "navigation": {
@@ -545,6 +629,44 @@
       "disableUserConfirmMessage": "Êtes-vous sûr de vouloir désactiver cet utilisateur ? Cette action supprimera également toutes ses sessions actives.",
       "enableUserConfirmTitle": "Réactiver l'utilisateur",
       "enableUserConfirmMessage": "Êtes-vous sûr de vouloir réactiver cet utilisateur ?"
+    },
+    "albumTable": {
+      "loadingAlbums": "Chargement des albums...",
+      "noAlbumsFound": "Aucun album trouvé",
+      "createFirstAlbum": "Créez votre premier album pour commencer",
+      "headers": {
+        "album": "Album",
+        "status": "Statut",
+        "mediaCount": "Nombre de médias",
+        "created": "Créé",
+        "actions": "Actions"
+      },
+      "status": {
+        "public": "Public",
+        "private": "Privé"
+      },
+      "items": "éléments",
+      "moreTagsCount": "+{count} autres",
+      "actions": {
+        "media": "Médias"
+      }
+    },
+    "mediaManager": {
+      "uploadMedia": "Télécharger des médias",
+      "albumCover": "Couverture de l'album",
+      "selectCoverDescription": "Sélectionnez une image de couverture pour cet album parmi les médias téléchargés",
+      "updatingCover": "Mise à jour de l'image de couverture...",
+      "mediaLibrary": "Bibliothèque de médias",
+      "deleteSelected": "Supprimer la sélection",
+      "selectAllMedia": "Sélectionner tous les médias",
+      "noMediaUploaded": "Aucun média téléchargé pour le moment",
+      "uploadFirstMedia": "Téléchargez vos premiers fichiers médias pour commencer",
+      "view": "Voir",
+      "remove": "Retirer",
+      "delete": "Supprimer",
+      "deleteMedia": "Supprimer le média",
+      "deleteSelectedConfirm": "Êtes-vous sûr de vouloir supprimer {count} éléments médias sélectionnés ? Cette action ne peut pas être annulée.",
+      "deleteItemConfirm": "Êtes-vous sûr de vouloir supprimer \"{filename}\" ? Cette action ne peut pas être annulée."
     }
   },
   "user": {
@@ -563,7 +685,7 @@
       "myAlbums": "Mes albums",
       "albums": "Albums",
       "personalCollections": "Vos collections personnelles",
-      "personalPhotoCollections": "Vos collections de photos personnelles",
+      "personalPhotoCollections": "Vos collections de médias personnelles",
       "albumsCount": "{count} albums",
       "create": "Créer",
       "createAlbum": "Créer un album",
@@ -862,6 +984,34 @@
         "confirmAction": "Êtes-vous sûr ?",
         "actionCannotBeUndone": "Cette action ne peut pas être annulée"
       }
+    },
+    "coverImageSelector": {
+      "coverImage": "Image de couverture",
+      "hideImages": "Masquer les images",
+      "chooseFromSelected": "Choisir parmi les sélectionnées ({count})",
+      "currentCover": "Couverture actuelle",
+      "noImagesSelected": "Aucune image sélectionnée",
+      "coverImageSelected": "Image de couverture sélectionnée",
+      "noCoverSelected": "Aucune couverture sélectionnée",
+      "clearSelection": "Effacer la sélection",
+      "done": "Terminé"
+    },
+    "verifyEmail": {
+      "emailVerificationFailed": "La vérification de l'email a échoué. Le lien peut être expiré ou invalide.",
+      "emailVerifiedSuccessfully": "Votre email a été vérifié avec succès et vous êtes maintenant connecté !",
+      "unexpectedErrorOccurred": "Une erreur inattendue s'est produite lors de la vérification.",
+      "invalidVerificationLink": "Lien de vérification invalide. Aucun token fourni.",
+      "verifyingEmail": "Vérification de votre email...",
+      "pleaseWaitVerification": "Veuillez patienter pendant que nous vérifions votre adresse email.",
+      "emailVerified": "Email vérifié !",
+      "accountFullyActivated": "Votre compte est maintenant entièrement activé et vous êtes automatiquement connecté. Vous pouvez maintenant accéder à toutes les fonctionnalités.",
+      "goToHomepage": "Aller à l'accueil",
+      "loginToAccount": "Se connecter à votre compte",
+      "verificationFailed": "Échec de la vérification",
+      "tryRequestingNewEmail": "Veuillez essayer de demander un nouvel email de vérification ou contactez le support si le problème persiste.",
+      "backToLogin": "Retour à la connexion",
+      "invalidLink": "Lien invalide",
+      "makeSureCompleteLink": "Veuillez vous assurer d'utiliser le lien de vérification complet de votre email."
     }
   },
   "media": {
@@ -944,6 +1094,39 @@
       "confirmMessage": "Êtes-vous sûr de vouloir supprimer l'album",
       "warningMessage": "Cette action ne peut pas être annulée. Tous les médias de cet album seront également supprimés.",
       "deleting": "Suppression..."
+    },
+    "coverImageSelector": {
+      "coverImage": "Image de couverture",
+      "errorLoading": "Erreur lors du chargement des médias de l'album",
+      "unknownError": "Erreur inconnue",
+      "hideImages": "Masquer les images",
+      "chooseFromAlbum": "Choisir dans l'album",
+      "currentCover": "Couverture actuelle",
+      "loadingImages": "Chargement des images de l'album...",
+      "noImagesFound": "Aucune image trouvée dans cet album",
+      "coverSelected": "Image de couverture sélectionnée",
+      "noCoverSelected": "Aucune couverture sélectionnée",
+      "clearSelection": "Effacer la sélection",
+      "done": "Terminé"
+    },
+    "editAlbumDialog": {
+      "editAlbum": "Modifier l'album",
+      "title": "Titre",
+      "titlePlaceholder": "Entrez le titre de l'album...",
+      "tags": "Tags",
+      "tagsPlaceholder": "Ajouter un tag...",
+      "tagsHelpText": "Ajoutez des tags pour aider les utilisateurs à découvrir votre album",
+      "privateAlbum": "Album privé",
+      "proOnly": "Pro uniquement",
+      "privateDescription": "Rendre cet album visible uniquement pour vous",
+      "proPrivateDescription": "Les albums privés sont disponibles pour les utilisateurs Pro",
+      "albumImages": "Images de l'album",
+      "selectImagesDescription": "Sélectionnez les images à inclure dans cet album. Vous pouvez choisir parmi vos propres images et les images que vous avez ajoutées.",
+      "noMediaAvailable": "Aucun média disponible",
+      "allMediaLoaded": "Tous les médias chargés",
+      "cancel": "Annuler",
+      "saving": "Sauvegarde...",
+      "saveChanges": "Sauvegarder les modifications"
     }
   },
   "generate": {

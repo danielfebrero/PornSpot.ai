@@ -3,6 +3,7 @@
 import React, { useCallback, useLayoutEffect, useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { Mail } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { CommentCard } from "@/components/ui/CommentCard";
 import { CommentWithTarget as CommentType } from "@/types";
@@ -45,6 +46,8 @@ export function VirtualizedCommentsList({
   onCommentUpdate,
   onCommentDelete,
 }: VirtualizedCommentsListProps) {
+  const t = useTranslations("common.ui.virtualizedCommentsList");
+
   // Get current user data
   const { user } = useUserContext();
   const currentUserId = user?.userId;
@@ -254,10 +257,10 @@ export function VirtualizedCommentsList({
       <div className={cn("text-center py-12", className)}>
         <Mail className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
         <h3 className="text-lg font-medium text-foreground mb-2">
-          No comments yet
+          {t("noCommentsYet")}
         </h3>
         <p className="text-muted-foreground mb-6">
-          This user hasn&apos;t made any comments yet. Check back later!
+          {t("userHasntMadeComments")}
         </p>
       </div>
     );
@@ -283,14 +286,16 @@ export function VirtualizedCommentsList({
               return (
                 <div className="py-8 text-center">
                   <div className="space-y-4">
-                    <p className="text-red-500">Error loading: {error}</p>
+                    <p className="text-red-500">
+                      {t("errorLoading")}: {error}
+                    </p>
                     {onRetry && (
                       <Button
                         onClick={onRetry}
                         variant="outline"
                         disabled={isFetchingNextPage}
                       >
-                        Try Again
+                        {t("tryAgain")}
                       </Button>
                     )}
                   </div>
@@ -303,7 +308,7 @@ export function VirtualizedCommentsList({
                 <div className="py-8 text-center">
                   <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-admin-accent"></div>
                   <p className="text-muted-foreground mt-2">
-                    Loading more comments...
+                    {t("loadingMoreComments")}
                   </p>
                 </div>
               );
@@ -313,7 +318,7 @@ export function VirtualizedCommentsList({
               return (
                 <div className="py-8 text-center">
                   <p className="text-muted-foreground">
-                    No more comments to load
+                    {t("noMoreCommentsToLoad")}
                   </p>
                 </div>
               );

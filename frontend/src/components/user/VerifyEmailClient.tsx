@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useLocaleRouter } from "@/lib/navigation";
 import { Button } from "@/components/ui/Button";
 import { useVerifyEmail } from "@/hooks/queries/useUserQuery";
@@ -10,6 +11,7 @@ import { useUserContext } from "@/contexts/UserContext";
 type VerificationState = "loading" | "success" | "error" | "invalid";
 
 export function VerifyEmailClient() {
+  const t = useTranslations("user.verifyEmail");
   const [state, setState] = useState<VerificationState>("loading");
   const [message, setMessage] = useState("");
   const { user, checkAuth } = useUserContext();
@@ -31,28 +33,22 @@ export function VerifyEmailClient() {
         const result = await verifyEmailMutation.mutateAsync(token);
         if (!result) {
           setState("error");
-          setMessage(
-            "Email verification failed. The link may be expired or invalid."
-          );
+          setMessage(t("emailVerificationFailed"));
           return;
         }
 
         setState("success");
-        setMessage(
-          "Your email has been successfully verified and you're now signed in!"
-        );
+        setMessage(t("emailVerifiedSuccessfully"));
 
         await checkAuth();
       } catch (err) {
         setState("error");
         setMessage(
-          err instanceof Error
-            ? err.message
-            : "An unexpected error occurred during verification."
+          err instanceof Error ? err.message : t("unexpectedErrorOccurred")
         );
       }
     },
-    [verifyEmailMutation, checkAuth]
+    [verifyEmailMutation, checkAuth, t]
   );
 
   useEffect(() => {
@@ -60,7 +56,7 @@ export function VerifyEmailClient() {
 
     if (!token) {
       setState("invalid");
-      setMessage("Invalid verification link. No token provided.");
+      setMessage(t("invalidVerificationLink"));
       return;
     }
 
@@ -82,10 +78,10 @@ export function VerifyEmailClient() {
           <div className="text-center space-y-4">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
             <h2 className="text-2xl font-bold text-foreground">
-              Verifying your email...
+              {t("verifyingEmail")}
             </h2>
             <p className="text-muted-foreground">
-              Please wait while we verify your email address.
+              {t("pleaseWaitVerification")}
             </p>
           </div>
         );
@@ -112,20 +108,19 @@ export function VerifyEmailClient() {
 
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-foreground">
-                Email Verified!
+                {t("emailVerified")}
               </h2>
               <p className="text-muted-foreground text-lg">{message}</p>
             </div>
 
             <div className="space-y-3">
               <p className="text-muted-foreground">
-                Your account is now fully activated and you&apos;re
-                automatically signed in. You can now access all features.
+                {t("accountFullyActivated")}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button onClick={handleGoHome} className="px-6">
-                  Go to Homepage
+                  {t("goToHomepage")}
                 </Button>
                 {!user && (
                   <Button
@@ -133,7 +128,7 @@ export function VerifyEmailClient() {
                     onClick={handleGoToLogin}
                     className="px-6"
                   >
-                    Login to Your Account
+                    {t("loginToAccount")}
                   </Button>
                 )}
               </div>
@@ -163,27 +158,26 @@ export function VerifyEmailClient() {
 
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-foreground">
-                Verification Failed
+                {t("verificationFailed")}
               </h2>
               <p className="text-muted-foreground text-lg">{message}</p>
             </div>
 
             <div className="space-y-3">
               <p className="text-muted-foreground">
-                Please try requesting a new verification email or contact
-                support if the problem persists.
+                {t("tryRequestingNewEmail")}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button onClick={handleGoHome} className="px-6">
-                  Go to Homepage
+                  {t("goToHomepage")}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={handleGoToLogin}
                   className="px-6"
                 >
-                  Back to Login
+                  {t("backToLogin")}
                 </Button>
               </div>
             </div>
@@ -212,27 +206,26 @@ export function VerifyEmailClient() {
 
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-foreground">
-                Invalid Link
+                {t("invalidLink")}
               </h2>
               <p className="text-muted-foreground text-lg">{message}</p>
             </div>
 
             <div className="space-y-3">
               <p className="text-muted-foreground">
-                Please make sure you&apos;re using the complete verification
-                link from your email.
+                {t("makeSureCompleteLink")}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button onClick={handleGoHome} className="px-6">
-                  Go to Homepage
+                  {t("goToHomepage")}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={handleGoToLogin}
                   className="px-6"
                 >
-                  Back to Login
+                  {t("backToLogin")}
                 </Button>
               </div>
             </div>

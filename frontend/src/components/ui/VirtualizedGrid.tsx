@@ -2,6 +2,7 @@
 
 import React, { useMemo, useCallback, useRef } from "react";
 import { Virtuoso } from "react-virtuoso";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Media, Album } from "@/types";
 import { ContentCard } from "@/components/ui/ContentCard";
@@ -146,6 +147,8 @@ export function VirtualizedGrid<T extends GridItem>({
   error,
   onRetry,
 }: VirtualizedGridProps<T>) {
+  const t = useTranslations("common.ui.virtualizedGrid");
+
   // Container dimensions for responsive grid calculation
   const containerRef = useRef<HTMLDivElement>(null);
   const skeletonContainerRef = useRef<HTMLDivElement>(null);
@@ -385,9 +388,9 @@ export function VirtualizedGrid<T extends GridItem>({
             </svg>
           </div>
           <h3 className="text-lg font-semibold text-foreground mb-2">
-            No content found
+            {t("noContentFound")}
           </h3>
-          <p className="text-muted-foreground">No content to display.</p>
+          <p className="text-muted-foreground">{t("noContentToDisplay")}</p>
         </div>
       </div>
     );
@@ -408,14 +411,16 @@ export function VirtualizedGrid<T extends GridItem>({
               return (
                 <div className="py-8 text-center">
                   <div className="space-y-4">
-                    <p className="text-red-500">Error loading: {error}</p>
+                    <p className="text-red-500">
+                      {t("errorLoading")}: {error}
+                    </p>
                     {onRetry && (
                       <button
                         onClick={onRetry}
                         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                         disabled={isFetchingNextPage}
                       >
-                        Try Again
+                        {t("tryAgain")}
                       </button>
                     )}
                   </div>
@@ -428,7 +433,7 @@ export function VirtualizedGrid<T extends GridItem>({
                 <div className="py-8 text-center">
                   <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-admin-accent"></div>
                   <p className="text-muted-foreground mt-2">
-                    {loadingState?.loadingText || `Loading more content...`}
+                    {loadingState?.loadingText || t("loadingMoreContent")}
                   </p>
                 </div>
               );
@@ -438,7 +443,7 @@ export function VirtualizedGrid<T extends GridItem>({
               return (
                 <div className="py-8 text-center">
                   <p className="text-muted-foreground">
-                    {loadingState?.noMoreText || `No more content to load`}
+                    {loadingState?.noMoreText || t("noMoreContentToLoad")}
                   </p>
                 </div>
               );

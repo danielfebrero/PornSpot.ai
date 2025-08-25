@@ -70,6 +70,90 @@
       "checkConnection": "Verifica tu conexión a internet",
       "failedToLoad": "Error al cargar",
       "networkResponse": "La respuesta de red no fue correcta"
+    },
+    "profile": {
+      "username": "Nombre de usuario",
+      "bio": "Biografía",
+      "location": "Ubicación",
+      "website": "Sitio web",
+      "enterUsername": "Ingresa tu nombre de usuario",
+      "tellUsAboutYourself": "Cuéntanos sobre ti",
+      "cityCountry": "Ciudad, País",
+      "websitePlaceholder": "https://tu-sitio.com"
+    },
+    "ui": {
+      "virtualizedGrid": {
+        "noContentFound": "No se encontró contenido",
+        "noContentToDisplay": "No hay contenido para mostrar.",
+        "errorLoading": "Error al cargar",
+        "tryAgain": "Intentar de nuevo",
+        "loadingMoreContent": "Cargando más contenido...",
+        "noMoreContentToLoad": "No hay más contenido para cargar"
+      },
+      "generationProgressCard": {
+        "generationFailed": "Generación falló",
+        "pleaseTryAgain": "Por favor inténtalo de nuevo",
+        "queuedForGeneration": "En cola para generación",
+        "waitingToStart": "Esperando para empezar",
+        "retryingGeneration": "Reintentando generación",
+        "attemptWithAI": "Intento {retryCount}/{maxRetries} - IA trabajando...",
+        "generationComplete": "Generación completa",
+        "yourImageIsReady": "Tu imagen está lista",
+        "creatingYourMasterpiece": "Creando tu obra maestra",
+        "aiIsWorkingItsMagic": "La IA está haciendo su magia...",
+        "readyToGenerate": "Listo para generar",
+        "startWhenYouReReady": "Comienza cuando estés listo",
+        "failed": "Falló",
+        "processing": "Procesando",
+        "waiting": "Esperando",
+        "generationStoppedDueToError": "Generación detenida por error",
+        "waitingInQueueToStart": "Esperando en cola para empezar...",
+        "allNodesCompletedSuccessfully": "Todos los nodos completados exitosamente",
+        "readyToBeginProcessing": "Listo para comenzar procesamiento",
+        "workflowProgress": "Progreso del flujo de trabajo",
+        "step": "Paso",
+        "of": "de",
+        "initializing": "Inicializando..."
+      },
+      "lightbox": {
+        "close": "Cerrar",
+        "previousMedia": "Medio anterior",
+        "nextMedia": "Siguiente medio",
+        "swipeToNavigate": "Desliza para navegar"
+      },
+      "virtualizedCommentsList": {
+        "noCommentsYet": "Aún no hay comentarios",
+        "userHasntMadeComments": "Este usuario aún no ha hecho comentarios. ¡Vuelve más tarde!",
+        "errorLoading": "Error al cargar",
+        "tryAgain": "Intentar de nuevo",
+        "loadingMoreComments": "Cargando más comentarios...",
+        "noMoreCommentsToLoad": "No hay más comentarios para cargar"
+      }
+    },
+    "permissionComponents": {
+      "upgradeRequired": "Actualización requerida",
+      "featureRequiresUpgrade": "Esta función requiere un plan {planType}. Actualmente tienes {currentPlan}.",
+      "proPlan": "Pro",
+      "higherPlan": "superior",
+      "upgradePlan": "Actualizar plan",
+      "yourPlan": "Tu plan: {planName}",
+      "upgrade": "Actualizar",
+      "imagesThisMonth": "Imágenes este mes",
+      "unlimited": "ilimitado",
+      "remaining": "restantes",
+      "imagesToday": "Imágenes hoy",
+      "features": {
+        "bulk-generation": "Generación masiva",
+        "lora-models": "Modelos LoRA",
+        "negative-prompt": "Prompt negativo",
+        "private-content": "Contenido privado"
+      },
+      "paidPlan": "Plan de pago",
+      "generationLimitReached": "Límite de generación alcanzado",
+      "reachedGenerationLimit": "Has alcanzado tu límite de generación para hoy.",
+      "upgradeForUnlimited": "Actualiza para generaciones ilimitadas.",
+      "upgradeNow": "Actualizar ahora",
+      "generationsRemaining": "Te quedan {count} generación{pluralSuffix} hoy."
     }
   },
   "navigation": {
@@ -507,6 +591,44 @@
       "disableUserConfirmMessage": "¿Estás seguro de que quieres desactivar este usuario? Esta acción también eliminará todas sus sesiones activas.",
       "enableUserConfirmTitle": "Reactivar usuario",
       "enableUserConfirmMessage": "¿Estás seguro de que quieres reactivar este usuario?"
+    },
+    "albumTable": {
+      "loadingAlbums": "Cargando álbumes...",
+      "noAlbumsFound": "No se encontraron álbumes",
+      "createFirstAlbum": "Crea tu primer álbum para comenzar",
+      "headers": {
+        "album": "Álbum",
+        "status": "Estado",
+        "mediaCount": "Número de medios",
+        "created": "Creado",
+        "actions": "Acciones"
+      },
+      "status": {
+        "public": "Público",
+        "private": "Privado"
+      },
+      "items": "elementos",
+      "moreTagsCount": "+{count} más",
+      "actions": {
+        "media": "Medios"
+      }
+    },
+    "mediaManager": {
+      "uploadMedia": "Subir medios",
+      "albumCover": "Portada del álbum",
+      "selectCoverDescription": "Selecciona una imagen de portada para este álbum de los medios subidos",
+      "updatingCover": "Actualizando imagen de portada...",
+      "mediaLibrary": "Biblioteca de medios",
+      "deleteSelected": "Eliminar seleccionados",
+      "selectAllMedia": "Seleccionar todos los medios",
+      "noMediaUploaded": "Aún no hay medios subidos",
+      "uploadFirstMedia": "Sube tus primeros archivos de medios para comenzar",
+      "view": "Ver",
+      "remove": "Quitar",
+      "delete": "Eliminar",
+      "deleteMedia": "Eliminar medios",
+      "deleteSelectedConfirm": "¿Estás seguro de que quieres eliminar {count} elementos de medios seleccionados? Esta acción no se puede deshacer.",
+      "deleteItemConfirm": "¿Estás seguro de que quieres eliminar \"{filename}\"? Esta acción no se puede deshacer."
     }
   },
   "user": {
@@ -525,7 +647,7 @@
       "myAlbums": "Mis álbumes",
       "albums": "Álbumes",
       "personalCollections": "Tus colecciones personales",
-      "personalPhotoCollections": "Tus colecciones de fotos personales",
+      "personalPhotoCollections": "Tus colecciones de medios personales",
       "albumsCount": "{count} álbumes",
       "create": "Crear",
       "createAlbum": "Crear álbum",
@@ -824,6 +946,34 @@
         "confirmAction": "¿Estás seguro?",
         "actionCannotBeUndone": "Esta acción no se puede deshacer"
       }
+    },
+    "coverImageSelector": {
+      "coverImage": "Imagen de portada",
+      "hideImages": "Ocultar imágenes",
+      "chooseFromSelected": "Elegir de las seleccionadas ({count})",
+      "currentCover": "Portada actual",
+      "noImagesSelected": "No hay imágenes seleccionadas",
+      "coverImageSelected": "Imagen de portada seleccionada",
+      "noCoverSelected": "No hay portada seleccionada",
+      "clearSelection": "Limpiar selección",
+      "done": "Hecho"
+    },
+    "verifyEmail": {
+      "emailVerificationFailed": "La verificación del correo electrónico falló. El enlace puede estar expirado o ser inválido.",
+      "emailVerifiedSuccessfully": "¡Su correo electrónico ha sido verificado exitosamente y ahora está conectado!",
+      "unexpectedErrorOccurred": "Ocurrió un error inesperado durante la verificación.",
+      "invalidVerificationLink": "Enlace de verificación inválido. No se proporcionó token.",
+      "verifyingEmail": "Verificando su correo electrónico...",
+      "pleaseWaitVerification": "Por favor espere mientras verificamos su dirección de correo electrónico.",
+      "emailVerified": "¡Correo electrónico verificado!",
+      "accountFullyActivated": "Su cuenta está ahora completamente activada y está automáticamente conectado. Ahora puede acceder a todas las funciones.",
+      "goToHomepage": "Ir a la página principal",
+      "loginToAccount": "Iniciar sesión en su cuenta",
+      "verificationFailed": "Verificación fallida",
+      "tryRequestingNewEmail": "Por favor intente solicitar un nuevo correo de verificación o contacte al soporte si el problema persiste.",
+      "backToLogin": "Volver al inicio de sesión",
+      "invalidLink": "Enlace inválido",
+      "makeSureCompleteLink": "Por favor asegúrese de estar usando el enlace de verificación completo de su correo electrónico."
     }
   },
   "media": {
@@ -900,6 +1050,39 @@
       "unpublish": "Despublicar",
       "addToAlbum": "Añadir al álbum",
       "removeFromAlbum": "Quitar del álbum"
+    },
+    "coverImageSelector": {
+      "coverImage": "Imagen de portada",
+      "errorLoading": "Error al cargar los medios del álbum",
+      "unknownError": "Error desconocido",
+      "hideImages": "Ocultar imágenes",
+      "chooseFromAlbum": "Elegir del álbum",
+      "currentCover": "Portada actual",
+      "loadingImages": "Cargando imágenes del álbum...",
+      "noImagesFound": "No se encontraron imágenes en este álbum",
+      "coverSelected": "Imagen de portada seleccionada",
+      "noCoverSelected": "Ninguna portada seleccionada",
+      "clearSelection": "Limpiar selección",
+      "done": "Hecho"
+    },
+    "editAlbumDialog": {
+      "editAlbum": "Editar álbum",
+      "title": "Título",
+      "titlePlaceholder": "Ingrese el título del álbum...",
+      "tags": "Etiquetas",
+      "tagsPlaceholder": "Agregar una etiqueta...",
+      "tagsHelpText": "Agrega etiquetas para ayudar a los usuarios a descubrir tu álbum",
+      "privateAlbum": "Álbum privado",
+      "proOnly": "Solo Pro",
+      "privateDescription": "Hacer este álbum visible solo para ti",
+      "proPrivateDescription": "Los álbumes privados están disponibles para usuarios Pro",
+      "albumImages": "Imágenes del álbum",
+      "selectImagesDescription": "Selecciona las imágenes a incluir en este álbum. Puedes elegir de tus propias imágenes e imágenes que hayas agregado.",
+      "noMediaAvailable": "No hay medios disponibles",
+      "allMediaLoaded": "Todos los medios cargados",
+      "cancel": "Cancelar",
+      "saving": "Guardando...",
+      "saveChanges": "Guardar cambios"
     }
   },
   "generate": {

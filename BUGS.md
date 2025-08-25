@@ -83,3 +83,5 @@
 [x] On generate page, "remaining generation" is not in sync with server rate limit.
 
 [x] On User Albums Create page, thumbnails overlap and show be infinite scroll.
+
+[ ] On settings page, in quotas section, the monthly usage indicate it's based on billing cycle but currently it's based on 1-30 cycle - use billing cycle instead.

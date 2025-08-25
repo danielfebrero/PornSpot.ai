@@ -4,6 +4,7 @@ import { Album } from "@/types";
 import { Button } from "@/components/ui/Button";
 import { Tag } from "@/components/ui/Tag";
 import { formatDate } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import {
   getBestThumbnailUrl,
   composeThumbnailUrls,
@@ -32,6 +33,9 @@ export function AlbumTable({
   onManageMedia,
   loading = false,
 }: AlbumTableProps) {
+  const t = useTranslations("common");
+  const tTable = useTranslations("admin.albumTable");
+
   const allSelected =
     albums.length > 0 && selectedAlbums.length === albums.length;
   const someSelected =
@@ -42,7 +46,7 @@ export function AlbumTable({
       <div className="bg-card shadow-lg rounded-xl border border-border">
         <div className="p-12 text-center">
           <div className="w-12 h-12 border-4 border-admin-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-muted-foreground">Loading albums...</div>
+          <div className="text-muted-foreground">{tTable("loadingAlbums")}</div>
         </div>
       </div>
     );
@@ -62,11 +66,9 @@ export function AlbumTable({
             </svg>
           </div>
           <h3 className="text-lg font-medium text-foreground mb-2">
-            No albums found
+            {tTable("noAlbumsFound")}
           </h3>
-          <p className="text-muted-foreground">
-            Create your first album to get started
-          </p>
+          <p className="text-muted-foreground">{tTable("createFirstAlbum")}</p>
         </div>
       </div>
     );
@@ -90,19 +92,19 @@ export function AlbumTable({
                 />
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
-                Album
+                {tTable("headers.album")}
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
-                Status
+                {tTable("headers.status")}
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
-                Media Count
+                {tTable("headers.mediaCount")}
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
-                Created
+                {tTable("headers.created")}
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
-                Actions
+                {tTable("headers.actions")}
               </th>
             </tr>
           </thead>
@@ -154,7 +156,9 @@ export function AlbumTable({
                             ))}
                             {album.tags.length > 2 && (
                               <span className="text-xs text-muted-foreground font-medium">
-                                +{album.tags.length - 2} more
+                                {tTable("moreTagsCount", {
+                                  count: album.tags.length - 2,
+                                })}
                               </span>
                             )}
                           </div>
@@ -170,7 +174,9 @@ export function AlbumTable({
                           : "bg-muted text-muted-foreground border border-border"
                       }`}
                     >
-                      {album.isPublic ? "Public" : "Private"}
+                      {album.isPublic
+                        ? tTable("status.public")
+                        : tTable("status.private")}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -179,7 +185,7 @@ export function AlbumTable({
                         {album.mediaCount}
                       </span>
                       <span className="text-xs text-muted-foreground ml-1">
-                        items
+                        {tTable("items")}
                       </span>
                     </div>
                   </td>
@@ -194,7 +200,7 @@ export function AlbumTable({
                         onClick={() => onEdit(album.id)}
                         className="border-admin-primary/30 text-admin-primary hover:bg-admin-primary hover:text-admin-primary-foreground"
                       >
-                        Edit
+                        {t("edit")}
                       </Button>
                       <Button
                         variant="outline"
@@ -202,7 +208,7 @@ export function AlbumTable({
                         onClick={() => onManageMedia(album.id)}
                         className="border-admin-secondary/30 text-admin-secondary hover:bg-admin-secondary hover:text-admin-secondary-foreground"
                       >
-                        Media
+                        {tTable("actions.media")}
                       </Button>
                       <Button
                         variant="outline"
@@ -210,7 +216,7 @@ export function AlbumTable({
                         onClick={() => onDelete(album)}
                         className="text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
                       >
-                        Delete
+                        {t("delete")}
                       </Button>
                     </div>
                   </td>

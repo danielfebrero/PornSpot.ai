@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/Switch";
 import { TagManager } from "@/components/ui/TagManager";
 import { Crown } from "lucide-react";
 import { Album, Media } from "@/types";
+import { useTranslations } from "next-intl";
 
 interface MediaWithSelection extends Media {
   selected: boolean;
@@ -55,6 +56,7 @@ export function EditAlbumDialog({
   onSave,
   loading = false,
 }: EditAlbumDialogProps) {
+  const tEdit = useTranslations("albums.editAlbumDialog");
   const { canCreatePrivateContent } = usePermissions();
   const canMakePrivate = canCreatePrivateContent();
 
@@ -73,10 +75,10 @@ export function EditAlbumDialog({
     isFetchingNextPage,
   } = useUserMedia({ limit: 50 });
 
-  const {
-    data: albumMediaData,
-    isLoading: albumMediaLoading,
-  } = useAlbumMedia({ albumId: album?.id || "", limit: 100 });
+  const { data: albumMediaData, isLoading: albumMediaLoading } = useAlbumMedia({
+    albumId: album?.id || "",
+    limit: 100,
+  });
 
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -92,11 +94,11 @@ export function EditAlbumDialog({
 
   // Extract flattened media from infinite query data
   const flatUserMedia = useMemo(() => {
-    return userMediaData?.pages.flatMap(page => page.media || []) || [];
+    return userMediaData?.pages.flatMap((page) => page.media || []) || [];
   }, [userMediaData]);
 
   const flatAlbumMedia = useMemo(() => {
-    return albumMediaData?.pages.flatMap(page => page.media || []) || [];
+    return albumMediaData?.pages.flatMap((page) => page.media || []) || [];
   }, [albumMediaData]);
 
   const mediaLoading = userMediaLoading || albumMediaLoading;
@@ -117,12 +119,10 @@ export function EditAlbumDialog({
     setInitiallySelectedMediaIds(albumMediaIds);
 
     // Mark user media as selected if they're in the album
-    const mediaWithSelection = flatUserMedia.map(
-      (media: Media) => ({
-        ...media,
-        selected: albumMediaIds.has(media.id),
-      })
-    );
+    const mediaWithSelection = flatUserMedia.map((media: Media) => ({
+      ...media,
+      selected: albumMediaIds.has(media.id),
+    }));
 
     // Sort media so that images already in the album appear first
     const sortedMedia = mediaWithSelection.sort(
@@ -297,7 +297,7 @@ export function EditAlbumDialog({
           {/* Header */}
           <div className="mb-6">
             <h3 className="text-xl font-semibold text-foreground">
-              Edit Album
+              {tEdit("editAlbum")}
             </h3>
           </div>
 
@@ -308,13 +308,13 @@ export function EditAlbumDialog({
                 htmlFor="title"
                 className="block text-sm font-medium text-foreground"
               >
-                Title
+                {tEdit("title")}
               </label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter album title..."
+                placeholder={tEdit("titlePlaceholder")}
                 className="w-full"
                 disabled={saving || loading}
               />
@@ -324,9 +324,9 @@ export function EditAlbumDialog({
             <TagManager
               tags={tags}
               onTagsChange={setTags}
-              label="Tags"
-              placeholder="Add a tag..."
-              helpText="Add tags to help users discover your album"
+              label={tEdit("tags")}
+              placeholder={tEdit("tagsPlaceholder")}
+              helpText={tEdit("tagsHelpText")}
               maxTags={20}
               maxTagLength={50}
               showCounter={true}
@@ -351,21 +351,21 @@ export function EditAlbumDialog({
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <label className="text-sm font-medium text-foreground">
-                      Private Album
+                      {tEdit("privateAlbum")}
                     </label>
                     {!canMakePrivate && (
                       <div className="flex items-center gap-1">
                         <Crown className="h-4 w-4 text-amber-500" />
                         <span className="text-xs text-amber-600 font-medium">
-                          Pro Only
+                          {tEdit("proOnly")}
                         </span>
                       </div>
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {canMakePrivate
-                      ? "Make this album visible only to you"
-                      : "Private albums are available for Pro users"}
+                      ? tEdit("privateDescription")
+                      : tEdit("proPrivateDescription")}
                   </p>
                 </div>
                 <Switch
@@ -382,7 +382,7 @@ export function EditAlbumDialog({
             {/* Media Selection Section */}
             <div className="space-y-3">
               <label className="block text-sm font-medium text-foreground">
-                Album Images
+                {tEdit("albumImages")}
               </label>
 
               {mediaLoading ? (
@@ -394,11 +394,10 @@ export function EditAlbumDialog({
               ) : (
                 <>
                   <div className="text-sm text-muted-foreground mb-3">
-                    Select images to include in this album. You can select from
-                    your own images and images you&apos;ve added.
+                    {tEdit("selectImagesDescription")}
                   </div>
 
-                  <div 
+                  <div
                     className="max-h-96 overflow-y-auto border rounded-lg p-3 bg-muted/30"
                     onScroll={handleMediaGridScroll}
                   >
@@ -463,7 +462,7 @@ export function EditAlbumDialog({
 
                       {userMedia.length === 0 && (
                         <div className="col-span-full text-center py-8 text-muted-foreground">
-                          No media available
+                          {tEdit("noMediaAvailable")}
                         </div>
                       )}
                     </div>
@@ -478,7 +477,7 @@ export function EditAlbumDialog({
                     {/* End of results indicator */}
                     {!hasNextPage && userMedia.length > 0 && (
                       <div className="text-center py-4 text-sm text-muted-foreground">
-                        All media loaded
+                        {tEdit("allMediaLoaded")}
                       </div>
                     )}
                   </div>
@@ -495,14 +494,14 @@ export function EditAlbumDialog({
               disabled={saving || loading}
               className="border-muted-foreground/30"
             >
-              Cancel
+              {tEdit("cancel")}
             </Button>
             <Button
               onClick={handleSave}
               disabled={!title.trim() || saving || loading}
               className="bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-primary-foreground"
             >
-              {saving ? "Saving..." : "Save Changes"}
+              {saving ? tEdit("saving") : tEdit("saveChanges")}
             </Button>
           </div>
         </div>

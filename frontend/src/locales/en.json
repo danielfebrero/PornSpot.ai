@@ -70,6 +70,90 @@
       "checkConnection": "Check your internet connection",
       "failedToLoad": "Failed to load",
       "networkResponse": "Network response was not ok"
+    },
+    "profile": {
+      "username": "Username",
+      "bio": "Bio",
+      "location": "Location",
+      "website": "Website",
+      "enterUsername": "Enter username",
+      "tellUsAboutYourself": "Tell us about yourself",
+      "cityCountry": "City, Country",
+      "websitePlaceholder": "https://yoursite.com"
+    },
+    "ui": {
+      "virtualizedGrid": {
+        "noContentFound": "No content found",
+        "noContentToDisplay": "No content to display.",
+        "errorLoading": "Error loading",
+        "tryAgain": "Try Again",
+        "loadingMoreContent": "Loading more content...",
+        "noMoreContentToLoad": "No more content to load"
+      },
+      "generationProgressCard": {
+        "generationFailed": "Generation Failed",
+        "pleaseTryAgain": "Please try again",
+        "queuedForGeneration": "Queued for Generation",
+        "waitingToStart": "Waiting to start",
+        "retryingGeneration": "Retrying Generation",
+        "attemptWithAI": "Attempt {retryCount}/{maxRetries} - AI is working...",
+        "generationComplete": "Generation Complete",
+        "yourImageIsReady": "Your image is ready",
+        "creatingYourMasterpiece": "Creating Your Masterpiece",
+        "aiIsWorkingItsMagic": "AI is working its magic...",
+        "readyToGenerate": "Ready to Generate",
+        "startWhenYouReReady": "Start when you're ready",
+        "failed": "Failed",
+        "processing": "Processing",
+        "waiting": "Waiting",
+        "generationStoppedDueToError": "Generation stopped due to error",
+        "waitingInQueueToStart": "Waiting in queue to start...",
+        "allNodesCompletedSuccessfully": "All nodes completed successfully",
+        "readyToBeginProcessing": "Ready to begin processing",
+        "workflowProgress": "Workflow Progress",
+        "step": "Step",
+        "of": "of",
+        "initializing": "Initializing..."
+      },
+      "lightbox": {
+        "close": "Close",
+        "previousMedia": "Previous media",
+        "nextMedia": "Next media",
+        "swipeToNavigate": "Swipe to navigate"
+      },
+      "virtualizedCommentsList": {
+        "noCommentsYet": "No comments yet",
+        "userHasntMadeComments": "This user hasn't made any comments yet. Check back later!",
+        "errorLoading": "Error loading",
+        "tryAgain": "Try Again",
+        "loadingMoreComments": "Loading more comments...",
+        "noMoreCommentsToLoad": "No more comments to load"
+      }
+    },
+    "permissionComponents": {
+      "upgradeRequired": "Upgrade Required",
+      "featureRequiresUpgrade": "This feature requires a {planType} plan. You're currently on {currentPlan}.",
+      "proPlan": "Pro",
+      "higherPlan": "higher",
+      "upgradePlan": "Upgrade Plan",
+      "yourPlan": "Your Plan: {planName}",
+      "upgrade": "Upgrade",
+      "imagesThisMonth": "Images this month",
+      "unlimited": "unlimited",
+      "remaining": "remaining",
+      "imagesToday": "Images today",
+      "features": {
+        "bulk-generation": "Bulk Generation",
+        "lora-models": "LoRA Models",
+        "negative-prompt": "Negative Prompt",
+        "private-content": "Private Content"
+      },
+      "paidPlan": "Paid Plan",
+      "generationLimitReached": "Generation Limit Reached",
+      "reachedGenerationLimit": "You've reached your generation limit for today.",
+      "upgradeForUnlimited": "Upgrade for unlimited generations.",
+      "upgradeNow": "Upgrade Now",
+      "generationsRemaining": "You have {count} generation{pluralSuffix} remaining today."
     }
   },
   "navigation": {
@@ -545,6 +629,44 @@
       "disableUserConfirmMessage": "Are you sure you want to disable this user? This action will also remove all their active sessions.",
       "enableUserConfirmTitle": "Enable User",
       "enableUserConfirmMessage": "Are you sure you want to enable this user?"
+    },
+    "albumTable": {
+      "loadingAlbums": "Loading albums...",
+      "noAlbumsFound": "No albums found",
+      "createFirstAlbum": "Create your first album to get started",
+      "headers": {
+        "album": "Album",
+        "status": "Status",
+        "mediaCount": "Media Count",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "status": {
+        "public": "Public",
+        "private": "Private"
+      },
+      "items": "items",
+      "moreTagsCount": "+{count} more",
+      "actions": {
+        "media": "Media"
+      }
+    },
+    "mediaManager": {
+      "uploadMedia": "Upload Media",
+      "albumCover": "Album Cover",
+      "selectCoverDescription": "Select a cover image for this album from the uploaded media",
+      "updatingCover": "Updating cover image...",
+      "mediaLibrary": "Media Library",
+      "deleteSelected": "Delete Selected",
+      "selectAllMedia": "Select all media",
+      "noMediaUploaded": "No media uploaded yet",
+      "uploadFirstMedia": "Upload your first media files to get started",
+      "view": "View",
+      "remove": "Remove",
+      "delete": "Delete",
+      "deleteMedia": "Delete Media",
+      "deleteSelectedConfirm": "Are you sure you want to delete {count} selected media items? This action cannot be undone.",
+      "deleteItemConfirm": "Are you sure you want to delete \"{filename}\"? This action cannot be undone."
     }
   },
   "user": {
@@ -563,7 +685,7 @@
       "myAlbums": "My Albums",
       "albums": "Albums",
       "personalCollections": "Your personal collections",
-      "personalPhotoCollections": "Your personal photo collections",
+      "personalPhotoCollections": "Your personal media collections",
       "albumsCount": "{count} albums",
       "create": "Create",
       "createAlbum": "Create Album",
@@ -862,6 +984,34 @@
         "confirmAction": "Are you sure?",
         "actionCannotBeUndone": "This action cannot be undone"
       }
+    },
+    "coverImageSelector": {
+      "coverImage": "Cover Image",
+      "hideImages": "Hide Images",
+      "chooseFromSelected": "Choose from Selected ({count})",
+      "currentCover": "Current Cover",
+      "noImagesSelected": "No images selected",
+      "coverImageSelected": "Cover image selected",
+      "noCoverSelected": "No cover selected",
+      "clearSelection": "Clear Selection",
+      "done": "Done"
+    },
+    "verifyEmail": {
+      "emailVerificationFailed": "Email verification failed. The link may be expired or invalid.",
+      "emailVerifiedSuccessfully": "Your email has been successfully verified and you're now signed in!",
+      "unexpectedErrorOccurred": "An unexpected error occurred during verification.",
+      "invalidVerificationLink": "Invalid verification link. No token provided.",
+      "verifyingEmail": "Verifying your email...",
+      "pleaseWaitVerification": "Please wait while we verify your email address.",
+      "emailVerified": "Email Verified!",
+      "accountFullyActivated": "Your account is now fully activated and you're automatically signed in. You can now access all features.",
+      "goToHomepage": "Go to Homepage",
+      "loginToAccount": "Login to Your Account",
+      "verificationFailed": "Verification Failed",
+      "tryRequestingNewEmail": "Please try requesting a new verification email or contact support if the problem persists.",
+      "backToLogin": "Back to Login",
+      "invalidLink": "Invalid Link",
+      "makeSureCompleteLink": "Please make sure you're using the complete verification link from your email."
     }
   },
   "media": {
@@ -944,6 +1094,39 @@
       "confirmMessage": "Are you sure you want to delete the album",
       "warningMessage": "This action cannot be undone. All media in this album will also be deleted.",
       "deleting": "Deleting..."
+    },
+    "coverImageSelector": {
+      "coverImage": "Cover Image",
+      "errorLoading": "Error loading album media",
+      "unknownError": "Unknown error",
+      "hideImages": "Hide Images",
+      "chooseFromAlbum": "Choose from Album",
+      "currentCover": "Current Cover",
+      "loadingImages": "Loading album images...",
+      "noImagesFound": "No images found in this album",
+      "coverSelected": "Cover image selected",
+      "noCoverSelected": "No cover selected",
+      "clearSelection": "Clear Selection",
+      "done": "Done"
+    },
+    "editAlbumDialog": {
+      "editAlbum": "Edit Album",
+      "title": "Title",
+      "titlePlaceholder": "Enter album title...",
+      "tags": "Tags",
+      "tagsPlaceholder": "Add a tag...",
+      "tagsHelpText": "Add tags to help users discover your album",
+      "privateAlbum": "Private Album",
+      "proOnly": "Pro Only",
+      "privateDescription": "Make this album visible only to you",
+      "proPrivateDescription": "Private albums are available for Pro users",
+      "albumImages": "Album Images",
+      "selectImagesDescription": "Select images to include in this album. You can select from your own images and images you've added.",
+      "noMediaAvailable": "No media available",
+      "allMediaLoaded": "All media loaded",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes"
     }
   },
   "generate": {

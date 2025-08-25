@@ -60,8 +60,6 @@ export function useInteractionStatus(
           queryKeys.user.interactions.status(targets)
         ) as any;
 
-        console.log("cached data", { cachedData });
-
         if (cachedData && cachedData.data) {
           return cachedData.data;
         }

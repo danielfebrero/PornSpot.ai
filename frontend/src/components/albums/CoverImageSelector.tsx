@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useAlbumMedia } from "@/hooks/queries/useMediaQuery";
 import ResponsivePicture from "@/components/ui/ResponsivePicture";
+import { useTranslations } from "next-intl";
 import {
   composeMediaUrl,
   composeThumbnailUrls,
@@ -22,6 +23,7 @@ export function CoverImageSelector({
   onCoverSelect,
   disabled = false,
 }: CoverImageSelectorProps) {
+  const tCover = useTranslations("albums.coverImageSelector");
   const [isOpen, setIsOpen] = useState(false);
 
   // Use TanStack Query hook for album media
@@ -50,10 +52,10 @@ export function CoverImageSelector({
     return (
       <div className="border border-border rounded-lg p-4">
         <h3 className="text-sm font-medium text-foreground mb-2">
-          Cover Image
+          {tCover("coverImage")}
         </h3>
         <div className="text-destructive text-sm">
-          Error loading album media: {error?.message || "Unknown error"}
+          {tCover("errorLoading")}: {error?.message || tCover("unknownError")}
         </div>
       </div>
     );
@@ -62,7 +64,9 @@ export function CoverImageSelector({
   return (
     <div className="border border-border rounded-lg p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-foreground">Cover Image</h3>
+        <h3 className="text-sm font-medium text-foreground">
+          {tCover("coverImage")}
+        </h3>
         <Button
           type="button"
           variant="ghost"
@@ -73,11 +77,12 @@ export function CoverImageSelector({
         >
           {isOpen ? (
             <>
-              Hide Images <ChevronUp className="ml-1 h-4 w-4" />
+              {tCover("hideImages")} <ChevronUp className="ml-1 h-4 w-4" />
             </>
           ) : (
             <>
-              Choose from Album <ChevronDown className="ml-1 h-4 w-4" />
+              {tCover("chooseFromAlbum")}{" "}
+              <ChevronDown className="ml-1 h-4 w-4" />
             </>
           )}
         </Button>
@@ -86,12 +91,12 @@ export function CoverImageSelector({
       {selectedCoverUrl && (
         <div className="mb-4">
           <div className="text-xs text-muted-foreground mb-2">
-            Current Cover:
+            {tCover("currentCover")}:
           </div>
           <div className="relative w-20 h-20 border border-border rounded overflow-hidden bg-muted">
             <ResponsivePicture
               fallbackUrl={composeMediaUrl(selectedCoverUrl)}
-              alt="Current cover"
+              alt={tCover("currentCover")}
               className="w-full h-full object-cover"
             />
           </div>
@@ -102,11 +107,11 @@ export function CoverImageSelector({
         <div className="space-y-3">
           {loading ? (
             <div className="text-muted-foreground text-sm py-4 text-center">
-              Loading album images...
+              {tCover("loadingImages")}
             </div>
           ) : media.length === 0 ? (
             <div className="text-muted-foreground text-sm py-4 text-center">
-              No images found in this album
+              {tCover("noImagesFound")}
             </div>
           ) : (
             <div className="grid grid-cols-4 gap-2">
@@ -163,7 +168,9 @@ export function CoverImageSelector({
 
           <div className="flex justify-between items-center pt-2 border-t border-border">
             <div className="text-sm text-muted-foreground">
-              {selectedCoverUrl ? "Cover image selected" : "No cover selected"}
+              {selectedCoverUrl
+                ? tCover("coverSelected")
+                : tCover("noCoverSelected")}
             </div>
             <div className="space-x-2">
               {selectedCoverUrl && (
@@ -174,11 +181,11 @@ export function CoverImageSelector({
                   size="sm"
                   className="text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
                 >
-                  Clear Selection
+                  {tCover("clearSelection")}
                 </Button>
               )}
               <Button type="button" onClick={() => setIsOpen(false)} size="sm">
-                Done
+                {tCover("done")}
               </Button>
             </div>
           </div>

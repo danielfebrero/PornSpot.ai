@@ -298,9 +298,6 @@ export function ContentCard({
 
       // Default behavior: show add to album dialog for media items
       setAddToAlbumDialogOpen(true);
-    } else {
-      // For albums or other items, just log for now
-      console.log("Add to album:", item.id);
     }
   };
 
@@ -322,7 +319,6 @@ export function ContentCard({
       }
     } else {
       // For albums or other items, just log for now
-      console.log("Remove from album:", item.id);
       setRemoveConfirmOpen(false);
     }
   };
@@ -394,9 +390,6 @@ export function ContentCard({
       if (isMedia && media) {
         // Default behavior: delete the media
         await deleteMediaMutation.mutateAsync(media.id);
-      } else if (album) {
-        // For albums, log for now (could implement album deletion later)
-        console.log("Album deletion not yet implemented:", album.id);
       }
     } catch (error) {
       console.error("Failed to delete:", error);

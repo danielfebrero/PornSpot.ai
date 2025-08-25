@@ -7,6 +7,7 @@ import {
   Sparkles,
   Activity,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 export function GenerationProgressCard({
@@ -39,6 +40,8 @@ export function GenerationProgressCard({
   }>;
   currentNodeIndex: number;
 }) {
+  const t = useTranslations("common.ui.generationProgressCard");
+
   const progressPercentage =
     progress > 0 && maxProgress > 0
       ? Math.round((progress / maxProgress) * 100)
@@ -58,28 +61,28 @@ export function GenerationProgressCard({
   // Determine title and subtitle based on state
   const getStatusText = () => {
     if (error)
-      return { title: "Generation Failed", subtitle: "Please try again" };
+      return { title: t("generationFailed"), subtitle: t("pleaseTryAgain") };
     if (isQueued)
       return {
-        title: "Queued for Generation",
-        subtitle: "Waiting to start",
+        title: t("queuedForGeneration"),
+        subtitle: t("waitingToStart"),
       };
     if (isRetrying)
       return {
-        title: "Retrying Generation",
-        subtitle: `Attempt ${retryCount}/3 - AI is working...`,
+        title: t("retryingGeneration"),
+        subtitle: t("attemptWithAI", { retryCount, maxRetries: 3 }),
       };
     if (isComplete)
       return {
-        title: "Generation Complete",
-        subtitle: "Your image is ready",
+        title: t("generationComplete"),
+        subtitle: t("yourImageIsReady"),
       };
     if (isProcessing)
       return {
-        title: "Creating Your Masterpiece",
-        subtitle: "AI is working its magic...",
+        title: t("creatingYourMasterpiece"),
+        subtitle: t("aiIsWorkingItsMagic"),
       };
-    return { title: "Ready to Generate", subtitle: "Start when you're ready" };
+    return { title: t("readyToGenerate"), subtitle: t("startWhenYouReReady") };
   };
 
   const { title, subtitle } = getStatusText();
@@ -276,10 +279,10 @@ export function GenerationProgressCard({
                         )}
                       >
                         {error
-                          ? "Failed"
+                          ? t("failed")
                           : currentNode
-                          ? "Processing"
-                          : "Waiting"}
+                          ? t("processing")
+                          : t("waiting")}
                       </span>
                     </div>
                     {nodeState && !error && (
@@ -290,14 +293,14 @@ export function GenerationProgressCard({
                   </div>
                   <div className="text-sm font-medium text-foreground truncate">
                     {error
-                      ? "Generation stopped due to error"
+                      ? t("generationStoppedDueToError")
                       : currentNode
                       ? currentNode
                       : isQueued
-                      ? "Waiting in queue to start..."
+                      ? t("waitingInQueueToStart")
                       : isComplete
-                      ? "All nodes completed successfully"
-                      : "Ready to begin processing"}
+                      ? t("allNodesCompletedSuccessfully")
+                      : t("readyToBeginProcessing")}
                   </div>
                 </div>
 
@@ -305,22 +308,22 @@ export function GenerationProgressCard({
                 <div className="bg-muted/10 border border-muted/20 rounded-xl p-3 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-medium text-muted-foreground">
-                      Workflow Progress
+                      {t("workflowProgress")}
                     </span>
                     <span className="text-xs font-semibold text-foreground">
                       {hasWorkflow ? (
                         <>
-                          Step{" "}
+                          {t("step")}{" "}
                           {error
                             ? currentNodeIndex + 1
                             : Math.min(
                                 currentNodeIndex + 1,
                                 workflowNodes.length
                               )}{" "}
-                          of {workflowNodes.length}
+                          {t("of")} {workflowNodes.length}
                         </>
                       ) : (
-                        "Initializing..."
+                        t("initializing")
                       )}
                     </span>
                   </div>

@@ -266,8 +266,6 @@ export function useDeleteMedia() {
 
       // Invalidate user profile query since media counts may have changed
       invalidateQueries.user();
-
-      console.log("✅ Media deleted successfully:", mediaId);
     },
   });
 }

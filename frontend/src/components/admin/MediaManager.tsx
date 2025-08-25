@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { FileUpload } from "@/components/admin/FileUpload";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { CoverImageSelector } from "@/components/admin/CoverImageSelector";
+import { useTranslations } from "next-intl";
 import {
   useAdminUploadMedia,
   useAdminDeleteMedia,
@@ -44,6 +45,8 @@ export function MediaManager({
   onCoverSelect,
   coverUpdateLoading = false,
 }: MediaManagerProps) {
+  const tMedia = useTranslations("admin.mediaManager");
+
   // TanStack Query hooks
   const uploadMutation = useAdminUploadMedia();
   const deleteMutation = useAdminDeleteMedia();
@@ -231,7 +234,7 @@ export function MediaManager({
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-foreground">
-              Upload Media
+              {tMedia("uploadMedia")}
             </h3>
           </div>
           <FileUpload
@@ -262,11 +265,11 @@ export function MediaManager({
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-foreground">
-              Album Cover
+              {tMedia("albumCover")}
             </h3>
           </div>
           <p className="text-muted-foreground mb-6">
-            Select a cover image for this album from the uploaded media
+            {tMedia("selectCoverDescription")}
           </p>
           <CoverImageSelector
             albumId={albumId}
@@ -277,7 +280,7 @@ export function MediaManager({
           {coverUpdateLoading && (
             <div className="mt-4 flex items-center text-admin-primary">
               <div className="w-4 h-4 border-2 border-admin-primary border-t-transparent rounded-full animate-spin mr-2"></div>
-              <span className="text-sm">Updating cover image...</span>
+              <span className="text-sm">{tMedia("updatingCover")}</span>
             </div>
           )}
         </div>
@@ -303,7 +306,7 @@ export function MediaManager({
                   </svg>
                 </div>
                 <h3 className="text-xl font-semibold text-foreground">
-                  Media Library ({media.length})
+                  {tMedia("mediaLibrary")} ({media.length})
                 </h3>
               </div>
               {selectedMedia.length > 0 && (
@@ -328,7 +331,7 @@ export function MediaManager({
                       clipRule="evenodd"
                     />
                   </svg>
-                  Delete Selected ({selectedMedia.length})
+                  {tMedia("deleteSelected")} ({selectedMedia.length})
                 </Button>
               )}
             </div>
@@ -345,7 +348,7 @@ export function MediaManager({
                   className="h-4 w-4 text-admin-primary focus:ring-admin-primary border-border rounded"
                 />
                 <label className="ml-2 text-sm text-muted-foreground">
-                  Select all media
+                  {tMedia("selectAllMedia")}
                 </label>
               </div>
             )}
@@ -367,10 +370,10 @@ export function MediaManager({
                 </svg>
               </div>
               <h3 className="text-lg font-medium text-foreground mb-2">
-                No media uploaded yet
+                {tMedia("noMediaUploaded")}
               </h3>
               <p className="text-muted-foreground">
-                Upload your first media files to get started
+                {tMedia("uploadFirstMedia")}
               </p>
             </div>
           ) : (
@@ -442,7 +445,7 @@ export function MediaManager({
                           }
                           className="flex-1 border-admin-primary/30 text-admin-primary hover:bg-admin-primary hover:text-admin-primary-foreground"
                         >
-                          View
+                          {tMedia("view")}
                         </Button>
                         <Button
                           size="sm"
@@ -450,7 +453,7 @@ export function MediaManager({
                           onClick={() => handleRemoveFromAlbumClick(mediaItem)}
                           className="text-orange-600 border-orange-600/30 hover:bg-orange-600 hover:text-white"
                         >
-                          Remove
+                          {tMedia("remove")}
                         </Button>
                         <Button
                           size="sm"
@@ -458,7 +461,7 @@ export function MediaManager({
                           onClick={() => handleDeleteClick(mediaItem)}
                           className="text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
                         >
-                          Delete
+                          {tMedia("delete")}
                         </Button>
                       </div>
                     </div>
@@ -474,13 +477,17 @@ export function MediaManager({
         isOpen={deleteConfirm.isOpen}
         onClose={() => setDeleteConfirm({ isOpen: false })}
         onConfirm={handleConfirmDelete}
-        title={deleteConfirm.isBulk ? "Delete Media" : "Delete Media"}
+        title={
+          deleteConfirm.isBulk ? tMedia("deleteMedia") : tMedia("deleteMedia")
+        }
         message={
           deleteConfirm.isBulk
-            ? `Are you sure you want to delete ${selectedMedia.length} selected media items? This action cannot be undone.`
-            : `Are you sure you want to delete "${deleteConfirm.mediaFilename}"? This action cannot be undone.`
+            ? tMedia("deleteSelectedConfirm", { count: selectedMedia.length })
+            : tMedia("deleteItemConfirm", {
+                filename: deleteConfirm.mediaFilename || "",
+              })
         }
-        confirmText="Delete"
+        confirmText={tMedia("delete")}
         confirmVariant="danger"
       />
     </div>
