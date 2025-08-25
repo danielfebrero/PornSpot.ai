@@ -511,7 +511,10 @@
       "allAlbumsLoaded": "Все альбомы загружены",
       "albumCreated": "Альбом успешно создан",
       "albumUpdated": "Альбом успешно обновлен",
-      "albumDeleted": "Альбом успешно удален"
+      "albumDeleted": "Альбом успешно удален",
+      "failedToCreateAlbum": "Не удалось создать альбом",
+      "createNewAlbum": "Создать новый альбом",
+      "createBeautifulPhotoAlbum": "Создайте красивый фотоальбом для организации ваших изображений и обмена вашей коллекцией"
     },
     "userAlbumForm": {
       "title": "Название альбома",

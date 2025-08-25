@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useLocaleRouter } from "@/lib/navigation";
 import { UserAlbumForm } from "@/components/user/UserAlbumForm";
 import { useCreateAlbum } from "@/hooks/queries/useAlbumsQuery";
 import { FolderPlus } from "lucide-react";
 
 export default function CreateUserAlbumPage() {
+  const t = useTranslations("user.albums");
   const router = useLocaleRouter();
   const createAlbumMutation = useCreateAlbum();
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +25,7 @@ export default function CreateUserAlbumPage() {
       await createAlbumMutation.mutateAsync(data);
       router.push("/user/albums");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create album");
+      setError(err instanceof Error ? err.message : t("failedToCreateAlbum"));
     }
   };
 
@@ -40,12 +42,11 @@ export default function CreateUserAlbumPage() {
             <FolderPlus className="h-5 w-5 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">
-            Create New Album
+            {t("createNewAlbum")}
           </h1>
         </div>
         <p className="text-muted-foreground">
-          Create a beautiful photo album to organize your images and share your
-          collection
+          {t("createBeautifulPhotoAlbum")}
         </p>
       </div>
 
@@ -75,7 +76,7 @@ export default function CreateUserAlbumPage() {
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           loading={createAlbumMutation.isPending}
-          submitText="Create Album"
+          submitText={t("createAlbum")}
         />
       </div>
     </div>

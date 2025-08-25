@@ -500,7 +500,10 @@
       "allAlbumsLoaded": "Alle Alben geladen",
       "albumCreated": "Album erfolgreich erstellt",
       "albumUpdated": "Album erfolgreich aktualisiert",
-      "albumDeleted": "Album erfolgreich gelöscht"
+      "albumDeleted": "Album erfolgreich gelöscht",
+      "failedToCreateAlbum": "Album konnte nicht erstellt werden",
+      "createNewAlbum": "Neues Album erstellen",
+      "createBeautifulPhotoAlbum": "Erstellen Sie ein schönes Fotoalbum, um Ihre Bilder zu organisieren und Ihre Sammlung zu teilen"
     },
     "userAlbumForm": {
       "title": "Album-Titel",

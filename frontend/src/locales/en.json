@@ -538,7 +538,10 @@
       "allAlbumsLoaded": "All albums loaded",
       "albumCreated": "Album created successfully",
       "albumUpdated": "Album updated successfully",
-      "albumDeleted": "Album deleted successfully"
+      "albumDeleted": "Album deleted successfully",
+      "failedToCreateAlbum": "Failed to create album",
+      "createNewAlbum": "Create New Album",
+      "createBeautifulPhotoAlbum": "Create a beautiful photo album to organize your images and share your collection"
     },
     "userAlbumForm": {
       "title": "Album Title",

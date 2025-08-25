@@ -502,7 +502,10 @@
       "allAlbumsLoaded": "所有相册已加载",
       "albumCreated": "相册创建成功",
       "albumUpdated": "相册更新成功",
-      "albumDeleted": "相册删除成功"
+      "albumDeleted": "相册删除成功",
+      "failedToCreateAlbum": "创建相册失败",
+      "createNewAlbum": "创建新相册",
+      "createBeautifulPhotoAlbum": "创建一个美丽的相册来整理您的图片并分享您的收藏"
     },
     "userAlbumForm": {
       "title": "相册标题",
