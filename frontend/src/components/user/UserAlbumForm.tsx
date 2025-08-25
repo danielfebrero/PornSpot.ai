@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TagManager } from "@/components/ui/TagManager";
@@ -15,7 +15,7 @@ import {
   getBestThumbnailUrl,
   composeMediaUrl,
 } from "@/lib/urlUtils";
-import { mediaApi } from "@/lib/api";
+import { useUserMedia } from "@/hooks/queries/useMediaQuery";
 
 interface UserAlbumFormData {
   title: string;
@@ -30,10 +30,6 @@ interface UserAlbumFormProps {
   onCancel: () => void;
   loading?: boolean;
   submitText?: string;
-}
-
-interface MediaWithSelection extends Media {
-  selected: boolean;
 }
 
 export function UserAlbumForm({
@@ -57,35 +53,43 @@ export function UserAlbumForm({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [userMedia, setUserMedia] = useState<MediaWithSelection[]>([]);
-  const [mediaLoading, setMediaLoading] = useState(false);
-  const [mediaError, setMediaError] = useState<string | null>(null);
 
-  // Fetch user's media on component mount
-  useEffect(() => {
-    const fetchUserMedia = async () => {
-      setMediaLoading(true);
-      setMediaError(null);
+  // Ref for the scrollable media grid container
+  const gridContainerRef = useRef<HTMLDivElement>(null);
 
-      try {
-        const response = await mediaApi.getUserMedia({ limit: 100 });
+  // Use TanStack Query hook for user media with infinite scroll
+  const {
+    data: mediaData,
+    isLoading: mediaLoading,
+    error: mediaQueryError,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useUserMedia({ limit: 20 });
 
-        const mediaWithSelection = response.media.map((media: Media) => ({
-          ...media,
-          selected: false,
-        }));
-        setUserMedia(mediaWithSelection);
-      } catch (err) {
-        setMediaError(
-          err instanceof Error ? err.message : tForm("failedToFetchImages")
-        );
-      } finally {
-        setMediaLoading(false);
-      }
-    };
+  // Extract media from infinite query data with selection state
+  const allMedias = useMemo(() => {
+    return mediaData?.pages.flatMap((page) => page.media || []) || [];
+  }, [mediaData]);
 
-    fetchUserMedia();
-  }, [tForm]);
+  // State for media selection
+  const [selectedMediaIds, setSelectedMediaIds] = useState<Set<string>>(
+    new Set()
+  );
+
+  // Add selection information to media items
+  const userMedia = useMemo(() => {
+    return allMedias.map((media: Media) => ({
+      ...media,
+      selected: selectedMediaIds.has(media.id),
+    }));
+  }, [allMedias, selectedMediaIds]);
+
+  const mediaError = mediaQueryError
+    ? mediaQueryError instanceof Error
+      ? mediaQueryError.message
+      : "Failed to fetch images"
+    : null;
 
   const handleInputChange = (
     field: keyof UserAlbumFormData,
@@ -120,32 +124,56 @@ export function UserAlbumForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      const selectedMediaIds = userMedia
-        .filter((media) => media.selected)
-        .map((media) => media.id);
+      const selectedMediaIdsArray = Array.from(selectedMediaIds);
 
       onSubmit({
         ...formData,
-        mediaIds: selectedMediaIds.length > 0 ? selectedMediaIds : undefined,
+        mediaIds:
+          selectedMediaIdsArray.length > 0 ? selectedMediaIdsArray : undefined,
         coverImageId: formData.coverImageId,
       });
     }
   };
 
   const toggleMediaSelection = (mediaId: string) => {
-    setUserMedia((prev) =>
-      prev.map((media) =>
-        media.id === mediaId ? { ...media, selected: !media.selected } : media
-      )
-    );
+    setSelectedMediaIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(mediaId)) {
+        newSet.delete(mediaId);
+      } else {
+        newSet.add(mediaId);
+      }
+      return newSet;
+    });
   };
+
+  // Load more media function for infinite scroll
+  const loadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Handle scroll event to trigger load more automatically
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const target = e.target as HTMLDivElement;
+      const { scrollTop, scrollHeight, clientHeight } = target;
+
+      // Trigger load more when user scrolls to within 100px of the bottom
+      if (scrollHeight - scrollTop <= clientHeight + 100) {
+        loadMore();
+      }
+    },
+    [loadMore]
+  );
 
   const handleCoverSelect = (coverImageId?: string) => {
     if (!coverImageId) return;
     handleInputChange("coverImageId", coverImageId);
   };
 
-  const selectedCount = userMedia.filter((media) => media.selected).length;
+  const selectedCount = selectedMediaIds.size;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -272,46 +300,78 @@ export function UserAlbumForm({
         )}
 
         {!mediaLoading && !mediaError && userMedia.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-h-96 overflow-y-auto p-2 border border-border rounded-lg">
-            {userMedia.map((media) => (
-              <div
-                key={media.id}
-                className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${
-                  media.selected
-                    ? "border-admin-primary shadow-lg"
-                    : "border-transparent hover:border-admin-primary/30"
-                }`}
-                onClick={() => toggleMediaSelection(media.id)}
-              >
-                <ResponsivePicture
-                  thumbnailUrls={composeThumbnailUrls(
-                    media.thumbnailUrls || {}
+          <div className="space-y-4">
+            <div
+              ref={gridContainerRef}
+              onScroll={handleScroll}
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 max-h-96 overflow-y-auto p-3 border border-border rounded-lg bg-card/50"
+            >
+              {userMedia.map((media) => (
+                <div
+                  key={media.id}
+                  className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all hover:shadow-md ${
+                    media.selected
+                      ? "border-admin-primary shadow-lg ring-2 ring-admin-primary/20"
+                      : "border-transparent hover:border-admin-primary/30"
+                  }`}
+                  onClick={() => toggleMediaSelection(media.id)}
+                >
+                  <ResponsivePicture
+                    thumbnailUrls={composeThumbnailUrls(
+                      media.thumbnailUrls || {}
+                    )}
+                    fallbackUrl={getBestThumbnailUrl(
+                      composeThumbnailUrls(media.thumbnailUrls || {}),
+                      composeMediaUrl(media.url)
+                    )}
+                    alt={media.originalFilename || "User image"}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  {media.selected && (
+                    <div className="absolute top-1.5 right-1.5 w-5 h-5 bg-admin-primary rounded-full flex items-center justify-center shadow-sm">
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
                   )}
-                  fallbackUrl={getBestThumbnailUrl(
-                    composeThumbnailUrls(media.thumbnailUrls || {}),
-                    composeMediaUrl(media.url)
+                  {/* Selection overlay */}
+                  {media.selected && (
+                    <div className="absolute inset-0 bg-admin-primary/10 pointer-events-none" />
                   )}
-                  alt={media.originalFilename || "User image"}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-                {media.selected && (
-                  <div className="absolute top-2 right-2 w-5 h-5 bg-admin-primary rounded-full flex items-center justify-center">
-                    <svg
-                      className="w-3 h-3 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                )}
-              </div>
-            ))}
+                </div>
+              ))}
+            </div>
+
+            {/* Automatic loading indicator */}
+            <div className="flex justify-center pt-2">
+              {isFetchingNextPage && (
+                <div className="flex items-center space-x-2 text-admin-primary">
+                  <div className="w-4 h-4 border-2 border-admin-primary border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm font-medium">
+                    {tForm("loadingMore")}
+                  </span>
+                </div>
+              )}
+              {!hasNextPage && userMedia.length > 0 && !isFetchingNextPage && (
+                <span className="text-sm text-muted-foreground">
+                  {tForm("allImagesLoaded")}
+                </span>
+              )}
+              {hasNextPage && !isFetchingNextPage && (
+                <span className="text-xs text-muted-foreground">
+                  {tForm("scrollToLoadMore")}
+                </span>
+              )}
+            </div>
           </div>
         )}
       </div>
