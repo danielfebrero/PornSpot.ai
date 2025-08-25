@@ -150,6 +150,13 @@ interface ProcessingResult<T> {
   success: boolean;
   data?: T;
   error?: string;
+  shouldStop?: boolean;
+}
+
+// Shared control object for parallel operations
+interface ProcessingController {
+  shouldStop: boolean;
+  stop(): void;
 }
 
 // ====================================
@@ -275,7 +282,8 @@ class AIService {
   }
 
   static async performModeration(
-    prompt: string
+    prompt: string,
+    controller?: ProcessingController
   ): Promise<ProcessingResult<void>> {
     const timer = new PerformanceTimer("Moderation");
 
@@ -294,8 +302,13 @@ class AIService {
         const reason = jsonMatch?.[1] || "Content violates platform rules";
 
         console.log("❌ Prompt rejected by moderation:", reason);
-        PromptProcessor.shouldReturnPrematurely = true;
-        return { success: false, error: reason };
+
+        // Signal other parallel operations to stop
+        if (controller) {
+          controller.stop();
+        }
+
+        return { success: false, error: reason, shouldStop: true };
       }
 
       console.log("✅ Prompt passed moderation check");
@@ -866,12 +879,6 @@ function createSelectedLorasArray(queueItem: QueueEntry): Array<{
 }
 
 class PromptProcessor {
-  static shouldReturnPrematurely: boolean = false;
-
-  static async setShouldReturnPrematurely(value: boolean) {
-    PromptProcessor.shouldReturnPrematurely = value;
-  }
-
   static async processPrompt(
     validatedPrompt: string,
     requestBody: GenerationRequest,
@@ -895,11 +902,19 @@ class PromptProcessor {
         });
       }
 
+      // Create a shared controller for parallel operations
+      const controller: ProcessingController = {
+        shouldStop: false,
+        stop() {
+          this.shouldStop = true;
+        },
+      };
+
       // Perform all operations in parallel
       const [moderationResult, selectedLoras, optimizedPrompt] =
         await Promise.all([
           // Always perform moderation
-          AIService.performModeration(validatedPrompt),
+          AIService.performModeration(validatedPrompt, controller),
 
           // Conditionally perform LoRA selection
           requestBody.loraSelectionMode === "auto"
@@ -908,7 +923,7 @@ class PromptProcessor {
 
           // Conditionally perform optimization
           requestBody.optimizePrompt && connectionId
-            ? this.streamOptimization(validatedPrompt, connectionId)
+            ? this.streamOptimization(validatedPrompt, connectionId, controller)
             : Promise.resolve(null),
         ]);
 
@@ -1010,10 +1025,11 @@ class PromptProcessor {
 
   private static async streamOptimization(
     prompt: string,
-    connectionId: string
+    connectionId: string,
+    controller?: ProcessingController
   ): Promise<string> {
     // Check if we should return prematurely before starting
-    if (PromptProcessor.shouldReturnPrematurely) {
+    if (controller?.shouldStop) {
       console.log(
         "⚠️ Stream optimization interrupted - returning original prompt"
       );
@@ -1030,7 +1046,7 @@ class PromptProcessor {
     let optimizedPrompt = "";
     for await (const token of stream) {
       // Check if we should stop during streaming
-      if (PromptProcessor.shouldReturnPrematurely) {
+      if (controller?.shouldStop) {
         console.log(
           "⚠️ Stream optimization interrupted during streaming - returning partial result"
         );
