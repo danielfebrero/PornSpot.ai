@@ -82,4 +82,4 @@
 
 [x] On generate page, "remaining generation" is not in sync with server rate limit.
 
-[ ] On User Albums Create page, thumbnails overlap and show be infinite scroll.
+[x] On User Albums Create page, thumbnails overlap and show be infinite scroll.

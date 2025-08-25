@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Switch } from "@/components/ui/Switch";
@@ -19,7 +19,6 @@ import {
   getBestThumbnailUrl,
   composeMediaUrl,
 } from "@/lib/urlUtils";
-import { mediaApi } from "@/lib/api";
 import {
   useAddMediaToAlbum,
   useBulkAddMediaToAlbum,
@@ -27,6 +26,7 @@ import {
 } from "@/hooks/queries/useAlbumsQuery";
 
 import { useRemoveMediaFromAlbum } from "@/hooks/queries/useAlbumsQuery";
+import { useUserMedia, useAlbumMedia } from "@/hooks/queries/useMediaQuery";
 
 interface MediaWithSelection extends Media {
   selected: boolean;
@@ -64,6 +64,20 @@ export function EditAlbumDialog({
   const removeMediaMutation = useRemoveMediaFromAlbum();
   const bulkRemoveMediaMutation = useBulkRemoveMediaFromAlbum();
 
+  // Media data hooks with infinite scroll
+  const {
+    data: userMediaData,
+    isLoading: userMediaLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useUserMedia({ limit: 50 });
+
+  const {
+    data: albumMediaData,
+    isLoading: albumMediaLoading,
+  } = useAlbumMedia({ albumId: album?.id || "", limit: 100 });
+
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(false);
@@ -72,61 +86,58 @@ export function EditAlbumDialog({
 
   // Media selection state
   const [userMedia, setUserMedia] = useState<MediaWithSelection[]>([]);
-  const [mediaLoading, setMediaLoading] = useState(false);
-  const [mediaError, setMediaError] = useState<string | null>(null);
   const [initiallySelectedMediaIds, setInitiallySelectedMediaIds] = useState<
     Set<string>
   >(new Set());
 
-  // Fetch both user media and current album media
-  const fetchMediaData = useCallback(async () => {
-    if (!album) return;
+  // Extract flattened media from infinite query data
+  const flatUserMedia = useMemo(() => {
+    return userMediaData?.pages.flatMap(page => page.media || []) || [];
+  }, [userMediaData]);
 
-    setMediaLoading(true);
-    setMediaError(null);
+  const flatAlbumMedia = useMemo(() => {
+    return albumMediaData?.pages.flatMap(page => page.media || []) || [];
+  }, [albumMediaData]);
 
-    try {
-      // Fetch user's media and current album media in parallel
-      const [userMediaResponse, albumMediaResponse] = await Promise.all([
-        mediaApi.getUserMedia({ limit: 100 }),
-        mediaApi.getAlbumMedia(album.id, { limit: 100 }),
-      ]);
+  const mediaLoading = userMediaLoading || albumMediaLoading;
+  const mediaError = null; // Error handling can be added later if needed
 
-      // Track which media are currently in the album
-      const albumMediaIds = new Set(
-        albumMediaResponse.media.map((m: Media) => m.id)
-      );
-      setInitiallySelectedMediaIds(albumMediaIds);
-
-      // Mark user media as selected if they're in the album
-      const mediaWithSelection = userMediaResponse.media.map(
-        (media: Media) => ({
-          ...media,
-          selected: albumMediaIds.has(media.id),
-        })
-      );
-
-      // Sort media so that images already in the album appear first
-      const sortedMedia = mediaWithSelection.sort(
-        (a: MediaWithSelection, b: MediaWithSelection) => {
-          // If a is selected and b is not, a comes first
-          if (a.selected && !b.selected) return -1;
-          // If b is selected and a is not, b comes first
-          if (b.selected && !a.selected) return 1;
-          // If both have the same selection status, maintain original order
-          return 0;
-        }
-      );
-
-      setUserMedia(sortedMedia);
-    } catch (err) {
-      setMediaError(
-        err instanceof Error ? err.message : "Failed to fetch media"
-      );
-    } finally {
-      setMediaLoading(false);
+  // Update media selection state when data changes
+  useEffect(() => {
+    if (!album || !flatUserMedia.length) {
+      setUserMedia([]);
+      setInitiallySelectedMediaIds(new Set());
+      return;
     }
-  }, [album]);
+
+    // Track which media are currently in the album
+    const albumMediaIds = new Set<string>(
+      flatAlbumMedia.map((m: Media) => m.id)
+    );
+    setInitiallySelectedMediaIds(albumMediaIds);
+
+    // Mark user media as selected if they're in the album
+    const mediaWithSelection = flatUserMedia.map(
+      (media: Media) => ({
+        ...media,
+        selected: albumMediaIds.has(media.id),
+      })
+    );
+
+    // Sort media so that images already in the album appear first
+    const sortedMedia = mediaWithSelection.sort(
+      (a: MediaWithSelection, b: MediaWithSelection) => {
+        // If a is selected and b is not, a comes first
+        if (a.selected && !b.selected) return -1;
+        // If b is selected and a is not, b comes first
+        if (b.selected && !a.selected) return 1;
+        // If both have the same selection status, maintain original order
+        return 0;
+      }
+    );
+
+    setUserMedia(sortedMedia);
+  }, [album, flatUserMedia, flatAlbumMedia]);
 
   // Reset form when album changes
   useEffect(() => {
@@ -136,11 +147,6 @@ export function EditAlbumDialog({
       // If user can't make content private, force album to be public
       setIsPublic(canMakePrivate ? album.isPublic || false : true);
       setCoverImageUrl(album.coverImageUrl || "");
-
-      // Fetch album media and user media when album is opened
-      if (open) {
-        fetchMediaData();
-      }
     } else {
       setTitle("");
       setTags([]);
@@ -149,7 +155,28 @@ export function EditAlbumDialog({
       setUserMedia([]);
       setInitiallySelectedMediaIds(new Set());
     }
-  }, [album, canMakePrivate, open, fetchMediaData]);
+  }, [album, canMakePrivate]);
+
+  // Load more media function for infinite scroll
+  const loadMoreMedia = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Handle scroll event to trigger load more automatically
+  const handleMediaGridScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const target = e.target as HTMLDivElement;
+      const { scrollTop, scrollHeight, clientHeight } = target;
+
+      // Trigger load more when user scrolls to within 100px of the bottom
+      if (scrollHeight - scrollTop <= clientHeight + 100) {
+        loadMoreMedia();
+      }
+    },
+    [loadMoreMedia]
+  );
 
   // Toggle media selection
   const toggleMediaSelection = (mediaId: string) => {
@@ -371,7 +398,10 @@ export function EditAlbumDialog({
                     your own images and images you&apos;ve added.
                   </div>
 
-                  <div className="max-h-96 overflow-y-auto border rounded-lg p-3 bg-muted/30">
+                  <div 
+                    className="max-h-96 overflow-y-auto border rounded-lg p-3 bg-muted/30"
+                    onScroll={handleMediaGridScroll}
+                  >
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                       {userMedia.map((media) => {
                         const isSelected = media.selected;
@@ -437,6 +467,20 @@ export function EditAlbumDialog({
                         </div>
                       )}
                     </div>
+
+                    {/* Loading indicator for infinite scroll */}
+                    {isFetchingNextPage && (
+                      <div className="flex justify-center py-4">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-admin-primary"></div>
+                      </div>
+                    )}
+
+                    {/* End of results indicator */}
+                    {!hasNextPage && userMedia.length > 0 && (
+                      <div className="text-center py-4 text-sm text-muted-foreground">
+                        All media loaded
+                      </div>
+                    )}
                   </div>
                 </>
               )}
