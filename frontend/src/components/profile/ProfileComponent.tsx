@@ -78,7 +78,7 @@ export default function ProfileComponent({
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
 
   const t = useTranslations("common");
-  const tProfile = useTranslations("common.profile");
+  const tProfile = useTranslations("profile");
   const { isMobile } = useDevice();
   const { user: loggedInUser, refetch } = useUserContext();
   const { formatRelativeTime } = useDateUtils();
