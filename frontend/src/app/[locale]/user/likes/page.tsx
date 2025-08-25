@@ -36,7 +36,7 @@ interface LikesPageData {
  */
 const UserLikesPage: React.FC = () => {
   const t = useTranslations("common");
-  const tUser = useTranslations("user");
+  const tUser = useTranslations("user.likes");
 
   // Use TanStack Query hook for likes
   const {
