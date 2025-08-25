@@ -1361,6 +1361,7 @@
     "proFeature": "(Pro feature)",
     "auto": "Auto",
     "randomSeedPlaceholder": "Enter seed (use -1 for random)",
+    "negativePromptPlaceholder": "blurry, low quality, distorted, bad anatomy...",
     "upgradeToSelectLoraModels": "Upgrade to Pro to manually select and configure LoRA models strengths",
     "strengthAutoDescriptionComplete": "Strength will be set automatically based on the prompt",
     "promptAdherence": "Prompt adherence"

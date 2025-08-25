@@ -1317,6 +1317,7 @@
     "proFeature": "(Función Pro)",
     "auto": "Auto",
     "randomSeedPlaceholder": "Ingresa semilla (usa -1 para aleatorio)",
+    "negativePromptPlaceholder": "borroso, baja calidad, distorsionado, mala anatomía...",
     "upgradeToSelectLoraModels": "Actualiza a Pro para seleccionar y configurar manualmente las fuerzas de los modelos LoRA",
     "strengthAutoDescriptionComplete": "La fuerza se establecerá automáticamente basada en el prompt",
     "promptAdherence": "Adherencia al prompt"

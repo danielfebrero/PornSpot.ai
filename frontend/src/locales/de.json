@@ -1317,6 +1317,7 @@
     "proFeature": "(Pro-Funktion)",
     "auto": "Auto",
     "randomSeedPlaceholder": "Seed eingeben (verwenden Sie -1 für zufällig)",
+    "negativePromptPlaceholder": "unscharf, niedrige Qualität, verzerrt, schlechte Anatomie...",
     "upgradeToSelectLoraModels": "Auf Pro upgraden, um LoRA-Modelle manuell auszuwählen und deren Stärken zu konfigurieren",
     "strengthAutoDescriptionComplete": "Die Stärke wird automatisch basierend auf dem Prompt gesetzt",
     "promptAdherence": "Prompt-Befolgung"
