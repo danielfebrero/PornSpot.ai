@@ -41,7 +41,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
   onPrevious,
   onDelete,
 }) => {
-  const t = useTranslations("common.ui.lightbox");
+  const t = useTranslations("ui.lightbox");
 
   const [isMounted, setIsMounted] = useState(false);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);

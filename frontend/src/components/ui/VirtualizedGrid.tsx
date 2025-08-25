@@ -147,7 +147,7 @@ export function VirtualizedGrid<T extends GridItem>({
   error,
   onRetry,
 }: VirtualizedGridProps<T>) {
-  const t = useTranslations("common.ui.virtualizedGrid");
+  const t = useTranslations("ui.virtualizedGrid");
 
   // Container dimensions for responsive grid calculation
   const containerRef = useRef<HTMLDivElement>(null);

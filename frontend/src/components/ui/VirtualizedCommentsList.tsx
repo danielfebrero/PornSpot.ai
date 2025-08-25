@@ -46,7 +46,7 @@ export function VirtualizedCommentsList({
   onCommentUpdate,
   onCommentDelete,
 }: VirtualizedCommentsListProps) {
-  const t = useTranslations("common.ui.virtualizedCommentsList");
+  const t = useTranslations("ui.virtualizedCommentsList");
 
   // Get current user data
   const { user } = useUserContext();
