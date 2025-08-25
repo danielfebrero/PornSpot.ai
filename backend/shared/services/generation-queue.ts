@@ -108,7 +108,7 @@ export class GenerationQueueService {
           GSI3PK: `QUEUE#USER#${userId || "ANONYMOUS"}`, // Use 'ANONYMOUS' for null userId
           GSI3SK: `${queueEntry.status}#${now}#${queueId}`,
           ...queueEntry,
-          TTL: Math.floor(new Date(queueEntry.timeoutAt).getTime() / 1000), // DynamoDB TTL in seconds
+          ttl: Math.floor(new Date(queueEntry.timeoutAt).getTime() / 1000), // DynamoDB TTL in seconds
         },
       })
     );

@@ -3233,7 +3233,7 @@ export class DynamoDBService {
     userId?: string;
     plan?: string;
     generatedAt: string;
-    TTL: number;
+    ttl: number;
   }): Promise<void> {
     await docClient.send(
       new PutCommand({
@@ -3249,7 +3249,7 @@ export class DynamoDBService {
     hashedIP?: string;
     plan?: string;
     generatedAt: string;
-    TTL: number;
+    ttl: number;
   }): Promise<void> {
     await docClient.send(
       new PutCommand({

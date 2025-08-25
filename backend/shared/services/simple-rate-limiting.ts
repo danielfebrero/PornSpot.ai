@@ -139,7 +139,7 @@ export class SimplifiedRateLimitingService {
             userId: user.userId,
             plan: user.plan,
             generatedAt: now,
-            TTL: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days retention
+            ttl: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days retention
           };
 
           // Record user generation with IP for union counting
@@ -151,7 +151,7 @@ export class SimplifiedRateLimitingService {
             hashedIP: clientIP,
             plan: user.plan,
             generatedAt: now,
-            TTL: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days retention
+            ttl: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days retention
           };
 
           await DynamoDBService.createIPGenerationRecord(ipRecord);
@@ -171,7 +171,7 @@ export class SimplifiedRateLimitingService {
             GSI1PK: `IP#${clientIP}`,
             GSI1SK: today,
             generatedAt: now,
-            TTL: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days retention for anonymous
+            ttl: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days retention for anonymous
           };
 
           await DynamoDBService.createIPGenerationRecord(ipRecord);
