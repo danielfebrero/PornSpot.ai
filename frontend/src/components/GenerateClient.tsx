@@ -338,10 +338,9 @@ export function GenerateClient() {
   // Update allGeneratedImages when new images are generated and hide progress card
   useEffect(() => {
     if (generatedImages.length > 0) {
-      setAllGeneratedImages((prev) => [...generatedImages, ...prev]);
       setShowProgressCard(false); // Hide progress card when images are received
     }
-  }, [generatedImages, setAllGeneratedImages, setShowProgressCard]);
+  }, [generatedImages, setShowProgressCard]);
 
   useEffect(() => {
     if (!isConnected) return;

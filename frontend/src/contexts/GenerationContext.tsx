@@ -405,6 +405,10 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
                 }
               : null,
             generatedImages: message.medias || [],
+            allGeneratedImages: [
+              ...(prev.allGeneratedImages || []),
+              ...(message.medias || []),
+            ],
             currentMessage:
               message.message || "Generation completed successfully!",
             isGenerating: false,
