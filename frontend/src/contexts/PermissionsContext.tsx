@@ -359,7 +359,7 @@ export function PermissionsProvider({
 
   // Plan information
   const getCurrentPlan = (): UserPlan => {
-    return user?.planInfo?.plan || ("free" as UserPlan);
+    return user?.planInfo?.plan || ("anonymous" as UserPlan);
   };
 
   const getPlanLimits = (): PlanPermissions | null => {

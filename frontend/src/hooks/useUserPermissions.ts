@@ -13,7 +13,7 @@ export function useUserPermissions() {
 
   const canUpgradeToUnlimited = () => {
     const plan = permissions.getCurrentPlan();
-    return plan === "free" || plan === "starter";
+    return plan === "anonymous" || "free" || plan === "starter";
   };
 
   const canUpgradeToPro = () => {
