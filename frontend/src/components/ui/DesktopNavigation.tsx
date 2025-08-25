@@ -29,7 +29,7 @@ export function DesktopNavigation({
     <SectionErrorBoundary context="Desktop Navigation">
       <aside className={cn("hidden lg:block lg:w-64 flex-shrink-0", className)}>
         <nav className="md:bg-card/80 md:backdrop-blur-sm md:rounded-xl md:shadow-lg md:border md:border-admin-primary/10">
-          <ul className="space-y-2">
+          <ul className="space-y-2 p-4">
             {navigationItems.map((item) => {
               const isActive = item.exactPath
                 ? isActivePath(pathname, item.href)
