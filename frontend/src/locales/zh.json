@@ -174,7 +174,18 @@
       "emailVerified": "邮箱验证成功",
       "checkEmail": "请检查您的邮箱获取验证链接",
       "resendEmail": "重新发送验证邮件",
-      "verifyEmail": "验证邮箱"
+      "verifyEmail": "验证邮箱",
+      "codeRequired": "验证码是必需的",
+      "codeLabel": "验证码",
+      "codePlaceholder": "输入验证码",
+      "verify": "验证",
+      "invalidCode": "无效的验证码。",
+      "resendFailed": "重新发送验证邮件失败。",
+      "emailVerificationRequired": "需要邮箱验证",
+      "verificationMessage": "请验证您的邮箱地址以访问所有功能。我们已向以下地址发送验证链接",
+      "emailSentSuccess": "✓ 验证邮件发送成功！请检查您的收件箱。",
+      "dismiss": "忽略",
+      "troubleshootMessage": "没看到邮件？请检查垃圾邮件文件夹或几分钟后重试。"
     },
     "oauth": {
       "continueWith": "继续使用",
@@ -261,7 +272,19 @@
         "description": "认证成功"
       },
       "loading": "加载中...",
-      "processingAuth": "请稍候，我们正在完成您的身份验证。"
+      "processingAuth": "请稍候，我们正在完成您的身份验证。",
+      "welcomeNew": "🎉 欢迎来到 PornSpot.ai！",
+      "welcomeBack": "🎉 欢迎回来！",
+      "accountCreated": "您的账户已成功创建，现在您已登录。",
+      "signedInSuccess": "您已成功登录到您的账户。",
+      "gettingStarted": "开始使用",
+      "exploreDescription": "探索AI生成的内容，创建您自己的相册，发现PornSpot.ai所提供的一切！",
+      "exploreButton": "探索 PornSpot.ai",
+      "completeProfile": "完善您的个人资料",
+      "autoRedirect": "将在",
+      "second": "秒后",
+      "seconds": "秒后",
+      "goNow": "立即前往"
     },
     "verifyEmail": {
       "meta": {
@@ -430,6 +453,24 @@
       "createAlbum": "创建相册",
       "failedToCreateAlbum": "创建相册失败"
     },
+    "albumForm": {
+      "albumTitle": "相册标题",
+      "titlePlaceholder": "输入一个引人注目的相册标题",
+      "tags": "标签",
+      "tagsPlaceholder": "添加描述性标签",
+      "tagsHelpText": "帮助用户通过相关标签发现您的相册",
+      "makePublic": "将此相册设为公开",
+      "publicDescription": "公开相册对所有访客可见。私有相册只有您可以访问。",
+      "cancel": "取消",
+      "saving": "保存中...",
+      "validation": {
+        "titleRequired": "标题是必填项",
+        "titleMinLength": "标题必须至少包含2个字符",
+        "titleMaxLength": "标题必须少于100个字符",
+        "maxTags": "最多允许20个标签",
+        "tagMaxLength": "每个标签必须少于50个字符"
+      }
+    },
     "fileUpload": {
       "selectFiles": "选择文件",
       "dragAndDrop": "将文件拖放到此处",
@@ -471,6 +512,17 @@
     }
   },
   "user": {
+    "medias": {
+      "medias": "媒体",
+      "personalMediaGallery": "您的个人媒体画廊",
+      "mediasCount": "媒体",
+      "generate": "生成",
+      "generateMedia": "生成媒体",
+      "noMediaYet": "还没有媒体",
+      "startCreatingMedia": "开始创建AI生成的媒体，在这里查看！",
+      "loadingMoreMedia": "加载更多媒体...",
+      "noMoreMediaToLoad": "没有更多媒体可加载"
+    },
     "albums": {
       "myAlbums": "我的相册",
       "albums": "相册",
@@ -491,7 +543,10 @@
       "allAlbumsLoaded": "所有相册已加载",
       "albumCreated": "相册创建成功",
       "albumUpdated": "相册更新成功",
-      "albumDeleted": "相册删除成功"
+      "albumDeleted": "相册删除成功",
+      "failedToCreateAlbum": "创建相册失败",
+      "createNewAlbum": "创建新相册",
+      "createBeautifulPhotoAlbum": "创建一个美丽的相册来整理您的图片并分享您的收藏"
     },
     "userAlbumForm": {
       "title": "相册标题",
@@ -533,7 +588,15 @@
       "bookmarkAdded": "已添加到收藏",
       "bookmarkRemoved": "已从收藏中移除",
       "removeBookmark": "移除收藏",
-      "loginToBookmark": "登录以收藏"
+      "loginToBookmark": "登录以收藏",
+      "bookmarks": "收藏",
+      "yourSavedFavorites": "您保存的收藏",
+      "bookmarksCount": "收藏",
+      "failedToLoadBookmarks": "加载收藏失败",
+      "noBookmarksYet": "还没有收藏",
+      "startExploringContent": "开始探索内容并收藏您想要保存的内容！",
+      "loadingMoreBookmarks": "加载更多收藏...",
+      "noMoreBookmarksToLoad": "没有更多收藏可加载"
     },
     "likes": {
       "myLikes": "我的点赞",

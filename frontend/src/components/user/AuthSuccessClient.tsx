@@ -6,6 +6,7 @@ import { useLocaleRouter } from "@/lib/navigation";
 import { Button } from "@/components/ui/Button";
 import { useUserContext } from "@/contexts/UserContext";
 import LocaleLink from "@/components/ui/LocaleLink";
+import { useTranslations } from "next-intl";
 
 export function AuthSuccessClient() {
   const router = useLocaleRouter();
@@ -14,6 +15,7 @@ export function AuthSuccessClient() {
   const [isAnimated, setIsAnimated] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const t = useTranslations("auth.success");
 
   const isNewUser = searchParams.get("new_user") === "true";
 
@@ -83,7 +85,7 @@ export function AuthSuccessClient() {
             isAnimated ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          {isNewUser ? "🎉 Welcome to PornSpot.ai!" : "🎉 Welcome back!"}
+          {isNewUser ? t("welcomeNew") : t("welcomeBack")}
         </h2>
 
         <p
@@ -91,9 +93,7 @@ export function AuthSuccessClient() {
             isAnimated ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          {isNewUser
-            ? "Your account has been successfully created and you're now signed in."
-            : "You have successfully signed in to your account."}
+          {isNewUser ? t("accountCreated") : t("signedInSuccess")}
         </p>
 
         {isNewUser && (
@@ -110,11 +110,10 @@ export function AuthSuccessClient() {
               </div>
               <div className="text-left">
                 <h3 className="font-semibold text-foreground text-sm mb-1">
-                  Getting Started
+                  {t("gettingStarted")}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Explore AI-generated content, create your own albums, and
-                  discover what PornSpot.ai has to offer!
+                  {t("exploreDescription")}
                 </p>
               </div>
             </div>
@@ -133,14 +132,14 @@ export function AuthSuccessClient() {
             variant="primary"
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
           >
-            Explore PornSpot.ai
+            {t("exploreButton")}
           </Button>
         </LocaleLink>
 
         {isNewUser && (
           <LocaleLink href="/user/profile" className="block">
             <Button variant="outline" className="w-full">
-              Complete Your Profile
+              {t("completeProfile")}
             </Button>
           </LocaleLink>
         )}
@@ -153,15 +152,15 @@ export function AuthSuccessClient() {
         }`}
       >
         <p>
-          Automatically redirecting to discover in{" "}
+          {t("autoRedirect")} {" "}
           <span className="font-semibold text-foreground">{countdown}</span>{" "}
-          {countdown === 1 ? "second" : "seconds"}...
+          {countdown === 1 ? t("second") : t("seconds")}...
         </p>
         <button
           onClick={() => router.push("/")}
           className="text-primary hover:text-primary/80 underline underline-offset-2 mt-1 transition-colors"
         >
-          Go now
+          {t("goNow")}
         </button>
       </div>
 

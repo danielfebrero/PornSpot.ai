@@ -175,7 +175,18 @@
       "emailVerified": "Email vérifié avec succès",
       "checkEmail": "Veuillez vérifier votre email pour le lien de vérification",
       "resendEmail": "Renvoyer l'email de vérification",
-      "verifyEmail": "Vérifier l'email"
+      "verifyEmail": "Vérifier l'email",
+      "codeRequired": "Le code de vérification est requis",
+      "codeLabel": "Code de vérification",
+      "codePlaceholder": "Entrez le code",
+      "verify": "Vérifier",
+      "invalidCode": "Code de vérification invalide.",
+      "resendFailed": "Échec de l'envoi de l'email de vérification.",
+      "emailVerificationRequired": "Vérification d'email requise",
+      "verificationMessage": "Veuillez vérifier votre adresse email pour accéder à toutes les fonctionnalités. Nous avons envoyé un lien de vérification à",
+      "emailSentSuccess": "✓ Email de vérification envoyé avec succès ! Veuillez vérifier votre boîte de réception.",
+      "dismiss": "Ignorer",
+      "troubleshootMessage": "Vous ne voyez pas l'email ? Vérifiez votre dossier spam ou réessayez dans quelques minutes."
     },
     "oauth": {
       "continueWith": "Continuer avec",
@@ -262,7 +273,19 @@
         "description": "Authentification réussie"
       },
       "loading": "Chargement...",
-      "processingAuth": "Veuillez patienter pendant que nous finalisons votre authentification."
+      "processingAuth": "Veuillez patienter pendant que nous finalisons votre authentification.",
+      "welcomeNew": "🎉 Bienvenue sur PornSpot.ai !",
+      "welcomeBack": "🎉 Bon retour !",
+      "accountCreated": "Votre compte a été créé avec succès et vous êtes maintenant connecté.",
+      "signedInSuccess": "Vous vous êtes connecté avec succès à votre compte.",
+      "gettingStarted": "Commencer",
+      "exploreDescription": "Explorez le contenu généré par IA, créez vos propres albums et découvrez ce que PornSpot.ai a à offrir !",
+      "exploreButton": "Explorer PornSpot.ai",
+      "completeProfile": "Compléter votre profil",
+      "autoRedirect": "Redirection automatique vers découvrir dans",
+      "second": "seconde",
+      "seconds": "secondes",
+      "goNow": "Y aller maintenant"
     },
     "forgotPassword": {
       "meta": {
@@ -458,6 +481,24 @@
       "deleteAlbumConfirmMessage": "Êtes-vous sûr de vouloir supprimer \"{albumTitle}\" ? Cette action ne peut pas être annulée et supprimera également tous les médias de cet album.",
       "delete": "Supprimer"
     },
+    "albumForm": {
+      "albumTitle": "Titre de l'album",
+      "titlePlaceholder": "Entrez un titre d'album convaincant",
+      "tags": "Étiquettes",
+      "tagsPlaceholder": "Ajouter des étiquettes descriptives",
+      "tagsHelpText": "Aidez les utilisateurs à découvrir votre album avec des étiquettes pertinentes",
+      "makePublic": "Rendre cet album public",
+      "publicDescription": "Les albums publics sont visibles par tous les visiteurs. Les albums privés ne sont accessibles qu'à vous.",
+      "cancel": "Annuler",
+      "saving": "Enregistrement...",
+      "validation": {
+        "titleRequired": "Le titre est requis",
+        "titleMinLength": "Le titre doit comporter au moins 2 caractères",
+        "titleMaxLength": "Le titre doit comporter moins de 100 caractères",
+        "maxTags": "Maximum 20 étiquettes autorisées",
+        "tagMaxLength": "Chaque étiquette doit comporter moins de 50 caractères"
+      }
+    },
     "fileUpload": {
       "selectFiles": "Sélectionner les fichiers",
       "dragAndDrop": "Glissez et déposez les fichiers ici",
@@ -507,6 +548,17 @@
     }
   },
   "user": {
+    "medias": {
+      "medias": "Médias",
+      "personalMediaGallery": "Votre galerie de médias personnelle",
+      "mediasCount": "médias",
+      "generate": "Générer",
+      "generateMedia": "Générer des médias",
+      "noMediaYet": "Pas encore de médias",
+      "startCreatingMedia": "Commencez à créer du contenu IA pour les voir ici !",
+      "loadingMoreMedia": "Chargement de plus de médias...",
+      "noMoreMediaToLoad": "Plus de médias à charger"
+    },
     "albums": {
       "myAlbums": "Mes albums",
       "albums": "Albums",
@@ -527,7 +579,10 @@
       "allAlbumsLoaded": "Tous les albums ont été chargés",
       "albumCreated": "Album créé avec succès",
       "albumUpdated": "Album mis à jour avec succès",
-      "albumDeleted": "Album supprimé avec succès"
+      "albumDeleted": "Album supprimé avec succès",
+      "failedToCreateAlbum": "Échec de la création de l'album",
+      "createNewAlbum": "Créer un nouvel album",
+      "createBeautifulPhotoAlbum": "Créez un bel album photo pour organiser vos images et partager votre collection"
     },
     "userAlbumForm": {
       "title": "Titre de l'album",
@@ -569,7 +624,15 @@
       "bookmarkAdded": "Ajouté aux favoris",
       "bookmarkRemoved": "Retiré des favoris",
       "removeBookmark": "Retirer des favoris",
-      "loginToBookmark": "Connectez-vous pour ajouter aux favoris"
+      "loginToBookmark": "Connectez-vous pour ajouter aux favoris",
+      "bookmarks": "Favoris",
+      "yourSavedFavorites": "Vos favoris sauvegardés",
+      "bookmarksCount": "favoris",
+      "failedToLoadBookmarks": "Échec du chargement des favoris",
+      "noBookmarksYet": "Pas encore de favoris",
+      "startExploringContent": "Commencez à explorer le contenu et ajoutez en favoris ce que vous voulez sauvegarder !",
+      "loadingMoreBookmarks": "Chargement de plus de favoris...",
+      "noMoreBookmarksToLoad": "Plus de favoris à charger"
     },
     "likes": {
       "myLikes": "Mes j'aime",

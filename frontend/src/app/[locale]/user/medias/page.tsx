@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { ImageIcon, Grid, List, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import LocaleLink from "@/components/ui/LocaleLink";
@@ -10,6 +11,7 @@ import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQue
 import { Media, UnifiedMediaResponse } from "@/types";
 
 const UserMediasPage: React.FC = () => {
+  const t = useTranslations("user.medias");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   // Use TanStack Query hook for user media with infinite scroll
@@ -102,21 +104,21 @@ const UserMediasPage: React.FC = () => {
                 <ImageIcon className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Medias</h1>
+                <h1 className="text-2xl font-bold text-foreground">{t("medias")}</h1>
                 <p className="text-sm text-muted-foreground">
-                  Your personal media gallery
+                  {t("personalMediaGallery")}
                 </p>
               </div>
             </div>
           </div>
           <div className="flex items-center justify-between">
             <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
-              {totalCount.toLocaleString()} medias
+              {totalCount.toLocaleString()} {t("mediasCount")}
             </span>
             <LocaleLink href="/generate">
               <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
                 <Plus className="h-4 w-4" />
-                <span>Generate</span>
+                <span>{t("generate")}</span>
               </Button>
             </LocaleLink>
           </div>
@@ -129,13 +131,13 @@ const UserMediasPage: React.FC = () => {
               <ImageIcon className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Medias</h1>
+              <h1 className="text-3xl font-bold text-foreground">{t("medias")}</h1>
               <p className="text-muted-foreground">
-                Your personal media gallery
+                {t("personalMediaGallery")}
               </p>
             </div>
             <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
-              {totalCount.toLocaleString()} medias
+              {totalCount.toLocaleString()} {t("mediasCount")}
             </span>
           </div>
 
@@ -143,7 +145,7 @@ const UserMediasPage: React.FC = () => {
             <LocaleLink href="/generate">
               <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
                 <Plus className="h-4 w-4" />
-                <span>Generate Media</span>
+                <span>{t("generateMedia")}</span>
               </Button>
             </LocaleLink>
             <Button
@@ -200,36 +202,36 @@ const UserMediasPage: React.FC = () => {
             icon: (
               <ImageIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             ),
-            title: "No media yet",
-            description: "Start creating AI-generated media to see them here!",
+            title: t("noMediaYet"),
+            description: t("startCreatingMedia"),
             action: (
               <LocaleLink href="/generate">
                 <Button className="flex items-center space-x-2">
                   <Plus className="h-4 w-4" />
-                  <span>Generate Media</span>
+                  <span>{t("generateMedia")}</span>
                 </Button>
               </LocaleLink>
             ),
           }}
           loadingState={{
-            loadingText: "Loading more media...",
-            noMoreText: "No more media to load",
+            loadingText: t("loadingMoreMedia"),
+            noMoreText: t("noMoreMediaToLoad"),
           }}
         />
       ) : (
         <div className="bg-card/80 backdrop-blur-sm rounded-xl shadow-lg border border-admin-primary/10 p-12 text-center">
           <ImageIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-2">
-            No media yet
+            {t("noMediaYet")}
           </h3>
           <p className="text-muted-foreground mb-6">
-            Start creating AI-generated media to see them here!
+            {t("startCreatingMedia")}
           </p>
           <div className="flex justify-center space-x-4">
             <LocaleLink href="/generate">
               <Button className="flex items-center space-x-2">
                 <Plus className="h-4 w-4" />
-                <span>Generate Media</span>
+                <span>{t("generateMedia")}</span>
               </Button>
             </LocaleLink>
           </div>

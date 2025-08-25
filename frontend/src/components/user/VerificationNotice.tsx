@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { useResendVerification } from "@/hooks/queries/useUserQuery";
 
@@ -15,6 +16,7 @@ export function VerificationNotice({
   onDismiss,
   showDismiss = false,
 }: VerificationNoticeProps) {
+  const t = useTranslations("auth.verification");
   const {
     mutateAsync: resendVerification,
     isPending: loading,
@@ -59,24 +61,23 @@ export function VerificationNotice({
 
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-            Email Verification Required
+            {t("emailVerificationRequired")}
           </h3>
 
           <div className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
             <p>
-              Please verify your email address to access all features. We sent a
-              verification link to <span className="font-medium">{email}</span>
+              {t("verificationMessage")} <span className="font-medium">{email}</span>
             </p>
 
             {resendSuccess && (
               <p className="mt-2 text-green-700 dark:text-green-300">
-                ✓ Verification email sent successfully! Please check your inbox.
+                {t("emailSentSuccess")}
               </p>
             )}
 
             {error && (
               <p className="mt-2 text-red-700 dark:text-red-300">
-                {error.message || "Failed to send verification email"}
+                {error.message || t("resendFailed")}
               </p>
             )}
           </div>
@@ -90,7 +91,7 @@ export function VerificationNotice({
               disabled={loading || resendSuccess}
               className="text-yellow-800 dark:text-yellow-200 border-yellow-300 dark:border-yellow-700 hover:bg-yellow-100 dark:hover:bg-yellow-800/50"
             >
-              {resendSuccess ? "Email Sent" : "Resend Email"}
+              {resendSuccess ? t("emailSent") : t("resendEmail")}
             </Button>
 
             {showDismiss && onDismiss && (
@@ -100,7 +101,7 @@ export function VerificationNotice({
                 onClick={onDismiss}
                 className="text-yellow-700 dark:text-yellow-300 hover:bg-yellow-100 dark:hover:bg-yellow-800/50"
               >
-                Dismiss
+                {t("dismiss")}
               </Button>
             )}
           </div>
@@ -108,8 +109,7 @@ export function VerificationNotice({
           {resendAttempted && !resendSuccess && !error && (
             <div className="mt-2 text-xs text-yellow-600 dark:text-yellow-400">
               <p>
-                Don&apos;t see the email? Check your spam folder or try again in
-                a few minutes.
+                {t("troubleshootMessage")}
               </p>
             </div>
           )}

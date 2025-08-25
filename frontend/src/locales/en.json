@@ -175,7 +175,18 @@
       "emailVerified": "Email verified successfully",
       "checkEmail": "Please check your email for verification link",
       "resendEmail": "Resend verification email",
-      "verifyEmail": "Verify Email"
+      "verifyEmail": "Verify Email",
+      "codeRequired": "Verification code is required",
+      "codeLabel": "Verification Code",
+      "codePlaceholder": "Enter the code",
+      "verify": "Verify",
+      "invalidCode": "Invalid verification code.",
+      "resendFailed": "Failed to resend verification email.",
+      "emailVerificationRequired": "Email Verification Required",
+      "verificationMessage": "Please verify your email address to access all features. We sent a verification link to",
+      "emailSentSuccess": "✓ Verification email sent successfully! Please check your inbox.",
+      "dismiss": "Dismiss",
+      "troubleshootMessage": "Don't see the email? Check your spam folder or try again in a few minutes."
     },
     "oauth": {
       "continueWith": "Continue with",
@@ -262,7 +273,19 @@
         "description": "Authentication successful"
       },
       "loading": "Loading...",
-      "processingAuth": "Please wait while we complete your authentication."
+      "processingAuth": "Please wait while we complete your authentication.",
+      "welcomeNew": "🎉 Welcome to PornSpot.ai!",
+      "welcomeBack": "🎉 Welcome back!",
+      "accountCreated": "Your account has been successfully created and you're now signed in.",
+      "signedInSuccess": "You have successfully signed in to your account.",
+      "gettingStarted": "Getting Started",
+      "exploreDescription": "Explore AI-generated content, create your own albums, and discover what PornSpot.ai has to offer!",
+      "exploreButton": "Explore PornSpot.ai",
+      "completeProfile": "Complete Your Profile",
+      "autoRedirect": "Automatically redirecting to discover in",
+      "second": "second",
+      "seconds": "seconds",
+      "goNow": "Go now"
     },
     "forgotPassword": {
       "meta": {
@@ -458,6 +481,24 @@
       "deleteAlbumConfirmMessage": "Are you sure you want to delete \"{albumTitle}\"? This action cannot be undone and will also delete all media in this album.",
       "delete": "Delete"
     },
+    "albumForm": {
+      "albumTitle": "Album Title",
+      "titlePlaceholder": "Enter a compelling album title",
+      "tags": "Tags",
+      "tagsPlaceholder": "Add descriptive tags",
+      "tagsHelpText": "Help users discover your album with relevant tags",
+      "makePublic": "Make this album public",
+      "publicDescription": "Public albums are visible to all visitors. Private albums are only accessible to you.",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "validation": {
+        "titleRequired": "Title is required",
+        "titleMinLength": "Title must be at least 2 characters",
+        "titleMaxLength": "Title must be less than 100 characters",
+        "maxTags": "Maximum 20 tags allowed",
+        "tagMaxLength": "Each tag must be less than 50 characters"
+      }
+    },
     "fileUpload": {
       "selectFiles": "Select Files",
       "dragAndDrop": "Drag and drop files here",
@@ -507,6 +548,17 @@
     }
   },
   "user": {
+    "medias": {
+      "medias": "Medias",
+      "personalMediaGallery": "Your personal media gallery",
+      "mediasCount": "medias",
+      "generate": "Generate",
+      "generateMedia": "Generate Media",
+      "noMediaYet": "No media yet",
+      "startCreatingMedia": "Start creating AI-generated media to see them here!",
+      "loadingMoreMedia": "Loading more media...",
+      "noMoreMediaToLoad": "No more media to load"
+    },
     "albums": {
       "myAlbums": "My Albums",
       "albums": "Albums",
@@ -527,7 +579,10 @@
       "allAlbumsLoaded": "All albums loaded",
       "albumCreated": "Album created successfully",
       "albumUpdated": "Album updated successfully",
-      "albumDeleted": "Album deleted successfully"
+      "albumDeleted": "Album deleted successfully",
+      "failedToCreateAlbum": "Failed to create album",
+      "createNewAlbum": "Create New Album",
+      "createBeautifulPhotoAlbum": "Create a beautiful photo album to organize your images and share your collection"
     },
     "userAlbumForm": {
       "title": "Album Title",
@@ -569,7 +624,15 @@
       "bookmarkAdded": "Added to bookmarks",
       "bookmarkRemoved": "Removed from bookmarks",
       "removeBookmark": "Remove Bookmark",
-      "loginToBookmark": "Login to bookmark"
+      "loginToBookmark": "Login to bookmark",
+      "bookmarks": "Bookmarks",
+      "yourSavedFavorites": "Your saved favorites",
+      "bookmarksCount": "bookmarks",
+      "failedToLoadBookmarks": "Failed to load bookmarks",
+      "noBookmarksYet": "No bookmarks yet",
+      "startExploringContent": "Start exploring content and bookmark what you want to save for later!",
+      "loadingMoreBookmarks": "Loading more bookmarks...",
+      "noMoreBookmarksToLoad": "No more bookmarks to load"
     },
     "likes": {
       "myLikes": "My Likes",

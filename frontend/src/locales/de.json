@@ -174,7 +174,18 @@
       "emailVerified": "E-Mail erfolgreich verifiziert",
       "checkEmail": "Bitte überprüfen Sie Ihre E-Mail für den Bestätigungslink",
       "resendEmail": "Bestätigungs-E-Mail erneut senden",
-      "verifyEmail": "E-Mail verifizieren"
+      "verifyEmail": "E-Mail verifizieren",
+      "codeRequired": "Bestätigungscode ist erforderlich",
+      "codeLabel": "Bestätigungscode",
+      "codePlaceholder": "Code eingeben",
+      "verify": "Verifizieren",
+      "invalidCode": "Ungültiger Bestätigungscode.",
+      "resendFailed": "Fehler beim erneuten Senden der Bestätigungs-E-Mail.",
+      "emailVerificationRequired": "E-Mail-Verifizierung erforderlich",
+      "verificationMessage": "Bitte verifizieren Sie Ihre E-Mail-Adresse, um auf alle Funktionen zugreifen zu können. Wir haben einen Bestätigungslink gesendet an",
+      "emailSentSuccess": "✓ Bestätigungs-E-Mail erfolgreich gesendet! Bitte überprüfen Sie Ihren Posteingang.",
+      "dismiss": "Verwerfen",
+      "troubleshootMessage": "E-Mail nicht erhalten? Überprüfen Sie Ihren Spam-Ordner oder versuchen Sie es in ein paar Minuten erneut."
     },
     "oauth": {
       "continueWith": "Fortfahren mit",
@@ -261,7 +272,19 @@
         "description": "Authentifizierung erfolgreich"
       },
       "loading": "Wird geladen...",
-      "processingAuth": "Bitte warten Sie, während wir Ihre Authentifizierung abschließen."
+      "processingAuth": "Bitte warten Sie, während wir Ihre Authentifizierung abschließen.",
+      "welcomeNew": "🎉 Willkommen bei PornSpot.ai!",
+      "welcomeBack": "🎉 Willkommen zurück!",
+      "accountCreated": "Ihr Konto wurde erfolgreich erstellt und Sie sind jetzt angemeldet.",
+      "signedInSuccess": "Sie haben sich erfolgreich in Ihr Konto eingeloggt.",
+      "gettingStarted": "Erste Schritte",
+      "exploreDescription": "Entdecken Sie KI-generierten Inhalte, erstellen Sie Ihre eigenen Alben und entdecken Sie, was PornSpot.ai zu bieten hat!",
+      "exploreButton": "PornSpot.ai erkunden",
+      "completeProfile": "Profil vervollständigen",
+      "autoRedirect": "Automatische Weiterleitung zur Entdeckungsseite in",
+      "second": "Sekunde",
+      "seconds": "Sekunden",
+      "goNow": "Jetzt gehen"
     },
     "verifyEmail": {
       "meta": {
@@ -428,6 +451,24 @@
       "deleteAlbumConfirmMessage": "Sind Sie sicher, dass Sie \"{albumTitle}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden und löscht auch alle Medien in diesem Album.",
       "delete": "Löschen"
     },
+    "albumForm": {
+      "albumTitle": "Album-Titel",
+      "titlePlaceholder": "Geben Sie einen überzeugenden Album-Titel ein",
+      "tags": "Tags",
+      "tagsPlaceholder": "Beschreibende Tags hinzufügen",
+      "tagsHelpText": "Helfen Sie Benutzern, Ihr Album mit relevanten Tags zu entdecken",
+      "makePublic": "Dieses Album öffentlich machen",
+      "publicDescription": "Öffentliche Alben sind für alle Besucher sichtbar. Private Alben sind nur für Sie zugänglich.",
+      "cancel": "Abbrechen",
+      "saving": "Speichern...",
+      "validation": {
+        "titleRequired": "Titel ist erforderlich",
+        "titleMinLength": "Titel muss mindestens 2 Zeichen lang sein",
+        "titleMaxLength": "Titel muss weniger als 100 Zeichen lang sein",
+        "maxTags": "Maximal 20 Tags erlaubt",
+        "tagMaxLength": "Jeder Tag muss weniger als 50 Zeichen lang sein"
+      }
+    },
     "fileUpload": {
       "selectFiles": "Dateien auswählen",
       "dragAndDrop": "Dateien hier ziehen und ablegen",
@@ -469,6 +510,17 @@
     }
   },
   "user": {
+    "medias": {
+      "medias": "Medien",
+      "personalMediaGallery": "Ihre persönliche Mediengalerie",
+      "mediasCount": "Medien",
+      "generate": "Generieren",
+      "generateMedia": "Medien generieren",
+      "noMediaYet": "Noch keine Medien",
+      "startCreatingMedia": "Beginnen Sie mit der Erstellung von KI-generierten Medien, um sie hier zu sehen!",
+      "loadingMoreMedia": "Laden weiterer Medien...",
+      "noMoreMediaToLoad": "Keine weiteren Medien zu laden"
+    },
     "albums": {
       "myAlbums": "Meine Alben",
       "albums": "Alben",
@@ -489,7 +541,10 @@
       "allAlbumsLoaded": "Alle Alben geladen",
       "albumCreated": "Album erfolgreich erstellt",
       "albumUpdated": "Album erfolgreich aktualisiert",
-      "albumDeleted": "Album erfolgreich gelöscht"
+      "albumDeleted": "Album erfolgreich gelöscht",
+      "failedToCreateAlbum": "Album konnte nicht erstellt werden",
+      "createNewAlbum": "Neues Album erstellen",
+      "createBeautifulPhotoAlbum": "Erstellen Sie ein schönes Fotoalbum, um Ihre Bilder zu organisieren und Ihre Sammlung zu teilen"
     },
     "userAlbumForm": {
       "title": "Album-Titel",
@@ -531,7 +586,15 @@
       "bookmarkAdded": "Zu Lesezeichen hinzugefügt",
       "bookmarkRemoved": "Aus Lesezeichen entfernt",
       "removeBookmark": "Lesezeichen entfernen",
-      "loginToBookmark": "Anmelden, um Lesezeichen zu setzen"
+      "loginToBookmark": "Anmelden, um Lesezeichen zu setzen",
+      "bookmarks": "Lesezeichen",
+      "yourSavedFavorites": "Ihre gespeicherten Favoriten",
+      "bookmarksCount": "Lesezeichen",
+      "failedToLoadBookmarks": "Lesezeichen konnten nicht geladen werden",
+      "noBookmarksYet": "Noch keine Lesezeichen",
+      "startExploringContent": "Beginnen Sie, Inhalte zu erkunden und setzen Sie Lesezeichen für das, was Sie später speichern möchten!",
+      "loadingMoreBookmarks": "Laden weiterer Lesezeichen...",
+      "noMoreBookmarksToLoad": "Keine weiteren Lesezeichen zu laden"
     },
     "likes": {
       "myLikes": "Meine Likes",

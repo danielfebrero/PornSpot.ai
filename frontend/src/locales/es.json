@@ -174,7 +174,18 @@
       "emailVerified": "Email verificado exitosamente",
       "checkEmail": "Por favor revisa tu email para el enlace de verificación",
       "resendEmail": "Reenviar email de verificación",
-      "verifyEmail": "Verificar email"
+      "verifyEmail": "Verificar email",
+      "codeRequired": "El código de verificación es requerido",
+      "codeLabel": "Código de verificación",
+      "codePlaceholder": "Ingresa el código",
+      "verify": "Verificar",
+      "invalidCode": "Código de verificación inválido.",
+      "resendFailed": "Error al reenviar el email de verificación.",
+      "emailVerificationRequired": "Verificación de email requerida",
+      "verificationMessage": "Por favor verifica tu dirección de email para acceder a todas las funciones. Enviamos un enlace de verificación a",
+      "emailSentSuccess": "✓ Email de verificación enviado exitosamente! Por favor revisa tu bandeja de entrada.",
+      "dismiss": "Descartar",
+      "troubleshootMessage": "¿No ves el email? Revisa tu carpeta de spam o intenta de nuevo en unos minutos."
     },
     "oauth": {
       "continueWith": "Continuar con",
@@ -261,7 +272,19 @@
         "description": "Autenticación exitosa"
       },
       "loading": "Cargando...",
-      "processingAuth": "Por favor espere mientras completamos su autenticación."
+      "processingAuth": "Por favor espere mientras completamos su autenticación.",
+      "welcomeNew": "🎉 ¡Bienvenido a PornSpot.ai!",
+      "welcomeBack": "🎉 ¡Bienvenido de vuelta!",
+      "accountCreated": "Su cuenta ha sido creada exitosamente y ahora está conectado.",
+      "signedInSuccess": "Ha iniciado sesión exitosamente en su cuenta.",
+      "gettingStarted": "Comenzando",
+      "exploreDescription": "¡Explore contenido generado por IA, cree sus propios álbumes y descubra lo que PornSpot.ai tiene para ofrecer!",
+      "exploreButton": "Explorar PornSpot.ai",
+      "completeProfile": "Completar su perfil",
+      "autoRedirect": "Redirigiendo automáticamente a descubrir en",
+      "second": "segundo",
+      "seconds": "segundos",
+      "goNow": "Ir ahora"
     },
     "verifyEmail": {
       "meta": {
@@ -428,6 +451,24 @@
       "deleteAlbumConfirmMessage": "¿Estás seguro de que quieres eliminar \"{albumTitle}\"? Esta acción no se puede deshacer y también eliminará todos los medios de este álbum.",
       "delete": "Eliminar"
     },
+    "albumForm": {
+      "albumTitle": "Título del álbum",
+      "titlePlaceholder": "Ingrese un título de álbum convincente",
+      "tags": "Etiquetas",
+      "tagsPlaceholder": "Agregar etiquetas descriptivas",
+      "tagsHelpText": "Ayude a los usuarios a descubrir su álbum con etiquetas relevantes",
+      "makePublic": "Hacer este álbum público",
+      "publicDescription": "Los álbumes públicos son visibles para todos los visitantes. Los álbumes privados solo son accesibles para usted.",
+      "cancel": "Cancelar",
+      "saving": "Guardando...",
+      "validation": {
+        "titleRequired": "El título es requerido",
+        "titleMinLength": "El título debe tener al menos 2 caracteres",
+        "titleMaxLength": "El título debe tener menos de 100 caracteres",
+        "maxTags": "Máximo 20 etiquetas permitidas",
+        "tagMaxLength": "Cada etiqueta debe tener menos de 50 caracteres"
+      }
+    },
     "fileUpload": {
       "selectFiles": "Seleccionar archivos",
       "dragAndDrop": "Arrastra y suelta archivos aquí",
@@ -469,6 +510,17 @@
     }
   },
   "user": {
+    "medias": {
+      "medias": "Medios",
+      "personalMediaGallery": "Tu galería de medios personal",
+      "mediasCount": "medios",
+      "generate": "Generar",
+      "generateMedia": "Generar medios",
+      "noMediaYet": "Aún no hay medios",
+      "startCreatingMedia": "¡Comienza a crear contenido generado por IA para verlo aquí!",
+      "loadingMoreMedia": "Cargando más medios...",
+      "noMoreMediaToLoad": "No hay más medios para cargar"
+    },
     "albums": {
       "myAlbums": "Mis álbumes",
       "albums": "Álbumes",
@@ -489,7 +541,10 @@
       "allAlbumsLoaded": "Todos los álbumes cargados",
       "albumCreated": "Álbum creado exitosamente",
       "albumUpdated": "Álbum actualizado exitosamente",
-      "albumDeleted": "Álbum eliminado exitosamente"
+      "albumDeleted": "Álbum eliminado exitosamente",
+      "failedToCreateAlbum": "Error al crear el álbum",
+      "createNewAlbum": "Crear nuevo álbum",
+      "createBeautifulPhotoAlbum": "Crea un hermoso álbum de fotos para organizar tus imágenes y compartir tu colección"
     },
     "userAlbumForm": {
       "title": "Título del álbum",
@@ -531,7 +586,15 @@
       "bookmarkAdded": "Añadido a marcadores",
       "bookmarkRemoved": "Removido de marcadores",
       "removeBookmark": "Quitar marcador",
-      "loginToBookmark": "Inicia sesión para marcar"
+      "loginToBookmark": "Inicia sesión para marcar",
+      "bookmarks": "Marcadores",
+      "yourSavedFavorites": "Tus favoritos guardados",
+      "bookmarksCount": "marcadores",
+      "failedToLoadBookmarks": "Error al cargar marcadores",
+      "noBookmarksYet": "Aún no hay marcadores",
+      "startExploringContent": "¡Comienza a explorar contenido y marca lo que quieras guardar para más tarde!",
+      "loadingMoreBookmarks": "Cargando más marcadores...",
+      "noMoreBookmarksToLoad": "No hay más marcadores para cargar"
     },
     "likes": {
       "myLikes": "Mis me gusta",
