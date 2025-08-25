@@ -10,7 +10,7 @@ import { useUserContext } from "@/contexts/UserContext";
 export default function PublicProfilePage() {
   const params = useParams();
   const username = params.username as string;
-  const t = useTranslations("profile.public");
+  const t = useTranslations("user.profile.public");
 
   // Get current user authentication status
   const { user, loading: authLoading } = useUserContext();
