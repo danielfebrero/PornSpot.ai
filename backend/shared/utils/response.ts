@@ -6,7 +6,7 @@ const allowedOrigins = [
   "http://localhost:3001",
   "https://pornspot.ai",
   "https://www.pornspot.ai",
-  "https://staging.pornspot.ai",
+  "https://stage.pornspot.ai",
   /^https:\/\/pornspot-ai-frontend-.*-pornspot\.vercel\.app$/, // Vercel Preview
   "https://pornspot-ai-frontend.vercel.app", // Vercel Production
 ];
