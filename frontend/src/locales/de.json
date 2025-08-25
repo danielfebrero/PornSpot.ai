@@ -174,7 +174,13 @@
       "emailVerified": "E-Mail erfolgreich verifiziert",
       "checkEmail": "Bitte überprüfen Sie Ihre E-Mail für den Bestätigungslink",
       "resendEmail": "Bestätigungs-E-Mail erneut senden",
-      "verifyEmail": "E-Mail verifizieren"
+      "verifyEmail": "E-Mail verifizieren",
+      "codeRequired": "Bestätigungscode ist erforderlich",
+      "codeLabel": "Bestätigungscode",
+      "codePlaceholder": "Code eingeben",
+      "verify": "Verifizieren",
+      "invalidCode": "Ungültiger Bestätigungscode.",
+      "resendFailed": "Fehler beim erneuten Senden der Bestätigungs-E-Mail."
     },
     "oauth": {
       "continueWith": "Fortfahren mit",

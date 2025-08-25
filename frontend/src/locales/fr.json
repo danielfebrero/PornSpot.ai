@@ -175,7 +175,13 @@
       "emailVerified": "Email vérifié avec succès",
       "checkEmail": "Veuillez vérifier votre email pour le lien de vérification",
       "resendEmail": "Renvoyer l'email de vérification",
-      "verifyEmail": "Vérifier l'email"
+      "verifyEmail": "Vérifier l'email",
+      "codeRequired": "Le code de vérification est requis",
+      "codeLabel": "Code de vérification",
+      "codePlaceholder": "Entrez le code",
+      "verify": "Vérifier",
+      "invalidCode": "Code de vérification invalide.",
+      "resendFailed": "Échec de l'envoi de l'email de vérification."
     },
     "oauth": {
       "continueWith": "Continuer avec",
