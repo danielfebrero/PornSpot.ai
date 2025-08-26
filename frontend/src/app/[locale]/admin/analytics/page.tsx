@@ -44,25 +44,6 @@ ChartJS.register(
 
 type Granularity = "hourly" | "daily" | "weekly" | "monthly";
 
-const chartColors = {
-  users: {
-    border: "rgba(99, 102, 241, 1)", // Indigo 500
-    background: "rgba(99, 102, 241, 0.2)",
-  },
-  media: {
-    border: "rgba(16, 185, 129, 1)", // Emerald 500
-    background: "rgba(16, 185, 129, 0.2)",
-  },
-  albums: {
-    border: "rgba(236, 72, 153, 1)", // Pink 500
-    background: "rgba(236, 72, 153, 0.2)",
-  },
-  interactions: {
-    border: "rgba(234, 179, 8, 1)", // Yellow 500
-    background: "rgba(234, 179, 8, 0.25)",
-  },
-};
-
 export default function AnalyticsPage() {
   const t = useTranslations("admin.analytics");
   const tGranularity = useTranslations("admin.analytics.granularity");
@@ -112,47 +93,71 @@ export default function AnalyticsPage() {
     endDate: dateRange.end,
   });
 
-  // Chart.js theme configuration for dark mode
+  const chartColors = {
+    users: {
+      border: "rgba(99, 102, 241, 1)", // Indigo 500
+      background: "rgba(99, 102, 241, 0.2)",
+    },
+    media: {
+      border: "rgba(16, 185, 129, 1)", // Emerald 500
+      background: "rgba(16, 185, 129, 0.2)",
+    },
+    albums: {
+      border: "rgba(236, 72, 153, 1)", // Pink 500
+      background: "rgba(236, 72, 153, 0.2)",
+    },
+    interactions: {
+      border: "rgba(234, 179, 8, 1)", // Yellow 500
+      background: "rgba(234, 179, 8, 0.25)",
+    },
+  };
+
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
         labels: {
-          color: "hsl(var(--muted-foreground))",
+          color: "#E5E7EB", // gris clair (lisible en dark mode)
           font: {
             family: "Inter, sans-serif",
+            size: 12,
           },
+          usePointStyle: true,
         },
       },
       tooltip: {
-        backgroundColor: "hsl(var(--popover))",
-        titleColor: "hsl(var(--popover-foreground))",
-        bodyColor: "hsl(var(--popover-foreground))",
-        borderColor: "hsl(var(--border))",
+        backgroundColor: "#111827", // gris très foncé
+        titleColor: "#F9FAFB", // blanc
+        bodyColor: "#F3F4F6", // gris clair
+        borderColor: "#374151", // gris neutre
         borderWidth: 1,
+        padding: 10,
+        displayColors: true,
       },
     },
     scales: {
       x: {
         grid: {
-          color: "hsl(var(--border))",
+          color: "rgba(255,255,255,0.1)", // grille discrète
         },
         ticks: {
-          color: "hsl(var(--muted-foreground))",
+          color: "#D1D5DB", // gris clair
           font: {
             family: "Inter, sans-serif",
+            size: 11,
           },
         },
       },
       y: {
         grid: {
-          color: "hsl(var(--border))",
+          color: "rgba(255,255,255,0.1)",
         },
         ticks: {
-          color: "hsl(var(--muted-foreground))",
+          color: "#D1D5DB",
           font: {
             family: "Inter, sans-serif",
+            size: 11,
           },
         },
       },
