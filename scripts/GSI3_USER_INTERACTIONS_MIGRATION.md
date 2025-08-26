@@ -8,7 +8,7 @@ Les entités UserInteraction avaient besoin d'un nouveau GSI (GSI3) pour permett
 
 ### Nouveau schéma GSI3
 
-- **GSI3PK**: `INTERACTION#{interactionType}` (ex: "INTERACTION#like", "INTERACTION#bookmark")  
+- **GSI3PK**: `INTERACTION#{interactionType}` (ex: "INTERACTION#like", "INTERACTION#bookmark")
 - **GSI3SK**: `{createdAt}` (timestamp ISO 8601)
 
 ## Usage
@@ -20,7 +20,7 @@ Les entités UserInteraction avaient besoin d'un nouveau GSI (GSI3) pour permett
 cd scripts
 node backfill-gsi3-user-interactions.js --env=local --dry-run
 
-# Test staging 
+# Test staging
 node backfill-gsi3-user-interactions.js --env=stage --dry-run
 
 # Test production
@@ -36,7 +36,7 @@ node backfill-gsi3-user-interactions.js --env=local
 # Staging
 node backfill-gsi3-user-interactions.js --env=stage
 
-# Production  
+# Production
 node backfill-gsi3-user-interactions.js --env=prod
 ```
 
@@ -46,7 +46,7 @@ Le script utilise les fichiers `.env.{environment}` dans le dossier `/scripts` :
 
 - `DYNAMODB_TABLE`: Nom de la table DynamoDB
 - `AWS_ACCESS_KEY_ID`: Clé d'accès AWS
-- `AWS_SECRET_ACCESS_KEY`: Clé secrète AWS  
+- `AWS_SECRET_ACCESS_KEY`: Clé secrète AWS
 - `AWS_REGION`: Région AWS
 - `LOCAL_AWS_ENDPOINT`: Endpoint local (pour `--env=local`)
 
@@ -60,29 +60,36 @@ Le script utilise les fichiers `.env.{environment}` dans le dossier `/scripts` :
 ## Impact
 
 ### Avant la migration
+
 ```javascript
 // Requête analytics inefficace - nécessitait un Scan
-const likesResult = await docClient.send(new ScanCommand({
-  TableName: TABLE_NAME,
-  FilterExpression: "begins_with(PK, :pk) AND begins_with(SK, :sk) AND createdAt BETWEEN :start AND :end",
-  // ...très coûteux
-}));
+const likesResult = await docClient.send(
+  new ScanCommand({
+    TableName: TABLE_NAME,
+    FilterExpression:
+      "begins_with(PK, :pk) AND begins_with(SK, :sk) AND createdAt BETWEEN :start AND :end",
+    // ...très coûteux
+  })
+);
 ```
 
-### Après la migration  
+### Après la migration
+
 ```javascript
 // Requête analytics optimisée - utilise GSI3
-const likesResult = await docClient.send(new QueryCommand({
-  TableName: TABLE_NAME,
-  IndexName: "GSI3",
-  KeyConditionExpression: "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
-  ExpressionAttributeValues: {
-    ":pk": "INTERACTION#like",
-    ":start": startTime,
-    ":end": endTime,
-  },
-  Select: "COUNT",
-}));
+const likesResult = await docClient.send(
+  new QueryCommand({
+    TableName: TABLE_NAME,
+    IndexName: "GSI3",
+    KeyConditionExpression: "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
+    ExpressionAttributeValues: {
+      ":pk": "INTERACTION#like",
+      ":start": startTime,
+      ":end": endTime,
+    },
+    Select: "COUNT",
+  })
+);
 ```
 
 ## Sécurité
@@ -97,17 +104,19 @@ const likesResult = await docClient.send(new QueryCommand({
 En cas de problème, les champs GSI3 peuvent être supprimés :
 
 ```javascript
-await docClient.send(new UpdateCommand({
-  TableName: TABLE_NAME,
-  Key: { PK, SK },
-  UpdateExpression: "REMOVE GSI3PK, GSI3SK"
-}));
+await docClient.send(
+  new UpdateCommand({
+    TableName: TABLE_NAME,
+    Key: { PK, SK },
+    UpdateExpression: "REMOVE GSI3PK, GSI3SK",
+  })
+);
 ```
 
 ## Performance attendue
 
 - **Scan initial**: ~1-2 secondes pour 1000 interactions
-- **Updates**: ~10ms par item  
+- **Updates**: ~10ms par item
 - **Batch de 10**: ~100ms + 100ms délai = 200ms par batch
 - **Estimation**: ~1000 interactions = ~20 secondes
 

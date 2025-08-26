@@ -358,7 +358,8 @@ export async function calculateInteractionMetrics(
       new QueryCommand({
         TableName: TABLE_NAME,
         IndexName: "GSI3",
-        KeyConditionExpression: "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
+        KeyConditionExpression:
+          "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
         ExpressionAttributeValues: {
           ":pk": "INTERACTION#like",
           ":start": startTime,
@@ -374,7 +375,8 @@ export async function calculateInteractionMetrics(
       new QueryCommand({
         TableName: TABLE_NAME,
         IndexName: "GSI3",
-        KeyConditionExpression: "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
+        KeyConditionExpression:
+          "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
         ExpressionAttributeValues: {
           ":pk": "INTERACTION#bookmark",
           ":start": startTime,
@@ -389,11 +391,11 @@ export async function calculateInteractionMetrics(
     const commentsResult = await docClient.send(
       new QueryCommand({
         TableName: TABLE_NAME,
-        IndexName: "GSI2",
-        KeyConditionExpression: "GSI2PK = :pk",
-        FilterExpression: "createdAt BETWEEN :start AND :end",
+        IndexName: "GSI3",
+        KeyConditionExpression:
+          "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
         ExpressionAttributeValues: {
-          ":pk": "COMMENTS_BY_USER",
+          ":pk": "INTERACTION#comment",
           ":start": startTime,
           ":end": endTime,
         },
@@ -433,10 +435,10 @@ export async function calculateInteractionMetrics(
     const totalCommentsResult = await docClient.send(
       new QueryCommand({
         TableName: TABLE_NAME,
-        IndexName: "GSI2",
-        KeyConditionExpression: "GSI2PK = :pk",
+        IndexName: "GSI3",
+        KeyConditionExpression: "GSI3PK = :pk",
         ExpressionAttributeValues: {
-          ":pk": "COMMENTS_BY_USER",
+          ":pk": "INTERACTION#comment",
         },
         Select: "COUNT",
       })

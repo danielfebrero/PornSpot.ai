@@ -1,17 +1,17 @@
 /**
- * backfill-gsi3-user-interactions.js
+ * backfill-gsi3-comments.js
  *
- * Migration script to add GSI3 fields to existing UserInteraction records.
+ * Migration script to add GSI3 fields to existing Comment records.
  *
- * This script adds the required GSI3PK and GSI3SK fields to existing user interactions
- * to support efficient querying of interactions by type and date range for analytics.
+ * This script adds the required GSI3PK and GSI3SK fields to existing comment entities
+ * to support efficient querying of comments by interaction type and date range for analytics.
  *
- * GSI3PK = "INTERACTION#{interactionType}"
+ * GSI3PK = "INTERACTION#comment"
  * GSI3SK = "{createdAt}"
  *
  * Usage:
- *   node backfill-gsi3-user-interactions.js --env=local [--dry-run]
- *   node backfill-gsi3-user-interactions.js --env=prod [--dry-run]
+ *   node backfill-gsi3-comments.js --env=local [--dry-run]
+ *   node backfill-gsi3-comments.js --env=prod [--dry-run]
  *
  * Options:
  *   --env=<environment>    Load environment variables from .env.<environment>
@@ -50,45 +50,55 @@ const envArg = process.argv.find((arg) => arg.startsWith("--env="));
 let envFile = ".env";
 
 if (envArg) {
-  const envName = envArg.split("=")[1];
-  envFile = `.env.${envName}`;
-  console.log(`🔧 Using environment file: ${envFile}`);
+  const env = envArg.split("=")[1];
+  envFile = `.env.${env}`;
 }
+
+console.log(`🔧 Loading environment from: ${envFile}`);
+console.log(`🔍 Dry run mode: ${isDryRun ? "ENABLED" : "DISABLED"}`);
 
 // Load environment variables
 const envPath = path.join(__dirname, envFile);
-if (fs.existsSync(envPath)) {
-  dotenv.config({ path: envPath });
-  console.log(`✅ Loaded environment from ${envFile}`);
-} else {
-  console.warn(`⚠️  Environment file ${envFile} not found, using process.env`);
+if (!fs.existsSync(envPath)) {
+  console.error(`❌ Environment file not found: ${envPath}`);
+  process.exit(1);
 }
 
+dotenv.config({ path: envPath });
+
+// Validate required environment variables
+const requiredEnvVars = ["DYNAMODB_TABLE"];
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    console.error(`❌ Missing required environment variable: ${envVar}`);
+    process.exit(1);
+  }
+}
+
+const TABLE_NAME = process.env.DYNAMODB_TABLE;
+console.log(`📋 Target table: ${TABLE_NAME}`);
+
+// Import AWS SDK modules
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const {
   DynamoDBDocumentClient,
   ScanCommand,
   UpdateCommand,
-  BatchWriteCommand,
 } = require("@aws-sdk/lib-dynamodb");
 
-// Environment configuration
-const TABLE_NAME = process.env.DYNAMODB_TABLE;
-const isLocal =
-  process.env.AWS_SAM_LOCAL === "true" || envFile.includes("local");
+// Configure AWS SDK
+let clientConfig = {};
 
-if (!TABLE_NAME) {
-  console.error("❌ DYNAMODB_TABLE environment variable is required");
-  process.exit(1);
+// Add credentials if not using IAM roles
+if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+  clientConfig.credentials = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  };
 }
 
-console.log(`🗄️  Table: ${TABLE_NAME}`);
-console.log(`🌍 Environment: ${isLocal ? "Local" : "AWS"}`);
-console.log(`🔍 Mode: ${isDryRun ? "DRY RUN" : "LIVE UPDATE"}`);
-
-// DynamoDB client setup
-const clientConfig = {};
-if (isLocal) {
+// Configure for local development
+if (process.env.LOCAL_AWS_ENDPOINT) {
   clientConfig.endpoint =
     process.env.LOCAL_AWS_ENDPOINT || "http://localhost:4566";
   clientConfig.region = "us-east-1";
@@ -103,25 +113,10 @@ const dynamoDbClient = new DynamoDBClient(clientConfig);
 const docClient = DynamoDBDocumentClient.from(dynamoDbClient);
 
 /**
- * Extract interaction type from SK
- * SK format: "INTERACTION#{interactionType}#{targetId}" or "COMMENT_INTERACTION#{interactionType}#{targetId}"
+ * Scan for Comment entities that need GSI3 fields
  */
-function extractInteractionType(sk) {
-  if (sk.startsWith("COMMENT_INTERACTION#")) {
-    const parts = sk.split("#");
-    return parts[1]; // interactionType
-  } else if (sk.startsWith("INTERACTION#")) {
-    const parts = sk.split("#");
-    return parts[1]; // interactionType
-  }
-  return null;
-}
-
-/**
- * Scan for UserInteraction entities that need GSI3 fields
- */
-async function scanUserInteractions() {
-  console.log("🔍 Scanning for UserInteraction entities...");
+async function scanComments() {
+  console.log("🔍 Scanning for Comment entities...");
 
   const items = [];
   let lastEvaluatedKey;
@@ -133,9 +128,9 @@ async function scanUserInteractions() {
       FilterExpression:
         "EntityType = :entityType AND attribute_not_exists(GSI3PK)",
       ExpressionAttributeValues: {
-        ":entityType": "UserInteraction",
+        ":entityType": "Comment",
       },
-      ProjectionExpression: "PK, SK, interactionType, createdAt, EntityType",
+      ProjectionExpression: "PK, SK, createdAt, EntityType, id, content",
     };
 
     if (lastEvaluatedKey) {
@@ -147,44 +142,34 @@ async function scanUserInteractions() {
     if (result.Items) {
       items.push(...result.Items);
       scanCount += result.Items.length;
-      console.log(`📊 Found ${scanCount} UserInteraction items so far...`);
+      console.log(`📊 Found ${scanCount} Comment items so far...`);
     }
 
     lastEvaluatedKey = result.LastEvaluatedKey;
   } while (lastEvaluatedKey);
 
   console.log(
-    `✅ Scan complete. Found ${items.length} UserInteraction items missing GSI3 fields.`
+    `✅ Scan complete. Found ${items.length} Comment items missing GSI3 fields.`
   );
   return items;
 }
 
 /**
- * Update a single UserInteraction item with GSI3 fields
+ * Update a single Comment item with GSI3 fields
  */
-async function updateUserInteraction(item) {
-  const { PK, SK, interactionType, createdAt } = item;
-
-  // Extract interaction type from SK if not available in item
-  const effectiveInteractionType =
-    interactionType || extractInteractionType(SK);
-
-  if (!effectiveInteractionType) {
-    console.warn(
-      `⚠️  Could not determine interaction type for item: ${PK}#${SK}`
-    );
-    return false;
-  }
+async function updateComment(item) {
+  const { PK, SK, createdAt, id } = item;
 
   if (!createdAt) {
-    console.warn(`⚠️  Missing createdAt for item: ${PK}#${SK}`);
+    console.warn(`⚠️  Missing createdAt for comment: ${PK}#${SK}`);
     return false;
   }
 
-  const gsi3PK = `INTERACTION#${effectiveInteractionType}`;
+  // For comments, GSI3PK is always "INTERACTION#comment"
+  const gsi3PK = "INTERACTION#comment";
   const gsi3SK = createdAt;
 
-  console.log(`📝 Updating ${PK}#${SK}:`);
+  console.log(`📝 Updating comment ${id || PK}:`);
   console.log(`   GSI3PK: ${gsi3PK}`);
   console.log(`   GSI3SK: ${gsi3SK}`);
 
@@ -219,21 +204,19 @@ async function updateUserInteraction(item) {
  * Main migration function
  */
 async function main() {
-  console.log("🚀 Starting GSI3 UserInteraction backfill migration...");
+  console.log("🚀 Starting GSI3 Comment backfill migration...");
   console.log("=".repeat(60));
 
   try {
     // Scan for items that need updating
-    const items = await scanUserInteractions();
+    const items = await scanComments();
 
     if (items.length === 0) {
-      console.log(
-        "🎉 No UserInteraction items need GSI3 fields. Migration complete!"
-      );
+      console.log("🎉 No Comment items need GSI3 fields. Migration complete!");
       return;
     }
 
-    console.log(`📋 Processing ${items.length} UserInteraction items...`);
+    console.log(`📋 Processing ${items.length} Comment items...`);
     console.log("=".repeat(60));
 
     // Process items in batches to avoid rate limiting
@@ -252,7 +235,7 @@ async function main() {
 
       // Process batch items in parallel
       const results = await Promise.all(
-        batch.map((item) => updateUserInteraction(item))
+        batch.map((item) => updateComment(item))
       );
 
       results.forEach((success) => {

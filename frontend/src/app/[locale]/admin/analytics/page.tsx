@@ -386,14 +386,16 @@ export default function AnalyticsPage() {
               value={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "users"
-                )?.summary?.totals?.totalUsers || 0
+                )?.dataPoints?.[0]?.metrics?.totalUsers || 0
               }
               change={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "users"
-                )?.summary?.totals?.newUsers || 0
+                )?.dataPoints?.[0]?.metrics?.newUsers || 0
               }
-              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
+              changeLabel={`this ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={Users}
               color="hsl(var(--chart-1))"
             />
@@ -402,14 +404,16 @@ export default function AnalyticsPage() {
               value={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "media"
-                )?.summary?.totals?.totalMedia || 0
+                )?.dataPoints?.[0]?.metrics?.totalMedia || 0
               }
               change={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "media"
-                )?.summary?.totals?.newMedia || 0
+                )?.dataPoints?.[0]?.metrics?.newMedia || 0
               }
-              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
+              changeLabel={`this ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={Image}
               color="hsl(var(--chart-2))"
             />
@@ -418,14 +422,16 @@ export default function AnalyticsPage() {
               value={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "albums"
-                )?.summary?.totals?.totalAlbums || 0
+                )?.dataPoints?.[0]?.metrics?.totalAlbums || 0
               }
               change={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "albums"
-                )?.summary?.totals?.newAlbums || 0
+                )?.dataPoints?.[0]?.metrics?.newAlbums || 0
               }
-              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
+              changeLabel={`this ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={FolderOpen}
               color="hsl(var(--chart-3))"
             />
@@ -434,26 +440,28 @@ export default function AnalyticsPage() {
               value={
                 (analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.totalLikes || 0) +
+                )?.dataPoints?.[0]?.metrics?.totalLikes || 0) +
                 (analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.totalBookmarks || 0) +
+                )?.dataPoints?.[0]?.metrics?.totalBookmarks || 0) +
                 (analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.totalComments || 0)
+                )?.dataPoints?.[0]?.metrics?.totalComments || 0)
               }
               change={
                 (analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.newLikes || 0) +
+                )?.dataPoints?.[0]?.metrics?.newLikes || 0) +
                 (analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.newBookmarks || 0) +
+                )?.dataPoints?.[0]?.metrics?.newBookmarks || 0) +
                 (analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.newComments || 0)
+                )?.dataPoints?.[0]?.metrics?.newComments || 0)
               }
-              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
+              changeLabel={`this ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={Activity}
               color="hsl(var(--chart-4))"
             />
@@ -462,14 +470,16 @@ export default function AnalyticsPage() {
               value={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.totalViews || 0
+                )?.dataPoints?.[0]?.metrics?.totalViews || 0
               }
               change={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.newViews || 0
+                )?.dataPoints?.[0]?.metrics?.newViews || 0
               }
-              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
+              changeLabel={`this ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={Eye}
               color="hsl(var(--chart-5))"
             />
@@ -478,14 +488,16 @@ export default function AnalyticsPage() {
               value={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.totalLikes || 0
+                )?.dataPoints?.[0]?.metrics?.totalLikes || 0
               }
               change={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.newLikes || 0
+                )?.dataPoints?.[0]?.metrics?.newLikes || 0
               }
-              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
+              changeLabel={`this ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={Heart}
               color="hsl(var(--destructive))"
             />
@@ -494,14 +506,16 @@ export default function AnalyticsPage() {
               value={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.totalComments || 0
+                )?.dataPoints?.[0]?.metrics?.totalComments || 0
               }
               change={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.newComments || 0
+                )?.dataPoints?.[0]?.metrics?.newComments || 0
               }
-              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
+              changeLabel={`this ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={MessageCircle}
               color="hsl(var(--primary))"
             />
@@ -510,14 +524,16 @@ export default function AnalyticsPage() {
               value={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.totalBookmarks || 0
+                )?.dataPoints?.[0]?.metrics?.totalBookmarks || 0
               }
               change={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
-                )?.summary?.totals?.newBookmarks || 0
+                )?.dataPoints?.[0]?.metrics?.newBookmarks || 0
               }
-              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
+              changeLabel={`this ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={Bookmark}
               color="hsl(var(--muted-foreground))"
             />

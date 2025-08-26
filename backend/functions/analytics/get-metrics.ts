@@ -194,25 +194,15 @@ function calculateSummary(dataPoints: AnalyticsDataPoint[]): AnalyticsSummary {
   const metricKeys = Object.keys(firstMetrics);
 
   const averages: any = {};
-  const totals: any = {};
   const trends: any = {};
 
-  // Calculate averages and totals for each metric
+  // Calculate averages for each metric
   for (const key of metricKeys) {
     const values = dataPoints
       .map((dp) => dp.metrics[key])
       .filter((v) => typeof v === "number" && !isNaN(v)) as number[];
 
     if (values.length > 0) {
-      // For "total" metrics, take the latest value
-      if (key.startsWith("total") || key.includes("Storage")) {
-        totals[key] = values[0]; // Most recent total
-      }
-      // For "new" and other incrementing metrics, sum them up
-      else if (key.startsWith("new") || key.includes("Count")) {
-        totals[key] = values.reduce((sum, val) => sum + val, 0);
-      }
-
       // Always calculate averages
       averages[key] = Number(
         (values.reduce((sum, val) => sum + val, 0) / values.length).toFixed(2)
@@ -233,7 +223,6 @@ function calculateSummary(dataPoints: AnalyticsDataPoint[]): AnalyticsSummary {
   return {
     totalDataPoints: dataPoints.length,
     averages,
-    totals,
     trends,
   };
 }
@@ -311,18 +300,9 @@ async function handleGetMetrics(
         startDate: params.startDate,
         endDate: params.endDate,
         allMetrics: allResults,
-        combinedSummary: {
-          totalDataPoints: allResults.reduce(
-            (sum, result) => sum + result.dataPoints.length,
-            0
-          ),
-          metricTypes: metricTypes,
-        },
       };
 
-      console.log(
-        `✅ Successfully retrieved all metrics with ${response.combinedSummary?.totalDataPoints} total data points`
-      );
+      console.log(`✅ Successfully retrieved all metrics`);
     } else {
       // Query single metric type
       const analyticsData = await queryAnalytics(

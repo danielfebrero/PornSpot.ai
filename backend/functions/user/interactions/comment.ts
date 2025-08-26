@@ -103,6 +103,8 @@ async function createComment(
     GSI1SK: now,
     GSI2PK: `COMMENTS_BY_USER#${user.userId}`,
     GSI2SK: now,
+    GSI3PK: "INTERACTION#comment",
+    GSI3SK: now,
     EntityType: "Comment",
     id: commentId,
     content: content.trim(),

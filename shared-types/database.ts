@@ -139,6 +139,8 @@ export interface CommentEntity extends BaseEntity {
   GSI1SK: string; // {targetType}#{targetId}#{createdAt}#{commentId}
   GSI2PK: string; // COMMENTS_BY_USER
   GSI2SK: string; // {userId}#{createdAt}#{commentId}
+  GSI3PK: string; // INTERACTION#comment
+  GSI3SK: string; // {createdAt}
   EntityType: "Comment";
   id: string;
   content: string;
