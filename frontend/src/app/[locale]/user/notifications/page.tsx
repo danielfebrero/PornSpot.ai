@@ -145,21 +145,17 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   return (
     <div
       className={`group transition-all duration-200 rounded-lg ${
-        isUnread
-          ? "bg-gradient-to-r from-orange-50/80 via-amber-50/60 to-yellow-50/40 hover:from-orange-100/90 hover:via-amber-100/70 hover:to-yellow-100/50 border border-orange-200/60 shadow-sm"
-          : "bg-card hover:bg-accent/50 border border-transparent"
+        isUnread ? "bg-muted/40 hover:bg-muted/60" : "hover:bg-muted/30"
       }`}
     >
       <div className="flex items-center gap-3 p-4">
         {/* Notification Icon */}
         <div
           className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full ${
-            isUnread
-              ? "bg-gradient-to-br from-orange-500 to-amber-500 shadow-sm"
-              : "bg-muted"
+            isUnread ? "bg-primary/10" : "bg-muted"
           }`}
         >
-          <div className={isUnread ? "text-white" : "text-muted-foreground"}>
+          <div className={isUnread ? "text-primary" : "text-muted-foreground"}>
             {icon}
           </div>
         </div>
@@ -168,7 +164,6 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <div className="flex-1">
-              {/* Notification message with clickable elements using rich format */}
               <p
                 className={`text-sm leading-relaxed ${
                   isUnread
@@ -181,7 +176,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
                   userLink: (chunks) => (
                     <LocaleLink
                       href={userHref}
-                      className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                      className="font-medium text-blue-600 hover:underline"
                     >
                       {chunks}
                     </LocaleLink>
@@ -189,7 +184,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
                   contentLink: (chunks) => (
                     <LocaleLink
                       href={contentHref}
-                      className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                      className="font-medium text-blue-600 hover:underline"
                     >
                       {chunks}
                     </LocaleLink>
@@ -198,11 +193,9 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
               </p>
             </div>
 
-            {/* Status and Time */}
+            {/* Status + Time */}
             <div className="flex flex-col items-end gap-1 flex-shrink-0">
-              {isUnread && (
-                <div className="w-2 h-2 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full shadow-sm" />
-              )}
+              {isUnread && <div className="w-2 h-2 bg-primary rounded-full" />}
               <span className="text-xs text-muted-foreground flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 {timeAgo}
@@ -343,7 +336,6 @@ const UserNotificationsPage: React.FC = () => {
           {notifications.length > 0 && (
             <div className="flex items-center space-x-3">
               <span className="bg-orange-500/20 text-orange-600 text-sm font-semibold px-3 py-1.5 rounded-full">
-                {notifications.length.toLocaleString()}{" "}
                 {t("count", { count: notifications.length })}
               </span>
             </div>
