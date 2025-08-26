@@ -70,7 +70,7 @@
 
 [x] Set custom max image size.
 
-[ ] Add more LoRA.
+[x] Add more LoRA.
 
 [ ] When navigating then going backward, we must not lose infinite scroll position.
 
