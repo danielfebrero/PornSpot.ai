@@ -10,7 +10,6 @@ import {
   Activity,
   Calendar,
   Clock,
-  Zap,
   TrendingUp,
   RefreshCw,
   Eye,
@@ -18,7 +17,6 @@ import {
   MessageCircle,
   Bookmark,
   Lock,
-  Unlock,
   Cpu,
   HardDrive,
 } from "lucide-react";
@@ -34,7 +32,7 @@ import {
   Legend,
   Filler,
 } from "chart.js";
-import { Line, Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import { useAdminAnalyticsQuery } from "@/hooks/queries/useAdminAnalyticsQuery";
 
 // Register Chart.js components
@@ -56,7 +54,7 @@ export default function AnalyticsPage() {
   const t = useTranslations("admin.analytics");
   const tGranularity = useTranslations("admin.analytics.granularity");
   const [selectedGranularity, setSelectedGranularity] =
-    useState<Granularity>("daily");
+    useState<Granularity>("hourly");
 
   // Calculate date range based on granularity with useMemo to prevent unnecessary re-renders
   const dateRange = useMemo(() => {

@@ -93,6 +93,8 @@ function validateQueryParams(event: APIGatewayProxyEvent): {
     "media",
     "albums",
     "interactions",
+    "storage",
+    "generations",
     "all",
   ];
   if (!validMetricTypes.includes(metricType as MetricTypeWithAll)) {
@@ -204,7 +206,7 @@ function calculateSummary(dataPoints: AnalyticsDataPoint[]): AnalyticsSummary {
     if (values.length > 0) {
       // For "total" metrics, take the latest value
       if (key.startsWith("total") || key.includes("Storage")) {
-        totals[key] = values[values.length - 1]; // Most recent total
+        totals[key] = values[0]; // Most recent total
       }
       // For "new" and other incrementing metrics, sum them up
       else if (key.startsWith("new") || key.includes("Count")) {
@@ -272,6 +274,8 @@ async function handleGetMetrics(
         "media",
         "albums",
         "interactions",
+        "storage",
+        "generations",
       ];
 
       const allMetricsPromises = metricTypes.map(async (type) => {

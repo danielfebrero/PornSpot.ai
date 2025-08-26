@@ -72,8 +72,14 @@ if (process.env["S3_BUCKET"]) {
   s3Client = new S3Client(s3Config);
 }
 
-const METRIC_TYPES: MetricType[] = ["users", "media", "albums", "interactions"];
-
+const METRIC_TYPES: MetricType[] = [
+  "users",
+  "media",
+  "albums",
+  "interactions",
+  "generations",
+  "storage",
+];
 /**
  * Gets the start and end of a week (Monday to Sunday)
  */

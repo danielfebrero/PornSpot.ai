@@ -73,6 +73,72 @@ function filterMetricsByType(
   return filteredMetrics;
 }
 
+export async function calculateGenerationMetrics(
+  docClient: DynamoDBDocumentClient,
+  startTime: string,
+  endTime: string
+): Promise<Partial<AnalyticsMetrics>> {
+  const metrics: Partial<AnalyticsMetrics> = {};
+
+  try {
+    // Get total generations count using GSI6
+    const totalGenerationsResult = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI6",
+        KeyConditionExpression: "GSI6PK = :pk",
+        ExpressionAttributeValues: {
+          ":pk": "GENERATION_ID",
+        },
+        Select: "COUNT",
+      })
+    );
+    metrics.totalGenerations = totalGenerationsResult.Count || 0;
+
+    // Get successful generations in time range using GSI6
+    const successfulGenerationsResult = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI6",
+        KeyConditionExpression:
+          "GSI6PK = :pk AND GSI6SK BETWEEN :start AND :end",
+        FilterExpression: "status = :status",
+        ExpressionAttributeValues: {
+          ":pk": "GENERATION",
+          ":start": startTime,
+          ":end": `${endTime}#zzz`,
+          ":status": "successful",
+        },
+        Select: "COUNT",
+      })
+    );
+    metrics.successfulGenerations = successfulGenerationsResult.Count || 0;
+
+    // Get failed generations in time range using GSI6
+    const failedGenerationsResult = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI6",
+        KeyConditionExpression:
+          "GSI6PK = :pk AND GSI6SK BETWEEN :start AND :end",
+        FilterExpression: "status = :status",
+        ExpressionAttributeValues: {
+          ":pk": "GENERATION",
+          ":start": startTime,
+          ":end": `${endTime}#zzz`,
+          ":status": "failed",
+        },
+        Select: "COUNT",
+      })
+    );
+    metrics.failedGenerations = failedGenerationsResult.Count || 0;
+  } catch (error) {
+    console.error("Error calculating generation metrics:", error);
+  }
+
+  return metrics;
+}
+
 /**
  * Calculates user metrics for a given time range
  */
@@ -412,6 +478,7 @@ export async function aggregateAllMetrics(
     calculateMediaMetrics(docClient, startTime, endTime),
     calculateAlbumMetrics(docClient, startTime, endTime),
     calculateInteractionMetrics(docClient, startTime, endTime),
+    calculateGenerationMetrics(docClient, startTime, endTime),
     s3Client && S3_BUCKET
       ? calculateStorageMetrics(s3Client, S3_BUCKET)
       : Promise.resolve({}),
