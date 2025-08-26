@@ -70,11 +70,12 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     const userHref = `/user/${sourceUsername}`;
 
     // Determine content link
-    switch (notificationType) {
-      case "like":
-      case "bookmark":
-        contentHref =
-          targetType === "album" ? `/albums/${targetId}` : `/media/${targetId}`;
+    switch (targetType) {
+      case "album":
+        contentHref = `/albums/${targetId}`;
+        break;
+      case "media":
+        contentHref = `/media/${targetId}`;
         break;
       case "comment":
         if (commentTargetType && commentTargetId) {
@@ -84,10 +85,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
               : `/media/${commentTargetId}`;
           typeKey = commentTargetType;
         } else {
-          contentHref =
-            targetType === "album"
-              ? `/albums/${targetId}`
-              : `/media/${targetId}`;
+          contentHref = "/";
         }
         break;
     }
