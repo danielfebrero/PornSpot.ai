@@ -2686,7 +2686,7 @@ Resources:
         HourlySchedule:
           Type: Schedule
           Properties:
-            Schedule: "rate(1 hour)"
+            Schedule: "cron(1 * * * ? *)" # Every hour at minute 1
             Name: !Sub "${Environment}-pornspot-hourly-analytics"
             Description: "Runs hourly analytics aggregation every hour"
       Policies:
