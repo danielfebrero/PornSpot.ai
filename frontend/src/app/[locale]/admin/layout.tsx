@@ -11,7 +11,13 @@ import {
   AdminErrorBoundary,
   SectionErrorBoundary,
 } from "@/components/ErrorBoundaries";
-import { LayoutDashboard, FolderOpen, Image, Users } from "lucide-react";
+import {
+  LayoutDashboard,
+  FolderOpen,
+  Image,
+  Users,
+  BarChart3,
+} from "lucide-react";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -50,6 +56,11 @@ function AdminLayoutContent({
       label: t("dashboard"),
       icon: LayoutDashboard,
       exactPath: true,
+    },
+    {
+      href: "/admin/analytics",
+      label: t("analytics"),
+      icon: BarChart3,
     },
     {
       href: "/admin/albums",

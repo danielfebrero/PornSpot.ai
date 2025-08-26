@@ -13,6 +13,7 @@ export * from "./permissions";
 export * from "./openrouter";
 export * from "./discover";
 export * from "./notification";
+export * from "./analytics";
 
 // Database entities
 export * from "./database";

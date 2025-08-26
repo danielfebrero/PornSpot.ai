@@ -2614,6 +2614,208 @@ Resources:
               Resource:
                 - !GetAtt MediaTable.Arn
                 - !Sub "${MediaTable.Arn}/index/*"
+  # ============================================================================
+  # Analytics Functions - Admin Analytics System
+  # ============================================================================
+
+  # Analytics API Function
+  AnalyticsGetMetricsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-analytics-get-metrics-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/analytics/get-metrics.handler"]
+      Events:
+        GetMetrics:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/analytics/metrics
+            Method: GET
+            Auth:
+              Authorizer: AdminAuthorizer
+        GetDashboard:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/analytics/dashboard
+            Method: GET
+            Auth:
+              Authorizer: AdminAuthorizer
+        OptionsMetrics:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/analytics/metrics
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+        OptionsDashboard:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/analytics/dashboard
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+              Resource:
+                - !GetAtt MediaTable.Arn
+                - !Sub "${MediaTable.Arn}/index/*"
+
+  # Hourly Analytics Aggregation Function
+  AnalyticsAggregateHourlyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-analytics-aggregate-hourly-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/analytics/aggregate-hourly.handler"]
+      MemorySize: 512
+      Timeout: 900 # 15 minutes for complex aggregations
+      Events:
+        HourlySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: "rate(1 hour)"
+            Name: !Sub "${Environment}-pornspot-hourly-analytics"
+            Description: "Runs hourly analytics aggregation every hour"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:PutItem
+                - dynamodb:BatchWriteItem
+              Resource:
+                - !GetAtt MediaTable.Arn
+                - !Sub "${MediaTable.Arn}/index/*"
+            - Effect: Allow
+              Action:
+                - s3:ListBucket
+                - s3:GetObject
+              Resource:
+                - !GetAtt MediaBucket.Arn
+                - !Sub "${MediaBucket.Arn}/*"
+
+  # Daily Analytics Aggregation Function
+  AnalyticsAggregateDailyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-analytics-aggregate-daily-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/analytics/aggregate-daily.handler"]
+      MemorySize: 512
+      Timeout: 900 # 15 minutes for complex aggregations
+      Events:
+        DailySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(5 0 * * ? *)" # Every day at 00:05 UTC
+            Name: !Sub "${Environment}-pornspot-daily-analytics"
+            Description: "Runs daily analytics aggregation every day at 00:05 UTC"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:PutItem
+                - dynamodb:BatchWriteItem
+              Resource:
+                - !GetAtt MediaTable.Arn
+                - !Sub "${MediaTable.Arn}/index/*"
+            - Effect: Allow
+              Action:
+                - s3:ListBucket
+                - s3:GetObject
+              Resource:
+                - !GetAtt MediaBucket.Arn
+                - !Sub "${MediaBucket.Arn}/*"
+
+  # Weekly Analytics Aggregation Function
+  AnalyticsAggregateWeeklyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-analytics-aggregate-weekly-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/analytics/aggregate-weekly.handler"]
+      MemorySize: 512
+      Timeout: 900 # 15 minutes for complex aggregations
+      Events:
+        WeeklySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(10 0 ? * MON *)" # Every Monday at 00:10 UTC
+            Name: !Sub "${Environment}-pornspot-weekly-analytics"
+            Description: "Runs weekly analytics aggregation every Monday at 00:10 UTC"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:PutItem
+                - dynamodb:BatchWriteItem
+              Resource:
+                - !GetAtt MediaTable.Arn
+                - !Sub "${MediaTable.Arn}/index/*"
+
+  # Monthly Analytics Aggregation Function
+  AnalyticsAggregateMonthlyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-analytics-aggregate-monthly-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/analytics/aggregate-monthly.handler"]
+      MemorySize: 512
+      Timeout: 900 # 15 minutes for complex aggregations
+      Events:
+        MonthlySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(15 0 1 * ? *)" # 1st of each month at 00:15 UTC
+            Name: !Sub "${Environment}-pornspot-monthly-analytics"
+            Description: "Runs monthly analytics aggregation on the 1st of each month at 00:15 UTC"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:PutItem
+                - dynamodb:BatchWriteItem
+              Resource:
+                - !GetAtt MediaTable.Arn
+                - !Sub "${MediaTable.Arn}/index/*"
 
 Outputs:
   ApiGatewayUrl:

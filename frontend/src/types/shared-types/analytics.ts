@@ -1,0 +1,227 @@
+// Analytics Types for PornSpot.ai
+
+export type MetricGranularity = "hourly" | "daily" | "weekly" | "monthly";
+
+export type MetricType =
+  | "users"
+  | "media"
+  | "albums"
+  | "interactions"
+  | "generations"
+  | "storage";
+
+export type MetricTypeWithAll = MetricType | "all";
+
+// Core metrics interface - flexible and extensible
+export interface AnalyticsMetrics {
+  // User metrics
+  totalUsers?: number;
+  newUsers?: number;
+  activeUsers?: number;
+  deletedUsers?: number;
+
+  // Media metrics
+  totalMedia?: number;
+  newMedia?: number;
+  publicMedia?: number;
+  privateMedia?: number;
+  mediaByStatus?: {
+    processing?: number;
+    completed?: number;
+    failed?: number;
+  };
+
+  // Album metrics
+  totalAlbums?: number;
+  newAlbums?: number;
+  publicAlbums?: number;
+  privateAlbums?: number;
+
+  // Interaction metrics
+  totalLikes?: number;
+  newLikes?: number;
+  totalBookmarks?: number;
+  newBookmarks?: number;
+  totalComments?: number;
+  newComments?: number;
+  totalViews?: number;
+  newViews?: number;
+
+  // Generation metrics
+  totalGenerations?: number;
+  successfulGenerations?: number;
+  failedGenerations?: number;
+  averageGenerationTime?: number;
+
+  // Storage metrics
+  totalStorageBytes?: number;
+  totalStorageGB?: number;
+  mediaStorageBytes?: number;
+  thumbnailStorageBytes?: number;
+
+  // Allow for future metrics without schema changes
+  [key: string]: any;
+}
+
+// Request/Response types for API
+export interface GetMetricsRequest {
+  metricType: MetricTypeWithAll;
+  granularity: MetricGranularity;
+  startDate: string; // ISO 8601 date
+  endDate: string; // ISO 8601 date
+  metrics?: string[]; // Optional: specific metrics to retrieve
+}
+
+export interface GetMetricsResponse {
+  metricType: MetricTypeWithAll;
+  granularity: MetricGranularity;
+  startDate: string;
+  endDate: string;
+  dataPoints?: AnalyticsDataPoint[];
+  summary?: AnalyticsSummary;
+  allMetrics?: Array<{
+    metricType: MetricType;
+    dataPoints: AnalyticsDataPoint[];
+    summary: AnalyticsSummary;
+  }>;
+  combinedSummary?: {
+    totalDataPoints: number;
+    metricTypes: MetricType[];
+  };
+}
+
+export interface AnalyticsDataPoint {
+  timestamp: string; // ISO 8601 timestamp (start of period)
+  endTimestamp: string; // ISO 8601 timestamp (end of period)
+  metrics: AnalyticsMetrics;
+  calculatedAt: string; // When this metric was calculated
+}
+
+export interface AnalyticsSummary {
+  totalDataPoints: number;
+  averages?: Partial<AnalyticsMetrics>;
+  totals?: Partial<AnalyticsMetrics>;
+  trends?: {
+    [key: string]: "up" | "down" | "stable";
+  };
+}
+
+// Real-time metrics cache
+export interface MetricsCache {
+  metricKey: string;
+  value: number | string | object;
+  lastUpdated: string;
+  ttl?: number; // Seconds until expiration
+}
+
+// Aggregation job configuration
+export interface AggregationConfig {
+  metricType: MetricType;
+  granularity: MetricGranularity;
+  enabled: boolean;
+  schedule?: string; // Cron expression or rate expression
+  retentionDays?: number; // How long to keep this granularity
+  backfillEnabled?: boolean;
+}
+
+// Admin dashboard stats (simplified real-time view)
+export interface AdminDashboardStats {
+  users: {
+    total: number;
+    new24h: number;
+    active24h: number;
+  };
+  media: {
+    total: number;
+    new24h: number;
+    public: number;
+    private: number;
+  };
+  albums: {
+    total: number;
+    new24h: number;
+    public: number;
+    private: number;
+  };
+  interactions: {
+    likes24h: number;
+    bookmarks24h: number;
+    comments24h: number;
+    views24h: number;
+  };
+  storage: {
+    totalGB: number;
+    usedPercent: number;
+  };
+  lastUpdated: string;
+}
+
+// Time range helpers
+export interface TimeRange {
+  start: string; // ISO 8601
+  end: string; // ISO 8601
+}
+
+export interface TimeRangeQuery {
+  granularity: MetricGranularity;
+  range: TimeRange;
+  timezone?: string; // IANA timezone (e.g., "Europe/Paris")
+}
+
+// Metric calculation helpers
+export type MetricCalculator = (
+  startTime: string,
+  endTime: string
+) => Promise<Partial<AnalyticsMetrics>>;
+
+export interface MetricCalculatorRegistry {
+  [key: string]: MetricCalculator;
+}
+
+// Export utility functions for time calculations
+export const getTimeRangeForGranularity = (
+  granularity: MetricGranularity,
+  date: Date = new Date()
+): TimeRange => {
+  const start = new Date(date);
+  const end = new Date(date);
+
+  switch (granularity) {
+    case "hourly":
+      start.setMinutes(0, 0, 0);
+      end.setMinutes(59, 59, 999);
+      break;
+    case "daily":
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+      break;
+    case "weekly":
+      const day = start.getDay();
+      const diff = start.getDate() - day + (day === 0 ? -6 : 1); // Monday
+      start.setDate(diff);
+      start.setHours(0, 0, 0, 0);
+      end.setDate(diff + 6); // Sunday
+      end.setHours(23, 59, 59, 999);
+      break;
+    case "monthly":
+      start.setDate(1);
+      start.setHours(0, 0, 0, 0);
+      end.setMonth(end.getMonth() + 1, 0); // Last day of month
+      end.setHours(23, 59, 59, 999);
+      break;
+  }
+
+  return {
+    start: start.toISOString(),
+    end: end.toISOString(),
+  };
+};
+
+// Format bytes to human readable
+export const formatBytes = (bytes: number): string => {
+  if (bytes === 0) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};

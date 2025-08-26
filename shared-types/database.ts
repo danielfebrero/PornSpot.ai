@@ -268,3 +268,70 @@ export interface PasswordResetTokenEntity extends BaseEntity {
   expiresAt: string;
   ttl: number; // For DynamoDB TTL
 }
+
+// Analytics Entity - for pre-calculated metrics
+export interface AnalyticsEntity extends BaseEntity {
+  PK: string; // ANALYTICS#{metricType}#{granularity}
+  SK: string; // {timestamp}
+  GSI1PK: string; // ANALYTICS (reusing existing GSI1)
+  GSI1SK: string; // {granularity}#{timestamp}#{metricType}
+  GSI2PK: string; // ANALYTICS_TYPE#{metricType} (reusing existing GSI2)
+  GSI2SK: string; // {timestamp}
+  EntityType: "Analytics";
+
+  // Core fields
+  metricType: string; // e.g., "users", "media", "albums", "interactions"
+  granularity: "hourly" | "daily" | "weekly" | "monthly";
+  timestamp: string; // ISO 8601 timestamp (start of period)
+  endTimestamp: string; // ISO 8601 timestamp (end of period)
+
+  // Metric data (flexible JSON object for extensibility)
+  metrics: {
+    // User metrics
+    totalUsers?: number;
+    newUsers?: number;
+    activeUsers?: number;
+
+    // Media metrics
+    totalMedia?: number;
+    newMedia?: number;
+    publicMedia?: number;
+    privateMedia?: number;
+
+    // Album metrics
+    totalAlbums?: number;
+    newAlbums?: number;
+    publicAlbums?: number;
+    privateAlbums?: number;
+
+    // Interaction metrics
+    totalLikes?: number;
+    totalBookmarks?: number;
+    totalComments?: number;
+    totalViews?: number;
+
+    // Generation metrics
+    totalGenerations?: number;
+    successfulGenerations?: number;
+    failedGenerations?: number;
+
+    // Additional metrics can be added here
+    [key: string]: any;
+  };
+
+  // Metadata
+  calculatedAt: string; // When this metric was calculated
+  version: number; // Schema version for future migrations
+}
+
+// Metrics Cache Entity - for real-time metrics (optional)
+export interface MetricsCacheEntity extends BaseEntity {
+  PK: string; // METRICS_CACHE
+  SK: string; // {metricKey}
+  EntityType: "MetricsCache";
+
+  metricKey: string; // e.g., "total_users", "total_media"
+  value: number | string | object;
+  lastUpdated: string;
+  ttl: number; // DynamoDB TTL for cache expiration
+}

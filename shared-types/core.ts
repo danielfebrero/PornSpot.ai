@@ -55,7 +55,9 @@ export type EntityType =
   | "AlbumMedia"
   | "AlbumTag"
   | "EmailVerificationToken"
-  | "PasswordResetToken";
+  | "PasswordResetToken"
+  | "Analytics"
+  | "MetricsCache";
 
 export type CreatorType = "user" | "admin";
 

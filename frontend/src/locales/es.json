@@ -554,6 +554,7 @@
     },
     "navigation": {
       "dashboard": "Panel",
+      "analytics": "Analíticas",
       "users": "Usuarios",
       "albums": "Álbumes",
       "media": "Medios",

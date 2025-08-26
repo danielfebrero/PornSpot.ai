@@ -584,12 +584,42 @@
     },
     "navigation": {
       "dashboard": "Tableau de bord",
+      "analytics": "Analytiques",
       "users": "Utilisateurs",
       "albums": "Albums",
       "media": "Médias",
       "settings": "Paramètres",
       "logs": "Journaux",
       "reports": "Rapports"
+    },
+    "analytics": {
+      "title": "Tableau de Bord Analytique",
+      "subtitle": "Métriques et insights complets de la plateforme",
+      "userGrowth": "Croissance des Utilisateurs",
+      "mediaUploads": "Téléchargements de Médias",
+      "albumCreation": "Création d'Albums",
+      "userEngagement": "Engagement des Utilisateurs",
+      "platformOverview": "Vue d'Ensemble de la Plateforme",
+      "totalUsers": "Total Utilisateurs",
+      "totalMedia": "Total Médias",
+      "totalAlbums": "Total Albums",
+      "totalInteractions": "Total Interactions",
+      "newUsers": "Nouveaux Utilisateurs",
+      "newMedia": "Nouveaux Médias",
+      "newAlbums": "Nouveaux Albums",
+      "newLikes": "Nouveaux Likes",
+      "activeUsers": "Utilisateurs Actifs",
+      "granularity": {
+        "hourly": "Par Heure",
+        "daily": "Quotidien",
+        "weekly": "Hebdomadaire",
+        "monthly": "Mensuel"
+      },
+      "lastUpdated": "Dernière mise à jour",
+      "dataPoints": "points de données",
+      "noDataAvailable": "Aucune donnée disponible pour cette période",
+      "failedToLoad": "Échec du chargement des analytiques",
+      "refresh": "Actualiser"
     },
     "roles": {
       "admin": "Administrateur",
