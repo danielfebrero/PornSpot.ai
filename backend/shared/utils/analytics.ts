@@ -2,6 +2,7 @@ import {
   QueryCommand,
   PutCommand,
   BatchWriteCommand,
+  ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
@@ -164,15 +165,16 @@ export async function calculateUserMetrics(
     );
     metrics.totalUsers = totalUsersResult.Count || 0;
 
-    // Get new users in time range
+    // Get new users in time range - use GSI3 to get all users then filter
     const newUsersResult = await docClient.send(
       new QueryCommand({
         TableName: TABLE_NAME,
-        KeyConditionExpression: "begins_with(PK, :pk)",
+        IndexName: "GSI3",
+        KeyConditionExpression: "GSI3PK = :pk",
         FilterExpression:
           "createdAt BETWEEN :start AND :end AND EntityType = :type",
         ExpressionAttributeValues: {
-          ":pk": "USER#",
+          ":pk": "USER_USERNAME",
           ":start": startTime,
           ":end": endTime,
           ":type": "User",
@@ -182,15 +184,16 @@ export async function calculateUserMetrics(
     );
     metrics.newUsers = newUsersResult.Count || 0;
 
-    // Get active users (users with recent activity)
+    // Get active users (users with recent activity) - use GSI3 to get all users then filter
     const activeUsersResult = await docClient.send(
       new QueryCommand({
         TableName: TABLE_NAME,
-        KeyConditionExpression: "begins_with(PK, :pk)",
+        IndexName: "GSI3",
+        KeyConditionExpression: "GSI3PK = :pk",
         FilterExpression:
           "lastActive BETWEEN :start AND :end AND EntityType = :type",
         ExpressionAttributeValues: {
-          ":pk": "USER#",
+          ":pk": "USER_USERNAME",
           ":start": startTime,
           ":end": endTime,
           ":type": "User",
@@ -351,13 +354,12 @@ export async function calculateInteractionMetrics(
   const metrics: Partial<AnalyticsMetrics> = {};
 
   try {
-    // Count likes
+    // Count likes - use Scan since we need to filter by PK prefix
     const likesResult = await docClient.send(
-      new QueryCommand({
+      new ScanCommand({
         TableName: TABLE_NAME,
-        KeyConditionExpression: "begins_with(PK, :pk)",
         FilterExpression:
-          "begins_with(SK, :sk) AND createdAt BETWEEN :start AND :end",
+          "begins_with(PK, :pk) AND begins_with(SK, :sk) AND createdAt BETWEEN :start AND :end",
         ExpressionAttributeValues: {
           ":pk": "USER#",
           ":sk": "INTERACTION#like#",
@@ -369,13 +371,12 @@ export async function calculateInteractionMetrics(
     );
     metrics.newLikes = likesResult.Count || 0;
 
-    // Count bookmarks
+    // Count bookmarks - use Scan since we need to filter by PK prefix
     const bookmarksResult = await docClient.send(
-      new QueryCommand({
+      new ScanCommand({
         TableName: TABLE_NAME,
-        KeyConditionExpression: "begins_with(PK, :pk)",
         FilterExpression:
-          "begins_with(SK, :sk) AND createdAt BETWEEN :start AND :end",
+          "begins_with(PK, :pk) AND begins_with(SK, :sk) AND createdAt BETWEEN :start AND :end",
         ExpressionAttributeValues: {
           ":pk": "USER#",
           ":sk": "INTERACTION#bookmark#",
