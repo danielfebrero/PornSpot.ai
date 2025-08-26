@@ -20,6 +20,7 @@ import {
   AnalyticsDataPoint,
   AnalyticsSummary,
   AdminDashboardStats,
+  MetricTypeWithAll,
 } from "@shared/shared-types";
 import {
   queryAnalytics,
@@ -87,13 +88,14 @@ function validateQueryParams(event: APIGatewayProxyEvent): {
   }
 
   // Validate metric type
-  const validMetricTypes: MetricType[] = [
+  const validMetricTypes: MetricTypeWithAll[] = [
     "users",
     "media",
     "albums",
     "interactions",
+    "all",
   ];
-  if (!validMetricTypes.includes(metricType as MetricType)) {
+  if (!validMetricTypes.includes(metricType as MetricTypeWithAll)) {
     return {
       isValid: false,
       error: `Invalid metricType. Must be one of: ${validMetricTypes.join(
