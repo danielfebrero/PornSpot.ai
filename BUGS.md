@@ -93,3 +93,5 @@
 [ ] Creating media/album should not invalidate the Discover cache. It should only optimistically remove deleted content.
 
 [ ] Admin Users load more is not working.
+
+[ ] On Generate page, cannot change the seed.

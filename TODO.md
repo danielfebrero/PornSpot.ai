@@ -95,3 +95,9 @@
 [ ] Ability to follow users.
 
 [ ] Button to delete the prompt.
+
+[ ] Remember user preferences on Generate page.
+
+[ ] Support anthropomorphic characters on Generate page.
+
+[ ] Add anime LoRA support on Generate page.
