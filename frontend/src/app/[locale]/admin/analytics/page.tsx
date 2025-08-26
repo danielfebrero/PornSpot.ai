@@ -48,7 +48,6 @@ type Granularity = "hourly" | "daily" | "weekly" | "monthly";
 export default function AnalyticsPage() {
   const t = useTranslations("admin.analytics");
   const tGranularity = useTranslations("admin.analytics.granularity");
-  const { user } = useAdminContext();
   const [selectedGranularity, setSelectedGranularity] =
     useState<Granularity>("daily");
 
