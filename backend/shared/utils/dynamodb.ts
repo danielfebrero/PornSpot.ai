@@ -3550,7 +3550,7 @@ export class DynamoDBService {
   }> {
     const queryParams: QueryCommandInput = {
       TableName: TABLE_NAME,
-      IndexName: "GSI1PK-GSI1SK-index",
+      IndexName: "GSI1",
       KeyConditionExpression: "GSI1PK = :gsi1pk",
       ExpressionAttributeValues: {
         ":gsi1pk": `USER#${userId}#NOTIFICATIONS`,
@@ -3566,8 +3566,7 @@ export class DynamoDBService {
     }
 
     const result = await docClient.send(new QueryCommand(queryParams));
-    const notificationEntities = (result.Items ||
-      []) as import("@shared/shared-types").NotificationEntity[];
+    const notificationEntities = (result.Items || []) as NotificationEntity[];
 
     // Collect IDs for batch operations
     const unreadNotificationIds: string[] = [];
@@ -3643,7 +3642,7 @@ export class DynamoDBService {
   static async getUnreadNotificationCount(userId: string): Promise<number> {
     const params: QueryCommandInput = {
       TableName: TABLE_NAME,
-      IndexName: "GSI2PK-GSI2SK-index",
+      IndexName: "GSI2",
       KeyConditionExpression: "GSI2PK = :gsi2pk",
       ExpressionAttributeValues: {
         ":gsi2pk": `USER#${userId}#NOTIFICATIONS#unread`,
