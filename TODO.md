@@ -100,4 +100,4 @@
 
 [ ] Support anthropomorphic characters on Generate page.
 
-[ ] Add anime LoRA support on Generate page.
+[ ] Add anime LoRA support on Generate page: https://civitai.com/models/126750/animelora-sdxl

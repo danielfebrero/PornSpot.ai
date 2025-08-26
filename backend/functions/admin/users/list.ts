@@ -2,8 +2,11 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
-import { PaginationUtil } from "@shared/utils/pagination";
-
+import {
+  PaginationUtil,
+  DEFAULT_PAGINATION_LIMITS,
+  MAX_PAGINATION_LIMITS,
+} from "@shared/utils/pagination";
 /**
  * List all users for admin management
  */
@@ -13,13 +16,23 @@ const handleAdminUsersList = async (
   console.log("🔍 /admin/users/list handler called");
 
   try {
-    // Get pagination parameters
-    const limit = parseInt(event.queryStringParameters?.["limit"] || "50");
-    const lastEvaluatedKey = event.queryStringParameters?.["lastEvaluatedKey"]
-      ? JSON.parse(
-          decodeURIComponent(event.queryStringParameters["lastEvaluatedKey"])
-        )
-      : undefined;
+    // Parse pagination parameters using unified utility
+    let paginationParams;
+    try {
+      paginationParams = PaginationUtil.parseRequestParams(
+        event.queryStringParameters as Record<string, string> | null,
+        DEFAULT_PAGINATION_LIMITS.admin,
+        MAX_PAGINATION_LIMITS.admin
+      );
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Invalid pagination parameters";
+      return ResponseUtil.badRequest(event, errorMessage);
+    }
+
+    const { cursor: lastEvaluatedKey, limit } = paginationParams;
 
     console.log(`📋 Admin requesting user list, limit: ${limit}`);
 
