@@ -1064,6 +1064,35 @@
       "backToLogin": "Zurück zur Anmeldung",
       "invalidLink": "Ungültiger Link",
       "makeSureCompleteLink": "Bitte stellen Sie sicher, dass Sie den vollständigen Verifizierungslink aus Ihrer E-Mail verwenden."
+    },
+    "notifications": {
+      "title": "Benachrichtigungen",
+      "description": "Bleiben Sie über Ihre neuesten Aktivitäten und Interaktionen informiert",
+      "count": "{count, plural, =0 {0 Benachrichtigungen} =1 {1 Benachrichtigung} other {# Benachrichtigungen}}",
+      "like": "<userLink>{username}</userLink> hat Ihr <contentLink>{type}: {title}</contentLink> geliked",
+      "likeNoTitle": "<userLink>{username}</userLink> hat Ihr <contentLink>{type}</contentLink> geliked",
+      "comment": "<userLink>{username}</userLink> hat Ihr <contentLink>{type}: {title}</contentLink> kommentiert",
+      "commentNoTitle": "<userLink>{username}</userLink> hat Ihr <contentLink>{type}</contentLink> kommentiert",
+      "bookmark": "<userLink>{username}</userLink> hat Ihr <contentLink>{type}: {title}</contentLink> als Lesezeichen gesetzt",
+      "bookmarkNoTitle": "<userLink>{username}</userLink> hat Ihr <contentLink>{type}</contentLink> als Lesezeichen gesetzt",
+      "types": {
+        "album": "Album",
+        "media": "Medium",
+        "comment": "Kommentar"
+      },
+      "unknownUser": "Unbekannter Benutzer",
+      "error": {
+        "title": "Fehler beim Laden der Benachrichtigungen",
+        "message": "Benachrichtigungen konnten nicht geladen werden. Bitte versuchen Sie es erneut."
+      },
+      "empty": {
+        "title": "Noch keine Benachrichtigungen",
+        "description": "Hier sehen Sie Benachrichtigungen, wenn Personen mit Ihrem Inhalt interagieren."
+      },
+      "loading": {
+        "loadingMore": "Weitere Benachrichtigungen werden geladen...",
+        "noMore": "Keine weiteren Benachrichtigungen"
+      }
     }
   },
   "media": {

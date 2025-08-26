@@ -59,4 +59,5 @@ export interface WorkflowFinalParams {
   prompt: string;
   negativePrompt: string;
   seed?: number;
+  isPublic?: boolean;
 }

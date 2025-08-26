@@ -1064,6 +1064,35 @@
       "backToLogin": "Volver al inicio de sesión",
       "invalidLink": "Enlace inválido",
       "makeSureCompleteLink": "Por favor asegúrese de estar usando el enlace de verificación completo de su correo electrónico."
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "description": "Mantente actualizado con tus últimas actividades e interacciones",
+      "count": "{count, plural, =0 {0 notificaciones} =1 {1 notificación} other {# notificaciones}}",
+      "like": "<userLink>{username}</userLink> le gustó tu <contentLink>{type}: {title}</contentLink>",
+      "likeNoTitle": "<userLink>{username}</userLink> le gustó tu <contentLink>{type}</contentLink>",
+      "comment": "<userLink>{username}</userLink> comentó en tu <contentLink>{type}: {title}</contentLink>",
+      "commentNoTitle": "<userLink>{username}</userLink> comentó en tu <contentLink>{type}</contentLink>",
+      "bookmark": "<userLink>{username}</userLink> guardó tu <contentLink>{type}: {title}</contentLink>",
+      "bookmarkNoTitle": "<userLink>{username}</userLink> guardó tu <contentLink>{type}</contentLink>",
+      "types": {
+        "album": "álbum",
+        "media": "medio",
+        "comment": "comentario"
+      },
+      "unknownUser": "Usuario desconocido",
+      "error": {
+        "title": "Error cargando notificaciones",
+        "message": "No se pudieron cargar las notificaciones. Por favor inténtalo de nuevo."
+      },
+      "empty": {
+        "title": "Aún no hay notificaciones",
+        "description": "Verás notificaciones aquí cuando las personas interactúen con tu contenido."
+      },
+      "loading": {
+        "loadingMore": "Cargando más notificaciones...",
+        "noMore": "No hay más notificaciones"
+      }
     }
   },
   "media": {

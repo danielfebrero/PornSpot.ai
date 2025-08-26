@@ -87,13 +87,17 @@ const handleBookmarkInteraction = async (
 
     await DynamoDBService.createUserInteraction(interaction);
 
-    // Increment bookmark count for the target using shared utility
+    // Get target details and increment bookmark count for the target using shared utility
+    let album, media;
+    let targetCreatorId: string | undefined;
+
     if (targetType === "album") {
       await CounterUtil.incrementAlbumBookmarkCount(targetId, 1);
 
       // Get album creator and increment their totalBookmarksReceived metric
-      const album = await DynamoDBService.getAlbum(targetId);
+      album = await DynamoDBService.getAlbum(targetId);
       if (album?.createdBy) {
+        targetCreatorId = album.createdBy;
         try {
           await DynamoDBService.incrementUserProfileMetric(
             album.createdBy,
@@ -113,8 +117,9 @@ const handleBookmarkInteraction = async (
       await CounterUtil.incrementMediaBookmarkCount(targetId, 1);
 
       // Get media creator and increment their totalBookmarksReceived metric
-      const media = await DynamoDBService.getMedia(targetId);
+      media = await DynamoDBService.getMedia(targetId);
       if (media?.createdBy) {
+        targetCreatorId = media.createdBy;
         try {
           await DynamoDBService.incrementUserProfileMetric(
             media.createdBy,
@@ -129,6 +134,24 @@ const handleBookmarkInteraction = async (
             error
           );
         }
+      }
+    }
+
+    // Create notification for the target user
+    if (targetCreatorId) {
+      try {
+        await DynamoDBService.createNotification(
+          targetCreatorId,
+          userId,
+          "bookmark",
+          targetType as "album" | "media",
+          targetId
+        );
+        console.log(
+          `📬 Created bookmark notification for user ${targetCreatorId}`
+        );
+      } catch (error) {
+        console.warn(`⚠️ Failed to create bookmark notification:`, error);
       }
     }
 

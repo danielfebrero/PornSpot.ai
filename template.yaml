@@ -1785,6 +1785,66 @@ Resources:
         - DynamoDBWritePolicy:
             TableName: !Ref MediaTable
 
+  UserNotificationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-notifications-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/notifications.handler"]
+      Events:
+        GetNotifications:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/notifications
+            Method: GET
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsNotifications:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/notifications
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+
+  UserCountUnreadNotificationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-count-unread-notifications-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/count-unread-notifications.handler"]
+      Events:
+        GetUnreadCount:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/count-unread-notifications
+            Method: GET
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsUnreadCount:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/count-unread-notifications
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
   UserAvatarUploadFunction:
     Type: AWS::Serverless::Function
     Properties:

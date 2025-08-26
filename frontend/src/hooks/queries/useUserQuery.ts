@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { userApi } from "@/lib/api";
 import { queryKeys, queryClient, invalidateQueries } from "@/lib/queryClient";
 import { useUserContext } from "@/contexts/UserContext";
@@ -7,48 +7,9 @@ import {
   UserRegistrationRequest,
   UserProfileUpdateRequest,
   UserMeResponse,
+  GetNotificationsRequest,
+  UnifiedNotificationsResponse,
 } from "@/types";
-
-// Hook for fetching current user profile
-// export function useUserProfile() {
-//   const userContext = useUserContext();
-
-//   return useQuery({
-//     queryKey: queryKeys.user.profile(),
-//     queryFn: async () => {
-//       return await userApi.me();
-//     },
-//     // Keep user profile fresh for 5 minutes
-//     staleTime: () => {
-//       // If we have user data, keep fresh for 5 minutes
-//       return 5 * 60 * 1000;
-//     },
-//     // Only refetch on window focus if we don't have authentication errors
-//     refetchOnWindowFocus: () => {
-//       return true;
-//     },
-//     // Don't retry authentication errors
-//     retry: false,
-//     // Prevent automatic queries when UserContext indicates no authentication
-//     enabled: (() => {
-//       // If UserContext is still initializing, wait for it
-//       // if (userContext?.initializing) {
-//       //   return false;
-//       // }
-
-//       // If UserContext has definitively determined there's no user and isn't loading,
-//       // and we don't already have cached data, don't query
-//       if (!userContext?.user && !userContext?.loading) {
-//         return false;
-//       }
-
-//       // Otherwise, allow the query to proceed
-//       return true;
-//     })(),
-//     // If UserContext already has user data, initialize the cache with it
-//     initialData: userContext?.user ? { user: userContext.user } : undefined,
-//   });
-// }
 
 // Hook for updating user profile
 export function useUpdateUserProfile() {
@@ -194,5 +155,58 @@ export function useCheckAuth() {
       // Update cache with fresh user data
       queryClient.setQueryData(queryKeys.user.profile(), data);
     },
+  });
+}
+
+// Hook for fetching user notifications
+export function useNotifications(params?: GetNotificationsRequest) {
+  const { user } = useUserContext();
+
+  return useInfiniteQuery({
+    queryKey: queryKeys.user.notifications.list(params),
+    queryFn: async () => {
+      return await userApi.getNotifications(params);
+    },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage: UnifiedNotificationsResponse) => {
+      return lastPage.pagination.hasNext
+        ? lastPage.pagination.cursor
+        : undefined;
+    },
+
+    // Notifications should be fresh for 1 minute
+    staleTime: 1 * 60 * 1000,
+    // Keep notifications in cache for 5 minutes
+    gcTime: 5 * 60 * 1000,
+    // Enable background refetching
+    refetchOnWindowFocus: true,
+    // Only fetch if user is logged in
+    enabled: !!user,
+    // Retry on failures
+    retry: 2,
+  });
+}
+
+// Hook for fetching unread notification count
+export function useUnreadNotificationCount() {
+  const { user } = useUserContext();
+
+  return useQuery({
+    queryKey: queryKeys.user.notifications.unreadCount(),
+    queryFn: async () => {
+      return await userApi.getUnreadNotificationCount();
+    },
+    // Count should be fresh for 30 seconds
+    staleTime: 30 * 1000,
+    // Keep count in cache for 2 minutes
+    gcTime: 2 * 60 * 1000,
+    // Enable background refetching to keep count up to date
+    refetchOnWindowFocus: true,
+    // Refetch interval to keep count updated (every 30 seconds)
+    refetchInterval: 30 * 1000,
+    // Only fetch if user is logged in
+    enabled: !!user,
+    // Retry on failures
+    retry: 2,
   });
 }

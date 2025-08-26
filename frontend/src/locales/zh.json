@@ -1066,6 +1066,35 @@
       "backToLogin": "返回登录",
       "invalidLink": "无效链接",
       "makeSureCompleteLink": "请确保您使用的是邮件中完整的验证链接。"
+    },
+    "notifications": {
+      "title": "通知",
+      "description": "了解您的最新活动和互动",
+      "count": "{count, plural, =0 {0 条通知} =1 {1 条通知} other {# 条通知}}",
+      "like": "<userLink>{username}</userLink> 点赞了您的 <contentLink>{type}: {title}</contentLink>",
+      "likeNoTitle": "<userLink>{username}</userLink> 点赞了您的 <contentLink>{type}</contentLink>",
+      "comment": "<userLink>{username}</userLink> 评论了您的 <contentLink>{type}: {title}</contentLink>",
+      "commentNoTitle": "<userLink>{username}</userLink> 评论了您的 <contentLink>{type}</contentLink>",
+      "bookmark": "<userLink>{username}</userLink> 收藏了您的 <contentLink>{type}: {title}</contentLink>",
+      "bookmarkNoTitle": "<userLink>{username}</userLink> 收藏了您的 <contentLink>{type}</contentLink>",
+      "types": {
+        "album": "相册",
+        "media": "媒体",
+        "comment": "评论"
+      },
+      "unknownUser": "未知用户",
+      "error": {
+        "title": "加载通知时出错",
+        "message": "无法加载通知。请重试。"
+      },
+      "empty": {
+        "title": "暂无通知",
+        "description": "当有人与您的内容互动时，您会在这里看到通知。"
+      },
+      "loading": {
+        "loadingMore": "正在加载更多通知...",
+        "noMore": "没有更多通知"
+      }
     }
   },
   "media": {

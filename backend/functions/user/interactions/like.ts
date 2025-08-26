@@ -117,13 +117,17 @@ const handleLikeInteraction = async (
 
     await DynamoDBService.createUserInteraction(interaction);
 
-    // Increment like count for the target using shared utility
+    // Get target details and increment like count for the target using shared utility
+    let album, media, comment;
+    let targetCreatorId: string | undefined;
+
     if (targetType === "album") {
       await CounterUtil.incrementAlbumLikeCount(targetId, 1);
 
       // Get album creator and increment their totalLikesReceived metric
-      const album = await DynamoDBService.getAlbum(targetId);
+      album = await DynamoDBService.getAlbum(targetId);
       if (album?.createdBy) {
+        targetCreatorId = album.createdBy;
         try {
           await DynamoDBService.incrementUserProfileMetric(
             album.createdBy,
@@ -143,8 +147,9 @@ const handleLikeInteraction = async (
       await CounterUtil.incrementMediaLikeCount(targetId, 1);
 
       // Get media creator and increment their totalLikesReceived metric
-      const media = await DynamoDBService.getMedia(targetId);
+      media = await DynamoDBService.getMedia(targetId);
       if (media?.createdBy) {
+        targetCreatorId = media.createdBy;
         try {
           await DynamoDBService.incrementUserProfileMetric(
             media.createdBy,
@@ -164,8 +169,9 @@ const handleLikeInteraction = async (
       await CounterUtil.incrementCommentLikeCount(targetId, 1);
 
       // Get comment creator and increment their totalLikesReceived metric
-      const comment = await DynamoDBService.getComment(targetId);
+      comment = await DynamoDBService.getComment(targetId);
       if (comment?.userId) {
+        targetCreatorId = comment.userId;
         try {
           await DynamoDBService.incrementUserProfileMetric(
             comment.userId,
@@ -180,6 +186,22 @@ const handleLikeInteraction = async (
             error
           );
         }
+      }
+    }
+
+    // Create notification for the target user
+    if (targetCreatorId) {
+      try {
+        await DynamoDBService.createNotification(
+          targetCreatorId,
+          userId,
+          "like",
+          targetType as "album" | "media" | "comment",
+          targetId
+        );
+        console.log(`📬 Created like notification for user ${targetCreatorId}`);
+      } catch (error) {
+        console.warn(`⚠️ Failed to create like notification:`, error);
       }
     }
 

@@ -8,6 +8,8 @@ import {
   UpdateCommand,
   DeleteCommand,
   BatchWriteCommand,
+  BatchGetCommand,
+  TransactWriteCommand,
 } from "@aws-sdk/lib-dynamodb";
 import {
   Album,
@@ -18,6 +20,8 @@ import {
   AlbumTagEntity,
   CommentEntity,
   ThumbnailUrls,
+  NotificationEntity,
+  NotificationWithDetails,
 } from "@shared/shared-types";
 import {
   UserEntity,
@@ -28,6 +32,7 @@ import {
 } from "@shared/shared-types";
 import { ConnectionEntity } from "@shared/shared-types/websocket";
 import { CounterUtil } from "./counter";
+import { v4 as uuidv4 } from "uuid";
 
 const isLocal = process.env["AWS_SAM_LOCAL"] === "true";
 
@@ -3480,5 +3485,352 @@ export class DynamoDBService {
     );
 
     return (result.Item as UserEntity) || null;
+  }
+
+  // ===================== NOTIFICATION FUNCTIONS =====================
+
+  /**
+   * Create a notification for a user interaction
+   */
+  static async createNotification(
+    targetUserId: string,
+    sourceUserId: string,
+    notificationType: "like" | "comment" | "bookmark",
+    targetType: "album" | "media" | "comment",
+    targetId: string
+  ): Promise<void> {
+    // Don't create notification if user is interacting with their own content
+    if (targetUserId === sourceUserId) {
+      return;
+    }
+
+    const notificationId = uuidv4();
+    const now = new Date().toISOString();
+
+    const notification: NotificationEntity = {
+      PK: `NOTIFICATION#${notificationId}`,
+      SK: "METADATA",
+      GSI1PK: `USER#${targetUserId}#NOTIFICATIONS`,
+      GSI1SK: `${now}#unread#${notificationId}`, // Sort by date, then status
+      GSI2PK: `USER#${targetUserId}#NOTIFICATIONS#unread`,
+      GSI2SK: `${now}#${notificationId}`, // For efficient unread counting
+      EntityType: "Notification",
+      notificationId,
+      targetUserId,
+      sourceUserId,
+      notificationType,
+      targetType,
+      targetId,
+      status: "unread",
+      createdAt: now,
+    };
+
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: notification,
+      })
+    );
+
+    console.log(
+      `📬 Created notification: ${notificationType} for ${targetUserId} from ${sourceUserId}`
+    );
+  }
+
+  /**
+   * Get notifications for a user (automatically marks them as read)
+   */
+  static async getNotificationsForUser(
+    userId: string,
+    limit: number = 20,
+    cursor?: string
+  ): Promise<{
+    notifications: NotificationWithDetails[];
+    lastEvaluatedKey?: Record<string, any>;
+  }> {
+    const queryParams: QueryCommandInput = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI1PK-GSI1SK-index",
+      KeyConditionExpression: "GSI1PK = :gsi1pk",
+      ExpressionAttributeValues: {
+        ":gsi1pk": `USER#${userId}#NOTIFICATIONS`,
+      },
+      ScanIndexForward: false, // Most recent first
+      Limit: limit,
+    };
+
+    if (cursor) {
+      queryParams.ExclusiveStartKey = JSON.parse(
+        Buffer.from(cursor, "base64").toString()
+      );
+    }
+
+    const result = await docClient.send(new QueryCommand(queryParams));
+    const notificationEntities = (result.Items ||
+      []) as import("@shared/shared-types").NotificationEntity[];
+
+    // Collect IDs for batch operations
+    const unreadNotificationIds: string[] = [];
+    const sourceUserIds = new Set<string>();
+    const targetIds = new Map<string, { type: string; id: string }>();
+
+    notificationEntities.forEach((notification) => {
+      if (notification.status === "unread") {
+        unreadNotificationIds.push(notification.notificationId);
+      }
+      sourceUserIds.add(notification.sourceUserId);
+      targetIds.set(notification.targetId, {
+        type: notification.targetType,
+        id: notification.targetId,
+      });
+    });
+
+    // Batch mark unread notifications as read
+    if (unreadNotificationIds.length > 0) {
+      await this.markNotificationsAsRead(userId, unreadNotificationIds);
+    }
+
+    // Fetch source usernames and target details in parallel
+    const [sourceUsers, targetDetails] = await Promise.all([
+      this.getUsersBatch([...sourceUserIds]),
+      this.getTargetDetailsBatch([...targetIds.values()]),
+    ]);
+
+    // Enrich notifications with details
+    const enrichedNotifications: NotificationWithDetails[] =
+      notificationEntities.map((notification) => {
+        const sourceUser = sourceUsers.find(
+          (u) => u?.userId === notification.sourceUserId
+        );
+        const targetDetail = targetDetails.get(notification.targetId);
+
+        const enriched: NotificationWithDetails = {
+          notificationId: notification.notificationId,
+          targetUserId: notification.targetUserId,
+          sourceUserId: notification.sourceUserId,
+          notificationType: notification.notificationType,
+          targetType: notification.targetType,
+          targetId: notification.targetId,
+          status: notification.status,
+          createdAt: notification.createdAt,
+          readAt: notification.readAt || new Date().toISOString(),
+          sourceUsername: sourceUser?.username,
+          targetTitle: targetDetail?.title,
+        };
+
+        // Add comment target info if this is a comment notification
+        if (
+          notification.targetType === "comment" &&
+          targetDetail?.commentTargetType &&
+          targetDetail?.commentTargetId
+        ) {
+          enriched.commentTargetType = targetDetail.commentTargetType;
+          enriched.commentTargetId = targetDetail.commentTargetId;
+        }
+
+        return enriched;
+      });
+
+    return {
+      notifications: enrichedNotifications,
+      lastEvaluatedKey: result.LastEvaluatedKey,
+    };
+  }
+
+  /**
+   * Get unread notification count for a user
+   */
+  static async getUnreadNotificationCount(userId: string): Promise<number> {
+    const params: QueryCommandInput = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI2PK-GSI2SK-index",
+      KeyConditionExpression: "GSI2PK = :gsi2pk",
+      ExpressionAttributeValues: {
+        ":gsi2pk": `USER#${userId}#NOTIFICATIONS#unread`,
+      },
+      Select: "COUNT",
+    };
+
+    const result = await docClient.send(new QueryCommand(params));
+    return result.Count || 0;
+  }
+
+  /**
+   * Mark multiple notifications as read
+   */
+  private static async markNotificationsAsRead(
+    userId: string,
+    notificationIds: string[]
+  ): Promise<void> {
+    const now = new Date().toISOString();
+    const batchSize = 25; // DynamoDB limit
+
+    for (let i = 0; i < notificationIds.length; i += batchSize) {
+      const batch = notificationIds.slice(i, i + batchSize);
+      const updateRequests = batch.map((notificationId) => ({
+        Update: {
+          TableName: TABLE_NAME,
+          Key: {
+            PK: `NOTIFICATION#${notificationId}`,
+            SK: "METADATA",
+          },
+          UpdateExpression:
+            "SET #status = :read, readAt = :readAt, GSI1SK = :gsi1sk, GSI2PK = :gsi2pk",
+          ExpressionAttributeNames: {
+            "#status": "status",
+          },
+          ExpressionAttributeValues: {
+            ":read": "read",
+            ":readAt": now,
+            ":gsi1sk": `${now}#read#${notificationId}`,
+            ":gsi2pk": `USER#${userId}#NOTIFICATIONS#read`,
+          },
+        },
+      }));
+
+      await docClient.send(
+        new TransactWriteCommand({
+          TransactItems: updateRequests,
+        })
+      );
+    }
+
+    console.log(
+      `✅ Marked ${notificationIds.length} notifications as read for user ${userId}`
+    );
+  }
+
+  /**
+   * Get users by batch for enriching notifications
+   */
+  private static async getUsersBatch(
+    userIds: string[]
+  ): Promise<(UserEntity | null)[]> {
+    if (userIds.length === 0) return [];
+
+    const batchSize = 100; // DynamoDB BatchGet limit
+    const allUsers: (UserEntity | null)[] = [];
+
+    for (let i = 0; i < userIds.length; i += batchSize) {
+      const batch = userIds.slice(i, i + batchSize);
+      const requestItems = batch.map((userId) => ({
+        PK: `USER#${userId}`,
+        SK: "PROFILE",
+      }));
+
+      const result = await docClient.send(
+        new BatchGetCommand({
+          RequestItems: {
+            [TABLE_NAME]: {
+              Keys: requestItems,
+            },
+          },
+        })
+      );
+
+      const batchUsers = (result.Responses?.[TABLE_NAME] || []) as UserEntity[];
+
+      // Maintain order and include nulls for missing users
+      batch.forEach((userId) => {
+        const user = batchUsers.find((u) => u.userId === userId);
+        allUsers.push(user || null);
+      });
+    }
+
+    return allUsers;
+  }
+
+  /**
+   * Get target details (title, comment info) for notifications
+   */
+  private static async getTargetDetailsBatch(
+    targets: { type: string; id: string }[]
+  ): Promise<
+    Map<
+      string,
+      {
+        title?: string;
+        commentTargetType?: "album" | "media";
+        commentTargetId?: string;
+      }
+    >
+  > {
+    const details = new Map<
+      string,
+      {
+        title?: string;
+        commentTargetType?: "album" | "media";
+        commentTargetId?: string;
+      }
+    >();
+
+    if (targets.length === 0) return details;
+
+    const batchSize = 100;
+    for (let i = 0; i < targets.length; i += batchSize) {
+      const batch = targets.slice(i, i + batchSize);
+      const requestItems = batch
+        .map((target) => {
+          if (target.type === "album") {
+            return { PK: `ALBUM#${target.id}`, SK: "METADATA" };
+          } else if (target.type === "media") {
+            return { PK: `MEDIA#${target.id}`, SK: "METADATA" };
+          } else if (target.type === "comment") {
+            return { PK: `COMMENT#${target.id}`, SK: "METADATA" };
+          }
+          return null;
+        })
+        .filter((item): item is { PK: string; SK: string } => item !== null);
+
+      if (requestItems.length === 0) continue;
+
+      const result = await docClient.send(
+        new BatchGetCommand({
+          RequestItems: {
+            [TABLE_NAME]: {
+              Keys: requestItems,
+            },
+          },
+        })
+      );
+
+      const items = result.Responses?.[TABLE_NAME] || [];
+
+      items.forEach((item: any) => {
+        let targetId: string | undefined;
+        let title: string | undefined;
+        let commentTargetType: "album" | "media" | undefined;
+        let commentTargetId: string | undefined;
+
+        if (item.EntityType === "Album") {
+          targetId = item.id;
+          title = item.title;
+        } else if (item.EntityType === "Media") {
+          targetId = item.id;
+          title = item.title;
+        } else if (item.EntityType === "Comment") {
+          targetId = item.id; // Use comment id, not commentId
+          title =
+            item.content?.substring(0, 50) +
+            (item.content?.length > 50 ? "..." : "");
+          // Add comment target information
+          commentTargetType = item.targetType as "album" | "media";
+          commentTargetId = item.targetId;
+        }
+
+        if (targetId) {
+          details.set(targetId, {
+            title,
+            ...(commentTargetType &&
+              commentTargetId && {
+                commentTargetType,
+                commentTargetId,
+              }),
+          });
+        }
+      });
+    }
+
+    return details;
   }
 }

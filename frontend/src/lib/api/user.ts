@@ -12,6 +12,9 @@ import {
   ForgotPasswordResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
+  GetNotificationsRequest,
+  UnreadCountResponse,
+  UnifiedNotificationsResponse,
 } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -240,6 +243,29 @@ export const userApi = {
       valid: boolean;
       message?: string;
     }>("/user/auth/invite-code", { code });
+    return ApiUtil.extractData(response);
+  },
+
+  // Get user notifications (with automatic read marking)
+  getNotifications: async (
+    params?: GetNotificationsRequest
+  ): Promise<UnifiedNotificationsResponse> => {
+    const searchParams = new URLSearchParams();
+    if (params?.cursor) searchParams.append("cursor", params.cursor);
+    if (params?.limit) searchParams.append("limit", params.limit.toString());
+
+    const url = `/user/notifications${
+      searchParams.toString() ? `?${searchParams.toString()}` : ""
+    }`;
+    const response = await ApiUtil.get<UnifiedNotificationsResponse>(url);
+    return ApiUtil.extractData(response);
+  },
+
+  // Get count of unread notifications
+  getUnreadNotificationCount: async (): Promise<UnreadCountResponse> => {
+    const response = await ApiUtil.get<UnreadCountResponse>(
+      "/user/count-unread-notifications"
+    );
     return ApiUtil.extractData(response);
   },
 };

@@ -1,4 +1,9 @@
-import type { Album, ApiResponse, Media } from "@/types/shared-types";
+import type {
+  Album,
+  ApiResponse,
+  Media,
+  NotificationWithDetails,
+} from "@/types/shared-types";
 export type { Album, ApiResponse, Media } from "@/types/shared-types";
 
 // Re-export shared types from the shared types package
@@ -25,6 +30,11 @@ export interface UnifiedAlbumsResponse {
 
 export interface UnifiedMediaResponse {
   media: Media[];
+  pagination: UnifiedPaginationMeta;
+}
+
+export interface UnifiedNotificationsResponse {
+  notifications: NotificationWithDetails[];
   pagination: UnifiedPaginationMeta;
 }
 

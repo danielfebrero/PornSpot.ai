@@ -126,6 +126,31 @@ async function createComment(
     await DynamoDBService.incrementMediaCommentCount(targetId, 1);
   }
 
+  // Create notification for the target creator
+  let targetCreatorId: string | undefined;
+  if (targetType === "album" && album?.createdBy) {
+    targetCreatorId = album.createdBy;
+  } else if (targetType === "media" && media?.createdBy) {
+    targetCreatorId = media.createdBy;
+  }
+
+  if (targetCreatorId) {
+    try {
+      await DynamoDBService.createNotification(
+        targetCreatorId,
+        userId,
+        "comment",
+        targetType as "album" | "media",
+        targetId
+      );
+      console.log(
+        `📬 Created comment notification for user ${targetCreatorId}`
+      );
+    } catch (error) {
+      console.warn(`⚠️ Failed to create comment notification:`, error);
+    }
+  }
+
   // Trigger page revalidation for the target
   if (targetType === "media") {
     await RevalidationService.revalidateMedia(targetId);

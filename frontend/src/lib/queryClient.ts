@@ -104,6 +104,12 @@ export const queryKeys = {
       ) => ["user", "interactions", "status", targets] as const,
       insights: () => ["user", "interactions", "insights"] as const,
     },
+    notifications: {
+      all: () => ["user", "notifications"] as const,
+      list: (params?: { cursor?: string; limit?: number }) =>
+        ["user", "notifications", "list", params] as const,
+      unreadCount: () => ["user", "notifications", "unreadCount"] as const,
+    },
   },
 
   // Album-related queries
@@ -197,6 +203,18 @@ export const invalidateQueries = {
   userInteractions: () =>
     queryClient.invalidateQueries({
       queryKey: queryKeys.user.interactions.all(),
+    }),
+
+  // Invalidate user notifications
+  userNotifications: () =>
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.user.notifications.all(),
+    }),
+
+  // Invalidate unread notification count
+  userNotificationCount: () =>
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.user.notifications.unreadCount(),
     }),
 
   // Invalidate specific album

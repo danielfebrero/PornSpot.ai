@@ -862,6 +862,35 @@
       "loadingMoreLikes": "Chargement de plus de j'aime...",
       "allLikesLoaded": "Tous vos j'aime sont chargés"
     },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Restez informé de vos dernières activités et interactions",
+      "count": "{count, plural, =0 {0 notification} =1 {1 notification} other {# notifications}}",
+      "like": "<userLink>{username}</userLink> a aimé votre <contentLink>{type} : {title}</contentLink>",
+      "likeNoTitle": "<userLink>{username}</userLink> a aimé votre <contentLink>{type}</contentLink>",
+      "comment": "<userLink>{username}</userLink> a commenté votre <contentLink>{type} : {title}</contentLink>",
+      "commentNoTitle": "<userLink>{username}</userLink> a commenté votre <contentLink>{type}</contentLink>",
+      "bookmark": "<userLink>{username}</userLink> a ajouté votre <contentLink>{type} : {title}</contentLink> en favoris",
+      "bookmarkNoTitle": "<userLink>{username}</userLink> a ajouté votre <contentLink>{type}</contentLink> en favoris",
+      "types": {
+        "album": "album",
+        "media": "média",
+        "comment": "commentaire"
+      },
+      "unknownUser": "Utilisateur inconnu",
+      "error": {
+        "title": "Erreur lors du chargement des notifications",
+        "message": "Impossible de charger les notifications. Veuillez réessayer."
+      },
+      "empty": {
+        "title": "Aucune notification",
+        "description": "Les notifications apparaîtront ici lorsque les utilisateurs interagiront avec votre contenu."
+      },
+      "loading": {
+        "loadingMore": "Chargement de plus de notifications...",
+        "noMore": "Plus de notifications"
+      }
+    },
     "menu": {
       "account": "Compte",
       "preferences": "Préférences",

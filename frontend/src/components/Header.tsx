@@ -4,10 +4,12 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { UserMenu } from "./user/UserMenu";
+import { NotificationButton } from "@/components/ui/NotificationButton";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { isActivePath } from "@/lib/navigation";
 import { Menu, X } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
+import { useUnreadNotificationCount } from "@/hooks/queries/useUserQuery";
 
 export function Header() {
   const { user, loading } = useUserContext();
@@ -16,6 +18,10 @@ export function Header() {
   const t = useTranslations("common");
   const tNav = useTranslations("navigation");
   const tSite = useTranslations("site");
+
+  // Get unread notification count
+  const { data: notificationCountData } = useUnreadNotificationCount();
+  const unreadCount = notificationCountData?.unreadCount || 0;
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -128,6 +134,7 @@ export function Header() {
               </div>
             ) : user ? (
               <>
+                <NotificationButton count={unreadCount} />
                 <UserMenu user={user} />
               </>
             ) : (
