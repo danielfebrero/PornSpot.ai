@@ -65,7 +65,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     } = notification;
 
     const username = sourceUsername || t("unknownUser");
-    let typeKey = targetType;
+    const typeKey = targetType;
     let contentHref = "";
     const userHref = `/user/${sourceUsername}`;
 
@@ -83,7 +83,6 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
             commentTargetType === "album"
               ? `/albums/${commentTargetId}`
               : `/media/${commentTargetId}`;
-          typeKey = commentTargetType;
         } else {
           contentHref = "/";
         }
