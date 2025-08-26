@@ -913,35 +913,7 @@
           "noMore": "No more likes"
         }
       },
-      "notifications": {
-        "title": "Notifications",
-        "description": "Stay updated with your latest activities and interactions",
-        "count": "{count, plural, =0 {0 notifications} =1 {1 notification} other {# notifications}}",
-        "like": "<userLink>{username}</userLink> liked your <contentLink>{type}: {title}</contentLink>",
-        "likeNoTitle": "<userLink>{username}</userLink> liked your <contentLink>{type}</contentLink>",
-        "comment": "<userLink>{username}</userLink> commented on your <contentLink>{type}: {title}</contentLink>",
-        "commentNoTitle": "<userLink>{username}</userLink> commented on your <contentLink>{type}</contentLink>",
-        "bookmark": "<userLink>{username}</userLink> bookmarked your <contentLink>{type}: {title}</contentLink>",
-        "bookmarkNoTitle": "<userLink>{username}</userLink> bookmarked your <contentLink>{type}</contentLink>",
-        "types": {
-          "album": "album",
-          "media": "media",
-          "comment": "comment"
-        },
-        "unknownUser": "Unknown user",
-        "error": {
-          "title": "Error loading notifications",
-          "message": "Failed to load notifications. Please try again."
-        },
-        "empty": {
-          "title": "No notifications yet",
-          "description": "You'll see notifications here when people interact with your content."
-        },
-        "loading": {
-          "loadingMore": "Loading more notifications...",
-          "noMore": "No more notifications"
-        }
-      },
+
       "media": {
         "title": "{username}'s Media",
         "count": "{count, plural, =0 {0 items} =1 {1 item} other {# items}}",
@@ -969,6 +941,35 @@
           "title": "Profile not found",
           "message": "The user profile you're looking for doesn't exist or has been made private."
         }
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Stay updated with your latest activities and interactions",
+      "count": "{count, plural, =0 {0 notifications} =1 {1 notification} other {# notifications}}",
+      "like": "<userLink>{username}</userLink> liked your <contentLink>{type}: {title}</contentLink>",
+      "likeNoTitle": "<userLink>{username}</userLink> liked your <contentLink>{type}</contentLink>",
+      "comment": "<userLink>{username}</userLink> commented on your <contentLink>{type}: {title}</contentLink>",
+      "commentNoTitle": "<userLink>{username}</userLink> commented on your <contentLink>{type}</contentLink>",
+      "bookmark": "<userLink>{username}</userLink> bookmarked your <contentLink>{type}: {title}</contentLink>",
+      "bookmarkNoTitle": "<userLink>{username}</userLink> bookmarked your <contentLink>{type}</contentLink>",
+      "types": {
+        "album": "album",
+        "media": "media",
+        "comment": "comment"
+      },
+      "unknownUser": "Unknown user",
+      "error": {
+        "title": "Error loading notifications",
+        "message": "Failed to load notifications. Please try again."
+      },
+      "empty": {
+        "title": "No notifications yet",
+        "description": "You'll see notifications here when people interact with your content."
+      },
+      "loading": {
+        "loadingMore": "Loading more notifications...",
+        "noMore": "No more notifications"
       }
     },
     "settings": {
