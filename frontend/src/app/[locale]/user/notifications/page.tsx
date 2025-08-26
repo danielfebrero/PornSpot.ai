@@ -67,7 +67,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     const username = sourceUsername || t("unknownUser");
     const typeKey = targetType;
     let contentHref = "";
-    const userHref = `/user/${sourceUsername}`;
+    const userHref = `/profile/${sourceUsername}`;
 
     // Determine content link
     switch (targetType) {
