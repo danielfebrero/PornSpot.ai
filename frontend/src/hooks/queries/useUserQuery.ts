@@ -176,8 +176,8 @@ export function useNotifications(params?: GetNotificationsRequest) {
 
     // Notifications should be fresh for 1 minute
     staleTime: 1 * 60 * 1000,
-    // Keep notifications in cache for 5 minutes
-    gcTime: 5 * 60 * 1000,
+    // Keep notifications in cache for 1 minute
+    gcTime: 1 * 60 * 1000,
     // Enable background refetching
     refetchOnWindowFocus: true,
     // Only fetch if user is logged in
