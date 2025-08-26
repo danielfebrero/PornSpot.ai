@@ -28,7 +28,7 @@ export const adminUsersApi = {
   }): Promise<AdminUsersResponse> => {
     const apiParams = {
       limit: params?.limit,
-      lastEvaluatedKey: params?.lastEvaluatedKey || params?.cursor,
+      cursor: params?.cursor || params?.lastEvaluatedKey,
     };
     const response = await ApiUtil.get<AdminUsersResponse>(
       "/admin/users/list",
