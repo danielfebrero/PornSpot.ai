@@ -44,6 +44,25 @@ ChartJS.register(
 
 type Granularity = "hourly" | "daily" | "weekly" | "monthly";
 
+const chartColors = {
+  users: {
+    border: "rgba(99, 102, 241, 1)", // Indigo 500
+    background: "rgba(99, 102, 241, 0.2)",
+  },
+  media: {
+    border: "rgba(16, 185, 129, 1)", // Emerald 500
+    background: "rgba(16, 185, 129, 0.2)",
+  },
+  albums: {
+    border: "rgba(236, 72, 153, 1)", // Pink 500
+    background: "rgba(236, 72, 153, 0.2)",
+  },
+  interactions: {
+    border: "rgba(234, 179, 8, 1)", // Yellow 500
+    background: "rgba(234, 179, 8, 0.25)",
+  },
+};
+
 export default function AnalyticsPage() {
   const t = useTranslations("admin.analytics");
   const tGranularity = useTranslations("admin.analytics.granularity");
@@ -145,7 +164,7 @@ export default function AnalyticsPage() {
     metricType: string,
     metricKey: string,
     label: string,
-    color: string
+    colorSet: { border: string; background: string }
   ) => {
     if (!analyticsData?.allMetrics) return null;
 
@@ -191,8 +210,8 @@ export default function AnalyticsPage() {
         {
           label,
           data,
-          borderColor: color,
-          backgroundColor: color + "20",
+          borderColor: colorSet.border,
+          backgroundColor: colorSet.background,
           fill: true,
           tension: 0.4,
         },
@@ -369,7 +388,7 @@ export default function AnalyticsPage() {
                   "users",
                   "newUsers",
                   "New Users",
-                  "hsl(var(--chart-1))"
+                  chartColors.users
                 );
                 return chartData ? (
                   <Line data={chartData} options={chartOptions} />
@@ -392,7 +411,7 @@ export default function AnalyticsPage() {
                   "media",
                   "newMedia",
                   "New Media",
-                  "hsl(var(--chart-2))"
+                  chartColors.media
                 );
                 return chartData ? (
                   <Bar data={chartData} options={chartOptions} />
@@ -415,7 +434,7 @@ export default function AnalyticsPage() {
                   "albums",
                   "newAlbums",
                   "New Albums",
-                  "hsl(var(--chart-3))"
+                  chartColors.albums
                 );
                 return chartData ? (
                   <Line data={chartData} options={chartOptions} />
@@ -438,7 +457,7 @@ export default function AnalyticsPage() {
                   "interactions",
                   "newLikes",
                   "New Likes",
-                  "hsl(var(--chart-4))"
+                  chartColors.interactions
                 );
                 return chartData ? (
                   <Bar data={chartData} options={chartOptions} />
@@ -488,25 +507,25 @@ export default function AnalyticsPage() {
                   "users",
                   "newUsers",
                   "New Users",
-                  "hsl(var(--chart-1))"
+                  chartColors.users
                 );
                 const mediaData = processChartData(
                   "media",
                   "newMedia",
                   "New Media",
-                  "hsl(var(--chart-2))"
+                  chartColors.media
                 );
                 const albumsData = processChartData(
                   "albums",
                   "newAlbums",
                   "New Albums",
-                  "hsl(var(--chart-3))"
+                  chartColors.albums
                 );
                 const likesData = processChartData(
                   "interactions",
                   "newLikes",
                   "New Likes",
-                  "hsl(var(--chart-4))"
+                  chartColors.interactions
                 );
 
                 if (!usersData && !mediaData && !albumsData && !likesData) {
