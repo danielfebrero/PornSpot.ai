@@ -15,7 +15,7 @@ export function useAdminUsersQuery(params: { limit?: number } = {}) {
     queryFn: async ({ pageParam }): Promise<AdminUsersResponse> => {
       return await adminUsersApi.getUsers({
         limit,
-        lastEvaluatedKey: pageParam,
+        cursor: pageParam,
       });
     },
     initialPageParam: undefined as string | undefined,
