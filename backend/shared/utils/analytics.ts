@@ -150,33 +150,37 @@ export async function calculateUserMetrics(
   const metrics: Partial<AnalyticsMetrics> = {};
 
   try {
-    // Get total users count
+    // Get total users count - filter by active users only
     const totalUsersResult = await docClient.send(
       new QueryCommand({
         TableName: TABLE_NAME,
         IndexName: "GSI3",
         KeyConditionExpression: "GSI3PK = :pk",
+        FilterExpression: "isActive = :isActive AND EntityType = :type",
         ExpressionAttributeValues: {
           ":pk": "USER_USERNAME",
+          ":isActive": true,
+          ":type": "User",
         },
         Select: "COUNT",
       })
     );
     metrics.totalUsers = totalUsersResult.Count || 0;
 
-    // Get new users in time range - use GSI3 to get all users then filter
+    // Get new users in time range - use GSI3 to get all users then filter by active and creation date
     const newUsersResult = await docClient.send(
       new QueryCommand({
         TableName: TABLE_NAME,
         IndexName: "GSI3",
         KeyConditionExpression: "GSI3PK = :pk",
         FilterExpression:
-          "createdAt BETWEEN :start AND :end AND EntityType = :type",
+          "createdAt BETWEEN :start AND :end AND EntityType = :type AND isActive = :isActive",
         ExpressionAttributeValues: {
           ":pk": "USER_USERNAME",
           ":start": startTime,
           ":end": endTime,
           ":type": "User",
+          ":isActive": true,
         },
         Select: "COUNT",
       })

@@ -179,7 +179,8 @@ await docClient.send(
 const result = await docClient.send(
   new ScanCommand({
     TableName: TABLE_NAME,
-    FilterExpression: "EntityType = :entityType AND attribute_not_exists(GSI3PK)",
+    FilterExpression:
+      "EntityType = :entityType AND attribute_not_exists(GSI3PK)",
     ExpressionAttributeValues: {
       ":entityType": "Comment",
     },
