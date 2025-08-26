@@ -78,7 +78,7 @@
 
 [ ] Update documentation (data models, apis...).
 
-[ ] Notification system on like received and comment received.
+[x] Notification system on like received and comment received.
 
 [ ] In media page, do not show loRA safetensor name but loRA name.
 
@@ -90,7 +90,7 @@
 
 [ ] Be able to change images titles.
 
-[ ] Remove usage stats from Admin default page. Dedicate a page to analytics.
+[x] Remove usage stats from Admin default page.
 
 [ ] Ability to follow users.
 
