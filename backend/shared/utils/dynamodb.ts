@@ -3714,7 +3714,7 @@ export class DynamoDBService {
       const batch = userIds.slice(i, i + batchSize);
       const requestItems = batch.map((userId) => ({
         PK: `USER#${userId}`,
-        SK: "PROFILE",
+        SK: "METADATA",
       }));
 
       const result = await docClient.send(
@@ -3806,7 +3806,7 @@ export class DynamoDBService {
           title = item.title;
         } else if (item.EntityType === "Media") {
           targetId = item.id;
-          title = item.title;
+          title = item.originalFilename;
         } else if (item.EntityType === "Comment") {
           targetId = item.id; // Use comment id, not commentId
           title =
