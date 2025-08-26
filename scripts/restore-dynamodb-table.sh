@@ -89,9 +89,9 @@ parse_arguments() {
     done
     
     # Validate environment
-    if [[ ! "$ENVIRONMENT" =~ ^(local|dev|staging|prod)$ ]]; then
+    if [[ ! "$ENVIRONMENT" =~ ^(local|dev|stage|prod)$ ]]; then
         print_error "Invalid environment: $ENVIRONMENT"
-        print_error "Supported environments: local, dev, staging, prod"
+        print_error "Supported environments: local, dev, stage, prod"
         exit 1
     fi
 }
@@ -125,7 +125,7 @@ get_config() {
             AWS_ENDPOINT_URL="${LOCAL_AWS_ENDPOINT:-http://localhost:4566}"
             TABLE_NAME="${DYNAMODB_TABLE:-local-pornspot-media}"
             ;;
-        dev|staging|prod)
+        dev|stage|prod)
             AWS_REGION="${AWS_REGION:-us-east-1}"
             AWS_ENDPOINT_URL=""  # Use default AWS endpoints
             TABLE_NAME="${DYNAMODB_TABLE:-${ENVIRONMENT}-pornspot-media}"
@@ -264,35 +264,57 @@ ATTRIBUTE_DEFINITIONS=$(cat "$SCHEMA_FILE" | jq -r '.Table.AttributeDefinitions'
 GLOBAL_SECONDARY_INDEXES=$(cat "$SCHEMA_FILE" | jq -r '.Table.GlobalSecondaryIndexes // empty')
 LOCAL_SECONDARY_INDEXES=$(cat "$SCHEMA_FILE" | jq -r '.Table.LocalSecondaryIndexes // empty')
 
-# Clean GSI and LSI for LocalStack compatibility if needed
-if [ "$ENVIRONMENT" = "local" ]; then
-    # Remove WarmThroughput and other production-only settings from GSI
-    if [ "$GLOBAL_SECONDARY_INDEXES" != "null" ] && [ "$GLOBAL_SECONDARY_INDEXES" != "" ]; then
-        GLOBAL_SECONDARY_INDEXES=$(echo "$GLOBAL_SECONDARY_INDEXES" | jq '[.[] | del(.WarmThroughput, .IndexArn, .IndexStatus, .ProvisionedThroughput, .IndexSizeBytes, .ItemCount)]')
-    fi
-    
-    # Remove WarmThroughput and other production-only settings from LSI
-    if [ "$LOCAL_SECONDARY_INDEXES" != "null" ] && [ "$LOCAL_SECONDARY_INDEXES" != "" ]; then
-        LOCAL_SECONDARY_INDEXES=$(echo "$LOCAL_SECONDARY_INDEXES" | jq '[.[] | del(.IndexArn, .IndexStatus, .IndexSizeBytes, .ItemCount)]')
-    fi
+# Clean GSI and LSI for create-table compatibility (remove production-only metadata)
+# These attributes are returned by describe-table but not allowed in create-table
+if [ "$GLOBAL_SECONDARY_INDEXES" != "null" ] && [ "$GLOBAL_SECONDARY_INDEXES" != "" ]; then
+    GLOBAL_SECONDARY_INDEXES=$(echo "$GLOBAL_SECONDARY_INDEXES" | jq '[.[] | del(.WarmThroughput, .IndexArn, .IndexStatus, .ProvisionedThroughput, .IndexSizeBytes, .ItemCount)]')
 fi
 
-# Build create table command
-CREATE_CMD="aws_cmd dynamodb create-table --table-name \"$TABLE_NAME\" --key-schema '$KEY_SCHEMA' --attribute-definitions '$ATTRIBUTE_DEFINITIONS' --billing-mode PAY_PER_REQUEST"
+if [ "$LOCAL_SECONDARY_INDEXES" != "null" ] && [ "$LOCAL_SECONDARY_INDEXES" != "" ]; then
+    LOCAL_SECONDARY_INDEXES=$(echo "$LOCAL_SECONDARY_INDEXES" | jq '[.[] | del(.IndexArn, .IndexStatus, .IndexSizeBytes, .ItemCount)]')
+fi
+
+# For local environment, also ensure billing mode is correct
+if [ "$ENVIRONMENT" = "local" ]; then
+    # LocalStack may have additional restrictions
+    print_status "Applying LocalStack compatibility adjustments..."
+fi
+
+# Build create table command using temporary files for safer execution
+print_status "Building create table command..."
+
+# Write JSON data to temporary files for safer AWS CLI usage
+TEMP_DIR="/tmp/dynamodb-restore-$$"
+mkdir -p "$TEMP_DIR"
+
+echo "$KEY_SCHEMA" > "$TEMP_DIR/key-schema.json"
+echo "$ATTRIBUTE_DEFINITIONS" > "$TEMP_DIR/attribute-definitions.json"
+
+# Build base command
+CREATE_CMD_ARGS="--table-name $TABLE_NAME --billing-mode PAY_PER_REQUEST --key-schema file://$TEMP_DIR/key-schema.json --attribute-definitions file://$TEMP_DIR/attribute-definitions.json"
 
 # Add GSI if exists
 if [ "$GLOBAL_SECONDARY_INDEXES" != "null" ] && [ "$GLOBAL_SECONDARY_INDEXES" != "" ]; then
-    CREATE_CMD="$CREATE_CMD --global-secondary-indexes '$GLOBAL_SECONDARY_INDEXES'"
+    echo "$GLOBAL_SECONDARY_INDEXES" > "$TEMP_DIR/gsi.json"
+    CREATE_CMD_ARGS="$CREATE_CMD_ARGS --global-secondary-indexes file://$TEMP_DIR/gsi.json"
 fi
 
-# Add LSI if exists
+# Add LSI if exists  
 if [ "$LOCAL_SECONDARY_INDEXES" != "null" ] && [ "$LOCAL_SECONDARY_INDEXES" != "" ]; then
-    CREATE_CMD="$CREATE_CMD --local-secondary-indexes '$LOCAL_SECONDARY_INDEXES'"
+    echo "$LOCAL_SECONDARY_INDEXES" > "$TEMP_DIR/lsi.json"
+    CREATE_CMD_ARGS="$CREATE_CMD_ARGS --local-secondary-indexes file://$TEMP_DIR/lsi.json"
 fi
 
-# Capture error output for debugging
-ERROR_OUTPUT=$(eval "$CREATE_CMD" 2>&1)
-if [ $? -eq 0 ]; then
+print_status "Creating table with command: aws_cmd dynamodb create-table $CREATE_CMD_ARGS"
+
+# Execute create table command and capture detailed error output
+ERROR_OUTPUT=$(aws_cmd dynamodb create-table $CREATE_CMD_ARGS 2>&1)
+CREATE_EXIT_CODE=$?
+
+# Clean up temporary files
+rm -rf "$TEMP_DIR"
+
+if [ $CREATE_EXIT_CODE -eq 0 ]; then
     print_success "Table '$TABLE_NAME' created successfully"
     
     # Wait for table to be active
