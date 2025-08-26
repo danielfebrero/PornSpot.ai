@@ -72,11 +72,9 @@ export function useDiscover(params: UseDiscoverParams = {}) {
         : undefined;
     },
     getPreviousPageParam: () => undefined, // We don't support backward pagination
-    // Fresh data for 30 seconds, then stale-while-revalidate
-    staleTime: 30 * 1000,
+    // Fresh data for 3 minutes, then stale-while-revalidate
+    staleTime: 3 * 60 * 1000,
     // Enable background refetching for discover content
-    refetchOnWindowFocus: true,
-    // Refetch interval for discover content
-    refetchInterval: 3 * 60 * 1000, // 3 minutes
+    refetchOnWindowFocus: false,
   });
 }
