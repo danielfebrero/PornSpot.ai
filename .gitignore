@@ -71,7 +71,7 @@ frontend/.env.local
 backend/.env.local.json
 scripts/.env.local
 scripts/.env.development
-scripts/.env.staging
+scripts/.env.stage
 scripts/.env.prod
 
 # parcel-bundler cache (https://parceljs.org/)
