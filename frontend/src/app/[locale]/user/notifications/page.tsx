@@ -144,31 +144,35 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
   return (
     <div
-      className={`group transition-all duration-200 ${
+      className={`group transition-all duration-200 rounded-lg ${
         isUnread
-          ? "bg-blue-50/80 hover:bg-blue-100/80 border-l-4 border-l-blue-500"
-          : "bg-card hover:bg-accent/50"
+          ? "bg-gradient-to-r from-orange-50/80 via-amber-50/60 to-yellow-50/40 hover:from-orange-100/90 hover:via-amber-100/70 hover:to-yellow-100/50 border border-orange-200/60 shadow-sm"
+          : "bg-card hover:bg-accent/50 border border-transparent"
       }`}
     >
-      <div className="flex items-start gap-3 p-4">
+      <div className="flex items-center gap-3 p-4">
         {/* Notification Icon */}
         <div
-          className={`flex-shrink-0 p-2 rounded-full ${
-            isUnread ? "bg-blue-100" : "bg-muted"
+          className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full ${
+            isUnread
+              ? "bg-gradient-to-br from-orange-500 to-amber-500 shadow-sm"
+              : "bg-muted"
           }`}
         >
-          {icon}
+          <div className={isUnread ? "text-white" : "text-muted-foreground"}>
+            {icon}
+          </div>
         </div>
 
         {/* Notification Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center justify-between gap-2">
             <div className="flex-1">
               {/* Notification message with clickable elements using rich format */}
               <p
-                className={`text-sm ${
+                className={`text-sm leading-relaxed ${
                   isUnread
-                    ? "font-semibold text-foreground"
+                    ? "font-medium text-foreground"
                     : "text-muted-foreground"
                 }`}
               >
@@ -196,7 +200,9 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
             {/* Status and Time */}
             <div className="flex flex-col items-end gap-1 flex-shrink-0">
-              {isUnread && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
+              {isUnread && (
+                <div className="w-2 h-2 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full shadow-sm" />
+              )}
               <span className="text-xs text-muted-foreground flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 {timeAgo}
@@ -315,7 +321,6 @@ const UserNotificationsPage: React.FC = () => {
           {notifications.length > 0 && (
             <div className="flex justify-center">
               <span className="bg-orange-500/20 text-orange-600 text-sm font-semibold px-3 py-1.5 rounded-full">
-                {notifications.length.toLocaleString()}{" "}
                 {t("count", { count: notifications.length })}
               </span>
             </div>
