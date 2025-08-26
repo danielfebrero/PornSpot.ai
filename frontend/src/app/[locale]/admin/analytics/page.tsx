@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useQuery } from "@tanstack/react-query";
 import {
   BarChart3,
   Users,
@@ -29,6 +28,7 @@ import {
 } from "chart.js";
 import { Line, Bar } from "react-chartjs-2";
 import { useAdminContext } from "@/contexts/AdminContext";
+import { useAdminAnalyticsQuery } from "@/hooks/queries/useAdminAnalyticsQuery";
 
 // Register Chart.js components
 ChartJS.register(
@@ -86,36 +86,11 @@ export default function AnalyticsPage() {
     isLoading,
     error,
     refetch,
-  } = useQuery({
-    queryKey: [
-      "admin-analytics-all",
-      selectedGranularity,
-      dateRange.start,
-      dateRange.end,
-    ],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        metricType: "all",
-        granularity: selectedGranularity,
-        startDate: dateRange.start,
-        endDate: dateRange.end,
-      });
-
-      const response = await fetch(`/api/admin/analytics/metrics?${params}`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch analytics: ${response.statusText}`);
-      }
-
-      return response.json();
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchInterval: 10 * 60 * 1000, // Refresh every 10 minutes
+  } = useAdminAnalyticsQuery({
+    metricType: "all",
+    granularity: selectedGranularity,
+    startDate: dateRange.start,
+    endDate: dateRange.end,
   });
 
   // Chart.js theme configuration for dark mode
@@ -172,9 +147,9 @@ export default function AnalyticsPage() {
     label: string,
     color: string
   ) => {
-    if (!analyticsData?.data?.allMetrics) return null;
+    if (!analyticsData?.allMetrics) return null;
 
-    const typeData = analyticsData.data.allMetrics.find(
+    const typeData = analyticsData.allMetrics.find(
       (m: any) => m.metricType === metricType
     );
     if (!typeData) return null;
@@ -312,12 +287,12 @@ export default function AnalyticsPage() {
             <SummaryCard
               title={t("totalUsers")}
               value={
-                analyticsData?.data?.allMetrics?.find(
+                analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "users"
                 )?.summary?.totals?.totalUsers || 0
               }
               change={
-                analyticsData?.data?.allMetrics?.find(
+                analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "users"
                 )?.summary?.totals?.newUsers || 0
               }
@@ -328,12 +303,12 @@ export default function AnalyticsPage() {
             <SummaryCard
               title={t("totalMedia")}
               value={
-                analyticsData?.data?.allMetrics?.find(
+                analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "media"
                 )?.summary?.totals?.totalMedia || 0
               }
               change={
-                analyticsData?.data?.allMetrics?.find(
+                analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "media"
                 )?.summary?.totals?.newMedia || 0
               }
@@ -344,12 +319,12 @@ export default function AnalyticsPage() {
             <SummaryCard
               title={t("totalAlbums")}
               value={
-                analyticsData?.data?.allMetrics?.find(
+                analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "albums"
                 )?.summary?.totals?.totalAlbums || 0
               }
               change={
-                analyticsData?.data?.allMetrics?.find(
+                analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "albums"
                 )?.summary?.totals?.newAlbums || 0
               }
@@ -360,18 +335,18 @@ export default function AnalyticsPage() {
             <SummaryCard
               title={t("totalInteractions")}
               value={
-                (analyticsData?.data?.allMetrics?.find(
+                (analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
                 )?.summary?.totals?.newLikes || 0) +
-                (analyticsData?.data?.allMetrics?.find(
+                (analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
                 )?.summary?.totals?.newBookmarks || 0) +
-                (analyticsData?.data?.allMetrics?.find(
+                (analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
                 )?.summary?.totals?.newComments || 0)
               }
               change={
-                analyticsData?.data?.allMetrics?.find(
+                analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
                 )?.summary?.totals?.newLikes || 0
               }
@@ -603,17 +578,16 @@ export default function AnalyticsPage() {
             <div className="flex items-center justify-between text-sm text-muted-foreground">
               <span>
                 Last updated:{" "}
-                {analyticsData?.data?.allMetrics?.[0]?.dataPoints?.[0]
-                  ?.calculatedAt
+                {analyticsData?.allMetrics?.[0]?.dataPoints?.[0]?.calculatedAt
                   ? new Date(
-                      analyticsData.data.allMetrics[0].dataPoints[0].calculatedAt
+                      analyticsData.allMetrics[0].dataPoints[0].calculatedAt
                     ).toLocaleString()
                   : "Never"}
               </span>
               <span>
                 Showing {selectedGranularity} data •
-                {analyticsData?.data?.combinedSummary?.totalDataPoints || 0}{" "}
-                data points
+                {analyticsData?.combinedSummary?.totalDataPoints || 0} data
+                points
               </span>
             </div>
           </div>

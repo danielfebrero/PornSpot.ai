@@ -5,6 +5,7 @@ export { albumsApi } from "./albums";
 export { adminAlbumsApi } from "./admin-albums";
 export { adminMediaApi } from "./admin-media";
 export { adminUsersApi } from "./admin-users";
+export { adminAnalyticsApi } from "./admin-analytics";
 export { mediaApi } from "./media";
 export { contentApi } from "./content";
 export { discoverApi } from "./discover";

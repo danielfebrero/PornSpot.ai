@@ -170,6 +170,16 @@ export const queryKeys = {
         ["admin", "users", "list", params] as const,
       detail: (userId: string) => ["admin", "users", "detail", userId] as const,
     },
+    analytics: {
+      all: () => ["admin", "analytics"] as const,
+      metrics: (params: {
+        metricType: string;
+        granularity: string;
+        startDate: string;
+        endDate: string;
+      }) => ["admin", "analytics", "metrics", params] as const,
+      dashboard: () => ["admin", "analytics", "dashboard"] as const,
+    },
   },
 
   // Comments
