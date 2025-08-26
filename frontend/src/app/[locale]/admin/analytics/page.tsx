@@ -553,8 +553,8 @@ export default function AnalyticsPage() {
                       ? [
                           {
                             ...mediaData.datasets[0],
-                            borderColor: "hsl(var(--chart-2))",
-                            backgroundColor: "hsl(var(--chart-2))" + "20",
+                            borderColor: chartColors.media.border,
+                            backgroundColor: chartColors.media.background,
                           },
                         ]
                       : []),
@@ -562,8 +562,8 @@ export default function AnalyticsPage() {
                       ? [
                           {
                             ...albumsData.datasets[0],
-                            borderColor: "hsl(var(--chart-3))",
-                            backgroundColor: "hsl(var(--chart-3))" + "20",
+                            borderColor: chartColors.albums.border,
+                            backgroundColor: chartColors.albums.background,
                           },
                         ]
                       : []),
@@ -571,8 +571,9 @@ export default function AnalyticsPage() {
                       ? [
                           {
                             ...likesData.datasets[0],
-                            borderColor: "hsl(var(--chart-4))",
-                            backgroundColor: "hsl(var(--chart-4))" + "20",
+                            borderColor: chartColors.interactions.border,
+                            backgroundColor:
+                              chartColors.interactions.background,
                           },
                         ]
                       : []),
