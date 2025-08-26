@@ -293,28 +293,58 @@ const UserNotificationsPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Bell className="h-6 w-6 text-blue-600" />
+        <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 rounded-xl border border-orange-500/20 shadow-lg p-6">
+          {/* Mobile Layout */}
+          <div className="block sm:hidden space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
+                  <Bell className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    {t("title")}
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    {t("description")}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                {t("title")}
-              </h1>
-              <p className="text-muted-foreground">{t("description")}</p>
-            </div>
+            {notifications.length > 0 && (
+              <div className="flex justify-center">
+                <span className="bg-orange-500/20 text-orange-600 text-sm font-semibold px-3 py-1.5 rounded-full">
+                  {notifications.length.toLocaleString()}{" "}
+                  {t("count", { count: notifications.length })}
+                </span>
+              </div>
+            )}
           </div>
 
-          {notifications.length > 0 && (
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                {t("count", { count: notifications.length })}
-              </p>
+          {/* Desktop Layout */}
+          <div className="hidden sm:flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
+                <Bell className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">
+                  {t("title")}
+                </h1>
+                <p className="text-muted-foreground">{t("description")}</p>
+              </div>
             </div>
-          )}
+            {notifications.length > 0 && (
+              <div className="flex items-center space-x-3">
+                <span className="bg-orange-500/20 text-orange-600 text-sm font-semibold px-3 py-1.5 rounded-full">
+                  {notifications.length.toLocaleString()}{" "}
+                  {t("count", { count: notifications.length })}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Notifications List */}
@@ -360,7 +390,7 @@ const UserNotificationsPage: React.FC = () => {
               <p className="text-muted-foreground mb-4 max-w-md mx-auto">
                 {t("empty.description")}
               </p>
-              <LocaleLink href="/discover">
+              <LocaleLink href="/">
                 <Button variant="outline">{tCommon("discover")}</Button>
               </LocaleLink>
             </div>
