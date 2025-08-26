@@ -10,7 +10,7 @@ Special notes:
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
-import { InteractionRequest, UserInteractionEntity, TargetType } from "@shared";
+import { InteractionRequest } from "@shared";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 import { CounterUtil } from "@shared/utils/counter";
@@ -69,8 +69,6 @@ const handleLikeInteraction = async (
     }
   }
 
-  const now = new Date().toISOString();
-
   if (action === "add") {
     // Check if already liked - use different method for comments
     let existingLike;
@@ -92,30 +90,13 @@ const handleLikeInteraction = async (
       return ResponseUtil.error(event, "Already liked", 409);
     }
 
-    // Create like interaction - use GSI2 for chronological sorting
-    const interaction: UserInteractionEntity = {
-      PK: `USER#${userId}`,
-      SK:
-        targetType === "comment"
-          ? `COMMENT_INTERACTION#like#${targetId}`
-          : `INTERACTION#like#${targetId}`,
-      GSI1PK:
-        targetType === "comment"
-          ? `COMMENT_INTERACTION#like#${targetId}`
-          : `INTERACTION#like#${targetId}`,
-      GSI1SK: userId,
-      // GSI2 for chronological ordering of user interactions
-      GSI2PK: `USER#${userId}#INTERACTIONS#like`,
-      GSI2SK: `${targetType === "comment" ? "COMMENT" : "CONTENT"}#${now}`, // createdAt timestamp for chronological sorting
-      EntityType: "UserInteraction",
-      userId: userId,
-      interactionType: "like",
-      targetType: targetType as TargetType,
-      targetId,
-      createdAt: now,
-    };
-
-    await DynamoDBService.createUserInteraction(interaction);
+    // Create like interaction
+    await DynamoDBService.createUserInteraction(
+      userId,
+      "like",
+      targetType as "media" | "album" | "comment",
+      targetId
+    );
 
     // Get target details and increment like count for the target using shared utility
     let album, media, comment;

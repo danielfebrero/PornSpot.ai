@@ -2,7 +2,6 @@ import {
   QueryCommand,
   PutCommand,
   BatchWriteCommand,
-  ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
@@ -354,15 +353,14 @@ export async function calculateInteractionMetrics(
   const metrics: Partial<AnalyticsMetrics> = {};
 
   try {
-    // Count likes - use Scan since we need to filter by PK prefix
+    // Count likes - use GSI3 to query interactions by type
     const likesResult = await docClient.send(
-      new ScanCommand({
+      new QueryCommand({
         TableName: TABLE_NAME,
-        FilterExpression:
-          "begins_with(PK, :pk) AND begins_with(SK, :sk) AND createdAt BETWEEN :start AND :end",
+        IndexName: "GSI3",
+        KeyConditionExpression: "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
         ExpressionAttributeValues: {
-          ":pk": "USER#",
-          ":sk": "INTERACTION#like#",
+          ":pk": "INTERACTION#like",
           ":start": startTime,
           ":end": endTime,
         },
@@ -371,15 +369,14 @@ export async function calculateInteractionMetrics(
     );
     metrics.newLikes = likesResult.Count || 0;
 
-    // Count bookmarks - use Scan since we need to filter by PK prefix
+    // Count bookmarks - use GSI3 to query interactions by type
     const bookmarksResult = await docClient.send(
-      new ScanCommand({
+      new QueryCommand({
         TableName: TABLE_NAME,
-        FilterExpression:
-          "begins_with(PK, :pk) AND begins_with(SK, :sk) AND createdAt BETWEEN :start AND :end",
+        IndexName: "GSI3",
+        KeyConditionExpression: "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
         ExpressionAttributeValues: {
-          ":pk": "USER#",
-          ":sk": "INTERACTION#bookmark#",
+          ":pk": "INTERACTION#bookmark",
           ":start": startTime,
           ":end": endTime,
         },
@@ -405,8 +402,52 @@ export async function calculateInteractionMetrics(
     );
     metrics.newComments = commentsResult.Count || 0;
 
-    // For total counts, we'd need to scan all interactions (expensive)
-    // Consider maintaining counters in cache for better performance
+    // Calculate total counts (all time) using GSI3
+    const totalLikesResult = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI3",
+        KeyConditionExpression: "GSI3PK = :pk",
+        ExpressionAttributeValues: {
+          ":pk": "INTERACTION#like",
+        },
+        Select: "COUNT",
+      })
+    );
+    metrics.totalLikes = totalLikesResult.Count || 0;
+
+    const totalBookmarksResult = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI3",
+        KeyConditionExpression: "GSI3PK = :pk",
+        ExpressionAttributeValues: {
+          ":pk": "INTERACTION#bookmark",
+        },
+        Select: "COUNT",
+      })
+    );
+    metrics.totalBookmarks = totalBookmarksResult.Count || 0;
+
+    // Calculate total comments using GSI2
+    const totalCommentsResult = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI2",
+        KeyConditionExpression: "GSI2PK = :pk",
+        ExpressionAttributeValues: {
+          ":pk": "COMMENTS_BY_USER",
+        },
+        Select: "COUNT",
+      })
+    );
+    metrics.totalComments = totalCommentsResult.Count || 0;
+
+    // Note: totalViews and newViews are not implemented yet
+    // Views are tracked separately in album/media viewCount fields
+    // and would require different analytics logic (not UserInteraction entities)
+    metrics.totalViews = 0;
+    metrics.newViews = 0;
   } catch (error) {
     console.error("Error calculating interaction metrics:", error);
   }

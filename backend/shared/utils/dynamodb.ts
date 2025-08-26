@@ -2051,8 +2051,34 @@ export class DynamoDBService {
 
   // User interaction operations
   static async createUserInteraction(
-    interaction: UserInteractionEntity
+    userId: string,
+    interactionType: "like" | "bookmark",
+    targetType: "media" | "album" | "comment",
+    targetId: string
   ): Promise<void> {
+    const now = new Date().toISOString();
+    
+    const interaction: UserInteractionEntity = {
+      PK: `USER#${userId}`,
+      SK: targetType === "comment" 
+        ? `COMMENT_INTERACTION#${interactionType}#${targetId}`
+        : `INTERACTION#${interactionType}#${targetId}`,
+      GSI1PK: targetType === "comment"
+        ? `COMMENT_INTERACTION#${interactionType}#${targetId}`
+        : `INTERACTION#${interactionType}#${targetId}`,
+      GSI1SK: userId,
+      GSI2PK: `USER#${userId}#INTERACTIONS#${interactionType}`,
+      GSI2SK: targetType === "comment" ? `COMMENT#${now}` : `CONTENT#${now}`,
+      GSI3PK: `INTERACTION#${interactionType}`,
+      GSI3SK: now,
+      EntityType: "UserInteraction",
+      userId,
+      interactionType,
+      targetType,
+      targetId,
+      createdAt: now,
+    };
+
     await docClient.send(
       new PutCommand({
         TableName: TABLE_NAME,

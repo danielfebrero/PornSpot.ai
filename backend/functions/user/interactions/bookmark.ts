@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
-import { InteractionRequest, UserInteractionEntity, TargetType } from "@shared";
+import { InteractionRequest } from "@shared";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 import { CounterUtil } from "@shared/utils/counter";
@@ -69,23 +69,12 @@ const handleBookmarkInteraction = async (
     }
 
     // Create bookmark interaction
-    const interaction: UserInteractionEntity = {
-      PK: `USER#${userId}`,
-      SK: `INTERACTION#bookmark#${targetId}`,
-      GSI1PK: `INTERACTION#bookmark#${targetId}`,
-      GSI1SK: userId,
-      // GSI2 for chronological ordering of user interactions
-      GSI2PK: `USER#${userId}#INTERACTIONS#bookmark`,
-      GSI2SK: now, // createdAt timestamp for chronological sorting
-      EntityType: "UserInteraction",
-      userId: userId,
-      interactionType: "bookmark",
-      targetType: targetType as TargetType,
-      targetId,
-      createdAt: now,
-    };
-
-    await DynamoDBService.createUserInteraction(interaction);
+    await DynamoDBService.createUserInteraction(
+      userId,
+      "bookmark",
+      targetType as "media" | "album",
+      targetId
+    );
 
     // Get target details and increment bookmark count for the target using shared utility
     let album, media;
