@@ -18,6 +18,62 @@ const TABLE_NAME = process.env["DYNAMODB_TABLE"]!;
 const S3_BUCKET = process.env["S3_BUCKET"];
 
 /**
+ * Mapping of metric types to their relevant metric fields
+ */
+const METRIC_TYPE_MAPPING: Record<MetricType, (keyof AnalyticsMetrics)[]> = {
+  users: ["totalUsers", "newUsers", "activeUsers", "deletedUsers"],
+  media: [
+    "totalMedia",
+    "newMedia",
+    "publicMedia",
+    "privateMedia",
+    "mediaByStatus",
+  ],
+  albums: ["totalAlbums", "newAlbums", "publicAlbums", "privateAlbums"],
+  interactions: [
+    "totalLikes",
+    "newLikes",
+    "totalBookmarks",
+    "newBookmarks",
+    "totalComments",
+    "newComments",
+    "totalViews",
+    "newViews",
+  ],
+  generations: [
+    "totalGenerations",
+    "successfulGenerations",
+    "failedGenerations",
+    "averageGenerationTime",
+  ],
+  storage: [
+    "totalStorageBytes",
+    "totalStorageGB",
+    "mediaStorageBytes",
+    "thumbnailStorageBytes",
+  ],
+};
+
+/**
+ * Filters metrics object to only include fields relevant to the specified metric type
+ */
+function filterMetricsByType(
+  metrics: AnalyticsMetrics,
+  metricType: MetricType
+): Partial<AnalyticsMetrics> {
+  const relevantFields = METRIC_TYPE_MAPPING[metricType];
+  const filteredMetrics: Partial<AnalyticsMetrics> = {};
+
+  for (const field of relevantFields) {
+    if (metrics[field] !== undefined) {
+      filteredMetrics[field] = metrics[field];
+    }
+  }
+
+  return filteredMetrics;
+}
+
+/**
  * Calculates user metrics for a given time range
  */
 export async function calculateUserMetrics(
@@ -381,6 +437,9 @@ export async function saveAnalyticsEntity(
   endTimestamp: string,
   metrics: AnalyticsMetrics
 ): Promise<void> {
+  // Filter metrics to only include those relevant to the metric type
+  const filteredMetrics = filterMetricsByType(metrics, metricType);
+
   const entity: AnalyticsEntity = {
     PK: `ANALYTICS#${metricType}#${granularity}`,
     SK: timestamp,
@@ -393,7 +452,7 @@ export async function saveAnalyticsEntity(
     granularity,
     timestamp,
     endTimestamp,
-    metrics,
+    metrics: filteredMetrics,
     calculatedAt: new Date().toISOString(),
     version: 1,
   };

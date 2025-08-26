@@ -13,6 +13,14 @@ import {
   Zap,
   TrendingUp,
   RefreshCw,
+  Eye,
+  Heart,
+  MessageCircle,
+  Bookmark,
+  Lock,
+  Unlock,
+  Cpu,
+  HardDrive,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -178,7 +186,10 @@ export default function AnalyticsPage() {
     );
     if (!typeData) return null;
 
-    const labels = typeData.dataPoints.map((point: any) => {
+    // Reverse the dataPoints to get chronological order
+    const reversedDataPoints = [...typeData.dataPoints].reverse();
+
+    const labels = reversedDataPoints.map((point: any) => {
       const date = new Date(point.timestamp);
       switch (selectedGranularity) {
         case "hourly":
@@ -205,7 +216,7 @@ export default function AnalyticsPage() {
       }
     });
 
-    const data = typeData.dataPoints.map(
+    const data = reversedDataPoints.map(
       (point: any) => point.metrics[metricKey] || 0
     );
 
@@ -221,6 +232,70 @@ export default function AnalyticsPage() {
           tension: 0.4,
         },
       ],
+    };
+  };
+
+  // Process multi-line chart data
+  const processMultiLineChartData = (
+    metricType: string,
+    metrics: Array<{
+      key: string;
+      label: string;
+      borderColor: string;
+      backgroundColor: string;
+    }>
+  ) => {
+    if (!analyticsData?.allMetrics) return null;
+
+    const typeData = analyticsData.allMetrics.find(
+      (m: any) => m.metricType === metricType
+    );
+    if (!typeData) return null;
+
+    // Reverse the dataPoints to get chronological order
+    const reversedDataPoints = [...typeData.dataPoints].reverse();
+
+    const labels = reversedDataPoints.map((point: any) => {
+      const date = new Date(point.timestamp);
+      switch (selectedGranularity) {
+        case "hourly":
+          return date.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        case "daily":
+          return date.toLocaleDateString([], {
+            month: "short",
+            day: "numeric",
+          });
+        case "weekly":
+          return `Week ${Math.ceil(
+            date.getDate() / 7
+          )} - ${date.toLocaleDateString([], { month: "short" })}`;
+        case "monthly":
+          return date.toLocaleDateString([], {
+            month: "short",
+            year: "numeric",
+          });
+        default:
+          return date.toLocaleDateString();
+      }
+    });
+
+    const datasets = metrics.map((metric) => ({
+      label: metric.label,
+      data: reversedDataPoints.map(
+        (point: any) => point.metrics[metric.key] || 0
+      ),
+      borderColor: metric.borderColor,
+      backgroundColor: metric.backgroundColor,
+      fill: false,
+      tension: 0.4,
+    }));
+
+    return {
+      labels,
+      datasets,
     };
   };
 
@@ -307,7 +382,7 @@ export default function AnalyticsPage() {
       ) : (
         <>
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
             <SummaryCard
               title={t("totalUsers")}
               value={
@@ -320,7 +395,7 @@ export default function AnalyticsPage() {
                   (m: any) => m.metricType === "users"
                 )?.summary?.totals?.newUsers || 0
               }
-              changeLabel={`new this ${selectedGranularity.slice(0, -2)}`}
+              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
               icon={Users}
               color="hsl(var(--chart-1))"
             />
@@ -336,7 +411,7 @@ export default function AnalyticsPage() {
                   (m: any) => m.metricType === "media"
                 )?.summary?.totals?.newMedia || 0
               }
-              changeLabel={`new this ${selectedGranularity.slice(0, -2)}`}
+              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
               icon={Image}
               color="hsl(var(--chart-2))"
             />
@@ -352,13 +427,24 @@ export default function AnalyticsPage() {
                   (m: any) => m.metricType === "albums"
                 )?.summary?.totals?.newAlbums || 0
               }
-              changeLabel={`new this ${selectedGranularity.slice(0, -2)}`}
+              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
               icon={FolderOpen}
               color="hsl(var(--chart-3))"
             />
             <SummaryCard
               title={t("totalInteractions")}
               value={
+                (analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "interactions"
+                )?.summary?.totals?.totalLikes || 0) +
+                (analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "interactions"
+                )?.summary?.totals?.totalBookmarks || 0) +
+                (analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "interactions"
+                )?.summary?.totals?.totalComments || 0)
+              }
+              change={
                 (analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
                 )?.summary?.totals?.newLikes || 0) +
@@ -369,32 +455,102 @@ export default function AnalyticsPage() {
                   (m: any) => m.metricType === "interactions"
                 )?.summary?.totals?.newComments || 0)
               }
+              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
+              icon={Activity}
+              color="hsl(var(--chart-4))"
+            />
+            <SummaryCard
+              title="Total Views"
+              value={
+                analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "interactions"
+                )?.summary?.totals?.totalViews || 0
+              }
+              change={
+                analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "interactions"
+                )?.summary?.totals?.newViews || 0
+              }
+              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
+              icon={Eye}
+              color="hsl(var(--chart-5))"
+            />
+            <SummaryCard
+              title="Total Likes"
+              value={
+                analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "interactions"
+                )?.summary?.totals?.totalLikes || 0
+              }
               change={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
                 )?.summary?.totals?.newLikes || 0
               }
-              changeLabel="new likes"
-              icon={Activity}
-              color="hsl(var(--chart-4))"
+              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
+              icon={Heart}
+              color="hsl(var(--destructive))"
+            />
+            <SummaryCard
+              title="Total Comments"
+              value={
+                analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "interactions"
+                )?.summary?.totals?.totalComments || 0
+              }
+              change={
+                analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "interactions"
+                )?.summary?.totals?.newComments || 0
+              }
+              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
+              icon={MessageCircle}
+              color="hsl(var(--primary))"
+            />
+            <SummaryCard
+              title="Total Bookmarks"
+              value={
+                analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "interactions"
+                )?.summary?.totals?.totalBookmarks || 0
+              }
+              change={
+                analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "interactions"
+                )?.summary?.totals?.newBookmarks || 0
+              }
+              changeLabel={`this ${selectedGranularity.slice(0, -2)}`}
+              icon={Bookmark}
+              color="hsl(var(--muted-foreground))"
             />
           </div>
 
           {/* Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {/* User Growth Chart */}
             <ChartCard
               title="User Growth"
-              subtitle={`New users per ${selectedGranularity.slice(0, -2)}`}
+              subtitle={`New and active users per ${selectedGranularity.slice(
+                0,
+                -2
+              )}`}
               icon={Users}
             >
               {(() => {
-                const chartData = processChartData(
-                  "users",
-                  "newUsers",
-                  "New Users",
-                  chartColors.users
-                );
+                const chartData = processMultiLineChartData("users", [
+                  {
+                    key: "newUsers",
+                    label: "New Users",
+                    borderColor: "rgba(99, 102, 241, 1)", // Indigo
+                    backgroundColor: "rgba(99, 102, 241, 0.2)",
+                  },
+                  {
+                    key: "activeUsers",
+                    label: "Active Users",
+                    borderColor: "rgba(16, 185, 129, 1)", // Emerald
+                    backgroundColor: "rgba(16, 185, 129, 0.2)",
+                  },
+                ]);
                 return chartData ? (
                   <Line data={chartData} options={chartOptions} />
                 ) : (
@@ -405,9 +561,9 @@ export default function AnalyticsPage() {
               })()}
             </ChartCard>
 
-            {/* Media Upload Chart */}
+            {/* Media Generation Chart */}
             <ChartCard
-              title="Media Uploads"
+              title="Media Generations"
               subtitle={`New media per ${selectedGranularity.slice(0, -2)}`}
               icon={Image}
             >
@@ -419,7 +575,7 @@ export default function AnalyticsPage() {
                   chartColors.media
                 );
                 return chartData ? (
-                  <Bar data={chartData} options={chartOptions} />
+                  <Line data={chartData} options={chartOptions} />
                 ) : (
                   <div className="h-64 flex items-center justify-center text-muted-foreground">
                     No media data available
@@ -454,18 +610,32 @@ export default function AnalyticsPage() {
             {/* Engagement Chart */}
             <ChartCard
               title="User Engagement"
-              subtitle={`Likes per ${selectedGranularity.slice(0, -2)}`}
+              subtitle={`Interactions per ${selectedGranularity.slice(0, -2)}`}
               icon={Activity}
             >
               {(() => {
-                const chartData = processChartData(
-                  "interactions",
-                  "newLikes",
-                  "New Likes",
-                  chartColors.interactions
-                );
+                const chartData = processMultiLineChartData("interactions", [
+                  {
+                    key: "newLikes",
+                    label: "New Likes",
+                    borderColor: "rgba(234, 179, 8, 1)", // Yellow
+                    backgroundColor: "rgba(234, 179, 8, 0.25)",
+                  },
+                  {
+                    key: "newComments",
+                    label: "New Comments",
+                    borderColor: "rgba(168, 85, 247, 1)", // Purple
+                    backgroundColor: "rgba(168, 85, 247, 0.2)",
+                  },
+                  {
+                    key: "newBookmarks",
+                    label: "New Bookmarks",
+                    borderColor: "rgba(245, 101, 101, 1)", // Red
+                    backgroundColor: "rgba(245, 101, 101, 0.2)",
+                  },
+                ]);
                 return chartData ? (
-                  <Bar data={chartData} options={chartOptions} />
+                  <Line data={chartData} options={chartOptions} />
                 ) : (
                   <div className="h-64 flex items-center justify-center text-muted-foreground">
                     No interaction data available
@@ -473,129 +643,98 @@ export default function AnalyticsPage() {
                 );
               })()}
             </ChartCard>
-          </div>
 
-          {/* Combined Overview Chart - Full Width */}
-          <div className="bg-card border rounded-lg p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Zap className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground">
-                    Platform Overview
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Combined metrics showing platform growth
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => refetch()}
-                disabled={isLoading}
-                className="inline-flex items-center gap-2 px-3 py-2 text-sm bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors disabled:opacity-50"
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-                />
-                Refresh
-              </button>
-            </div>
-
-            {isLoading ? (
-              <div className="h-80 bg-muted rounded animate-pulse"></div>
-            ) : (
-              (() => {
-                const usersData = processChartData(
-                  "users",
-                  "newUsers",
-                  "New Users",
-                  chartColors.users
-                );
-                const mediaData = processChartData(
-                  "media",
-                  "newMedia",
-                  "New Media",
-                  chartColors.media
-                );
-                const albumsData = processChartData(
-                  "albums",
-                  "newAlbums",
-                  "New Albums",
-                  chartColors.albums
-                );
-                const likesData = processChartData(
-                  "interactions",
-                  "newLikes",
-                  "New Likes",
-                  chartColors.interactions
-                );
-
-                if (!usersData && !mediaData && !albumsData && !likesData) {
-                  return (
-                    <div className="h-80 flex items-center justify-center text-muted-foreground">
-                      No data available for the selected time period
-                    </div>
-                  );
-                }
-
-                const combinedData = {
-                  labels:
-                    usersData?.labels ||
-                    mediaData?.labels ||
-                    albumsData?.labels ||
-                    [],
-                  datasets: [
-                    ...(usersData ? [usersData.datasets[0]] : []),
-                    ...(mediaData
-                      ? [
-                          {
-                            ...mediaData.datasets[0],
-                            borderColor: chartColors.media.border,
-                            backgroundColor: chartColors.media.background,
-                          },
-                        ]
-                      : []),
-                    ...(albumsData
-                      ? [
-                          {
-                            ...albumsData.datasets[0],
-                            borderColor: chartColors.albums.border,
-                            backgroundColor: chartColors.albums.background,
-                          },
-                        ]
-                      : []),
-                    ...(likesData
-                      ? [
-                          {
-                            ...likesData.datasets[0],
-                            borderColor: chartColors.interactions.border,
-                            backgroundColor:
-                              chartColors.interactions.background,
-                          },
-                        ]
-                      : []),
-                  ],
-                };
-
-                return (
-                  <div className="h-80">
-                    <Line
-                      data={combinedData}
-                      options={{
-                        ...chartOptions,
-                        interaction: {
-                          mode: "index",
-                          intersect: false,
-                        },
-                      }}
-                    />
+            {/* Media Visibility Chart */}
+            <ChartCard
+              title="Media Visibility"
+              subtitle={`Public vs Private media per ${selectedGranularity.slice(
+                0,
+                -2
+              )}`}
+              icon={Lock}
+            >
+              {(() => {
+                const chartData = processMultiLineChartData("media", [
+                  {
+                    key: "publicMedia",
+                    label: "Public Media",
+                    borderColor: "rgba(34, 197, 94, 1)", // Green
+                    backgroundColor: "rgba(34, 197, 94, 0.2)",
+                  },
+                  {
+                    key: "privateMedia",
+                    label: "Private Media",
+                    borderColor: "rgba(239, 68, 68, 1)", // Red
+                    backgroundColor: "rgba(239, 68, 68, 0.2)",
+                  },
+                ]);
+                return chartData ? (
+                  <Line data={chartData} options={chartOptions} />
+                ) : (
+                  <div className="h-64 flex items-center justify-center text-muted-foreground">
+                    No media visibility data available
                   </div>
                 );
-              })()
-            )}
+              })()}
+            </ChartCard>
+
+            {/* Generations Chart */}
+            <ChartCard
+              title="AI Generations"
+              subtitle={`Total generations per ${selectedGranularity.slice(
+                0,
+                -2
+              )}`}
+              icon={Cpu}
+            >
+              {(() => {
+                const chartData = processChartData(
+                  "generations",
+                  "totalGenerations",
+                  "Total Generations",
+                  {
+                    border: "rgba(147, 51, 234, 1)", // Purple
+                    background: "rgba(147, 51, 234, 0.2)",
+                  }
+                );
+                return chartData ? (
+                  <Line data={chartData} options={chartOptions} />
+                ) : (
+                  <div className="h-64 flex items-center justify-center text-muted-foreground">
+                    No generation data available
+                  </div>
+                );
+              })()}
+            </ChartCard>
+
+            {/* Storage Usage Chart */}
+            <ChartCard
+              title="Storage Usage"
+              subtitle={`Storage usage in GB per ${selectedGranularity.slice(
+                0,
+                -2
+              )}`}
+              icon={HardDrive}
+            >
+              {(() => {
+                const chartData = processChartData(
+                  "storage",
+                  "totalStorageGB",
+                  "Storage (GB)",
+                  {
+                    border: "rgba(59, 130, 246, 1)", // Blue
+                    background: "rgba(59, 130, 246, 0.2)",
+                  }
+                );
+                return chartData ? (
+                  <Line data={chartData} options={chartOptions} />
+                ) : (
+                  <div className="h-64 flex items-center justify-center text-muted-foreground">
+                    No storage data available
+                  </div>
+                );
+              })()}
+            </ChartCard>
           </div>
 
           {/* Data Status */}
