@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import {
   BarChart3,
@@ -50,33 +50,35 @@ export default function AnalyticsPage() {
   const [selectedGranularity, setSelectedGranularity] =
     useState<Granularity>("daily");
 
-  // Calculate date range based on granularity
-  const getDateRange = (granularity: Granularity) => {
-    const end = new Date();
-    const start = new Date();
+  // Calculate date range based on granularity with useMemo to prevent unnecessary re-renders
+  const dateRange = useMemo(() => {
+    const getDateRange = (granularity: Granularity) => {
+      const end = new Date();
+      const start = new Date();
 
-    switch (granularity) {
-      case "hourly":
-        start.setHours(start.getHours() - 24); // Last 24 hours
-        break;
-      case "daily":
-        start.setDate(start.getDate() - 30); // Last 30 days
-        break;
-      case "weekly":
-        start.setDate(start.getDate() - 84); // Last 12 weeks
-        break;
-      case "monthly":
-        start.setMonth(start.getMonth() - 12); // Last 12 months
-        break;
-    }
+      switch (granularity) {
+        case "hourly":
+          start.setHours(start.getHours() - 24); // Last 24 hours
+          break;
+        case "daily":
+          start.setDate(start.getDate() - 30); // Last 30 days
+          break;
+        case "weekly":
+          start.setDate(start.getDate() - 84); // Last 12 weeks
+          break;
+        case "monthly":
+          start.setMonth(start.getMonth() - 12); // Last 12 months
+          break;
+      }
 
-    return {
-      start: start.toISOString(),
-      end: end.toISOString(),
+      return {
+        start: start.toISOString(),
+        end: end.toISOString(),
+      };
     };
-  };
 
-  const dateRange = getDateRange(selectedGranularity);
+    return getDateRange(selectedGranularity);
+  }, [selectedGranularity]);
 
   // Fetch all analytics data
   const {
