@@ -192,7 +192,6 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
             {/* Status + Time */}
             <div className="flex flex-col items-end gap-1 flex-shrink-0">
-              {isUnread && <div className="w-2 h-2 bg-primary rounded-full" />}
               <span className="text-xs text-muted-foreground flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 {timeAgo}
