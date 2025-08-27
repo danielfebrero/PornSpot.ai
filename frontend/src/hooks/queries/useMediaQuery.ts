@@ -291,12 +291,32 @@ export function useUpdateMedia() {
         queryKey: queryKeys.media.detail(mediaId),
       });
 
+      // Cancel any outgoing refetches for user media queries
+      await queryClient.cancelQueries({
+        queryKey: ["media", "user"],
+      });
+
+      // Cancel any outgoing refetches for album media queries
+      await queryClient.cancelQueries({
+        queryKey: ["media", "album"],
+      });
+
       // Snapshot the previous values for rollback
       const previousMedia = queryClient.getQueryData(
         queryKeys.media.detail(mediaId)
       );
 
-      // Optimistically update the media in the cache
+      // Snapshot the previous user media values for rollback
+      const previousUserMedia = queryClient.getQueriesData({
+        queryKey: ["media", "user"],
+      });
+
+      // Snapshot the previous album media values for rollback
+      const previousAlbumMedia = queryClient.getQueriesData({
+        queryKey: ["media", "album"],
+      });
+
+      // Optimistically update the media in the detail cache
       queryClient.setQueryData(
         queryKeys.media.detail(mediaId),
         (old: Media | undefined) => {
@@ -310,7 +330,65 @@ export function useUpdateMedia() {
         }
       );
 
-      return { previousMedia };
+      // Optimistically update the media in user media infinite queries
+      queryClient.setQueriesData(
+        { queryKey: ["media", "user"] },
+        (old: InfiniteMediaQueryData | undefined) => {
+          if (!old?.pages) return old;
+
+          const newPages = old.pages.map((page) => ({
+            ...page,
+            media: page.media.map((media) =>
+              media.id === mediaId
+                ? {
+                    ...media,
+                    filename: updates.title ?? media.filename,
+                    isPublic: updates.isPublic ?? media.isPublic,
+                    updatedAt: new Date().toISOString(),
+                  }
+                : media
+            ),
+          }));
+
+          return {
+            ...old,
+            pages: newPages,
+          };
+        }
+      );
+
+      // Optimistically update the media in album media infinite queries
+      queryClient.setQueriesData(
+        { queryKey: ["media", "album"] },
+        (old: InfiniteMediaQueryData | undefined) => {
+          if (!old?.pages) return old;
+
+          const newPages = old.pages.map((page) => ({
+            ...page,
+            media: page.media.map((media) =>
+              media.id === mediaId
+                ? {
+                    ...media,
+                    filename: updates.title ?? media.filename,
+                    isPublic: updates.isPublic ?? media.isPublic,
+                    updatedAt: new Date().toISOString(),
+                  }
+                : media
+            ),
+          }));
+
+          return {
+            ...old,
+            pages: newPages,
+          };
+        }
+      );
+
+      return {
+        previousMedia,
+        previousUserMedia,
+        previousAlbumMedia,
+      };
     },
     onError: (err, variables, context) => {
       // Rollback on error
@@ -320,21 +398,29 @@ export function useUpdateMedia() {
           context.previousMedia
         );
       }
+
+      // Restore user media queries
+      if (context?.previousUserMedia) {
+        context.previousUserMedia.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
+      // Restore album media queries
+      if (context?.previousAlbumMedia) {
+        context.previousAlbumMedia.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
       console.error("Failed to update media:", err);
     },
     onSuccess: (data, variables) => {
       // Update the cache with the server response
       queryClient.setQueryData(queryKeys.media.detail(variables.mediaId), data);
 
-      // Invalidate user media queries to ensure lists are fresh
-      queryClient.invalidateQueries({
-        queryKey: ["media", "user"],
-      });
-
-      // Invalidate album media queries if this media belongs to albums
-      queryClient.invalidateQueries({
-        queryKey: ["media", "album"],
-      });
+      // No need to invalidate user media and album media queries
+      // since optimistic updates already handle the changes
     },
   });
 }
