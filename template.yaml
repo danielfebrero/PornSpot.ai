@@ -751,6 +751,37 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
 
+  UpdateMediaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-update-media-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/media/update.handler"]
+      Events:
+        UpdateMedia:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /media/{mediaId}
+            Method: PUT
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsUpdateMedia:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /media/{mediaId}
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+
   RemoveMediaFromAlbumFunction:
     Type: AWS::Serverless::Function
     Properties:

@@ -60,4 +60,17 @@ export const mediaApi = {
   deleteMedia: async (mediaId: string): Promise<void> => {
     await ApiUtil.delete(`/media/${mediaId}`);
   },
+
+  // Update media properties (title, visibility, etc.)
+  updateMedia: async (
+    mediaId: string,
+    updates: Partial<{
+      title: string;
+      isPublic: boolean;
+      // Add other updatable fields as needed
+    }>
+  ): Promise<Media> => {
+    const response = await ApiUtil.put<Media>(`/media/${mediaId}`, updates);
+    return ApiUtil.extractData(response);
+  },
 };

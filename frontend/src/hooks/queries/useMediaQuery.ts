@@ -269,3 +269,72 @@ export function useDeleteMedia() {
     },
   });
 }
+
+// Mutation hook for updating media properties
+export function useUpdateMedia() {
+  return useMutation({
+    mutationFn: async ({
+      mediaId,
+      updates,
+    }: {
+      mediaId: string;
+      updates: Partial<{
+        title: string;
+        isPublic: boolean;
+      }>;
+    }) => {
+      return await mediaApi.updateMedia(mediaId, updates);
+    },
+    onMutate: async ({ mediaId, updates }) => {
+      // Cancel any outgoing refetches for this media
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.media.detail(mediaId),
+      });
+
+      // Snapshot the previous values for rollback
+      const previousMedia = queryClient.getQueryData(
+        queryKeys.media.detail(mediaId)
+      );
+
+      // Optimistically update the media in the cache
+      queryClient.setQueryData(
+        queryKeys.media.detail(mediaId),
+        (old: Media | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            filename: updates.title ?? old.filename,
+            isPublic: updates.isPublic ?? old.isPublic,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+      );
+
+      return { previousMedia };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousMedia) {
+        queryClient.setQueryData(
+          queryKeys.media.detail(variables.mediaId),
+          context.previousMedia
+        );
+      }
+      console.error("Failed to update media:", err);
+    },
+    onSuccess: (data, variables) => {
+      // Update the cache with the server response
+      queryClient.setQueryData(queryKeys.media.detail(variables.mediaId), data);
+
+      // Invalidate user media queries to ensure lists are fresh
+      queryClient.invalidateQueries({
+        queryKey: ["media", "user"],
+      });
+
+      // Invalidate album media queries if this media belongs to albums
+      queryClient.invalidateQueries({
+        queryKey: ["media", "album"],
+      });
+    },
+  });
+}

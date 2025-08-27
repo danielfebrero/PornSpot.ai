@@ -43,3 +43,20 @@ export async function createMockUser(
 
   return baseUser;
 }
+
+/**
+ * Check if the current user is the owner of the media
+ * @param user - Current user object
+ * @param mediaCreatedBy - The user ID who created the media
+ * @returns boolean indicating if user is the owner
+ */
+export function isMediaOwner(
+  user: User | null,
+  mediaCreatedBy?: string
+): boolean {
+  if (!user || !mediaCreatedBy) {
+    return false;
+  }
+
+  return user.userId === mediaCreatedBy;
+}

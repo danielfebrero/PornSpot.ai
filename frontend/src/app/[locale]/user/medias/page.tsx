@@ -1,18 +1,27 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { ImageIcon, Grid, List, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
-import { useUserMedia } from "@/hooks/queries/useMediaQuery";
+import { EditTitleDialog } from "@/components/ui/EditTitleDialog";
+import { useUserMedia, useUpdateMedia } from "@/hooks/queries/useMediaQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { Media, UnifiedMediaResponse } from "@/types";
+import { useUserContext } from "@/contexts/UserContext";
+import { isMediaOwner } from "@/lib/userUtils";
+import { Globe, Lock, Edit } from "lucide-react";
 
 const UserMediasPage: React.FC = () => {
   const t = useTranslations("user.medias");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [editingMedia, setEditingMedia] = useState<Media | null>(null);
+  const { user } = useUserContext();
+
+  // Use TanStack Query hook for media updates
+  const updateMedia = useUpdateMedia();
 
   // Use TanStack Query hook for user media with infinite scroll
   const {
@@ -26,10 +35,33 @@ const UserMediasPage: React.FC = () => {
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();
 
+  // Handler for confirming title edit
+  const handleConfirmTitleEdit = useCallback(
+    async (newTitle: string) => {
+      if (!editingMedia) return;
+
+      try {
+        await updateMedia.mutateAsync({
+          mediaId: editingMedia.id,
+          updates: { title: newTitle },
+        });
+        console.log(
+          `Updating title for media ${editingMedia.id} to "${newTitle}"`
+        );
+        setEditingMedia(null);
+      } catch (error) {
+        console.error("Failed to update media title:", error);
+      }
+    },
+    [editingMedia, updateMedia]
+  );
+
   // Extract media from infinite query data
   const allMedias = useMemo(() => {
     return (
-      mediaData?.pages.flatMap((page: UnifiedMediaResponse) => page.media || []) || []
+      mediaData?.pages.flatMap(
+        (page: UnifiedMediaResponse) => page.media || []
+      ) || []
     );
   }, [mediaData]);
 
@@ -39,6 +71,45 @@ const UserMediasPage: React.FC = () => {
   }, [allMedias]);
 
   const totalCount = medias.length;
+
+  // Generate custom actions for media owners
+  const getCustomActions = useMemo(() => {
+    return (media: Media) => {
+      const isOwner = isMediaOwner(user, media.createdBy);
+      if (!isOwner) return [];
+
+      return [
+        {
+          label: media.isPublic ? "Make Private" : "Make Public",
+          icon: media.isPublic ? (
+            <Lock className="w-4 h-4" />
+          ) : (
+            <Globe className="w-4 h-4" />
+          ),
+          onClick: async () => {
+            try {
+              await updateMedia.mutateAsync({
+                mediaId: media.id,
+                updates: { isPublic: !media.isPublic },
+              });
+              console.log(`Toggled visibility for media ${media.id}`);
+            } catch (error) {
+              console.error("Failed to toggle media visibility:", error);
+            }
+          },
+          variant: "default" as const,
+        },
+        {
+          label: "Edit Title",
+          icon: <Edit className="w-4 h-4" />,
+          onClick: () => {
+            setEditingMedia(media);
+          },
+          variant: "default" as const,
+        },
+      ];
+    };
+  }, [user, updateMedia]);
 
   // Load more data when approaching the end
   const loadMore = () => {
@@ -104,7 +175,9 @@ const UserMediasPage: React.FC = () => {
                 <ImageIcon className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">{t("medias")}</h1>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {t("medias")}
+                </h1>
                 <p className="text-sm text-muted-foreground">
                   {t("personalMediaGallery")}
                 </p>
@@ -131,7 +204,9 @@ const UserMediasPage: React.FC = () => {
               <ImageIcon className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">{t("medias")}</h1>
+              <h1 className="text-3xl font-bold text-foreground">
+                {t("medias")}
+              </h1>
               <p className="text-muted-foreground">
                 {t("personalMediaGallery")}
               </p>
@@ -194,6 +269,7 @@ const UserMediasPage: React.FC = () => {
             canDelete: true,
             showCounts: true,
             showTags: false,
+            customActions: getCustomActions,
             preferredThumbnailSize:
               viewMode === "grid" ? undefined : "originalSize",
           }}
@@ -236,6 +312,17 @@ const UserMediasPage: React.FC = () => {
             </LocaleLink>
           </div>
         </div>
+      )}
+
+      {/* Edit Title Dialog */}
+      {editingMedia && (
+        <EditTitleDialog
+          isOpen={!!editingMedia}
+          onClose={() => setEditingMedia(null)}
+          onConfirm={handleConfirmTitleEdit}
+          currentTitle={editingMedia.filename || ""}
+          loading={updateMedia.isPending}
+        />
       )}
     </div>
   );
