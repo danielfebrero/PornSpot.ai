@@ -32,7 +32,7 @@ const DEFAULT_SETTINGS: GenerationSettings = {
   isPublic: true,
   cfgScale: 4.5,
   steps: 30,
-  seed: -1,
+  seed: 0,
 };
 
 // UI state for the generation interface

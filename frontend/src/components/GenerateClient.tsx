@@ -1065,14 +1065,14 @@ export function GenerateClient() {
                 <div className="space-y-3">
                   <Input
                     type="number"
-                    value={settings.seed !== undefined ? settings.seed : -1}
+                    value={settings.seed !== undefined ? settings.seed : 0}
                     onChange={(e) =>
                       canUseSeed() &&
-                      updateSettings("seed", parseInt(e.target.value) || -1)
+                      updateSettings("seed", parseInt(e.target.value) || 0)
                     }
                     disabled={!canUseSeed()}
                     placeholder={t("randomSeedPlaceholder")}
-                    min={-1}
+                    min={0}
                     className="w-full"
                   />
                   <p className="text-xs text-muted-foreground">

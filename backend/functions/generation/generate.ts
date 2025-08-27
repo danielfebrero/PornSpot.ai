@@ -107,7 +107,7 @@ const CONFIG = {
     },
     cfgScale: { min: 1, max: 10, default: 4.5 },
     steps: { min: 5, max: 60, default: 30 },
-    seed: { min: -1, max: 2147483647, default: -1 }, // Max 32-bit signed integer
+    seed: { min: 0, max: 2147483647, default: 0 }, // Max 32-bit signed integer
   },
   MODELS: {
     moderation: "mistralai/mistral-medium-3.1",
@@ -1112,6 +1112,12 @@ const handleGenerate = async (
 
   // Parse request and fetch user
   const requestBody: GenerationRequest = LambdaHandlerUtil.parseJsonBody(event);
+  
+  // Replace seed of 0 with a random number
+  if (requestBody.seed === 0) {
+    requestBody.seed = Math.floor(Math.random() * 2147483647);
+  }
+  
   let enhancedUser: User | null = null;
   if (auth.userId) {
     const userEntity = await DynamoDBService.getUserById(auth.userId);
