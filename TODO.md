@@ -94,7 +94,7 @@
 
 [ ] Ability to follow users.
 
-[ ] Button to delete the prompt.
+[x] Button to delete the prompt.
 
 [ ] Remember user preferences on Generate page.
 
