@@ -625,13 +625,21 @@ export function ContentCard({
                             setDropdownOpen(false);
                           }}
                           className={cn(
-                            "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors whitespace-nowrap h-[36px]",
+                            "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors whitespace-nowrap h-[36px] text-white",
                             action.variant === "destructive"
-                              ? "text-red-500 hover:text-red-700"
-                              : "text-gray-500 hover:text-gray-700"
+                              ? "hover:text-red-100"
+                              : "hover:text-gray-100"
                           )}
                         >
-                          {action.icon}
+                          <span
+                            className={cn(
+                              action.variant === "destructive"
+                                ? "text-red-500 hover:text-red-700"
+                                : "text-white/60 hover:text-white/80"
+                            )}
+                          >
+                            {action.icon}
+                          </span>
                           {action.label}
                         </button>
                       ))}
@@ -1006,13 +1014,21 @@ export function ContentCard({
                             setDropdownOpen(false);
                           }}
                           className={cn(
-                            "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors whitespace-nowrap h-10 text-gray-500 hover:text-gray-700",
+                            "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors whitespace-nowrap h-10 text-white",
                             action.variant === "destructive"
-                              ? "text-red-500 hover:text-red-700"
-                              : ""
+                              ? "hover:text-red-100"
+                              : "hover:text-gray-100"
                           )}
                         >
-                          {action.icon}
+                          <span
+                            className={cn(
+                              action.variant === "destructive"
+                                ? "text-red-500 hover:text-red-700"
+                                : "text-white/60 hover:text-white/80"
+                            )}
+                          >
+                            {action.icon}
+                          </span>
                           {action.label}
                         </button>
                       ))}
