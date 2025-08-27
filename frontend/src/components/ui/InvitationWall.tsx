@@ -102,7 +102,7 @@ export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
   };
 
   return (
-    <div className="flex items-center justify-center p-4">
+    <div className="flex items-center justify-center p-4 overflow-hidden">
       <StarsBackground />
 
       <div className="relative z-10 w-full max-w-md mx-auto">
@@ -203,9 +203,9 @@ export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
           </div>
         </div>
 
-        {/* Additional magical elements */}
-        <div className="absolute -top-10 -left-10 w-20 h-20 bg-gradient-to-br from-pink-400/30 to-purple-600/30 rounded-full blur-xl animate-pulse pointer-events-none"></div>
-        <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-2xl animate-pulse delay-1000 pointer-events-none"></div>
+        {/* Additional magical elements - adjusted for mobile */}
+        <div className="absolute -top-5 -left-5 sm:-top-10 sm:-left-10 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-pink-400/30 to-purple-600/30 rounded-full blur-xl animate-pulse pointer-events-none"></div>
+        <div className="absolute -bottom-5 -right-5 sm:-bottom-10 sm:-right-10 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-2xl animate-pulse delay-1000 pointer-events-none"></div>
       </div>
     </div>
   );
