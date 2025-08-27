@@ -104,6 +104,7 @@ interface GenerationContextType {
   settings: GenerationSettings;
   updateSettings: (key: keyof GenerationSettings, value: unknown) => void;
   resetSettings: () => void;
+  loadUserSettings: () => Promise<void>;
 
   // UI state
   uiState: GenerationUIState;
@@ -681,6 +682,43 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
     setSettings(DEFAULT_SETTINGS);
   }, []);
 
+  // Load user settings from API
+  const loadUserSettings = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      const userSettings = await generateApi.getUserSettings();
+      if (userSettings) {
+        // Merge user settings with current settings, keeping local changes where appropriate
+        setSettings((prev) => ({
+          ...prev,
+          imageSize: userSettings.imageSize,
+          customWidth: userSettings.customWidth,
+          customHeight: userSettings.customHeight,
+          batchCount: userSettings.batchCount,
+          isPublic: userSettings.isPublic,
+          cfgScale: userSettings.cfgScale,
+          steps: userSettings.steps,
+          negativePrompt: userSettings.negativePrompt,
+        }));
+        console.log("✅ Loaded user generation settings");
+      }
+    } catch (error) {
+      console.error("❌ Failed to load user generation settings:", error);
+      // Don't show error to user, just use defaults
+    }
+  }, [user]);
+
+  // Load user settings when user changes
+  useEffect(() => {
+    if (user) {
+      loadUserSettings();
+    } else {
+      // Reset to defaults when user logs out
+      setSettings(DEFAULT_SETTINGS);
+    }
+  }, [user, loadUserSettings]);
+
   // UI state methods
   const setAllGeneratedImages = useCallback(
     (images: Media[] | ((prev: Media[]) => Media[])) => {
@@ -840,6 +878,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
     settings,
     updateSettings,
     resetSettings,
+    loadUserSettings,
 
     // UI state
     uiState,

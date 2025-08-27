@@ -22,6 +22,7 @@ import {
   ThumbnailUrls,
   NotificationEntity,
   NotificationWithDetails,
+  GenerationSettingsEntity,
 } from "@shared/shared-types";
 import {
   UserEntity,
@@ -3967,5 +3968,63 @@ export class DynamoDBService {
       console.error("❌ Failed to increment view count:", error);
       // Don't throw - view tracking failure shouldn't break view tracking
     }
+  }
+
+  // ====================================
+  // Generation Settings Methods
+  // ====================================
+
+  static async createGenerationSettings(
+    settings: GenerationSettingsEntity
+  ): Promise<void> {
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: settings,
+      })
+    );
+  }
+
+  static async createGenerationSettingsFromRequest(
+    userId: string,
+    requestBody: any
+  ): Promise<void> {
+    const settingsEntity: GenerationSettingsEntity = {
+      PK: `GEN_SETTINGS#${userId}`,
+      SK: "METADATA",
+      EntityType: "GenerationSettings",
+      userId: userId,
+      imageSize: requestBody.imageSize || "512x512",
+      customWidth: requestBody.customWidth || 512,
+      customHeight: requestBody.customHeight || 512,
+      batchCount: requestBody.batchCount || 1,
+      isPublic:
+        requestBody.isPublic !== undefined
+          ? String(requestBody.isPublic)
+          : "false",
+      cfgScale: requestBody.cfgScale || 4.5,
+      steps: requestBody.steps || 30,
+      negativePrompt: requestBody.negativePrompt || "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    await this.createGenerationSettings(settingsEntity);
+  }
+
+  static async getGenerationSettings(
+    userId: string
+  ): Promise<GenerationSettingsEntity | null> {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `GEN_SETTINGS#${userId}`,
+          SK: "METADATA",
+        },
+      })
+    );
+
+    return (result.Item as GenerationSettingsEntity) || null;
   }
 }

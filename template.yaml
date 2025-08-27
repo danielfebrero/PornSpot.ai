@@ -1845,6 +1845,35 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
 
+  UserGenerationSettingsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-generation-settings-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/generation/get-settings.handler"]
+      Events:
+        GetGenerationSettings:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/generation/settings
+            Method: GET
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsGenerationSettings:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/generation/settings
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
   UserAvatarUploadFunction:
     Type: AWS::Serverless::Function
     Properties:

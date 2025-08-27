@@ -57,7 +57,8 @@ export type EntityType =
   | "EmailVerificationToken"
   | "PasswordResetToken"
   | "Analytics"
-  | "MetricsCache";
+  | "MetricsCache"
+  | "GenerationSettings";
 
 export type CreatorType = "user" | "admin";
 

@@ -1172,6 +1172,23 @@ const handleGenerate = async (
     }
   }
 
+  // Save generation settings for authenticated users
+  if (auth.userId) {
+    try {
+      await DynamoDBService.createGenerationSettingsFromRequest(
+        auth.userId,
+        requestBody
+      );
+      console.log(`✅ Saved generation settings for user: ${auth.userId}`);
+    } catch (error) {
+      console.error(
+        `❌ Failed to save generation settings for user ${auth.userId}:`,
+        error
+      );
+      // Don't fail the generation if settings save fails
+    }
+  }
+
   // Get WebSocket connection (only for authenticated users)
   let connectionId: string | null = null;
   if (auth.userId) {

@@ -9,6 +9,18 @@ export interface UsageStatsResponse {
   plan?: "free" | "starter" | "pro" | "unlimited";
 }
 
+export interface UserGenerationSettingsResponse {
+  imageSize: string;
+  customWidth: number;
+  customHeight: number;
+  batchCount: number;
+  isPublic: boolean;
+  cfgScale: number;
+  steps: number;
+  negativePrompt: string;
+  lastUpdated: string;
+}
+
 // Generate API Functions
 export const generateApi = {
   // Generate image
@@ -37,6 +49,20 @@ export const generateApi = {
         credentials: "include",
       }
     );
+
+    return ApiUtil.extractData(response);
+  },
+
+  // Get user generation settings
+  getUserSettings: async (): Promise<UserGenerationSettingsResponse | null> => {
+    const response =
+      await ApiUtil.request<UserGenerationSettingsResponse | null>(
+        "/user/generation/settings",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
 
     return ApiUtil.extractData(response);
   },

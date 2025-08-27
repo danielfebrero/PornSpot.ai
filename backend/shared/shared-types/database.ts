@@ -339,3 +339,21 @@ export interface MetricsCacheEntity extends BaseEntity {
   lastUpdated: string;
   ttl: number; // DynamoDB TTL for cache expiration
 }
+
+// Generation Settings Entity - for storing user generation preferences
+export interface GenerationSettingsEntity extends BaseEntity {
+  PK: string; // GEN_SETTINGS#{userId}
+  SK: string; // METADATA
+  EntityType: "GenerationSettings";
+  userId: string;
+  imageSize: string;
+  customWidth: number;
+  customHeight: number;
+  batchCount: number;
+  isPublic: string; // "true" or "false" - stored as string for GSI compatibility
+  cfgScale: number;
+  steps: number;
+  negativePrompt: string;
+  createdAt: string;
+  updatedAt: string;
+}
