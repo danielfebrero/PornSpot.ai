@@ -68,8 +68,6 @@ interface VirtualizedGridProps<T extends GridItem> {
         }>);
     currentAlbumId?: string;
     inActions?: {
-      like: boolean;
-      bookmark: boolean;
       addToAlbum: boolean;
       removeFromAlbum: boolean;
       download: boolean;

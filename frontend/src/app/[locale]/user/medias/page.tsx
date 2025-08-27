@@ -273,8 +273,6 @@ const UserMediasPage: React.FC = () => {
             preferredThumbnailSize:
               viewMode === "grid" ? undefined : "originalSize",
             inActions: {
-              like: true,
-              bookmark: true,
               addToAlbum: true,
               removeFromAlbum: true,
               download: true,

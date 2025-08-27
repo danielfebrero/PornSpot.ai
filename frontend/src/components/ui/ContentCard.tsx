@@ -421,45 +421,10 @@ export function ContentCard({
   const builtCustomActions = useMemo(() => {
     const actions = customActions ? [...customActions] : [];
 
-    // Add actions that should be in dropdown based on inActions
-    if (canBookmark && inActions?.bookmark) {
-      actions.push({
-        label: "Bookmark",
-        icon: (
-          <BookmarkButton
-            targetType={isMedia ? "media" : "album"}
-            targetId={item.id}
-            size="sm"
-            showCount={false}
-          />
-        ),
-        onClick: () => {
-          // The BookmarkButton component handles the click internally
-        },
-      });
-    }
-
-    if (canLike && inActions?.like) {
-      actions.push({
-        label: "Like",
-        icon: (
-          <LikeButton
-            targetType={isMedia ? "media" : "album"}
-            targetId={item.id}
-            size="sm"
-            showCount={false}
-          />
-        ),
-        onClick: () => {
-          // The LikeButton component handles the click internally
-        },
-      });
-    }
-
     if (canAddToAlbum && inActions?.addToAlbum) {
       actions.push({
         label: "Add to Album",
-        icon: <Plus className="h-4 w-4" />,
+        icon: <Plus className="h-4 w-4 text-gray-500" />,
         onClick: handleAddToAlbum,
       });
     }
@@ -467,7 +432,7 @@ export function ContentCard({
     if (canRemoveFromAlbum && inActions?.removeFromAlbum) {
       actions.push({
         label: "Remove from Album",
-        icon: <Minus className="h-4 w-4" />,
+        icon: <Minus className="h-4 w-4 text-red-500" />,
         onClick: () => setRemoveConfirmOpen(true),
         variant: "destructive" as const,
       });
@@ -476,7 +441,7 @@ export function ContentCard({
     if (canDownload && inActions?.download) {
       actions.push({
         label: "Download",
-        icon: <Download className="h-4 w-4" />,
+        icon: <Download className="h-4 w-4 text-gray-500" />,
         onClick: handleDownload,
       });
     }
@@ -484,7 +449,7 @@ export function ContentCard({
     if (canDelete && inActions?.delete) {
       actions.push({
         label: "Delete",
-        icon: <Trash2 className="h-4 w-4" />,
+        icon: <Trash2 className="h-4 w-4 text-red-500" />,
         onClick: () => setDeleteConfirmOpen(true),
         variant: "destructive" as const,
       });
@@ -493,15 +458,11 @@ export function ContentCard({
     return actions.length > 0 ? actions : undefined;
   }, [
     customActions,
-    canBookmark,
-    canLike,
     canAddToAlbum,
     canRemoveFromAlbum,
     canDownload,
     canDelete,
     inActions,
-    isMedia,
-    item.id,
     handleAddToAlbum,
     handleDownload,
   ]);
@@ -512,7 +473,7 @@ export function ContentCard({
         ref={cardRef}
         data-content-card
         className={cn(
-          "group relative cursor-pointer overflow-hidden shadow-lg transition-all duration-200 isolate",
+          "group relative cursor-pointer overflow-visible shadow-lg transition-all duration-200 isolate",
           !useAllAvailableSpace && "rounded-lg sm:rounded-xl",
           !disableHoverEffects && !useAllAvailableSpace && "hover:shadow-xl",
           aspectRatio === "square" && !useAllAvailableSpace
@@ -644,7 +605,7 @@ export function ContentCard({
 
                   {dropdownOpen && (
                     <div
-                      className="absolute right-0 top-full mt-1 min-w-max bg-card border border-border rounded-lg shadow-lg py-1 z-20 backdrop-blur-sm"
+                      className="absolute right-0 top-full mt-1 min-w-max bg-card border border-border rounded-lg shadow-lg py-1 z-50 backdrop-blur-sm max-h-60 overflow-y-auto"
                       data-dropdown-content
                     >
                       {builtCustomActions.map((action, index) => (
@@ -657,10 +618,10 @@ export function ContentCard({
                             setDropdownOpen(false);
                           }}
                           className={cn(
-                            "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors whitespace-nowrap",
+                            "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors whitespace-nowrap h-[36px]",
                             action.variant === "destructive"
-                              ? "text-destructive"
-                              : "text-foreground"
+                              ? "text-red-500 hover:text-red-700"
+                              : "text-gray-500 hover:text-gray-700"
                           )}
                         >
                           {action.icon}
@@ -752,7 +713,7 @@ export function ContentCard({
                 {/* Like, Bookmark, View count */}
                 {showCounts && (
                   <div className="flex items-center gap-3">
-                    {canBookmark && !inActions?.bookmark && (
+                    {canBookmark && (
                       <div
                         onClick={(e) => e.stopPropagation()}
                         className={cn(
@@ -775,7 +736,7 @@ export function ContentCard({
                         />
                       </div>
                     )}
-                    {canLike && !inActions?.like && (
+                    {canLike && (
                       <div
                         onClick={(e) => e.stopPropagation()}
                         className={cn(
@@ -1025,7 +986,7 @@ export function ContentCard({
 
                   {dropdownOpen && (
                     <div
-                      className="absolute right-0 top-full mt-1 min-w-max bg-card border border-border rounded-lg shadow-lg py-1 z-20 backdrop-blur-sm"
+                      className="absolute right-0 top-full mt-1 min-w-max bg-card border border-border rounded-lg shadow-lg py-1 z-50 backdrop-blur-sm max-h-60 overflow-y-auto"
                       data-dropdown-content
                     >
                       {builtCustomActions.map((action, index) => (
@@ -1038,10 +999,10 @@ export function ContentCard({
                             setDropdownOpen(false);
                           }}
                           className={cn(
-                            "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors whitespace-nowrap",
+                            "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors whitespace-nowrap h-10 text-gray-500 hover:text-gray-700",
                             action.variant === "destructive"
-                              ? "text-destructive"
-                              : "text-foreground"
+                              ? "text-red-500 hover:text-red-700"
+                              : ""
                           )}
                         >
                           {action.icon}
