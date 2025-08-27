@@ -52,7 +52,7 @@ export const getLoraModels = (t: (key: string) => string) => [
   },
   {
     id: "bread",
-    name: "Anthropomorphisme",
+    name: "Anthropomorphism",
     description: t("loraModels.bread"),
   },
 ];
