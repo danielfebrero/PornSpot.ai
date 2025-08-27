@@ -21,7 +21,7 @@ const S3_BUCKET = process.env["S3_BUCKET"];
  * Mapping of metric types to their relevant metric fields
  */
 const METRIC_TYPE_MAPPING: Record<MetricType, (keyof AnalyticsMetrics)[]> = {
-  users: ["totalUsers", "newUsers", "activeUsers", "deletedUsers"],
+  users: ["totalUsers", "newUsers", "activeUsers", "deletedUsers", "visitors"],
   media: [
     "totalMedia",
     "newMedia",
@@ -247,6 +247,32 @@ export async function calculateUserMetrics(
       lastKey = res.LastEvaluatedKey;
     } while (lastKey);
     metrics.activeUsers = activeUsersCount;
+
+    // Get visitors count in time range - count unique VISITOR entries
+    let visitorsCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          KeyConditionExpression: "PK = :pk",
+          FilterExpression: "#ts BETWEEN :start AND :end",
+          ExpressionAttributeNames: {
+            "#ts": "timestamp",
+          },
+          ExpressionAttributeValues: {
+            ":pk": "VISITOR",
+            ":start": startTime,
+            ":end": endTime,
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      visitorsCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.visitors = visitorsCount;
   } catch (error) {
     console.error("Error calculating user metrics:", error);
   }

@@ -19,6 +19,7 @@ export interface AnalyticsMetrics {
   newUsers?: number;
   activeUsers?: number;
   deletedUsers?: number;
+  visitors?: number;
 
   // Media metrics
   totalMedia?: number;
