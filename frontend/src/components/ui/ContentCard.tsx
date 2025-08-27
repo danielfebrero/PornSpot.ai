@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useLocaleRouter } from "@/lib/navigation";
 import { useNavigationLoading } from "@/contexts/NavigationLoadingContext";
 import {
@@ -74,6 +74,16 @@ interface ContentCardProps {
     variant?: "default" | "destructive";
   }[];
 
+  // Control which actions should be shown in dropdown instead of as individual buttons
+  inActions?: {
+    like?: boolean;
+    bookmark?: boolean;
+    addToAlbum?: boolean;
+    removeFromAlbum?: boolean;
+    download?: boolean;
+    delete?: boolean;
+  };
+
   // Event handlers (optional - if not provided, default behavior will be used)
   onClick?: () => void;
   onFullscreen?: () => void;
@@ -120,6 +130,7 @@ export function ContentCard({
   disableHoverEffects = false,
   useAllAvailableSpace = false,
   customActions,
+  inActions,
   onClick,
   onFullscreen,
   onAddToAlbum,
@@ -284,7 +295,7 @@ export function ContentCard({
     }
   };
 
-  const handleAddToAlbum = () => {
+  const handleAddToAlbum = useCallback(() => {
     if (onAddToAlbum) {
       onAddToAlbum();
     }
@@ -299,7 +310,7 @@ export function ContentCard({
       // Default behavior: show add to album dialog for media items
       setAddToAlbumDialogOpen(true);
     }
-  };
+  }, [onAddToAlbum, isMedia, media, user, redirectToLogin]);
 
   const handleConfirmRemove = async () => {
     if (onRemoveFromAlbum) {
@@ -323,7 +334,7 @@ export function ContentCard({
     }
   };
 
-  const handleDownload = async () => {
+  const handleDownload = useCallback(async () => {
     if (onDownload) {
       onDownload();
     }
@@ -379,7 +390,7 @@ export function ContentCard({
         document.body.removeChild(link);
       }
     }
-  };
+  }, [onDownload, isMedia, media]);
 
   const handleConfirmDelete = async () => {
     if (onDelete) {
@@ -405,6 +416,95 @@ export function ContentCard({
     }
     return [];
   };
+
+  // Build custom actions array based on inActions prop
+  const builtCustomActions = useMemo(() => {
+    const actions = customActions ? [...customActions] : [];
+
+    // Add actions that should be in dropdown based on inActions
+    if (canBookmark && inActions?.bookmark) {
+      actions.push({
+        label: "Bookmark",
+        icon: (
+          <BookmarkButton
+            targetType={isMedia ? "media" : "album"}
+            targetId={item.id}
+            size="sm"
+            showCount={false}
+          />
+        ),
+        onClick: () => {
+          // The BookmarkButton component handles the click internally
+        },
+      });
+    }
+
+    if (canLike && inActions?.like) {
+      actions.push({
+        label: "Like",
+        icon: (
+          <LikeButton
+            targetType={isMedia ? "media" : "album"}
+            targetId={item.id}
+            size="sm"
+            showCount={false}
+          />
+        ),
+        onClick: () => {
+          // The LikeButton component handles the click internally
+        },
+      });
+    }
+
+    if (canAddToAlbum && inActions?.addToAlbum) {
+      actions.push({
+        label: "Add to Album",
+        icon: <Plus className="h-4 w-4" />,
+        onClick: handleAddToAlbum,
+      });
+    }
+
+    if (canRemoveFromAlbum && inActions?.removeFromAlbum) {
+      actions.push({
+        label: "Remove from Album",
+        icon: <Minus className="h-4 w-4" />,
+        onClick: () => setRemoveConfirmOpen(true),
+        variant: "destructive" as const,
+      });
+    }
+
+    if (canDownload && inActions?.download) {
+      actions.push({
+        label: "Download",
+        icon: <Download className="h-4 w-4" />,
+        onClick: handleDownload,
+      });
+    }
+
+    if (canDelete && inActions?.delete) {
+      actions.push({
+        label: "Delete",
+        icon: <Trash2 className="h-4 w-4" />,
+        onClick: () => setDeleteConfirmOpen(true),
+        variant: "destructive" as const,
+      });
+    }
+
+    return actions.length > 0 ? actions : undefined;
+  }, [
+    customActions,
+    canBookmark,
+    canLike,
+    canAddToAlbum,
+    canRemoveFromAlbum,
+    canDownload,
+    canDelete,
+    inActions,
+    isMedia,
+    item.id,
+    handleAddToAlbum,
+    handleDownload,
+  ]);
 
   return (
     <>
@@ -507,95 +607,141 @@ export function ContentCard({
             )}
 
             {/* Right column - Action buttons over image */}
-            {(canFullscreen ||
-              canAddToAlbum ||
-              canRemoveFromAlbum ||
-              canDownload ||
-              canDelete) && (
-              <div
-                className={cn(
-                  "absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex flex-col gap-1 sm:gap-2 transition-opacity duration-200",
-                  isMobileInterface
-                    ? showMobileActions
-                      ? "opacity-100"
-                      : "opacity-0 pointer-events-none"
-                    : isHovered
+            <div
+              className={cn(
+                "absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex flex-col gap-1 sm:gap-2 transition-opacity duration-200",
+                isMobileInterface
+                  ? showMobileActions
                     ? "opacity-100"
-                    : "opacity-0"
-                )}
-              >
-                {canFullscreen && (
-                  <Tooltip content="View fullscreen" side="left">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleFullscreen();
-                      }}
-                      className="p-2.5 sm:p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                      aria-label="View fullscreen"
+                    : "opacity-0 pointer-events-none"
+                  : isHovered
+                  ? "opacity-100"
+                  : "opacity-0"
+              )}
+            >
+              {builtCustomActions && (
+                <div className="relative">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setDropdownOpen(!dropdownOpen);
+                    }}
+                    className={cn(
+                      "transition-opacity duration-200 w-8 h-8 p-0 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-lg flex items-center justify-center",
+                      isMobileInterface
+                        ? showMobileActions
+                          ? "opacity-100"
+                          : "opacity-0 pointer-events-none"
+                        : isHovered
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                    aria-label="Content actions"
+                  >
+                    <MoreVertical className="h-4 w-4 text-white" />
+                  </button>
+
+                  {dropdownOpen && (
+                    <div
+                      className="absolute right-0 top-full mt-1 min-w-max bg-card border border-border rounded-lg shadow-lg py-1 z-20 backdrop-blur-sm"
+                      data-dropdown-content
                     >
-                      <Maximize2 className="h-4 w-4 sm:h-4 sm:w-4" />
-                    </button>
-                  </Tooltip>
-                )}
-                {canAddToAlbum && (
-                  <Tooltip content="Add to album" side="left">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToAlbum();
-                      }}
-                      className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-gray-800 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                      aria-label="Add to album"
-                    >
-                      <Plus className="h-4 w-4 sm:h-4 sm:w-4" />
-                    </button>
-                  </Tooltip>
-                )}
-                {canRemoveFromAlbum && (
-                  <Tooltip content="Remove from album" side="left">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setRemoveConfirmOpen(true);
-                      }}
-                      className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-red-600 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                      aria-label="Remove from album"
-                    >
-                      <Minus className="h-4 w-4 sm:h-4 sm:w-4" />
-                    </button>
-                  </Tooltip>
-                )}
-                {canDownload && (
-                  <Tooltip content="Download" side="left">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDownload();
-                      }}
-                      className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-gray-800 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                      aria-label="Download"
-                    >
-                      <Download className="h-4 w-4 sm:h-4 sm:w-4" />
-                    </button>
-                  </Tooltip>
-                )}
-                {canDelete && (
-                  <Tooltip content="Delete" side="left">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeleteConfirmOpen(true);
-                      }}
-                      className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-red-600 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                      aria-label="Delete"
-                    >
-                      <Trash2 className="h-4 w-4 sm:h-4 sm:w-4" />
-                    </button>
-                  </Tooltip>
-                )}
-              </div>
-            )}
+                      {builtCustomActions.map((action, index) => (
+                        <button
+                          key={index}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            action.onClick();
+                            setDropdownOpen(false);
+                          }}
+                          className={cn(
+                            "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors whitespace-nowrap",
+                            action.variant === "destructive"
+                              ? "text-destructive"
+                              : "text-foreground"
+                          )}
+                        >
+                          {action.icon}
+                          {action.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              {canFullscreen && (
+                <Tooltip content="View fullscreen" side="left">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleFullscreen();
+                    }}
+                    className="p-2.5 sm:p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                    aria-label="View fullscreen"
+                  >
+                    <Maximize2 className="h-4 w-4 sm:h-4 sm:w-4" />
+                  </button>
+                </Tooltip>
+              )}
+              {canAddToAlbum && !inActions?.addToAlbum && (
+                <Tooltip content="Add to album" side="left">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToAlbum();
+                    }}
+                    className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-gray-800 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                    aria-label="Add to album"
+                  >
+                    <Plus className="h-4 w-4 sm:h-4 sm:w-4" />
+                  </button>
+                </Tooltip>
+              )}
+              {canRemoveFromAlbum && !inActions?.removeFromAlbum && (
+                <Tooltip content="Remove from album" side="left">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setRemoveConfirmOpen(true);
+                    }}
+                    className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-red-600 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                    aria-label="Remove from album"
+                  >
+                    <Minus className="h-4 w-4 sm:h-4 sm:w-4" />
+                  </button>
+                </Tooltip>
+              )}
+              {canDownload && !inActions?.download && (
+                <Tooltip content="Download" side="left">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDownload();
+                    }}
+                    className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-gray-800 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                    aria-label="Download"
+                  >
+                    <Download className="h-4 w-4 sm:h-4 sm:w-4" />
+                  </button>
+                </Tooltip>
+              )}
+              {canDelete && !inActions?.delete && (
+                <Tooltip content="Delete" side="left">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteConfirmOpen(true);
+                    }}
+                    className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-red-600 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                    aria-label="Delete"
+                  >
+                    <Trash2 className="h-4 w-4 sm:h-4 sm:w-4" />
+                  </button>
+                </Tooltip>
+              )}
+            </div>
 
             {/* Bottom content for media - exactly like albums */}
             <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -606,7 +752,7 @@ export function ContentCard({
                 {/* Like, Bookmark, View count */}
                 {showCounts && (
                   <div className="flex items-center gap-3">
-                    {canBookmark && (
+                    {canBookmark && !inActions?.bookmark && (
                       <div
                         onClick={(e) => e.stopPropagation()}
                         className={cn(
@@ -629,7 +775,7 @@ export function ContentCard({
                         />
                       </div>
                     )}
-                    {canLike && (
+                    {canLike && !inActions?.like && (
                       <div
                         onClick={(e) => e.stopPropagation()}
                         className={cn(
@@ -767,7 +913,7 @@ export function ContentCard({
                 </p>
                 {showCounts && (
                   <div className="flex items-center gap-3">
-                    {canBookmark && (
+                    {canBookmark && !inActions?.bookmark && (
                       <div
                         onClick={(e) => e.stopPropagation()}
                         className={cn(
@@ -790,7 +936,7 @@ export function ContentCard({
                         />
                       </div>
                     )}
-                    {canLike && (
+                    {canLike && !inActions?.like && (
                       <div
                         onClick={(e) => e.stopPropagation()}
                         className={cn(
@@ -842,11 +988,19 @@ export function ContentCard({
             </div>
 
             {/* Right column - Action buttons over image */}
-            {customActions ? (
-              <div
-                className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10"
-                data-dropdown-container
-              >
+            <div
+              className={cn(
+                "absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex flex-col gap-1 sm:gap-2 transition-opacity duration-200",
+                isMobileInterface
+                  ? showMobileActions
+                    ? "opacity-100"
+                    : "opacity-0 pointer-events-none"
+                  : isHovered
+                  ? "opacity-100"
+                  : "opacity-0"
+              )}
+            >
+              {builtCustomActions && (
                 <div className="relative">
                   <button
                     onClick={(e) => {
@@ -874,7 +1028,7 @@ export function ContentCard({
                       className="absolute right-0 top-full mt-1 min-w-max bg-card border border-border rounded-lg shadow-lg py-1 z-20 backdrop-blur-sm"
                       data-dropdown-content
                     >
-                      {customActions.map((action, index) => (
+                      {builtCustomActions.map((action, index) => (
                         <button
                           key={index}
                           onClick={(e) => {
@@ -897,36 +1051,22 @@ export function ContentCard({
                     </div>
                   )}
                 </div>
-              </div>
-            ) : canDelete ? (
-              <div
-                className={cn(
-                  "absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex flex-col gap-1 sm:gap-2 transition-opacity duration-200",
-                  isMobileInterface
-                    ? showMobileActions
-                      ? "opacity-100"
-                      : "opacity-0 pointer-events-none"
-                    : isHovered
-                    ? "opacity-100"
-                    : "opacity-0"
-                )}
-              >
-                {canDelete && (
-                  <Tooltip content="Delete" side="left">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeleteConfirmOpen(true);
-                      }}
-                      className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-red-600 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                      aria-label="Delete"
-                    >
-                      <Trash2 className="h-4 w-4 sm:h-4 sm:w-4" />
-                    </button>
-                  </Tooltip>
-                )}
-              </div>
-            ) : null}
+              )}
+              {canDelete && !inActions?.delete && (
+                <Tooltip content="Delete" side="left">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteConfirmOpen(true);
+                    }}
+                    className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-red-600 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                    aria-label="Delete"
+                  >
+                    <Trash2 className="h-4 w-4 sm:h-4 sm:w-4" />
+                  </button>
+                </Tooltip>
+              )}
+            </div>
           </div>
         ) : null}
       </div>

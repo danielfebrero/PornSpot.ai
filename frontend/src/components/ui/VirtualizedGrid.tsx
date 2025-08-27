@@ -67,6 +67,14 @@ interface VirtualizedGridProps<T extends GridItem> {
           variant?: "default" | "destructive";
         }>);
     currentAlbumId?: string;
+    inActions?: {
+      like: boolean;
+      bookmark: boolean;
+      addToAlbum: boolean;
+      removeFromAlbum: boolean;
+      download: boolean;
+      delete: boolean;
+    };
   };
 
   // Optional mediaList for lightbox navigation (media grids only)

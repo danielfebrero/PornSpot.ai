@@ -272,6 +272,14 @@ const UserMediasPage: React.FC = () => {
             customActions: getCustomActions,
             preferredThumbnailSize:
               viewMode === "grid" ? undefined : "originalSize",
+            inActions: {
+              like: true,
+              bookmark: true,
+              addToAlbum: true,
+              removeFromAlbum: true,
+              download: true,
+              delete: true,
+            },
           }}
           mediaList={medias}
           emptyState={{
