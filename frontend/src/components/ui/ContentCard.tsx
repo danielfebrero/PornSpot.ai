@@ -480,7 +480,7 @@ export function ContentCard({
         ref={cardRef}
         data-content-card
         className={cn(
-          "group relative cursor-pointer overflow-visible shadow-lg transition-all duration-200 isolate",
+          "group relative cursor-pointer overflow-hidden shadow-lg transition-all duration-200 isolate",
           !useAllAvailableSpace && "rounded-lg sm:rounded-xl",
           !disableHoverEffects && !useAllAvailableSpace && "hover:shadow-xl",
           aspectRatio === "square" && !useAllAvailableSpace
