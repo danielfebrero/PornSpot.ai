@@ -29,6 +29,7 @@ import {
   MinusCircle,
   Sparkles,
   RotateCcw,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocaleRouter } from "@/lib/navigation";
@@ -512,9 +513,23 @@ export function GenerateClient() {
                 )}
               </div>
               <div className="flex justify-between items-center">
-                <div className="text-xs text-muted-foreground">
-                  {t("descriptiveTip")}
-                </div>
+                {settings.prompt.trim() ? (
+                  <button
+                    onClick={() => {
+                      updateSettings("prompt", "");
+                      setOptimizedPromptCache("");
+                      setOriginalPromptBeforeOptimization("");
+                    }}
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors group"
+                  >
+                    <X className="h-3 w-3 group-hover:text-destructive" />
+                    {t("deletePrompt")}
+                  </button>
+                ) : (
+                  <div className="text-xs text-muted-foreground">
+                    {t("descriptiveTip")}
+                  </div>
+                )}
                 <div
                   className={cn(
                     "text-xs font-medium",
@@ -1065,14 +1080,14 @@ export function GenerateClient() {
                 <div className="space-y-3">
                   <Input
                     type="number"
-                    value={settings.seed !== undefined ? settings.seed : 0}
+                    value={settings.seed !== undefined ? settings.seed : -1}
                     onChange={(e) =>
                       canUseSeed() &&
-                      updateSettings("seed", parseInt(e.target.value) || 0)
+                      updateSettings("seed", parseInt(e.target.value) || -1)
                     }
                     disabled={!canUseSeed()}
                     placeholder={t("randomSeedPlaceholder")}
-                    min={0}
+                    min={-1}
                     className="w-full"
                   />
                   <p className="text-xs text-muted-foreground">

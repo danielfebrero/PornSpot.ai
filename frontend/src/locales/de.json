@@ -1331,6 +1331,7 @@
     "negativePrompt": "Negativer Prompt",
     "whatToAvoid": "Was zu vermeiden ist",
     "descriptiveTip": "Seien Sie beschreibend für bessere Ergebnisse",
+    "deletePrompt": "Prompt löschen",
     "pro": "Pro",
     "generateImages": "{count} Bilder generieren",
     "generateSingle": "Generieren",

@@ -1325,6 +1325,7 @@
     "negativePrompt": "负面提示",
     "whatToAvoid": "要避免的内容",
     "descriptiveTip": "详细描述可获得更好的结果",
+    "deletePrompt": "清除提示",
     "pro": "专业版",
     "generateImages": "生成{count}张图片",
     "generateSingle": "生成",

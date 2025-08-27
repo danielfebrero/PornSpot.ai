@@ -1112,12 +1112,12 @@ const handleGenerate = async (
 
   // Parse request and fetch user
   const requestBody: GenerationRequest = LambdaHandlerUtil.parseJsonBody(event);
-  
+
   // Replace seed of 0 with a random number
   if (requestBody.seed === 0) {
     requestBody.seed = Math.floor(Math.random() * 2147483647);
   }
-  
+
   let enhancedUser: User | null = null;
   if (auth.userId) {
     const userEntity = await DynamoDBService.getUserById(auth.userId);

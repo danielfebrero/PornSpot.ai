@@ -93,3 +93,7 @@
 [x] Admin Users load more is not working.
 
 [x] On Generate page, cannot change the seed.
+
+[ ] Comments do not show user avatar.
+
+[ ] When dropping a comment, it first show "anonymous user" instead of real username.

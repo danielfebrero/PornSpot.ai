@@ -1335,6 +1335,7 @@
     "negativePrompt": "Негативный промпт",
     "whatToAvoid": "Чего избегать",
     "descriptiveTip": "Будьте описательными для лучших результатов",
+    "deletePrompt": "Очистить промпт",
     "pro": "Про",
     "generateImages": "Сгенерировать {count} изображений",
     "generateSingle": "Сгенерировать",
