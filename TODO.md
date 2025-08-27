@@ -96,6 +96,6 @@
 
 [x] Button to delete the prompt.
 
-[ ] Remember user preferences on Generate page.
+[x] Remember user preferences on Generate page.
 
 [x] Support anthropomorphic characters on Generate page.
