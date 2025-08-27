@@ -80,7 +80,7 @@
 
 [x] Notification system on like received and comment received.
 
-[ ] In media page, do not show loRA safetensor name but loRA name.
+[x] In media page, do not show loRA safetensor name but loRA name.
 
 [ ] Mass delete image feature.
 
@@ -98,6 +98,6 @@
 
 [ ] Remember user preferences on Generate page.
 
-[ ] Support anthropomorphic characters on Generate page.
+[x] Support anthropomorphic characters on Generate page.
 
 [ ] Add anime LoRA support on Generate page: https://civitai.com/models/126750/animelora-sdxl

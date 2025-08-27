@@ -38,6 +38,7 @@ import { formatFileSize, isVideo } from "@/lib/utils";
 import { useDateUtils } from "@/hooks/useDateUtils";
 import { useUserContext } from "@/contexts/UserContext";
 import { useTranslations } from "next-intl";
+import { getLoraNameById } from "@/utils/loraModels";
 
 // --- PROPS INTERFACES ---
 
@@ -460,7 +461,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                       <InfoPill
                         key={index}
                         icon={<Hash className="w-4 h-4" />}
-                        label={lora}
+                        label={getLoraNameById(lora, t)}
                         value={String(
                           metadata.loraStrengths[lora]?.value || "1"
                         )}

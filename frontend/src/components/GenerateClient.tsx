@@ -37,6 +37,7 @@ import { GenerationProgressCard } from "./ui/GenerationProgressCard";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import { useTranslations } from "next-intl";
+import { getLoraModels } from "@/utils/loraModels";
 
 export function GenerateClient() {
   const magicTextRef = useRef<MagicTextHandle>(null);
@@ -84,63 +85,7 @@ export function GenerateClient() {
   ];
 
   // LoRA models with translated descriptions only
-  const LORA_MODELS = [
-    {
-      id: "leaked_nudes_style_v1_fixed",
-      name: "Leaked amateur",
-      description: t("loraModels.leakedAmateur"),
-    },
-    {
-      id: "add-detail-xl",
-      name: "Add detail XL",
-      description: t("loraModels.addDetailXL"),
-    },
-    {
-      id: "Harness_Straps_sdxl",
-      name: "Harness, Straps, Garter and Cupless bra",
-      description: t("loraModels.harnessStraps"),
-    },
-    {
-      id: "Pierced_Nipples_XL_Barbell_Edition-000013",
-      name: "Pierced Nipples",
-      description: t("loraModels.piercedNipples"),
-    },
-    {
-      id: "bdsm_SDXL_1_",
-      name: "BDSM",
-      description: t("loraModels.bdsm"),
-    },
-    {
-      id: "Body Tattoo_alpha1.0_rank4_noxattn_last",
-      name: "Body Tattoo",
-      description: t("loraModels.bodyTattoo"),
-    },
-    {
-      id: "Doggystyle anal XL",
-      name: "Doggystyle Anal XL",
-      description: t("loraModels.doggystyleAnal"),
-    },
-    {
-      id: "orgasmface_SDXL",
-      name: "Orgasm Face",
-      description: t("loraModels.orgasmFace"),
-    },
-    {
-      id: "RealDownblouseXLv3",
-      name: "Real Downblouse XL",
-      description: t("loraModels.realDownblouse"),
-    },
-    {
-      id: "Sextoy_Dildo_Pussy_v2_XL",
-      name: "Sextoy Dildo",
-      description: t("loraModels.sextoyDildo"),
-    },
-    {
-      id: "bread",
-      name: "Anthropomorphisme",
-      description: t("loraModels.bread"),
-    },
-  ];
+  const LORA_MODELS = getLoraModels(t);
 
   // Hook for optimistic usage stats updates
   const decrementUsageStats = useDecrementUsageStats();
