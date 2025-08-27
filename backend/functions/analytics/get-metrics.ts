@@ -19,14 +19,13 @@ import {
   MetricGranularity,
   AnalyticsDataPoint,
   AnalyticsSummary,
-  AdminDashboardStats,
   MetricTypeWithAll,
 } from "@shared/shared-types";
 import {
   queryAnalytics,
-  getMetricsFromCache,
   calculatePercentageChange,
   determineTrend,
+  getVisitorCountByMinute,
 } from "@shared/utils/analytics";
 import { AnalyticsEntity } from "@shared/shared-types";
 
@@ -355,53 +354,53 @@ async function handleGetDashboardStats(
   console.log(`📊 Admin ${auth.username} requesting dashboard stats`);
 
   try {
-    // Get cached metrics for real-time dashboard
-    const cachePromises = [
-      getMetricsFromCache(docClient, "total_users"),
-      getMetricsFromCache(docClient, "total_media"),
-      getMetricsFromCache(docClient, "total_albums"),
-      getMetricsFromCache(docClient, "new_users_yesterday"),
-      getMetricsFromCache(docClient, "new_media_yesterday"),
-      getMetricsFromCache(docClient, "new_albums_yesterday"),
-      getMetricsFromCache(docClient, "active_users_yesterday"),
-      getMetricsFromCache(docClient, "last_updated"),
-    ];
+    // Get time range for visitor breakdown (default to last 30 minutes if not specified)
+    const endTime = new Date().toISOString();
+    const startTime = new Date(Date.now() - 30 * 60 * 1000).toISOString(); // 30 minutes ago
 
-    const cacheResults = await Promise.all(cachePromises);
+    console.log(
+      `📊 Getting minute-by-minute visitor breakdown for dashboard stats`
+    );
+    const visitorBreakdown = await getVisitorCountByMinute(
+      docClient,
+      startTime,
+      endTime
+    );
+    console.log(
+      `✅ Retrieved ${visitorBreakdown.length} minute data points for visitor breakdown`
+    );
 
-    const dashboardStats: AdminDashboardStats = {
-      users: {
-        total: (cacheResults[0]?.value as number) || 0,
-        new24h: (cacheResults[3]?.value as number) || 0,
-        active24h: (cacheResults[6]?.value as number) || 0,
+    const dashboardStats = {
+      requestedBy: auth.username,
+      timestamp: new Date().toISOString(),
+      timeRange: {
+        startTime,
+        endTime,
       },
-      media: {
-        total: (cacheResults[1]?.value as number) || 0,
-        new24h: (cacheResults[4]?.value as number) || 0,
-        public: 0, // Would need additional cache entry
-        private: 0, // Would need additional cache entry
+      visitorBreakdown,
+      summary: {
+        totalMinutes: visitorBreakdown.length,
+        totalVisitors: visitorBreakdown.reduce(
+          (sum, item) => sum + item.visitorCount,
+          0
+        ),
+        averageVisitorsPerMinute:
+          visitorBreakdown.length > 0
+            ? Math.round(
+                (visitorBreakdown.reduce(
+                  (sum, item) => sum + item.visitorCount,
+                  0
+                ) /
+                  visitorBreakdown.length) *
+                  100
+              ) / 100
+            : 0,
+        peakMinute: visitorBreakdown.reduce(
+          (max, item) => (item.visitorCount > max.visitorCount ? item : max),
+          { minute: "", visitorCount: 0 }
+        ),
       },
-      albums: {
-        total: (cacheResults[2]?.value as number) || 0,
-        new24h: (cacheResults[5]?.value as number) || 0,
-        public: 0, // Would need additional cache entry
-        private: 0, // Would need additional cache entry
-      },
-      interactions: {
-        likes24h: 0, // Would need additional cache entry
-        bookmarks24h: 0, // Would need additional cache entry
-        comments24h: 0, // Would need additional cache entry
-        views24h: 0, // Would need additional cache entry
-      },
-      storage: {
-        totalGB: 0, // Would need additional cache entry
-        usedPercent: 0, // Would need calculation based on limits
-      },
-      lastUpdated:
-        (cacheResults[7]?.value as string) || new Date().toISOString(),
     };
-
-    console.log("✅ Successfully retrieved dashboard stats");
 
     return ResponseUtil.success(event, dashboardStats);
   } catch (error) {

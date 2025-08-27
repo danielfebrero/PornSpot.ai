@@ -127,34 +127,25 @@ export interface AggregationConfig {
 
 // Admin dashboard stats (simplified real-time view)
 export interface AdminDashboardStats {
-  users: {
-    total: number;
-    new24h: number;
-    active24h: number;
+  requestedBy: string;
+  timestamp: string;
+  timeRange: {
+    startTime: string;
+    endTime: string;
   };
-  media: {
-    total: number;
-    new24h: number;
-    public: number;
-    private: number;
+  visitorBreakdown: Array<{
+    minute: string;
+    visitorCount: number;
+  }>;
+  summary: {
+    totalMinutes: number;
+    totalVisitors: number;
+    averageVisitorsPerMinute: number;
+    peakMinute: {
+      minute: string;
+      visitorCount: number;
+    };
   };
-  albums: {
-    total: number;
-    new24h: number;
-    public: number;
-    private: number;
-  };
-  interactions: {
-    likes24h: number;
-    bookmarks24h: number;
-    comments24h: number;
-    views24h: number;
-  };
-  storage: {
-    totalGB: number;
-    usedPercent: number;
-  };
-  lastUpdated: string;
 }
 
 // Time range helpers

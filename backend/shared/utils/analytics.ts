@@ -1023,3 +1023,75 @@ export function determineTrend(
   if (percentageChange < -5) return "down";
   return "stable";
 }
+
+/**
+ * Gets minute-by-minute visitor count breakdown for a specified time range
+ * @param docClient - DynamoDB document client
+ * @param startTime - Start timestamp in ISO format
+ * @param endTime - End timestamp in ISO format
+ * @returns Array of objects with minute timestamp and visitor count
+ */
+export async function getVisitorCountByMinute(
+  docClient: DynamoDBDocumentClient,
+  startTime: string,
+  endTime: string
+): Promise<Array<{ minute: string; visitorCount: number }>> {
+  const visitorsByMinute = new Map<string, Set<string>>();
+  let lastKey;
+
+  try {
+    do {
+      const result: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          KeyConditionExpression: "PK = :pk",
+          FilterExpression: "#ts BETWEEN :start AND :end",
+          ExpressionAttributeNames: {
+            "#ts": "timestamp",
+          },
+          ExpressionAttributeValues: {
+            ":pk": "VISITOR",
+            ":start": startTime,
+            ":end": endTime,
+          },
+          ProjectionExpression: "#ts, clientIP",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+
+      if (result.Items) {
+        for (const item of result.Items) {
+          if (item.timestamp && item.clientIP) {
+            // Truncate timestamp to minute precision (remove seconds and milliseconds)
+            const minuteTimestamp = new Date(item.timestamp);
+            minuteTimestamp.setSeconds(0, 0); // Set seconds and milliseconds to 0
+            const minuteKey = minuteTimestamp.toISOString();
+
+            // Initialize set for this minute if it doesn't exist
+            if (!visitorsByMinute.has(minuteKey)) {
+              visitorsByMinute.set(minuteKey, new Set<string>());
+            }
+
+            // Add client IP to the set for this minute (ensures uniqueness)
+            visitorsByMinute.get(minuteKey)!.add(item.clientIP);
+          }
+        }
+      }
+
+      lastKey = result.LastEvaluatedKey;
+    } while (lastKey);
+
+    // Convert Map to array and sort by minute
+    const breakdown = Array.from(visitorsByMinute.entries())
+      .map(([minute, clientIPs]) => ({
+        minute,
+        visitorCount: clientIPs.size,
+      }))
+      .sort((a, b) => a.minute.localeCompare(b.minute));
+
+    return breakdown;
+  } catch (error) {
+    console.error("Error getting visitor count by minute:", error);
+    throw error;
+  }
+}
