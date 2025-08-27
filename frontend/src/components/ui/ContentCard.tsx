@@ -488,36 +488,43 @@ export function ContentCard({
     if (!dropdownButtonRef.current) return;
 
     const buttonRect = dropdownButtonRef.current.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
-    const viewportWidth = window.innerWidth;
-
-    // Estimate dropdown dimensions
-    const dropdownWidth = 200; // Approximate width
-    const dropdownHeight = Math.min(
-      240,
-      (builtCustomActions?.length || 0) * 40 + 16
-    ); // max-h-60 = 240px
-
-    let top = buttonRect.bottom + 4; // mt-1 = 4px
-    let left = buttonRect.right - dropdownWidth; // right-aligned
-
-    // Adjust if dropdown would go below viewport
-    if (top + dropdownHeight > viewportHeight) {
-      top = buttonRect.top - dropdownHeight - 4;
-    }
-
-    // Adjust if dropdown would go outside left edge
-    if (left < 8) {
-      left = 8; // 8px padding from edge
-    }
-
-    // Adjust if dropdown would go outside right edge
-    if (left + dropdownWidth > viewportWidth - 8) {
-      left = viewportWidth - dropdownWidth - 8;
-    }
-
+    
+    // Calculate the center point of the button
+    const buttonCenterX = buttonRect.left + buttonRect.width / 2;
+    const buttonCenterY = buttonRect.top + buttonRect.height / 2;
+    
+    // Create a temporary dropdown element to measure its actual width
+    const tempDropdown = document.createElement('div');
+    tempDropdown.className = 'fixed opacity-0 pointer-events-none min-w-max bg-card border border-border rounded-lg shadow-lg py-1 z-[9999] backdrop-blur-sm';
+    tempDropdown.style.top = '-9999px';
+    tempDropdown.style.left = '-9999px';
+    
+    // Add the same content structure to measure
+    builtCustomActions?.forEach((action) => {
+      const button = document.createElement('button');
+      button.className = 'w-full px-3 py-2 text-left text-sm flex items-center gap-2 whitespace-nowrap h-[36px]';
+      
+      const span = document.createElement('span');
+      span.className = 'text-muted-foreground';
+      span.innerHTML = '●'; // Placeholder for icon width
+      
+      const text = document.createTextNode(action.label);
+      
+      button.appendChild(span);
+      button.appendChild(text);
+      tempDropdown.appendChild(button);
+    });
+    
+    document.body.appendChild(tempDropdown);
+    const dropdownWidth = tempDropdown.offsetWidth;
+    document.body.removeChild(tempDropdown);
+    
+    // Position dropdown so its top-right corner is at the center of the button
+    const top = buttonCenterY; // Top edge of dropdown at button center
+    const left = buttonCenterX - dropdownWidth; // Right edge of dropdown at button center
+    
     setDropdownPosition({ top, left });
-  }, [builtCustomActions?.length]);
+  }, [builtCustomActions]);
 
   // Handle window events for portal dropdown positioning
   useEffect(() => {
