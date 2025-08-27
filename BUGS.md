@@ -90,8 +90,6 @@
 
 [x] In lightbox, I do not see the like and bookmark icons.
 
-[ ] Creating media/album should not invalidate the Discover cache. It should only optimistically remove deleted content.
-
 [x] Admin Users load more is not working.
 
-[ ] On Generate page, cannot change the seed.
+[x] On Generate page, cannot change the seed.

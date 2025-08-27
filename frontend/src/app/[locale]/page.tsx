@@ -51,7 +51,7 @@ export default async function DiscoverPage({
 
   try {
     const result = await discoverApi.getDiscover({
-      limit: 20,
+      limit: 60,
       ...(tag && { tag }), // Include tag if provided
     });
 
