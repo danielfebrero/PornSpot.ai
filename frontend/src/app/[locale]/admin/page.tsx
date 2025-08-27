@@ -73,7 +73,6 @@ export default function AdminDashboard() {
             family: "Inter, sans-serif",
             size: 11,
           },
-          maxTicksLimit: 20, // Limit number of ticks for readability
         },
       },
       y: {
