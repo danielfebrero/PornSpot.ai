@@ -3932,7 +3932,7 @@ export class DynamoDBService {
                   lastUpdated = :lastUpdated,
                   totalViews = if_not_exists(totalViews, :zero) + :increment,
                   newViews = if_not_exists(newViews, :zero) + :increment,
-                  createdAt = if_no_exists(createdAt, :createdAt)
+                  createdAt = if_not_exists(createdAt, :createdAt)
               `,
               ExpressionAttributeNames: {
                 "#timestamp": "timestamp", // timestamp is a reserved keyword
