@@ -768,11 +768,7 @@ export default function AnalyticsPage() {
                     ).toLocaleString()
                   : "Never"}
               </span>
-              <span>
-                Showing {selectedGranularity} data •
-                {analyticsData?.combinedSummary?.totalDataPoints || 0} data
-                points
-              </span>
+              <span>Showing {selectedGranularity} data</span>
             </div>
           </div>
         </>

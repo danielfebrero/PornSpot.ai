@@ -3930,7 +3930,6 @@ export class DynamoDBService {
                   granularity = if_not_exists(granularity, :granularity),
                   #timestamp = if_not_exists(#timestamp, :timestamp),
                   lastUpdated = :lastUpdated,
-                  totalViews = if_not_exists(totalViews, :zero) + :increment,
                   newViews = if_not_exists(newViews, :zero) + :increment,
                   createdAt = if_not_exists(createdAt, :createdAt)
               `,
