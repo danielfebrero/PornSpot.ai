@@ -1025,18 +1025,21 @@ export function determineTrend(
 }
 
 /**
- * Gets minute-by-minute visitor count breakdown for a specified time range
+ * Get visitor count for specific time windows based on lastSeen field
  * @param docClient - DynamoDB document client
- * @param startTime - Start timestamp in ISO format
- * @param endTime - End timestamp in ISO format
- * @returns Array of objects with minute timestamp and visitor count
+ * @returns Object with visitor counts for 5-minute and 30-minute windows
  */
-export async function getVisitorCountByMinute(
-  docClient: DynamoDBDocumentClient,
-  startTime: string,
-  endTime: string
-): Promise<Array<{ minute: string; visitorCount: number }>> {
-  const visitorsByMinute = new Map<string, Set<string>>();
+export async function getRecentVisitorCounts(
+  docClient: DynamoDBDocumentClient
+): Promise<{ visitorsLast5Minutes: number; visitorsLast30Minutes: number }> {
+  const now = new Date();
+  const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000).toISOString();
+  const thirtyMinutesAgo = new Date(
+    now.getTime() - 30 * 60 * 1000
+  ).toISOString();
+
+  const uniqueVisitors5Min = new Set<string>();
+  const uniqueVisitors30Min = new Set<string>();
   let lastKey;
 
   try {
@@ -1045,35 +1048,32 @@ export async function getVisitorCountByMinute(
         new QueryCommand({
           TableName: TABLE_NAME,
           KeyConditionExpression: "PK = :pk",
-          FilterExpression: "#ts BETWEEN :start AND :end",
+          FilterExpression: "#ls >= :thirtyMinutesAgo",
           ExpressionAttributeNames: {
-            "#ts": "timestamp",
+            "#ls": "lastSeen",
           },
           ExpressionAttributeValues: {
             ":pk": "VISITOR",
-            ":start": startTime,
-            ":end": endTime,
+            ":thirtyMinutesAgo": thirtyMinutesAgo,
           },
-          ProjectionExpression: "#ts, clientIP",
+          ProjectionExpression: "#ls, clientIP",
           ExclusiveStartKey: lastKey,
         })
       );
 
       if (result.Items) {
         for (const item of result.Items) {
-          if (item.timestamp && item.clientIP) {
-            // Truncate timestamp to minute precision (remove seconds and milliseconds)
-            const minuteTimestamp = new Date(item.timestamp);
-            minuteTimestamp.setSeconds(0, 0); // Set seconds and milliseconds to 0
-            const minuteKey = minuteTimestamp.toISOString();
+          if (item.lastSeen && item.clientIP) {
+            const lastSeenTime = new Date(item.lastSeen);
+            const fiveMinutesAgoTime = new Date(fiveMinutesAgo);
 
-            // Initialize set for this minute if it doesn't exist
-            if (!visitorsByMinute.has(minuteKey)) {
-              visitorsByMinute.set(minuteKey, new Set<string>());
+            // Count visitors active in last 30 minutes
+            uniqueVisitors30Min.add(item.clientIP);
+
+            // Count visitors active in last 5 minutes
+            if (lastSeenTime >= fiveMinutesAgoTime) {
+              uniqueVisitors5Min.add(item.clientIP);
             }
-
-            // Add client IP to the set for this minute (ensures uniqueness)
-            visitorsByMinute.get(minuteKey)!.add(item.clientIP);
           }
         }
       }
@@ -1081,17 +1081,12 @@ export async function getVisitorCountByMinute(
       lastKey = result.LastEvaluatedKey;
     } while (lastKey);
 
-    // Convert Map to array and sort by minute
-    const breakdown = Array.from(visitorsByMinute.entries())
-      .map(([minute, clientIPs]) => ({
-        minute,
-        visitorCount: clientIPs.size,
-      }))
-      .sort((a, b) => a.minute.localeCompare(b.minute));
-
-    return breakdown;
+    return {
+      visitorsLast5Minutes: uniqueVisitors5Min.size,
+      visitorsLast30Minutes: uniqueVisitors30Min.size,
+    };
   } catch (error) {
-    console.error("Error getting visitor count by minute:", error);
+    console.error("Error getting recent visitor counts:", error);
     throw error;
   }
 }

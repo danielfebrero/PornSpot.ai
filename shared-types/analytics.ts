@@ -130,21 +130,18 @@ export interface AdminDashboardStats {
   requestedBy: string;
   timestamp: string;
   timeRange: {
-    startTime: string;
-    endTime: string;
+    last5Minutes: string;
+    last30Minutes: string;
+    current: string;
   };
-  visitorBreakdown: Array<{
-    minute: string;
-    visitorCount: number;
-  }>;
+  visitorCounts: {
+    visitorsLast5Minutes: number;
+    visitorsLast30Minutes: number;
+  };
   summary: {
-    totalMinutes: number;
-    totalVisitors: number;
-    averageVisitorsPerMinute: number;
-    peakMinute: {
-      minute: string;
-      visitorCount: number;
-    };
+    visitorsLast5Minutes: number;
+    visitorsLast30Minutes: number;
+    timestamp: string;
   };
 }
 

@@ -25,7 +25,7 @@ import {
   queryAnalytics,
   calculatePercentageChange,
   determineTrend,
-  getVisitorCountByMinute,
+  getRecentVisitorCounts,
 } from "@shared/utils/analytics";
 import { AnalyticsEntity } from "@shared/shared-types";
 
@@ -354,51 +354,25 @@ async function handleGetDashboardStats(
   console.log(`📊 Admin ${auth.username} requesting dashboard stats`);
 
   try {
-    // Get time range for visitor breakdown (default to last 30 minutes if not specified)
-    const endTime = new Date().toISOString();
-    const startTime = new Date(Date.now() - 30 * 60 * 1000).toISOString(); // 30 minutes ago
-
+    console.log(`📊 Getting recent visitor counts for dashboard stats`);
+    const visitorCounts = await getRecentVisitorCounts(docClient);
     console.log(
-      `📊 Getting minute-by-minute visitor breakdown for dashboard stats`
-    );
-    const visitorBreakdown = await getVisitorCountByMinute(
-      docClient,
-      startTime,
-      endTime
-    );
-    console.log(
-      `✅ Retrieved ${visitorBreakdown.length} minute data points for visitor breakdown`
+      `✅ Retrieved visitor counts: ${visitorCounts.visitorsLast5Minutes} (5min), ${visitorCounts.visitorsLast30Minutes} (30min)`
     );
 
     const dashboardStats = {
       requestedBy: auth.username,
       timestamp: new Date().toISOString(),
       timeRange: {
-        startTime,
-        endTime,
+        last5Minutes: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+        last30Minutes: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+        current: new Date().toISOString(),
       },
-      visitorBreakdown,
+      visitorCounts,
       summary: {
-        totalMinutes: visitorBreakdown.length,
-        totalVisitors: visitorBreakdown.reduce(
-          (sum, item) => sum + item.visitorCount,
-          0
-        ),
-        averageVisitorsPerMinute:
-          visitorBreakdown.length > 0
-            ? Math.round(
-                (visitorBreakdown.reduce(
-                  (sum, item) => sum + item.visitorCount,
-                  0
-                ) /
-                  visitorBreakdown.length) *
-                  100
-              ) / 100
-            : 0,
-        peakMinute: visitorBreakdown.reduce(
-          (max, item) => (item.visitorCount > max.visitorCount ? item : max),
-          { minute: "", visitorCount: 0 }
-        ),
+        visitorsLast5Minutes: visitorCounts.visitorsLast5Minutes,
+        visitorsLast30Minutes: visitorCounts.visitorsLast30Minutes,
+        timestamp: new Date().toISOString(),
       },
     };
 
