@@ -156,6 +156,7 @@ export function ContentCard({
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showMobileActions, setShowMobileActions] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const [addToAlbumDialogOpen, setAddToAlbumDialogOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState<{
@@ -235,10 +236,15 @@ export function ContentCard({
 
   // Auto-close dropdown when hover/mobile actions end
   useEffect(() => {
-    if (dropdownOpen && !isHovered && !showMobileActions) {
+    if (
+      dropdownOpen &&
+      !isHovered &&
+      !isDropdownHovered &&
+      !showMobileActions
+    ) {
       setDropdownOpen(false);
     }
-  }, [dropdownOpen, isHovered, showMobileActions]);
+  }, [dropdownOpen, isHovered, isDropdownHovered, showMobileActions]);
 
   // Handle click events based on content type
   const handleClick = (e: React.MouseEvent) => {
@@ -488,41 +494,43 @@ export function ContentCard({
     if (!dropdownButtonRef.current) return;
 
     const buttonRect = dropdownButtonRef.current.getBoundingClientRect();
-    
+
     // Calculate the center point of the button
     const buttonCenterX = buttonRect.left + buttonRect.width / 2;
     const buttonCenterY = buttonRect.top + buttonRect.height / 2;
-    
+
     // Create a temporary dropdown element to measure its actual width
-    const tempDropdown = document.createElement('div');
-    tempDropdown.className = 'fixed opacity-0 pointer-events-none min-w-max bg-card border border-border rounded-lg shadow-lg py-1 z-[9999] backdrop-blur-sm';
-    tempDropdown.style.top = '-9999px';
-    tempDropdown.style.left = '-9999px';
-    
+    const tempDropdown = document.createElement("div");
+    tempDropdown.className =
+      "fixed opacity-0 pointer-events-none min-w-max bg-card border border-border rounded-lg shadow-lg py-1 z-[9999] backdrop-blur-sm";
+    tempDropdown.style.top = "-9999px";
+    tempDropdown.style.left = "-9999px";
+
     // Add the same content structure to measure
     builtCustomActions?.forEach((action) => {
-      const button = document.createElement('button');
-      button.className = 'w-full px-3 py-2 text-left text-sm flex items-center gap-2 whitespace-nowrap h-[36px]';
-      
-      const span = document.createElement('span');
-      span.className = 'text-muted-foreground';
-      span.innerHTML = '●'; // Placeholder for icon width
-      
+      const button = document.createElement("button");
+      button.className =
+        "w-full px-3 py-2 text-left text-sm flex items-center gap-2 whitespace-nowrap h-[36px]";
+
+      const span = document.createElement("span");
+      span.className = "text-muted-foreground";
+      span.innerHTML = "●"; // Placeholder for icon width
+
       const text = document.createTextNode(action.label);
-      
+
       button.appendChild(span);
       button.appendChild(text);
       tempDropdown.appendChild(button);
     });
-    
+
     document.body.appendChild(tempDropdown);
     const dropdownWidth = tempDropdown.offsetWidth;
     document.body.removeChild(tempDropdown);
-    
+
     // Position dropdown so its top-right corner is at the center of the button
     const top = buttonCenterY; // Top edge of dropdown at button center
     const left = buttonCenterX - dropdownWidth; // Right edge of dropdown at button center
-    
+
     setDropdownPosition({ top, left });
   }, [builtCustomActions]);
 
@@ -545,6 +553,13 @@ export function ContentCard({
       window.removeEventListener("resize", handleWindowEvent);
     };
   }, [dropdownOpen, calculateDropdownPosition]);
+
+  // Reset dropdown hover state when dropdown closes
+  useEffect(() => {
+    if (!dropdownOpen) {
+      setIsDropdownHovered(false);
+    }
+  }, [dropdownOpen]);
 
   // Handle dropdown toggle with position calculation
   const handleDropdownToggle = useCallback(
@@ -572,6 +587,8 @@ export function ContentCard({
           left: dropdownPosition.left,
         }}
         data-dropdown-content
+        onMouseEnter={() => setIsDropdownHovered(true)}
+        onMouseLeave={() => setIsDropdownHovered(false)}
       >
         {builtCustomActions.map((action, index) => (
           <button
@@ -604,7 +621,12 @@ export function ContentCard({
       </div>,
       document.body
     );
-  }, [dropdownOpen, builtCustomActions, dropdownPosition]);
+  }, [
+    dropdownOpen,
+    builtCustomActions,
+    dropdownPosition,
+    setIsDropdownHovered,
+  ]);
 
   return (
     <>
@@ -660,7 +682,9 @@ export function ContentCard({
                   useAllAvailableSpace ? "object-contain" : "object-cover",
                   !disableHoverEffects &&
                     !useAllAvailableSpace &&
-                    (isHovered || (isMobileInterface && showMobileActions)) &&
+                    (isHovered ||
+                      isDropdownHovered ||
+                      (isMobileInterface && showMobileActions)) &&
                     "scale-105",
                   imageClassName
                 )}
@@ -674,7 +698,7 @@ export function ContentCard({
                 "absolute inset-0 transition-colors duration-300",
                 isMobileInterface && showMobileActions
                   ? "bg-black/30"
-                  : isHovered
+                  : isHovered || isDropdownHovered
                   ? "bg-black/20"
                   : "bg-black/0"
               )}
@@ -688,7 +712,7 @@ export function ContentCard({
                   ? showMobileActions
                     ? "opacity-100"
                     : "opacity-0"
-                  : isHovered
+                  : isHovered || isDropdownHovered
                   ? "opacity-100"
                   : "opacity-0"
               )}
@@ -700,7 +724,9 @@ export function ContentCard({
                 <PlayCircle
                   className={cn(
                     "w-16 h-16 text-white/80 transition-all duration-300",
-                    isHovered ? "opacity-100 scale-110" : "opacity-50 scale-100"
+                    isHovered || isDropdownHovered
+                      ? "opacity-100 scale-110"
+                      : "opacity-50 scale-100"
                   )}
                 />
               </div>
@@ -714,7 +740,7 @@ export function ContentCard({
                   ? showMobileActions
                     ? "opacity-100"
                     : "opacity-0 pointer-events-none"
-                  : isHovered
+                  : isHovered || isDropdownHovered
                   ? "opacity-100"
                   : "opacity-0"
               )}
@@ -730,7 +756,7 @@ export function ContentCard({
                         ? showMobileActions
                           ? "opacity-100"
                           : "opacity-0 pointer-events-none"
-                        : isHovered
+                        : isHovered || isDropdownHovered
                         ? "opacity-100"
                         : "opacity-0"
                     )}
@@ -830,7 +856,7 @@ export function ContentCard({
                             ? showMobileActions
                               ? "opacity-100"
                               : "opacity-0"
-                            : isHovered
+                            : isHovered || isDropdownHovered
                             ? "opacity-100"
                             : "opacity-0"
                         )}
@@ -853,7 +879,7 @@ export function ContentCard({
                             ? showMobileActions
                               ? "opacity-100"
                               : "opacity-0"
-                            : isHovered
+                            : isHovered || isDropdownHovered
                             ? "opacity-100"
                             : "opacity-0"
                         )}
@@ -919,7 +945,9 @@ export function ContentCard({
                   useAllAvailableSpace ? "object-contain" : "object-cover",
                   !disableHoverEffects &&
                     !useAllAvailableSpace &&
-                    (isHovered || (isMobileInterface && showMobileActions)) &&
+                    (isHovered ||
+                      isDropdownHovered ||
+                      (isMobileInterface && showMobileActions)) &&
                     "scale-105",
                   imageClassName
                 )}
@@ -931,7 +959,7 @@ export function ContentCard({
                   ) as ThumbnailUrls[]
                 }
                 enableCarousel={!!album.contentPreview}
-                isHovered={isHovered}
+                isHovered={isHovered || isDropdownHovered}
                 showMobileActions={showMobileActions}
                 isMobileInterface={isMobileInterface}
               />
@@ -991,7 +1019,7 @@ export function ContentCard({
                             ? showMobileActions
                               ? "opacity-100"
                               : "opacity-0"
-                            : isHovered
+                            : isHovered || isDropdownHovered
                             ? "opacity-100"
                             : "opacity-0"
                         )}
@@ -1014,7 +1042,7 @@ export function ContentCard({
                             ? showMobileActions
                               ? "opacity-100"
                               : "opacity-0"
-                            : isHovered
+                            : isHovered || isDropdownHovered
                             ? "opacity-100"
                             : "opacity-0"
                         )}
@@ -1064,7 +1092,7 @@ export function ContentCard({
                   ? showMobileActions
                     ? "opacity-100"
                     : "opacity-0 pointer-events-none"
-                  : isHovered
+                  : isHovered || isDropdownHovered
                   ? "opacity-100"
                   : "opacity-0"
               )}
@@ -1080,7 +1108,7 @@ export function ContentCard({
                         ? showMobileActions
                           ? "opacity-100"
                           : "opacity-0 pointer-events-none"
-                        : isHovered
+                        : isHovered || isDropdownHovered
                         ? "opacity-100"
                         : "opacity-0"
                     )}
