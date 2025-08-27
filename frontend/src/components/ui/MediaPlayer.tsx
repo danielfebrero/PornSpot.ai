@@ -18,6 +18,7 @@ interface MediaPlayerProps {
   onTogglePlay: () => void;
   onMobileClick?: () => void; // Optional mobile-specific click handler
   onFullscreen?: () => void;
+  onMediaUpdate?: (mediaUpdates: Partial<Media>) => void; // Callback for media updates
   className?: string;
   imageClassName?: string;
   canFullscreen?: boolean; // Whether to show fullscreen option
@@ -30,6 +31,7 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
   onTogglePlay,
   onMobileClick,
   onFullscreen,
+  onMediaUpdate,
   className,
   imageClassName,
   canFullscreen,
@@ -43,6 +45,18 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
   const [showMobileOverlay, setShowMobileOverlay] = useState(false);
   // Edit title dialog state
   const [showEditTitleDialog, setShowEditTitleDialog] = useState(false);
+
+  // Local state for optimistic updates
+  const [localTitle, setLocalTitle] = useState(
+    media.originalFilename || media.filename || ""
+  );
+  const [localIsPublic, setLocalIsPublic] = useState(media.isPublic);
+
+  // Sync local state with props when media changes
+  useEffect(() => {
+    setLocalTitle(media.originalFilename || media.filename || "");
+    setLocalIsPublic(media.isPublic);
+  }, [media.originalFilename, media.filename, media.isPublic]);
 
   const updateMedia = useUpdateMedia();
 
@@ -118,16 +132,25 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
   const handleToggleVisibility = useCallback(async () => {
     if (!isOwner) return;
 
+    const newIsPublic = !localIsPublic;
+
+    // Optimistic update
+    setLocalIsPublic(newIsPublic);
+    onMediaUpdate?.({ isPublic: newIsPublic });
+
     try {
       await updateMedia.mutateAsync({
         mediaId: media.id,
-        updates: { isPublic: !media.isPublic },
+        updates: { isPublic: newIsPublic },
       });
       console.log(`Toggled visibility for media ${media.id}`);
     } catch (error) {
       console.error("Failed to toggle media visibility:", error);
+      // Revert optimistic update on error
+      setLocalIsPublic(!newIsPublic);
+      onMediaUpdate?.({ isPublic: !newIsPublic });
     }
-  }, [isOwner, media.id, media.isPublic, updateMedia]);
+  }, [isOwner, media.id, localIsPublic, updateMedia, onMediaUpdate]);
 
   // Handler for editing title
   const handleEditTitle = useCallback(() => {
@@ -140,18 +163,35 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
     async (newTitle: string) => {
       if (!isOwner) return;
 
+      // Optimistic update
+      setLocalTitle(newTitle);
+      setShowEditTitleDialog(false);
+      onMediaUpdate?.({ originalFilename: newTitle });
+
       try {
         await updateMedia.mutateAsync({
           mediaId: media.id,
           updates: { title: newTitle },
         });
-        console.log(`Updating title for media ${media.id} to "${newTitle}"`);
-        setShowEditTitleDialog(false);
+        console.log(`Updated title for media ${media.id} to "${newTitle}"`);
       } catch (error) {
         console.error("Failed to update media title:", error);
+        // Revert optimistic update on error
+        const originalTitle = media.originalFilename || media.filename || "";
+        setLocalTitle(originalTitle);
+        onMediaUpdate?.({ originalFilename: originalTitle });
+        // Optionally reopen dialog for retry
+        // setShowEditTitleDialog(true);
       }
     },
-    [isOwner, media.id, updateMedia]
+    [
+      isOwner,
+      media.id,
+      media.originalFilename,
+      media.filename,
+      updateMedia,
+      onMediaUpdate,
+    ]
   );
 
   // Custom actions for media owners
@@ -160,8 +200,8 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
 
     return [
       {
-        label: media.isPublic ? "Make Private" : "Make Public",
-        icon: media.isPublic ? (
+        label: localIsPublic ? "Make Private" : "Make Public",
+        icon: localIsPublic ? (
           <Lock className="w-4 h-4" />
         ) : (
           <Globe className="w-4 h-4" />
@@ -176,7 +216,7 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
         variant: "default" as const,
       },
     ];
-  }, [isOwner, media.isPublic, handleToggleVisibility, handleEditTitle]);
+  }, [isOwner, localIsPublic, handleToggleVisibility, handleEditTitle]);
 
   // For non-video media, always use ContentCard
   if (!isVideoMedia) {
@@ -204,7 +244,7 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
             isOpen={showEditTitleDialog}
             onClose={() => setShowEditTitleDialog(false)}
             onConfirm={handleConfirmTitleEdit}
-            currentTitle={media.filename || ""}
+            currentTitle={localTitle}
             loading={updateMedia.isPending}
           />
         )}
@@ -294,7 +334,7 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
         isOpen={showEditTitleDialog}
         onClose={() => setShowEditTitleDialog(false)}
         onConfirm={handleConfirmTitleEdit}
-        currentTitle={media.originalFilename || ""}
+        currentTitle={localTitle}
         loading={updateMedia.isPending}
       />
     </>

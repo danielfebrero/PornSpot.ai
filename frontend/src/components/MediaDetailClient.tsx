@@ -1,6 +1,14 @@
 "use client";
 
-import { useState, useMemo, useEffect, FC, ReactNode, useRef } from "react";
+import {
+  useState,
+  useMemo,
+  useEffect,
+  FC,
+  ReactNode,
+  useRef,
+  useCallback,
+} from "react";
 import { useLocaleRouter } from "@/lib/navigation";
 import {
   useBulkViewCounts,
@@ -177,12 +185,23 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
   const router = useLocaleRouter();
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const [viewTracked, setViewTracked] = useState(false);
+  const [localMedia, setLocalMedia] = useState(media);
   const t = useTranslations("mediaDetail");
-  const metadata = useMediaMetadata(media);
+  const metadata = useMediaMetadata(localMedia);
   const { user } = useUserContext();
   const { formatRelativeTime } = useDateUtils();
   const hasTrackedView = useRef(false);
   const trackViewMutation = useTrackView();
+
+  // Sync local media with props when media changes
+  useEffect(() => {
+    setLocalMedia(media);
+  }, [media]);
+
+  // Handler for media updates from MediaPlayer
+  const handleMediaUpdate = useCallback((updates: Partial<Media>) => {
+    setLocalMedia((prev) => ({ ...prev, ...updates }));
+  }, []);
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();
@@ -196,7 +215,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
     trackViewMutation.mutate(
       {
         targetType: "media",
-        targetId: media.id,
+        targetId: localMedia.id,
       },
       {
         onSettled: () => {
@@ -205,16 +224,16 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
         },
       }
     );
-  }, [media.id, trackViewMutation]);
+  }, [localMedia.id, trackViewMutation]);
 
   // Bulk prefetch view counts for the media and albums
   const viewCountTargets = useMemo(() => {
     const targets: Array<{ targetType: "album" | "media"; targetId: string }> =
-      [{ targetType: "media", targetId: media.id }];
+      [{ targetType: "media", targetId: localMedia.id }];
 
     // Add albums to view count targets if they exist
-    if (media.albums && media.albums.length > 0) {
-      const albumTargets = media.albums.map((album) => ({
+    if (localMedia.albums && localMedia.albums.length > 0) {
+      const albumTargets = localMedia.albums.map((album) => ({
         targetType: "album" as const,
         targetId: album.id,
       }));
@@ -222,7 +241,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
     }
 
     return targets;
-  }, [media.id, media.albums]);
+  }, [localMedia.id, localMedia.albums]);
 
   // Prefetch view counts in the background - but only after view tracking is done
   useBulkViewCounts(viewCountTargets, {
@@ -235,13 +254,13 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
       [
         {
           targetType: "media" as const,
-          targetId: media.id,
+          targetId: localMedia.id,
         },
       ];
 
     // Add albums to prefetch targets if they exist
-    if (media.albums && media.albums.length > 0) {
-      const albumTargets = media.albums.map((album) => ({
+    if (localMedia.albums && localMedia.albums.length > 0) {
+      const albumTargets = localMedia.albums.map((album) => ({
         targetType: "album" as const,
         targetId: album.id,
       }));
@@ -254,10 +273,10 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
         error
       );
     });
-  }, [media, prefetch]);
+  }, [localMedia, prefetch]);
 
   // Determine if media is video
-  const isVideoMedia = isVideo(media);
+  const isVideoMedia = isVideo(localMedia);
   const shouldShowPlayer = isVideoMedia;
 
   // Desktop-only handler for MediaPlayer - mobile behavior is handled by ContentCard
@@ -289,14 +308,14 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
           </Tooltip>
           <div className="flex-1 min-w-0">
             <h1 className="text-lg font-semibold">
-              {media.originalFilename || media.filename}
+              {localMedia.originalFilename || localMedia.filename}
             </h1>
             {/* Media Metadata in Header */}
             <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground mt-1">
               {/* Creation Date */}
               <div className="flex items-center gap-1 flex-shrink-0">
                 <Calendar className="w-3 h-3" />
-                <span>{formatRelativeTime(media.createdAt)}</span>
+                <span>{formatRelativeTime(localMedia.createdAt)}</span>
               </div>
 
               {/* Creator Username */}
@@ -354,7 +373,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                   href={`https://www.reddit.com/submit?url=${encodeURIComponent(
                     window.location.href
                   )}&title=${encodeURIComponent(
-                    media.originalFilename || media.filename
+                    localMedia.originalFilename || localMedia.filename
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -367,7 +386,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                   href={`https://x.com/intent/tweet?url=${encodeURIComponent(
                     window.location.href
                   )}&text=${encodeURIComponent(
-                    media.originalFilename || media.filename
+                    localMedia.originalFilename || localMedia.filename
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -388,10 +407,11 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
           <div className="lg:col-span-2">
             <div className="relative bg-card shadow-lg rounded-lg overflow-hidden flex items-center justify-center min-h-[400px]">
               <MediaPlayer
-                media={media}
+                media={localMedia}
                 isPlaying={isPlayingVideo}
                 onTogglePlay={handleDesktopMediaClick}
                 onMobileClick={handleMobileMediaClick}
+                onMediaUpdate={handleMediaUpdate}
                 className="w-fit h-fit max-w-full"
                 imageClassName="w-auto h-auto object-contain"
                 canFullscreen={true}
@@ -418,14 +438,14 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                 <InfoPill
                   icon={<Download className="w-4 h-4" />}
                   label="File Size"
-                  value={formatFileSize(media.size)}
+                  value={formatFileSize(localMedia.size)}
                 />
                 <InfoPill
                   icon={<FileText className="w-4 h-4" />}
                   label="File Type"
                   value={
                     <span className="font-mono text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                      {media.mimeType}
+                      {localMedia.mimeType}
                     </span>
                   }
                 />
@@ -498,27 +518,31 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
             <MetaSection
               icon={<Layers className="w-5 h-5" />}
               title={t("relatedImages")}
-              defaultOpen={media.bulkSiblings && media.bulkSiblings.length > 0}
+              defaultOpen={
+                localMedia.bulkSiblings && localMedia.bulkSiblings.length > 0
+              }
             >
-              {media.bulkSiblings && media.bulkSiblings.length > 0 ? (
+              {localMedia.bulkSiblings && localMedia.bulkSiblings.length > 0 ? (
                 <HorizontalScroll
                   itemWidth="150px"
                   gap="small"
                   showArrows={true}
                   className="w-full"
                 >
-                  {media.bulkSiblings?.map((sibling: Media, index: number) => (
-                    <ContentCard
-                      item={sibling}
-                      key={sibling.id}
-                      canFullscreen={true}
-                      canBookmark={true}
-                      canLike={true}
-                      canAddToAlbum={true}
-                      mediaList={media.bulkSiblings}
-                      currentIndex={index}
-                    />
-                  ))}
+                  {localMedia.bulkSiblings?.map(
+                    (sibling: Media, index: number) => (
+                      <ContentCard
+                        item={sibling}
+                        key={sibling.id}
+                        canFullscreen={true}
+                        canBookmark={true}
+                        canLike={true}
+                        canAddToAlbum={true}
+                        mediaList={localMedia.bulkSiblings}
+                        currentIndex={index}
+                      />
+                    )
+                  )}
                 </HorizontalScroll>
               ) : (
                 <div className="text-center py-6 text-muted-foreground">
@@ -531,16 +555,16 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
             <MetaSection
               icon={<FolderOpen className="w-5 h-5" />}
               title={t("inAlbums")}
-              defaultOpen={media.albums && media.albums.length > 0}
+              defaultOpen={localMedia.albums && localMedia.albums.length > 0}
             >
-              {media.albums && media.albums.length > 0 ? (
+              {localMedia.albums && localMedia.albums.length > 0 ? (
                 <HorizontalScroll
                   itemWidth="200px"
                   gap="medium"
                   showArrows={true}
                   className="w-full"
                 >
-                  {media.albums.map((album) => (
+                  {localMedia.albums.map((album) => (
                     <ContentCard
                       key={album.id}
                       item={album}
@@ -572,8 +596,8 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
             >
               <Comments
                 targetType="media"
-                targetId={media.id}
-                initialComments={media.comments}
+                targetId={localMedia.id}
+                initialComments={localMedia.comments}
                 currentUserId={user?.userId}
               />
             </MetaSection>
