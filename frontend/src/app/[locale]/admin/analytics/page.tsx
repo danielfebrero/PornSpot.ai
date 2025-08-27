@@ -698,35 +698,6 @@ export default function AnalyticsPage() {
               })()}
             </ChartCard>
 
-            {/* Generations Chart */}
-            <ChartCard
-              title="AI Generations"
-              subtitle={`Total generations per ${selectedGranularity.slice(
-                0,
-                -2
-              )}`}
-              icon={Cpu}
-            >
-              {(() => {
-                const chartData = processChartData(
-                  "generations",
-                  "totalGenerations",
-                  "Total Generations",
-                  {
-                    border: "rgba(147, 51, 234, 1)", // Purple
-                    background: "rgba(147, 51, 234, 0.2)",
-                  }
-                );
-                return chartData ? (
-                  <Line data={chartData} options={chartOptions} />
-                ) : (
-                  <div className="h-64 flex items-center justify-center text-muted-foreground">
-                    No generation data available
-                  </div>
-                );
-              })()}
-            </ChartCard>
-
             {/* Storage Usage Chart */}
             <ChartCard
               title="Storage Usage"

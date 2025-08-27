@@ -55,22 +55,19 @@ const docClient = DynamoDBDocumentClient.from(client);
 
 // S3 client setup
 let s3Config: S3ClientConfig = {};
-let s3Client: S3Client | null = null;
 
-if (process.env["S3_BUCKET"]) {
-  if (isLocal) {
-    s3Config = {
-      endpoint: "http://pornspot-local-aws:4566",
-      region: process.env["AWS_REGION"] || "us-east-1",
-      credentials: {
-        accessKeyId: "test",
-        secretAccessKey: "test",
-      },
-      forcePathStyle: true,
-    };
-  }
-  s3Client = new S3Client(s3Config);
+if (isLocal) {
+  s3Config = {
+    endpoint: "http://pornspot-local-aws:4566",
+    region: process.env["AWS_REGION"] || "us-east-1",
+    credentials: {
+      accessKeyId: "test",
+      secretAccessKey: "test",
+    },
+    forcePathStyle: true,
+  };
 }
+const s3Client = new S3Client(s3Config);
 
 const METRIC_TYPES: MetricType[] = [
   "users",

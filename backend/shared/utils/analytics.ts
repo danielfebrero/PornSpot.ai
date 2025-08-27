@@ -248,8 +248,8 @@ export async function calculateUserMetrics(
     } while (lastKey);
     metrics.activeUsers = activeUsersCount;
 
-    // Get visitors count in time range - count unique VISITOR entries
-    let visitorsCount = 0;
+    // Get visitors count in time range - count distinct clientIP only
+    const uniqueClientIPs = new Set<string>();
     lastKey = undefined;
     do {
       const res: any = await docClient.send(
@@ -265,14 +265,23 @@ export async function calculateUserMetrics(
             ":start": startTime,
             ":end": endTime,
           },
-          Select: "COUNT",
+          ProjectionExpression: "clientIP",
           ExclusiveStartKey: lastKey,
         })
       );
-      visitorsCount += res?.Count || 0;
+
+      // Add each unique clientIP to the set
+      if (res.Items) {
+        for (const item of res.Items) {
+          if (item.clientIP) {
+            uniqueClientIPs.add(item.clientIP);
+          }
+        }
+      }
+
       lastKey = res.LastEvaluatedKey;
     } while (lastKey);
-    metrics.visitors = visitorsCount;
+    metrics.visitors = uniqueClientIPs.size;
   } catch (error) {
     console.error("Error calculating user metrics:", error);
   }
@@ -763,7 +772,7 @@ export async function calculateStorageMetrics(
  */
 export async function aggregateAllMetrics(
   docClient: DynamoDBDocumentClient,
-  s3Client: S3Client | null,
+  s3Client: S3Client,
   startTime: string,
   endTime: string
 ): Promise<AnalyticsMetrics> {
@@ -780,9 +789,7 @@ export async function aggregateAllMetrics(
     calculateAlbumMetrics(docClient, startTime, endTime),
     calculateInteractionMetrics(docClient, startTime, endTime),
     calculateGenerationMetrics(docClient, startTime, endTime),
-    s3Client && S3_BUCKET
-      ? calculateStorageMetrics(s3Client, S3_BUCKET)
-      : Promise.resolve({}),
+    calculateStorageMetrics(s3Client, S3_BUCKET!),
   ]);
 
   return {
