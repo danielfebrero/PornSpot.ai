@@ -768,14 +768,6 @@ Resources:
             Method: PUT
             Auth:
               Authorizer: UserAuthorizer
-        OptionsUpdateMedia:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /media/{mediaId}
-            Method: OPTIONS
-            Auth:
-              Authorizer: NONE
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
