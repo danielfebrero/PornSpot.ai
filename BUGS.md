@@ -95,3 +95,5 @@
 [ ] Admin Users load more is not working.
 
 [ ] On Generate page, cannot change the seed.
+
+[ ] I do not receive notifications anymore.

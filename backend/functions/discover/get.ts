@@ -84,7 +84,7 @@ function getTimeWindow(cursorDepth: number): {
   windowEndDays: number;
 } {
   // Each "page" represents roughly 3-7 days of content
-  const daysPerPage = 5;
+  const daysPerPage = 1;
   const windowStartDays = cursorDepth * daysPerPage;
   const windowEndDays = windowStartDays + daysPerPage * 2; // Overlap for better mixing
 
