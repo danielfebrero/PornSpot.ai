@@ -224,6 +224,13 @@ export function ContentCard({
     }
   }, [dropdownOpen]);
 
+  // Auto-close dropdown when hover/mobile actions end
+  useEffect(() => {
+    if (dropdownOpen && !isHovered && !showMobileActions) {
+      setDropdownOpen(false);
+    }
+  }, [dropdownOpen, isHovered, showMobileActions]);
+
   // Handle click events based on content type
   const handleClick = (e: React.MouseEvent) => {
     if (onClick) {
