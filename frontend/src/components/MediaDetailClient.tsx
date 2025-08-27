@@ -47,6 +47,7 @@ import { useDateUtils } from "@/hooks/useDateUtils";
 import { useUserContext } from "@/contexts/UserContext";
 import { useTranslations } from "next-intl";
 import { getLoraNameById } from "@/utils/loraModels";
+import { useMediaById } from "@/hooks/queries/useMediaQuery";
 
 // --- PROPS INTERFACES ---
 
@@ -193,10 +194,17 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
   const hasTrackedView = useRef(false);
   const trackViewMutation = useTrackView();
 
-  // Sync local media with props when media changes
+  // Use TanStack Query to get fresh data and handle real-time updates
+  const { data: freshMedia, isLoading } = useMediaById(media.id, true);
+
+  // Sync local media with fresh data when available, fallback to initial props
   useEffect(() => {
-    setLocalMedia(media);
-  }, [media]);
+    if (freshMedia && !isLoading) {
+      setLocalMedia(freshMedia);
+    } else {
+      setLocalMedia(media);
+    }
+  }, [freshMedia, isLoading, media]);
 
   // Handler for media updates from MediaPlayer
   const handleMediaUpdate = useCallback((updates: Partial<Media>) => {

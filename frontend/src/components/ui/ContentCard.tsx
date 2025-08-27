@@ -750,19 +750,10 @@ export function ContentCard({
                   <button
                     ref={dropdownButtonRef}
                     onClick={handleDropdownToggle}
-                    className={cn(
-                      "transition-opacity duration-200 w-8 h-8 p-0 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-lg flex items-center justify-center",
-                      isMobileInterface
-                        ? showMobileActions
-                          ? "opacity-100"
-                          : "opacity-0 pointer-events-none"
-                        : isHovered || isDropdownHovered
-                        ? "opacity-100"
-                        : "opacity-0"
-                    )}
+                    className="p-2.5 sm:p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-colors shadow-lg hover:shadow-xl hover:scale-110"
                     aria-label="Content actions"
                   >
-                    <MoreVertical className="h-4 w-4 text-white" />
+                    <MoreVertical className="h-4 w-4 sm:h-4 sm:w-4" />
                   </button>
                 </div>
               )}
@@ -1102,19 +1093,10 @@ export function ContentCard({
                   <button
                     ref={dropdownButtonRef}
                     onClick={handleDropdownToggle}
-                    className={cn(
-                      "transition-opacity duration-200 w-8 h-8 p-0 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-lg flex items-center justify-center",
-                      isMobileInterface
-                        ? showMobileActions
-                          ? "opacity-100"
-                          : "opacity-0 pointer-events-none"
-                        : isHovered || isDropdownHovered
-                        ? "opacity-100"
-                        : "opacity-0"
-                    )}
+                    className="p-2.5 sm:p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-colors shadow-lg hover:shadow-xl hover:scale-110"
                     aria-label="Album actions"
                   >
-                    <MoreVertical className="h-4 w-4 text-white" />
+                    <MoreVertical className="h-4 w-4 sm:h-4 sm:w-4" />
                   </button>
                 </div>
               )}
