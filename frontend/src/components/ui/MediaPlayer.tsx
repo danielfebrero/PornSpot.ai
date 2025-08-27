@@ -294,7 +294,7 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
         isOpen={showEditTitleDialog}
         onClose={() => setShowEditTitleDialog(false)}
         onConfirm={handleConfirmTitleEdit}
-        currentTitle={media.filename || ""}
+        currentTitle={media.originalFilename || ""}
         loading={updateMedia.isPending}
       />
     </>

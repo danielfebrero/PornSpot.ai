@@ -63,6 +63,10 @@
     "failedToUpdate": "更新失败",
     "filteredBy": "筛选条件",
     "noMoreMediaToLoad": "没有更多媒体可加载",
+    "title": "标题",
+    "editTitle": "编辑标题",
+    "characters": "字符",
+    "saving": "保存中...",
     "errors": {
       "loadingAlbums": "加载相册时出错",
       "refreshPage": "请刷新页面",

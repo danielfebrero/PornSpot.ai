@@ -64,7 +64,7 @@ const handleUpdateMedia = async (
 
   // Handle title update
   if (requestBody.title !== undefined) {
-    updateData.filename = requestBody.title;
+    updateData.originalFilename = requestBody.title;
   }
 
   // Handle visibility update

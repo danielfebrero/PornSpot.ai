@@ -326,7 +326,7 @@ const UserMediasPage: React.FC = () => {
           isOpen={!!editingMedia}
           onClose={() => setEditingMedia(null)}
           onConfirm={handleConfirmTitleEdit}
-          currentTitle={editingMedia.filename || ""}
+          currentTitle={editingMedia.originalFilename || ""}
           loading={updateMedia.isPending}
         />
       )}

@@ -63,6 +63,10 @@
     "failedToUpdate": "Error al actualizar",
     "filteredBy": "Filtrado por",
     "noMoreMediaToLoad": "No hay más medios para cargar",
+    "title": "Título",
+    "editTitle": "Editar título",
+    "characters": "caracteres",
+    "saving": "Guardando...",
     "errors": {
       "loadingAlbums": "Error cargando álbumes",
       "refreshPage": "Por favor actualiza la página",

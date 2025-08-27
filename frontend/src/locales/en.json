@@ -63,6 +63,10 @@
     "failedToUpdate": "Failed to update",
     "filteredBy": "Filtered by",
     "noMoreMediaToLoad": "No more media to load",
+    "title": "Title",
+    "editTitle": "Edit Title",
+    "characters": "characters",
+    "saving": "Saving...",
     "errors": {
       "loadingAlbums": "Error loading albums",
       "refreshPage": "Please try refreshing the page",

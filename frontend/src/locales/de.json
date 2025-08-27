@@ -63,6 +63,10 @@
     "failedToUpdate": "Aktualisierung fehlgeschlagen",
     "filteredBy": "Gefiltert nach",
     "noMoreMediaToLoad": "Keine weiteren Medien zu laden",
+    "title": "Titel",
+    "editTitle": "Titel bearbeiten",
+    "characters": "Zeichen",
+    "saving": "Speichern...",
     "errors": {
       "loadingAlbums": "Fehler beim Laden der Alben",
       "refreshPage": "Bitte aktualisieren Sie die Seite",
