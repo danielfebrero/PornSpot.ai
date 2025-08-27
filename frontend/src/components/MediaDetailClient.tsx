@@ -278,30 +278,30 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm border-border">
-        <div className="flex items-center h-16 gap-4 md:px-4">
+        <div className="flex items-center min-h-16 gap-4 md:px-4 py-4">
           <Tooltip content={t("goBack")} side="bottom">
             <button
               onClick={() => router.back()}
-              className="p-2 transition-colors rounded-full hover:bg-muted"
+              className="p-2 transition-colors rounded-full hover:bg-muted flex-shrink-0"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
           </Tooltip>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-semibold truncate">
+            <h1 className="text-lg font-semibold">
               {media.originalFilename || media.filename}
             </h1>
             {/* Media Metadata in Header */}
             <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground mt-1">
               {/* Creation Date */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 flex-shrink-0">
                 <Calendar className="w-3 h-3" />
                 <span>{formatRelativeTime(media.createdAt)}</span>
               </div>
 
               {/* Creator Username */}
               {metadata.isCreatorClickable && metadata.creatorUsername ? (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 flex-shrink-0">
                   <User className="w-3 h-3" />
                   <LocaleLink
                     href={`/profile/${metadata.creatorUsername}`}
@@ -311,7 +311,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                   </LocaleLink>
                 </div>
               ) : (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 flex-shrink-0">
                   <User className="w-3 h-3" />
                   <span
                     className={
@@ -331,7 +331,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
               <Tooltip content={t("share")} side="bottom">
                 <button
                   onClick={toggle}
-                  className="p-2 transition-colors rounded-full hover:bg-muted"
+                  className="p-2 transition-colors rounded-full hover:bg-muted flex-shrink-0"
                 >
                   <Share2 className="w-5 h-5" />
                 </button>
