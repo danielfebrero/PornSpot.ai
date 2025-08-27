@@ -393,7 +393,7 @@ export default function AnalyticsPage() {
                   (m: any) => m.metricType === "users"
                 )?.dataPoints?.[0]?.metrics?.newUsers || 0
               }
-              changeLabel={`this ${selectedGranularity
+              changeLabel={`last ${selectedGranularity
                 .slice(0, -2)
                 .replace("dai", "day")}`}
               icon={Users}
@@ -411,7 +411,7 @@ export default function AnalyticsPage() {
                   (m: any) => m.metricType === "media"
                 )?.dataPoints?.[0]?.metrics?.newMedia || 0
               }
-              changeLabel={`this ${selectedGranularity
+              changeLabel={`last ${selectedGranularity
                 .slice(0, -2)
                 .replace("dai", "day")}`}
               icon={Image}
@@ -429,7 +429,7 @@ export default function AnalyticsPage() {
                   (m: any) => m.metricType === "albums"
                 )?.dataPoints?.[0]?.metrics?.newAlbums || 0
               }
-              changeLabel={`this ${selectedGranularity
+              changeLabel={`last ${selectedGranularity
                 .slice(0, -2)
                 .replace("dai", "day")}`}
               icon={FolderOpen}
@@ -459,7 +459,7 @@ export default function AnalyticsPage() {
                   (m: any) => m.metricType === "interactions"
                 )?.dataPoints?.[0]?.metrics?.newComments || 0)
               }
-              changeLabel={`this ${selectedGranularity
+              changeLabel={`last ${selectedGranularity
                 .slice(0, -2)
                 .replace("dai", "day")}`}
               icon={Activity}
@@ -477,7 +477,7 @@ export default function AnalyticsPage() {
                   (m: any) => m.metricType === "interactions"
                 )?.dataPoints?.[0]?.metrics?.newViews || 0
               }
-              changeLabel={`this ${selectedGranularity
+              changeLabel={`last ${selectedGranularity
                 .slice(0, -2)
                 .replace("dai", "day")}`}
               icon={Eye}
@@ -495,7 +495,7 @@ export default function AnalyticsPage() {
                   (m: any) => m.metricType === "interactions"
                 )?.dataPoints?.[0]?.metrics?.newLikes || 0
               }
-              changeLabel={`this ${selectedGranularity
+              changeLabel={`last ${selectedGranularity
                 .slice(0, -2)
                 .replace("dai", "day")}`}
               icon={Heart}
@@ -513,7 +513,7 @@ export default function AnalyticsPage() {
                   (m: any) => m.metricType === "interactions"
                 )?.dataPoints?.[0]?.metrics?.newComments || 0
               }
-              changeLabel={`this ${selectedGranularity
+              changeLabel={`last ${selectedGranularity
                 .slice(0, -2)
                 .replace("dai", "day")}`}
               icon={MessageCircle}
@@ -531,7 +531,7 @@ export default function AnalyticsPage() {
                   (m: any) => m.metricType === "interactions"
                 )?.dataPoints?.[0]?.metrics?.newBookmarks || 0
               }
-              changeLabel={`this ${selectedGranularity
+              changeLabel={`last ${selectedGranularity
                 .slice(0, -2)
                 .replace("dai", "day")}`}
               icon={Bookmark}
