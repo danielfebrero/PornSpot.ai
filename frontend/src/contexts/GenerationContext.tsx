@@ -20,7 +20,7 @@ import { useUserContext } from "./UserContext";
 const DEFAULT_SETTINGS: GenerationSettings = {
   prompt: "",
   negativePrompt:
-    "ugly, distorted bad teeth, bad hands, distorted face, missing fingers, multiple limbs, distorted arms, distorted legs, low quality, distorted fingers, weird legs, distorted eyes,pixelated, extra fingers, watermark",
+    "ugly, distorted bad teeth, bad hands, distorted face, missing fingers, multiple limbs, distorted arms, distorted legs, low quality, distorted fingers, weird legs, distorted eyes, pixelated, extra fingers, watermark",
   imageSize: "1024x1024",
   customWidth: 1024,
   customHeight: 1024,

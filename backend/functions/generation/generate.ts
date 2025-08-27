@@ -103,7 +103,7 @@ const CONFIG = {
     negativePrompt: {
       maxLength: 500,
       defaultValue:
-        "ugly, distorted bad teeth, bad hands, distorted face, missing fingers, multiple limbs, distorted arms, distorted legs, low quality, distorted fingers, weird legs, distorted eyes,pixelated, extra fingers, watermark",
+        "ugly, distorted bad teeth, bad hands, distorted face, missing fingers, multiple limbs, distorted arms, distorted legs, low quality, distorted fingers, weird legs, distorted eyes, pixelated, extra fingers, watermark",
     },
     cfgScale: { min: 1, max: 10, default: 4.5 },
     steps: { min: 5, max: 60, default: 30 },
