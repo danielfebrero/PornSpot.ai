@@ -46,7 +46,7 @@ export function useAdminDashboardStatsQuery() {
     // Enable background refetching for real-time stats
     refetchOnWindowFocus: true,
     // Refetch every 5 minutes for real-time dashboard
-    refetchInterval: 5 * 60 * 1000,
+    refetchInterval: 1 * 60 * 1000,
     // Retry failed requests (important for admin dashboard)
     retry: 3,
     // Keep trying to fetch even if offline (will work when back online)
