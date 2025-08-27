@@ -1357,7 +1357,7 @@
     "private": "私人",
     "generatedImagesPublic": "生成的图像将对所有用户可见",
     "generatedImagesPrivate": "生成的图像将是您账户的私人内容",
-    "useRandomSeed": "使用-1表示随机种子",
+    "useRandomSeed": "使用0表示随机种子",
     "loraSelection": "LoRA选择",
     "automaticLoraDescription": "我们将自动为您的图像选择最佳的LoRA模型和设置",
     "manuallySelectLora": "手动选择和配置LoRA模型",
