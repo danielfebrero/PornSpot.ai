@@ -11,6 +11,7 @@ interface AuthLayoutContentProps {
 export function AuthLayoutContent({ children }: AuthLayoutContentProps) {
   const pathname = usePathname();
   const isRegisterPage = pathname.includes("/register");
+  const isLoginPage = pathname.includes("/login");
 
   // Utiliser le contexte d'invitation pour savoir si on doit afficher la section Why Register
   const { isCodeValidated } = useInvitation();
@@ -39,6 +40,10 @@ export function AuthLayoutContent({ children }: AuthLayoutContentProps) {
       // sans le layout card/border car InvitationWall gère son propre style
       return <>{children}</>;
     }
+  }
+
+  if (isLoginPage && !isCodeValidated) {
+    return <>{children}</>;
   }
 
   // Layout centré pour les autres pages (login, etc.)

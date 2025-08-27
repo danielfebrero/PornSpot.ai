@@ -102,7 +102,7 @@ export function InvitationWall({ onCodeValidated }: InvitationWallProps) {
   };
 
   return (
-    <div className="flex items-center justify-center p-4 overflow-hidden">
+    <div className="flex items-center justify-center overflow-hidden">
       <StarsBackground />
 
       <div className="relative z-10 w-full max-w-md mx-auto">
