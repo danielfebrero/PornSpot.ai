@@ -45,6 +45,10 @@ Use this LoRA when the user prompt involves woman downblouse.
 
 Use this LoRA when the user prompt involves a woman using a sextoy or a dildo inside her pussy.
 
+# bread
+
+Use this LoRA when the user prompt involves anthropomorphic characters, such as animal-human hybrids, furry characters, or characters with animal features like ears, tails, or other animal characteristics mixed with human traits.
+
 # Examples
 
 - "A close-up shot of a model with pierced nipples wearing a barbell earring." → "['Pierced_Nipples_XL_Barbell_Edition-000013', 'add-detail-xl']"
@@ -58,6 +62,8 @@ Use this LoRA when the user prompt involves a woman using a sextoy or a dildo in
 - "woman, threesome, double penetration, having an orgasm." → "['leaked_nudes_style_v1_fixed', 'orgasmface_SDXL', 'add-detail-xl']"
 - "group of woman, drinking wine at the bar, downblouse." → "['leaked_nudes_style_v1_fixed', 'RealDownblouseXLv3', 'add-detail-xl']"
 - "woman masturbating with a sextoy and having an orgasm. → "['leaked_nudes_style_v1_fixed', 'Sextoy_Dildo_Pussy_v2_XL', 'add-detail-xl', 'orgasmface_SDXL']"
+- "cat girl with ears and tail, sitting on a bed, nude" → "['bread', 'add-detail-xl']"
+- "fox woman with fluffy tail and pointed ears, anthropomorphic features" → "['bread', 'add-detail-xl']"
 
 # Response format
 

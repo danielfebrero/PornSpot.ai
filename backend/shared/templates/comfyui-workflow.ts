@@ -71,15 +71,30 @@ export function createComfyUIWorkflow(
     },
 
     // LoRA chain (will be modified based on selectedLoras)
-    // Chain: 11 → 28 → 27 → 23 → 25 → 24 → 22 → 21 → 20 → 16 → 10
+    // Chain: 11 → 29 → 28 → 27 → 23 → 25 → 24 → 22 → 21 → 20 → 16 → 10
+    "29": {
+      class_type: "LoraLoader",
+      inputs: {
+        lora_name: "bread.safetensors",
+        strength_model: 0,
+        strength_clip: 1,
+        model: ["11", 0],
+        clip: ["11", 1],
+      },
+      _meta: {
+        title: "Load LoRA",
+        estTimeUnits: 1,
+      },
+    },
+
     "28": {
       class_type: "LoraLoader",
       inputs: {
         lora_name: "Sextoy_Dildo_Pussy_v2_XL.safetensors",
         strength_model: 0,
         strength_clip: 1,
-        model: ["11", 0],
-        clip: ["11", 1],
+        model: ["29", 0],
+        clip: ["29", 1],
       },
       _meta: {
         title: "Load LoRA",
@@ -300,7 +315,7 @@ export function createComfyUIWorkflow(
     "9": {
       class_type: "SaveImage",
       inputs: {
-        filename_prefix: "ComfyUI_Generated",
+        filename_prefix: "PornSpot",
         images: ["8", 0],
       },
       _meta: {
@@ -314,6 +329,7 @@ export function createComfyUIWorkflow(
   if (params.selectedLoras && params.selectedLoras.length > 0) {
     // Map LoRA names to node IDs based on the template structure
     const loraNodeMap: { [key: string]: string } = {
+      bread: "29",
       Sextoy_Dildo_Pussy_v2_XL: "28",
       RealDownblouseXLv3: "27",
       Harness_Straps_sdxl: "23",

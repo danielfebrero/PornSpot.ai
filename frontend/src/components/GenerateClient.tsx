@@ -135,6 +135,11 @@ export function GenerateClient() {
       name: "Sextoy Dildo",
       description: t("loraModels.sextoyDildo"),
     },
+    {
+      id: "bread",
+      name: "Anthropomorphisme",
+      description: t("loraModels.bread"),
+    },
   ];
 
   // Hook for optimistic usage stats updates
