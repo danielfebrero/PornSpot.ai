@@ -544,7 +544,7 @@ export default function AnalyticsPage() {
             {/* User Growth Chart */}
             <ChartCard
               title="User Growth"
-              subtitle={`New and active users per ${selectedGranularity.slice(
+              subtitle={`New and active users and visitors per ${selectedGranularity.slice(
                 0,
                 -2
               )}`}
@@ -563,6 +563,12 @@ export default function AnalyticsPage() {
                     label: "Active Users",
                     borderColor: "rgba(16, 185, 129, 1)", // Emerald
                     backgroundColor: "rgba(16, 185, 129, 0.2)",
+                  },
+                  {
+                    key: "visitors",
+                    label: "Visitors",
+                    borderColor: "rgba(245, 158, 11, 1)", // Amber
+                    backgroundColor: "rgba(245, 158, 11, 0.2)",
                   },
                 ]);
                 return chartData ? (
