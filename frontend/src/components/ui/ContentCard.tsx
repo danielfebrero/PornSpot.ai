@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useLocaleRouter } from "@/lib/navigation";
 import { useNavigationLoading } from "@/contexts/NavigationLoadingContext";
 import {
@@ -157,10 +158,15 @@ export function ContentCard({
   const [isHovered, setIsHovered] = useState(false);
   const [addToAlbumDialogOpen, setAddToAlbumDialogOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
   const { isMobileInterface } = useDevice();
   const cardRef = useRef<HTMLDivElement>(null);
+  const dropdownButtonRef = useRef<HTMLButtonElement>(null);
 
   const isMedia = item.type === "media";
   const media = isMedia ? (item as Media) : null;
@@ -209,11 +215,14 @@ export function ContentCard({
   // Handle dropdown outside clicks
   useEffect(() => {
     const handleClickOutside = (event: Event) => {
-      if (
-        cardRef.current &&
-        !cardRef.current.contains(event.target as Node) &&
-        !(event.target as Element).closest("[data-dropdown-container]")
-      ) {
+      const target = event.target as Element;
+
+      // Check if click is outside both the card and the dropdown content
+      const isOutsideCard =
+        cardRef.current && !cardRef.current.contains(target);
+      const isOutsideDropdown = !target.closest("[data-dropdown-content]");
+
+      if (isOutsideCard && isOutsideDropdown) {
         setDropdownOpen(false);
       }
     };
@@ -474,6 +483,122 @@ export function ContentCard({
     handleDownload,
   ]);
 
+  // Calculate dropdown position for portal
+  const calculateDropdownPosition = useCallback(() => {
+    if (!dropdownButtonRef.current) return;
+
+    const buttonRect = dropdownButtonRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+
+    // Estimate dropdown dimensions
+    const dropdownWidth = 200; // Approximate width
+    const dropdownHeight = Math.min(
+      240,
+      (builtCustomActions?.length || 0) * 40 + 16
+    ); // max-h-60 = 240px
+
+    let top = buttonRect.bottom + 4; // mt-1 = 4px
+    let left = buttonRect.right - dropdownWidth; // right-aligned
+
+    // Adjust if dropdown would go below viewport
+    if (top + dropdownHeight > viewportHeight) {
+      top = buttonRect.top - dropdownHeight - 4;
+    }
+
+    // Adjust if dropdown would go outside left edge
+    if (left < 8) {
+      left = 8; // 8px padding from edge
+    }
+
+    // Adjust if dropdown would go outside right edge
+    if (left + dropdownWidth > viewportWidth - 8) {
+      left = viewportWidth - dropdownWidth - 8;
+    }
+
+    setDropdownPosition({ top, left });
+  }, [builtCustomActions?.length]);
+
+  // Handle window events for portal dropdown positioning
+  useEffect(() => {
+    if (!dropdownOpen) return;
+
+    const handleWindowEvent = () => {
+      if (dropdownOpen) {
+        // Recalculate position on scroll/resize
+        calculateDropdownPosition();
+      }
+    };
+
+    window.addEventListener("scroll", handleWindowEvent, true);
+    window.addEventListener("resize", handleWindowEvent);
+
+    return () => {
+      window.removeEventListener("scroll", handleWindowEvent, true);
+      window.removeEventListener("resize", handleWindowEvent);
+    };
+  }, [dropdownOpen, calculateDropdownPosition]);
+
+  // Handle dropdown toggle with position calculation
+  const handleDropdownToggle = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!dropdownOpen) {
+        calculateDropdownPosition();
+      }
+      setDropdownOpen(!dropdownOpen);
+    },
+    [dropdownOpen, calculateDropdownPosition]
+  );
+
+  // PortalDropdown component
+  const PortalDropdown = useMemo(() => {
+    if (!dropdownOpen || !builtCustomActions || !dropdownPosition) return null;
+
+    return createPortal(
+      <div
+        className="fixed min-w-max bg-card border border-border rounded-lg shadow-lg py-1 z-[9999] backdrop-blur-sm max-h-60 overflow-y-auto"
+        style={{
+          top: dropdownPosition.top,
+          left: dropdownPosition.left,
+        }}
+        data-dropdown-content
+      >
+        {builtCustomActions.map((action, index) => (
+          <button
+            key={index}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              action.onClick();
+              setDropdownOpen(false);
+            }}
+            className={cn(
+              "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors whitespace-nowrap h-[36px]",
+              action.variant === "destructive"
+                ? "text-red-500 hover:text-red-400 hover:bg-red-50"
+                : "text-foreground hover:text-foreground"
+            )}
+          >
+            <span
+              className={cn(
+                action.variant === "destructive"
+                  ? "text-red-500"
+                  : "text-muted-foreground"
+              )}
+            >
+              {action.icon}
+            </span>
+            {action.label}
+          </button>
+        ))}
+      </div>,
+      document.body
+    );
+  }, [dropdownOpen, builtCustomActions, dropdownPosition]);
+
   return (
     <>
       <div
@@ -590,11 +715,8 @@ export function ContentCard({
               {builtCustomActions && (
                 <div className="relative">
                   <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setDropdownOpen(!dropdownOpen);
-                    }}
+                    ref={dropdownButtonRef}
+                    onClick={handleDropdownToggle}
                     className={cn(
                       "transition-opacity duration-200 w-8 h-8 p-0 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-lg flex items-center justify-center",
                       isMobileInterface
@@ -609,42 +731,6 @@ export function ContentCard({
                   >
                     <MoreVertical className="h-4 w-4 text-white" />
                   </button>
-
-                  {dropdownOpen && (
-                    <div
-                      className="absolute right-0 top-full mt-1 min-w-max bg-card border border-border rounded-lg shadow-lg py-1 z-50 backdrop-blur-sm max-h-60 overflow-y-auto"
-                      data-dropdown-content
-                    >
-                      {builtCustomActions.map((action, index) => (
-                        <button
-                          key={index}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            action.onClick();
-                            setDropdownOpen(false);
-                          }}
-                          className={cn(
-                            "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors whitespace-nowrap h-[36px] text-white",
-                            action.variant === "destructive"
-                              ? "hover:text-red-100"
-                              : "hover:text-gray-100"
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              action.variant === "destructive"
-                                ? "text-red-500 hover:text-red-700"
-                                : "text-white/60 hover:text-white/80"
-                            )}
-                          >
-                            {action.icon}
-                          </span>
-                          {action.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               )}
               {canFullscreen && (
@@ -979,11 +1065,8 @@ export function ContentCard({
               {builtCustomActions && (
                 <div className="relative">
                   <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setDropdownOpen(!dropdownOpen);
-                    }}
+                    ref={dropdownButtonRef}
+                    onClick={handleDropdownToggle}
                     className={cn(
                       "transition-opacity duration-200 w-8 h-8 p-0 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-lg flex items-center justify-center",
                       isMobileInterface
@@ -998,42 +1081,6 @@ export function ContentCard({
                   >
                     <MoreVertical className="h-4 w-4 text-white" />
                   </button>
-
-                  {dropdownOpen && (
-                    <div
-                      className="absolute right-0 top-full mt-1 min-w-max bg-card border border-border rounded-lg shadow-lg py-1 z-50 backdrop-blur-sm max-h-60 overflow-y-auto"
-                      data-dropdown-content
-                    >
-                      {builtCustomActions.map((action, index) => (
-                        <button
-                          key={index}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            action.onClick();
-                            setDropdownOpen(false);
-                          }}
-                          className={cn(
-                            "w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors whitespace-nowrap h-10 text-white",
-                            action.variant === "destructive"
-                              ? "hover:text-red-100"
-                              : "hover:text-gray-100"
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              action.variant === "destructive"
-                                ? "text-red-500 hover:text-red-700"
-                                : "text-white/60 hover:text-white/80"
-                            )}
-                          >
-                            {action.icon}
-                          </span>
-                          {action.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               )}
               {canDelete && !inActions?.delete && (
@@ -1109,6 +1156,9 @@ export function ContentCard({
         confirmText="Remove"
         confirmVariant="danger"
       />
+
+      {/* Portal Dropdown */}
+      {PortalDropdown}
     </>
   );
 }
