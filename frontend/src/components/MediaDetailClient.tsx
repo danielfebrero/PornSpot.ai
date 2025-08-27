@@ -87,7 +87,7 @@ const useMediaMetadata = (media: Media) => {
     } else if (metadata.creator || metadata.artist) {
       creator = String(metadata.creator || metadata.artist);
     } else if (media.createdBy && media.createdByType === "user") {
-      creator = `User ${media.createdBy.slice(-8)}`; // Show last 8 chars of userId as fallback
+      creator = `User ${media.createdBy.slice(10)}`; // Show last 8 chars of userId as fallback
     } else if (media.createdBy && media.createdByType === "admin") {
       creator = "Admin";
     }
