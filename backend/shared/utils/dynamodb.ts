@@ -2057,15 +2057,17 @@ export class DynamoDBService {
     targetId: string
   ): Promise<void> {
     const now = new Date().toISOString();
-    
+
     const interaction: UserInteractionEntity = {
       PK: `USER#${userId}`,
-      SK: targetType === "comment" 
-        ? `COMMENT_INTERACTION#${interactionType}#${targetId}`
-        : `INTERACTION#${interactionType}#${targetId}`,
-      GSI1PK: targetType === "comment"
-        ? `COMMENT_INTERACTION#${interactionType}#${targetId}`
-        : `INTERACTION#${interactionType}#${targetId}`,
+      SK:
+        targetType === "comment"
+          ? `COMMENT_INTERACTION#${interactionType}#${targetId}`
+          : `INTERACTION#${interactionType}#${targetId}`,
+      GSI1PK:
+        targetType === "comment"
+          ? `COMMENT_INTERACTION#${interactionType}#${targetId}`
+          : `INTERACTION#${interactionType}#${targetId}`,
       GSI1SK: userId,
       GSI2PK: `USER#${userId}#INTERACTIONS#${interactionType}`,
       GSI2SK: targetType === "comment" ? `COMMENT#${now}` : `CONTENT#${now}`,
@@ -3857,5 +3859,114 @@ export class DynamoDBService {
     }
 
     return details;
+  }
+
+  /**
+   * Increments view count for current hour, day, week, and month
+   * Creates dedicated view count entities that will be used by analytics
+   */
+  static async incrementViewCountForAnalytics(): Promise<void> {
+    try {
+      const now = new Date();
+
+      // Calculate time boundaries for different granularities
+      const currentHour = new Date(now);
+      currentHour.setMinutes(0, 0, 0);
+
+      const currentDay = new Date(now);
+      currentDay.setHours(0, 0, 0, 0);
+
+      const currentWeek = new Date(now);
+      const dayOfWeek = currentWeek.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Days since Monday
+      currentWeek.setDate(currentWeek.getDate() - daysToMonday);
+      currentWeek.setHours(0, 0, 0, 0);
+
+      const currentMonth = new Date(now);
+      currentMonth.setDate(1);
+      currentMonth.setHours(0, 0, 0, 0);
+
+      // Define the updates for each granularity
+      const updates = [
+        {
+          pk: "VIEW_COUNT#hourly",
+          sk: currentHour.toISOString(),
+          timestamp: currentHour.toISOString(),
+          granularity: "hourly" as const,
+        },
+        {
+          pk: "VIEW_COUNT#daily",
+          sk: currentDay.toISOString(),
+          timestamp: currentDay.toISOString(),
+          granularity: "daily" as const,
+        },
+        {
+          pk: "VIEW_COUNT#weekly",
+          sk: currentWeek.toISOString(),
+          timestamp: currentWeek.toISOString(),
+          granularity: "weekly" as const,
+        },
+        {
+          pk: "VIEW_COUNT#monthly",
+          sk: currentMonth.toISOString(),
+          timestamp: currentMonth.toISOString(),
+          granularity: "monthly" as const,
+        },
+      ];
+
+      // Execute all updates in parallel
+      const updatePromises = updates.map(async (update) => {
+        try {
+          await docClient.send(
+            new UpdateCommand({
+              TableName: TABLE_NAME,
+              Key: {
+                PK: update.pk,
+                SK: update.sk,
+              },
+              UpdateExpression: `
+                SET 
+                  EntityType = if_not_exists(EntityType, :entityType),
+                  granularity = if_not_exists(granularity, :granularity),
+                  #timestamp = if_not_exists(#timestamp, :timestamp),
+                  lastUpdated = :lastUpdated,
+                  totalViews = if_not_exists(totalViews, :zero) + :increment,
+                  newViews = if_not_exists(newViews, :zero) + :increment,
+                  createdAt = if_no_exists(createdAt, :createdAt)
+              `,
+              ExpressionAttributeNames: {
+                "#timestamp": "timestamp", // timestamp is a reserved keyword
+              },
+              ExpressionAttributeValues: {
+                ":entityType": "ViewCount",
+                ":granularity": update.granularity,
+                ":timestamp": update.timestamp,
+                ":lastUpdated": now.toISOString(),
+                ":zero": 0,
+                ":increment": 1,
+                ":createdAt": now.toISOString(),
+              },
+            })
+          );
+
+          console.log(
+            `📈 Incremented view count for ${update.granularity}: ${update.sk}`
+          );
+        } catch (error) {
+          console.error(
+            `❌ Failed to increment view count for ${update.granularity}:`,
+            error
+          );
+          // Don't throw - we want other updates to continue even if one fails
+        }
+      });
+
+      await Promise.allSettled(updatePromises);
+
+      console.log("✅ Successfully updated view counts for all granularities");
+    } catch (error) {
+      console.error("❌ Failed to increment view count:", error);
+      // Don't throw - view tracking failure shouldn't break view tracking
+    }
   }
 }

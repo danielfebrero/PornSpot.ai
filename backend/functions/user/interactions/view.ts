@@ -125,6 +125,8 @@ const handleView = async (
     }
   }
 
+  DynamoDBService.incrementViewCountForAnalytics();
+
   return ResponseUtil.success(event, {
     targetType,
     targetId,

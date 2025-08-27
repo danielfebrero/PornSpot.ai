@@ -575,16 +575,117 @@ export async function calculateInteractionMetrics(
     } while (lastKey);
     metrics.totalComments = totalCommentsCount;
 
-    // Note: totalViews and newViews are not implemented yet
-    // Views are tracked separately in album/media viewCount fields
-    // and would require different analytics logic (not UserInteraction entities)
-    metrics.totalViews = 0;
-    metrics.newViews = 0;
+    // Calculate totalViews and newViews using our ViewCount entities
+    const viewMetrics = await calculateViewMetrics(
+      docClient,
+      startTime,
+      endTime
+    );
+    metrics.totalViews = viewMetrics.totalViews || 0;
+    metrics.newViews = viewMetrics.newViews || 0;
   } catch (error) {
     console.error("Error calculating interaction metrics:", error);
   }
 
   return metrics;
+}
+
+/**
+ * Calculates view metrics using ViewCount entities
+ */
+async function calculateViewMetrics(
+  docClient: DynamoDBDocumentClient,
+  startTime: string,
+  endTime: string
+): Promise<{ totalViews: number; newViews: number }> {
+  try {
+    // For totalViews: Sum all monthly view counts to get the total
+    let totalViews = 0;
+    let lastKey;
+
+    do {
+      const monthlyResult: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          KeyConditionExpression: "PK = :pk",
+          ExpressionAttributeValues: {
+            ":pk": "VIEW_COUNT#monthly",
+          },
+          ExclusiveStartKey: lastKey,
+        })
+      );
+
+      if (monthlyResult.Items) {
+        for (const item of monthlyResult.Items) {
+          totalViews += (item["totalViews"] as number) || 0;
+        }
+      }
+
+      lastKey = monthlyResult.LastEvaluatedKey;
+    } while (lastKey);
+
+    // For newViews: Get the current period view count based on time range
+    let newViews = 0;
+    const startDate = new Date(startTime);
+    const endDate = new Date(endTime);
+    const timeDiff = endDate.getTime() - startDate.getTime();
+    const hoursDiff = timeDiff / (1000 * 60 * 60);
+
+    let granularity: string;
+    let periodStart: Date;
+
+    // Determine granularity based on time range
+    if (hoursDiff <= 1) {
+      // Hourly period
+      granularity = "hourly";
+      periodStart = new Date(startDate);
+      periodStart.setMinutes(0, 0, 0);
+    } else if (hoursDiff <= 24) {
+      // Daily period
+      granularity = "daily";
+      periodStart = new Date(startDate);
+      periodStart.setHours(0, 0, 0, 0);
+    } else if (hoursDiff <= 168) {
+      // Weekly period (168 hours = 7 days)
+      granularity = "weekly";
+      periodStart = new Date(startDate);
+      const dayOfWeek = periodStart.getDay();
+      const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      periodStart.setDate(periodStart.getDate() - daysToMonday);
+      periodStart.setHours(0, 0, 0, 0);
+    } else {
+      // Monthly period
+      granularity = "monthly";
+      periodStart = new Date(startDate);
+      periodStart.setDate(1);
+      periodStart.setHours(0, 0, 0, 0);
+    }
+
+    // Get the view count for the current period
+    try {
+      const periodResult: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          KeyConditionExpression: "PK = :pk AND SK = :sk",
+          ExpressionAttributeValues: {
+            ":pk": `VIEW_COUNT#${granularity}`,
+            ":sk": periodStart.toISOString(),
+          },
+        })
+      );
+
+      if (periodResult.Items && periodResult.Items.length > 0) {
+        newViews = (periodResult.Items[0]["newViews"] as number) || 0;
+      }
+    } catch (error) {
+      console.warn(`Failed to get ${granularity} view count:`, error);
+    }
+
+    return { totalViews, newViews };
+  } catch (error) {
+    console.error("Error calculating view metrics:", error);
+    return { totalViews: 0, newViews: 0 };
+  }
 }
 
 /**
