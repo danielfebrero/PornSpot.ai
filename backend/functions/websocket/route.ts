@@ -36,7 +36,6 @@ import {
   createMediaEntity,
   createGenerationMetadata,
 } from "@shared/utils/media-entity";
-import { extractClientIP } from "@shared/utils/ip-extraction";
 import axios from "axios";
 import { S3StorageService } from "@shared/services/s3-storage";
 
@@ -1086,7 +1085,7 @@ async function handlePing(
     );
 
     // Store visitor activity (max 1 per hour per IP)
-    const clientIP = extractClientIP(event);
+    const clientIP = event.requestContext.identity.sourceIp || "UNKNOWN_IP";
     const currentHour = new Date().toISOString().slice(0, 13); // YYYY-MM-DDTHH format
     const visitorKey = `${currentHour}#${clientIP}`;
 

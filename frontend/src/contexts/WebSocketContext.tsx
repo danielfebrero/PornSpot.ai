@@ -30,7 +30,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
   const { user } = useUserContext();
-  const useReconnectedUserRef = useRef<boolean>(!!user);
 
   const fetchConnectionId = useCallback(() => {
     wsRef.current?.send(JSON.stringify({ action: "get_client_connectionId" }));
