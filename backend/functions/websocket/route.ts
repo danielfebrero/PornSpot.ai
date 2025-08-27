@@ -36,6 +36,7 @@ import {
   createMediaEntity,
   createGenerationMetadata,
 } from "@shared/utils/media-entity";
+import { extractClientIP } from "@shared/utils/ip-extraction";
 import axios from "axios";
 import { S3StorageService } from "@shared/services/s3-storage";
 
@@ -249,7 +250,7 @@ export const handler = async (
         break;
 
       case "ping":
-        await handlePing(connectionId, message);
+        await handlePing(connectionId, message, event);
         break;
 
       default:
@@ -1065,7 +1066,8 @@ async function handleUnsubscribe(
  */
 async function handlePing(
   connectionId: string,
-  message: WebSocketMessage
+  message: WebSocketMessage,
+  event: APIGatewayProxyEvent
 ): Promise<void> {
   try {
     // Update last activity
@@ -1079,6 +1081,35 @@ async function handlePing(
         UpdateExpression: "SET lastActivity = :time",
         ExpressionAttributeValues: {
           ":time": new Date().toISOString(),
+        },
+      })
+    );
+
+    // Store visitor activity (max 1 per hour per IP)
+    const clientIP = extractClientIP(event);
+    const currentHour = new Date().toISOString().slice(0, 13); // YYYY-MM-DDTHH format
+    const visitorKey = `${currentHour}#${clientIP}`;
+
+    await docClient.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: "VISITOR",
+          SK: visitorKey,
+        },
+        UpdateExpression:
+          "SET #ts = if_not_exists(#ts, :time), #ip = :ip, #conn = :conn, #ls = :ls",
+        ExpressionAttributeNames: {
+          "#ts": "timestamp",
+          "#ip": "clientIP",
+          "#conn": "connectionId",
+          "#ls": "lastSeen",
+        },
+        ExpressionAttributeValues: {
+          ":time": new Date().toISOString(),
+          ":ip": clientIP,
+          ":conn": connectionId,
+          ":ls": new Date().toISOString(),
         },
       })
     );
