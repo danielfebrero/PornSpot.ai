@@ -82,56 +82,77 @@ export async function calculateGenerationMetrics(
 
   try {
     // Get total generations count using GSI6
-    const totalGenerationsResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI6",
-        KeyConditionExpression: "GSI6PK = :pk",
-        ExpressionAttributeValues: {
-          ":pk": "GENERATION_ID",
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.totalGenerations = totalGenerationsResult.Count || 0;
+    let totalGenerationsCount = 0;
+    let lastKey;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI6",
+          KeyConditionExpression: "GSI6PK = :pk",
+          ExpressionAttributeValues: {
+            ":pk": "GENERATION_ID",
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      totalGenerationsCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.totalGenerations = totalGenerationsCount;
 
     // Get successful generations in time range using GSI6
-    const successfulGenerationsResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI6",
-        KeyConditionExpression:
-          "GSI6PK = :pk AND GSI6SK BETWEEN :start AND :end",
-        FilterExpression: "status = :status",
-        ExpressionAttributeValues: {
-          ":pk": "GENERATION",
-          ":start": startTime,
-          ":end": `${endTime}#zzz`,
-          ":status": "successful",
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.successfulGenerations = successfulGenerationsResult.Count || 0;
+    let successfulGenerationsCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI6",
+          KeyConditionExpression:
+            "GSI6PK = :pk AND GSI6SK BETWEEN :start AND :end",
+          FilterExpression: "status = :status",
+          ExpressionAttributeValues: {
+            ":pk": "GENERATION",
+            ":start": startTime,
+            ":end": `${endTime}#zzz`,
+            ":status": "successful",
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      successfulGenerationsCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.successfulGenerations = successfulGenerationsCount;
 
     // Get failed generations in time range using GSI6
-    const failedGenerationsResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI6",
-        KeyConditionExpression:
-          "GSI6PK = :pk AND GSI6SK BETWEEN :start AND :end",
-        FilterExpression: "status = :status",
-        ExpressionAttributeValues: {
-          ":pk": "GENERATION",
-          ":start": startTime,
-          ":end": `${endTime}#zzz`,
-          ":status": "failed",
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.failedGenerations = failedGenerationsResult.Count || 0;
+    let failedGenerationsCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI6",
+          KeyConditionExpression:
+            "GSI6PK = :pk AND GSI6SK BETWEEN :start AND :end",
+          FilterExpression: "status = :status",
+          ExpressionAttributeValues: {
+            ":pk": "GENERATION",
+            ":start": startTime,
+            ":end": `${endTime}#zzz`,
+            ":status": "failed",
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      failedGenerationsCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.failedGenerations = failedGenerationsCount;
   } catch (error) {
     console.error("Error calculating generation metrics:", error);
   }
@@ -151,60 +172,81 @@ export async function calculateUserMetrics(
 
   try {
     // Get total users count - filter by active users only
-    const totalUsersResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI3",
-        KeyConditionExpression: "GSI3PK = :pk",
-        FilterExpression: "isActive = :isActive AND EntityType = :type",
-        ExpressionAttributeValues: {
-          ":pk": "USER_USERNAME",
-          ":isActive": true,
-          ":type": "User",
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.totalUsers = totalUsersResult.Count || 0;
+    let totalUsersCount = 0;
+    let lastKey;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI3",
+          KeyConditionExpression: "GSI3PK = :pk",
+          FilterExpression: "isActive = :isActive AND EntityType = :type",
+          ExpressionAttributeValues: {
+            ":pk": "USER_USERNAME",
+            ":isActive": true,
+            ":type": "User",
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      totalUsersCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.totalUsers = totalUsersCount;
 
     // Get new users in time range - use GSI3 to get all users then filter by active and creation date
-    const newUsersResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI3",
-        KeyConditionExpression: "GSI3PK = :pk",
-        FilterExpression:
-          "createdAt BETWEEN :start AND :end AND EntityType = :type AND isActive = :isActive",
-        ExpressionAttributeValues: {
-          ":pk": "USER_USERNAME",
-          ":start": startTime,
-          ":end": endTime,
-          ":type": "User",
-          ":isActive": true,
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.newUsers = newUsersResult.Count || 0;
+    let newUsersCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI3",
+          KeyConditionExpression: "GSI3PK = :pk",
+          FilterExpression:
+            "createdAt BETWEEN :start AND :end AND EntityType = :type AND isActive = :isActive",
+          ExpressionAttributeValues: {
+            ":pk": "USER_USERNAME",
+            ":start": startTime,
+            ":end": endTime,
+            ":type": "User",
+            ":isActive": true,
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      newUsersCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.newUsers = newUsersCount;
 
     // Get active users (users with recent activity) - use GSI3 to get all users then filter
-    const activeUsersResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI3",
-        KeyConditionExpression: "GSI3PK = :pk",
-        FilterExpression:
-          "lastActive BETWEEN :start AND :end AND EntityType = :type",
-        ExpressionAttributeValues: {
-          ":pk": "USER_USERNAME",
-          ":start": startTime,
-          ":end": endTime,
-          ":type": "User",
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.activeUsers = activeUsersResult.Count || 0;
+    let activeUsersCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI3",
+          KeyConditionExpression: "GSI3PK = :pk",
+          FilterExpression:
+            "lastActive BETWEEN :start AND :end AND EntityType = :type",
+          ExpressionAttributeValues: {
+            ":pk": "USER_USERNAME",
+            ":start": startTime,
+            ":end": endTime,
+            ":type": "User",
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      activeUsersCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.activeUsers = activeUsersCount;
   } catch (error) {
     console.error("Error calculating user metrics:", error);
   }
@@ -224,50 +266,71 @@ export async function calculateMediaMetrics(
 
   try {
     // Get total media count using GSI2
-    const totalMediaResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI2",
-        KeyConditionExpression: "GSI2PK = :pk",
-        ExpressionAttributeValues: {
-          ":pk": "MEDIA_ID",
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.totalMedia = totalMediaResult.Count || 0;
+    let count = 0;
+    let lastKey;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI2",
+          KeyConditionExpression: "GSI2PK = :pk",
+          ExpressionAttributeValues: {
+            ":pk": "MEDIA_ID",
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      count += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.totalMedia = count;
 
     // Get new media in time range using GSI4
-    const newMediaResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI4",
-        KeyConditionExpression:
-          "GSI4PK = :pk AND GSI4SK BETWEEN :start AND :end",
-        ExpressionAttributeValues: {
-          ":pk": "MEDIA",
-          ":start": startTime,
-          ":end": `${endTime}#zzz`, // Ensure we capture all media up to end time
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.newMedia = newMediaResult.Count || 0;
+    let newMediaCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI4",
+          KeyConditionExpression:
+            "GSI4PK = :pk AND GSI4SK BETWEEN :start AND :end",
+          ExpressionAttributeValues: {
+            ":pk": "MEDIA",
+            ":start": startTime,
+            ":end": `${endTime}#zzz`, // Ensure we capture all media up to end time
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      newMediaCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.newMedia = newMediaCount;
 
     // Get public media count using GSI5
-    const publicMediaResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI5",
-        KeyConditionExpression: "GSI5PK = :pk AND GSI5SK = :sk",
-        ExpressionAttributeValues: {
-          ":pk": "MEDIA",
-          ":sk": "true",
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.publicMedia = publicMediaResult.Count || 0;
+    let publicMediaCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI5",
+          KeyConditionExpression: "GSI5PK = :pk AND GSI5SK = :sk",
+          ExpressionAttributeValues: {
+            ":pk": "MEDIA",
+            ":sk": "true",
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      publicMediaCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.publicMedia = publicMediaCount;
 
     // Calculate private media
     metrics.privateMedia =
@@ -291,50 +354,71 @@ export async function calculateAlbumMetrics(
 
   try {
     // Get total albums count using GSI1
-    const totalAlbumsResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI1",
-        KeyConditionExpression: "GSI1PK = :pk",
-        ExpressionAttributeValues: {
-          ":pk": "ALBUM",
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.totalAlbums = totalAlbumsResult.Count || 0;
+    let totalAlbumsCount = 0;
+    let lastKey;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI1",
+          KeyConditionExpression: "GSI1PK = :pk",
+          ExpressionAttributeValues: {
+            ":pk": "ALBUM",
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      totalAlbumsCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.totalAlbums = totalAlbumsCount;
 
     // Get new albums in time range
-    const newAlbumsResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI1",
-        KeyConditionExpression:
-          "GSI1PK = :pk AND GSI1SK BETWEEN :start AND :end",
-        ExpressionAttributeValues: {
-          ":pk": "ALBUM",
-          ":start": startTime,
-          ":end": `${endTime}#zzz`,
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.newAlbums = newAlbumsResult.Count || 0;
+    let newAlbumsCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI1",
+          KeyConditionExpression:
+            "GSI1PK = :pk AND GSI1SK BETWEEN :start AND :end",
+          ExpressionAttributeValues: {
+            ":pk": "ALBUM",
+            ":start": startTime,
+            ":end": `${endTime}#zzz`,
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      newAlbumsCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.newAlbums = newAlbumsCount;
 
     // Get public albums count using GSI5
-    const publicAlbumsResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI5",
-        KeyConditionExpression: "GSI5PK = :pk AND GSI5SK = :sk",
-        ExpressionAttributeValues: {
-          ":pk": "ALBUM",
-          ":sk": "true",
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.publicAlbums = publicAlbumsResult.Count || 0;
+    let publicAlbumsCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI5",
+          KeyConditionExpression: "GSI5PK = :pk AND GSI5SK = :sk",
+          ExpressionAttributeValues: {
+            ":pk": "ALBUM",
+            ":sk": "true",
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      publicAlbumsCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.publicAlbums = publicAlbumsCount;
 
     // Calculate private albums
     metrics.privateAlbums =
@@ -357,97 +441,139 @@ export async function calculateInteractionMetrics(
   const metrics: Partial<AnalyticsMetrics> = {};
 
   try {
-    // Count likes - use GSI3 to query interactions by type
-    const likesResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI3",
-        KeyConditionExpression:
-          "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
-        ExpressionAttributeValues: {
-          ":pk": "INTERACTION#like",
-          ":start": startTime,
-          ":end": endTime,
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.newLikes = likesResult.Count || 0;
+    // Count new likes - use GSI3 to query interactions by type
+    let newLikesCount = 0;
+    let lastKey;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI3",
+          KeyConditionExpression:
+            "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
+          ExpressionAttributeValues: {
+            ":pk": "INTERACTION#like",
+            ":start": startTime,
+            ":end": endTime,
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      newLikesCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.newLikes = newLikesCount;
 
-    // Count bookmarks - use GSI3 to query interactions by type
-    const bookmarksResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI3",
-        KeyConditionExpression:
-          "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
-        ExpressionAttributeValues: {
-          ":pk": "INTERACTION#bookmark",
-          ":start": startTime,
-          ":end": endTime,
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.newBookmarks = bookmarksResult.Count || 0;
+    // Count new bookmarks - use GSI3 to query interactions by type
+    let newBookmarksCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI3",
+          KeyConditionExpression:
+            "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
+          ExpressionAttributeValues: {
+            ":pk": "INTERACTION#bookmark",
+            ":start": startTime,
+            ":end": endTime,
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      newBookmarksCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.newBookmarks = newBookmarksCount;
 
-    // Count comments
-    const commentsResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI3",
-        KeyConditionExpression:
-          "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
-        ExpressionAttributeValues: {
-          ":pk": "INTERACTION#comment",
-          ":start": startTime,
-          ":end": endTime,
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.newComments = commentsResult.Count || 0;
+    // Count new comments
+    let newCommentsCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI3",
+          KeyConditionExpression:
+            "GSI3PK = :pk AND GSI3SK BETWEEN :start AND :end",
+          ExpressionAttributeValues: {
+            ":pk": "INTERACTION#comment",
+            ":start": startTime,
+            ":end": endTime,
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      newCommentsCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.newComments = newCommentsCount;
 
     // Calculate total counts (all time) using GSI3
-    const totalLikesResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI3",
-        KeyConditionExpression: "GSI3PK = :pk",
-        ExpressionAttributeValues: {
-          ":pk": "INTERACTION#like",
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.totalLikes = totalLikesResult.Count || 0;
+    let totalLikesCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI3",
+          KeyConditionExpression: "GSI3PK = :pk",
+          ExpressionAttributeValues: {
+            ":pk": "INTERACTION#like",
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      totalLikesCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.totalLikes = totalLikesCount;
 
-    const totalBookmarksResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI3",
-        KeyConditionExpression: "GSI3PK = :pk",
-        ExpressionAttributeValues: {
-          ":pk": "INTERACTION#bookmark",
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.totalBookmarks = totalBookmarksResult.Count || 0;
+    let totalBookmarksCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI3",
+          KeyConditionExpression: "GSI3PK = :pk",
+          ExpressionAttributeValues: {
+            ":pk": "INTERACTION#bookmark",
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      totalBookmarksCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.totalBookmarks = totalBookmarksCount;
 
-    // Calculate total comments using GSI2
-    const totalCommentsResult = await docClient.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: "GSI3",
-        KeyConditionExpression: "GSI3PK = :pk",
-        ExpressionAttributeValues: {
-          ":pk": "INTERACTION#comment",
-        },
-        Select: "COUNT",
-      })
-    );
-    metrics.totalComments = totalCommentsResult.Count || 0;
+    // Calculate total comments using GSI3
+    let totalCommentsCount = 0;
+    lastKey = undefined;
+    do {
+      const res: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI3",
+          KeyConditionExpression: "GSI3PK = :pk",
+          ExpressionAttributeValues: {
+            ":pk": "INTERACTION#comment",
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      totalCommentsCount += res?.Count || 0;
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+    metrics.totalComments = totalCommentsCount;
 
     // Note: totalViews and newViews are not implemented yet
     // Views are tracked separately in album/media viewCount fields

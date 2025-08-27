@@ -88,12 +88,10 @@
 
 [x] On generate page, when I navigate, it add again last images to recent images.
 
-[ ] In lightbox, I do not see the like and bookmark icons.
+[x] In lightbox, I do not see the like and bookmark icons.
 
 [ ] Creating media/album should not invalidate the Discover cache. It should only optimistically remove deleted content.
 
-[ ] Admin Users load more is not working.
+[x] Admin Users load more is not working.
 
 [ ] On Generate page, cannot change the seed.
-
-[ ] I do not receive notifications anymore.
