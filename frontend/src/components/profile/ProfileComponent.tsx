@@ -1138,6 +1138,7 @@ export default function ProfileComponent({
                       {tProfile("noCommentsYet")}
                     </div>
                   ) : (
+                    currentUser &&
                     recentComments
                       .filter(
                         (comment) =>
@@ -1160,7 +1161,7 @@ export default function ProfileComponent({
                           <div className="p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                             <div className="flex items-start gap-3">
                               <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold">
-                                {initials}
+                                <Avatar user={currentUser} size="small" />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm text-foreground">

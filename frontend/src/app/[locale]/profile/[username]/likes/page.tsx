@@ -14,6 +14,8 @@ import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQue
 import { cn } from "@/lib/utils";
 import { Media, UserInteraction } from "@/types";
 import { useDevice } from "@/contexts/DeviceContext";
+import { useGetMinimalUser } from "@/hooks/queries/useUserQuery";
+import Avatar from "@/components/ui/Avatar";
 
 export default function UserLikesPage() {
   const params = useParams();
@@ -39,6 +41,8 @@ export default function UserLikesPage() {
     limit: 20,
     includeContentPreview: true,
   });
+
+  const { data: userData } = useGetMinimalUser({ username });
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();
@@ -196,7 +200,11 @@ export default function UserLikesPage() {
 
                   {/* User avatar and info */}
                   <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">
-                    {initials}
+                    {userData ? (
+                      <Avatar user={userData} size="medium" />
+                    ) : (
+                      initials
+                    )}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">

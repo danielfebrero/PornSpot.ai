@@ -10,11 +10,15 @@ import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import { Lightbox } from "@/components/ui/Lightbox";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { cn } from "@/lib/utils";
-import { usePublicProfile } from "@/hooks/queries/useUserQuery";
+import {
+  useGetMinimalUser,
+  usePublicProfile,
+} from "@/hooks/queries/useUserQuery";
 import { useUserMedia } from "@/hooks/queries/useMediaQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { Media } from "@/types";
 import { useDevice } from "@/contexts/DeviceContext";
+import Avatar from "@/components/ui/Avatar";
 
 export default function UserMediaPage() {
   const params = useParams();
@@ -43,6 +47,8 @@ export default function UserMediaPage() {
     isFetchingNextPage,
     fetchNextPage,
   } = useUserMedia({ username, limit: 20 });
+
+  const { data: userData } = useGetMinimalUser({ username });
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();
@@ -188,7 +194,11 @@ export default function UserMediaPage() {
 
                     {/* User avatar */}
                     <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-lg font-bold shadow-lg">
-                      {initials}
+                      {userData ? (
+                        <Avatar user={userData} size="medium" />
+                      ) : (
+                        initials
+                      )}
                     </div>
 
                     <div>

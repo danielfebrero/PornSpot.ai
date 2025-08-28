@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils";
 import { useAlbums } from "@/hooks/queries/useAlbumsQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { useDevice } from "@/contexts/DeviceContext";
+import { useGetMinimalUser } from "@/hooks/queries/useUserQuery";
+import Avatar from "@/components/ui/Avatar";
 
 export default function UserAlbumsPage() {
   const params = useParams();
@@ -31,6 +33,8 @@ export default function UserAlbumsPage() {
     hasNextPage,
     isFetchingNextPage: loadingMore,
   } = useAlbums({ user: username, limit: 12, includeContentPreview: true });
+
+  const { data: userData } = useGetMinimalUser({ username });
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();
@@ -155,7 +159,11 @@ export default function UserAlbumsPage() {
 
                   {/* User avatar and info */}
                   <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">
-                    {initials}
+                    {userData ? (
+                      <Avatar user={userData} size="medium" />
+                    ) : (
+                      initials
+                    )}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
