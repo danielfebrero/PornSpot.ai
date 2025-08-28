@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { interactionApi } from "@/lib/api";
 import { queryKeys, queryClient } from "@/lib/queryClient";
-import { UnifiedCommentsResponse } from "@/types/user";
+import { Comment, UnifiedCommentsResponse } from "@/types/user";
 import { CreateCommentRequest } from "@/types";
 import { useUserContext } from "@/contexts/UserContext";
 
@@ -92,14 +92,15 @@ export function useCreateComment() {
       );
 
       // Create optimistic comment
-      const optimisticComment = {
+      const optimisticComment: Comment = {
         id: `temp-${Date.now()}`, // Temporary ID
         content: request.content,
-        authorId: user?.userId,
-        authorName: user?.username,
+        userId: user?.userId ?? "unknown",
+        username: user?.username,
         targetType: request.targetType,
         targetId: request.targetId,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         isEdited: false,
         likeCount: 0,
       };
