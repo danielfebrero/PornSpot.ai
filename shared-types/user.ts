@@ -71,6 +71,18 @@ export interface PublicUserProfile {
   };
 }
 
+export interface MinimalUser {
+  userId?: string;
+  username?: string;
+  avatarUrl?: string;
+  avatarThumbnails?: {
+    originalSize?: string;
+    small?: string;
+    medium?: string;
+    large?: string;
+  };
+}
+
 export interface UserSession {
   sessionId: string;
   userId: string;

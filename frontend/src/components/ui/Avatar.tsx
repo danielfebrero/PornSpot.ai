@@ -1,27 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User } from "@/types";
+import { MinimalUser, User } from "@/types";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { cn } from "@/lib/utils";
 import { useContainerDimensions } from "@/hooks/useContainerDimensions";
 
 // Flexible user interface that works with both User and extended user types
-interface AvatarUser {
-  userId?: string;
-  username?: string;
-  email?: string;
-  avatarUrl?: string;
-  avatarThumbnails?: {
-    originalSize?: string;
-    small?: string;
-    medium?: string;
-    large?: string;
-  };
-}
 
 interface AvatarProps {
-  user: User | AvatarUser;
+  user: User | MinimalUser;
   size?: "small" | "medium" | "large" | "xlarge" | "custom";
   className?: string;
   showOnlineIndicator?: boolean;
@@ -160,8 +148,7 @@ export function Avatar({
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [hasImageError, setHasImageError] = useState(false);
 
-  const displayName =
-    user.username || (user.email ? user.email.split("@")[0] : "Anonymous");
+  const displayName = user.username || "Anonymous";
   const initials = displayName.slice(0, 2).toUpperCase();
 
   // Intelligently determine which avatar to use based on container dimensions

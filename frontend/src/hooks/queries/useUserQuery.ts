@@ -132,6 +132,29 @@ export function usePublicProfile(username: string) {
   });
 }
 
+export function useGetMinimalUser({
+  userId,
+  username,
+}: {
+  userId?: string;
+  username?: string;
+}) {
+  return useQuery({
+    queryKey: queryKeys.user.minimalUser({ userId, username }),
+    queryFn: async () => {
+      return await userApi.getMinimalUser({ userId, username });
+    },
+    // Keep minimal profiles fresh for 10 minutes
+    staleTime: 10 * 60 * 1000,
+    // Enable background refetching
+    refetchOnWindowFocus: true,
+    // Retry on failures (minimal profiles are more stable)
+    retry: 2,
+    // Only query if userId or username is provided
+    enabled: !!(userId || username),
+  });
+}
+
 // Hook for user registration
 export function useRegister() {
   return useMutation({

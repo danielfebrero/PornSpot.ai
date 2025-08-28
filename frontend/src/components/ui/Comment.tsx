@@ -8,6 +8,11 @@ import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { cn } from "@/lib/utils";
 import LocaleLink from "@/components/ui/LocaleLink";
+import {
+  useGetMinimalUser,
+  usePublicProfile,
+} from "@/hooks/queries/useUserQuery";
+import Avatar from "./Avatar";
 
 interface CommentItemProps {
   comment: Comment;
@@ -35,6 +40,7 @@ export function CommentItem({
   const [showActions, setShowActions] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
+  const { data: userProfile } = useGetMinimalUser({ userId: comment.userId });
 
   const isOwner = currentUserId === comment.userId;
   const timeAgo = formatTimeAgo(comment.createdAt, tComments);
@@ -60,7 +66,9 @@ export function CommentItem({
       <div className="flex items-start gap-3">
         {/* Avatar */}
         <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0">
-          {comment.username ? (
+          {userProfile?.avatarThumbnails ? (
+            <Avatar size="small" user={userProfile} />
+          ) : comment.username ? (
             comment.username.slice(0, 2).toUpperCase()
           ) : (
             <User className="w-4 h-4" />

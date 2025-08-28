@@ -1125,6 +1125,35 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
 
+  GetMinimalUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-get-minimal-user-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/get-minimal-user.handler"]
+      Events:
+        GetMinimalUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/get-minimal-user
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        OptionsGetMinimalUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/get-minimal-user
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
   InviteCodeFunction:
     Type: AWS::Serverless::Function
     Properties:

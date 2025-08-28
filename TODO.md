@@ -103,3 +103,5 @@
 [ ] On pages showing a counter (likes, albums, etc) show 20+ instead of 20 if there is a cursor.
 
 [ ] Be able to reply and tag users in comments.
+
+[ ] Replace all Initials with Avatars.

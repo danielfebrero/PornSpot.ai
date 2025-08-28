@@ -188,6 +188,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
   const [viewTracked, setViewTracked] = useState(false);
   const [localMedia, setLocalMedia] = useState(media);
   const t = useTranslations("mediaDetail");
+  const tGenerate = useTranslations("generate");
   const metadata = useMediaMetadata(localMedia);
   const { user } = useUserContext();
   const { formatRelativeTime } = useDateUtils();
@@ -489,7 +490,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                       <InfoPill
                         key={index}
                         icon={<Hash className="w-4 h-4" />}
-                        label={getLoraNameById(lora, t)}
+                        label={getLoraNameById(lora, tGenerate)}
                         value={String(
                           metadata.loraStrengths[lora]?.value || "1"
                         )}

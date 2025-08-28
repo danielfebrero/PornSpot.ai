@@ -8,6 +8,7 @@ import {
   GetPublicProfileResponse,
   PublicUserProfile,
   User,
+  MinimalUser,
   ForgotPasswordRequest,
   ForgotPasswordResponse,
   ResetPasswordRequest,
@@ -181,6 +182,26 @@ export const userApi = {
     const data = ApiUtil.extractData(response) as unknown as {
       user: PublicUserProfile;
     };
+    return data.user;
+  },
+
+  // Get minimal user information by userId or username
+  getMinimalUser: async ({
+    userId,
+    username,
+  }: {
+    userId?: string;
+    username?: string;
+  }): Promise<MinimalUser> => {
+    const params: Record<string, string> = {};
+    if (userId) params.userId = userId;
+    if (username) params.username = username;
+
+    const response = await ApiUtil.get<{ user: MinimalUser }>(
+      "/user/get-minimal-user",
+      params
+    );
+    const data = ApiUtil.extractData(response);
     return data.user;
   },
 

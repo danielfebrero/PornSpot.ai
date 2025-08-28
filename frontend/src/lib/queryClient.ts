@@ -80,6 +80,8 @@ export const queryKeys = {
     profile: () => ["user", "profile"] as const,
     publicProfile: (username: string) =>
       ["user", "publicProfile", username] as const,
+    minimalUser: (params: { userId?: string; username?: string }) =>
+      ["user", "minimalUser", params] as const,
     sessions: () => ["user", "sessions"] as const,
     interactions: {
       all: () => ["user", "interactions"] as const,
