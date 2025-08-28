@@ -104,4 +104,4 @@
 
 [ ] Be able to reply and tag users in comments.
 
-[ ] Replace all Initials with Avatars.
+[ ] Replace all Initials with Avatars, including Profile comments.

@@ -3,6 +3,7 @@ import { interactionApi } from "@/lib/api";
 import { queryKeys, queryClient } from "@/lib/queryClient";
 import { UnifiedCommentsResponse } from "@/types/user";
 import { CreateCommentRequest } from "@/types";
+import { useUserContext } from "@/contexts/UserContext";
 
 // Types
 interface CommentsQueryParams {
@@ -71,6 +72,7 @@ export function useTargetComments(
 
 // Comment mutations
 export function useCreateComment() {
+  const { user } = useUserContext();
   return useMutation({
     mutationFn: async (request: CreateCommentRequest) => {
       return await interactionApi.createComment(request);
@@ -93,8 +95,8 @@ export function useCreateComment() {
       const optimisticComment = {
         id: `temp-${Date.now()}`, // Temporary ID
         content: request.content,
-        authorId: "current-user", // Will be replaced by real data
-        authorName: "You", // Placeholder
+        authorId: user?.userId,
+        authorName: user?.username,
         targetType: request.targetType,
         targetId: request.targetId,
         createdAt: new Date().toISOString(),
