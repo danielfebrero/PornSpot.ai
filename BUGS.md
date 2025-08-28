@@ -96,6 +96,8 @@
 
 [x] Comments do not show user avatar.
 
-[ ] When dropping a comment, it first show "anonymous user" instead of real username.
+[x] When dropping a comment, it first show "anonymous user" instead of real username.
 
 [ ] Update media title show back the original media title until PUT request is successful.
+
+[ ] My profile comments shows only 2 comments in Grid view while it shows the 4 comments in list view.
