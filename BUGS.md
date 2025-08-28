@@ -102,6 +102,12 @@
 
 [ ] My profile comments shows only 2 comments in Grid view while it shows the 4 comments in list view.
 
-[ ] When I change privacy of an image from Media Detail Client, username is replaced with user id and metadata disapear.
+[ ] When I change privacy of an image from Media Detail Client, username is replaced with user id and metadata disappears.
 
 [ ] Fix the recurring lambda issue.
+
+[ ] View last created user albums in profile in List view does not works correctly, glitch effect and album disappearing.
+
+[ ] View last generated user media in profile in List view does not works correctly, no media shows and load all media in api calls.
+
+[ ] View My Albums in list view has the same glitch as View last created user albums in profile in List view. Same issue with view My Likes. It seems related to albums or tall content cards.

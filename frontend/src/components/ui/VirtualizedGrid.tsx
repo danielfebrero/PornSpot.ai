@@ -250,7 +250,7 @@ export function VirtualizedGrid<T extends GridItem>({
             >
               <ContentCard
                 item={item}
-                aspectRatio="auto"
+                aspectRatio={dynamicType === "media" ? "auto" : "square"}
                 {...restProps}
                 customActions={resolvedCustomActions}
                 mediaList={
