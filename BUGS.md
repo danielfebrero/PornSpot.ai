@@ -97,3 +97,5 @@
 [ ] Comments do not show user avatar.
 
 [ ] When dropping a comment, it first show "anonymous user" instead of real username.
+
+[ ] Update media title show back the original media title until PUT request is successful.

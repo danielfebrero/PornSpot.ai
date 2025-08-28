@@ -12,8 +12,9 @@ import { S3Client } from "@aws-sdk/client-s3";
 import {
   aggregateAllMetrics,
   saveAnalyticsEntity,
-  batchUpdateMetricsCache,
   queryAnalytics,
+  calculateActiveUsers,
+  calculateVisitorCount,
 } from "@shared/utils/analytics";
 import { MetricType } from "@shared/shared-types";
 
@@ -155,6 +156,10 @@ async function aggregateDailyToWeekly(
       weeklyMetrics.privateMedia = latestDay.metrics.privateMedia;
       weeklyMetrics.publicAlbums = latestDay.metrics.publicAlbums;
       weeklyMetrics.privateAlbums = latestDay.metrics.privateAlbums;
+      weeklyMetrics.totalLikes = latestDay.metrics.totalLikes;
+      weeklyMetrics.totalBookmarks = latestDay.metrics.totalBookmarks;
+      weeklyMetrics.totalComments = latestDay.metrics.totalComments;
+      weeklyMetrics.totalViews = latestDay.metrics.totalViews;
 
       // New items - sum all daily increments across the week
       weeklyMetrics.newUsers = dailyData.reduce(
@@ -186,24 +191,18 @@ async function aggregateDailyToWeekly(
         0
       );
 
-      // Active users - take max value across all days of the week
-      weeklyMetrics.activeUsers = Math.max(
-        ...dailyData.map((day) => day.metrics.activeUsers || 0)
+      // Active users
+      weeklyMetrics.activeUsers = await calculateActiveUsers(
+        docClient,
+        startTimeISO,
+        endTimeISO
       );
 
-      // Calculate weekly averages for key metrics
-      const validDays = dailyData.length;
-      weeklyMetrics.avgNewUsersPerDay = Math.round(
-        (weeklyMetrics.newUsers || 0) / validDays
-      );
-      weeklyMetrics.avgNewMediaPerDay = Math.round(
-        (weeklyMetrics.newMedia || 0) / validDays
-      );
-      weeklyMetrics.avgActiveUsersPerDay = Math.round(
-        dailyData.reduce(
-          (sum, day) => sum + (day.metrics.activeUsers || 0),
-          0
-        ) / validDays
+      // Visitors
+      weeklyMetrics.visitors = await calculateVisitorCount(
+        docClient,
+        startTimeISO,
+        endTimeISO
       );
 
       // Storage - take latest values
@@ -211,9 +210,9 @@ async function aggregateDailyToWeekly(
       weeklyMetrics.totalStorageGB = latestDay.metrics["totalStorageGB"];
 
       // Add week metadata
-      weeklyMetrics.weekStart = weekStart.toISOString();
-      weeklyMetrics.weekEnd = weekEnd.toISOString();
-      weeklyMetrics.daysIncluded = validDays;
+      // weeklyMetrics.weekStart = weekStart.toISOString();
+      // weeklyMetrics.weekEnd = weekEnd.toISOString();
+      // weeklyMetrics.daysIncluded = validDays;
     }
 
     return weeklyMetrics;
@@ -262,53 +261,53 @@ async function processWeeklyMetrics(
     await Promise.all(savePromises);
 
     // Update cache with weekly summaries (if this is for last week)
-    const lastWeek = new Date();
-    lastWeek.setDate(lastWeek.getDate() - 7);
-    const lastWeekRange = getWeekRange(lastWeek);
+    // const lastWeek = new Date();
+    // lastWeek.setDate(lastWeek.getDate() - 7);
+    // const lastWeekRange = getWeekRange(lastWeek);
 
-    if (weekStart.toDateString() === lastWeekRange.start.toDateString()) {
-      // Get the aggregated weekly metrics for cache
-      const weeklyMetrics = await aggregateDailyToWeekly(
-        "users",
-        weekStart,
-        weekEnd
-      );
+    // if (weekStart.toDateString() === lastWeekRange.start.toDateString()) {
+    //   // Get the aggregated weekly metrics for cache
+    //   const weeklyMetrics = await aggregateDailyToWeekly(
+    //     "users",
+    //     weekStart,
+    //     weekEnd
+    //   );
 
-      const cacheUpdates = [
-        {
-          key: "new_users_last_week",
-          value: weeklyMetrics.newUsers || 0,
-          ttl: 604800,
-        },
-        {
-          key: "new_media_last_week",
-          value: weeklyMetrics.newMedia || 0,
-          ttl: 604800,
-        },
-        {
-          key: "new_albums_last_week",
-          value: weeklyMetrics.newAlbums || 0,
-          ttl: 604800,
-        },
-        {
-          key: "avg_new_users_per_day",
-          value: weeklyMetrics.avgNewUsersPerDay || 0,
-          ttl: 604800,
-        },
-        {
-          key: "avg_active_users_per_day",
-          value: weeklyMetrics.avgActiveUsersPerDay || 0,
-          ttl: 604800,
-        },
-        {
-          key: "weekly_last_updated",
-          value: new Date().toISOString(),
-          ttl: 604800,
-        },
-      ];
+    //   const cacheUpdates = [
+    //     {
+    //       key: "new_users_last_week",
+    //       value: weeklyMetrics.newUsers || 0,
+    //       ttl: 604800,
+    //     },
+    //     {
+    //       key: "new_media_last_week",
+    //       value: weeklyMetrics.newMedia || 0,
+    //       ttl: 604800,
+    //     },
+    //     {
+    //       key: "new_albums_last_week",
+    //       value: weeklyMetrics.newAlbums || 0,
+    //       ttl: 604800,
+    //     },
+    //     {
+    //       key: "avg_new_users_per_day",
+    //       value: weeklyMetrics.avgNewUsersPerDay || 0,
+    //       ttl: 604800,
+    //     },
+    //     {
+    //       key: "avg_active_users_per_day",
+    //       value: weeklyMetrics.avgActiveUsersPerDay || 0,
+    //       ttl: 604800,
+    //     },
+    //     {
+    //       key: "weekly_last_updated",
+    //       value: new Date().toISOString(),
+    //       ttl: 604800,
+    //     },
+    //   ];
 
-      await batchUpdateMetricsCache(docClient, cacheUpdates);
-    }
+    //   await batchUpdateMetricsCache(docClient, cacheUpdates);
+    // }
 
     console.log(
       `✅ Successfully processed weekly metrics for ${weekStart.toDateString()} - ${weekEnd.toDateString()}`
@@ -350,65 +349,6 @@ export async function handler(
     // Re-throw to mark Lambda as failed for monitoring/alerting
     throw new Error(`Weekly analytics aggregation failed: ${error}`);
   }
-}
-
-/**
- * Manual backfill function for weekly metrics
- */
-export async function backfillHandler(event: {
-  backfill: boolean;
-  startDate: string;
-  endDate: string;
-}): Promise<void> {
-  if (!event.backfill) {
-    throw new Error("This function requires backfill flag to be true");
-  }
-
-  console.log("🔄 Starting weekly analytics backfill", {
-    startDate: event.startDate,
-    endDate: event.endDate,
-  });
-
-  const startTime = new Date(event.startDate);
-  const endTime = new Date(event.endDate);
-
-  if (startTime >= endTime) {
-    throw new Error("startDate must be before endDate");
-  }
-
-  // Generate all weeks in the range
-  const weeks = [];
-  const current = new Date(startTime);
-
-  while (current < endTime) {
-    const weekRange = getWeekRange(current);
-    if (weekRange.end <= endTime) {
-      weeks.push(weekRange);
-    }
-    current.setDate(current.getDate() + 7); // Next week
-  }
-
-  console.log(`Processing ${weeks.length} weeks for backfill`);
-
-  // Process weeks sequentially
-  for (let i = 0; i < weeks.length; i++) {
-    const week = weeks[i];
-    if (week) {
-      console.log(
-        `Processing week ${i + 1}/${
-          weeks.length
-        }: ${week.start.toDateString()} - ${week.end.toDateString()}`
-      );
-      await processWeeklyMetrics(week.start, week.end);
-
-      // Brief pause between weeks
-      if (i < weeks.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-    }
-  }
-
-  console.log("✅ Weekly analytics backfill completed successfully");
 }
 
 // Export both handlers

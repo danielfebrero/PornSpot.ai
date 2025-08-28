@@ -12,7 +12,6 @@ import { S3Client } from "@aws-sdk/client-s3";
 import {
   aggregateAllMetrics,
   saveAnalyticsEntity,
-  batchUpdateMetricsCache,
 } from "@shared/utils/analytics";
 import { MetricType } from "@shared/shared-types";
 
@@ -121,42 +120,42 @@ async function processHourlyMetrics(targetHour: Date): Promise<void> {
 
     await Promise.all(savePromises);
 
-    // Update real-time cache with latest totals
-    const cacheUpdates = [
-      {
-        key: "total_users",
-        value: aggregatedMetrics.totalUsers || 0,
-        ttl: 3600,
-      },
-      {
-        key: "total_media",
-        value: aggregatedMetrics.totalMedia || 0,
-        ttl: 3600,
-      },
-      {
-        key: "total_albums",
-        value: aggregatedMetrics.totalAlbums || 0,
-        ttl: 3600,
-      },
-      {
-        key: "new_users_last_hour",
-        value: aggregatedMetrics.newUsers || 0,
-        ttl: 3600,
-      },
-      {
-        key: "new_media_last_hour",
-        value: aggregatedMetrics.newMedia || 0,
-        ttl: 3600,
-      },
-      {
-        key: "new_albums_last_hour",
-        value: aggregatedMetrics.newAlbums || 0,
-        ttl: 3600,
-      },
-      { key: "last_updated", value: new Date().toISOString(), ttl: 3600 },
-    ];
+    // // Update real-time cache with latest totals
+    // const cacheUpdates = [
+    //   {
+    //     key: "total_users",
+    //     value: aggregatedMetrics.totalUsers || 0,
+    //     ttl: 3600,
+    //   },
+    //   {
+    //     key: "total_media",
+    //     value: aggregatedMetrics.totalMedia || 0,
+    //     ttl: 3600,
+    //   },
+    //   {
+    //     key: "total_albums",
+    //     value: aggregatedMetrics.totalAlbums || 0,
+    //     ttl: 3600,
+    //   },
+    //   {
+    //     key: "new_users_last_hour",
+    //     value: aggregatedMetrics.newUsers || 0,
+    //     ttl: 3600,
+    //   },
+    //   {
+    //     key: "new_media_last_hour",
+    //     value: aggregatedMetrics.newMedia || 0,
+    //     ttl: 3600,
+    //   },
+    //   {
+    //     key: "new_albums_last_hour",
+    //     value: aggregatedMetrics.newAlbums || 0,
+    //     ttl: 3600,
+    //   },
+    //   { key: "last_updated", value: new Date().toISOString(), ttl: 3600 },
+    // ];
 
-    await batchUpdateMetricsCache(docClient, cacheUpdates);
+    // await batchUpdateMetricsCache(docClient, cacheUpdates);
 
     console.log(`✅ Successfully processed hourly metrics for ${startTimeISO}`);
   } catch (error) {
@@ -194,64 +193,6 @@ export async function handler(
     // Re-throw to mark Lambda as failed for monitoring/alerting
     throw new Error(`Hourly analytics aggregation failed: ${error}`);
   }
-}
-
-/**
- * Manual backfill function - can be invoked directly for testing or backfilling
- * Usage: Invoke Lambda directly with { backfill: true, startHour: "2023-12-01T10:00:00.000Z", endHour: "2023-12-01T15:00:00.000Z" }
- */
-export async function backfillHandler(event: {
-  backfill: boolean;
-  startHour: string;
-  endHour: string;
-}): Promise<void> {
-  if (!event.backfill) {
-    throw new Error("This function requires backfill flag to be true");
-  }
-
-  console.log("🔄 Starting hourly analytics backfill", {
-    startHour: event.startHour,
-    endHour: event.endHour,
-  });
-
-  const startTime = new Date(event.startHour);
-  const endTime = new Date(event.endHour);
-
-  if (startTime >= endTime) {
-    throw new Error("startHour must be before endHour");
-  }
-
-  const hours = [];
-  const current = new Date(startTime);
-
-  while (current < endTime) {
-    hours.push(new Date(current));
-    current.setHours(current.getHours() + 1);
-  }
-
-  console.log(`Processing ${hours.length} hours for backfill`);
-
-  // Process hours in batches to avoid timeout
-  const BATCH_SIZE = 6; // Process 6 hours at a time
-
-  for (let i = 0; i < hours.length; i += BATCH_SIZE) {
-    const batch = hours.slice(i, i + BATCH_SIZE);
-    console.log(
-      `Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(
-        hours.length / BATCH_SIZE
-      )}`
-    );
-
-    const batchPromises = batch.map((hour) => processHourlyMetrics(hour));
-    await Promise.all(batchPromises);
-
-    // Brief pause between batches to avoid throttling
-    if (i + BATCH_SIZE < hours.length) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-  }
-
-  console.log("✅ Hourly analytics backfill completed successfully");
 }
 
 // Export both handlers - EventBridge will use the default handler

@@ -12,8 +12,9 @@ import { S3Client } from "@aws-sdk/client-s3";
 import {
   aggregateAllMetrics,
   saveAnalyticsEntity,
-  batchUpdateMetricsCache,
   queryAnalytics,
+  calculateActiveUsers,
+  calculateVisitorCount,
 } from "@shared/utils/analytics";
 import { MetricType } from "@shared/shared-types";
 
@@ -142,6 +143,10 @@ async function aggregateHourlyToDaily(
       dailyMetrics.privateMedia = latestHour.metrics.privateMedia;
       dailyMetrics.publicAlbums = latestHour.metrics.publicAlbums;
       dailyMetrics.privateAlbums = latestHour.metrics.privateAlbums;
+      dailyMetrics.totalLikes = latestHour.metrics.totalLikes;
+      dailyMetrics.totalBookmarks = latestHour.metrics.totalBookmarks;
+      dailyMetrics.totalComments = latestHour.metrics.totalComments;
+      dailyMetrics.totalViews = latestHour.metrics.totalViews;
 
       // New items - sum all hourly increments
       dailyMetrics.newUsers = hourlyData.reduce(
@@ -173,9 +178,18 @@ async function aggregateHourlyToDaily(
         0
       );
 
-      // Active users - take max value across all hours
-      dailyMetrics.activeUsers = Math.max(
-        ...hourlyData.map((hour) => hour.metrics.activeUsers || 0)
+      // Active users
+      dailyMetrics.activeUsers = await calculateActiveUsers(
+        docClient,
+        startTimeISO,
+        endTimeISO
+      );
+
+      // Visitors
+      dailyMetrics.visitors = await calculateVisitorCount(
+        docClient,
+        startTimeISO,
+        endTimeISO
       );
 
       // Storage - take latest values
@@ -226,44 +240,44 @@ async function processDailyMetrics(targetDate: Date): Promise<void> {
     await Promise.all(savePromises);
 
     // Update cache with daily summaries (if this is for yesterday)
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    yesterday.setHours(0, 0, 0, 0);
+    // const yesterday = new Date();
+    // yesterday.setDate(yesterday.getDate() - 1);
+    // yesterday.setHours(0, 0, 0, 0);
 
-    if (targetDate.toDateString() === yesterday.toDateString()) {
-      // Get the aggregated daily metrics for cache
-      const dailyMetrics = await aggregateHourlyToDaily("users", targetDate);
+    // if (targetDate.toDateString() === yesterday.toDateString()) {
+    //   // Get the aggregated daily metrics for cache
+    //   const dailyMetrics = await aggregateHourlyToDaily("users", targetDate);
 
-      const cacheUpdates = [
-        {
-          key: "new_users_yesterday",
-          value: dailyMetrics.newUsers || 0,
-          ttl: 86400,
-        },
-        {
-          key: "new_media_yesterday",
-          value: dailyMetrics.newMedia || 0,
-          ttl: 86400,
-        },
-        {
-          key: "new_albums_yesterday",
-          value: dailyMetrics.newAlbums || 0,
-          ttl: 86400,
-        },
-        {
-          key: "active_users_yesterday",
-          value: dailyMetrics.activeUsers || 0,
-          ttl: 86400,
-        },
-        {
-          key: "daily_last_updated",
-          value: new Date().toISOString(),
-          ttl: 86400,
-        },
-      ];
+    //   const cacheUpdates = [
+    //     {
+    //       key: "new_users_yesterday",
+    //       value: dailyMetrics.newUsers || 0,
+    //       ttl: 86400,
+    //     },
+    //     {
+    //       key: "new_media_yesterday",
+    //       value: dailyMetrics.newMedia || 0,
+    //       ttl: 86400,
+    //     },
+    //     {
+    //       key: "new_albums_yesterday",
+    //       value: dailyMetrics.newAlbums || 0,
+    //       ttl: 86400,
+    //     },
+    //     {
+    //       key: "active_users_yesterday",
+    //       value: dailyMetrics.activeUsers || 0,
+    //       ttl: 86400,
+    //     },
+    //     {
+    //       key: "daily_last_updated",
+    //       value: new Date().toISOString(),
+    //       ttl: 86400,
+    //     },
+    //   ];
 
-      await batchUpdateMetricsCache(docClient, cacheUpdates);
-    }
+    //   await batchUpdateMetricsCache(docClient, cacheUpdates);
+    // }
 
     console.log(
       `✅ Successfully processed daily metrics for ${targetDate.toDateString()}`
@@ -302,59 +316,6 @@ export async function handler(
     // Re-throw to mark Lambda as failed for monitoring/alerting
     throw new Error(`Daily analytics aggregation failed: ${error}`);
   }
-}
-
-/**
- * Manual backfill function for daily metrics
- */
-export async function backfillHandler(event: {
-  backfill: boolean;
-  startDate: string;
-  endDate: string;
-}): Promise<void> {
-  if (!event.backfill) {
-    throw new Error("This function requires backfill flag to be true");
-  }
-
-  console.log("🔄 Starting daily analytics backfill", {
-    startDate: event.startDate,
-    endDate: event.endDate,
-  });
-
-  const startTime = new Date(event.startDate);
-  const endTime = new Date(event.endDate);
-
-  if (startTime >= endTime) {
-    throw new Error("startDate must be before endDate");
-  }
-
-  const days = [];
-  const current = new Date(startTime);
-
-  while (current < endTime) {
-    days.push(new Date(current));
-    current.setDate(current.getDate() + 1);
-  }
-
-  console.log(`Processing ${days.length} days for backfill`);
-
-  // Process days sequentially to avoid overwhelming the system
-  for (let i = 0; i < days.length; i++) {
-    const day = days[i];
-    if (day) {
-      console.log(
-        `Processing day ${i + 1}/${days.length}: ${day.toDateString()}`
-      );
-      await processDailyMetrics(day);
-
-      // Brief pause between days
-      if (i < days.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
-    }
-  }
-
-  console.log("✅ Daily analytics backfill completed successfully");
 }
 
 // Export both handlers

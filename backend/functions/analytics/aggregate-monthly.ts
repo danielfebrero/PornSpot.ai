@@ -12,8 +12,9 @@ import { S3Client } from "@aws-sdk/client-s3";
 import {
   aggregateAllMetrics,
   saveAnalyticsEntity,
-  batchUpdateMetricsCache,
   queryAnalytics,
+  calculateActiveUsers,
+  calculateVisitorCount,
 } from "@shared/utils/analytics";
 import { MetricType } from "@shared/shared-types";
 
@@ -146,7 +147,7 @@ async function aggregateDailyToMonthly(
     // - Average values and growth rates
 
     const latestDay = dailyData[0]; // Most recent (sorted DESC)
-    const firstDay = dailyData[dailyData.length - 1]; // Oldest day
+    // const firstDay = dailyData[dailyData.length - 1]; // Oldest day
 
     if (latestDay?.metrics) {
       // Total counts - take the latest value (end of month totals)
@@ -157,6 +158,10 @@ async function aggregateDailyToMonthly(
       monthlyMetrics.privateMedia = latestDay.metrics.privateMedia;
       monthlyMetrics.publicAlbums = latestDay.metrics.publicAlbums;
       monthlyMetrics.privateAlbums = latestDay.metrics.privateAlbums;
+      monthlyMetrics.totalLikes = latestDay.metrics.totalLikes;
+      monthlyMetrics.totalBookmarks = latestDay.metrics.totalBookmarks;
+      monthlyMetrics.totalComments = latestDay.metrics.totalComments;
+      monthlyMetrics.totalViews = latestDay.metrics.totalViews;
 
       // New items - sum all daily increments across the month
       monthlyMetrics.newUsers = dailyData.reduce(
@@ -188,94 +193,103 @@ async function aggregateDailyToMonthly(
         0
       );
 
-      // Active users - take max value across all days of the month
-      monthlyMetrics.activeUsers = Math.max(
-        ...dailyData.map((day) => day.metrics.activeUsers || 0)
+      // Active users
+      monthlyMetrics.activeUsers = await calculateActiveUsers(
+        docClient,
+        startTimeISO,
+        endTimeISO
       );
 
-      // Calculate monthly averages and growth metrics
-      const validDays = dailyData.length;
-      monthlyMetrics.avgNewUsersPerDay = Math.round(
-        (monthlyMetrics.newUsers || 0) / validDays
-      );
-      monthlyMetrics.avgNewMediaPerDay = Math.round(
-        (monthlyMetrics.newMedia || 0) / validDays
-      );
-      monthlyMetrics.avgActiveUsersPerDay = Math.round(
-        dailyData.reduce(
-          (sum, day) => sum + (day.metrics.activeUsers || 0),
-          0
-        ) / validDays
+      // Visitors
+      monthlyMetrics.visitors = await calculateVisitorCount(
+        docClient,
+        startTimeISO,
+        endTimeISO
       );
 
-      // Growth rates (compare end of month vs beginning)
-      if (firstDay?.metrics) {
-        const userGrowth =
-          (latestDay.metrics.totalUsers || 0) -
-          (firstDay.metrics.totalUsers || 0);
-        const mediaGrowth =
-          (latestDay.metrics.totalMedia || 0) -
-          (firstDay.metrics.totalMedia || 0);
-        const albumGrowth =
-          (latestDay.metrics.totalAlbums || 0) -
-          (firstDay.metrics.totalAlbums || 0);
+      // // Calculate monthly averages and growth metrics
+      // const validDays = dailyData.length;
+      // monthlyMetrics.avgNewUsersPerDay = Math.round(
+      //   (monthlyMetrics.newUsers || 0) / validDays
+      // );
+      // monthlyMetrics.avgNewMediaPerDay = Math.round(
+      //   (monthlyMetrics.newMedia || 0) / validDays
+      // );
+      // monthlyMetrics.avgActiveUsersPerDay = Math.round(
+      //   dailyData.reduce(
+      //     (sum, day) => sum + (day.metrics.activeUsers || 0),
+      //     0
+      //   ) / validDays
+      // );
 
-        monthlyMetrics.userGrowthCount = userGrowth;
-        monthlyMetrics.mediaGrowthCount = mediaGrowth;
-        monthlyMetrics.albumGrowthCount = albumGrowth;
+      // // Growth rates (compare end of month vs beginning)
+      // if (firstDay?.metrics) {
+      //   const userGrowth =
+      //     (latestDay.metrics.totalUsers || 0) -
+      //     (firstDay.metrics.totalUsers || 0);
+      //   const mediaGrowth =
+      //     (latestDay.metrics.totalMedia || 0) -
+      //     (firstDay.metrics.totalMedia || 0);
+      //   const albumGrowth =
+      //     (latestDay.metrics.totalAlbums || 0) -
+      //     (firstDay.metrics.totalAlbums || 0);
 
-        // Growth percentages
-        if (firstDay.metrics.totalUsers && firstDay.metrics.totalUsers > 0) {
-          monthlyMetrics.userGrowthPercent = Number(
-            ((userGrowth / firstDay.metrics.totalUsers) * 100).toFixed(2)
-          );
-        }
-        if (firstDay.metrics.totalMedia && firstDay.metrics.totalMedia > 0) {
-          monthlyMetrics.mediaGrowthPercent = Number(
-            ((mediaGrowth / firstDay.metrics.totalMedia) * 100).toFixed(2)
-          );
-        }
-        if (firstDay.metrics.totalAlbums && firstDay.metrics.totalAlbums > 0) {
-          monthlyMetrics.albumGrowthPercent = Number(
-            ((albumGrowth / firstDay.metrics.totalAlbums) * 100).toFixed(2)
-          );
-        }
-      }
+      //   monthlyMetrics.userGrowthCount = userGrowth;
+      //   monthlyMetrics.mediaGrowthCount = mediaGrowth;
+      //   monthlyMetrics.albumGrowthCount = albumGrowth;
 
-      // Find peak activity days
-      const peakActiveUsers = Math.max(
-        ...dailyData.map((day) => day.metrics.activeUsers || 0)
-      );
-      const peakNewUsers = Math.max(
-        ...dailyData.map((day) => day.metrics.newUsers || 0)
-      );
-      const peakNewMedia = Math.max(
-        ...dailyData.map((day) => day.metrics.newMedia || 0)
-      );
+      //   // Growth percentages
+      //   if (firstDay.metrics.totalUsers && firstDay.metrics.totalUsers > 0) {
+      //     monthlyMetrics.userGrowthPercent = Number(
+      //       ((userGrowth / firstDay.metrics.totalUsers) * 100).toFixed(2)
+      //     );
+      //   }
+      //   if (firstDay.metrics.totalMedia && firstDay.metrics.totalMedia > 0) {
+      //     monthlyMetrics.mediaGrowthPercent = Number(
+      //       ((mediaGrowth / firstDay.metrics.totalMedia) * 100).toFixed(2)
+      //     );
+      //   }
+      //   if (firstDay.metrics.totalAlbums && firstDay.metrics.totalAlbums > 0) {
+      //     monthlyMetrics.albumGrowthPercent = Number(
+      //       ((albumGrowth / firstDay.metrics.totalAlbums) * 100).toFixed(2)
+      //     );
+      //   }
+      // }
 
-      monthlyMetrics.peakActiveUsers = peakActiveUsers;
-      monthlyMetrics.peakNewUsersInDay = peakNewUsers;
-      monthlyMetrics.peakNewMediaInDay = peakNewMedia;
+      // // Find peak activity days
+      // const peakActiveUsers = Math.max(
+      //   ...dailyData.map((day) => day.metrics.activeUsers || 0)
+      // );
+      // const peakNewUsers = Math.max(
+      //   ...dailyData.map((day) => day.metrics.newUsers || 0)
+      // );
+      // const peakNewMedia = Math.max(
+      //   ...dailyData.map((day) => day.metrics.newMedia || 0)
+      // );
 
-      // Storage - take latest values
-      monthlyMetrics.totalStorageBytes = latestDay.metrics["totalStorageBytes"];
-      monthlyMetrics.totalStorageGB = latestDay.metrics["totalStorageGB"];
+      // monthlyMetrics.peakActiveUsers = peakActiveUsers;
+      // monthlyMetrics.peakNewUsersInDay = peakNewUsers;
+      // monthlyMetrics.peakNewMediaInDay = peakNewMedia;
 
-      // Add month metadata
-      monthlyMetrics.monthStart = monthStart.toISOString();
-      monthlyMetrics.monthEnd = monthEnd.toISOString();
-      monthlyMetrics.daysIncluded = validDays;
-      monthlyMetrics.monthName = monthName;
+      // // Storage - take latest values
+      // monthlyMetrics.totalStorageBytes = latestDay.metrics["totalStorageBytes"];
+      // monthlyMetrics.totalStorageGB = latestDay.metrics["totalStorageGB"];
 
-      // Calculate retention-like metrics
-      const totalDaysInMonth = new Date(
-        monthStart.getFullYear(),
-        monthStart.getMonth() + 1,
-        0
-      ).getDate();
-      monthlyMetrics.dataCompleteness = Number(
-        ((validDays / totalDaysInMonth) * 100).toFixed(1)
-      );
+      // // Add month metadata
+      // monthlyMetrics.monthStart = monthStart.toISOString();
+      // monthlyMetrics.monthEnd = monthEnd.toISOString();
+      // monthlyMetrics.daysIncluded = validDays;
+      // monthlyMetrics.monthName = monthName;
+
+      // // Calculate retention-like metrics
+      // const totalDaysInMonth = new Date(
+      //   monthStart.getFullYear(),
+      //   monthStart.getMonth() + 1,
+      //   0
+      // ).getDate();
+      // monthlyMetrics.dataCompleteness = Number(
+      //   ((validDays / totalDaysInMonth) * 100).toFixed(1)
+      // );
     }
 
     return monthlyMetrics;
@@ -326,63 +340,63 @@ async function processMonthlyMetrics(
     await Promise.all(savePromises);
 
     // Update cache with monthly summaries (if this is for last month)
-    const lastMonth = new Date();
-    lastMonth.setMonth(lastMonth.getMonth() - 1);
-    const lastMonthRange = getMonthRange(lastMonth);
+    // const lastMonth = new Date();
+    // lastMonth.setMonth(lastMonth.getMonth() - 1);
+    // const lastMonthRange = getMonthRange(lastMonth);
 
-    if (monthStart.getTime() === lastMonthRange.start.getTime()) {
-      // Get the aggregated monthly metrics for cache
-      const monthlyMetrics = await aggregateDailyToMonthly(
-        "users",
-        monthStart,
-        monthEnd
-      );
+    // if (monthStart.getTime() === lastMonthRange.start.getTime()) {
+    //   // Get the aggregated monthly metrics for cache
+    //   const monthlyMetrics = await aggregateDailyToMonthly(
+    //     "users",
+    //     monthStart,
+    //     monthEnd
+    //   );
 
-      const cacheUpdates = [
-        {
-          key: "new_users_last_month",
-          value: monthlyMetrics.newUsers || 0,
-          ttl: 2592000,
-        },
-        {
-          key: "new_media_last_month",
-          value: monthlyMetrics.newMedia || 0,
-          ttl: 2592000,
-        },
-        {
-          key: "new_albums_last_month",
-          value: monthlyMetrics.newAlbums || 0,
-          ttl: 2592000,
-        },
-        {
-          key: "user_growth_percent",
-          value: monthlyMetrics.userGrowthPercent || 0,
-          ttl: 2592000,
-        },
-        {
-          key: "media_growth_percent",
-          value: monthlyMetrics.mediaGrowthPercent || 0,
-          ttl: 2592000,
-        },
-        {
-          key: "peak_active_users",
-          value: monthlyMetrics.peakActiveUsers || 0,
-          ttl: 2592000,
-        },
-        {
-          key: "avg_new_users_per_day",
-          value: monthlyMetrics.avgNewUsersPerDay || 0,
-          ttl: 2592000,
-        },
-        {
-          key: "monthly_last_updated",
-          value: new Date().toISOString(),
-          ttl: 2592000,
-        },
-      ];
+    //   const cacheUpdates = [
+    //     {
+    //       key: "new_users_last_month",
+    //       value: monthlyMetrics.newUsers || 0,
+    //       ttl: 2592000,
+    //     },
+    //     {
+    //       key: "new_media_last_month",
+    //       value: monthlyMetrics.newMedia || 0,
+    //       ttl: 2592000,
+    //     },
+    //     {
+    //       key: "new_albums_last_month",
+    //       value: monthlyMetrics.newAlbums || 0,
+    //       ttl: 2592000,
+    //     },
+    //     {
+    //       key: "user_growth_percent",
+    //       value: monthlyMetrics.userGrowthPercent || 0,
+    //       ttl: 2592000,
+    //     },
+    //     {
+    //       key: "media_growth_percent",
+    //       value: monthlyMetrics.mediaGrowthPercent || 0,
+    //       ttl: 2592000,
+    //     },
+    //     {
+    //       key: "peak_active_users",
+    //       value: monthlyMetrics.peakActiveUsers || 0,
+    //       ttl: 2592000,
+    //     },
+    //     {
+    //       key: "avg_new_users_per_day",
+    //       value: monthlyMetrics.avgNewUsersPerDay || 0,
+    //       ttl: 2592000,
+    //     },
+    //     {
+    //       key: "monthly_last_updated",
+    //       value: new Date().toISOString(),
+    //       ttl: 2592000,
+    //     },
+    //   ];
 
-      await batchUpdateMetricsCache(docClient, cacheUpdates);
-    }
+    //   await batchUpdateMetricsCache(docClient, cacheUpdates);
+    // }
 
     console.log(`✅ Successfully processed monthly metrics for ${monthName}`);
   } catch (error) {
@@ -422,65 +436,6 @@ export async function handler(
     // Re-throw to mark Lambda as failed for monitoring/alerting
     throw new Error(`Monthly analytics aggregation failed: ${error}`);
   }
-}
-
-/**
- * Manual backfill function for monthly metrics
- */
-export async function backfillHandler(event: {
-  backfill: boolean;
-  startDate: string;
-  endDate: string;
-}): Promise<void> {
-  if (!event.backfill) {
-    throw new Error("This function requires backfill flag to be true");
-  }
-
-  console.log("🔄 Starting monthly analytics backfill", {
-    startDate: event.startDate,
-    endDate: event.endDate,
-  });
-
-  const startTime = new Date(event.startDate);
-  const endTime = new Date(event.endDate);
-
-  if (startTime >= endTime) {
-    throw new Error("startDate must be before endDate");
-  }
-
-  // Generate all months in the range
-  const months = [];
-  const current = new Date(startTime.getFullYear(), startTime.getMonth(), 1);
-
-  while (current < endTime) {
-    const monthRange = getMonthRange(current);
-    if (monthRange.end <= endTime) {
-      months.push(monthRange);
-    }
-    current.setMonth(current.getMonth() + 1); // Next month
-  }
-
-  console.log(`Processing ${months.length} months for backfill`);
-
-  // Process months sequentially
-  for (let i = 0; i < months.length; i++) {
-    const month = months[i];
-    if (month) {
-      const monthName = month.start.toLocaleDateString("en-US", {
-        month: "long",
-        year: "numeric",
-      });
-      console.log(`Processing month ${i + 1}/${months.length}: ${monthName}`);
-      await processMonthlyMetrics(month.start, month.end);
-
-      // Brief pause between months
-      if (i < months.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-      }
-    }
-  }
-
-  console.log("✅ Monthly analytics backfill completed successfully");
 }
 
 // Export both handlers

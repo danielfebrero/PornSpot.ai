@@ -160,6 +160,79 @@ export async function calculateGenerationMetrics(
   return metrics;
 }
 
+export async function calculateActiveUsers(
+  docClient: DynamoDBDocumentClient,
+  startTime: string,
+  endTime: string
+): Promise<number> {
+  // Get active users (users with recent activity) - use GSI3 to get all users then filter
+  let activeUsersCount = 0;
+  let lastKey = undefined;
+  do {
+    const res: any = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI3",
+        KeyConditionExpression: "GSI3PK = :pk",
+        FilterExpression:
+          "lastActive BETWEEN :start AND :end AND EntityType = :type",
+        ExpressionAttributeValues: {
+          ":pk": "USER_USERNAME",
+          ":start": startTime,
+          ":end": endTime,
+          ":type": "User",
+        },
+        Select: "COUNT",
+        ExclusiveStartKey: lastKey,
+      })
+    );
+    activeUsersCount += res?.Count || 0;
+    lastKey = res.LastEvaluatedKey;
+  } while (lastKey);
+  return activeUsersCount;
+}
+
+export async function calculateVisitorCount(
+  docClient: DynamoDBDocumentClient,
+  startTime: string,
+  endTime: string
+): Promise<number> {
+  // Get visitors count in time range - count distinct clientIP only
+  const uniqueClientIPs = new Set<string>();
+  let lastKey = undefined;
+  do {
+    const res: any = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        KeyConditionExpression: "PK = :pk",
+        FilterExpression: "#ts BETWEEN :start AND :end",
+        ExpressionAttributeNames: {
+          "#ts": "timestamp",
+        },
+        ExpressionAttributeValues: {
+          ":pk": "VISITOR",
+          ":start": startTime,
+          ":end": endTime,
+        },
+        ProjectionExpression: "clientIP",
+        ExclusiveStartKey: lastKey,
+      })
+    );
+
+    // Add each unique clientIP to the set
+    if (res.Items) {
+      for (const item of res.Items) {
+        if (item.clientIP) {
+          uniqueClientIPs.add(item.clientIP);
+        }
+      }
+    }
+
+    lastKey = res.LastEvaluatedKey;
+  } while (lastKey);
+  return uniqueClientIPs.size;
+}
+
 /**
  * Calculates user metrics for a given time range
  */
@@ -223,65 +296,18 @@ export async function calculateUserMetrics(
     metrics.newUsers = newUsersCount;
 
     // Get active users (users with recent activity) - use GSI3 to get all users then filter
-    let activeUsersCount = 0;
-    lastKey = undefined;
-    do {
-      const res: any = await docClient.send(
-        new QueryCommand({
-          TableName: TABLE_NAME,
-          IndexName: "GSI3",
-          KeyConditionExpression: "GSI3PK = :pk",
-          FilterExpression:
-            "lastActive BETWEEN :start AND :end AND EntityType = :type",
-          ExpressionAttributeValues: {
-            ":pk": "USER_USERNAME",
-            ":start": startTime,
-            ":end": endTime,
-            ":type": "User",
-          },
-          Select: "COUNT",
-          ExclusiveStartKey: lastKey,
-        })
-      );
-      activeUsersCount += res?.Count || 0;
-      lastKey = res.LastEvaluatedKey;
-    } while (lastKey);
-    metrics.activeUsers = activeUsersCount;
 
-    // Get visitors count in time range - count distinct clientIP only
-    const uniqueClientIPs = new Set<string>();
-    lastKey = undefined;
-    do {
-      const res: any = await docClient.send(
-        new QueryCommand({
-          TableName: TABLE_NAME,
-          KeyConditionExpression: "PK = :pk",
-          FilterExpression: "#ts BETWEEN :start AND :end",
-          ExpressionAttributeNames: {
-            "#ts": "timestamp",
-          },
-          ExpressionAttributeValues: {
-            ":pk": "VISITOR",
-            ":start": startTime,
-            ":end": endTime,
-          },
-          ProjectionExpression: "clientIP",
-          ExclusiveStartKey: lastKey,
-        })
-      );
+    metrics.activeUsers = await calculateActiveUsers(
+      docClient,
+      startTime,
+      endTime
+    );
 
-      // Add each unique clientIP to the set
-      if (res.Items) {
-        for (const item of res.Items) {
-          if (item.clientIP) {
-            uniqueClientIPs.add(item.clientIP);
-          }
-        }
-      }
-
-      lastKey = res.LastEvaluatedKey;
-    } while (lastKey);
-    metrics.visitors = uniqueClientIPs.size;
+    metrics.visitors = await calculateVisitorCount(
+      docClient,
+      startTime,
+      endTime
+    );
   } catch (error) {
     console.error("Error calculating user metrics:", error);
   }
