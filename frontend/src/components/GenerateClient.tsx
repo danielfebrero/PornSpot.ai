@@ -94,6 +94,7 @@ export function GenerateClient() {
   const {
     settings,
     updateSettings,
+    resetSettings,
     uiState: {
       allGeneratedImages,
       deletedImageIds,
@@ -641,9 +642,20 @@ export function GenerateClient() {
           {/* Advanced Features */}
           <div className="space-y-6">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl font-semibold text-foreground">
-                {t("advancedControls")}
-              </h2>
+              <div className="flex items-center justify-center gap-4">
+                <h2 className="text-2xl font-semibold text-foreground">
+                  {t("advancedControls")}
+                </h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={resetSettings}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  {t("actions.resetParameters")}
+                </Button>
+              </div>
               <p className="text-muted-foreground">{t("fineTuneGeneration")}</p>
             </div>
 
