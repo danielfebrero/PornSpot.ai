@@ -646,6 +646,11 @@ export function GenerateClient() {
                 <h2 className="text-2xl font-semibold text-foreground">
                   {t("advancedControls")}
                 </h2>
+              </div>
+              <p className="text-muted-foreground">{t("fineTuneGeneration")}</p>
+
+              {/* Reset Parameters Button */}
+              <div className="flex justify-end">
                 <Button
                   variant="outline"
                   size="sm"
@@ -656,7 +661,6 @@ export function GenerateClient() {
                   {t("actions.resetParameters")}
                 </Button>
               </div>
-              <p className="text-muted-foreground">{t("fineTuneGeneration")}</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
