@@ -311,10 +311,10 @@ async function main() {
     loadEnvironmentConfig(validatedArgs.env);
 
     // Verify required environment variables
-    const tableName = process.env.DYNAMODB_TABLE_NAME;
+    const tableName = process.env.DYNAMODB_TABLE;
     if (!tableName) {
       console.error(
-        "❌ Error: DYNAMODB_TABLE_NAME environment variable is required"
+        "❌ Error: DYNAMODB_TABLE environment variable is required"
       );
       process.exit(1);
     }

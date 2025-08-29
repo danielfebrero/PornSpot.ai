@@ -52,8 +52,8 @@ export function createComfyUIWorkflow(
     seed = Math.floor(Math.random() * 1000000),
     steps = DEFAULT_WORKFLOW_PARAMS.steps!,
     cfgScale = DEFAULT_WORKFLOW_PARAMS.cfgScale!,
-    sampler = "dpmpp_3m_sde_gpu",
-    scheduler = "exponential",
+    sampler = DEFAULT_WORKFLOW_PARAMS.sampler!,
+    scheduler = DEFAULT_WORKFLOW_PARAMS.scheduler!,
   } = params;
 
   // Base workflow template for SDXL text-to-image generation with LoRA chain
