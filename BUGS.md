@@ -121,3 +121,5 @@
 [x] On generate page, recent generations only shows the first 10-12 images.
 
 [x] Cannot set seed to 0 manually.
+
+[ ] There is sometimes more active users than visitors and sometimes 0 active users while I am connected.

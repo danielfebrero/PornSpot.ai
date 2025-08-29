@@ -106,4 +106,4 @@
 
 [x] Replace all Initials with Avatars, including Profile comments.
 
-[ ] Add delete icon in fullscreen images of Generate page.
+[x] Add delete icon in fullscreen images of Generate page.
