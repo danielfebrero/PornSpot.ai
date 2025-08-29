@@ -192,6 +192,7 @@ function getOptimalDefaultImageSrc(
   containerWidth: number,
   containerHeight: number
 ): string {
+  console.log({ thumbnailUrls, fallbackUrl, containerWidth, containerHeight });
   if (!thumbnailUrls) return fallbackUrl;
 
   const optimalSize = selectOptimalThumbnailSize(
