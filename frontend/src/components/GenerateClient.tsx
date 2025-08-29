@@ -911,21 +911,21 @@ export function GenerateClient() {
                     )}
                   >
                     <Slider
-                      value={[settings.cfgScale || 4.5]}
+                      value={[settings.cfgScale || 1]}
                       onValueChange={(value) =>
                         canUseCfgScale() &&
                         updateSettings("cfgScale", value[0].toFixed(1))
                       }
-                      min={1}
+                      min={0.5}
                       max={10}
                       step={0.1}
                       className="w-full"
                     />
                   </div>
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>1</span>
+                    <span>0.5</span>
                     <span className="font-medium text-foreground">
-                      {settings.cfgScale || 4.5}
+                      {settings.cfgScale || 1}
                     </span>
                     <span>10</span>
                   </div>
@@ -973,22 +973,22 @@ export function GenerateClient() {
                     )}
                   >
                     <Slider
-                      value={[settings.steps || 30]}
+                      value={[settings.steps || 6]}
                       onValueChange={(value) =>
                         canUseSteps() && updateSettings("steps", value[0])
                       }
-                      min={5}
-                      max={60}
-                      step={1}
+                      min={3}
+                      max={20}
+                      step={6}
                       className="w-full"
                     />
                   </div>
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>5</span>
+                    <span>3</span>
                     <span className="font-medium text-foreground">
-                      {settings.steps || 30}
+                      {settings.steps || 6}
                     </span>
-                    <span>60</span>
+                    <span>20</span>
                   </div>
                 </div>
               </div>
