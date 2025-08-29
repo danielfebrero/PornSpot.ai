@@ -400,18 +400,6 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
       className="w-full h-full"
       style={{ position: "relative" }}
     >
-      <img
-        width={dimensions.width}
-        height={dimensions.height}
-        src={defaultSrc}
-        alt={alt}
-        className={className}
-        loading={loading}
-        style={{
-          display: isCarouselActive ? "block" : "none",
-          position: "absolute",
-        }}
-      />
       <picture
         onClick={onClick}
         style={{
