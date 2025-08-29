@@ -106,8 +106,12 @@
 
 [ ] Fix the recurring lambda issue.
 
-[ ] View last created user albums in profile in List view does not works correctly, glitch effect and album disappearing.
+[x] View last created user albums in profile in List view does not works correctly, glitch effect and album disappearing.
 
-[ ] View last generated user media in profile in List view does not works correctly, no media shows and load all media in api calls.
+[x] View last generated user media in profile in List view does not works correctly, no media shows and load all media in api calls.
 
-[ ] View My Albums in list view has the same glitch as View last created user albums in profile in List view. Same issue with view My Likes. It seems related to albums or tall content cards.
+[x] View My Albums in list view has the same glitch as View last created user albums in profile in List view.
+
+[ ] In view My Likes in list view, it glitches when I hover an album.
+
+[ ] Albums items from api do not contain thumbnailsUrls.
