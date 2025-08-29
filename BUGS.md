@@ -115,3 +115,5 @@
 [ ] In view My Likes in list view, it glitches when I hover an album.
 
 [ ] Albums items from api do not contain thumbnailsUrls.
+
+[ ] Total views in analytics is not working.

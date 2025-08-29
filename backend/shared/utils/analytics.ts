@@ -678,7 +678,7 @@ async function calculateViewMetrics(
 
       if (monthlyResult.Items) {
         for (const item of monthlyResult.Items) {
-          totalViews += (item["totalViews"] as number) || 0;
+          totalViews += (item["newViews"] as number) || 0;
         }
       }
 
