@@ -120,4 +120,4 @@
 
 [ ] On generate page, recent generations only shows the first 10-12 images.
 
-[ ] Cannot set seed to 0 manually.
+[x] Cannot set seed to 0 manually.

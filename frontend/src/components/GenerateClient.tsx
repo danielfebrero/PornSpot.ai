@@ -613,7 +613,7 @@ export function GenerateClient() {
                 </div>
               </div>
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                {filteredAllGeneratedImages.slice(0, 10).map((image, index) => (
+                {filteredAllGeneratedImages.map((image, index) => (
                   <div
                     key={index}
                     className="flex-shrink-0 group"
