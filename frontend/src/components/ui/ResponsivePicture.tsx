@@ -277,7 +277,7 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
 
         img.onload = () => {
           // Mark first image as loaded
-          if (currentPreloadIndex === 0) {
+          if (currentPreloadIndex === 1) {
             setFirstImageLoaded(true);
           }
 
