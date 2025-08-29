@@ -128,60 +128,60 @@ function selectOptimalThumbnailSize(
  * Generate responsive picture sources based on container dimensions
  * Creates multiple sources for different viewport scenarios
  */
-function generateIntelligentPictureSources(
-  thumbnailUrls: ThumbnailUrls | undefined,
-  containerWidth: number,
-  containerHeight: number
-): Array<{ media: string; srcSet: string }> {
-  if (!thumbnailUrls || containerWidth === 0) return [];
+// function generateIntelligentPictureSources(
+//   thumbnailUrls: ThumbnailUrls | undefined,
+//   containerWidth: number,
+//   containerHeight: number
+// ): Array<{ media: string; srcSet: string }> {
+//   if (!thumbnailUrls || containerWidth === 0) return [];
 
-  const sources: Array<{ media: string; srcSet: string }> = [];
+//   const sources: Array<{ media: string; srcSet: string }> = [];
 
-  // Generate sources for different device scenarios
-  const scenarios = [
-    { media: "(max-width: 640px)", dpr: 2 }, // Mobile high-DPI
-    { media: "(min-width: 641px) and (max-width: 1024px)", dpr: 2 }, // Tablet high-DPI
-    { media: "(min-width: 1025px)", dpr: 1.5 }, // Desktop moderate-DPI
-    {
-      media: "(min-width: 1025px) and (-webkit-min-device-pixel-ratio: 2)",
-      dpr: 2,
-    }, // Desktop high-DPI
-  ];
+//   // Generate sources for different device scenarios
+//   const scenarios = [
+//     { media: "(max-width: 640px)", dpr: 2 }, // Mobile high-DPI
+//     { media: "(min-width: 641px) and (max-width: 1024px)", dpr: 2 }, // Tablet high-DPI
+//     { media: "(min-width: 1025px)", dpr: 1.5 }, // Desktop moderate-DPI
+//     {
+//       media: "(min-width: 1025px) and (-webkit-min-device-pixel-ratio: 2)",
+//       dpr: 2,
+//     }, // Desktop high-DPI
+//   ];
 
-  for (const scenario of scenarios) {
-    const targetSize = Math.max(containerWidth, containerHeight) * scenario.dpr;
+//   for (const scenario of scenarios) {
+//     const targetSize = Math.max(containerWidth, containerHeight) * scenario.dpr;
 
-    // Find best size for this scenario
-    const availableSizes = Object.entries(THUMBNAIL_CONFIGS)
-      .filter(([size]) => thumbnailUrls[size as keyof ThumbnailUrls])
-      .map(([size, config]) => ({ size, width: config.width }))
-      .sort((a, b) => {
-        // Prefer sizes that are >= target but not too much larger
-        const aFit =
-          a.width >= targetSize
-            ? a.width - targetSize
-            : targetSize - a.width + 1000;
-        const bFit =
-          b.width >= targetSize
-            ? b.width - targetSize
-            : targetSize - b.width + 1000;
-        return aFit - bFit;
-      });
+//     // Find best size for this scenario
+//     const availableSizes = Object.entries(THUMBNAIL_CONFIGS)
+//       .filter(([size]) => thumbnailUrls[size as keyof ThumbnailUrls])
+//       .map(([size, config]) => ({ size, width: config.width }))
+//       .sort((a, b) => {
+//         // Prefer sizes that are >= target but not too much larger
+//         const aFit =
+//           a.width >= targetSize
+//             ? a.width - targetSize
+//             : targetSize - a.width + 1000;
+//         const bFit =
+//           b.width >= targetSize
+//             ? b.width - targetSize
+//             : targetSize - b.width + 1000;
+//         return aFit - bFit;
+//       });
 
-    if (availableSizes.length > 0) {
-      const bestSize = availableSizes[0].size as keyof ThumbnailUrls;
-      const url = thumbnailUrls[bestSize];
-      if (url) {
-        sources.push({
-          media: scenario.media,
-          srcSet: url,
-        });
-      }
-    }
-  }
+//     if (availableSizes.length > 0) {
+//       const bestSize = availableSizes[0].size as keyof ThumbnailUrls;
+//       const url = thumbnailUrls[bestSize];
+//       if (url) {
+//         sources.push({
+//           media: scenario.media,
+//           srcSet: url,
+//         });
+//       }
+//     }
+//   }
 
-  return sources;
-}
+//   return sources;
+// }
 
 /**
  * Get the optimal default image source based on container dimensions
@@ -360,11 +360,11 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
   }, [isCarouselActive, contentPreview, previewIndex, thumbnailUrls]);
 
   // Generate intelligent sources based on container dimensions
-  const sources = generateIntelligentPictureSources(
-    currentThumbnailUrls,
-    dimensions.width,
-    dimensions.height
-  );
+  // const sources = generateIntelligentPictureSources(
+  //   currentThumbnailUrls,
+  //   dimensions.width,
+  //   dimensions.height
+  // );
 
   // Get optimal default source
   const defaultSrc = getOptimalDefaultImageSrc(
@@ -375,30 +375,11 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
   );
 
   // If no responsive sources available, fall back to simple img
-  if (sources.length === 0) {
-    return (
-      <div
-        ref={containerRef as React.RefObject<HTMLDivElement>}
-        className="w-full h-full"
-      >
-        <img
-          width={dimensions.width}
-          height={dimensions.height}
-          src={defaultSrc}
-          alt={alt}
-          className={className}
-          loading={loading}
-          onClick={onClick}
-        />
-      </div>
-    );
-  }
-
+  // if (sources.length === 0) {
   return (
     <div
       ref={containerRef as React.RefObject<HTMLDivElement>}
       className="w-full h-full"
-      style={{ position: "relative" }}
     >
       <img
         width={dimensions.width}
@@ -407,39 +388,58 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
         alt={alt}
         className={className}
         loading={loading}
-        style={{
-          display: isCarouselActive ? "block" : "none",
-          position: "absolute",
-        }}
-      />
-      <picture
         onClick={onClick}
-        style={{
-          position: "absolute",
-        }}
-      >
-        {sources.map(
-          (source: { media: string; srcSet: string }, index: number) => (
-            <source
-              key={index}
-              media={source.media}
-              srcSet={source.srcSet}
-              width={dimensions.width}
-              height={dimensions.height}
-            />
-          )
-        )}
-        <img
-          width={dimensions.width}
-          height={dimensions.height}
-          src={defaultSrc}
-          alt={alt}
-          className={className}
-          loading={loading}
-        />
-      </picture>
+      />
     </div>
   );
+  //   }
+
+  //   return (
+  //     <div
+  //       ref={containerRef as React.RefObject<HTMLDivElement>}
+  //       className="w-full h-full"
+  //       style={{ position: "relative" }}
+  //     >
+  //       <img
+  //         width={dimensions.width}
+  //         height={dimensions.height}
+  //         src={defaultSrc}
+  //         alt={alt}
+  //         className={className}
+  //         loading={loading}
+  //         style={{
+  //           display: isCarouselActive ? "block" : "none",
+  //           position: "absolute",
+  //         }}
+  //       />
+  //       <picture
+  //         onClick={onClick}
+  //         style={{
+  //           position: "absolute",
+  //         }}
+  //       >
+  //         {sources.map(
+  //           (source: { media: string; srcSet: string }, index: number) => (
+  //             <source
+  //               key={index}
+  //               media={source.media}
+  //               srcSet={source.srcSet}
+  //               width={dimensions.width}
+  //               height={dimensions.height}
+  //             />
+  //           )
+  //         )}
+  //         <img
+  //           width={dimensions.width}
+  //           height={dimensions.height}
+  //           src={defaultSrc}
+  //           alt={alt}
+  //           className={className}
+  //           loading={loading}
+  //         />
+  //       </picture>
+  //     </div>
+  //   );
 };
 
 export default ResponsivePicture;
