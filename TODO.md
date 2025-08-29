@@ -105,3 +105,5 @@
 [ ] Be able to reply and tag users in comments.
 
 [x] Replace all Initials with Avatars, including Profile comments.
+
+[ ] Add delete icon in fullscreen images of Generate page.
