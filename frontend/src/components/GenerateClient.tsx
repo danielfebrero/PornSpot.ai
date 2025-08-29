@@ -650,7 +650,7 @@ export function GenerateClient() {
               <p className="text-muted-foreground">{t("fineTuneGeneration")}</p>
 
               {/* Reset Parameters Button */}
-              <div className="flex justify-end">
+              <div className="flex justify-center md:justify-end">
                 <Button
                   variant="outline"
                   size="sm"
