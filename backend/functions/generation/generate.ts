@@ -99,7 +99,7 @@ const CONFIG = {
     unlimited: { monthly: "unlimited", daily: "unlimited", priority: 0 },
   },
   VALIDATION_LIMITS: {
-    prompt: { maxLength: 1000 },
+    prompt: { maxLength: 2000 },
     negativePrompt: {
       maxLength: 500,
       defaultValue:

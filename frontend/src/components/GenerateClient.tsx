@@ -491,7 +491,7 @@ export function GenerateClient() {
                       : "text-muted-foreground"
                   )}
                 >
-                  {settings.prompt.length}/1000
+                  {settings.prompt.length}/2000
                 </div>
               </div>
 
