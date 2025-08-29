@@ -255,7 +255,7 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
       return;
     }
 
-    let currentPreloadIndex = 0;
+    let currentPreloadIndex = 1; // Start preloading from second image
     let preloadTimeout: NodeJS.Timeout;
 
     const preloadNextImage = () => {
