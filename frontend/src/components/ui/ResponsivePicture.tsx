@@ -400,6 +400,18 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
       className="w-full h-full"
       style={{ position: "relative" }}
     >
+      <img
+        width={dimensions.width}
+        height={dimensions.height}
+        src={defaultSrc}
+        alt={alt}
+        className={className}
+        loading={loading}
+        style={{
+          display: isCarouselActive ? "block" : "none",
+          position: "absolute",
+        }}
+      />
       <picture
         onClick={onClick}
         style={{
@@ -408,7 +420,13 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
       >
         {sources.map(
           (source: { media: string; srcSet: string }, index: number) => (
-            <source key={index} media={source.media} srcSet={source.srcSet} />
+            <source
+              key={index}
+              media={source.media}
+              srcSet={source.srcSet}
+              width={dimensions.width}
+              height={dimensions.height}
+            />
           )
         )}
         <img
