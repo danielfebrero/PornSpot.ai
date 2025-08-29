@@ -17,6 +17,7 @@ import { AvatarThumbnailService } from "@shared/utils/avatar-thumbnail";
 import { RevalidationService } from "@shared/utils/revalidation";
 import { S3Service } from "@shared/utils/s3";
 import { Readable } from "stream";
+import { MediaEntity } from "@shared";
 
 // Dynamically import Sharp to handle platform-specific binaries
 let sharp: typeof import("sharp");
@@ -118,8 +119,14 @@ async function processUploadRecord(record: S3EventRecord): Promise<void> {
   console.log(`Processing uploaded file: ${key}`);
 
   // Skip if this is already a thumbnail
-  if (key.includes("/thumbnails/")) {
-    console.log("Skipping thumbnail file");
+  if (
+    key.includes("/thumbnails/") ||
+    key.includes("original.webp") ||
+    key.includes("_display.webp")
+  ) {
+    console.log(
+      "Skipping thumbnail file or original webp file or _display.webp"
+    );
     return;
   }
 
@@ -314,7 +321,7 @@ async function processMediaUpload(
 
       if (thumbnailUrls && Object.keys(thumbnailUrls).length > 0) {
         // Update the media record with thumbnail URLs and WebP display URL
-        const updateData: Partial<import("@shared").MediaEntity> = {
+        const updateData: Partial<MediaEntity> = {
           thumbnailUrl:
             thumbnailUrls["small"] || Object.values(thumbnailUrls)[0], // Default to small (240px) or first available
           thumbnailUrls: {
@@ -337,7 +344,7 @@ async function processMediaUpload(
         }
       } else {
         // Just update status and WebP URL if thumbnail generation failed
-        const updateData: Partial<import("@shared").MediaEntity> = {
+        const updateData: Partial<MediaEntity> = {
           status: "uploaded" as const,
           updatedAt: new Date().toISOString(),
         };
@@ -510,7 +517,7 @@ async function processGeneratedMediaUpload(
 
       if (thumbnailUrls && Object.keys(thumbnailUrls).length > 0) {
         // Update the media record with thumbnail URLs and WebP display URL
-        const updateData: Partial<import("@shared").MediaEntity> = {
+        const updateData: Partial<MediaEntity> = {
           thumbnailUrl:
             thumbnailUrls["small"] || Object.values(thumbnailUrls)[0], // Default to small (240px) or first available
           thumbnailUrls: {

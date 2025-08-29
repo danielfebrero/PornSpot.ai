@@ -104,7 +104,7 @@
 
 [ ] When I change privacy of an image from Media Detail Client, username is replaced with user id and metadata disappears.
 
-[ ] Fix the recurring lambda issue.
+[x] Fix the recurring lambda issue.
 
 [x] View last created user albums in profile in List view does not works correctly, glitch effect and album disappearing.
 
@@ -114,10 +114,10 @@
 
 [ ] In view My Likes in list view, it glitches when I hover an album.
 
-[ ] Albums items from api do not contain thumbnailsUrls.
+[x] Albums items from api do not contain thumbnailsUrls.
 
 [x] Total views in analytics is not working.
 
-[ ] On generate page, recent generations only shows the first 10-12 images.
+[x] On generate page, recent generations only shows the first 10-12 images.
 
 [x] Cannot set seed to 0 manually.
