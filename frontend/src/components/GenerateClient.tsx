@@ -917,7 +917,7 @@ export function GenerateClient() {
                         updateSettings("cfgScale", value[0].toFixed(1))
                       }
                       min={0.5}
-                      max={10}
+                      max={5}
                       step={0.1}
                       className="w-full"
                     />
@@ -927,7 +927,7 @@ export function GenerateClient() {
                     <span className="font-medium text-foreground">
                       {settings.cfgScale || 1}
                     </span>
-                    <span>10</span>
+                    <span>5</span>
                   </div>
                 </div>
               </div>
@@ -979,7 +979,7 @@ export function GenerateClient() {
                       }
                       min={3}
                       max={20}
-                      step={6}
+                      step={1}
                       className="w-full"
                     />
                   </div>
