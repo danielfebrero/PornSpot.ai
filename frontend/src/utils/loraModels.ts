@@ -55,6 +55,11 @@ export const getLoraModels = (t: (key: string) => string) => [
     name: "Anthropomorphism",
     description: t("loraModels.bread"),
   },
+  {
+    id: "nudify_xl_lite",
+    name: "Nudify",
+    description: t("loraModels.nudify"),
+  },
 ];
 
 // Helper function to get lora name by ID

@@ -142,6 +142,7 @@ const CONFIG = {
       "Pierced_Nipples_XL_Barbell_Edition-000013": 0.5,
       orgasmface_SDXL: 1,
       leaked_nudes_style_v1_fixed: 1,
+      nudify_xl_lite: 0.5,
     } as Record<string, number>,
   },
 } as const;
