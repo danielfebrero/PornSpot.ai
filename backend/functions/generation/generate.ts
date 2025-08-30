@@ -887,7 +887,13 @@ function createSelectedLorasArray(queueItem: QueueEntry): Array<{
   return queueItem.parameters.selectedLoras.map(
     (loraName: string, index: number) => {
       const loraConfig = queueItem.parameters.loraStrengths?.[loraName];
-      const strength = loraConfig?.mode === "auto" ? 1 : loraConfig?.value || 1;
+      const strength =
+        loraConfig?.mode === "auto"
+          ? CONFIG.LORAS.customStrength[loraName] ||
+            CONFIG.LORAS.defaultStrength
+          : loraConfig?.value ||
+            CONFIG.LORAS.customStrength[loraName] ||
+            CONFIG.LORAS.defaultStrength;
 
       return {
         id: `lora_${index}`,
