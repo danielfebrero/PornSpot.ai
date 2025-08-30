@@ -128,6 +128,22 @@ const CONFIG = {
       titleGeneration: 128,
     },
   },
+  LORAS: {
+    defaultStrength: 1,
+    customStrength: {
+      bread: 1,
+      Sextoy_Dildo_Pussy_v2_XL: 1,
+      RealDownblouseXLv3: 1,
+      Harness_Straps_sdxl: 1,
+      bdsm_SDXL_1_: 1,
+      "Body Tattoo_alpha1.0_rank4_noxattn_last": 1,
+      "Doggystyle anal XL": 1,
+      "add-detail-xl": 1,
+      "Pierced_Nipples_XL_Barbell_Edition-000013": 0.5,
+      orgasmface_SDXL: 1,
+      leaked_nudes_style_v1_fixed: 1,
+    } as Record<string, number>,
+  },
 } as const;
 
 const KEYWORDS_FOR_NEGATIVE_PROMPT = ["child", "teen"];
@@ -700,7 +716,11 @@ class GenerationService {
 
     if (loraSelectionMode === "auto") {
       loraStrengths = selectedLoras.reduce((acc, lora) => {
-        acc[lora] = { mode: "auto", value: 1 };
+        acc[lora] = {
+          mode: "auto",
+          value:
+            CONFIG.LORAS.customStrength[lora] || CONFIG.LORAS.defaultStrength,
+        }; // here we set lora strength
         return acc;
       }, {} as Record<string, { mode: "auto"; value: number }>);
     }
