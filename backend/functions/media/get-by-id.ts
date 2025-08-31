@@ -3,6 +3,7 @@ import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { Comment, MediaWithSiblings } from "@shared";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
+import { enhanceMediaWithSiblingsAndCreatorName } from "@shared/utils/media";
 
 const handleGetMediaById = async (
   event: APIGatewayProxyEvent
@@ -23,49 +24,18 @@ const handleGetMediaById = async (
     DynamoDBService.convertMediaEntityToMedia(mediaEntity);
   console.log("Media response created:", mediaResponse);
 
-  if (
-    mediaResponse.metadata?.["bulkSiblings"] &&
-    (mediaResponse.metadata?.["bulkSiblings"] as string[]).length > 0
-  ) {
-    const siblingsPromise = Promise.all(
-      (mediaResponse.metadata["bulkSiblings"] as string[]).map(
-        async (id) => await DynamoDBService.findMediaById(id)
-      )
-    );
-    mediaResponse.bulkSiblings = (await siblingsPromise)
-      .filter(Boolean)
-      .filter((entity) => entity !== null)
-      .map((entity) => DynamoDBService.convertMediaEntityToMedia(entity));
-  }
-
-  // Fetch creator username if createdBy exists
-  if (mediaEntity.createdBy) {
-    try {
-      let creator = null;
-
-      // Try to get user by ID first (new unified system)
-      creator = await DynamoDBService.getUserById(mediaEntity.createdBy);
-
-      if (creator && creator.username) {
-        // Add creator information to metadata if it doesn't exist
-        if (!mediaResponse.metadata) {
-          mediaResponse.metadata = {};
-        }
-        mediaResponse.metadata["creatorUsername"] = creator.username;
-      }
-    } catch (error) {
-      console.error("Failed to fetch creator info:", error);
-      // Don't fail the request if creator info can't be fetched
-    }
-  }
+  const enhancedMediaResponse = await enhanceMediaWithSiblingsAndCreatorName(
+    mediaResponse,
+    mediaEntity
+  );
 
   // Fetch albums containing this media
   try {
     const albums = await DynamoDBService.getAlbumsForMedia(mediaId);
     if (albums.length > 0) {
-      mediaResponse.albums = albums.filter((album) => album.isPublic);
-      mediaResponse.albums = await Promise.all(
-        mediaResponse.albums.map(async (album) => ({
+      enhancedMediaResponse.albums = albums.filter((album) => album.isPublic);
+      enhancedMediaResponse.albums = await Promise.all(
+        enhancedMediaResponse.albums.map(async (album) => ({
           ...album,
           contentPreview:
             (await DynamoDBService.getContentPreviewForAlbum(album.id)) || null,
@@ -98,15 +68,15 @@ const handleGetMediaById = async (
     }));
 
     // Add comments to media response
-    (mediaResponse as any).comments = comments;
+    (enhancedMediaResponse as any).comments = comments;
   } catch (error) {
     console.error("Failed to fetch comments for media:", error);
     // Don't fail the request if comments can't be fetched
-    (mediaResponse as any).comments = [];
+    (enhancedMediaResponse as any).comments = [];
   }
 
-  console.log("Returning media response:", mediaResponse);
-  return ResponseUtil.success(event, mediaResponse);
+  console.log("Returning media response:", enhancedMediaResponse);
+  return ResponseUtil.success(event, enhancedMediaResponse);
 };
 
 export const handler = LambdaHandlerUtil.withoutAuth(handleGetMediaById, {

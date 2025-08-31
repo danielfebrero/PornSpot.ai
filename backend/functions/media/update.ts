@@ -3,7 +3,8 @@ import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { RevalidationService } from "@shared/utils/revalidation";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
-import { MediaEntity } from "@shared";
+import { MediaEntity, MediaWithSiblings } from "@shared";
+import { enhanceMediaWithSiblingsAndCreatorName } from "@shared/utils/media";
 
 interface UpdateMediaRequest {
   title?: string;
@@ -82,8 +83,13 @@ const handleUpdateMedia = async (
   }
 
   // Convert to response format
-  const mediaResponse =
+  const mediaResponse: MediaWithSiblings =
     DynamoDBService.convertMediaEntityToMedia(updatedMediaEntity);
+
+  const enhancedMediaResponse = await enhanceMediaWithSiblingsAndCreatorName(
+    mediaResponse,
+    updatedMediaEntity
+  );
 
   // Trigger revalidation for affected pages
   try {
@@ -98,7 +104,7 @@ const handleUpdateMedia = async (
     updatedFields: Object.keys(updateData),
   });
 
-  return ResponseUtil.success(event, mediaResponse);
+  return ResponseUtil.success(event, enhancedMediaResponse);
 };
 
 export const handler = LambdaHandlerUtil.withAuth(handleUpdateMedia, {
