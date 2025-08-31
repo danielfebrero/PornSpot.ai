@@ -152,6 +152,7 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
               canRemoveFromAlbum={
                 !!(album.createdBy && album.createdBy === user?.userId)
               }
+              scrollRestorationKey="album-media-gallery"
             />
           </MediaGalleryErrorBoundary>
 

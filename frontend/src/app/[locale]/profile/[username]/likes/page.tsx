@@ -250,6 +250,7 @@ export default function UserLikesPage() {
             hasNextPage={hasNext}
             isFetchingNextPage={loadingMore}
             onLoadMore={loadMore}
+            scrollRestorationKey="profile-likes-grid"
             gridColumns={{
               mobile: 1,
               sm: 2,

@@ -319,6 +319,7 @@ const UserAlbumsPage: React.FC = () => {
         hasNextPage={hasNext}
         isFetchingNextPage={loadingMore}
         onLoadMore={loadMore}
+        scrollRestorationKey="user-albums-grid"
         contentCardProps={{
           canLike: true,
           canBookmark: true,

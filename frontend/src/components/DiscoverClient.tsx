@@ -160,6 +160,7 @@ export function DiscoverClient({
             loading={isActuallyLoading || isFetchingNextPage}
             hasMore={hasNextPage}
             error={displayError}
+            scrollRestorationKey="discover-content-grid"
           />
         </SectionErrorBoundary>
       </div>

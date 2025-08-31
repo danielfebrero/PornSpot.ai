@@ -11,12 +11,14 @@ interface MediaGalleryProps {
   albumId: string;
   className?: string;
   canRemoveFromAlbum?: boolean; // New prop to control removal from album
+  scrollRestorationKey?: string; // Key for scroll position restoration
 }
 
 export const MediaGallery: React.FC<MediaGalleryProps> = ({
   albumId,
   className,
   canRemoveFromAlbum,
+  scrollRestorationKey,
 }) => {
   const t = useTranslations("common");
 
@@ -108,6 +110,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
         onLoadMore={handleLoadMore}
+        scrollRestorationKey={scrollRestorationKey}
         gridColumns={{
           mobile: 1,
           sm: 2,

@@ -195,6 +195,7 @@ const UserLikesPage: React.FC = () => {
           hasNextPage={hasMore}
           isFetchingNextPage={isLoadingMore}
           onLoadMore={loadMore}
+          scrollRestorationKey="user-likes-grid"
           contentCardProps={{
             canLike: true,
             canBookmark: true,

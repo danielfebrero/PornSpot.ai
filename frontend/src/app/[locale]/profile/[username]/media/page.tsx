@@ -243,6 +243,7 @@ export default function UserMediaPage() {
             hasNextPage={hasNextPage}
             isFetchingNextPage={isFetchingNextPage}
             onLoadMore={handleLoadMore}
+            scrollRestorationKey="profile-media-grid"
             contentCardProps={{
               canLike: true,
               canBookmark: true,

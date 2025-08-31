@@ -114,6 +114,7 @@ export default function AdminMediaPage() {
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
         onLoadMore={loadMore}
+        scrollRestorationKey="admin-media-grid"
         gridColumns={{
           mobile: 2,
           sm: 3,

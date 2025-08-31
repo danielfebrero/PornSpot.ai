@@ -209,6 +209,7 @@ export default function UserAlbumsPage() {
             hasNextPage={hasNext}
             isFetchingNextPage={loadingMore}
             onLoadMore={loadMore}
+            scrollRestorationKey="profile-albums-grid"
             contentCardProps={{
               canLike: true,
               canBookmark: true,

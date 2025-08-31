@@ -192,6 +192,7 @@ export default function AdminAlbumsPage() {
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
         onLoadMore={loadMore}
+        scrollRestorationKey="admin-albums-grid"
         gridColumns={{
           mobile: 2,
           sm: 3,

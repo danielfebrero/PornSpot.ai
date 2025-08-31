@@ -13,6 +13,7 @@ interface ContentGridProps {
   loading?: boolean;
   hasMore?: boolean;
   error?: string | null;
+  scrollRestorationKey?: string; // Key for scroll position restoration
 }
 
 export const ContentGrid: React.FC<ContentGridProps> = ({
@@ -22,6 +23,7 @@ export const ContentGrid: React.FC<ContentGridProps> = ({
   loading = false,
   hasMore = false,
   error = null,
+  scrollRestorationKey,
 }) => {
   const t = useTranslations("contentGrid");
 
@@ -54,6 +56,7 @@ export const ContentGrid: React.FC<ContentGridProps> = ({
       hasNextPage={hasMore}
       isFetchingNextPage={loading}
       onLoadMore={loadMore}
+      scrollRestorationKey={scrollRestorationKey}
       contentCardProps={{
         canLike: true,
         canBookmark: true,

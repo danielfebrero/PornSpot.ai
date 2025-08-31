@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Bookmark, Grid, List } from "lucide-react";
 import { useBookmarksQuery } from "@/hooks/queries/useBookmarksQuery";
@@ -129,7 +129,9 @@ const UserBookmarksPage: React.FC = () => {
                 <h1 className="text-3xl font-bold text-foreground">
                   {t("bookmarks")}
                 </h1>
-                <p className="text-muted-foreground">{t("yourSavedFavorites")}</p>
+                <p className="text-muted-foreground">
+                  {t("yourSavedFavorites")}
+                </p>
               </div>
               <span className="bg-blue-500/20 text-blue-600 text-sm font-semibold px-3 py-1.5 rounded-full">
                 {totalCount.toLocaleString()} {t("bookmarksCount")}
@@ -163,6 +165,7 @@ const UserBookmarksPage: React.FC = () => {
           hasNextPage={hasMore}
           isFetchingNextPage={isLoadingMore}
           onLoadMore={loadMore}
+          scrollRestorationKey="user-bookmarks-grid"
           contentCardProps={{
             canLike: true,
             canBookmark: true,

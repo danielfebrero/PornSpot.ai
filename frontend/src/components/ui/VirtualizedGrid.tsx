@@ -1,12 +1,19 @@
 "use client";
 
-import React, { useMemo, useCallback, useRef } from "react";
+import React, {
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+  useState,
+} from "react";
 import { Virtuoso } from "react-virtuoso";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Media, Album } from "@/types";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { ComponentErrorBoundary } from "@/components/ErrorBoundaries";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 // Generic type for items that can be rendered in the grid
 type GridItem = Media | Album;
@@ -33,6 +40,9 @@ interface VirtualizedGridProps<T extends GridItem> {
     xl?: number;
   };
   aspectRatio?: "square" | "auto";
+
+  // Scroll restoration configuration
+  scrollRestorationKey?: string;
 
   // Content Card configuration
   contentCardProps?: {
@@ -118,6 +128,7 @@ const DEFAULT_GRID_COLUMNS = {
  * - Loading, error, and empty states
  * - Type-safe props for different item types
  * - Interaction status prefetching compatibility
+ * - Scroll position restoration across navigation
  *
  * @example
  * ```tsx
@@ -127,6 +138,7 @@ const DEFAULT_GRID_COLUMNS = {
  *   viewMode="grid"
  *   hasNextPage={hasNextPage}
  *   onLoadMore={loadMore}
+ *   scrollRestorationKey="media-grid-user-page"
  *   contentCardProps={{
  *     canLike: true,
  *     canBookmark: true,
@@ -146,6 +158,7 @@ export function VirtualizedGrid<T extends GridItem>({
   onLoadMore,
   gridColumns = DEFAULT_GRID_COLUMNS,
   aspectRatio = "square",
+  scrollRestorationKey,
   contentCardProps = {},
   mediaList,
   emptyState,
@@ -158,11 +171,19 @@ export function VirtualizedGrid<T extends GridItem>({
   // Container dimensions for responsive grid calculation
   const containerRef = useRef<HTMLDivElement>(null);
   const skeletonContainerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
-  // Calculate dimensions manually for responsive grid
-  const [containerWidth, setContainerWidth] = React.useState(0);
+  // Scroll restoration hook - always call but provide a default key
+  const { saveScrollPosition, getInitialScrollState } = useScrollRestoration({
+    storageKey: scrollRestorationKey || "default-grid-scroll",
+  });
 
-  React.useEffect(() => {
+  // Get initial scroll state for restoration
+  const initialScrollState = scrollRestorationKey
+    ? getInitialScrollState()
+    : { topMostItemIndex: 0, scrollTop: 0, hasRestoredPosition: false };
+
+  useEffect(() => {
     const measureWidth = () => {
       const refToUse = skeletonContainerRef.current || containerRef.current;
       if (refToUse) {
@@ -415,6 +436,26 @@ export function VirtualizedGrid<T extends GridItem>({
         itemContent={renderRow}
         endReached={loadMore}
         overscan={5}
+        // Scroll restoration configuration
+        initialTopMostItemIndex={
+          scrollRestorationKey ? initialScrollState.topMostItemIndex : 0
+        }
+        rangeChanged={
+          scrollRestorationKey
+            ? (range) => {
+                // Save scroll position when range changes
+                saveScrollPosition({
+                  scrollTop: 0, // Not applicable for virtuoso
+                  topMostItemIndex: range.startIndex,
+                  timestamp: Date.now(),
+                });
+              }
+            : undefined
+        }
+        scrollSeekConfiguration={{
+          enter: (velocity) => Math.abs(velocity) > 200,
+          exit: (velocity) => Math.abs(velocity) < 30,
+        }}
         components={{
           Footer: () => {
             if (error) {

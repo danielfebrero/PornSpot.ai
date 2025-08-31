@@ -260,6 +260,7 @@ const UserMediasPage: React.FC = () => {
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
           onLoadMore={loadMore}
+          scrollRestorationKey="user-medias-grid"
           contentCardProps={{
             canLike: true,
             canBookmark: true,
