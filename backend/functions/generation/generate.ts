@@ -131,7 +131,7 @@ const CONFIG = {
   LORAS: {
     defaultStrength: 1,
     customStrength: {
-      DynaPoseV1: 1,
+      DynaPoseV1: 0.2,
       bread: 1,
       Sextoy_Dildo_Pussy_v2_XL: 1,
       RealDownblouseXLv3: 1,
