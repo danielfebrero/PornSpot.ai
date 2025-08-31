@@ -30,10 +30,16 @@ export const handler = async (
 
     if (!cookieHeader) {
       console.log("❌ No cookie header found, denying access.");
-      return AuthorizerUtil.generatePolicy("anonymous", "Deny", event.methodArn);
+      return AuthorizerUtil.generatePolicy(
+        "anonymous",
+        "Deny",
+        event.methodArn
+      );
     }
 
-    const userValidation = await AuthorizerUtil.validateUserSession(cookieHeader);
+    const userValidation = await AuthorizerUtil.validateUserSession(
+      cookieHeader
+    );
 
     if (userValidation.isValid && userValidation.user) {
       console.log("✅ User session is valid. Allowing access.");
@@ -58,12 +64,14 @@ export const handler = async (
       const userContext = {
         userId: userValidation.user.userId,
         email: userValidation.user.email,
-        role: "user",
+        role: userValidation.user.role,
       };
       console.log("🎯 Setting user context:", userContext);
 
       // Grant access to user and public endpoints (exclude admin-only endpoints)
-      const wildcardResource = AuthorizerUtil.generateWildcardResource(event.methodArn);
+      const wildcardResource = AuthorizerUtil.generateWildcardResource(
+        event.methodArn
+      );
 
       if (!wildcardResource) {
         console.error("Could not parse method ARN, denying access.");
