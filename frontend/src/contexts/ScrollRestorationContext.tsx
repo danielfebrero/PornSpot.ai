@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useCallback, useRef, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useCallback,
+  useRef,
+  ReactNode,
+} from "react";
 
 interface ScrollPosition {
   scrollTop: number;
@@ -15,7 +21,9 @@ interface ScrollRestorationContextValue {
   hasStoredPosition: (key: string) => boolean;
 }
 
-const ScrollRestorationContext = createContext<ScrollRestorationContextValue | undefined>(undefined);
+const ScrollRestorationContext = createContext<
+  ScrollRestorationContextValue | undefined
+>(undefined);
 
 interface ScrollRestorationProviderProps {
   children: ReactNode;
@@ -31,9 +39,9 @@ interface ScrollRestorationProviderProps {
  * Stores scroll positions in memory during component lifecycle
  * Positions are automatically cleaned up when expired
  */
-export function ScrollRestorationProvider({ 
-  children, 
-  maxAge = 5 * 60 * 1000 // 5 minutes 
+export function ScrollRestorationProvider({
+  children,
+  maxAge = 5 * 60 * 1000, // 5 minutes
 }: ScrollRestorationProviderProps) {
   const scrollPositionsRef = useRef<Map<string, ScrollPosition>>(new Map());
   const cleanupTimeoutRef = useRef<NodeJS.Timeout>();
@@ -41,49 +49,55 @@ export function ScrollRestorationProvider({
   /**
    * Save scroll position in memory
    */
-  const saveScrollPosition = useCallback((key: string, position: ScrollPosition) => {
-    const positionWithTimestamp = {
-      ...position,
-      timestamp: Date.now(),
-    };
+  const saveScrollPosition = useCallback(
+    (key: string, position: ScrollPosition) => {
+      const positionWithTimestamp = {
+        ...position,
+        timestamp: Date.now(),
+      };
 
-    scrollPositionsRef.current.set(key, positionWithTimestamp);
+      scrollPositionsRef.current.set(key, positionWithTimestamp);
 
-    // Schedule cleanup of expired positions
-    if (cleanupTimeoutRef.current) {
-      clearTimeout(cleanupTimeoutRef.current);
-    }
-
-    cleanupTimeoutRef.current = setTimeout(() => {
-      const now = Date.now();
-      const positions = scrollPositionsRef.current;
-      
-      // Convert entries to array to avoid iterator issues
-      const entries = Array.from(positions.entries());
-      for (const [storageKey, storedPosition] of entries) {
-        if (now - storedPosition.timestamp > maxAge) {
-          positions.delete(storageKey);
-        }
+      // Schedule cleanup of expired positions
+      if (cleanupTimeoutRef.current) {
+        clearTimeout(cleanupTimeoutRef.current);
       }
-    }, maxAge);
-  }, [maxAge]);
+
+      cleanupTimeoutRef.current = setTimeout(() => {
+        const now = Date.now();
+        const positions = scrollPositionsRef.current;
+
+        // Convert entries to array to avoid iterator issues
+        const entries = Array.from(positions.entries());
+        for (const [storageKey, storedPosition] of entries) {
+          if (now - storedPosition.timestamp > maxAge) {
+            positions.delete(storageKey);
+          }
+        }
+      }, maxAge);
+    },
+    [maxAge]
+  );
 
   /**
    * Get scroll position from memory
    */
-  const getScrollPosition = useCallback((key: string): ScrollPosition | null => {
-    const position = scrollPositionsRef.current.get(key);
-    
-    if (!position) return null;
+  const getScrollPosition = useCallback(
+    (key: string): ScrollPosition | null => {
+      const position = scrollPositionsRef.current.get(key);
 
-    // Check if position is too old
-    if (Date.now() - position.timestamp > maxAge) {
-      scrollPositionsRef.current.delete(key);
-      return null;
-    }
+      if (!position) return null;
 
-    return position;
-  }, [maxAge]);
+      // Check if position is too old
+      if (Date.now() - position.timestamp > maxAge) {
+        scrollPositionsRef.current.delete(key);
+        return null;
+      }
+
+      return position;
+    },
+    [maxAge]
+  );
 
   /**
    * Clear stored scroll position
@@ -95,9 +109,12 @@ export function ScrollRestorationProvider({
   /**
    * Check if there's a scroll position stored
    */
-  const hasStoredPosition = useCallback((key: string) => {
-    return getScrollPosition(key) !== null;
-  }, [getScrollPosition]);
+  const hasStoredPosition = useCallback(
+    (key: string) => {
+      return getScrollPosition(key) !== null;
+    },
+    [getScrollPosition]
+  );
 
   const value: ScrollRestorationContextValue = {
     saveScrollPosition,
@@ -118,10 +135,12 @@ export function ScrollRestorationProvider({
  */
 export function useScrollRestorationContext(): ScrollRestorationContextValue {
   const context = useContext(ScrollRestorationContext);
-  
+
   if (context === undefined) {
-    throw new Error('useScrollRestorationContext must be used within a ScrollRestorationProvider');
+    throw new Error(
+      "useScrollRestorationContext must be used within a ScrollRestorationProvider"
+    );
   }
-  
+
   return context;
 }

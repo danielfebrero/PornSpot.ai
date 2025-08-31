@@ -177,7 +177,7 @@ export function VirtualizedGrid<T extends GridItem>({
   const [containerWidth, setContainerWidth] = useState(0);
 
   // Create a unique storage key that includes pathname for context
-  const fullStorageKey = scrollRestorationKey 
+  const fullStorageKey = scrollRestorationKey
     ? `scroll-${scrollRestorationKey}-${pathname}`
     : null;
 
@@ -186,7 +186,7 @@ export function VirtualizedGrid<T extends GridItem>({
     if (!fullStorageKey) {
       return { topMostItemIndex: 0, scrollTop: 0, hasRestoredPosition: false };
     }
-    
+
     const position = scrollContext.getScrollPosition(fullStorageKey);
     return {
       scrollTop: position?.scrollTop || 0,
@@ -197,37 +197,44 @@ export function VirtualizedGrid<T extends GridItem>({
 
   // Debounced save function
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
-  const lastSavedPositionRef = useRef<{ scrollTop: number; topMostItemIndex: number; timestamp: number } | null>(null);
-  
-  const saveScrollPosition = useCallback((position: { scrollTop: number; topMostItemIndex: number }) => {
-    if (!fullStorageKey) return;
+  const lastSavedPositionRef = useRef<{
+    scrollTop: number;
+    topMostItemIndex: number;
+    timestamp: number;
+  } | null>(null);
 
-    // Debounce saves to avoid excessive context updates
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
+  const saveScrollPosition = useCallback(
+    (position: { scrollTop: number; topMostItemIndex: number }) => {
+      if (!fullStorageKey) return;
 
-    saveTimeoutRef.current = setTimeout(() => {
-      // Only save if position has actually changed
-      const lastPosition = lastSavedPositionRef.current;
-      if (
-        lastPosition &&
-        lastPosition.topMostItemIndex === position.topMostItemIndex &&
-        Math.abs(lastPosition.scrollTop - position.scrollTop) < 10
-      ) {
-        return;
+      // Debounce saves to avoid excessive context updates
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
       }
 
-      const positionWithTimestamp = {
-        scrollTop: position.scrollTop,
-        topMostItemIndex: position.topMostItemIndex,
-        timestamp: Date.now(),
-      };
+      saveTimeoutRef.current = setTimeout(() => {
+        // Only save if position has actually changed
+        const lastPosition = lastSavedPositionRef.current;
+        if (
+          lastPosition &&
+          lastPosition.topMostItemIndex === position.topMostItemIndex &&
+          Math.abs(lastPosition.scrollTop - position.scrollTop) < 10
+        ) {
+          return;
+        }
 
-      scrollContext.saveScrollPosition(fullStorageKey, positionWithTimestamp);
-      lastSavedPositionRef.current = positionWithTimestamp;
-    }, 100); // 100ms debounce
-  }, [fullStorageKey, scrollContext]);
+        const positionWithTimestamp = {
+          scrollTop: position.scrollTop,
+          topMostItemIndex: position.topMostItemIndex,
+          timestamp: Date.now(),
+        };
+
+        scrollContext.saveScrollPosition(fullStorageKey, positionWithTimestamp);
+        lastSavedPositionRef.current = positionWithTimestamp;
+      }, 100); // 100ms debounce
+    },
+    [fullStorageKey, scrollContext]
+  );
 
   // Cleanup timeout on unmount
   useEffect(() => {
