@@ -8,6 +8,7 @@ Respond { "reason": "..." } if the user prompt contains:
 - zoophilia (anthropomorphism like catwoman is okay)
 - a character depicted as younger than 18 (18 is OK, but 17 is not okay)
 - someone famous
+- blood or death
 
 Else, respond OK.
 
@@ -19,6 +20,7 @@ Respond with a JSON object only if the prompt contains:
 - characters younger than 18 
 - zoophilia
 - someone famous
+- blood or death
 Indicate reason in your JSON. Use a precise reason.
 
 Responding with OK and nothing else is mandatory if the prompt does not contain anything from the list above.
@@ -60,3 +62,15 @@ Response: {"reason": "Looks underage"}
 
 User message: "Taylor Swift having sex with two women"
 Response: {"reason": "Celebrity"}
+
+User message: "woman, 18, having sex with blood on her face"
+Response: {"reason": "Blood"}
+
+User message: "amateur photo, woman, 25, bleeding during rough sex"
+Response: {"reason": "Blood"}
+
+User message: "woman, 18, having sex in a cemetery with corpses"
+Response: {"reason": "Death"}
+
+User message: "amateur photo, woman, 22, necrophilia fantasy"
+Response: {"reason": "Death"}
