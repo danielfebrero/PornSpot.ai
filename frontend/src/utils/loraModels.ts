@@ -36,11 +36,6 @@ export const getLoraModels = (t: (key: string) => string) => [
     description: t("loraModels.doggystyleAnal"),
   },
   {
-    id: "orgasmface_SDXL",
-    name: "Orgasm Face",
-    description: t("loraModels.orgasmFace"),
-  },
-  {
     id: "RealDownblouseXLv3",
     name: "Real Downblouse XL",
     description: t("loraModels.realDownblouse"),

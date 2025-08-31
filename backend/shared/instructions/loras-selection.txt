@@ -33,10 +33,6 @@ Use this LoRA when the user prompt involves characters with many tattoos.
 
 Use this LoRA when the user prompt involves doggystyle anal sex.
 
-# orgasmface_SDXL
-
-Use this LoRA when the user prompt involves a woman having an orgasm or extreme pleasure.
-
 # RealDownblouseXLv3
 
 Use this LoRA when the user prompt involves woman downblouse.
@@ -67,9 +63,9 @@ Use this LoRA when the user prompt involves Instagram-style poses, model photogr
 - "woman tied up with rope." → "['leaked_nudes_style_v1_fixed', 'bdsm_SDXL_1_', 'add-detail-xl']"
 - "a woman full body tattoo, on her knees, giving a blowjob." → "['leaked_nudes_style_v1_fixed', 'Body Tattoo_alpha1.0_rank4_noxattn_last', 'add-detail-xl']"
 - "a woman fucked in the ass, doggystyle, enjoying it." → "['leaked_nudes_style_v1_fixed', 'Doggystyle anal XL', 'add-detail-xl']"
-- "woman, threesome, double penetration, having an orgasm." → "['leaked_nudes_style_v1_fixed', 'orgasmface_SDXL', 'nudify_xl_lite', 'add-detail-xl']"
+- "woman, threesome, double penetration, having an orgasm." → "['leaked_nudes_style_v1_fixed', 'nudify_xl_lite', 'add-detail-xl']"
 - "group of woman, drinking wine at the bar, downblouse." → "['leaked_nudes_style_v1_fixed', 'RealDownblouseXLv3', 'add-detail-xl']"
-- "woman masturbating with a sextoy and having an orgasm." → "['leaked_nudes_style_v1_fixed', 'Sextoy_Dildo_Pussy_v2_XL', 'orgasmface_SDXL', 'add-detail-xl']"
+- "woman masturbating with a sextoy and having an orgasm." → "['leaked_nudes_style_v1_fixed', 'Sextoy_Dildo_Pussy_v2_XL', 'add-detail-xl']"
 - "cat girl with ears and tail, sitting on a bed, nude" → "['bread', 'nudify_xl_lite', 'add-detail-xl', 'DynaPoseV1']"
 - "fox woman with fluffy tail and pointed ears, anthropomorphic features" → "['bread', 'add-detail-xl']"
 - "naked woman, 22, standing frontally, full body shot, natural lighting" → "['leaked_nudes_style_v1_fixed', 'nudify_xl_lite', 'add-detail-xl', 'DynaPoseV1']"
