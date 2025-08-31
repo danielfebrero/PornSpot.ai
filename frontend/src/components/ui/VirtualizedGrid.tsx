@@ -452,10 +452,10 @@ export function VirtualizedGrid<T extends GridItem>({
               }
             : undefined
         }
-        scrollSeekConfiguration={{
-          enter: (velocity) => Math.abs(velocity) > 200,
-          exit: (velocity) => Math.abs(velocity) < 30,
-        }}
+        // scrollSeekConfiguration={{
+        //   enter: (velocity) => Math.abs(velocity) > 200,
+        //   exit: (velocity) => Math.abs(velocity) < 30,
+        // }}
         components={{
           Footer: () => {
             if (error) {
