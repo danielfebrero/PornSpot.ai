@@ -71,15 +71,30 @@ export function createComfyUIWorkflow(
     },
 
     // LoRA chain (will be modified based on selectedLoras)
-    // Chain: 11 → 30 → 29 → 28 → 27 → 23 → 25 → 24 → 22 → 21 → 20 → 16 → 10
+    // Chain: 11 → 31 → 30 → 29 → 28 → 27 → 23 → 25 → 24 → 22 → 21 → 20 → 16 → 10
+    "31": {
+      class_type: "LoraLoader",
+      inputs: {
+        lora_name: "DynaPoseV1.safetensors",
+        strength_model: 0,
+        strength_clip: 1,
+        model: ["11", 0],
+        clip: ["11", 1],
+      },
+      _meta: {
+        title: "Load LoRA",
+        estTimeUnits: 1,
+      },
+    },
+
     "30": {
       class_type: "LoraLoader",
       inputs: {
         lora_name: "nudify_xl_lite.safetensors",
         strength_model: 0,
         strength_clip: 1,
-        model: ["11", 0],
-        clip: ["11", 1],
+        model: ["31", 0],
+        clip: ["31", 1],
       },
       _meta: {
         title: "Load LoRA",
@@ -344,6 +359,7 @@ export function createComfyUIWorkflow(
   if (params.selectedLoras && params.selectedLoras.length > 0) {
     // Map LoRA names to node IDs based on the template structure
     const loraNodeMap: { [key: string]: string } = {
+      DynaPoseV1: "31",
       nudify_xl_lite: "30",
       bread: "29",
       Sextoy_Dildo_Pussy_v2_XL: "28",

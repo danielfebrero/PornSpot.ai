@@ -53,6 +53,10 @@ Use this LoRA when the user prompt involves anthropomorphic characters, such as 
 
 Use this LoRA when the user prompt involves nude bodies, especially frontal nudity, or when you want to enhance the anatomical accuracy and quality of naked bodies in the image.
 
+# DynaPoseV1
+
+Use this LoRA when the user prompt involves Instagram-style poses, model photography, fashion poses, sitting poses, standing poses, or any general posing scenarios. This enhances the quality of poses for photos that focus on modeling, fashion, or social media aesthetics.
+
 # Examples
 
 - "A close-up shot of a model with pierced nipples wearing a barbell earring." → "['Pierced_Nipples_XL_Barbell_Edition-000013', 'add-detail-xl']"
@@ -66,10 +70,14 @@ Use this LoRA when the user prompt involves nude bodies, especially frontal nudi
 - "woman, threesome, double penetration, having an orgasm." → "['leaked_nudes_style_v1_fixed', 'orgasmface_SDXL', 'nudify_xl_lite', 'add-detail-xl']"
 - "group of woman, drinking wine at the bar, downblouse." → "['leaked_nudes_style_v1_fixed', 'RealDownblouseXLv3', 'add-detail-xl']"
 - "woman masturbating with a sextoy and having an orgasm." → "['leaked_nudes_style_v1_fixed', 'Sextoy_Dildo_Pussy_v2_XL', 'orgasmface_SDXL', 'add-detail-xl']"
-- "cat girl with ears and tail, sitting on a bed, nude" → "['bread', 'nudify_xl_lite', 'add-detail-xl']"
+- "cat girl with ears and tail, sitting on a bed, nude" → "['bread', 'nudify_xl_lite', 'add-detail-xl', 'DynaPoseV1']"
 - "fox woman with fluffy tail and pointed ears, anthropomorphic features" → "['bread', 'add-detail-xl']"
-- "naked woman, 22, standing frontally, full body shot, natural lighting" → "['leaked_nudes_style_v1_fixed', 'nudify_xl_lite', 'add-detail-xl']"
-- "nude model posing in studio, professional photography, detailed anatomy" → "['leaked_nudes_style_v1_fixed', 'nudify_xl_lite', 'add-detail-xl']"
+- "naked woman, 22, standing frontally, full body shot, natural lighting" → "['leaked_nudes_style_v1_fixed', 'nudify_xl_lite', 'add-detail-xl', 'DynaPoseV1']"
+- "nude model posing in studio, professional photography, detailed anatomy" → "['nudify_xl_lite', 'add-detail-xl', 'DynaPoseV1']"
+- "woman, 18, instagram model, sitting" → "['DynaPoseV1', 'add-detail-xl']"
+- "fashion model, 20, posing for camera, standing pose, studio lighting" → "['DynaPoseV1', 'add-detail-xl']"
+- "woman in bikini, beach pose, sitting on sand, modeling shot" → "['leaked_nudes_style_v1_fixed', 'DynaPoseV1', 'add-detail-xl']"
+- "influencer taking selfie, posing for social media, casual outfit" → "['DynaPoseV1', 'add-detail-xl']"
 
 # Response format
 
