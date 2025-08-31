@@ -126,4 +126,4 @@
 
 [ ] On generate page, lightbox delete image does not work as expected.
 
-[ ] Delete image from admin media page does not work.
+[x] Delete image from admin media page does not work.
