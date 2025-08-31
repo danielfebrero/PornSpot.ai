@@ -200,7 +200,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
 
   // Sync local media with fresh data when available, fallback to initial props
   useEffect(() => {
-    if (freshMedia && !isLoading) {
+    if (freshMedia) {
       setLocalMedia(freshMedia);
     } else {
       setLocalMedia(media);

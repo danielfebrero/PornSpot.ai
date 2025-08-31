@@ -102,7 +102,7 @@
 
 [ ] My profile comments shows only 2 comments in Grid view while it shows the 4 comments in list view.
 
-[ ] When I change privacy of an image from Media Detail Client, username is replaced with user id and metadata disappears.
+[x] When I change privacy of an image from Media Detail Client, username is replaced with user id and metadata disappears.
 
 [x] Fix the recurring lambda issue.
 
