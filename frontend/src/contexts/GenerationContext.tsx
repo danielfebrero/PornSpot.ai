@@ -701,7 +701,6 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
           steps: userSettings.steps,
           negativePrompt: userSettings.negativePrompt,
         }));
-        console.log("✅ Loaded user generation settings");
       }
     } catch (error) {
       console.error("❌ Failed to load user generation settings:", error);

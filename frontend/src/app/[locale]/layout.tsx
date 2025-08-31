@@ -11,6 +11,7 @@ import { DeviceProvider } from "@/contexts/DeviceContext";
 import { ReturnUrlProvider } from "@/contexts/ReturnUrlContext";
 import { WebSocketProvider } from "@/contexts/WebSocketContext";
 import { GenerationProvider } from "@/contexts/GenerationContext";
+import { ScrollRestorationProvider } from "@/contexts/ScrollRestorationContext";
 
 import { Header } from "@/components/Header";
 import { PermissionsWrapper } from "@/components/PermissionsWrapper";
@@ -117,15 +118,16 @@ export default async function LocaleLayout({
     <NextIntlClientProvider messages={messages} locale={locale}>
       <QueryProvider>
         <PrefetchProvider>
-          <PageErrorBoundary context={`Locale Layout (${locale})`}>
-            <DeviceProvider initialDeviceInfo={deviceInfo}>
-              <ReturnUrlProvider>
-                <UserProvider>
-                  <PermissionsWrapper>
-                    <AdminProvider>
-                      <WebSocketProvider>
-                        <GenerationProvider>
-                          <NavigationLoadingProvider>
+          <ScrollRestorationProvider>
+            <PageErrorBoundary context={`Locale Layout (${locale})`}>
+              <DeviceProvider initialDeviceInfo={deviceInfo}>
+                <ReturnUrlProvider>
+                  <UserProvider>
+                    <PermissionsWrapper>
+                      <AdminProvider>
+                        <WebSocketProvider>
+                          <GenerationProvider>
+                            <NavigationLoadingProvider>
                             <LanguageRedirect />
                             <div className="min-h-screen bg-background flex flex-col">
                               <SectionErrorBoundary context="Header">
@@ -160,8 +162,9 @@ export default async function LocaleLayout({
               </ReturnUrlProvider>
             </DeviceProvider>
           </PageErrorBoundary>
-        </PrefetchProvider>
-      </QueryProvider>
+        </ScrollRestorationProvider>
+      </PrefetchProvider>
+    </QueryProvider>
     </NextIntlClientProvider>
   );
 }

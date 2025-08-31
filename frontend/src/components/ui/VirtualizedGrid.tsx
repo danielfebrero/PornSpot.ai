@@ -13,7 +13,8 @@ import { cn } from "@/lib/utils";
 import { Media, Album } from "@/types";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { ComponentErrorBoundary } from "@/components/ErrorBoundaries";
-import { useScrollRestoration } from "@/hooks/useScrollRestoration";
+import { useScrollRestorationContext } from "@/contexts/ScrollRestorationContext";
+import { usePathname } from "next/navigation";
 
 // Generic type for items that can be rendered in the grid
 type GridItem = Media | Album;
@@ -167,21 +168,75 @@ export function VirtualizedGrid<T extends GridItem>({
   onRetry,
 }: VirtualizedGridProps<T>) {
   const t = useTranslations("ui.virtualizedGrid");
+  const pathname = usePathname();
+  const scrollContext = useScrollRestorationContext();
 
   // Container dimensions for responsive grid calculation
   const containerRef = useRef<HTMLDivElement>(null);
   const skeletonContainerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // Scroll restoration hook - always call but provide a default key
-  const { saveScrollPosition, getInitialScrollState } = useScrollRestoration({
-    storageKey: scrollRestorationKey || "default-grid-scroll",
-  });
+  // Create a unique storage key that includes pathname for context
+  const fullStorageKey = scrollRestorationKey 
+    ? `scroll-${scrollRestorationKey}-${pathname}`
+    : null;
 
   // Get initial scroll state for restoration
-  const initialScrollState = scrollRestorationKey
-    ? getInitialScrollState()
-    : { topMostItemIndex: 0, scrollTop: 0, hasRestoredPosition: false };
+  const initialScrollState = useMemo(() => {
+    if (!fullStorageKey) {
+      return { topMostItemIndex: 0, scrollTop: 0, hasRestoredPosition: false };
+    }
+    
+    const position = scrollContext.getScrollPosition(fullStorageKey);
+    return {
+      scrollTop: position?.scrollTop || 0,
+      topMostItemIndex: position?.topMostItemIndex || 0,
+      hasRestoredPosition: !!position,
+    };
+  }, [fullStorageKey, scrollContext]);
+
+  // Debounced save function
+  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const lastSavedPositionRef = useRef<{ scrollTop: number; topMostItemIndex: number; timestamp: number } | null>(null);
+  
+  const saveScrollPosition = useCallback((position: { scrollTop: number; topMostItemIndex: number }) => {
+    if (!fullStorageKey) return;
+
+    // Debounce saves to avoid excessive context updates
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    saveTimeoutRef.current = setTimeout(() => {
+      // Only save if position has actually changed
+      const lastPosition = lastSavedPositionRef.current;
+      if (
+        lastPosition &&
+        lastPosition.topMostItemIndex === position.topMostItemIndex &&
+        Math.abs(lastPosition.scrollTop - position.scrollTop) < 10
+      ) {
+        return;
+      }
+
+      const positionWithTimestamp = {
+        scrollTop: position.scrollTop,
+        topMostItemIndex: position.topMostItemIndex,
+        timestamp: Date.now(),
+      };
+
+      scrollContext.saveScrollPosition(fullStorageKey, positionWithTimestamp);
+      lastSavedPositionRef.current = positionWithTimestamp;
+    }, 100); // 100ms debounce
+  }, [fullStorageKey, scrollContext]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const measureWidth = () => {
@@ -447,7 +502,6 @@ export function VirtualizedGrid<T extends GridItem>({
                 saveScrollPosition({
                   scrollTop: 0, // Not applicable for virtuoso
                   topMostItemIndex: range.startIndex,
-                  timestamp: Date.now(),
                 });
               }
             : undefined
