@@ -66,7 +66,7 @@ Use this LoRA when the user prompt involves Instagram-style poses, model photogr
 - "woman, 18, garter, cupless bra, giving a blowjob." → "['leaked_nudes_style_v1_fixed', 'Harness_Straps_sdxl', 'add-detail-xl']"
 - "woman tied up with rope." → "['leaked_nudes_style_v1_fixed', 'bdsm_SDXL_1_', 'add-detail-xl']"
 - "a woman full body tattoo, on her knees, giving a blowjob." → "['leaked_nudes_style_v1_fixed', 'Body Tattoo_alpha1.0_rank4_noxattn_last', 'add-detail-xl']"
-- "a woman fucked in the ass, doggystyle, enjoying it." → "['leaked_nudes_style_v1_fixed', 'Doggystyle anal XL', 'orgasmface_SDXL', 'add-detail-xl']"
+- "a woman fucked in the ass, doggystyle, enjoying it." → "['leaked_nudes_style_v1_fixed', 'Doggystyle anal XL', 'add-detail-xl']"
 - "woman, threesome, double penetration, having an orgasm." → "['leaked_nudes_style_v1_fixed', 'orgasmface_SDXL', 'nudify_xl_lite', 'add-detail-xl']"
 - "group of woman, drinking wine at the bar, downblouse." → "['leaked_nudes_style_v1_fixed', 'RealDownblouseXLv3', 'add-detail-xl']"
 - "woman masturbating with a sextoy and having an orgasm." → "['leaked_nudes_style_v1_fixed', 'Sextoy_Dildo_Pussy_v2_XL', 'orgasmface_SDXL', 'add-detail-xl']"
