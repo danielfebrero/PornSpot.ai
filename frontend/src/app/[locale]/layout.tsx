@@ -130,51 +130,51 @@ export default async function LocaleLayout({
                         <WebSocketProvider>
                           <GenerationProvider>
                             <NavigationLoadingProvider>
-                            <LanguageRedirect />
-                            <div className="min-h-screen bg-background flex flex-col">
-                              <SectionErrorBoundary context="Header">
-                                <Header />
-                              </SectionErrorBoundary>
-                              <SectionErrorBoundary context="Main Content">
-                                <MainContentWrapper>
-                                  {children}
-                                </MainContentWrapper>
-                              </SectionErrorBoundary>
-                              <SectionErrorBoundary context="Footer">
-                                <footer className="border-t border-border mt-16 pb-[55px] lg:pb-0">
-                                  <div className="container mx-auto py-4">
-                                    <div className="text-center">
-                                      <p className="text-muted-foreground">
-                                        &copy; 2025 PornSpot.ai. All rights
-                                        reserved.
-                                      </p>
-                                      <div className="mt-2 space-x-4">
-                                        <LocaleLink
-                                          href="/terms"
-                                          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                                        >
-                                          {t("site.terms")}
-                                        </LocaleLink>
+                              <LanguageRedirect />
+                              <div className="min-h-screen bg-background flex flex-col">
+                                <SectionErrorBoundary context="Header">
+                                  <Header />
+                                </SectionErrorBoundary>
+                                <SectionErrorBoundary context="Main Content">
+                                  <MainContentWrapper>
+                                    {children}
+                                  </MainContentWrapper>
+                                </SectionErrorBoundary>
+                                <SectionErrorBoundary context="Footer">
+                                  <footer className="border-t border-border mt-16 pb-[55px] lg:pb-0">
+                                    <div className="container mx-auto py-4">
+                                      <div className="text-center">
+                                        <p className="text-muted-foreground">
+                                          &copy; 2025 PornSpot.ai. All rights
+                                          reserved.
+                                        </p>
+                                        <div className="mt-2 space-x-4">
+                                          <LocaleLink
+                                            href="/terms"
+                                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                          >
+                                            {t("terms")}
+                                          </LocaleLink>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                </footer>
-                              </SectionErrorBoundary>
-                            </div>
-                            <NavigationLoadingOverlay />
-                            <MobileNavigationWrapper />
-                          </NavigationLoadingProvider>
-                        </GenerationProvider>
-                      </WebSocketProvider>
-                    </AdminProvider>
-                  </PermissionsWrapper>
-                </UserProvider>
-              </ReturnUrlProvider>
-            </DeviceProvider>
-          </PageErrorBoundary>
-        </ScrollRestorationProvider>
-      </PrefetchProvider>
-    </QueryProvider>
+                                  </footer>
+                                </SectionErrorBoundary>
+                              </div>
+                              <NavigationLoadingOverlay />
+                              <MobileNavigationWrapper />
+                            </NavigationLoadingProvider>
+                          </GenerationProvider>
+                        </WebSocketProvider>
+                      </AdminProvider>
+                    </PermissionsWrapper>
+                  </UserProvider>
+                </ReturnUrlProvider>
+              </DeviceProvider>
+            </PageErrorBoundary>
+          </ScrollRestorationProvider>
+        </PrefetchProvider>
+      </QueryProvider>
     </NextIntlClientProvider>
   );
 }
