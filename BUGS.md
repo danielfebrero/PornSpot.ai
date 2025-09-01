@@ -125,3 +125,5 @@
 [x] On generate page, lightbox delete image does not work as expected.
 
 [x] Delete image from admin media page does not work.
+
+[ ] On generate page, in lightbox, when I delete an image, and come back on generate page, it's not the good one that has been removed from the list.

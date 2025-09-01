@@ -115,3 +115,7 @@
 [ ] Send original prompt additionally to the optimized prompt, on the Generate page, so we can select loRAs based on original prompt always. If not, the second generation row do not use the same loRA because they are selected based on optimized one.
 
 [ ] Add a button to copy prompt from media page.
+
+[ ] Add to album dialog album zone should be scrollable.
+
+[ ] Add "play" button in lightbox to auto play images.
