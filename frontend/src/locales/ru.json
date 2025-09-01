@@ -215,7 +215,15 @@
       "close": "Закрыть",
       "previousMedia": "Предыдущий медиа",
       "nextMedia": "Следующий медиа",
-      "swipeToNavigate": "Проведите для навигации"
+      "swipeToNavigate": "Проведите для навигации",
+      "play": "Воспроизвести",
+      "stop": "Остановить",
+      "playSlideshow": "Воспроизвести слайд-шоу",
+      "stopSlideshow": "Остановить слайд-шоу",
+      "slideshowInterval": "Интервал слайд-шоу",
+      "loop": "Цикл",
+      "enableLoop": "Включить цикл",
+      "disableLoop": "Отключить цикл"
     },
     "virtualizedCommentsList": {
       "noCommentsYet": "Пока нет комментариев",

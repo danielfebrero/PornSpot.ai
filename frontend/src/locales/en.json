@@ -215,7 +215,15 @@
       "close": "Close",
       "previousMedia": "Previous media",
       "nextMedia": "Next media",
-      "swipeToNavigate": "Swipe to navigate"
+      "swipeToNavigate": "Swipe to navigate",
+      "play": "Play",
+      "stop": "Stop",
+      "playSlideshow": "Play slideshow",
+      "stopSlideshow": "Stop slideshow",
+      "slideshowInterval": "Slideshow interval",
+      "loop": "Loop",
+      "enableLoop": "Enable loop",
+      "disableLoop": "Disable loop"
     },
     "virtualizedCommentsList": {
       "noCommentsYet": "No comments yet",

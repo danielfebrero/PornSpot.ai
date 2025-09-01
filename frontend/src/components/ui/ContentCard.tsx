@@ -1144,6 +1144,9 @@ export function ContentCard({
               setLightboxIndex(lightboxIndex - 1);
             }
           }}
+          onGoToIndex={(index) => {
+            setLightboxIndex(index);
+          }}
         />
       )}
 

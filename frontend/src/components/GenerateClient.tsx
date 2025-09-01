@@ -1469,6 +1469,7 @@ export function GenerateClient() {
             onClose={() => setLightboxOpen(false)}
             onNext={handleLightboxNext}
             onPrevious={handleLightboxPrevious}
+            onGoToIndex={(index) => setLightboxIndex(index)}
           />
         </div>
       </div>

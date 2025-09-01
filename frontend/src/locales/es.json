@@ -215,7 +215,15 @@
       "close": "Cerrar",
       "previousMedia": "Medio anterior",
       "nextMedia": "Siguiente medio",
-      "swipeToNavigate": "Desliza para navegar"
+      "swipeToNavigate": "Desliza para navegar",
+      "play": "Reproducir",
+      "stop": "Parar",
+      "playSlideshow": "Reproducir presentación",
+      "stopSlideshow": "Detener presentación",
+      "slideshowInterval": "Intervalo de presentación",
+      "loop": "Bucle",
+      "enableLoop": "Activar bucle",
+      "disableLoop": "Desactivar bucle"
     },
     "virtualizedCommentsList": {
       "noCommentsYet": "Aún no hay comentarios",

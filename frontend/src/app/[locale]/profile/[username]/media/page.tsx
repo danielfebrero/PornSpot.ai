@@ -7,7 +7,6 @@ import { ImageIcon, Grid, List, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
-import { Lightbox } from "@/components/ui/Lightbox";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { cn } from "@/lib/utils";
 import {
@@ -26,8 +25,6 @@ export default function UserMediaPage() {
   const t = useTranslations("profile.media");
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
   const { isMobile } = useDevice();
 
@@ -81,23 +78,6 @@ export default function UserMediaPage() {
   const handleLoadMore = () => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
-    }
-  };
-
-  // Lightbox handlers
-  const handleLightboxClose = () => {
-    setLightboxOpen(false);
-  };
-
-  const handleLightboxNext = () => {
-    if (currentMediaIndex < media.length - 1) {
-      setCurrentMediaIndex(currentMediaIndex + 1);
-    }
-  };
-
-  const handleLightboxPrevious = () => {
-    if (currentMediaIndex > 0) {
-      setCurrentMediaIndex(currentMediaIndex - 1);
     }
   };
 
@@ -269,18 +249,6 @@ export default function UserMediaPage() {
             error={error ? String(error) : null}
             className={cn(isMobile && "px-0", !isMobile && "px-4")}
           />
-
-          {/* Lightbox */}
-          {lightboxOpen && media.length > 0 && (
-            <Lightbox
-              isOpen={lightboxOpen}
-              onClose={handleLightboxClose}
-              media={media}
-              currentIndex={currentMediaIndex}
-              onNext={handleLightboxNext}
-              onPrevious={handleLightboxPrevious}
-            />
-          )}
         </div>
       </div>
     </div>

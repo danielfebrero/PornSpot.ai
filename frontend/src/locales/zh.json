@@ -215,7 +215,15 @@
       "close": "关闭",
       "previousMedia": "上一个媒体",
       "nextMedia": "下一个媒体",
-      "swipeToNavigate": "滑动导航"
+      "swipeToNavigate": "滑动导航",
+      "play": "播放",
+      "stop": "停止",
+      "playSlideshow": "播放幻灯片",
+      "stopSlideshow": "停止幻灯片",
+      "slideshowInterval": "幻灯片间隔",
+      "loop": "循环",
+      "enableLoop": "启用循环",
+      "disableLoop": "禁用循环"
     },
     "virtualizedCommentsList": {
       "noCommentsYet": "暂无评论",

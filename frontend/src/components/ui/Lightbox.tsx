@@ -25,6 +25,7 @@ interface LightboxProps {
   onClose: () => void;
   onNext: () => void;
   onPrevious: () => void;
+  onGoToIndex?: (index: number) => void;
   onDelete?: (mediaId: string) => void;
 }
 
@@ -39,12 +40,16 @@ export const Lightbox: React.FC<LightboxProps> = ({
   onClose,
   onNext,
   onPrevious,
+  onGoToIndex,
   onDelete,
 }) => {
   const t = useTranslations("ui.lightbox");
 
   const [isMounted, setIsMounted] = useState(false);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+  const [isSlideshow, setIsSlideshow] = useState(false);
+  const [isLoop, setIsLoop] = useState(false);
+  const [slideshowInterval, setSlideshowInterval] = useState(3000); // Default 3 seconds
 
   const currentMedia = media[currentIndex];
   const nextMedia = media[currentIndex + 1];
@@ -56,20 +61,69 @@ export const Lightbox: React.FC<LightboxProps> = ({
   // Use optimized preloader for seamless navigation
   const { preloadAroundIndex } = useLightboxPreloader(media, currentIndex);
 
+  // Slideshow functionality - auto advance to next media
+  useEffect(() => {
+    if (!isSlideshow || !isOpen || media.length <= 1) return;
+
+    const interval = setInterval(() => {
+      // Check if we can advance to next media
+      if (currentIndex < media.length - 1) {
+        setIsPlayingVideo(false); // Stop video when navigating
+        onNext();
+      } else if (hasNextPage) {
+        setIsPlayingVideo(false); // Stop video when navigating
+        onNext();
+      } else {
+        // Reached the end
+        if (isLoop && onGoToIndex) {
+          // Loop back to the beginning cleanly
+          setIsPlayingVideo(false);
+          onGoToIndex(0);
+        } else {
+          // Stop slideshow at the end
+          setIsSlideshow(false);
+        }
+      }
+    }, slideshowInterval);
+
+    return () => clearInterval(interval);
+  }, [
+    isSlideshow,
+    isOpen,
+    currentIndex,
+    media.length,
+    hasNextPage,
+    slideshowInterval,
+    isLoop,
+    onNext,
+    onGoToIndex,
+  ]);
+
+  // Wrapped navigation functions that stop slideshow when manually navigating
+  const handleNext = useCallback(() => {
+    setIsSlideshow(false); // Stop slideshow on manual navigation
+    setIsPlayingVideo(false); // Stop video when navigating
+    onNext();
+  }, [onNext]);
+
+  const handlePrevious = useCallback(() => {
+    setIsSlideshow(false); // Stop slideshow on manual navigation
+    setIsPlayingVideo(false); // Stop video when navigating
+    onPrevious();
+  }, [onPrevious]);
+
   // Handle advanced gestures with preview and zoom support
   const { containerRef, dragOffset, isPinching } = useAdvancedGestures({
     // Swiping left should navigate to the NEXT item (content moves left)
     onSwipeLeft: () => {
       if (currentIndex < media.length - 1 || hasNextPage) {
-        setIsPlayingVideo(false); // Stop video when navigating
-        onNext();
+        handleNext();
       }
     },
     // Swiping right should navigate to the PREVIOUS item (content moves right)
     onSwipeRight: () => {
       if (currentIndex > 0) {
-        setIsPlayingVideo(false); // Stop video when navigating
-        onPrevious();
+        handlePrevious();
       }
     },
     enablePreview: true,
@@ -152,26 +206,29 @@ export const Lightbox: React.FC<LightboxProps> = ({
           break;
         case "ArrowLeft":
           if (currentIndex > 0) {
-            setIsPlayingVideo(false); // Stop video when navigating
-            onPrevious();
+            handlePrevious();
           }
           break;
         case "ArrowRight":
           if (currentIndex < media.length - 1 || hasNextPage) {
-            setIsPlayingVideo(false); // Stop video when navigating
-            onNext();
+            handleNext();
           }
+          break;
+        case " ": // Spacebar to toggle slideshow
+          event.preventDefault();
+          setIsSlideshow(!isSlideshow);
           break;
       }
     },
     [
       isOpen,
       handleClose,
-      onNext,
-      onPrevious,
+      handleNext,
+      handlePrevious,
       currentIndex,
       media.length,
       hasNextPage,
+      isSlideshow,
     ]
   );
 
@@ -495,8 +552,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 if (currentIndex > 0) {
-                  setIsPlayingVideo(false); // Stop video when navigating
-                  onPrevious();
+                  handlePrevious();
                 }
               }}
               className={cn(
@@ -533,8 +589,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 if (currentIndex < media.length - 1 || hasNextPage) {
-                  setIsPlayingVideo(false); // Stop video when navigating
-                  onNext();
+                  handleNext();
                 }
               }}
               className={cn(
@@ -581,43 +636,222 @@ export const Lightbox: React.FC<LightboxProps> = ({
           </>
         )}
 
-        {/* Mobile Swipe Indicator */}
+        {/* Mobile Swipe Indicator & Slideshow Controls */}
         {media.length > 1 && (
           <motion.div
-            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white/60 text-sm z-20 md:hidden"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            className="absolute bottom-4 left-1/2 z-20 md:hidden"
+            initial={{ opacity: 0, y: 20, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
             transition={{ delay: 0.5 }}
           >
-            <div className="flex items-center gap-2">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16l-4-4m0 0l4-4m-4 4h18"
-                />
-              </svg>
-              <span>{t("swipeToNavigate")}</span>
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
+            <div className="flex flex-col items-center gap-3">
+              {/* Swipe Indicator */}
+              <div className="text-white/60 text-sm">
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 16l-4-4m0 0l4-4m-4 4h18"
+                    />
+                  </svg>
+                  <span>{t("swipeToNavigate")}</span>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Mobile Slideshow Controls */}
+              <div className="bg-black/70 text-white rounded-lg p-2 backdrop-blur-sm border border-white/20 flex items-center gap-2">
+                {/* Compact Interval Selector */}
+                <select
+                  value={slideshowInterval}
+                  onChange={(e) => setSlideshowInterval(Number(e.target.value))}
+                  className="bg-black/50 text-white border border-white/30 rounded px-1 py-1 text-xs focus:outline-none focus:border-white/60"
+                  aria-label={t("slideshowInterval")}
+                >
+                  <option value={1000}>1s</option>
+                  <option value={2000}>2s</option>
+                  <option value={3000}>3s</option>
+                  <option value={5000}>5s</option>
+                  <option value={10000}>10s</option>
+                </select>
+
+                {/* Compact Play/Stop Button */}
+                <motion.button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsSlideshow(!isSlideshow);
+                  }}
+                  className="p-1.5 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+                  aria-label={
+                    isSlideshow ? t("stopSlideshow") : t("playSlideshow")
+                  }
+                  data-testid="slideshow-toggle-mobile"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {isSlideshow ? (
+                    <svg
+                      className="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  )}
+                </motion.button>
+
+                {/* Compact Loop Button */}
+                <motion.button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsLoop(!isLoop);
+                  }}
+                  className={`p-1.5 rounded-full transition-colors cursor-pointer ${
+                    isLoop
+                      ? "bg-blue-600/70 hover:bg-blue-600/90 text-white"
+                      : "hover:bg-white/10 text-white"
+                  }`}
+                  aria-label={isLoop ? t("disableLoop") : t("enableLoop")}
+                  data-testid="slideshow-loop-mobile"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                </motion.button>
+              </div>
             </div>
+          </motion.div>
+        )}
+
+        {/* Slideshow Controls */}
+        {media.length > 1 && (
+          <motion.div
+            className="absolute bottom-4 left-1/2 bg-black/70 text-white rounded-lg p-3 z-30 backdrop-blur-sm border border-white/20 hidden md:flex items-center gap-3"
+            initial={{ opacity: 0, y: 20, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            transition={{ delay: 0.4 }}
+          >
+            {/* Interval Selector */}
+            <select
+              value={slideshowInterval}
+              onChange={(e) => setSlideshowInterval(Number(e.target.value))}
+              className="bg-black/50 text-white border border-white/30 rounded px-2 py-1 text-sm focus:outline-none focus:border-white/60"
+              aria-label={t("slideshowInterval")}
+            >
+              <option value={1000}>1s</option>
+              <option value={2000}>2s</option>
+              <option value={3000}>3s</option>
+              <option value={5000}>5s</option>
+              <option value={10000}>10s</option>
+            </select>
+
+            {/* Play/Stop Button */}
+            <motion.button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsSlideshow(!isSlideshow);
+              }}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer flex items-center gap-2"
+              aria-label={isSlideshow ? t("stopSlideshow") : t("playSlideshow")}
+              data-testid="slideshow-toggle"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {isSlideshow ? (
+                <>
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                  </svg>
+                  <span className="text-sm">{t("stop")}</span>
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  <span className="text-sm">{t("play")}</span>
+                </>
+              )}
+            </motion.button>
+
+            {/* Loop Button */}
+            <motion.button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsLoop(!isLoop);
+              }}
+              className={`p-2 rounded-full transition-colors cursor-pointer flex items-center gap-2 ${
+                isLoop
+                  ? "bg-blue-600/70 hover:bg-blue-600/90 text-white"
+                  : "hover:bg-white/10 text-white"
+              }`}
+              aria-label={isLoop ? t("disableLoop") : t("enableLoop")}
+              data-testid="slideshow-loop"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              <span className="text-sm">{t("loop")}</span>
+            </motion.button>
           </motion.div>
         )}
       </div>

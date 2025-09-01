@@ -215,7 +215,15 @@
       "close": "Schließen",
       "previousMedia": "Vorheriges Medium",
       "nextMedia": "Nächstes Medium",
-      "swipeToNavigate": "Wischen zum Navigieren"
+      "swipeToNavigate": "Wischen zum Navigieren",
+      "play": "Abspielen",
+      "stop": "Stoppen",
+      "playSlideshow": "Diashow abspielen",
+      "stopSlideshow": "Diashow stoppen",
+      "slideshowInterval": "Diashow-Intervall",
+      "loop": "Schleife",
+      "enableLoop": "Schleife aktivieren",
+      "disableLoop": "Schleife deaktivieren"
     },
     "virtualizedCommentsList": {
       "noCommentsYet": "Noch keine Kommentare",

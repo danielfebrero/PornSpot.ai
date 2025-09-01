@@ -7,7 +7,6 @@ import { Heart, Grid, List, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
-import { Lightbox } from "@/components/ui/Lightbox";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { useLikesQuery } from "@/hooks/queries/useLikesQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
@@ -23,8 +22,6 @@ export default function UserLikesPage() {
   const t = useTranslations("profile.likes");
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
   const { isMobile } = useDevice();
 
@@ -90,23 +87,6 @@ export default function UserLikesPage() {
     .filter((like) => like.targetType === "media")
     .map((like) => like.target as Media)
     .filter(Boolean);
-
-  // Lightbox handlers
-  const handleLightboxClose = () => {
-    setLightboxOpen(false);
-  };
-
-  const handleLightboxNext = () => {
-    if (currentMediaIndex < mediaItems.length - 1) {
-      setCurrentMediaIndex(currentMediaIndex + 1);
-    }
-  };
-
-  const handleLightboxPrevious = () => {
-    if (currentMediaIndex > 0) {
-      setCurrentMediaIndex(currentMediaIndex - 1);
-    }
-  };
 
   // Loading state
   if (likesLoading) {
@@ -286,16 +266,6 @@ export default function UserLikesPage() {
           />
         </div>
       </div>
-
-      {/* Lightbox for media viewing */}
-      <Lightbox
-        media={mediaItems}
-        currentIndex={currentMediaIndex}
-        isOpen={lightboxOpen}
-        onClose={handleLightboxClose}
-        onNext={handleLightboxNext}
-        onPrevious={handleLightboxPrevious}
-      />
     </div>
   );
 }
