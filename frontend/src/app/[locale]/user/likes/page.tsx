@@ -142,7 +142,7 @@ const UserLikesPage: React.FC = () => {
               <span className="bg-red-500/20 text-red-600 text-sm font-semibold px-3 py-1.5 rounded-full">
                 {tUser("likesCount", {
                   count: totalCount,
-                  hasNextPage: hasNextPage ? "true" : "false",
+                  hasNextPage: hasNextPage ? 1 : 0,
                 })}
               </span>
             </div>
@@ -167,7 +167,7 @@ const UserLikesPage: React.FC = () => {
               <span className="bg-red-500/20 text-red-600 text-sm font-semibold px-3 py-1.5 rounded-full">
                 {tUser("likesCount", {
                   count: totalCount,
-                  hasNextPage: hasNextPage ? "true" : "false",
+                  hasNextPage: hasNextPage ? 1 : 0,
                 })}
               </span>
             </div>

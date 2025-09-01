@@ -175,7 +175,7 @@ export default function UserAlbumsPage() {
                     <p className="text-muted-foreground">
                       {t("albumCount", {
                         count: albums.length,
-                        hasNextPage: hasNext ? "true" : "false",
+                        hasNextPage: hasNext ? 1 : 0,
                       })}
                     </p>
                   </div>

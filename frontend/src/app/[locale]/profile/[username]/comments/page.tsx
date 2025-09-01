@@ -173,7 +173,7 @@ export default function UserCommentsPage() {
                         {totalCount > 0
                           ? t("commentsMade", {
                               count: totalCount,
-                              hasNextPage: hasMore ? "true" : "false",
+                              hasNextPage: hasMore ? 1 : 0,
                             })
                           : comments.length > 0
                           ? t("commentsLoaded", { count: comments.length })

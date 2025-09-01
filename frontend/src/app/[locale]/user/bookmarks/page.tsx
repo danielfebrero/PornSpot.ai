@@ -137,7 +137,7 @@ const UserBookmarksPage: React.FC = () => {
               <span className="bg-blue-500/20 text-blue-600 text-sm font-semibold px-3 py-1.5 rounded-full">
                 {t("bookmarksCount", {
                   count: totalCount,
-                  hasNextPage: hasNextPage ? "true" : "false",
+                  hasNextPage: hasNextPage ? 1 : 0,
                 })}
               </span>
             </div>

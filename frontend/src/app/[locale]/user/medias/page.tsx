@@ -188,7 +188,7 @@ const UserMediasPage: React.FC = () => {
             <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
               {t("mediasCount", {
                 count: totalCount,
-                hasNextPage: hasNextPage ? "true" : "false",
+                hasNextPage: hasNextPage ? 1 : 0,
               })}
             </span>
             <LocaleLink href="/generate">
@@ -215,8 +215,10 @@ const UserMediasPage: React.FC = () => {
               </p>
             </div>
             <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
-              {totalCount.toLocaleString()}
-              {hasNextPage ? "+" : ""} {t("mediasCount")}
+              {t("mediasCount", {
+                count: totalCount,
+                hasNextPage: hasNextPage ? 1 : 0,
+              })}
             </span>
           </div>
 

@@ -209,7 +209,7 @@ export default function UserMediaPage() {
                         {media.length > 0
                           ? t("count", {
                               count: media.length,
-                              hasNextPage: hasNextPage ? "true" : "false",
+                              hasNextPage: hasNextPage ? 1 : 0,
                             })
                           : t("noMediaYet")}
                       </p>

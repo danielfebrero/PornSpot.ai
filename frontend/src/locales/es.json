@@ -131,7 +131,7 @@
     "albums": {
       "albumsNotFound": "Álbumes no encontrados",
       "userAlbumsTitle": "Álbumes de {username}",
-      "albumCount": "{hasNextPage, select, true {{count, plural, =0 {0+ álbumes} =1 {1+ álbum} other {#+ álbumes}}} other {{count, plural, =0 {0 álbumes} =1 {1 álbum} other {# álbumes}}}}",
+      "albumCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {álbumes} =1 {álbum} other {álbumes}}",
       "noAlbumsYet": "Aún no hay álbumes",
       "noPublicAlbumsDescription": "{username} aún no ha creado ningún álbum público.",
       "loadingMoreAlbums": "Cargando más álbumes...",
@@ -143,7 +143,7 @@
         "message": "Error al cargar el contenido gustado"
       },
       "title": "Contenido gustado por {username}",
-      "count": "{hasNextPage, select, true {{count, plural, =0 {0+ me gusta} =1 {1+ me gusta} other {#+ me gusta}}} other {{count, plural, =0 {0 me gusta} =1 {1 me gusta} other {# me gusta}}}}",
+      "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {me gusta} =1 {me gusta} other {me gusta}}",
       "empty": {
         "title": "Aún no hay contenido gustado",
         "description": "{username} aún no ha dado me gusta a ningún contenido."
@@ -164,7 +164,7 @@
     },
     "media": {
       "title": "Medios de {username}",
-      "count": "{hasNextPage, select, true {{count, plural, =0 {0+ medios} =1 {1+ medio} other {#+ medios}}} other {{count, plural, =0 {0 medios} =1 {1 medio} other {# medios}}}}",
+      "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {medios} =1 {medio} other {medios}}",
       "noMediaYet": "Aún no hay medios",
       "empty": {
         "title": "Aún no hay medios",
@@ -730,7 +730,7 @@
     "medias": {
       "medias": "Medios",
       "personalMediaGallery": "Tu galería de medios personal",
-      "mediasCount": "{hasNextPage, select, true {{count, plural, =0 {0+ medios} =1 {1+ medio} other {#+ medios}}} other {{count, plural, =0 {0 medios} =1 {1 medio} other {# medios}}}}",
+      "mediasCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {medios} =1 {medio} other {medios}}",
       "generate": "Generar",
       "generateMedia": "Generar medios",
       "noMediaYet": "Aún no hay medios",
@@ -743,7 +743,7 @@
       "albums": "Álbumes",
       "personalCollections": "Tus colecciones personales",
       "personalPhotoCollections": "Tus colecciones de medios personales",
-      "albumsCount": "{hasNextPage, select, true {{count, plural, =0 {0+ álbumes} =1 {1+ álbum} other {#+ álbumes}}} other {{count, plural, =0 {0 álbumes} =1 {1 álbum} other {# álbumes}}}}",
+      "albumsCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {álbumes} =1 {álbum} other {álbumes}}",
       "create": "Crear",
       "createAlbum": "Crear álbum",
       "editAlbum": "Editar álbum",
@@ -806,7 +806,7 @@
       "loginToBookmark": "Inicia sesión para marcar",
       "bookmarks": "Marcadores",
       "yourSavedFavorites": "Tus favoritos guardados",
-      "bookmarksCount": "{hasNextPage, select, true {{count, plural, =0 {0+ marcadores} =1 {1+ marcador} other {#+ marcadores}}} other {{count, plural, =0 {0 marcadores} =1 {1 marcador} other {# marcadores}}}}",
+      "bookmarksCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {marcadores} =1 {marcador} other {marcadores}}",
       "failedToLoadBookmarks": "Error al cargar marcadores",
       "noBookmarksYet": "Aún no hay marcadores",
       "startExploringContent": "¡Comienza a explorar contenido y marca lo que quieras guardar para más tarde!",
@@ -822,7 +822,7 @@
       "loginToLike": "Inicia sesión para dar me gusta",
       "likes": "Me gusta",
       "yourLikedContent": "Tu contenido que te gusta",
-      "likesCount": "{hasNextPage, select, true {{count, plural, =0 {0+ me gusta} =1 {1+ me gusta} other {#+ me gusta}}} other {{count, plural, =0 {0 me gusta} =1 {1 me gusta} other {# me gusta}}}}",
+      "likesCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {me gusta} =1 {me gusta} other {me gusta}}",
       "failedToLoadLikes": "Error al cargar me gusta",
       "noLikesYet": "Aún no hay me gusta",
       "startExploringContent": "¡Comienza a explorar contenido y dale me gusta a lo que disfrutes! Descubre álbumes y medios increíbles de nuestra comunidad.",
@@ -849,7 +849,7 @@
       "albums": {
         "albumsNotFound": "Álbumes no encontrados",
         "userAlbumsTitle": "Álbumes de {username}",
-        "albumCount": "{hasNextPage, select, true {{count, plural, =0 {0+ álbumes} =1 {1+ álbum} other {#+ álbumes}}} other {{count, plural, =0 {0 álbumes} =1 {1 álbum} other {# álbumes}}}}",
+        "albumCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {álbumes} =1 {álbum} other {álbumes}}",
         "noAlbumsYet": "Aún no hay álbumes",
         "noPublicAlbumsDescription": "{username} aún no ha creado álbumes públicos.",
         "loadingMoreAlbums": "Cargando más álbumes...",
@@ -860,13 +860,13 @@
         "errorOccurred": "Ocurrió un error",
         "tryAgain": "Intentar de nuevo",
         "userCommentsTitle": "Comentarios de {username}",
-        "commentsMade": "{hasNextPage, select, true {{count, plural, =0 {0+ comentarios hechos} =1 {1+ comentario hecho} other {#+ comentarios hechos}}} other {{count, plural, =0 {0 comentarios hechos} =1 {1 comentario hecho} other {# comentarios hechos}}}}",
+        "commentsMade": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {comentarios hechos} =1 {comentario hecho} other {comentarios hechos}}",
         "commentsLoaded": "{count, plural, =0 {0 comentarios cargados} =1 {1 comentario cargado} other {# comentarios cargados}}",
         "noCommentsYet": "Aún no hay comentarios"
       },
       "likes": {
         "title": "Me gusta de {username}",
-        "count": "{hasNextPage, select, true {{count, plural, =0 {0+ me gusta} =1 {1+ me gusta} other {#+ me gusta}}} other {{count, plural, =0 {0 me gusta} =1 {1 me gusta} other {# me gusta}}}}",
+        "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {me gusta} =1 {me gusta} other {me gusta}}",
         "error": {
           "title": "Error al cargar los me gusta",
           "message": "Error al cargar los me gusta"
