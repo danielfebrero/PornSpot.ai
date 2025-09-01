@@ -186,7 +186,8 @@ const UserMediasPage: React.FC = () => {
           </div>
           <div className="flex items-center justify-between">
             <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
-              {totalCount.toLocaleString()} {t("mediasCount")}
+              {totalCount.toLocaleString()}
+              {hasNextPage ? "+" : ""} {t("mediasCount")}
             </span>
             <LocaleLink href="/generate">
               <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">

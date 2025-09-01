@@ -207,7 +207,9 @@ export default function UserMediaPage() {
                       </h1>
                       <p className="text-muted-foreground">
                         {media.length > 0
-                          ? t("count", { count: media.length })
+                          ? t("count", {
+                              count: `${media.length}${hasNextPage ? "+" : ""}`,
+                            })
                           : t("noMediaYet")}
                       </p>
                     </div>

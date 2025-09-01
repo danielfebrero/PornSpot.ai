@@ -244,7 +244,11 @@ const UserAlbumsPage: React.FC = () => {
           </div>
           <div className="flex items-center justify-between">
             <span className="bg-admin-primary/20 text-admin-primary text-sm font-semibold px-3 py-1.5 rounded-full">
-              {t("albumsCount", { count: totalCount.toLocaleString() })}
+              {t("albumsCount", {
+                count: `${totalCount.toLocaleString()}${
+                  hasNextPage ? "+" : ""
+                }`,
+              })}
             </span>
             <LocaleLink href="/user/albums/create">
               <Button className="bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-primary-foreground shadow-lg flex items-center space-x-2">

@@ -107,3 +107,5 @@
 [x] Replace all Initials with Avatars, including Profile comments.
 
 [x] Add delete icon in fullscreen images of Generate page.
+
+[ ] In media, bookmarks and likes user page, place "count" in locale instead of two separate strings.
