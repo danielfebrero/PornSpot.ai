@@ -19,6 +19,7 @@ import { MainContentWrapper } from "@/components/MainContentWrapper";
 import { NavigationLoadingOverlay } from "@/components/ui/NavigationLoadingOverlay";
 import { MobileNavigationWrapper } from "@/components/MobileNavigationWrapper";
 import { LanguageRedirect } from "@/components/LanguageRedirect";
+import { LocaleLink } from "@/components/ui/LocaleLink";
 import { detectDevice } from "@/lib/deviceUtils";
 import {
   PageErrorBoundary,
@@ -108,6 +109,7 @@ export default async function LocaleLayout({
   params: { locale },
 }: Props) {
   const messages = await getMessages({ locale });
+  const t = await getTranslations({ locale, namespace: "site" });
 
   // Server-side device detection
   const headersList = headers();
@@ -146,6 +148,14 @@ export default async function LocaleLayout({
                                         &copy; 2025 PornSpot.ai. All rights
                                         reserved.
                                       </p>
+                                      <div className="mt-2 space-x-4">
+                                        <LocaleLink
+                                          href="/terms"
+                                          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                        >
+                                          {t("site.terms")}
+                                        </LocaleLink>
+                                      </div>
                                     </div>
                                   </div>
                                 </footer>
