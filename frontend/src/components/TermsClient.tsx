@@ -100,7 +100,7 @@ export function TermsClient() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
-                  href="mailto:support@pornspot.ai"
+                  href="mailto:support@fabularius.ai"
                   className="inline-flex items-center justify-center px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                 >
                   {t("ui.contactSupport")}
