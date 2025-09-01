@@ -100,8 +100,6 @@
 
 [ ] Update media title show back the original media title until PUT request is successful.
 
-[ ] My profile comments shows only 2 comments in Grid view while it shows the 4 comments in list view.
-
 [x] When I change privacy of an image from Media Detail Client, username is replaced with user id and metadata disappears.
 
 [x] Fix the recurring lambda issue.
@@ -127,3 +125,5 @@
 [x] Delete image from admin media page does not work.
 
 [ ] On generate page, in lightbox, when I delete an image, and come back on generate page, it's not the good one that has been removed from the list.
+
+[ ] In an album, when I fullscreen an image, it's view count is set to 1 instead of +1.

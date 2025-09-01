@@ -119,3 +119,5 @@
 [ ] Add to album dialog album zone should be scrollable.
 
 [ ] Add "play" button in lightbox to auto play images.
+
+[ ] Handle user plans valid until date.
