@@ -122,8 +122,6 @@
 
 [x] Cannot set seed to 0 manually.
 
-[ ] There is sometimes more active users than visitors and sometimes 0 active users while I am connected.
-
 [x] On generate page, lightbox delete image does not work as expected.
 
 [x] Delete image from admin media page does not work.

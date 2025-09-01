@@ -108,7 +108,7 @@
 
 [x] Add delete icon in fullscreen images of Generate page.
 
-[ ] In media, bookmarks and likes user page, place "count" in locale instead of two separate strings.
+[x] In media, bookmarks and likes user page, place "count" in locale instead of two separate strings.
 
 [ ] Be able to like and bookmark album from album page, not only its content card.
 

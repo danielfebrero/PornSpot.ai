@@ -20,7 +20,7 @@ export default function UserCommentsPage() {
   const username = params.username as string;
   const t = useTranslations("profile.comments");
 
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  // const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
   const { isMobile } = useDevice();
 
@@ -183,7 +183,7 @@ export default function UserCommentsPage() {
                   </div>
 
                   {/* View mode toggle - only on desktop */}
-                  <div className="flex items-center space-x-2">
+                  {/* <div className="flex items-center space-x-2">
                     <Button
                       variant={viewMode === "grid" ? "default" : "ghost"}
                       size="sm"
@@ -198,7 +198,7 @@ export default function UserCommentsPage() {
                     >
                       <List className="h-4 w-4" />
                     </Button>
-                  </div>
+                  </div> */}
                 </div>
               )}
             </CardHeader>
@@ -215,7 +215,7 @@ export default function UserCommentsPage() {
             onRetry={handleRefresh}
             className={cn(isMobile && "px-0", !isMobile && "px-4")}
             isMobile={isMobile}
-            viewMode={viewMode}
+            viewMode={"list"}
           />
         </div>
       </div>

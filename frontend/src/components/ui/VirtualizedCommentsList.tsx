@@ -175,45 +175,45 @@ export function VirtualizedCommentsList({
         );
       }
 
-      // Grid mode - render 2 comments per row
-      if (index % 2 === 0) {
-        const nextComment = comments[index + 1];
-        const nextCommentInteractionData =
-          currentUserId && nextComment
-            ? commentLikeStates[nextComment.id]
-            : undefined;
+      // // Grid mode - render 2 comments per row
+      // if (index % 2 === 0) {
+      //   const nextComment = comments[index + 1];
+      //   const nextCommentInteractionData =
+      //     currentUserId && nextComment
+      //       ? commentLikeStates[nextComment.id]
+      //       : undefined;
 
-        return (
-          <div
-            key={`row-${index}`}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"
-          >
-            <CommentCard
-              comment={comment}
-              isMobile={isMobile}
-              onCommentUpdate={onCommentUpdate}
-              onCommentDelete={onCommentDelete}
-              interactionData={commentInteractionData}
-              onLike={handleLikeComment}
-            />
-            {nextComment ? (
-              <CommentCard
-                comment={nextComment}
-                isMobile={isMobile}
-                onCommentUpdate={onCommentUpdate}
-                onCommentDelete={onCommentDelete}
-                interactionData={nextCommentInteractionData}
-                onLike={handleLikeComment}
-              />
-            ) : (
-              <div />
-            )}
-          </div>
-        );
-      }
+      //   return (
+      //     <div
+      //       key={`row-${index}`}
+      //       className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"
+      //     >
+      //       <CommentCard
+      //         comment={comment}
+      //         isMobile={isMobile}
+      //         onCommentUpdate={onCommentUpdate}
+      //         onCommentDelete={onCommentDelete}
+      //         interactionData={commentInteractionData}
+      //         onLike={handleLikeComment}
+      //       />
+      //       {nextComment ? (
+      //         <CommentCard
+      //           comment={nextComment}
+      //           isMobile={isMobile}
+      //           onCommentUpdate={onCommentUpdate}
+      //           onCommentDelete={onCommentDelete}
+      //           interactionData={nextCommentInteractionData}
+      //           onLike={handleLikeComment}
+      //         />
+      //       ) : (
+      //         <div />
+      //       )}
+      //     </div>
+      //   );
+      // }
 
-      // Skip odd indices in grid mode as they're rendered with even indices
-      return null;
+      // // Skip odd indices in grid mode as they're rendered with even indices
+      // return null;
     },
     [
       comments,
