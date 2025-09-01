@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -50,6 +50,8 @@ export const Lightbox: React.FC<LightboxProps> = ({
   const [isSlideshow, setIsSlideshow] = useState(false);
   const [isLoop, setIsLoop] = useState(false);
   const [slideshowInterval, setSlideshowInterval] = useState(3000); // Default 3 seconds
+  const [areControlsVisible, setAreControlsVisible] = useState(true);
+  const hideControlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentMedia = media[currentIndex];
   const nextMedia = media[currentIndex + 1];
@@ -103,12 +105,40 @@ export const Lightbox: React.FC<LightboxProps> = ({
   const handleNext = useCallback(() => {
     setIsSlideshow(false); // Stop slideshow on manual navigation
     setIsPlayingVideo(false); // Stop video when navigating
+
+    // Show controls for manual navigation
+    setAreControlsVisible(true);
+
+    // Clear any existing timeout
+    if (hideControlsTimeoutRef.current) {
+      clearTimeout(hideControlsTimeoutRef.current);
+    }
+
+    // Set timeout to hide controls
+    hideControlsTimeoutRef.current = setTimeout(() => {
+      setAreControlsVisible(false);
+    }, 3000);
+
     onNext();
   }, [onNext]);
 
   const handlePrevious = useCallback(() => {
     setIsSlideshow(false); // Stop slideshow on manual navigation
     setIsPlayingVideo(false); // Stop video when navigating
+
+    // Show controls for manual navigation
+    setAreControlsVisible(true);
+
+    // Clear any existing timeout
+    if (hideControlsTimeoutRef.current) {
+      clearTimeout(hideControlsTimeoutRef.current);
+    }
+
+    // Set timeout to hide controls
+    hideControlsTimeoutRef.current = setTimeout(() => {
+      setAreControlsVisible(false);
+    }, 3000);
+
     onPrevious();
   }, [onPrevious]);
 
@@ -280,6 +310,94 @@ export const Lightbox: React.FC<LightboxProps> = ({
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
+
+  const handleMouseMove = useCallback(() => {
+    // Only on desktop (non-touch devices)
+    if (!window.matchMedia("(pointer: coarse)").matches) {
+      setAreControlsVisible(true);
+
+      // Clear existing timeout
+      if (hideControlsTimeoutRef.current) {
+        clearTimeout(hideControlsTimeoutRef.current);
+      }
+
+      // Set new timeout to hide controls
+      const timeout = setTimeout(() => {
+        setAreControlsVisible(false);
+      }, 3000);
+
+      hideControlsTimeoutRef.current = timeout;
+    }
+  }, []);
+
+  const handleTouchStart = useCallback(() => {
+    // Only on mobile (touch devices)
+    if (window.matchMedia("(pointer: coarse)").matches) {
+      setAreControlsVisible(true);
+
+      // Clear existing timeout
+      if (hideControlsTimeoutRef.current) {
+        clearTimeout(hideControlsTimeoutRef.current);
+      }
+
+      // Set new timeout to hide controls
+      const timeout = setTimeout(() => {
+        setAreControlsVisible(false);
+      }, 3000);
+
+      hideControlsTimeoutRef.current = timeout;
+    }
+  }, []);
+
+  // Set up mouse/touch event listeners for auto-hide
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Show controls initially when lightbox opens
+    setAreControlsVisible(true);
+
+    // Clear any existing timeout
+    if (hideControlsTimeoutRef.current) {
+      clearTimeout(hideControlsTimeoutRef.current);
+    }
+
+    // Set timeout to hide controls
+    hideControlsTimeoutRef.current = setTimeout(() => {
+      setAreControlsVisible(false);
+    }, 3000);
+
+    // Add event listeners
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("touchstart", handleTouchStart);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("touchstart", handleTouchStart);
+
+      // Clear timeout on cleanup
+      if (hideControlsTimeoutRef.current) {
+        clearTimeout(hideControlsTimeoutRef.current);
+      }
+    };
+  }, [isOpen, handleMouseMove, handleTouchStart]);
+
+  // Reset controls visibility when slideshow state changes (but not during auto-navigation)
+  useEffect(() => {
+    if (isOpen && !isSlideshow) {
+      // Only show controls when slideshow is stopped or when slideshow state changes
+      setAreControlsVisible(true);
+
+      // Clear any existing timeout
+      if (hideControlsTimeoutRef.current) {
+        clearTimeout(hideControlsTimeoutRef.current);
+      }
+
+      // Set timeout to hide controls
+      hideControlsTimeoutRef.current = setTimeout(() => {
+        setAreControlsVisible(false);
+      }, 3000);
+    }
+  }, [isSlideshow, isLoop, isOpen]); // Removed currentIndex to prevent showing controls during auto-navigation
 
   if (!isOpen || !currentMedia || !isMounted) return null;
 
@@ -525,7 +643,10 @@ export const Lightbox: React.FC<LightboxProps> = ({
           aria-label={t("close")}
           data-testid="lightbox-close"
           initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
+          animate={{
+            opacity: areControlsVisible ? 1 : 0,
+            scale: areControlsVisible ? 1 : 0.8,
+          }}
           transition={{ delay: 0.2 }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
@@ -565,7 +686,14 @@ export const Lightbox: React.FC<LightboxProps> = ({
               data-testid="lightbox-prev"
               disabled={currentIndex === 0}
               initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: currentIndex === 0 ? 0.3 : 1, x: 0 }}
+              animate={{
+                opacity: areControlsVisible
+                  ? currentIndex === 0
+                    ? 0.3
+                    : 1
+                  : 0,
+                x: 0,
+              }}
               transition={{ delay: 0.3 }}
               whileHover={currentIndex > 0 ? { scale: 1.1 } : {}}
               whileTap={currentIndex > 0 ? { scale: 0.9 } : {}}
@@ -603,8 +731,11 @@ export const Lightbox: React.FC<LightboxProps> = ({
               disabled={currentIndex === media.length - 1 && !hasNextPage}
               initial={{ opacity: 0, x: 20 }}
               animate={{
-                opacity:
-                  currentIndex === media.length - 1 && !hasNextPage ? 0.3 : 1,
+                opacity: areControlsVisible
+                  ? currentIndex === media.length - 1 && !hasNextPage
+                    ? 0.3
+                    : 1
+                  : 0,
                 x: 0,
               }}
               transition={{ delay: 0.3 }}
@@ -641,7 +772,11 @@ export const Lightbox: React.FC<LightboxProps> = ({
           <motion.div
             className="absolute bottom-4 left-1/2 z-20 md:hidden"
             initial={{ opacity: 0, y: 20, x: "-50%" }}
-            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            animate={{
+              opacity: areControlsVisible ? 1 : 0,
+              y: areControlsVisible ? 0 : 20,
+              x: "-50%",
+            }}
             transition={{ delay: 0.5 }}
           >
             <div className="flex flex-col items-center gap-3">
@@ -767,7 +902,11 @@ export const Lightbox: React.FC<LightboxProps> = ({
           <motion.div
             className="absolute bottom-4 left-1/2 bg-black/70 text-white rounded-lg p-3 z-30 backdrop-blur-sm border border-white/20 hidden md:flex items-center gap-3"
             initial={{ opacity: 0, y: 20, x: "-50%" }}
-            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            animate={{
+              opacity: areControlsVisible ? 1 : 0,
+              y: areControlsVisible ? 0 : 20,
+              x: "-50%",
+            }}
             transition={{ delay: 0.4 }}
           >
             {/* Interval Selector */}
