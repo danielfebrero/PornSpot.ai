@@ -1669,6 +1669,18 @@
       "title": "Abonnements et paiements",
       "content": "Nos services sont disponibles via différents plans d'abonnement. Le paiement est traité de manière sécurisée via nos fournisseurs de paiement. Les abonnements se renouvellent automatiquement sauf annulation. Les remboursements sont fournis conformément à notre politique de remboursement."
     },
+    "automatedUsage": {
+      "title": "Restrictions d'utilisation automatisée",
+      "content": "L'utilisation de logiciels, bots, scripts ou toute forme d'automatisation pour générer des images ou accéder à nos services de génération IA est strictement interdite. Nos plans d'abonnement sont conçus uniquement pour un usage humain raisonnable. Toute tentative d'automatiser la génération d'images, de traitement en masse ou de contourner les limitations d'usage entraînera une suspension ou résiliation immédiate du compte. Les utilisateurs doivent interagir manuellement avec notre plateforme et rester dans les modèles d'usage prévus de leur plan d'abonnement."
+    },
+    "commercialUse": {
+      "title": "Restrictions d'utilisation commerciale",
+      "content": "Seules les images générées par l'utilisateur lui-même via son propre compte peuvent être utilisées à des fins commerciales. Il est strictement interdit aux utilisateurs d'utiliser, distribuer, vendre ou exploiter commercialement de toute autre manière les images générées par d'autres utilisateurs sur la plateforme. Chaque utilisateur conserve les droits commerciaux exclusivement sur son propre contenu généré. La violation de cette politique peut entraîner des poursuites judiciaires et la résiliation immédiate du compte."
+    },
+    "websiteScraping": {
+      "title": "Interdiction de scraping et de découverte automatisée du site web",
+      "content": "Le scraping, crawling ou extraction automatisée de tout contenu, données ou informations de notre site web est strictement interdit. Cela inclut mais ne se limite pas à : le téléchargement automatisé d'images, la collecte systématique de données utilisateur, la découverte ou indexation automatisée du contenu du site web, et toute forme d'interaction automatisée avec notre site web au-delà de l'usage normal du navigateur. De telles activités peuvent entraîner un blocage IP immédiat, des poursuites judiciaires et la résiliation du compte."
+    },
     "contentPolicy": {
       "title": "Politique de contenu",
       "content": "Tout contenu généré via notre plateforme doit respecter les lois applicables. Il est interdit aux utilisateurs de créer du contenu impliquant des mineurs, sans consentement ou des activités illégales. Nous nous réservons le droit de supprimer le contenu qui viole nos politiques."

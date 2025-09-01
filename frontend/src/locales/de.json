@@ -1596,6 +1596,18 @@
       "title": "Abonnements und Zahlungen",
       "content": "Unsere Dienste sind über verschiedene Abonnement-Pläne verfügbar. Zahlungen werden sicher über unsere Zahlungsanbieter abgewickelt. Abonnements verlängern sich automatisch, es sei denn, sie werden gekündigt. Rückerstattungen werden gemäß unserer Rückerstattungsrichtlinie gewährt."
     },
+    "automatedUsage": {
+      "title": "Einschränkungen für automatisierte Nutzung",
+      "content": "Die Verwendung von Software, Bots, Skripten oder jeder Form der Automatisierung zur Bildgenerierung oder zum Zugriff auf unsere KI-Generierungsdienste ist strengstens untersagt. Unsere Abonnement-Pläne sind nur für angemessene menschliche Nutzung konzipiert. Jeder Versuch, die Bildgenerierung zu automatisieren, Massenverarbeitung durchzuführen oder Nutzungsbeschränkungen zu umgehen, führt zur sofortigen Kontosperrung oder -kündigung. Benutzer müssen manuell mit unserer Plattform interagieren und innerhalb der vorgesehenen Nutzungsmuster ihres Abonnement-Plans bleiben."
+    },
+    "commercialUse": {
+      "title": "Einschränkungen der kommerziellen Nutzung",
+      "content": "Nur Bilder, die vom Benutzer selbst über sein eigenes Konto generiert wurden, dürfen für kommerzielle Zwecke verwendet werden. Benutzern ist es strengstens untersagt, Bilder, die von anderen Benutzern auf der Plattform generiert wurden, zu verwenden, zu verteilen, zu verkaufen oder anderweitig kommerziell zu verwerten. Jeder Benutzer behält kommerzielle Rechte ausschließlich an seinen eigenen generierten Inhalten. Die Verletzung dieser Richtlinie kann rechtliche Schritte und sofortige Kontokündigung zur Folge haben."
+    },
+    "websiteScraping": {
+      "title": "Verbot von Website-Scraping und automatisierter Erkennung",
+      "content": "Das Scraping, Crawling oder die automatisierte Extraktion von Inhalten, Daten oder Informationen von unserer Website ist strengstens untersagt. Dies umfasst unter anderem: automatisiertes Herunterladen von Bildern, systematische Sammlung von Benutzerdaten, automatisierte Erkennung oder Indexierung von Website-Inhalten und jede Form der automatisierten Interaktion mit unserer Website über die normale Browser-Nutzung hinaus. Solche Aktivitäten können zur sofortigen IP-Sperrung, rechtlichen Schritten und Kontokündigung führen."
+    },
     "contentPolicy": {
       "title": "Inhaltsrichtlinie",
       "content": "Alle über unsere Plattform generierten Inhalte müssen den geltenden Gesetzen entsprechen. Benutzern ist es untersagt, Inhalte zu erstellen, die Minderjährige, fehlende Einwilligung oder illegale Aktivitäten betreffen. Wir behalten uns das Recht vor, Inhalte zu entfernen, die gegen unsere Richtlinien verstoßen."
