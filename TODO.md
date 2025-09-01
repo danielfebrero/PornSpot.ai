@@ -72,7 +72,7 @@
 
 [x] Add more LoRA.
 
-[ ] When navigating then going backward, we must not lose infinite scroll position.
+[x] When navigating then going backward, we must not lose infinite scroll position.
 
 [x] Revalidate Discover page every 10 minutes.
 
