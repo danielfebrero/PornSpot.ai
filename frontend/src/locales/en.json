@@ -81,7 +81,11 @@
       "minutesAgo": "{count}m ago",
       "hoursAgo": "{count}h ago",
       "daysAgo": "{count}d ago"
-    }
+    },
+    "noMediaFound": "No media found",
+    "albumDoesntContainMediaFiles": "This album doesn't contain any media files yet.",
+    "loadingMoreMedia": "Loading more media...",
+    "failedToLoadMoreMedia": "Failed to load more media"
   },
   "profile": {
     "username": "Username",

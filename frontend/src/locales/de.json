@@ -81,7 +81,11 @@
       "minutesAgo": "vor {count}m",
       "hoursAgo": "vor {count}h",
       "daysAgo": "vor {count}T"
-    }
+    },
+    "noMediaFound": "Keine Medien gefunden",
+    "albumDoesntContainMediaFiles": "Dieses Album enthält noch keine Mediendateien.",
+    "loadingMoreMedia": "Weitere Medien werden geladen...",
+    "failedToLoadMoreMedia": "Fehler beim Laden weiterer Medien"
   },
   "profile": {
     "username": "Benutzername",

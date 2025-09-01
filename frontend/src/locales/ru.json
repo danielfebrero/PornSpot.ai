@@ -81,7 +81,11 @@
       "minutesAgo": "{count}м назад",
       "hoursAgo": "{count}ч назад",
       "daysAgo": "{count}д назад"
-    }
+    },
+    "noMediaFound": "Медиа не найдены",
+    "albumDoesntContainMediaFiles": "Этот альбом пока не содержит медиафайлов.",
+    "loadingMoreMedia": "Загрузка дополнительных медиа...",
+    "failedToLoadMoreMedia": "Не удалось загрузить дополнительные медиа"
   },
   "profile": {
     "username": "Имя пользователя",

@@ -81,7 +81,11 @@
       "minutesAgo": "{count}分钟前",
       "hoursAgo": "{count}小时前",
       "daysAgo": "{count}天前"
-    }
+    },
+    "noMediaFound": "未找到媒体",
+    "albumDoesntContainMediaFiles": "该专辑尚未包含任何媒体文件。",
+    "loadingMoreMedia": "正在加载更多媒体...",
+    "failedToLoadMoreMedia": "加载更多媒体失败"
   },
   "profile": {
     "username": "用户名",
