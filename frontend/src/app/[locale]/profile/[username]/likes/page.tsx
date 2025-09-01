@@ -215,7 +215,8 @@ export default function UserLikesPage() {
                     </div>
                     <p className="text-muted-foreground">
                       {t("count", {
-                        count: `${likes.length}${hasNext ? "+" : ""}`,
+                        count: likes.length,
+                        hasNextPage: hasNext ? "true" : "false",
                       })}
                     </p>
                   </div>

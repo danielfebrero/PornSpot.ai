@@ -131,7 +131,7 @@
     "albums": {
       "albumsNotFound": "Albums not found",
       "userAlbumsTitle": "{username}'s Albums",
-      "albumCount": "{count, plural, =0 {No albums} =1 {1 album} other {# albums}}",
+      "albumCount": "{hasNextPage, select, true {{count, plural, =0 {No albums} =1 {1+ album} other {#+ albums}}} other {{count, plural, =0 {No albums} =1 {1 album} other {# albums}}}}",
       "noAlbumsYet": "No albums yet",
       "noPublicAlbumsDescription": "{username} hasn't created any public albums yet.",
       "loadingMoreAlbums": "Loading more albums...",
@@ -797,7 +797,7 @@
     "medias": {
       "medias": "Medias",
       "personalMediaGallery": "Your personal media gallery",
-      "mediasCount": "medias",
+      "mediasCount": "{hasNextPage, select, true {{count, plural, =0 {0+ medias} =1 {1+ media} other {#+ medias}}} other {{count, plural, =0 {0 medias} =1 {1 media} other {# medias}}}}",
       "generate": "Generate",
       "generateMedia": "Generate Media",
       "noMediaYet": "No media yet",
@@ -810,7 +810,7 @@
       "albums": "Albums",
       "personalCollections": "Your personal collections",
       "personalPhotoCollections": "Your personal media collections",
-      "albumsCount": "{count} albums",
+      "albumsCount": "{hasNextPage, select, true {{count, plural, =0 {0+ albums} =1 {1+ album} other {#+ albums}}} other {{count, plural, =0 {0 albums} =1 {1 album} other {# albums}}}}",
       "create": "Create",
       "createAlbum": "Create Album",
       "editAlbum": "Edit Album",
@@ -873,7 +873,7 @@
       "loginToBookmark": "Login to bookmark",
       "bookmarks": "Bookmarks",
       "yourSavedFavorites": "Your saved favorites",
-      "bookmarksCount": "bookmarks",
+      "bookmarksCount": "{hasNextPage, select, true {{count, plural, =0 {0+ bookmarks} =1 {1+ bookmark} other {#+ bookmarks}}} other {{count, plural, =0 {0 bookmarks} =1 {1 bookmark} other {# bookmarks}}}}",
       "failedToLoadBookmarks": "Failed to load bookmarks",
       "noBookmarksYet": "No bookmarks yet",
       "startExploringContent": "Start exploring content and bookmark what you want to save for later!",
@@ -889,7 +889,7 @@
       "loginToLike": "Login to like",
       "likes": "Likes",
       "yourLikedContent": "Your liked content",
-      "likesCount": "likes",
+      "likesCount": "{hasNextPage, select, true {{count, plural, =0 {0+ likes} =1 {1+ like} other {#+ likes}}} other {{count, plural, =0 {0 likes} =1 {1 like} other {# likes}}}}",
       "failedToLoadLikes": "Failed to load likes",
       "noLikesYet": "No likes yet",
       "startExploringContent": "Start exploring content and like what you enjoy! Discover amazing albums and media from our community.",
@@ -916,7 +916,7 @@
       "albums": {
         "albumsNotFound": "Albums not found",
         "userAlbumsTitle": "{username}'s Albums",
-        "albumCount": "{count, plural, =0 {0 albums} =1 {1 album} other {# albums}}",
+        "albumCount": "{hasNextPage, select, true {{count, plural, =0 {0+ albums} =1 {1+ album} other {#+ albums}}} other {{count, plural, =0 {0 albums} =1 {1 album} other {# albums}}}}",
         "noAlbumsYet": "No albums yet",
         "noPublicAlbumsDescription": "{username} hasn't created any public albums yet.",
         "loadingMoreAlbums": "Loading more albums...",
@@ -927,13 +927,13 @@
         "errorOccurred": "An error occurred",
         "tryAgain": "Try Again",
         "userCommentsTitle": "{username}'s Comments",
-        "commentsMade": "{count, plural, =0 {0 comments made} =1 {1 comment made} other {# comments made}}",
+        "commentsMade": "{hasNextPage, select, true {{count, plural, =0 {0+ comments made} =1 {1+ comment made} other {#+ comments made}}} other {{count, plural, =0 {0 comments made} =1 {1 comment made} other {# comments made}}}}",
         "commentsLoaded": "{count, plural, =0 {0 comments loaded} =1 {1 comment loaded} other {# comments loaded}}",
         "noCommentsYet": "No comments yet"
       },
       "likes": {
         "title": "{username}'s Likes",
-        "count": "{count, plural, =0 {0 likes} =1 {1 like} other {# likes}}",
+        "count": "{hasNextPage, select, true {{count, plural, =0 {0+ likes} =1 {1+ like} other {#+ likes}}} other {{count, plural, =0 {0 likes} =1 {1 like} other {# likes}}}}",
         "error": {
           "title": "Error loading likes",
           "message": "Failed to load likes"
@@ -950,7 +950,7 @@
 
       "media": {
         "title": "{username}'s Media",
-        "count": "{count, plural, =0 {0 items} =1 {1 item} other {# items}}",
+        "count": "{hasNextPage, select, true {{count, plural, =0 {0+ items} =1 {1+ item} other {#+ items}}} other {{count, plural, =0 {0 items} =1 {1 item} other {# items}}}}",
         "noMediaYet": "No media yet",
         "error": {
           "title": "Unable to load media",

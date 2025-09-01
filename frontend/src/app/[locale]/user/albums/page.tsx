@@ -245,9 +245,8 @@ const UserAlbumsPage: React.FC = () => {
           <div className="flex items-center justify-between">
             <span className="bg-admin-primary/20 text-admin-primary text-sm font-semibold px-3 py-1.5 rounded-full">
               {t("albumsCount", {
-                count: `${totalCount.toLocaleString()}${
-                  hasNextPage ? "+" : ""
-                }`,
+                count: totalCount,
+                hasNextPage: hasNextPage ? "true" : "false",
               })}
             </span>
             <LocaleLink href="/user/albums/create">
@@ -274,7 +273,10 @@ const UserAlbumsPage: React.FC = () => {
               </p>
             </div>
             <span className="bg-admin-primary/20 text-admin-primary text-sm font-semibold px-3 py-1.5 rounded-full">
-              {t("albumsCount", { count: totalCount.toLocaleString() })}
+              {t("albumsCount", {
+                count: totalCount,
+                hasNextPage: hasNextPage ? "true" : "false",
+              })}
             </span>
           </div>
 

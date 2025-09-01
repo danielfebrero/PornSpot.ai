@@ -172,7 +172,8 @@ export default function UserCommentsPage() {
                       <p className="text-muted-foreground">
                         {totalCount > 0
                           ? t("commentsMade", {
-                              count: `${totalCount}${hasMore ? "+" : ""}`,
+                              count: totalCount,
+                              hasNextPage: hasMore ? "true" : "false",
                             })
                           : comments.length > 0
                           ? t("commentsLoaded", { count: comments.length })

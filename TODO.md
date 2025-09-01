@@ -4,7 +4,7 @@
 
 [ ] Review the concept of queue and estimated waiting time.
 
-[ ] Reset database before launch.
+[x] Reset database before launch.
 
 [ ] Set up dev environment, ssm parameters, subdomains, etc.
 
@@ -100,7 +100,7 @@
 
 [x] Support anthropomorphic characters on Generate page.
 
-[ ] On pages showing a counter (likes, albums, etc) show 20+ instead of 20 if there is a cursor.
+[x] On pages showing a counter (likes, albums, etc) show 20+ instead of 20 if there is a cursor.
 
 [ ] Be able to reply and tag users in comments.
 
@@ -109,3 +109,7 @@
 [x] Add delete icon in fullscreen images of Generate page.
 
 [ ] In media, bookmarks and likes user page, place "count" in locale instead of two separate strings.
+
+[ ] Be able to like and bookmark album from album page, not only its content card.
+
+[ ] Send original prompt additionally to the optimized prompt, on the Generate page, so we can select loRAs based on original prompt always. If not, the second generation row do not use the same loRA because they are selected based on optimized one.

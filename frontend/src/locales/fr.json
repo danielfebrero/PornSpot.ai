@@ -131,7 +131,7 @@
     "albums": {
       "albumsNotFound": "Albums non trouvés",
       "userAlbumsTitle": "Albums de {username}",
-      "albumCount": "{count, plural, =0 {Aucun album} =1 {1 album} other {# albums}}",
+      "albumCount": "{hasNextPage, select, true {{count, plural, =0 {Aucun album} =1 {1+ album} other {#+ albums}}} other {{count, plural, =0 {Aucun album} =1 {1 album} other {# albums}}}}",
       "noAlbumsYet": "Aucun album pour le moment",
       "noPublicAlbumsDescription": "{username} n'a encore créé aucun album public.",
       "loadingMoreAlbums": "Chargement d'autres albums...",
@@ -797,7 +797,7 @@
     "medias": {
       "medias": "Médias",
       "personalMediaGallery": "Votre galerie de médias personnelle",
-      "mediasCount": "médias",
+      "mediasCount": "{hasNextPage, select, true {{count, plural, =0 {0+ médias} one {1+ média} other {#+ médias}}} other {{count, plural, =0 {0 médias} one {1 média} other {# médias}}}}",
       "generate": "Générer",
       "generateMedia": "Générer des médias",
       "noMediaYet": "Pas encore de médias",
@@ -810,7 +810,7 @@
       "albums": "Albums",
       "personalCollections": "Vos collections personnelles",
       "personalPhotoCollections": "Vos collections de médias personnelles",
-      "albumsCount": "{count} albums",
+      "albumsCount": "{hasNextPage, select, true {{count, plural, =0 {0+ albums} one {1+ album} other {#+ albums}}} other {{count, plural, =0 {0 albums} one {1 album} other {# albums}}}}",
       "create": "Créer",
       "createAlbum": "Créer un album",
       "editAlbum": "Modifier l'album",
@@ -873,7 +873,7 @@
       "loginToBookmark": "Connectez-vous pour ajouter aux favoris",
       "bookmarks": "Favoris",
       "yourSavedFavorites": "Vos favoris sauvegardés",
-      "bookmarksCount": "favoris",
+      "bookmarksCount": "{hasNextPage, select, true {{count, plural, =0 {0+ favoris} one {1+ favori} other {#+ favoris}}} other {{count, plural, =0 {0 favoris} one {1 favori} other {# favoris}}}}",
       "failedToLoadBookmarks": "Échec du chargement des favoris",
       "noBookmarksYet": "Pas encore de favoris",
       "startExploringContent": "Commencez à explorer le contenu et ajoutez en favoris ce que vous voulez sauvegarder !",
@@ -889,7 +889,7 @@
       "loginToLike": "Connectez-vous pour aimer",
       "likes": "J'aime",
       "yourLikedContent": "Votre contenu aimé",
-      "likesCount": "j'aime",
+      "likesCount": "{hasNextPage, select, true {{count, plural, =0 {0+ j'aime} one {1+ j'aime} other {#+ j'aime}}} other {{count, plural, =0 {0 j'aime} one {1 j'aime} other {# j'aime}}}}",
       "failedToLoadLikes": "Échec du chargement des j'aime",
       "noLikesYet": "Aucun j'aime pour le moment",
       "startExploringContent": "Commencez à explorer le contenu et aimez ce qui vous plaît ! Découvrez des albums et médias incroyables de notre communauté.",
@@ -945,7 +945,7 @@
       "albums": {
         "albumsNotFound": "Albums introuvables",
         "userAlbumsTitle": "Albums de {username}",
-        "albumCount": "{count, plural, =0 {0 album} =1 {1 album} other {# albums}}",
+        "albumCount": "{hasNextPage, select, true {{count, plural, =0 {0+ album} =1 {1+ album} other {#+ albums}}} other {{count, plural, =0 {0 album} =1 {1 album} other {# albums}}}}",
         "noAlbumsYet": "Aucun album pour l'instant",
         "noPublicAlbumsDescription": "{username} n'a pas encore créé d'albums publics.",
         "loadingMoreAlbums": "Chargement d'autres albums...",
@@ -956,13 +956,13 @@
         "errorOccurred": "Une erreur s'est produite",
         "tryAgain": "Réessayer",
         "userCommentsTitle": "Commentaires de {username}",
-        "commentsMade": "{count, plural, =0 {0 commentaire fait} =1 {1 commentaire fait} other {# commentaires faits}}",
+        "commentsMade": "{hasNextPage, select, true {{count, plural, =0 {0+ commentaire fait} =1 {1+ commentaire fait} other {#+ commentaires faits}}} other {{count, plural, =0 {0 commentaire fait} =1 {1 commentaire fait} other {# commentaires faits}}}}",
         "commentsLoaded": "{count, plural, =0 {0 commentaire chargé} =1 {1 commentaire chargé} other {# commentaires chargés}}",
         "noCommentsYet": "Aucun commentaire pour l'instant"
       },
       "likes": {
         "title": "J'aime de {username}",
-        "count": "{count, plural, =0 {0 j'aime} =1 {1 j'aime} other {# j'aime}}",
+        "count": "{hasNextPage, select, true {{count, plural, =0 {0+ j'aime} =1 {1+ j'aime} other {#+ j'aime}}} other {{count, plural, =0 {0 j'aime} =1 {1 j'aime} other {# j'aime}}}}",
         "error": {
           "title": "Erreur lors du chargement des j'aime",
           "message": "Échec du chargement des j'aime"
@@ -978,7 +978,7 @@
       },
       "media": {
         "title": "Médias de {username}",
-        "count": "{count, plural, =0 {0 élément} =1 {1 élément} other {# éléments}}",
+        "count": "{hasNextPage, select, true {{count, plural, =0 {0+ élément} =1 {1+ élément} other {#+ éléments}}} other {{count, plural, =0 {0 élément} =1 {1 élément} other {# éléments}}}}",
         "noMediaYet": "Aucun média pour l'instant",
         "error": {
           "title": "Impossible de charger les médias",

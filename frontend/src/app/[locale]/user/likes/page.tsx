@@ -140,8 +140,10 @@ const UserLikesPage: React.FC = () => {
             </div>
             <div className="flex justify-center">
               <span className="bg-red-500/20 text-red-600 text-sm font-semibold px-3 py-1.5 rounded-full">
-                {totalCount.toLocaleString()}
-                {hasNextPage ? "+" : ""} {tUser("likesCount")}
+                {tUser("likesCount", {
+                  count: totalCount,
+                  hasNextPage: hasNextPage ? "true" : "false",
+                })}
               </span>
             </div>
           </div>
@@ -163,7 +165,10 @@ const UserLikesPage: React.FC = () => {
             </div>
             <div className="flex items-center space-x-3">
               <span className="bg-red-500/20 text-red-600 text-sm font-semibold px-3 py-1.5 rounded-full">
-                {totalCount.toLocaleString()} {tUser("likesCount")}
+                {tUser("likesCount", {
+                  count: totalCount,
+                  hasNextPage: hasNextPage ? "true" : "false",
+                })}
               </span>
             </div>
 
