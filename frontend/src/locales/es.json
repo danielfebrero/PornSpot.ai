@@ -1410,7 +1410,10 @@
           "Prompts negativos para mejor control",
           "Generación masiva de imágenes",
           "Tamaños de imagen personalizados",
-          "Activar y desactivar modelos LoRA"
+          "Activar y desactivar modelos LoRA",
+          "Control de escala CFG personalizada",
+          "Pasos de inferencia personalizados",
+          "Elige tu propia semilla"
         ]
       }
     },

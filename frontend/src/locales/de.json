@@ -1410,7 +1410,10 @@
           "Negative Prompts für bessere Kontrolle",
           "Bulk-Bildgenerierung",
           "Benutzerdefinierte Bildgrößen",
-          "LoRA-Modelle ein- und ausschalten"
+          "LoRA-Modelle ein- und ausschalten",
+          "Benutzerdefinierte CFG-Skalenkontrolle",
+          "Benutzerdefinierte Inferenzschritte",
+          "Wählen Sie Ihren eigenen Seed"
         ]
       }
     },

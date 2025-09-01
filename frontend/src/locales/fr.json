@@ -1483,7 +1483,10 @@
           "Prompts négatifs pour un meilleur contrôle",
           "Génération d'images en masse",
           "Tailles d'images personnalisées",
-          "Activer et désactiver les modèles LoRA"
+          "Activer et désactiver les modèles LoRA",
+          "Contrôle de l'échelle CFG personnalisée",
+          "Étapes d'inférence personnalisées",
+          "Choisissez votre propre graine"
         ]
       }
     },

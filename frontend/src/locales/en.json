@@ -1484,7 +1484,10 @@
           "Negative prompts for better control",
           "Bulk image generation",
           "Custom image sizes",
-          "Turn on and off LoRA models"
+          "Turn on and off LoRA models",
+          "Custom CFG scale control",
+          "Custom inference steps",
+          "Choose your own seed"
         ]
       }
     },

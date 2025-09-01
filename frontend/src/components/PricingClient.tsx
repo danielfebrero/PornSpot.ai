@@ -62,6 +62,9 @@ export function PricingClient() {
         t("planDetails.pro.features.3"),
         t("planDetails.pro.features.4"),
         t("planDetails.pro.features.5"),
+        t("planDetails.pro.features.6"),
+        t("planDetails.pro.features.7"),
+        t("planDetails.pro.features.8"),
       ],
     },
   ];
