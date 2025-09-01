@@ -2,6 +2,7 @@ import type { Media } from "./media";
 
 export interface GenerationSettings {
   prompt: string;
+  originalPrompt?: string;
   negativePrompt: string;
   imageSize: string;
   customWidth: number;

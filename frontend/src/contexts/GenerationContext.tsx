@@ -580,6 +580,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
 
         const result = await generateApi.generate({
           ...request,
+          originalPrompt: uiState.originalPromptBeforeOptimization,
           connectionId: connectionId || undefined,
         });
 

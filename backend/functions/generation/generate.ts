@@ -945,7 +945,9 @@ class PromptProcessor {
 
           // Conditionally perform LoRA selection
           requestBody.loraSelectionMode === "auto"
-            ? AIService.selectLoras(validatedPrompt)
+            ? AIService.selectLoras(
+                requestBody.originalPrompt || validatedPrompt
+              )
             : Promise.resolve(requestBody.selectedLoras || []),
 
           // Conditionally perform optimization
