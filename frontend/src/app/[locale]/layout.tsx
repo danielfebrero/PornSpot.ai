@@ -146,16 +146,14 @@ export default async function LocaleLayout({
                                       <div className="text-center">
                                         <p className="text-muted-foreground">
                                           &copy; 2025 PornSpot.ai. All rights
-                                          reserved.
-                                        </p>
-                                        <div className="mt-2 space-x-4">
+                                          reserved.{" "}
                                           <LocaleLink
                                             href="/terms"
                                             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                                           >
                                             {t("terms")}
                                           </LocaleLink>
-                                        </div>
+                                        </p>
                                       </div>
                                     </div>
                                   </footer>
