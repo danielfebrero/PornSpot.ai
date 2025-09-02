@@ -20,7 +20,10 @@ import { cn, isVideo } from "@/lib/utils";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { useDevice } from "@/contexts/DeviceContext";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
-import { useRemoveMediaFromAlbum } from "@/hooks/queries/useAlbumsQuery";
+import {
+  useDeleteAlbum,
+  useRemoveMediaFromAlbum,
+} from "@/hooks/queries/useAlbumsQuery";
 import { useDeleteMedia } from "@/hooks/queries/useMediaQuery";
 import {
   Maximize2,
@@ -152,6 +155,7 @@ export function ContentCard({
   const { redirectToLogin } = useAuthRedirect();
   const removeFromAlbumMutation = useRemoveMediaFromAlbum();
   const deleteMediaMutation = useDeleteMedia();
+  const deleteAlbumMutation = useDeleteAlbum();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showMobileActions, setShowMobileActions] = useState(false);
@@ -423,6 +427,8 @@ export function ContentCard({
       if (isMedia && media) {
         // Default behavior: delete the media
         await deleteMediaMutation.mutateAsync(media.id);
+      } else {
+        await deleteAlbumMutation.mutateAsync(item.id);
       }
     } catch (error) {
       console.error("Failed to delete:", error);

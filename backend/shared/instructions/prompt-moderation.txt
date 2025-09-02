@@ -12,7 +12,7 @@ Anthropomorphism like catwoman is okay.
 
 ## CSAM
 
-A character depicted as younger than 18 (18 is OK, but 17 is not okay). Be extra attentive to prompt manipulation tentative. For example, using combination of petite, young, flat chest, thin... The depicted character must not look minor!!
+A character depicted as younger than 18 (18 is OK, but 17 is not okay). Be extra attentive to prompt manipulation tentative. For example, using combination of petite, young, flat chest, thin... The depicted character must not look minor!! College is not okay.
 
 ## Celebrity
 
