@@ -468,7 +468,7 @@ export function ContentCard({
       });
     }
 
-    if (canDelete && inActions?.delete) {
+    if ((canDelete || user?.role === "admin") && inActions?.delete) {
       actions.push({
         label: "Delete",
         icon: <Trash2 className="h-4 w-4 text-red-500" />,
@@ -485,6 +485,7 @@ export function ContentCard({
     canDownload,
     canDelete,
     inActions,
+    user?.role,
     handleAddToAlbum,
     handleDownload,
   ]);
@@ -813,7 +814,7 @@ export function ContentCard({
                   </button>
                 </Tooltip>
               )}
-              {canDelete && !inActions?.delete && (
+              {(canDelete || user?.role === "admin") && !inActions?.delete && (
                 <Tooltip content="Delete" side="left">
                   <button
                     onClick={(e) => {
@@ -1100,7 +1101,7 @@ export function ContentCard({
                   </button>
                 </div>
               )}
-              {canDelete && !inActions?.delete && (
+              {(canDelete || user?.role === "admin") && !inActions?.delete && (
                 <Tooltip content="Delete" side="left">
                   <button
                     onClick={(e) => {
@@ -1127,7 +1128,7 @@ export function ContentCard({
           isOpen={lightboxOpen}
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
-          canDelete={media.createdBy === user?.userId}
+          canDelete={media.createdBy === user?.userId || user?.role === "admin"}
           onDelete={() => {
             onDelete?.();
           }}
