@@ -40,10 +40,10 @@ const handleGetInteractionStatus = async (
     );
   }
 
-  if (targets.length > 50) {
+  if (targets.length > 500) {
     return ResponseUtil.badRequest(
       event,
-      "Maximum 50 targets allowed per request"
+      "Maximum 500 targets allowed per request"
     );
   }
 
