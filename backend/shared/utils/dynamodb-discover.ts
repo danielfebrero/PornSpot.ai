@@ -208,6 +208,7 @@ export class DynamoDBDiscoverService {
   /**
    * Alternative approach using GSI5 for content by type and public status
    * GSI5PK: MEDIA or ALBUM, GSI5SK: isPublic (string)
+   * Filters out empty albums (albums with mediaCount = 0)
    */
   static async queryPublicAlbumsViaGSI5(
     limit: number = 20,
@@ -220,9 +221,11 @@ export class DynamoDBDiscoverService {
       TableName: TABLE_NAME,
       IndexName: "GSI5",
       KeyConditionExpression: "GSI5PK = :gsi5pk AND GSI5SK = :gsi5sk",
+      FilterExpression: "mediaCount > :minMediaCount",
       ExpressionAttributeValues: {
         ":gsi5pk": "ALBUM",
         ":gsi5sk": "true",
+        ":minMediaCount": 0,
       },
       ScanIndexForward: false, // Most recent first
       Limit: limit,
