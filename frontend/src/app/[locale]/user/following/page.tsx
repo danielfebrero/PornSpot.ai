@@ -84,7 +84,7 @@ export default function UserFollowingPage() {
         {/* Header */}
         <div className="bg-gradient-to-r from-admin-primary/10 to-admin-secondary/10 rounded-xl border border-admin-primary/20 shadow-lg p-6">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center">
               <Users className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -137,7 +137,7 @@ export default function UserFollowingPage() {
         {/* Mobile Layout */}
         <div className="block sm:hidden space-y-4">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center">
               <Users className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -162,7 +162,7 @@ export default function UserFollowingPage() {
         {/* Desktop Layout */}
         <div className="hidden sm:flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center">
               <Users className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -191,8 +191,8 @@ export default function UserFollowingPage() {
           {following.length === 0 && !followingLoading ? (
             // Empty state
             <div className="text-center py-12">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-violet-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Users className="h-10 w-10 text-purple-600" />
+              <div className="w-20 h-20 bg-gradient-to-br from-yellow-500/20 to-amber-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Users className="h-10 w-10 text-yellow-600" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
                 {t("empty.title")}

@@ -272,6 +272,7 @@
     "likes": "Gefällt mir",
     "albums": "Alben",
     "profile": "Profil",
+    "following": "Folge ich",
     "menu": "Menü",
     "sidebar": "Seitenleiste",
     "header": "Kopfzeile",
@@ -843,6 +844,18 @@
       "startExploringContent": "Beginnen Sie mit der Erkundung von Inhalten und liken Sie, was Ihnen gefällt! Entdecken Sie großartige Alben und Medien aus unserer Community.",
       "loadingMoreLikes": "Lade weitere Likes...",
       "allLikesLoaded": "Alle Ihre Likes geladen"
+    },
+    "following": {
+      "following": "Folge ich",
+      "usersYouFollow": "Benutzer denen Sie folgen",
+      "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {Benutzer} =1 {Benutzer} other {Benutzer}}",
+      "empty": {
+        "title": "Sie folgen noch niemandem",
+        "description": "Entdecken und folgen Sie anderen Benutzern, um deren Inhalte in Ihrem Feed zu sehen!"
+      },
+      "loading": {
+        "noMore": "Keine weiteren Benutzer zu laden"
+      }
     },
     "menu": {
       "account": "Konto",

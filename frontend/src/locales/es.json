@@ -272,6 +272,7 @@
     "likes": "Me gusta",
     "albums": "Álbumes",
     "profile": "Perfil",
+    "following": "Siguiendo",
     "menu": "Menú",
     "sidebar": "Barra lateral",
     "header": "Encabezado",
@@ -843,6 +844,18 @@
       "startExploringContent": "¡Comienza a explorar contenido y dale me gusta a lo que disfrutes! Descubre álbumes y medios increíbles de nuestra comunidad.",
       "loadingMoreLikes": "Cargando más me gusta...",
       "allLikesLoaded": "Todos tus me gusta cargados"
+    },
+    "following": {
+      "following": "Siguiendo",
+      "usersYouFollow": "Usuarios que sigues",
+      "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {usuarios} =1 {usuario} other {usuarios}}",
+      "empty": {
+        "title": "Aún no sigues a nadie",
+        "description": "¡Descubre y sigue a otros usuarios para ver su contenido en tu feed!"
+      },
+      "loading": {
+        "noMore": "No hay más usuarios para cargar"
+      }
     },
     "menu": {
       "account": "Cuenta",

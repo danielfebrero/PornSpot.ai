@@ -272,6 +272,7 @@
     "likes": "J'aime",
     "albums": "Albums",
     "profile": "Profil",
+    "following": "Abonnements",
     "menu": "Menu",
     "sidebar": "Barre latérale",
     "header": "En-tête",
@@ -910,6 +911,18 @@
       "startExploringContent": "Commencez à explorer le contenu et aimez ce qui vous plaît ! Découvrez des albums et médias incroyables de notre communauté.",
       "loadingMoreLikes": "Chargement de plus de j'aime...",
       "allLikesLoaded": "Tous vos j'aime sont chargés"
+    },
+    "following": {
+      "following": "Abonnements",
+      "usersYouFollow": "Utilisateurs que vous suivez",
+      "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {utilisateurs} =1 {utilisateur} other {utilisateurs}}",
+      "empty": {
+        "title": "Vous ne suivez encore personne",
+        "description": "Découvrez et suivez d'autres utilisateurs pour voir leur contenu dans votre flux !"
+      },
+      "loading": {
+        "noMore": "Plus d'utilisateurs à charger"
+      }
     },
     "notifications": {
       "title": "Notifications",

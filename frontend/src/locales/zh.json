@@ -272,6 +272,7 @@
     "likes": "点赞",
     "albums": "相册",
     "profile": "个人资料",
+    "following": "关注",
     "menu": "菜单",
     "sidebar": "侧边栏",
     "header": "页头",
@@ -845,6 +846,18 @@
       "startExploringContent": "开始探索内容并点赞您喜欢的！发现我们社区中的精彩专辑和媒体。",
       "loadingMoreLikes": "正在加载更多点赞...",
       "allLikesLoaded": "所有点赞已加载"
+    },
+    "following": {
+      "following": "关注",
+      "usersYouFollow": "您关注的用户",
+      "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {用户} other {用户}}",
+      "empty": {
+        "title": "暂无关注",
+        "description": "发现并关注其他用户，在您的动态中查看他们的内容！"
+      },
+      "loading": {
+        "noMore": "没有更多用户可加载"
+      }
     },
     "menu": {
       "account": "账户",
