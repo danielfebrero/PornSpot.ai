@@ -723,13 +723,16 @@ export default function ProfileComponent({
                             {/* Follower count */}
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <User className="w-4 h-4" />
-                              <span>
+                              <LocaleLink
+                                href={`/profile/${displayName}/followers`}
+                                className="hover:text-foreground transition-colors cursor-pointer hover:underline"
+                              >
                                 {t("followerCount", {
                                   count:
                                     (currentUser as PublicUserProfile)
                                       ?.followerCount || 0,
                                 })}
-                              </span>
+                              </LocaleLink>
                             </div>
 
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
