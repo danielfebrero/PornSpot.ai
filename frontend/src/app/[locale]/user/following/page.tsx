@@ -133,7 +133,7 @@ export default function UserFollowingPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-admin-yellow/10 to-admin-secondary/10 rounded-xl border border-admin-primary/20 shadow-lg p-6">
+      <div className="bg-gradient-to-r from-yellow-500/10 to-admin-secondary/10 rounded-xl border border-yellow-500/20 shadow-lg p-6">
         {/* Mobile Layout */}
         <div className="block sm:hidden space-y-4">
           <div className="flex items-center space-x-3">
@@ -150,7 +150,7 @@ export default function UserFollowingPage() {
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="bg-admin-primary/20 text-admin-primary text-sm font-semibold px-3 py-1.5 rounded-full">
+            <span className="bg-yellow-500/20 text-yellow-500 text-sm font-semibold px-3 py-1.5 rounded-full">
               {t("count", {
                 count: following.length,
                 hasNextPage: hasNext ? 1 : 0,
@@ -171,7 +171,7 @@ export default function UserFollowingPage() {
               </h1>
               <p className="text-muted-foreground">{t("usersYouFollow")}</p>
             </div>
-            <span className="bg-admin-primary/20 text-admin-primary text-sm font-semibold px-3 py-1.5 rounded-full">
+            <span className="bg-yellow-500/20 text-yellow-500 text-sm font-semibold px-3 py-1.5 rounded-full">
               {t("count", {
                 count: following.length,
                 hasNextPage: hasNext ? 1 : 0,
