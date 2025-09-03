@@ -38,6 +38,7 @@ export async function createMockUser(
       storageUsedGB: usage.storage,
       lastGenerationAt: new Date().toISOString(),
     },
+    followerCount: 0,
     ...overrides,
   };
 

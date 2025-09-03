@@ -69,6 +69,7 @@ export const mockMedia: Media = {
     aperture: "f/2.8",
     shutterSpeed: "1/125",
   },
+  popularity: 0,
 };
 
 export const mockMediaEntityMinimal: MediaEntity = {
@@ -109,6 +110,7 @@ export const mockMediaMinimal: Media = {
   url: `https://test.cloudfront.net/${mockS3Key}`,
   createdAt: mockTimestamp,
   updatedAt: mockTimestamp,
+  popularity: 0,
 };
 
 export const mockMediaList: MediaEntity[] = [

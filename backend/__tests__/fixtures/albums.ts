@@ -48,6 +48,7 @@ export const mockAlbum: Album = {
   updatedAt: mockTimestamp,
   mediaCount: 5,
   isPublic: true,
+  popularity: 0,
 };
 
 export const mockAlbumEntityMinimal: AlbumEntity = {
@@ -82,6 +83,7 @@ export const mockAlbumMinimal: Album = {
   updatedAt: mockTimestamp,
   mediaCount: 0,
   isPublic: false,
+  popularity: 0,
 };
 
 export const mockAlbumsListForAPI: Album[] = [
@@ -97,6 +99,7 @@ export const mockAlbumsListForAPI: Album[] = [
     updatedAt: "2023-01-02T00:00:00.000Z",
     mediaCount: 3,
     isPublic: true,
+    popularity: 0,
   },
   {
     id: "album-3",
@@ -106,6 +109,7 @@ export const mockAlbumsListForAPI: Album[] = [
     mediaCount: 0,
     type: "album",
     isPublic: false,
+    popularity: 0,
   },
 ];
 
