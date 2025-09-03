@@ -120,7 +120,9 @@ export function DiscoverClient({
       <div className="space-y-6">
         {/* Sort Navigation Tabs */}
         <ComponentErrorBoundary context="Sort Tabs">
-          <SortTabs />
+          <div className="flex justify-center md:justify-start">
+            <SortTabs />
+          </div>
         </ComponentErrorBoundary>
 
         <SectionErrorBoundary context="Content Grid">

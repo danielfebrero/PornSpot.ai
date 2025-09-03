@@ -5,9 +5,9 @@ import { useLocaleRouter } from "@/lib/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
-import { Compass, Heart } from "lucide-react";
+import { Compass, Heart, Users } from "lucide-react";
 
-export type SortMode = "discover" | "popular";
+export type SortMode = "discover" | "popular" | "following";
 
 interface SortTabsProps {
   className?: string;
@@ -73,6 +73,11 @@ export function SortTabs({ className }: SortTabsProps) {
       id: "popular" as const,
       label: t("popular"),
       icon: Heart,
+    },
+    {
+      id: "following" as const,
+      label: t("following"),
+      icon: Users,
     },
   ];
 

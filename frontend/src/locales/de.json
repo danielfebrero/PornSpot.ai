@@ -1782,7 +1782,8 @@
     "filteringByTag": "Filtern nach Tag:",
     "clearFilter": "Filter löschen",
     "discover": "Entdecken",
-    "popular": "Beliebt"
+    "popular": "Beliebt",
+    "following": "Folge ich"
   },
   "mediaDetail": {
     "goBack": "Zurück",

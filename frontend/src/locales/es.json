@@ -1782,7 +1782,8 @@
     "filteringByTag": "Filtrado por etiqueta:",
     "clearFilter": "Limpiar filtro",
     "discover": "Descubrir",
-    "popular": "Popular"
+    "popular": "Popular",
+    "following": "Siguiendo"
   },
   "mediaDetail": {
     "goBack": "Volver",

@@ -1783,7 +1783,8 @@
     "filteringByTag": "按标签过滤:",
     "clearFilter": "清除过滤器",
     "discover": "发现",
-    "popular": "热门"
+    "popular": "热门",
+    "following": "关注中"
   },
   "mediaDetail": {
     "goBack": "返回",

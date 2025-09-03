@@ -1791,7 +1791,10 @@
   },
   "discover": {
     "filteringByTag": "Фильтрация по тегу:",
-    "clearFilter": "Очистить фильтр"
+    "clearFilter": "Очистить фильтр",
+    "discover": "Открыть",
+    "popular": "Популярное",
+    "following": "Подписки"
   },
   "mediaDetail": {
     "goBack": "Назад",

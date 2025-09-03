@@ -1855,7 +1855,8 @@
     "filteringByTag": "Filtrage par tag :",
     "clearFilter": "Effacer le filtre",
     "discover": "Découvrir",
-    "popular": "Populaire"
+    "popular": "Populaire",
+    "following": "Suivi"
   },
   "mediaDetail": {
     "goBack": "Retour",
