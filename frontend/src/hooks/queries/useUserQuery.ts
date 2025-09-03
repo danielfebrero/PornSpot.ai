@@ -233,3 +233,175 @@ export function useUnreadNotificationCount() {
     retry: 2,
   });
 }
+
+// Hook for following a user
+export function useFollowUser() {
+  return useMutation({
+    mutationFn: async (username: string) => {
+      return await userApi.followUser(username);
+    },
+    onMutate: async (username) => {
+      // Cancel any outgoing refetches for the public profile
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.user.publicProfile(username),
+      });
+
+      // Snapshot the previous value
+      const previousProfile = queryClient.getQueryData(
+        queryKeys.user.publicProfile(username)
+      );
+
+      // Optimistically update the public profile cache
+      queryClient.setQueryData(
+        queryKeys.user.publicProfile(username),
+        (old: any) => {
+          if (old) {
+            return {
+              ...old,
+              followerCount: (old.followerCount || 0) + 1,
+              isFollowed: true,
+            };
+          }
+          return old;
+        }
+      );
+
+      return { previousProfile, username };
+    },
+    onError: (error, username, context) => {
+      console.error("Failed to follow user:", error);
+
+      // Rollback optimistic update
+      if (context?.previousProfile) {
+        queryClient.setQueryData(
+          queryKeys.user.publicProfile(username),
+          context.previousProfile
+        );
+      }
+    },
+    onSuccess: (data, username) => {
+      // Invalidate related queries to ensure consistency
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.follow.all() });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.user.publicProfile(username),
+      });
+    },
+  });
+}
+
+// Hook for unfollowing a user
+export function useUnfollowUser() {
+  return useMutation({
+    mutationFn: async (username: string) => {
+      return await userApi.unfollowUser(username);
+    },
+    onMutate: async (username) => {
+      // Cancel any outgoing refetches for the public profile
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.user.publicProfile(username),
+      });
+
+      // Snapshot the previous value
+      const previousProfile = queryClient.getQueryData(
+        queryKeys.user.publicProfile(username)
+      );
+
+      // Optimistically update the public profile cache
+      queryClient.setQueryData(
+        queryKeys.user.publicProfile(username),
+        (old: any) => {
+          if (old) {
+            return {
+              ...old,
+              followerCount: Math.max((old.followerCount || 0) - 1, 0),
+              isFollowed: false,
+            };
+          }
+          return old;
+        }
+      );
+
+      return { previousProfile, username };
+    },
+    onError: (error, username, context) => {
+      console.error("Failed to unfollow user:", error);
+
+      // Rollback optimistic update
+      if (context?.previousProfile) {
+        queryClient.setQueryData(
+          queryKeys.user.publicProfile(username),
+          context.previousProfile
+        );
+      }
+    },
+    onSuccess: (data, username) => {
+      // Invalidate related queries to ensure consistency
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.follow.all() });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.user.publicProfile(username),
+      });
+    },
+  });
+}
+
+// Hook for fetching users that a user is following
+export function useFollowing(params: {
+  username: string;
+  cursor?: string;
+  limit?: number;
+}) {
+  return useInfiniteQuery({
+    queryKey: queryKeys.user.follow.following(params),
+    queryFn: async ({ pageParam }) => {
+      return await userApi.getFollowing({
+        ...params,
+        cursor: pageParam,
+      });
+    },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => {
+      return lastPage.pagination.hasNext
+        ? lastPage.pagination.cursor
+        : undefined;
+    },
+    // Keep following data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+    // Enable background refetching
+    refetchOnWindowFocus: true,
+    // Only query if username is provided
+    enabled: !!params.username,
+    // Retry on failures
+    retry: 2,
+  });
+}
+
+// Hook for fetching users that follow a user
+export function useFollowers(params: {
+  username: string;
+  cursor?: string;
+  limit?: number;
+}) {
+  return useInfiniteQuery({
+    queryKey: queryKeys.user.follow.followers(params),
+    queryFn: async ({ pageParam }) => {
+      return await userApi.getFollowers({
+        ...params,
+        cursor: pageParam,
+      });
+    },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => {
+      return lastPage.pagination.hasNext
+        ? lastPage.pagination.cursor
+        : undefined;
+    },
+    // Keep followers data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+    // Enable background refetching
+    refetchOnWindowFocus: true,
+    // Only query if username is provided
+    enabled: !!params.username,
+    // Retry on failures
+    retry: 2,
+  });
+}

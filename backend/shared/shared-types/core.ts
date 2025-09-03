@@ -58,7 +58,8 @@ export type EntityType =
   | "PasswordResetToken"
   | "Analytics"
   | "MetricsCache"
-  | "GenerationSettings";
+  | "GenerationSettings"
+  | "Follow";
 
 export type CreatorType = "user" | "admin";
 

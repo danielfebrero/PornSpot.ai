@@ -22,6 +22,7 @@ import { useAlbums } from "@/hooks/queries/useAlbumsQuery";
 import { useCommentsQuery } from "@/hooks/queries/useCommentsQuery";
 import { useUserMedia } from "@/hooks/queries/useMediaQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
+import { useFollowUser, useUnfollowUser } from "@/hooks/queries/useUserQuery";
 import { useUsernameAvailability } from "@/hooks/useUsernameAvailability";
 import { useDateUtils } from "@/hooks/useDateUtils";
 import { userApi } from "@/lib/api/user";
@@ -90,6 +91,27 @@ export default function ProfileComponent({
     checkUsernameAvailability,
     resetStatus: resetUsernameStatus,
   } = useUsernameAvailability();
+
+  // Follow/unfollow functionality
+  const followUserMutation = useFollowUser();
+  const unfollowUserMutation = useUnfollowUser();
+
+  const handleFollowToggle = async () => {
+    if (!currentUser?.username || !loggedInUser) return;
+
+    const isCurrentlyFollowed =
+      (currentUser as PublicUserProfile)?.isFollowed || false;
+
+    try {
+      if (isCurrentlyFollowed) {
+        await unfollowUserMutation.mutateAsync(currentUser.username);
+      } else {
+        await followUserMutation.mutateAsync(currentUser.username);
+      }
+    } catch (error) {
+      console.error("Follow/unfollow failed:", error);
+    }
+  };
 
   // Get real profile data
   const {
@@ -667,10 +689,21 @@ export default function ProfileComponent({
                               {!isOwner && (
                                 <Button
                                   size="sm"
+                                  onClick={handleFollowToggle}
+                                  disabled={
+                                    followUserMutation.isPending ||
+                                    unfollowUserMutation.isPending
+                                  }
                                   className="bg-gradient-to-r from-admin-primary to-admin-secondary text-admin-primary-foreground shadow-md hover:shadow-lg transition-all duration-300 ease-out hover:scale-[1.02]"
                                 >
                                   <User className="w-3 h-3 mr-1.5" />
-                                  {t("follow")}
+                                  {followUserMutation.isPending ||
+                                  unfollowUserMutation.isPending
+                                    ? "..."
+                                    : (currentUser as PublicUserProfile)
+                                        ?.isFollowed
+                                    ? t("unfollow")
+                                    : t("follow")}
                                 </Button>
                               )}
                             </div>

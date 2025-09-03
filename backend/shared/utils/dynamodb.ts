@@ -23,6 +23,7 @@ import {
   NotificationEntity,
   NotificationWithDetails,
   GenerationSettingsEntity,
+  FollowEntity,
 } from "@shared/shared-types";
 import {
   UserEntity,
@@ -4031,5 +4032,170 @@ export class DynamoDBService {
     );
 
     return (result.Item as GenerationSettingsEntity) || null;
+  }
+
+  // Follow relationship operations
+  static async createFollowRelationship(
+    followerId: string,
+    followedId: string
+  ): Promise<void> {
+    const now = new Date().toISOString();
+
+    const followEntity: FollowEntity = {
+      PK: `FOLLOW#${followerId}#${followedId}`,
+      SK: "METADATA",
+      GSI1PK: `FOLLOWING#${followerId}`,
+      GSI1SK: `${now}#${followedId}`,
+      GSI2PK: `FOLLOWERS#${followedId}`,
+      GSI2SK: `${now}#${followerId}`,
+      EntityType: "Follow",
+      followerId,
+      followedId,
+      createdAt: now,
+    };
+
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: followEntity,
+        ConditionExpression: "attribute_not_exists(PK)",
+      })
+    );
+  }
+
+  static async getFollowRelationship(
+    followerId: string,
+    followedId: string
+  ): Promise<FollowEntity | null> {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `FOLLOW#${followerId}#${followedId}`,
+          SK: "METADATA",
+        },
+      })
+    );
+
+    return (result.Item as FollowEntity) || null;
+  }
+
+  static async deleteFollowRelationship(
+    followerId: string,
+    followedId: string
+  ): Promise<void> {
+    await docClient.send(
+      new DeleteCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `FOLLOW#${followerId}#${followedId}`,
+          SK: "METADATA",
+        },
+      })
+    );
+  }
+
+  static async getUserFollowing(
+    userId: string,
+    limit: number = 20,
+    lastEvaluatedKey?: Record<string, any>
+  ): Promise<{
+    follows: FollowEntity[];
+    lastEvaluatedKey?: Record<string, any>;
+  }> {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI1",
+        KeyConditionExpression: "GSI1PK = :gsi1pk",
+        ExpressionAttributeValues: {
+          ":gsi1pk": `FOLLOWING#${userId}`,
+        },
+        ScanIndexForward: false, // Most recent first
+        Limit: limit,
+        ExclusiveStartKey: lastEvaluatedKey,
+      })
+    );
+
+    const response: {
+      follows: FollowEntity[];
+      lastEvaluatedKey?: Record<string, any>;
+    } = {
+      follows: (result.Items as FollowEntity[]) || [],
+    };
+
+    if (result.LastEvaluatedKey) {
+      response.lastEvaluatedKey = result.LastEvaluatedKey;
+    }
+
+    return response;
+  }
+
+  static async getUserFollowers(
+    userId: string,
+    limit: number = 20,
+    lastEvaluatedKey?: Record<string, any>
+  ): Promise<{
+    follows: FollowEntity[];
+    lastEvaluatedKey?: Record<string, any>;
+  }> {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI2",
+        KeyConditionExpression: "GSI2PK = :gsi2pk",
+        ExpressionAttributeValues: {
+          ":gsi2pk": `FOLLOWERS#${userId}`,
+        },
+        ScanIndexForward: false, // Most recent first
+        Limit: limit,
+        ExclusiveStartKey: lastEvaluatedKey,
+      })
+    );
+
+    const response: {
+      follows: FollowEntity[];
+      lastEvaluatedKey?: Record<string, any>;
+    } = {
+      follows: (result.Items as FollowEntity[]) || [],
+    };
+
+    if (result.LastEvaluatedKey) {
+      response.lastEvaluatedKey = result.LastEvaluatedKey;
+    }
+
+    return response;
+  }
+
+  static async incrementUserFollowerCount(userId: string): Promise<void> {
+    await docClient.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `USER#${userId}`,
+          SK: "METADATA",
+        },
+        UpdateExpression: "ADD followerCount :increment",
+        ExpressionAttributeValues: {
+          ":increment": 1,
+        },
+      })
+    );
+  }
+
+  static async decrementUserFollowerCount(userId: string): Promise<void> {
+    await docClient.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `USER#${userId}`,
+          SK: "METADATA",
+        },
+        UpdateExpression: "ADD followerCount :decrement",
+        ExpressionAttributeValues: {
+          ":decrement": -1,
+        },
+      })
+    );
   }
 }

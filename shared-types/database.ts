@@ -205,6 +205,7 @@ export interface UserEntity extends BaseEntity {
 
   // Real-time profile insights/metrics
   profileInsights?: UserProfileInsights;
+  followerCount?: number;
 }
 
 // User Session Entity
@@ -356,4 +357,18 @@ export interface GenerationSettingsEntity extends BaseEntity {
   negativePrompt: string;
   createdAt: string;
   updatedAt: string;
+}
+
+// Follow Entity - for user following relationships
+export interface FollowEntity extends BaseEntity {
+  PK: string; // FOLLOW#{followerId}#{followedId}
+  SK: string; // METADATA
+  GSI1PK: string; // FOLLOWING#{followerId} - to query users that followerId follows
+  GSI1SK: string; // {createdAt}#{followedId}
+  GSI2PK: string; // FOLLOWERS#{followedId} - to query users that follow followedId
+  GSI2SK: string; // {createdAt}#{followerId}
+  EntityType: "Follow";
+  followerId: string; // User who is following
+  followedId: string; // User being followed
+  createdAt: string; // When the follow relationship was created
 }

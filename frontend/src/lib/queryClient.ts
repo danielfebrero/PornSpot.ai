@@ -112,6 +112,19 @@ export const queryKeys = {
         ["user", "notifications", "list", params] as const,
       unreadCount: () => ["user", "notifications", "unreadCount"] as const,
     },
+    follow: {
+      all: () => ["user", "follow"] as const,
+      following: (params: {
+        username: string;
+        cursor?: string;
+        limit?: number;
+      }) => ["user", "follow", "following", params] as const,
+      followers: (params: {
+        username: string;
+        cursor?: string;
+        limit?: number;
+      }) => ["user", "follow", "followers", params] as const,
+    },
   },
 
   // Album-related queries

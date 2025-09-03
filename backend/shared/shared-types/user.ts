@@ -69,6 +69,9 @@ export interface PublicUserProfile {
   planInfo: {
     plan: UserPlan;
   };
+
+  isFollowed: boolean;
+  isFollowing: boolean;
 }
 
 export interface MinimalUser {

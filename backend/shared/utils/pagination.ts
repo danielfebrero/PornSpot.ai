@@ -161,6 +161,7 @@ export const DEFAULT_PAGINATION_LIMITS = {
   users: 25,
   admin: 25,
   notifications: 20,
+  follow: 20,
 } as const;
 
 /**
@@ -174,6 +175,7 @@ export const MAX_PAGINATION_LIMITS = {
   users: 100,
   admin: 100,
   notifications: 100,
+  follow: 100,
 } as const;
 
 /**

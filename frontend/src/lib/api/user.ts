@@ -289,4 +289,79 @@ export const userApi = {
     );
     return ApiUtil.extractData(response);
   },
+
+  // Follow a user
+  followUser: async (username: string): Promise<{ message: string }> => {
+    const response = await ApiUtil.post<{ message: string }>(
+      `/user/follow?username=${encodeURIComponent(username)}`,
+      {}
+    );
+    return ApiUtil.extractData(response);
+  },
+
+  // Unfollow a user
+  unfollowUser: async (username: string): Promise<{ message: string }> => {
+    const response = await ApiUtil.delete<{ message: string }>(
+      `/user/unfollow?username=${encodeURIComponent(username)}`
+    );
+    return ApiUtil.extractData(response);
+  },
+
+  // Get users that a user is following
+  getFollowing: async (params: {
+    username: string;
+    cursor?: string;
+    limit?: number;
+  }): Promise<{
+    following: MinimalUser[];
+    pagination: {
+      hasNext: boolean;
+      cursor: string | null;
+      limit: number;
+    };
+  }> => {
+    const searchParams = new URLSearchParams();
+    searchParams.append("username", params.username);
+    if (params.cursor) searchParams.append("cursor", params.cursor);
+    if (params.limit) searchParams.append("limit", params.limit.toString());
+
+    const response = await ApiUtil.get<{
+      following: MinimalUser[];
+      pagination: {
+        hasNext: boolean;
+        cursor: string | null;
+        limit: number;
+      };
+    }>(`/user/following?${searchParams.toString()}`);
+    return ApiUtil.extractData(response);
+  },
+
+  // Get users that follow a user
+  getFollowers: async (params: {
+    username: string;
+    cursor?: string;
+    limit?: number;
+  }): Promise<{
+    followers: MinimalUser[];
+    pagination: {
+      hasNext: boolean;
+      cursor: string | null;
+      limit: number;
+    };
+  }> => {
+    const searchParams = new URLSearchParams();
+    searchParams.append("username", params.username);
+    if (params.cursor) searchParams.append("cursor", params.cursor);
+    if (params.limit) searchParams.append("limit", params.limit.toString());
+
+    const response = await ApiUtil.get<{
+      followers: MinimalUser[];
+      pagination: {
+        hasNext: boolean;
+        cursor: string | null;
+        limit: number;
+      };
+    }>(`/user/followers?${searchParams.toString()}`);
+    return ApiUtil.extractData(response);
+  },
 };

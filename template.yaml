@@ -1928,6 +1928,126 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
 
+  UserFollowFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-follow-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/follow/follow.handler"]
+      Events:
+        PostFollow:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/follow
+            Method: POST
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsFollow:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/follow
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+
+  UserUnfollowFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-unfollow-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/follow/unfollow.handler"]
+      Events:
+        DeleteUnfollow:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/unfollow
+            Method: DELETE
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsUnfollow:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/unfollow
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+
+  UserFollowingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-following-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/follow/following.handler"]
+      Events:
+        GetFollowing:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/following
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        OptionsFollowing:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/following
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
+  UserFollowersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-followers-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/follow/followers.handler"]
+      Events:
+        GetFollowers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/followers
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        OptionsFollowers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/followers
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
   UserAvatarUploadFunction:
     Type: AWS::Serverless::Function
     Properties:

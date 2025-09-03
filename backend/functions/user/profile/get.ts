@@ -47,6 +47,19 @@ const handleGetUserProfile = async (
 
   console.log("✅ Found user:", userEntity.userId, userEntity.email);
 
+  // Check follow relationships
+  const [isFollowedByCurrentUser, isFollowingCurrentUser] = await Promise.all([
+    // Check if current user follows the target user
+    DynamoDBService.getFollowRelationship(currentUserId, userEntity.userId),
+    // Check if target user follows the current user
+    DynamoDBService.getFollowRelationship(userEntity.userId, currentUserId),
+  ]);
+
+  console.log("🔍 Follow relationships:", {
+    currentUserFollowsTarget: !!isFollowedByCurrentUser,
+    targetUserFollowsCurrent: !!isFollowingCurrentUser,
+  });
+
   // Prepare public profile response (excluding sensitive information)
   const publicProfile: PublicUserProfile = {
     userId: userEntity.userId,
@@ -69,6 +82,9 @@ const handleGetUserProfile = async (
     planInfo: {
       plan: userEntity.plan,
     },
+    // Follow relationship fields
+    isFollowed: !!isFollowedByCurrentUser,
+    isFollowing: !!isFollowingCurrentUser,
   };
 
   console.log("✅ Returning public profile for user:", username);
