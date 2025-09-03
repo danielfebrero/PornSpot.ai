@@ -133,7 +133,7 @@ export default function UserFollowingPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-admin-primary/10 to-admin-secondary/10 rounded-xl border border-admin-primary/20 shadow-lg p-6">
+      <div className="bg-gradient-to-r from-admin-yellow/10 to-admin-secondary/10 rounded-xl border border-admin-primary/20 shadow-lg p-6">
         {/* Mobile Layout */}
         <div className="block sm:hidden space-y-4">
           <div className="flex items-center space-x-3">
