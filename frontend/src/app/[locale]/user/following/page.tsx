@@ -148,8 +148,6 @@ export default function UserFollowingPage() {
                 {t("usersYouFollow")}
               </p>
             </div>
-          </div>
-          <div className="flex items-center justify-between">
             <span className="bg-yellow-500/20 text-yellow-500 text-sm font-semibold px-3 py-1.5 rounded-full">
               {t("count", {
                 count: following.length,
