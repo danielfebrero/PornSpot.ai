@@ -124,6 +124,6 @@
 
 [ ] On delete from Discover, must optimistically disappear.
 
-[ ] Sort discover for most Popular.
+[x] Sort discover for most Popular.
 
-[ ] See if "save image" step needs to be parallelized in generate image.
+[ ] Check if "save image" step needs to be parallelized in generate image.
