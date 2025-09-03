@@ -138,11 +138,13 @@ export class DynamoDBDiscoverService {
       TableName: TABLE_NAME,
       IndexName: "GSI6",
       KeyConditionExpression: "GSI6PK = :gsi6pk",
-      FilterExpression: "EntityType = :entityType AND isPublic = :isPublic",
+      FilterExpression:
+        "EntityType = :entityType AND isPublic = :isPublic AND mediaCount > :minMediaCount",
       ExpressionAttributeValues: {
         ":gsi6pk": "POPULARITY",
         ":entityType": "Album",
         ":isPublic": "true",
+        ":minMediaCount": 0,
       },
       ScanIndexForward: false, // Highest popularity first (descending)
       Limit: limit,
@@ -180,11 +182,13 @@ export class DynamoDBDiscoverService {
       TableName: TABLE_NAME,
       IndexName: "GSI6",
       KeyConditionExpression: "GSI6PK = :gsi6pk",
-      FilterExpression: "EntityType = :entityType AND isPublic = :isPublic",
+      FilterExpression:
+        "EntityType = :entityType AND isPublic = :isPublic AND mediaCount > :minMediaCount",
       ExpressionAttributeValues: {
         ":gsi6pk": "POPULARITY",
         ":entityType": "Media",
         ":isPublic": "true",
+        ":minMediaCount": 0,
       },
       ScanIndexForward: false, // Highest popularity first (descending)
       Limit: limit,
@@ -208,7 +212,7 @@ export class DynamoDBDiscoverService {
   /**
    * Query popular public albums with optional tag filtering using GSI6
    * GSI6PK: POPULARITY, GSI6SK: popularity score
-   * 
+   *
    * For tag filtering, this function first gets popular albums, then filters by tag
    * This approach is necessary because tags are stored in a separate GSI structure
    */
@@ -233,7 +237,7 @@ export class DynamoDBDiscoverService {
   /**
    * Query popular public media with optional tag filtering using GSI6
    * GSI6PK: POPULARITY, GSI6SK: popularity score
-   * 
+   *
    * Note: Media items don't typically have tags in the current schema,
    * but this function is provided for consistency and future extensibility
    */
@@ -248,7 +252,9 @@ export class DynamoDBDiscoverService {
     if (tag) {
       // Media items don't typically have tags in current schema
       // Return empty result for now, but maintain consistent API
-      console.log(`[DynamoDBDiscoverService] Tag filtering for media not supported: ${tag}`);
+      console.log(
+        `[DynamoDBDiscoverService] Tag filtering for media not supported: ${tag}`
+      );
       return {
         media: [],
         lastEvaluatedKey: undefined,
@@ -286,8 +292,8 @@ export class DynamoDBDiscoverService {
 
       // Filter albums by tag
       const taggedAlbums = batchResult.albums.filter((album) =>
-        album.tags?.some((albumTag) => 
-          albumTag.toLowerCase().trim() === normalizedTag
+        album.tags?.some(
+          (albumTag) => albumTag.toLowerCase().trim() === normalizedTag
         )
       );
 
@@ -303,11 +309,13 @@ export class DynamoDBDiscoverService {
 
     // Return only the requested number of albums
     const resultAlbums = allAlbums.slice(0, limit);
-    
+
     // For pagination, we need to keep track of position in the filtered results
     // If we have fewer results than requested, we've exhausted the filtered data
-    const resultLastEvaluatedKey = 
-      allAlbums.length > limit || hasMoreItems ? currentLastEvaluatedKey : undefined;
+    const resultLastEvaluatedKey =
+      allAlbums.length > limit || hasMoreItems
+        ? currentLastEvaluatedKey
+        : undefined;
 
     return {
       albums: resultAlbums,

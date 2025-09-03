@@ -199,11 +199,15 @@ const handleGetDiscover = async (
   // Handle sort=popular - use popularity-based queries instead of time-based
   if (sort === "popular") {
     console.log("[Discover API] Popular sorting requested");
-    
+
     // For popular sorting, we want the most popular content without diversification
     // Fetch exactly what we need
     const [albumsResult, mediaResult] = await Promise.all([
-      DynamoDBDiscoverService.queryPopularAlbumsViaGSI6(limit, albumsCursor, tag),
+      DynamoDBDiscoverService.queryPopularAlbumsViaGSI6(
+        limit,
+        albumsCursor,
+        tag
+      ),
       DynamoDBDiscoverService.queryPopularMediaViaGSI6(limit, mediaCursor, tag),
     ]);
 
@@ -217,13 +221,17 @@ const handleGetDiscover = async (
     const albumsWithPreview = await Promise.all(
       albumsResult.albums.map(async (album) => ({
         ...album,
-        contentPreview: (await DynamoDBService.getContentPreviewForAlbum(album.id)) || null,
+        contentPreview:
+          (await DynamoDBService.getContentPreviewForAlbum(album.id)) || null,
       }))
     );
 
     // Combine albums and media, then sort by popularity score
-    const combinedItems: (Album | Media)[] = [...albumsWithPreview, ...mediaResult.media];
-    
+    const combinedItems: (Album | Media)[] = [
+      ...albumsWithPreview,
+      ...mediaResult.media,
+    ];
+
     // Sort by popularity score in descending order (highest popularity first)
     const sortedItems = combinedItems.sort((a, b) => {
       const aPopularity = a.popularity || 0;
