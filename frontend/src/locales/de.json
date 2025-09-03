@@ -48,6 +48,7 @@
     "select": "Auswählen",
     "all": "Alle",
     "none": "Keine",
+    "followerCount": "{count, number} {count, plural, =0 {Follower} =1 {Follower} other {Follower}}",
     "toggle": "Umschalten",
     "expand": "Erweitern",
     "collapse": "Einklappen",

@@ -40,6 +40,7 @@ export interface User {
     lastGenerationAt?: string;
   };
   profileInsights?: UserProfileInsights;
+  followerCount: number;
 }
 
 export interface PublicUserProfile {
@@ -72,6 +73,7 @@ export interface PublicUserProfile {
 
   isFollowed: boolean;
   isFollowing: boolean;
+  followerCount: number;
 }
 
 export interface MinimalUser {

@@ -196,6 +196,7 @@ export class PlanUtil {
       usageStats,
 
       profileInsights: userEntity.profileInsights,
+      followerCount: userEntity.followerCount || 0,
     };
   }
 

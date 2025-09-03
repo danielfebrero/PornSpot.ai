@@ -48,6 +48,7 @@
     "select": "选择",
     "all": "全部",
     "none": "无",
+    "followerCount": "{count, number} {count, plural, other {位粉丝}}",
     "toggle": "切换",
     "expand": "展开",
     "collapse": "收起",

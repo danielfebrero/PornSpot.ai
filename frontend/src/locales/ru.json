@@ -48,6 +48,7 @@
     "select": "Выбрать",
     "all": "Все",
     "none": "Ничего",
+    "followerCount": "{count, number} {count, plural, =0 {подписчиков} =1 {подписчик} other {подписчиков}}",
     "toggle": "Переключить",
     "expand": "Развернуть",
     "collapse": "Свернуть",

@@ -85,6 +85,7 @@ const handleGetUserProfile = async (
     // Follow relationship fields
     isFollowed: !!isFollowedByCurrentUser,
     isFollowing: !!isFollowingCurrentUser,
+    followerCount: userEntity.followerCount || 0,
   };
 
   console.log("✅ Returning public profile for user:", username);

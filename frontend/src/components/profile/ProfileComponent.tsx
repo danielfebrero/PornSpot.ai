@@ -42,6 +42,8 @@ import {
   Eye,
   MapPin,
   Globe,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDevice } from "@/contexts/DeviceContext";
@@ -696,7 +698,15 @@ export default function ProfileComponent({
                                   }
                                   className="bg-gradient-to-r from-admin-primary to-admin-secondary text-admin-primary-foreground shadow-md hover:shadow-lg transition-all duration-300 ease-out hover:scale-[1.02]"
                                 >
-                                  <User className="w-3 h-3 mr-1.5" />
+                                  {followUserMutation.isPending ||
+                                  unfollowUserMutation.isPending ? (
+                                    <div className="w-3 h-3 mr-1.5 border border-current border-t-transparent rounded-full animate-spin" />
+                                  ) : (currentUser as PublicUserProfile)
+                                      ?.isFollowed ? (
+                                    <Minus className="w-3 h-3 mr-1.5" />
+                                  ) : (
+                                    <Plus className="w-3 h-3 mr-1.5" />
+                                  )}
                                   {followUserMutation.isPending ||
                                   unfollowUserMutation.isPending
                                     ? "..."
@@ -710,6 +720,18 @@ export default function ProfileComponent({
                           </div>
 
                           <div className="space-y-2">
+                            {/* Follower count */}
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <User className="w-4 h-4" />
+                              <span>
+                                {t("followerCount", {
+                                  count:
+                                    (currentUser as PublicUserProfile)
+                                      ?.followerCount || 0,
+                                })}
+                              </span>
+                            </div>
+
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Calendar className="w-4 h-4" />
                               <span>
