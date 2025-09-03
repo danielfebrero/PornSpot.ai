@@ -49,7 +49,7 @@ export default function UserFollowingPage() {
     return (
       <div className="space-y-6">
         {/* Header Skeleton */}
-        <div className="bg-gradient-to-r from-admin-primary/10 to-admin-secondary/10 rounded-xl border border-admin-primary/20 shadow-lg p-6">
+        <div className="bg-gradient-to-r from-yellow-500/10 to-admin-secondary/10 rounded-xl border border-yellow-500/20 shadow-lg p-6">
           <div className="animate-pulse">
             <div className="h-8 bg-muted/50 rounded w-1/3 mb-4"></div>
             <div className="h-4 bg-muted/50 rounded w-1/2"></div>
