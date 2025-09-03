@@ -9,6 +9,7 @@ import {
   MessageCircle,
   Bookmark,
   Loader2,
+  UserPlus,
 } from "lucide-react";
 import { useNotifications } from "@/hooks/queries/useUserQuery";
 import { useDateUtils } from "@/hooks/useDateUtils";
@@ -30,6 +31,8 @@ const getNotificationIcon = (type: string) => {
       return <MessageCircle className="h-4 w-4 text-blue-500" />;
     case "bookmark":
       return <Bookmark className="h-4 w-4 text-yellow-500" />;
+    case "follow":
+      return <UserPlus className="h-4 w-4 text-green-500" />;
     default:
       return <Bell className="h-4 w-4 text-muted-foreground" />;
   }
