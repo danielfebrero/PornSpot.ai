@@ -5,6 +5,7 @@ import { useLocaleRouter } from "@/lib/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import { Compass, Heart } from "lucide-react";
 
 export type SortMode = "discover" | "popular";
 
@@ -66,40 +67,12 @@ export function SortTabs({ className }: SortTabsProps) {
     {
       id: "discover" as const,
       label: t("discover"),
-      icon: (
-        <svg
-          className="w-3.5 h-3.5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M13 10V3L4 14h7v7l9-11h-7z"
-          />
-        </svg>
-      ),
+      icon: Compass,
     },
     {
       id: "popular" as const,
       label: t("popular"),
-      icon: (
-        <svg
-          className="w-3.5 h-3.5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-          />
-        </svg>
-      ),
+      icon: Heart,
     },
   ];
 
@@ -135,7 +108,7 @@ export function SortTabs({ className }: SortTabsProps) {
                     isActive ? "scale-110" : "group-hover:scale-105"
                   )}
                 >
-                  {tab.icon}
+                  {<tab.icon className="h-4 w-4" />}
                 </span>
 
                 {/* Label */}
