@@ -1752,7 +1752,9 @@
   },
   "discover": {
     "filteringByTag": "按标签过滤:",
-    "clearFilter": "清除过滤器"
+    "clearFilter": "清除过滤器",
+    "discover": "发现",
+    "popular": "热门"
   },
   "mediaDetail": {
     "goBack": "返回",

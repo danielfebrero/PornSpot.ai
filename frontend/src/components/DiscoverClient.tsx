@@ -12,6 +12,7 @@ import {
 } from "./ErrorBoundaries";
 import { useDiscover } from "@/hooks/queries/useDiscoverQuery";
 import { useTranslations } from "next-intl";
+import { SortTabs, SortMode } from "./ui/SortTabs";
 
 interface DiscoverClientProps {
   initialContent: (Album | Media)[];
@@ -29,18 +30,20 @@ export function DiscoverClient({
   const searchParams = useSearchParams();
   const router = useLocaleRouter();
   const tag = searchParams.get("tag") || initialTag || undefined;
+  const sort = (searchParams.get("sort") as SortMode) || "discover";
   const prevTag = useRef<string | undefined>(tag);
+  const prevSort = useRef<SortMode>(sort);
   const t = useTranslations("discover");
 
-  // For pages with tags, we need fresh data since SSG doesn't pre-render all tag combinations
-  // For the main discover page (no tag), we can use the SSG initial data
+  // For pages with tags or non-default sort, we need fresh data since SSG doesn't pre-render all combinations
+  // For the main discover page (no tag, default sort), we can use the SSG initial data
   const shouldUseInitialData =
-    !tag && !initialTag && initialContent?.length > 0;
+    !tag && !initialTag && sort === "discover" && initialContent?.length > 0;
 
   // Use TanStack Query with infinite scroll and initial data from SSG/ISR
   // This approach:
-  // 1. Uses server-rendered data for instant loading on main page (no tag filtering)
-  // 2. Falls back to client-side fetching for dynamic tag filtering
+  // 1. Uses server-rendered data for instant loading on main page (no tag filtering, default sort)
+  // 2. Falls back to client-side fetching for dynamic tag filtering or sort changes
   // 3. Provides seamless infinite scroll from the initial data
   const {
     data,
@@ -53,7 +56,8 @@ export function DiscoverClient({
   } = useDiscover({
     limit: 20,
     tag,
-    // Pass initial data only for non-tagged requests
+    // Note: sort parameter will be added to the API later
+    // Pass initial data only for non-tagged, default sort requests
     ...(shouldUseInitialData && {
       initialData: {
         items: initialContent,
@@ -78,16 +82,17 @@ export function DiscoverClient({
   // Prefetch view counts in the background
   useBulkViewCounts(viewCountTargets, { enabled: viewCountTargets.length > 0 });
 
-  // Force refetch when tag changes (but not on initial load)
+  // Force refetch when tag or sort changes (but not on initial load)
   useEffect(() => {
-    if (prevTag.current !== tag) {
+    if (prevTag.current !== tag || prevSort.current !== sort) {
       // Only refetch if this isn't the initial render
-      if (prevTag.current !== undefined) {
+      if (prevTag.current !== undefined || prevSort.current !== undefined) {
         refetch();
       }
       prevTag.current = tag;
+      prevSort.current = sort;
     }
-  }, [tag, refetch]);
+  }, [tag, sort, refetch]);
 
   // LoadMore function for AlbumGrid
   const loadMore = () => {
@@ -117,41 +122,10 @@ export function DiscoverClient({
   return (
     <SectionErrorBoundary context="Discover Page">
       <div className="space-y-6">
-        {tag && (
-          <ComponentErrorBoundary context="Tag Filter">
-            <div className="bg-gradient-to-r from-admin-primary/10 to-admin-secondary/10 rounded-xl p-4 border border-admin-primary/20">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-2">
-                    <svg
-                      className="w-5 h-5 text-admin-primary"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="text-foreground font-medium">
-                      {t("filteringByTag")}
-                    </span>
-                  </div>
-                  <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-admin-primary text-admin-primary-foreground">
-                    {tag}
-                  </span>
-                </div>
-                <button
-                  onClick={() => router.push("/")}
-                  className="text-admin-primary hover:text-admin-primary/80 transition-colors text-sm font-medium"
-                >
-                  {t("clearFilter")}
-                </button>
-              </div>
-            </div>
-          </ComponentErrorBoundary>
-        )}
+        {/* Sort Navigation Tabs */}
+        <ComponentErrorBoundary context="Sort Tabs">
+          <SortTabs />
+        </ComponentErrorBoundary>
 
         <SectionErrorBoundary context="Content Grid">
           <ContentGrid

@@ -1751,7 +1751,9 @@
   },
   "discover": {
     "filteringByTag": "Filtrado por etiqueta:",
-    "clearFilter": "Limpiar filtro"
+    "clearFilter": "Limpiar filtro",
+    "discover": "Descubrir",
+    "popular": "Popular"
   },
   "mediaDetail": {
     "goBack": "Volver",

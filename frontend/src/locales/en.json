@@ -1825,7 +1825,9 @@
   },
   "discover": {
     "filteringByTag": "Filtering by tag:",
-    "clearFilter": "Clear filter"
+    "clearFilter": "Clear filter",
+    "discover": "Discover",
+    "popular": "Popular"
   },
   "mediaDetail": {
     "goBack": "Go Back",
