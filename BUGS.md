@@ -133,3 +133,5 @@
 [ ] Fix all the missing translations (view vercel build logs and console logs).
 
 [ ] Analytics daily shows 23 points instead of 24 (a complete day).
+
+[ ] If I delete cover image, auto attribute another cover image.

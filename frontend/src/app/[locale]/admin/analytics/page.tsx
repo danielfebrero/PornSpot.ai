@@ -64,16 +64,16 @@ export default function AnalyticsPage() {
 
       switch (granularity) {
         case "hourly":
-          start.setHours(start.getHours() - 24); // Last 24 hours
+          start.setHours(start.getHours() - 25); // Last 24 hours
           break;
         case "daily":
-          start.setDate(start.getDate() - 30); // Last 30 days
+          start.setDate(start.getDate() - 31); // Last 30 days
           break;
         case "weekly":
-          start.setDate(start.getDate() - 84); // Last 12 weeks
+          start.setDate(start.getDate() - 85); // Last 12 weeks
           break;
         case "monthly":
-          start.setMonth(start.getMonth() - 12); // Last 12 months
+          start.setMonth(start.getMonth() - 13); // Last 12 months
           break;
       }
 

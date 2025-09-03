@@ -182,13 +182,11 @@ export class DynamoDBDiscoverService {
       TableName: TABLE_NAME,
       IndexName: "GSI6",
       KeyConditionExpression: "GSI6PK = :gsi6pk",
-      FilterExpression:
-        "EntityType = :entityType AND isPublic = :isPublic AND mediaCount > :minMediaCount",
+      FilterExpression: "EntityType = :entityType AND isPublic = :isPublic",
       ExpressionAttributeValues: {
         ":gsi6pk": "POPULARITY",
         ":entityType": "Media",
         ":isPublic": "true",
-        ":minMediaCount": 0,
       },
       ScanIndexForward: false, // Highest popularity first (descending)
       Limit: limit,
