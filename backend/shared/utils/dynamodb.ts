@@ -84,6 +84,7 @@ export class DynamoDBService {
       updatedAt: entity.updatedAt,
       mediaCount: entity.mediaCount,
       isPublic: entity.isPublic === "true",
+      popularity: entity.GSI6SK,
     };
 
     if (entity.tags !== undefined) {
@@ -146,6 +147,7 @@ export class DynamoDBService {
       mimeType: entity.mimeType,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      popularity: entity.GSI6SK,
     };
 
     if (entity.size !== undefined) {

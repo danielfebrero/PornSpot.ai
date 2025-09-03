@@ -7,7 +7,6 @@ import {
   DiscoverContent,
   DiscoverParams,
 } from "@/types/shared-types";
-import { last } from "lodash";
 
 interface UseDiscoverParams
   extends Omit<DiscoverParams, "cursorAlbums" | "cursorMedia"> {

@@ -4,14 +4,12 @@ import { ContentGrid } from "./ContentGrid";
 import { useBulkViewCounts } from "@/hooks/queries/useViewCountsQuery";
 import { Album, DiscoverCursors, Media } from "@/types";
 import { useSearchParams } from "next/navigation";
-import { useLocaleRouter } from "@/lib/navigation";
 import { useEffect, useRef, useMemo } from "react";
 import {
   SectionErrorBoundary,
   ComponentErrorBoundary,
 } from "./ErrorBoundaries";
 import { useDiscover } from "@/hooks/queries/useDiscoverQuery";
-import { useTranslations } from "next-intl";
 import { SortTabs, SortMode } from "./ui/SortTabs";
 
 interface DiscoverClientProps {
@@ -28,12 +26,10 @@ export function DiscoverClient({
   initialTag,
 }: DiscoverClientProps) {
   const searchParams = useSearchParams();
-  const router = useLocaleRouter();
   const tag = searchParams.get("tag") || initialTag || undefined;
   const sort = (searchParams.get("sort") as SortMode) || "discover";
   const prevTag = useRef<string | undefined>(tag);
   const prevSort = useRef<SortMode>(sort);
-  const t = useTranslations("discover");
 
   // For pages with tags or non-default sort, we need fresh data since SSG doesn't pre-render all combinations
   // For the main discover page (no tag, default sort), we can use the SSG initial data
@@ -56,7 +52,7 @@ export function DiscoverClient({
   } = useDiscover({
     limit: 20,
     tag,
-    // Note: sort parameter will be added to the API later
+    sort: sort === "discover" ? undefined : sort, // Only pass non-default sort values
     // Pass initial data only for non-tagged, default sort requests
     ...(shouldUseInitialData && {
       initialData: {

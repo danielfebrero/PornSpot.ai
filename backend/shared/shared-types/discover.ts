@@ -23,4 +23,5 @@ export interface DiscoverParams {
   cursorAlbums?: string;
   cursorMedia?: string;
   tag?: string;
+  sort?: string;
 }

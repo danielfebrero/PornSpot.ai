@@ -28,6 +28,7 @@ export interface Media {
   // Album relationships (populated when needed)
   albums?: import("./album").Album[];
   comments?: import("./comment").Comment[];
+  popularity: number;
 }
 
 export interface MediaWithSiblings extends Media {

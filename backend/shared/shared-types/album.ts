@@ -23,6 +23,7 @@ export interface Album {
   comments?: import("./comment").Comment[]; // Include comments directly in Album
   mediaIds?: string[]; // List of media ids included in the album
   contentPreview?: ThumbnailUrls[];
+  popularity: number;
 }
 
 export interface CreateAlbumRequest {

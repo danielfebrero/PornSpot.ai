@@ -55,13 +55,7 @@ function calculateTimeWeightedPopularity(
   const createdAt = new Date(item.createdAt).getTime();
   const ageInMs = now - createdAt;
   const ageInDays = ageInMs / (1000 * 60 * 60 * 24);
-
-  // Calculate base popularity score
-  const likeCount = item.likeCount || 0;
-  const bookmarkCount = item.bookmarkCount || 0;
-  const viewCount = item.viewCount || 0;
-
-  const basePopularity = viewCount + likeCount * 3 + bookmarkCount * 5;
+  const basePopularity = item.popularity || 0;
 
   // Calculate time decay factor (1.0 for new content, approaching 0 for old content)
   const timeFactor = Math.max(0, 1 - ageInDays / maxAgeInDays);
@@ -166,7 +160,8 @@ const handleGetDiscover = async (
   // Parse query parameters
   const queryParams = event.queryStringParameters;
   const limit = Math.min(parseInt(queryParams?.["limit"] || "20"), 100);
-  const tag = queryParams?.["tag"]; // New tag parameter
+  const tag = queryParams?.["tag"]; // Tag parameter for filtering
+  const sort = queryParams?.["sort"]; // Sort parameter: "popular" or undefined for default
 
   // Parse cursors and determine pagination depth
   const {
@@ -194,11 +189,81 @@ const handleGetDiscover = async (
     timeWindow,
     randomSeed,
     tag, // Log the tag parameter
+    sort, // Log the sort parameter
     hasCursors: {
       albums: !!albumsCursor,
       media: !!mediaCursor,
     },
   });
+
+  // Handle sort=popular - use popularity-based queries instead of time-based
+  if (sort === "popular") {
+    console.log("[Discover API] Popular sorting requested");
+    
+    // For popular sorting, we want the most popular content without diversification
+    // Fetch exactly what we need
+    const [albumsResult, mediaResult] = await Promise.all([
+      DynamoDBDiscoverService.queryPopularAlbumsViaGSI6(limit, albumsCursor, tag),
+      DynamoDBDiscoverService.queryPopularMediaViaGSI6(limit, mediaCursor, tag),
+    ]);
+
+    console.log("[Discover API] Popular results:", {
+      albums: albumsResult.albums.length,
+      media: mediaResult.media.length,
+      tag: tag || "none",
+    });
+
+    // Add content preview for albums
+    const albumsWithPreview = await Promise.all(
+      albumsResult.albums.map(async (album) => ({
+        ...album,
+        contentPreview: (await DynamoDBService.getContentPreviewForAlbum(album.id)) || null,
+      }))
+    );
+
+    // Combine albums and media, then sort by popularity score
+    const combinedItems: (Album | Media)[] = [...albumsWithPreview, ...mediaResult.media];
+    
+    // Sort by popularity score in descending order (highest popularity first)
+    const sortedItems = combinedItems.sort((a, b) => {
+      const aPopularity = a.popularity || 0;
+      const bPopularity = b.popularity || 0;
+      return bPopularity - aPopularity;
+    });
+
+    // Take only the requested limit
+    const items = sortedItems.slice(0, limit);
+
+    // Count types in final output
+    const albumCount = albumsWithPreview.length;
+    const mediaCount = mediaResult.media.length;
+
+    // Build response for popular sorting
+    const popularResponse: DiscoverContent = {
+      items,
+      cursors: {
+        albums: PaginationUtil.encodeCursor(albumsResult.lastEvaluatedKey),
+        media: PaginationUtil.encodeCursor(mediaResult.lastEvaluatedKey),
+      },
+      metadata: {
+        totalItems: items.length,
+        albumCount,
+        mediaCount,
+        diversificationApplied: false, // No diversification for popular sorting
+        timeWindow: "popular",
+      },
+    };
+
+    console.log("[Discover API] Popular response:", {
+      totalItems: popularResponse.metadata.totalItems,
+      albumCount: popularResponse.metadata.albumCount,
+      mediaCount: popularResponse.metadata.mediaCount,
+      sort: "popular",
+      tag: tag || "none",
+    });
+
+    return ResponseUtil.success(event, popularResponse);
+  }
 
   // Special handling for tag-based discovery
   if (tag) {

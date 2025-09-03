@@ -125,7 +125,7 @@ export class DynamoDBDiscoverService {
 
   /**
    * Query popular public albums using GSI6
-   * GSI6PK: POPULARITY, GSI6SK: popularity score (viewCount + likeCount * 2 + bookmarkCount * 3)
+   * GSI6PK: POPULARITY, GSI6SK
    */
   static async queryPopularAlbums(
     limit: number = 20,
@@ -202,6 +202,116 @@ export class DynamoDBDiscoverService {
     return {
       media,
       lastEvaluatedKey: result.LastEvaluatedKey,
+    };
+  }
+
+  /**
+   * Query popular public albums with optional tag filtering using GSI6
+   * GSI6PK: POPULARITY, GSI6SK: popularity score
+   * 
+   * For tag filtering, this function first gets popular albums, then filters by tag
+   * This approach is necessary because tags are stored in a separate GSI structure
+   */
+  static async queryPopularAlbumsViaGSI6(
+    limit: number = 20,
+    lastEvaluatedKey?: Record<string, any>,
+    tag?: string
+  ): Promise<{
+    albums: Album[];
+    lastEvaluatedKey?: Record<string, any>;
+  }> {
+    if (tag) {
+      // For tag filtering with popularity sorting, we need to fetch more items
+      // and then filter by tag, since we can't efficiently query both at once
+      return this.queryPopularAlbumsWithTagFilter(limit, lastEvaluatedKey, tag);
+    }
+
+    // No tag filter, use the existing optimized query
+    return this.queryPopularAlbums(limit, lastEvaluatedKey);
+  }
+
+  /**
+   * Query popular public media with optional tag filtering using GSI6
+   * GSI6PK: POPULARITY, GSI6SK: popularity score
+   * 
+   * Note: Media items don't typically have tags in the current schema,
+   * but this function is provided for consistency and future extensibility
+   */
+  static async queryPopularMediaViaGSI6(
+    limit: number = 20,
+    lastEvaluatedKey?: Record<string, any>,
+    tag?: string
+  ): Promise<{
+    media: Media[];
+    lastEvaluatedKey?: Record<string, any>;
+  }> {
+    if (tag) {
+      // Media items don't typically have tags in current schema
+      // Return empty result for now, but maintain consistent API
+      console.log(`[DynamoDBDiscoverService] Tag filtering for media not supported: ${tag}`);
+      return {
+        media: [],
+        lastEvaluatedKey: undefined,
+      };
+    }
+
+    // No tag filter, use the existing optimized query
+    return this.queryPopularMedia(limit, lastEvaluatedKey);
+  }
+
+  /**
+   * Helper function to query popular albums and filter by tag
+   * This is less efficient but necessary for tag + popularity combination
+   */
+  private static async queryPopularAlbumsWithTagFilter(
+    limit: number,
+    lastEvaluatedKey: Record<string, any> | undefined,
+    tag: string
+  ): Promise<{
+    albums: Album[];
+    lastEvaluatedKey?: Record<string, any>;
+  }> {
+    const normalizedTag = tag.toLowerCase().trim();
+    const fetchLimit = limit * 5; // Fetch more to account for tag filtering
+    const allAlbums: Album[] = [];
+    let currentLastEvaluatedKey = lastEvaluatedKey;
+    let hasMoreItems = true;
+
+    // Keep fetching until we have enough albums with the tag or exhaust results
+    while (allAlbums.length < limit && hasMoreItems) {
+      const batchResult = await this.queryPopularAlbums(
+        fetchLimit,
+        currentLastEvaluatedKey
+      );
+
+      // Filter albums by tag
+      const taggedAlbums = batchResult.albums.filter((album) =>
+        album.tags?.some((albumTag) => 
+          albumTag.toLowerCase().trim() === normalizedTag
+        )
+      );
+
+      allAlbums.push(...taggedAlbums);
+      currentLastEvaluatedKey = batchResult.lastEvaluatedKey;
+      hasMoreItems = !!batchResult.lastEvaluatedKey;
+
+      // Prevent infinite loop by breaking if no albums found in this batch
+      if (batchResult.albums.length === 0) {
+        break;
+      }
+    }
+
+    // Return only the requested number of albums
+    const resultAlbums = allAlbums.slice(0, limit);
+    
+    // For pagination, we need to keep track of position in the filtered results
+    // If we have fewer results than requested, we've exhausted the filtered data
+    const resultLastEvaluatedKey = 
+      allAlbums.length > limit || hasMoreItems ? currentLastEvaluatedKey : undefined;
+
+    return {
+      albums: resultAlbums,
+      lastEvaluatedKey: resultLastEvaluatedKey,
     };
   }
 
