@@ -23,6 +23,7 @@
     "sort": "排序",
     "like": "点赞",
     "follow": "关注",
+    "following": "关注中",
     "unfollow": "取消关注",
     "bookmark": "收藏",
     "download": "下载",
@@ -181,6 +182,17 @@
       "loading": {
         "loadingMore": "加载更多媒体...",
         "noMore": "没有更多媒体可加载"
+      }
+    },
+    "followers": {
+      "title": "{username}的粉丝",
+      "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {个粉丝} other {个粉丝}}",
+      "empty": {
+        "title": "暂无粉丝",
+        "description": "{username}暂时还没有粉丝。"
+      },
+      "loading": {
+        "noMore": "没有更多粉丝可加载"
       }
     }
   },

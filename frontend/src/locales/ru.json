@@ -23,6 +23,7 @@
     "sort": "Сортировка",
     "like": "Нравится",
     "follow": "Подписаться",
+    "following": "Подписки",
     "unfollow": "Отписаться",
     "bookmark": "Закладка",
     "download": "Скачать",
@@ -181,6 +182,17 @@
       "loading": {
         "loadingMore": "Загрузка дополнительных медиа...",
         "noMore": "Больше медиа для загрузки нет"
+      }
+    },
+    "followers": {
+      "title": "Подписчики {username}",
+      "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {подписчиков} one {подписчик} few {подписчика} other {подписчиков}}",
+      "empty": {
+        "title": "Пока нет подписчиков",
+        "description": "У {username} пока нет подписчиков."
+      },
+      "loading": {
+        "noMore": "Больше нет подписчиков для загрузки"
       }
     }
   },

@@ -23,6 +23,7 @@
     "sort": "Trier",
     "like": "J'aime",
     "follow": "Suivre",
+    "following": "Suivi",
     "unfollow": "Ne plus suivre",
     "bookmark": "Favori",
     "download": "Télécharger",
@@ -181,6 +182,17 @@
       "loading": {
         "loadingMore": "Chargement d'autres médias...",
         "noMore": "Plus de médias à charger"
+      }
+    },
+    "followers": {
+      "title": "Abonnés de {username}",
+      "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {abonnés} =1 {abonné} other {abonnés}}",
+      "empty": {
+        "title": "Aucun abonné pour le moment",
+        "description": "{username} n'a encore aucun abonné."
+      },
+      "loading": {
+        "noMore": "Plus d'abonnés à charger"
       }
     }
   },

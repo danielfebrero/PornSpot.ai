@@ -23,6 +23,7 @@
     "sort": "Sort",
     "like": "Like",
     "follow": "Follow",
+    "following": "Following",
     "unfollow": "Unfollow",
     "bookmark": "Bookmark",
     "download": "Download",
@@ -181,6 +182,17 @@
       "loading": {
         "loadingMore": "Loading more media...",
         "noMore": "No more media to load"
+      }
+    },
+    "followers": {
+      "title": "{username}'s Followers",
+      "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {followers} =1 {follower} other {followers}}",
+      "empty": {
+        "title": "No followers yet",
+        "description": "{username} doesn't have any followers yet."
+      },
+      "loading": {
+        "noMore": "No more followers to load"
       }
     }
   },
