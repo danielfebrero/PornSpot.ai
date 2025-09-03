@@ -128,4 +128,6 @@
 
 [ ] In an album, when I fullscreen an image, it's view count is set to 1 instead of +1.
 
-[ ] Do not show empty albums on discover page.
+[x] Do not show empty albums on discover page.
+
+[ ] Images often exclude the face, depending on how you prompt.
