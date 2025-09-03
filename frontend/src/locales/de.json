@@ -1120,6 +1120,7 @@
       "commentNoTitle": "<userLink>{username}</userLink> hat Ihr <contentLink>{type}</contentLink> kommentiert",
       "bookmark": "<userLink>{username}</userLink> hat Ihr {type}: <contentLink>{title}</contentLink> als Lesezeichen gesetzt",
       "bookmarkNoTitle": "<userLink>{username}</userLink> hat Ihr <contentLink>{type}</contentLink> als Lesezeichen gesetzt",
+      "followNoTitle": "<userLink>{username}</userLink> folgt Ihnen",
       "types": {
         "album": "Album",
         "media": "Medium",

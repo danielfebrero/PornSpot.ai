@@ -3527,8 +3527,8 @@ export class DynamoDBService {
   static async createNotification(
     targetUserId: string,
     sourceUserId: string,
-    notificationType: "like" | "comment" | "bookmark",
-    targetType: "album" | "media" | "comment",
+    notificationType: "like" | "comment" | "bookmark" | "follow",
+    targetType: "album" | "media" | "comment" | "user",
     targetId: string
   ): Promise<void> {
     // Don't create notification if user is interacting with their own content

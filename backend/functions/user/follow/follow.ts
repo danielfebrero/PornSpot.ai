@@ -3,6 +3,7 @@ import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
+import { NotificationTargetType } from "@shared";
 
 interface FollowUserResponse {
   message: string;
@@ -75,6 +76,19 @@ const handleFollowUser = async (
     ]);
 
     console.log("✅ Successfully followed user:", { followerId, followedId });
+
+    try {
+      await DynamoDBService.createNotification(
+        followedId,
+        followerId,
+        "follow",
+        "user" as NotificationTargetType,
+        followedId
+      );
+      console.log(`📬 Created follow notification for user ${followedId}`);
+    } catch (error) {
+      console.warn(`⚠️ Failed to create like notification:`, error);
+    }
 
     const response: FollowUserResponse = {
       message: `Successfully followed ${username}`,

@@ -107,7 +107,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   const { username, typeKey, contentHref, userHref, messageKey, targetTitle } =
     getNotificationContent();
 
-  const typeText = t(`types.${typeKey}`);
+  const typeText = !["follow"].includes(typeKey) ? t(`types.${typeKey}`) : "";
 
   // Create the notification message using rich format
   const messageContent: Record<

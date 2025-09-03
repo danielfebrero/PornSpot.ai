@@ -1122,6 +1122,7 @@
       "commentNoTitle": "<userLink>{username}</userLink> 评论了您的 <contentLink>{type}</contentLink>",
       "bookmark": "<userLink>{username}</userLink> 收藏了您的 {type}: <contentLink>{title}</contentLink>",
       "bookmarkNoTitle": "<userLink>{username}</userLink> 收藏了您的 <contentLink>{type}</contentLink>",
+      "followNoTitle": "<userLink>{username}</userLink> 关注了您",
       "types": {
         "album": "相册",
         "media": "媒体",

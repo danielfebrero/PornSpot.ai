@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { userApi } from "@/lib/api";
 import { queryKeys, queryClient, invalidateQueries } from "@/lib/queryClient";
 import { useUserContext } from "@/contexts/UserContext";
@@ -185,7 +186,7 @@ export function useCheckAuth() {
 export function useNotifications(params?: GetNotificationsRequest) {
   const { user } = useUserContext();
 
-  return useInfiniteQuery({
+  const query = useInfiniteQuery({
     queryKey: queryKeys.user.notifications.list(params),
     queryFn: async ({ pageParam }) => {
       return await userApi.getNotifications({ ...params, cursor: pageParam });
@@ -208,6 +209,20 @@ export function useNotifications(params?: GetNotificationsRequest) {
     // Retry on failures
     retry: 2,
   });
+
+  // Update unread count cache when notifications are successfully fetched
+  // (backend automatically marks them as read)
+  useEffect(() => {
+    if (query.data && query.isSuccess && !query.isLoading) {
+      // Set unread notification count to 0 since fetching notifications marks them as read
+      queryClient.setQueryData(queryKeys.user.notifications.unreadCount(), {
+        unreadCount: 0,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }, [query.data, query.isSuccess, query.isLoading]);
+
+  return query;
 }
 
 // Hook for fetching unread notification count

@@ -1027,6 +1027,7 @@
       "commentNoTitle": "<userLink>{username}</userLink> commented on your <contentLink>{type}</contentLink>",
       "bookmark": "<userLink>{username}</userLink> bookmarked your {type}: <contentLink>{title}</contentLink>",
       "bookmarkNoTitle": "<userLink>{username}</userLink> bookmarked your <contentLink>{type}</contentLink>",
+      "followNoTitle": "<userLink>{username}</userLink> followed you",
       "types": {
         "album": "album",
         "media": "media",

@@ -1120,6 +1120,7 @@
       "commentNoTitle": "<userLink>{username}</userLink> comentó en tu <contentLink>{type}</contentLink>",
       "bookmark": "<userLink>{username}</userLink> guardó tu {type}: <contentLink>{title}</contentLink>",
       "bookmarkNoTitle": "<userLink>{username}</userLink> guardó tu <contentLink>{type}</contentLink>",
+      "followNoTitle": "<userLink>{username}</userLink> te siguió",
       "types": {
         "album": "álbum",
         "media": "medio",

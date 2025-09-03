@@ -1,7 +1,7 @@
 // Notification types for user interactions
 
-export type NotificationType = "like" | "comment" | "bookmark";
-export type NotificationTargetType = "album" | "media" | "comment";
+export type NotificationType = "like" | "comment" | "bookmark" | "follow";
+export type NotificationTargetType = "album" | "media" | "comment" | "user";
 export type NotificationStatus = "unread" | "read";
 
 export interface NotificationItem {

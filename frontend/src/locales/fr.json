@@ -946,6 +946,7 @@
       "commentNoTitle": "<userLink>{username}</userLink> a commenté votre <contentLink>{type}</contentLink>",
       "bookmark": "<userLink>{username}</userLink> a ajouté votre {type} : <contentLink>{title}</contentLink> en favoris",
       "bookmarkNoTitle": "<userLink>{username}</userLink> a ajouté votre <contentLink>{type}</contentLink> en favoris",
+      "followNoTitle": "<userLink>{username}</userLink> vous suit",
       "types": {
         "album": "album",
         "media": "média",
