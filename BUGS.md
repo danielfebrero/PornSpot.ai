@@ -129,3 +129,7 @@
 [x] Do not show empty albums on discover page.
 
 [ ] Images often exclude the face, depending on how you prompt.
+
+[ ] Fix all the missing translations (view vercel build logs and console logs).
+
+[ ] Analytics daily shows 23 points instead of 24 (a complete day).
