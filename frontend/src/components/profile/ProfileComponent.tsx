@@ -660,9 +660,20 @@ export default function ProfileComponent({
                             <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">
                               {displayName}
                             </h1>
-                            <UserPlanBadge
-                              plan={currentUser?.planInfo.plan || "free"}
-                            />
+                            <div className="flex items-center gap-2">
+                              <UserPlanBadge
+                                plan={currentUser?.planInfo.plan || "free"}
+                              />
+                              {!isOwner && (
+                                <Button
+                                  size="sm"
+                                  className="bg-gradient-to-r from-admin-primary to-admin-secondary text-admin-primary-foreground shadow-md hover:shadow-lg transition-all duration-300 ease-out hover:scale-[1.02]"
+                                >
+                                  <User className="w-3 h-3 mr-1.5" />
+                                  {t("follow")}
+                                </Button>
+                              )}
+                            </div>
                           </div>
 
                           <div className="space-y-2">
