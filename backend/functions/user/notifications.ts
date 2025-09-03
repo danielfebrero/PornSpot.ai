@@ -11,7 +11,11 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
-import { PaginationUtil } from "@shared/utils/pagination";
+import {
+  DEFAULT_PAGINATION_LIMITS,
+  MAX_PAGINATION_LIMITS,
+  PaginationUtil,
+} from "@shared/utils/pagination";
 
 const handleNotifications = async (
   event: APIGatewayProxyEvent,
@@ -35,14 +39,22 @@ async function getNotifications(
   userId: string
 ): Promise<APIGatewayProxyResult> {
   try {
-    // Parse query parameters
-    const queryParams = event.queryStringParameters || {};
+    let paginationParams;
+    try {
+      paginationParams = PaginationUtil.parseRequestParams(
+        event.queryStringParameters as Record<string, string> | null,
+        DEFAULT_PAGINATION_LIMITS.notifications,
+        MAX_PAGINATION_LIMITS.notifications
+      );
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Invalid pagination parameters";
+      return ResponseUtil.badRequest(event, errorMessage);
+    }
 
-    const limit = queryParams["limit"]
-      ? Math.min(parseInt(queryParams["limit"]), 50) // Max 50 notifications
-      : 20; // Default 20
-
-    const cursor = queryParams["cursor"] || undefined;
+    const { cursor: lastEvaluatedKey, limit } = paginationParams;
 
     // Validate limit
     if (isNaN(limit) || limit < 1) {
@@ -55,7 +67,7 @@ async function getNotifications(
     const result = await DynamoDBService.getNotificationsForUser(
       userId,
       limit,
-      cursor
+      lastEvaluatedKey
     );
 
     console.log(`✅ Retrieved ${result.notifications.length} notifications`);

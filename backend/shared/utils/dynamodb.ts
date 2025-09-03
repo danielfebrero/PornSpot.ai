@@ -3572,7 +3572,7 @@ export class DynamoDBService {
   static async getNotificationsForUser(
     userId: string,
     limit: number = 20,
-    cursor?: string
+    lastEvaluatedKey?: Record<string, any>
   ): Promise<{
     notifications: NotificationWithDetails[];
     lastEvaluatedKey?: Record<string, any>;
@@ -3586,13 +3586,8 @@ export class DynamoDBService {
       },
       ScanIndexForward: false, // Most recent first
       Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey,
     };
-
-    if (cursor) {
-      queryParams.ExclusiveStartKey = JSON.parse(
-        Buffer.from(cursor, "base64").toString()
-      );
-    }
 
     const result = await docClient.send(new QueryCommand(queryParams));
     const notificationEntities = (result.Items || []) as NotificationEntity[];
@@ -3659,10 +3654,18 @@ export class DynamoDBService {
         return enriched;
       });
 
-    return {
+    const response: {
+      notifications: NotificationWithDetails[];
+      lastEvaluatedKey?: Record<string, any>;
+    } = {
       notifications: enrichedNotifications,
-      lastEvaluatedKey: result.LastEvaluatedKey,
     };
+
+    if (result.LastEvaluatedKey) {
+      response.lastEvaluatedKey = result.LastEvaluatedKey;
+    }
+
+    return response;
   }
 
   /**

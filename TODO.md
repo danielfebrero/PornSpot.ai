@@ -123,3 +123,7 @@
 [ ] Handle user plans valid until date.
 
 [ ] On delete from Discover, must optimistically disappear.
+
+[ ] Sort discover for most liked.
+
+[ ] See if "save image" step needs to be parallelized in generate image.
