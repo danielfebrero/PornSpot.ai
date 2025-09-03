@@ -1989,6 +1989,11 @@ Resources:
             TableName: !Ref MediaTable
         - DynamoDBWritePolicy:
             TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:DeleteItem
+              Resource: !GetAtt MediaTable.Arn
 
   UserFollowingFunction:
     Type: AWS::Serverless::Function
