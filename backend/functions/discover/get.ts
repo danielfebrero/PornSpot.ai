@@ -22,6 +22,7 @@ import {
   DynamoDBDiscoverService,
   ContentDiversificationUtil,
 } from "@shared/utils/dynamodb-discover";
+import { FollowingFeedService } from "@shared/utils/dynamodb-following-feed";
 
 interface DiscoverCursors {
   albums?: string | null;
@@ -271,6 +272,69 @@ const handleGetDiscover = async (
     });
 
     return ResponseUtil.success(event, popularResponse);
+  }
+
+  // Handle sort=following - use following feed aggregation strategy
+  if (sort === "following") {
+    console.log("[Discover API] Following feed sorting requested");
+
+    // Following feed requires authentication
+    if (!currentUserId) {
+      console.log("❌ Following feed requires authentication");
+      return ResponseUtil.unauthorized(
+        event,
+        "Following feed requires authentication"
+      );
+    }
+
+    // For following feed, we use a single cursor combining both albums and media
+    // Parse the cursor from either cursorAlbums or cursorMedia (they should be the same for following)
+    const followingCursor =
+      queryParams?.["cursorAlbums"] ||
+      queryParams?.["cursorMedia"] ||
+      queryParams?.["cursor"];
+
+    try {
+      const followingResult = await FollowingFeedService.generateFollowingFeed(
+        currentUserId,
+        limit,
+        followingCursor
+      );
+
+      // Build response for following feed
+      const followingResponse: DiscoverContent = {
+        items: followingResult.items,
+        cursors: {
+          albums: followingResult.cursor, // Use same cursor for both
+          media: followingResult.cursor,
+        },
+        metadata: {
+          totalItems: followingResult.metadata.totalItems,
+          albumCount: followingResult.metadata.albumCount,
+          mediaCount: followingResult.metadata.mediaCount,
+          diversificationApplied: false, // No additional diversification needed
+          timeWindow: followingResult.metadata.timeWindow,
+        },
+      };
+
+      console.log("[Discover API] Following feed response:", {
+        totalItems: followingResponse.metadata.totalItems,
+        albumCount: followingResponse.metadata.albumCount,
+        mediaCount: followingResponse.metadata.mediaCount,
+        followedUsersProcessed: followingResult.metadata.followedUsersProcessed,
+        sort: "following",
+      });
+
+      return ResponseUtil.success(event, followingResponse);
+    } catch (error) {
+      console.error("❌ Error generating following feed:", error);
+      return ResponseUtil.error(
+        event,
+        error instanceof Error
+          ? error.message
+          : "Failed to generate following feed"
+      );
+    }
   }
 
   // Special handling for tag-based discovery
