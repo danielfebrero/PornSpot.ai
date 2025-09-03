@@ -187,8 +187,8 @@ export function useNotifications(params?: GetNotificationsRequest) {
 
   return useInfiniteQuery({
     queryKey: queryKeys.user.notifications.list(params),
-    queryFn: async () => {
-      return await userApi.getNotifications(params);
+    queryFn: async ({ pageParam }) => {
+      return await userApi.getNotifications({ ...params, cursor: pageParam });
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage: UnifiedNotificationsResponse) => {
