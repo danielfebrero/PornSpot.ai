@@ -364,7 +364,7 @@ const UserNotificationsPage: React.FC = () => {
             {isFetchingNextPage && (
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">{t("loadingMore")}</span>
+                <span className="text-sm">{t("loading.loadingMore")}</span>
               </div>
             )}
           </div>
