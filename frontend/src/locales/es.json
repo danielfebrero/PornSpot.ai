@@ -513,7 +513,22 @@
       "backToLogin": "Volver al Inicio de Sesión",
       "checkEmail": "Revisa tu correo electrónico para el enlace de restablecimiento"
     },
-    "resetPassword": "Restablecer Contraseña",
+    "resetPassword": {
+      "meta": {
+        "title": "Restablecer Contraseña - PornSpot.ai",
+        "description": "Crear una nueva contraseña"
+      },
+      "title": "Restablecer Tu Contraseña",
+      "subtitle": "Ingresa tu nueva contraseña a continuación.",
+      "newPassword": "Nueva Contraseña",
+      "confirmNewPassword": "Confirmar Nueva Contraseña",
+      "resetSuccess": "Contraseña restablecida exitosamente",
+      "resetSuccessMessage": "Tu contraseña ha sido restablecida y ahora estás conectado.",
+      "invalidToken": "Token inválido o expirado",
+      "invalidTokenMessage": "El enlace de restablecimiento es inválido o ha expirado. Por favor, solicita un nuevo enlace.",
+      "resetPassword": "Restablecer Contraseña",
+      "requestNewLink": "Solicitar Nuevo Enlace"
+    },
     "whyRegister": {
       "title": "¿Por qué registrarse?",
       "subtitle": "Descubre todos los beneficios de unirte a nuestra comunidad",

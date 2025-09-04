@@ -513,7 +513,22 @@
       "backToLogin": "返回登录",
       "checkEmail": "检查您的邮箱以获取重置链接"
     },
-    "resetPassword": "重置密码",
+    "resetPassword": {
+      "meta": {
+        "title": "重置密码 - PornSpot.ai",
+        "description": "创建新密码"
+      },
+      "title": "重置您的密码",
+      "subtitle": "在下方输入您的新密码。",
+      "newPassword": "新密码",
+      "confirmNewPassword": "确认新密码",
+      "resetSuccess": "密码重置成功",
+      "resetSuccessMessage": "您的密码已重置，现在您已登录。",
+      "invalidToken": "无效或过期的令牌",
+      "invalidTokenMessage": "重置链接无效或已过期。请请求新的链接。",
+      "resetPassword": "重置密码",
+      "requestNewLink": "请求新链接"
+    },
     "whyRegister": {
       "title": "为什么要注册？",
       "subtitle": "发现加入我们社区的所有好处",

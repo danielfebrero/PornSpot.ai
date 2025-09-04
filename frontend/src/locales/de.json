@@ -513,7 +513,22 @@
       "backToLogin": "Zurück zur Anmeldung",
       "checkEmail": "Überprüfen Sie Ihre E-Mail für den Reset-Link"
     },
-    "resetPassword": "Passwort zurücksetzen",
+    "resetPassword": {
+      "meta": {
+        "title": "Passwort zurücksetzen - PornSpot.ai",
+        "description": "Neues Passwort erstellen"
+      },
+      "title": "Passwort zurücksetzen",
+      "subtitle": "Geben Sie Ihr neues Passwort ein.",
+      "newPassword": "Neues Passwort",
+      "confirmNewPassword": "Neues Passwort bestätigen",
+      "resetSuccess": "Passwort erfolgreich zurückgesetzt",
+      "resetSuccessMessage": "Ihr Passwort wurde zurückgesetzt und Sie sind jetzt angemeldet.",
+      "invalidToken": "Ungültiger oder abgelaufener Token",
+      "invalidTokenMessage": "Der Reset-Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an.",
+      "resetPassword": "Passwort zurücksetzen",
+      "requestNewLink": "Neuen Link anfordern"
+    },
     "whyRegister": {
       "title": "Warum registrieren?",
       "subtitle": "Entdecken Sie alle Vorteile unserer Community",
