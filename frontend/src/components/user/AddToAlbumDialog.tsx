@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { X, Plus, Folder, FolderPlus, Check } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -151,7 +152,7 @@ export function AddToAlbumDialog({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-card border border-border rounded-lg shadow-lg w-full max-w-md max-h-[80vh] overflow-hidden">
         {/* Header */}
@@ -343,6 +344,7 @@ export function AddToAlbumDialog({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -82,8 +82,6 @@
 
 [x] In media page, do not show loRA safetensor name but loRA name.
 
-[ ] Mass delete image feature.
-
 [ ] Boost my media feature to appear on the Discover page.
 
 [x] Feature to change media/album privacy after generation.
@@ -127,3 +125,11 @@
 [x] Sort discover for most Popular.
 
 [ ] Check if "save image" step needs to be parallelized in generate image.
+
+[ ] Bulk download in zip.
+
+[ ] Bulk download to album.
+
+[ ] Bulk delete.
+
+[ ] Tutorial of how the advanced controls work.

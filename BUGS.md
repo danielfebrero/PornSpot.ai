@@ -130,7 +130,7 @@
 
 [ ] Images often exclude the face, depending on how you prompt.
 
-[ ] Fix all the missing translations (view vercel build logs and console logs).
+[x] Fix all the missing translations from vercel build logs.
 
 [x] Analytics daily shows 23 points instead of 24 (a complete day).
 
