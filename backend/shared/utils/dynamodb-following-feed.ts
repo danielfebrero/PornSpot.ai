@@ -396,15 +396,72 @@ export class FollowingFeedService {
       }
     }
 
-    let i = startIndex;
-    while (i < activeFollowedUsers.length && aggregatedItems.length < limit) {
-      const currentUser = activeFollowedUsers[i] as FollowedUserActivity;
-      const nextUser = activeFollowedUsers[i + 1];
+    // Process users and get content in time windows
+    while (activeFollowedUsers.length > 0 && aggregatedItems.length < limit) {
+      // If we need more content and have some items, update followed users' dates
+      if (aggregatedItems.length > 0 && aggregatedItems.length < limit) {
+        // Get the oldest item we've collected so far to use as the new lastContentDate
+        const oldestCollectedItem = aggregatedItems[aggregatedItems.length - 1];
+        if (oldestCollectedItem) {
+          console.log(
+            `[FollowingFeed] Need more content. Looking for content older than ${oldestCollectedItem.createdAt}`
+          );
+
+          // Update all followed users' most recent content dates to get older content
+          const updatedFollowedUsers: FollowedUserActivity[] = [];
+
+          for (const user of activeFollowedUsers) {
+            const updatedContentDates = await this.getUserMostRecentContentDate(
+              user.userId,
+              oldestCollectedItem.createdAt
+            );
+
+            if (updatedContentDates.mostRecentDate) {
+              updatedFollowedUsers.push({
+                userId: user.userId,
+                mostRecentContentDate: updatedContentDates.mostRecentDate,
+                mostRecentAlbumDate: updatedContentDates.mostRecentAlbumDate,
+                mostRecentMediaDate: updatedContentDates.mostRecentMediaDate,
+              });
+            }
+          }
+
+          // Re-sort by most recent content date and update our active list
+          activeFollowedUsers.length = 0; // Clear the array
+          activeFollowedUsers.push(
+            ...updatedFollowedUsers.sort((a, b) => {
+              return b.mostRecentContentDate!.localeCompare(
+                a.mostRecentContentDate!
+              );
+            })
+          );
+
+          console.log(
+            `[FollowingFeed] Updated followed users list. Found ${activeFollowedUsers.length} users with older content.`
+          );
+
+          if (activeFollowedUsers.length === 0) {
+            console.log(
+              "[FollowingFeed] No more content available from any followed users."
+            );
+            break;
+          }
+        }
+      }
+
+      // Get the user with the most recent content
+      const currentUser = activeFollowedUsers[0];
+      if (!currentUser) {
+        console.log("[FollowingFeed] No more users available.");
+        break;
+      }
+
+      const nextUser = activeFollowedUsers[1];
 
       processedUsers++;
 
       // Determine time window: from nextUser's most recent date to current user's most recent date
-      const toDate = currentUser?.mostRecentContentDate!;
+      const toDate = currentUser.mostRecentContentDate!;
       let fromDate: string;
 
       if (nextUser) {
@@ -417,35 +474,50 @@ export class FollowingFeedService {
         fromDate = thirtyDaysAgo.toISOString();
       }
 
-      // If we have a cursor and this is the first user, adjust the toDate
-      if (lastContentDate && i === startIndex) {
-        // Only get content older than the cursor date
-        if (toDate > lastContentDate) {
-          i++;
-          continue; // Skip this user as we've already processed their newer content
-        }
+      // If we have a cursor, only get content older than the cursor date
+      if (lastContentDate && toDate > lastContentDate) {
+        // Remove this user and continue with next
+        activeFollowedUsers.shift();
+        continue;
       }
 
       console.log(
-        `[FollowingFeed] Processing user: ${currentUser?.userId} from ${fromDate} to ${toDate}`
+        `[FollowingFeed] Processing user: ${currentUser.userId} from ${fromDate} to ${toDate}`
       );
 
-      // Get content in this time window
-      const timeWindowContent = await this.getContentInTimeWindow(
-        currentUser?.userId,
-        fromDate,
-        toDate,
-        limit - aggregatedItems.length
+      // Get content in this time window for ALL users whose mostRecentContentDate falls in this window
+      const usersInTimeWindow = activeFollowedUsers.filter(
+        (user) =>
+          user.mostRecentContentDate! <= toDate &&
+          user.mostRecentContentDate! >= fromDate
       );
 
-      // Combine and sort albums and media by creation date
-      const userItems: (Album | Media)[] = [
-        ...timeWindowContent.albums,
-        ...timeWindowContent.media,
-      ].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      const timeWindowPromises = usersInTimeWindow.map((user) =>
+        this.getContentInTimeWindow(
+          user.userId,
+          fromDate,
+          toDate,
+          Math.ceil((limit - aggregatedItems.length) / usersInTimeWindow.length)
+        )
+      );
 
-      // Add items until we reach the limit or run out
-      for (const item of userItems) {
+      const timeWindowResults = await Promise.all(timeWindowPromises);
+
+      // Combine all content from this time window
+      const allWindowItems: (Album | Media)[] = [];
+      for (const timeWindowContent of timeWindowResults) {
+        allWindowItems.push(
+          ...timeWindowContent.albums,
+          ...timeWindowContent.media
+        );
+      }
+
+      // Sort by creation date (most recent first)
+      allWindowItems.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+      // Add items until we reach the limit
+      let addedItemsFromThisWindow = 0;
+      for (const item of allWindowItems) {
         if (aggregatedItems.length >= limit) {
           break;
         }
@@ -457,32 +529,27 @@ export class FollowingFeedService {
 
         aggregatedItems.push(item);
         currentItemDate = item.createdAt;
+        addedItemsFromThisWindow++;
       }
 
-      // If we haven't reached the limit and there are no items from this time window,
-      // or if we still need more items, continue to the next user
-      const totalContentInWindow =
-        timeWindowContent.albums.length + timeWindowContent.media.length;
+      console.log(
+        `[FollowingFeed] Added ${addedItemsFromThisWindow} items from time window. Total: ${aggregatedItems.length}/${limit}`
+      );
 
-      if (
-        aggregatedItems.length < limit &&
-        totalContentInWindow < limit - aggregatedItems.length
-      ) {
-        console.log(
-          `[FollowingFeed] Time window only returned ${totalContentInWindow} items, need ${
-            limit - aggregatedItems.length
-          } more. Continuing to next user.`
+      // Remove processed users from the active list
+      for (const user of usersInTimeWindow) {
+        const index = activeFollowedUsers.findIndex(
+          (u) => u.userId === user.userId
         );
-        i++;
-        continue;
+        if (index > -1) {
+          activeFollowedUsers.splice(index, 1);
+        }
       }
 
       // Stop if we've reached the limit
       if (aggregatedItems.length >= limit) {
         break;
       }
-
-      i++;
     }
 
     // Step 5: Create cursor for next page
