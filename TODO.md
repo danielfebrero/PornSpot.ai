@@ -114,7 +114,7 @@
 
 [ ] Add a button to copy prompt from media page.
 
-[ ] Add to album dialog album zone should be scrollable.
+[x] Add to album dialog album zone should be scrollable.
 
 [x] Add "play" button in lightbox to auto play images.
 

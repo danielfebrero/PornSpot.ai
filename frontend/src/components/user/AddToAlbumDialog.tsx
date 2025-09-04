@@ -262,55 +262,59 @@ export function AddToAlbumDialog({
                   <p className="text-sm text-muted-foreground mb-3">
                     {t("selectExistingAlbums")}:
                   </p>
-                  {albums.map((album) => {
-                    const isSelected = selectedAlbumIds.has(album.id);
-                    // Check if media is already in this album
-                    const isAlreadyInAlbum =
-                      album.mediaIds?.includes(media.id) ?? false;
+                  <div className="max-h-64 overflow-y-auto space-y-2 pr-1 scrollbar-hide">
+                    {albums.map((album) => {
+                      const isSelected = selectedAlbumIds.has(album.id);
+                      // Check if media is already in this album
+                      const isAlreadyInAlbum =
+                        album.mediaIds?.includes(media.id) ?? false;
 
-                    return (
-                      <button
-                        key={album.id}
-                        onClick={() =>
-                          !isAlreadyInAlbum && handleAlbumToggle(album.id)
-                        }
-                        disabled={isAlreadyInAlbum}
-                        className={cn(
-                          "w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left",
-                          isAlreadyInAlbum
-                            ? "border-border bg-muted/50 cursor-not-allowed opacity-60"
-                            : isSelected
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:bg-accent"
-                        )}
-                      >
-                        <div className="flex-shrink-0">
-                          <Folder className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">
-                            {album.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {album.mediaCount || 0}{" "}
-                            {album.mediaCount === 1 ? t("image") : t("images")}
-                            {!album.isPublic && " • " + t("private")}
-                          </p>
-                        </div>
-                        <div className="flex-shrink-0">
-                          {isAlreadyInAlbum ? (
-                            <span className="text-xs text-green-600 font-medium">
-                              {t("alreadyAdded")}
-                            </span>
-                          ) : isSelected ? (
-                            <Check className="h-4 w-4 text-primary" />
-                          ) : (
-                            <Plus className="h-4 w-4 text-muted-foreground" />
+                      return (
+                        <button
+                          key={album.id}
+                          onClick={() =>
+                            !isAlreadyInAlbum && handleAlbumToggle(album.id)
+                          }
+                          disabled={isAlreadyInAlbum}
+                          className={cn(
+                            "w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left",
+                            isAlreadyInAlbum
+                              ? "border-border bg-muted/50 cursor-not-allowed opacity-60"
+                              : isSelected
+                              ? "border-primary bg-primary/10"
+                              : "border-border hover:bg-accent"
                           )}
-                        </div>
-                      </button>
-                    );
-                  })}
+                        >
+                          <div className="flex-shrink-0">
+                            <Folder className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">
+                              {album.title}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {album.mediaCount || 0}{" "}
+                              {album.mediaCount === 1
+                                ? t("image")
+                                : t("images")}
+                              {!album.isPublic && " • " + t("private")}
+                            </p>
+                          </div>
+                          <div className="flex-shrink-0">
+                            {isAlreadyInAlbum ? (
+                              <span className="text-xs text-green-600 font-medium">
+                                {t("alreadyAdded")}
+                              </span>
+                            ) : isSelected ? (
+                              <Check className="h-4 w-4 text-primary" />
+                            ) : (
+                              <Plus className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8">
