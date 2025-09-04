@@ -396,11 +396,8 @@ export class FollowingFeedService {
       }
     }
 
-    for (
-      let i = startIndex;
-      i < activeFollowedUsers.length && aggregatedItems.length < limit;
-      i++
-    ) {
+    let i = startIndex;
+    while (i < activeFollowedUsers.length && aggregatedItems.length < limit) {
       const currentUser = activeFollowedUsers[i] as FollowedUserActivity;
       const nextUser = activeFollowedUsers[i + 1];
 
@@ -424,6 +421,7 @@ export class FollowingFeedService {
       if (lastContentDate && i === startIndex) {
         // Only get content older than the cursor date
         if (toDate > lastContentDate) {
+          i++;
           continue; // Skip this user as we've already processed their newer content
         }
       }
@@ -461,10 +459,30 @@ export class FollowingFeedService {
         currentItemDate = item.createdAt;
       }
 
+      // If we haven't reached the limit and there are no items from this time window,
+      // or if we still need more items, continue to the next user
+      const totalContentInWindow =
+        timeWindowContent.albums.length + timeWindowContent.media.length;
+
+      if (
+        aggregatedItems.length < limit &&
+        totalContentInWindow < limit - aggregatedItems.length
+      ) {
+        console.log(
+          `[FollowingFeed] Time window only returned ${totalContentInWindow} items, need ${
+            limit - aggregatedItems.length
+          } more. Continuing to next user.`
+        );
+        i++;
+        continue;
+      }
+
       // Stop if we've reached the limit
       if (aggregatedItems.length >= limit) {
         break;
       }
+
+      i++;
     }
 
     // Step 5: Create cursor for next page
