@@ -340,76 +340,56 @@ fi
 # Restore items using batch-write-item
 print_status "Restoring items to table..."
 
-# Split items into batches of 25 (DynamoDB limit)
-TEMP_DIR="$DUMP_DIR/temp_batches"
-mkdir -p "$TEMP_DIR"
-
-# Clean up any existing batch files
-rm -f "$TEMP_DIR"/batch_*.json
-
-# Extract items and split into batches of 25
+# Extract items directly from file
 ITEMS_JSON=$(cat "$DUMP_DIR/table-data.json" | jq -r '.Items')
 TOTAL_ITEMS=$(echo "$ITEMS_JSON" | jq '. | length')
 
-print_status "Splitting $TOTAL_ITEMS items into batches of 25..."
+print_status "Processing $TOTAL_ITEMS items in batches of 25..."
 
-BATCH_NUM=0
+# Calculate total number of batches
+TOTAL_BATCHES=$(((TOTAL_ITEMS + 24) / 25))  # Round up division
+print_status "Will process $TOTAL_BATCHES batches..."
+
+# Process batches directly without creating temp files
+SUCCESSFUL_ITEMS=0
+FAILED_BATCHES=0
+BATCH_COUNT=0
 OFFSET=0
+
 while [ $OFFSET -lt $TOTAL_ITEMS ]; do
-    # Extract batch of 25 items starting from offset
-    BATCH_ITEMS=$(echo "$ITEMS_JSON" | jq -c ".[$OFFSET:$((OFFSET + 25))]")
-    BATCH_SIZE=$(echo "$BATCH_ITEMS" | jq '. | length')
+    # Extract batch of 25 items starting from offset (directly in memory)
+    BATCH_ITEMS_JSON=$(echo "$ITEMS_JSON" | jq -c ".[$OFFSET:$((OFFSET + 25))]")
+    BATCH_SIZE=$(echo "$BATCH_ITEMS_JSON" | jq '. | length')
     
     if [ $BATCH_SIZE -gt 0 ]; then
-        echo "$BATCH_ITEMS" > "$TEMP_DIR/batch_${BATCH_NUM}.json"
-        BATCH_NUM=$((BATCH_NUM + 1))
+        BATCH_COUNT=$((BATCH_COUNT + 1))
+        
+        # Create batch write request directly from the slice
+        BATCH_REQUEST=$(echo "$BATCH_ITEMS_JSON" | jq -c "{\"$TABLE_NAME\": [.[] | {\"PutRequest\": {\"Item\": .}}]}")
+        
+        # Try the batch write and capture detailed error
+        ERROR_OUTPUT=$(aws_cmd dynamodb batch-write-item --request-items "$BATCH_REQUEST" 2>&1)
+        if [ $? -eq 0 ]; then
+            SUCCESSFUL_ITEMS=$((SUCCESSFUL_ITEMS + BATCH_SIZE))
+            printf "."
+            # Show progress every 10 batches
+            if [ $((BATCH_COUNT % 10)) -eq 0 ]; then
+                echo " ($BATCH_COUNT/$TOTAL_BATCHES batches, $SUCCESSFUL_ITEMS items)"
+            fi
+        else
+            FAILED_BATCHES=$((FAILED_BATCHES + 1))
+            printf "x"
+            # Log the first few errors for debugging
+            if [ $FAILED_BATCHES -le 3 ]; then
+                echo ""
+                print_warning "Batch $BATCH_COUNT failed. Error details:"
+                echo "$ERROR_OUTPUT" | head -3
+            fi
+        fi
     fi
     
     OFFSET=$((OFFSET + 25))
 done
-
-print_status "Created $BATCH_NUM batches"
-
-# Process each batch
-SUCCESSFUL_ITEMS=0
-FAILED_BATCHES=0
-BATCH_COUNT=0
-TOTAL_BATCHES=$(ls "$TEMP_DIR"/batch_*.json 2>/dev/null | wc -l | tr -d ' ')
-print_status "Processing $TOTAL_BATCHES batches..."
-
-for batch_file in "$TEMP_DIR"/batch_*.json; do
-    if [ -f "$batch_file" ]; then
-        BATCH_ITEMS=$(cat "$batch_file" | jq '. | length')
-        if [ "$BATCH_ITEMS" -gt 0 ]; then
-            BATCH_COUNT=$((BATCH_COUNT + 1))
-            # Create batch write request
-            BATCH_REQUEST=$(cat "$batch_file" | jq -c "{\"$TABLE_NAME\": [.[] | {\"PutRequest\": {\"Item\": .}}]}")
-            
-            # Try the batch write and capture detailed error
-            ERROR_OUTPUT=$(aws_cmd dynamodb batch-write-item --request-items "$BATCH_REQUEST" 2>&1)
-            if [ $? -eq 0 ]; then
-                SUCCESSFUL_ITEMS=$((SUCCESSFUL_ITEMS + BATCH_ITEMS))
-                printf "."
-                # Show progress every 10 batches
-                if [ $((BATCH_COUNT % 10)) -eq 0 ]; then
-                    echo " ($BATCH_COUNT/$TOTAL_BATCHES batches, $SUCCESSFUL_ITEMS items)"
-                fi
-            else
-                FAILED_BATCHES=$((FAILED_BATCHES + 1))
-                printf "x"
-                # Log the first few errors for debugging
-                if [ $FAILED_BATCHES -le 3 ]; then
-                    echo ""
-                    print_warning "Batch $BATCH_COUNT failed. Error details:"
-                    echo "$ERROR_OUTPUT" | head -3
-                fi
-            fi
-        fi
-    fi
-done
-
-# Clean up temp files
-rm -rf "$TEMP_DIR"
 
 echo ""
 print_success "Items restored successfully: $SUCCESSFUL_ITEMS"

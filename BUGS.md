@@ -137,3 +137,5 @@
 [ ] If I delete cover image, auto attribute another cover image.
 
 [ ] On media page, delete sibling dialog appears in the scrollable container instead of in the middle of the page.
+
+[ ] Admin edit album missing locales.
