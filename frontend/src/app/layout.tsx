@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { headers } from "next/headers";
 import { defaultLocale } from "@/i18n";
 import { AppErrorBoundary } from "@/components/ErrorBoundaries";
@@ -27,6 +28,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
+        <GoogleAnalytics gaId="G-PYFTNPNT0E" />
         <AppErrorBoundary context="Root Application">
           {children}
         </AppErrorBoundary>
