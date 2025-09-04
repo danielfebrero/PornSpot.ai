@@ -129,8 +129,8 @@ export class FollowingFeedService {
         ":gsi4pk": "ALBUM_BY_CREATOR",
         ...(!lastContentDate && { ":userPrefix": `${userId}#` }),
         ...(lastContentDate && {
-          ":minKey": `${userId}#${lastContentDate}#`,
-          ":maxKey": `${userId}#ZZZZZZ`,
+          ":minKey": `${userId}#`,
+          ":maxKey": `${userId}#${lastContentDate}`,
         }),
       },
       ScanIndexForward: false, // Most recent first
@@ -148,8 +148,8 @@ export class FollowingFeedService {
         ":gsi1pk": "MEDIA_BY_CREATOR",
         ...(!lastContentDate && { ":userPrefix": `${userId}#` }),
         ...(lastContentDate && {
-          ":minKey": `${userId}#${lastContentDate}#`,
-          ":maxKey": `${userId}#ZZZZZZ`,
+          ":minKey": `${userId}#`,
+          ":maxKey": `${userId}#${lastContentDate}`,
         }),
       },
       ScanIndexForward: false, // Most recent first
