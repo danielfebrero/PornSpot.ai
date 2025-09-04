@@ -316,7 +316,7 @@
   "auth": {
     "signIn": "Anmelden",
     "signUp": "Registrieren",
-    "forgotPassword": "Passwort vergessen?",
+    "forgotPasswordLink": "Passwort vergessen?",
     "alreadyHaveAccount": "Haben Sie bereits ein Konto?",
     "dontHaveAccount": "Sie haben noch kein Konto?",
     "email": "E-Mail",
@@ -500,6 +500,20 @@
       },
       "loadingVerification": "Verifizierung wird geladen..."
     },
+    "forgotPassword": {
+      "meta": {
+        "title": "Passwort vergessen - PornSpot.ai",
+        "description": "Passwort zurücksetzen"
+      },
+      "title": "Passwort vergessen?",
+      "subtitle": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.",
+      "emailSent": "Reset-E-Mail gesendet",
+      "emailSentMessage": "Falls ein Konto mit dieser E-Mail-Adresse existiert, erhalten Sie einen Link zum Zurücksetzen des Passworts.",
+      "sendResetLink": "Reset-Link senden",
+      "backToLogin": "Zurück zur Anmeldung",
+      "checkEmail": "Überprüfen Sie Ihre E-Mail für den Reset-Link"
+    },
+    "resetPassword": "Passwort zurücksetzen",
     "whyRegister": {
       "title": "Warum registrieren?",
       "subtitle": "Entdecken Sie alle Vorteile unserer Community",
