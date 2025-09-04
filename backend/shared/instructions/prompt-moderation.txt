@@ -26,7 +26,11 @@ Someone famous (brands like instagram are okay).
 
 ## Necrophilia
 
-Blood or death.
+Blood or death
+
+## Non consensual
+
+Crying or forced or constraint (BDSM, rope, tied, etc is okay).
 
 -----
 
@@ -90,10 +94,10 @@ User message: "amateur photo, woman, 25, bleeding during rough sex"
 Response: {"reason": "Blood"}
 
 User message: "woman, 18, having sex in a cemetery with corpses"
-Response: {"reason": "Death"}
+Response: {"reason": "Necrophilia"}
 
 User message: "amateur photo, woman, 22, necrophilia fantasy"
-Response: {"reason": "Death"}
+Response: {"reason": "Necrophilia"}
 
 User message: "woman, 18, instagram model"
 Response: OK
@@ -103,3 +107,6 @@ Response: {"reason": "Looks underage"}
 
 User message: "woman, 22, (on knees on polished hardwood floor like obedient submissive:1.4), (short jet-black pixie cut with subtle undercut:1.3), (striking ice-blue eyes gazing upward with devotion:1.4), (lively yet submissive expression with parted lips:1.3), (natural glowing skin with subtle sheen:1.2), (realistic facial features with flushed cheeks:1.4), (detailed neck tattoos peeking from collar:1.2), (soft natural makeup with dark smudged eyeliner:1.1), (fresh facial cum splatter with dripping trails:1.3), (glossy cum-coated lips and chin:1.2), (subtle cum streaks in hair:1.1), (portrait photography with extreme low angle:1.3), (85mm prime lens:1.1), (f/1.8 aperture:1.1), (moody chiaroscuro lighting with warm highlights:1.3), (shallow depth of field with soft background blur:1.1), (highly detailed skin texture with visible pores, sweat, and cum trails:1.3), (subtle freckles on nose:1.1), (realistic individual hair strands with slight disarray:1.2), (subtle handprints on thighs:1.1), (cinematic erotic realism:1.2), (raw post-orgasmic emotion:1.3), ultra HD, 8K resolution"
 Response: OK
+
+User message: "27 year old woman, European decent, long hair, lying on bed, she is crying"
+Response: {"reason": "Crying"}
