@@ -127,7 +127,7 @@ export class FollowingFeedService {
         : "GSI4PK = :gsi4pk AND begins_with(GSI4SK, :userPrefix)",
       ExpressionAttributeValues: {
         ":gsi4pk": "ALBUM_BY_CREATOR",
-        ":userPrefix": `${userId}#`,
+        ...(!lastContentDate && { ":userPrefix": `${userId}#` }),
         ...(lastContentDate && {
           ":minKey": `${userId}#${lastContentDate}#`,
           ":maxKey": `${userId}#ZZZZZZ`,
@@ -146,7 +146,7 @@ export class FollowingFeedService {
         : "GSI1PK = :gsi1pk AND begins_with(GSI1SK, :userPrefix)",
       ExpressionAttributeValues: {
         ":gsi1pk": "MEDIA_BY_CREATOR",
-        ":userPrefix": `${userId}#`,
+        ...(!lastContentDate && { ":userPrefix": `${userId}#` }),
         ...(lastContentDate && {
           ":minKey": `${userId}#${lastContentDate}#`,
           ":maxKey": `${userId}#ZZZZZZ`,
