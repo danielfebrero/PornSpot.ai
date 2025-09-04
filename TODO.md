@@ -92,7 +92,7 @@
 
 [x] Remove usage stats from Admin default page.
 
-[ ] Ability to follow users.
+[x] Ability to follow users.
 
 [x] Button to delete the prompt.
 
