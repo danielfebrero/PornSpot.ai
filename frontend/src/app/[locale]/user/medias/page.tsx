@@ -11,6 +11,7 @@ import {
   Download,
   Trash2,
   X,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import LocaleLink from "@/components/ui/LocaleLink";
@@ -351,11 +352,20 @@ const UserMediasPage: React.FC = () => {
                     handleDownload();
                   }
                 }}
+                disabled={downloadMediaZip.isPending}
                 className={`group p-2 rounded-md text-foreground hover:bg-muted focus:bg-muted focus:outline-none transition-all flex items-center overflow-hidden ${
                   mobileExpandedAction === "download" ? "bg-muted" : ""
+                } ${
+                  downloadMediaZip.isPending
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
                 }`}
               >
-                <Download className="h-4 w-4 flex-shrink-0" />
+                {downloadMediaZip.isPending ? (
+                  <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4 flex-shrink-0" />
+                )}
                 <span
                   className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-24 group-focus:max-w-24 ${
                     mobileExpandedAction === "download"

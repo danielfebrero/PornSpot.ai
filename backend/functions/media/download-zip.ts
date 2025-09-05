@@ -85,14 +85,18 @@ const handleDownloadMediaZip = async (
     // Download and add each media file to the archive
     for (const media of mediaEntities) {
       try {
-        console.log(`Downloading media: ${media.id} (${media.filename})`);
+        if (media.url) {
+          console.log(
+            `Downloading media: ${media.id} (${media.originalFilename})`
+          );
 
-        // Get the original file from S3 using downloadBuffer method
-        const fileBuffer = await S3Service.downloadBuffer(media.filename);
+          // Get the original file from S3 using downloadBuffer method
+          const fileBuffer = await S3Service.downloadBuffer(media.url);
 
-        // Use original filename for the zip entry, with media ID as prefix to avoid conflicts
-        const zipEntryName = `${media.id}_${media.originalFilename}`;
-        archive.append(fileBuffer, { name: zipEntryName });
+          // Use original filename for the zip entry, with media ID as prefix to avoid conflicts
+          const zipEntryName = `${media.id}_${media.originalFilename}`;
+          archive.append(fileBuffer, { name: zipEntryName });
+        }
       } catch (error) {
         console.error(`Failed to download media ${media.id}:`, error);
         // Continue with other files rather than failing the entire request
