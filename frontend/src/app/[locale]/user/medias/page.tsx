@@ -44,6 +44,9 @@ const UserMediasPage: React.FC = () => {
   const [mobileExpandedAction, setMobileExpandedAction] = useState<
     string | null
   >(null);
+
+  // Maximum number of media items that can be selected for bulk operations
+  const MAX_BULK_SELECTION = 50;
   const { user } = useUserContext();
   const { isMobile } = useDevice();
 
@@ -153,17 +156,25 @@ const UserMediasPage: React.FC = () => {
   }, []);
 
   // Handler for toggling media selection
-  const handleToggleSelection = useCallback((mediaId: string) => {
-    setSelectedMedias((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(mediaId)) {
-        newSet.delete(mediaId);
-      } else {
-        newSet.add(mediaId);
-      }
-      return newSet;
-    });
-  }, []);
+  const handleToggleSelection = useCallback(
+    (mediaId: string) => {
+      setSelectedMedias((prev) => {
+        const newSet = new Set(prev);
+        if (newSet.has(mediaId)) {
+          // Always allow deselection
+          newSet.delete(mediaId);
+        } else {
+          // Only allow selection if under the limit
+          if (newSet.size < MAX_BULK_SELECTION) {
+            newSet.add(mediaId);
+          }
+          // Silently ignore selection if at max limit
+        }
+        return newSet;
+      });
+    },
+    [MAX_BULK_SELECTION]
+  );
 
   // Handler for mobile action button tap
   const handleMobileActionTap = useCallback(
@@ -301,7 +312,7 @@ const UserMediasPage: React.FC = () => {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-lg font-semibold text-foreground">
-                Selected: {selectedMedias.size}
+                Selected: {selectedMedias.size}/{MAX_BULK_SELECTION}
               </span>
               <button
                 onClick={handleCancelSelection}
