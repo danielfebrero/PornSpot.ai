@@ -88,7 +88,11 @@ const handleDownloadMediaZip = async (
 
           const fileBuffer = await S3Service.downloadBuffer(media.filename);
 
-          const zipEntryName = `${media.id}_${media.originalFilename}`;
+          // Extract file extension from media.filename
+          const fileExtension = media.filename.split(".").pop() || "";
+          const zipEntryName = `${media.id}_${media.originalFilename}${
+            fileExtension ? "." + fileExtension : ""
+          }`;
           archive.append(fileBuffer, { name: zipEntryName });
         }
       } catch (error) {

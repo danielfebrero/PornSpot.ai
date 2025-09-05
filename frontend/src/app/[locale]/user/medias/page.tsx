@@ -78,9 +78,6 @@ const UserMediasPage: React.FC = () => {
           mediaId: editingMedia.id,
           updates: { title: newTitle },
         });
-        console.log(
-          `Updating title for media ${editingMedia.id} to "${newTitle}"`
-        );
         setEditingMedia(null);
       } catch (error) {
         console.error("Failed to update media title:", error);
@@ -125,7 +122,6 @@ const UserMediasPage: React.FC = () => {
                 mediaId: media.id,
                 updates: { isPublic: !media.isPublic },
               });
-              console.log(`Toggled visibility for media ${media.id}`);
             } catch (error) {
               console.error("Failed to toggle media visibility:", error);
             }
@@ -207,7 +203,6 @@ const UserMediasPage: React.FC = () => {
 
     try {
       const mediaIds = Array.from(selectedMedias);
-      console.log("Downloading", mediaIds.length, "media files as zip");
 
       await downloadMediaZip.mutateAsync(mediaIds);
 

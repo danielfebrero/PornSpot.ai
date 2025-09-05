@@ -461,10 +461,6 @@ export function useBulkDeleteMedia() {
       // Invalidate user profile query since media counts may have changed
       invalidateQueries.user();
 
-      // Log bulk deletion results
-      console.log(
-        `Bulk deletion completed: ${data.summary.successful} successful, ${data.summary.failed} failed`
-      );
       if (data.summary.failed > 0) {
         console.warn(
           "Some media failed to delete:",
