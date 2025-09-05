@@ -306,33 +306,20 @@ const UserMediasPage: React.FC = () => {
       <div
         className={`${
           isSelecting
-            ? "sticky top-0 z-50 bg-background/95 backdrop-blur-lg border-border/50 shadow-2xl rounded-none border-x-0 border-t-0 border-b"
+            ? "sticky top-0 z-50 bg-background/60 backdrop-blur-lg border-border/50 shadow-2xl rounded-none border-x-0 border-t-0 border-b"
             : "bg-gradient-to-r from-admin-accent/10 to-admin-primary/10 rounded-xl border border-admin-accent/20 shadow-lg"
-        } p-6 transition-all duration-300 md:min-h-[140px] min-h-[120px]`}
+        } p-6 transition-all duration-300 ${
+          isSelecting
+            ? "md:min-h-[80px] min-h-[70px]"
+            : "md:min-h-[140px] min-h-[120px]"
+        }`}
       >
         {isSelecting ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="bg-admin-accent/20 text-admin-accent text-lg font-bold px-4 py-2 rounded-lg border border-admin-accent/30 shadow-sm">
-                  {selectedMedias.size}/{MAX_BULK_SELECTION}
-                </div>
-                <span className="text-lg font-semibold text-foreground">
-                  {selectedMedias.size === 1
-                    ? "item selected"
-                    : "items selected"}
-                </span>
-              </div>
-              <button
-                onClick={handleCancelSelection}
-                className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors border border-border/50 bg-background/50"
-                aria-label="Cancel selection"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
+              <div className="bg-admin-accent/20 text-admin-accent text-sm font-bold px-3 py-1.5 rounded-lg border border-admin-accent/30 shadow-sm">
+                {selectedMedias.size}/{MAX_BULK_SELECTION}
+              </div>
               <button
                 onClick={() => {
                   // Check if we're on mobile (touch device)
@@ -415,6 +402,13 @@ const UserMediasPage: React.FC = () => {
                 </span>
               </button>
             </div>
+            <button
+              onClick={handleCancelSelection}
+              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors border border-border/50 bg-background/50"
+              aria-label="Cancel selection"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
         ) : (
           <>
