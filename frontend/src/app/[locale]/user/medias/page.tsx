@@ -389,17 +389,15 @@ const UserMediasPage: React.FC = () => {
                     )}
                   >
                     {({ close }) => (
-                      <div className="py-1">
-                        <button
-                          onClick={() => {
-                            handleSelectMany();
-                            close();
-                          }}
-                          className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground flex items-center space-x-2"
-                        >
-                          <span>{t("selectMany")}</span>
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => {
+                          handleSelectMany();
+                          close();
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
+                      >
+                        <span>{t("selectMany")}</span>
+                      </button>
                     )}
                   </ShareDropdown>
                   <LocaleLink href="/generate">
@@ -448,17 +446,15 @@ const UserMediasPage: React.FC = () => {
                   )}
                 >
                   {({ close }) => (
-                    <div className="py-1">
-                      <button
-                        onClick={() => {
-                          handleSelectMany();
-                          close();
-                        }}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground flex items-center space-x-2"
-                      >
-                        <span>{t("selectMany")}</span>
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => {
+                        handleSelectMany();
+                        close();
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
+                    >
+                      <span>{t("selectMany")}</span>
+                    </button>
                   )}
                 </ShareDropdown>
                 <LocaleLink href="/generate">
