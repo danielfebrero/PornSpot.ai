@@ -53,7 +53,7 @@ const handleUpdateMedia = async (
 
   console.log("📝 Updating media:", {
     mediaId,
-    filename: existingMedia.filename,
+    originalFilename: existingMedia.originalFilename,
     createdBy: existingMedia.createdBy,
     updates: requestBody,
   });

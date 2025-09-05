@@ -154,4 +154,23 @@ export class ResponseUtil {
       body: "",
     };
   }
+
+  static binaryFile(
+    event: APIGatewayProxyEvent,
+    buffer: Buffer,
+    filename: string,
+    contentType: string = "application/octet-stream"
+  ): APIGatewayProxyResult {
+    return {
+      statusCode: 200,
+      headers: {
+        "Content-Type": contentType,
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Length": buffer.length.toString(),
+        ...getCorsHeaders(event),
+      },
+      body: buffer.toString("base64"),
+      isBase64Encoded: true,
+    };
+  }
 }

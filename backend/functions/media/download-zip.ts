@@ -5,6 +5,8 @@ import { S3Service } from "@shared/utils/s3";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { DownloadMediaZipRequest } from "@shared";
 import archiver from "archiver";
+import { PassThrough } from "stream";
+import { v4 as uuidv4 } from "uuid";
 
 const handleDownloadMediaZip = async (
   event: APIGatewayProxyEvent,
@@ -51,7 +53,7 @@ const handleDownloadMediaZip = async (
       })
     );
 
-    // Check if user has access to all media (owns them or they are public)
+    // Check if user has access
     for (const media of mediaEntities) {
       const isOwner = media.createdBy === userId;
       const isPublic = media.isPublic === "true";
@@ -64,25 +66,19 @@ const handleDownloadMediaZip = async (
       }
     }
 
-    // Create zip archive
-    const archive = archiver("zip", {
-      zlib: { level: 9 }, // Maximum compression
-    });
+    // Create zip archive + stream
+    const archive = archiver("zip", { zlib: { level: 9 } });
+    const pass = new PassThrough();
+    archive.pipe(pass);
 
     const chunks: Buffer[] = [];
-
-    // Set up archive data collection
-    archive.on("data", (chunk: Buffer) => {
-      chunks.push(chunk);
+    const archivePromise = new Promise<Buffer>((resolve, reject) => {
+      pass.on("data", (chunk: Buffer) => chunks.push(chunk));
+      pass.on("end", () => resolve(Buffer.concat(chunks)));
+      archive.on("error", reject);
     });
 
-    // Handle archive errors
-    archive.on("error", (err: Error) => {
-      console.error("Archive error:", err);
-      throw err;
-    });
-
-    // Download and add each media file to the archive
+    // Add each media file to archive
     for (const media of mediaEntities) {
       try {
         if (media.url) {
@@ -90,49 +86,62 @@ const handleDownloadMediaZip = async (
             `Downloading media: ${media.id} (${media.originalFilename})`
           );
 
-          // Get the original file from S3 using downloadBuffer method
-          const fileBuffer = await S3Service.downloadBuffer(media.url);
+          const fileBuffer = await S3Service.downloadBuffer(media.filename);
 
-          // Use original filename for the zip entry, with media ID as prefix to avoid conflicts
           const zipEntryName = `${media.id}_${media.originalFilename}`;
           archive.append(fileBuffer, { name: zipEntryName });
         }
       } catch (error) {
-        console.error(`Failed to download media ${media.id}:`, error);
-        // Continue with other files rather than failing the entire request
+        console.error(
+          `Failed to download media ${media.id} with key ${media.filename}:`,
+          error
+        );
+        // Skip this file, continue with others
       }
     }
 
-    // Finalize the archive
+    // Finalize archive
     await archive.finalize();
 
-    // Wait for archive to complete
-    await new Promise<void>((resolve, reject) => {
-      archive.on("end", resolve);
-      archive.on("error", reject);
-    });
+    // Wait for complete buffer
+    const zipBuffer = await archivePromise;
 
-    // Combine all chunks
-    const zipBuffer = Buffer.concat(chunks);
+    // Check size - if over 5MB, use S3
+    const sizeInMB = zipBuffer.length / (1024 * 1024);
+    console.log(`ZIP file size: ${sizeInMB.toFixed(2)} MB`);
 
-    // Generate filename with timestamp
+    if (sizeInMB > 5) {
+      // Upload to S3 temp bucket
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const tempKey = `temp-downloads/${userId}/${uuidv4()}-${timestamp}.zip`;
+
+      await S3Service.uploadBuffer(tempKey, zipBuffer, "application/zip");
+
+      // Generate pre-signed URL (expires in 1 hour)
+      const presignedUrl = await S3Service.generatePresignedDownloadUrl(
+        tempKey,
+        3600
+      );
+
+      // Return URL instead of file
+      return ResponseUtil.success(event, {
+        downloadUrl: presignedUrl,
+        expiresIn: 3600,
+        filename: `media-download-${timestamp}.zip`,
+        sizeInMB: sizeInMB.toFixed(2),
+      });
+    }
+
+    // If under 5MB, return directly
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const filename = `media-download-${timestamp}.zip`;
 
-    return {
-      statusCode: 200,
-      headers: {
-        "Content-Type": "application/zip",
-        "Content-Disposition": `attachment; filename="${filename}"`,
-        "Content-Length": zipBuffer.length.toString(),
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers":
-          "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
-        "Access-Control-Allow-Methods": "POST,OPTIONS",
-      },
-      body: zipBuffer.toString("base64"),
-      isBase64Encoded: true,
-    };
+    return ResponseUtil.binaryFile(
+      event,
+      zipBuffer,
+      filename,
+      "application/zip"
+    );
   } catch (error) {
     console.error("Error creating zip download:", error);
     return ResponseUtil.error(event, "Failed to create zip download", 500);
