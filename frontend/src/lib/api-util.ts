@@ -466,7 +466,7 @@ export class ApiUtil {
 
       // Check if response contains a download URL (for large files)
       // Download from pre-signed URL
-      const downloadResponse = await fetch(data.downloadUrl);
+      const downloadResponse = await fetch(data.data.downloadUrl);
       if (!downloadResponse.ok) {
         throw new Error("Failed to download file from URL");
       }
@@ -476,7 +476,7 @@ export class ApiUtil {
 
       const link = document.createElement("a");
       link.href = downloadUrl;
-      link.download = data.filename || filename || "download.zip";
+      link.download = data.data.filename || filename || "download.zip";
       document.body.appendChild(link);
       link.click();
 
