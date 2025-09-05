@@ -8,7 +8,6 @@ import {
   List,
   Plus,
   MoreVertical,
-  FolderPlus,
   Download,
   Trash2,
   X,
@@ -210,54 +209,52 @@ const UserMediasPage: React.FC = () => {
       {/* Header */}
       <div
         className={`bg-gradient-to-r from-admin-accent/10 to-admin-primary/10 rounded-xl border border-admin-accent/20 shadow-lg p-6 ${
-          isSelecting ? "sticky top-0 z-10" : ""
+          isSelecting ? "sticky top-0 z-20" : ""
         }`}
       >
         {isSelecting ? (
-          /* Selection Header */
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
               <span className="text-lg font-semibold text-foreground">
                 Selected: {selectedMedias.size}
               </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleAddToAlbum}
-                className="flex items-center space-x-2"
+              <button
+                onClick={handleCancelSelection}
+                className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                aria-label="Cancel selection"
               >
-                <FolderPlus className="h-4 w-4" />
-                <span>Album</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleAddToAlbum}
+                className="group px-2 py-2 rounded-md text-admin-accent hover:bg-admin-accent/10 focus:bg-admin-accent/10 focus:outline-none transition-colors flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity text-sm">
+                  Album
+                </span>
+              </button>
+              <button
                 onClick={handleDownload}
-                className="flex items-center space-x-2"
+                className="group px-2 py-2 rounded-md text-foreground hover:bg-muted focus:bg-muted focus:outline-none transition-colors flex items-center gap-2"
               >
                 <Download className="h-4 w-4" />
-                <span>Download</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
+                <span className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity text-sm">
+                  Download
+                </span>
+              </button>
+              <button
                 onClick={handleDelete}
-                className="flex items-center space-x-2 text-red-500 hover:text-red-400"
+                className="group px-2 py-2 rounded-md text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 focus:outline-none transition-colors flex items-center gap-2"
               >
                 <Trash2 className="h-4 w-4" />
-                <span>Delete</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCancelSelection}
-                className="flex items-center space-x-2"
-              >
-                <X className="h-4 w-4" />
-                <span>Cancel</span>
-              </Button>
+                <span className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity text-sm">
+                  Delete
+                </span>
+              </button>
             </div>
           </div>
         ) : (
