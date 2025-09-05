@@ -50,3 +50,7 @@ export interface RemoveMediaFromAlbumRequest {
   mediaId?: string; // For single media removal
   mediaIds?: string[]; // For bulk media removal
 }
+
+export interface DownloadMediaZipRequest {
+  mediaIds: string[];
+}

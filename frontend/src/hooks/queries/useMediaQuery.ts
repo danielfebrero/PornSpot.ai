@@ -629,3 +629,16 @@ export function useUpdateMedia() {
     },
   });
 }
+
+// Mutation hook for downloading media as zip
+export function useDownloadMediaZip() {
+  return useMutation({
+    mutationFn: async (mediaIds: string[]) => {
+      return await mediaApi.downloadZip(mediaIds);
+    },
+    onError: (error: Error) => {
+      console.error("Failed to download media zip:", error);
+      throw error;
+    },
+  });
+}

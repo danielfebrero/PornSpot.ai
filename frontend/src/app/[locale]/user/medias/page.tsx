@@ -23,6 +23,7 @@ import {
   useUserMedia,
   useUpdateMedia,
   useBulkDeleteMedia,
+  useDownloadMediaZip,
 } from "@/hooks/queries/useMediaQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { Media, UnifiedMediaResponse } from "@/types";
@@ -50,6 +51,9 @@ const UserMediasPage: React.FC = () => {
 
   // Use TanStack Query hook for bulk deletion
   const bulkDeleteMedia = useBulkDeleteMedia();
+
+  // Use TanStack Query hook for downloading media as zip
+  const downloadMediaZip = useDownloadMediaZip();
 
   // Use TanStack Query hook for user media with infinite scroll
   const {
@@ -197,10 +201,23 @@ const UserMediasPage: React.FC = () => {
   }, []);
 
   // Handler for download
-  const handleDownload = useCallback(() => {
-    console.log("Download clicked for", selectedMedias.size, "items");
-    // TODO: Implement download functionality
-  }, [selectedMedias]);
+  const handleDownload = useCallback(async () => {
+    if (selectedMedias.size === 0) return;
+
+    try {
+      const mediaIds = Array.from(selectedMedias);
+      console.log("Downloading", mediaIds.length, "media files as zip");
+
+      await downloadMediaZip.mutateAsync(mediaIds);
+
+      // Clear selection after successful download
+      setSelectedMedias(new Set());
+      setIsSelecting(false);
+    } catch (error) {
+      console.error("Failed to download media zip:", error);
+      // Error handling is done by the mutation
+    }
+  }, [selectedMedias, downloadMediaZip]);
 
   // Handler for delete
   const handleDelete = useCallback(() => {

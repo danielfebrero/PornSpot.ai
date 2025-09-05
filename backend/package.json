@@ -29,6 +29,7 @@
     "@aws-sdk/s3-request-presigner": "^3.450.0",
     "@aws-sdk/types": "^3.450.0",
     "@sendgrid/mail": "^8.1.5",
+    "archiver": "^7.0.1",
     "aws-lambda": "^1.0.7",
     "aws-sdk": "^2.1692.0",
     "bcrypt": "^6.0.0",
@@ -42,6 +43,7 @@
     "ws": "^8.14.2"
   },
   "devDependencies": {
+    "@types/archiver": "^6.0.3",
     "@types/aws-lambda": "^8.10.126",
     "@types/bcrypt": "^5.0.2",
     "@types/jest": "^29.5.8",

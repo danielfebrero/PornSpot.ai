@@ -109,4 +109,9 @@ export const mediaApi = {
     const response = await ApiUtil.put<Media>(`/media/${mediaId}`, updates);
     return ApiUtil.extractData(response);
   },
+
+  // Download multiple media files as zip
+  downloadZip: async (mediaIds: string[]): Promise<void> => {
+    await ApiUtil.download("/media/download-zip", { mediaIds });
+  },
 };

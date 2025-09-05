@@ -932,6 +932,39 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
 
+  DownloadMediaZipFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-download-media-zip-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/media/download-zip.handler"]
+      Timeout: 300
+      MemorySize: 1024
+      Events:
+        PostDownloadZip:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /media/download-zip
+            Method: POST
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsDownloadZip:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /media/download-zip
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - S3ReadPolicy:
+            BucketName: !Ref MediaBucket
+
   UserMediaListFunction:
     Type: AWS::Serverless::Function
     Properties:
