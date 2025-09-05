@@ -126,10 +126,10 @@
 
 [ ] Check if "save image" step needs to be parallelized in generate image.
 
-[ ] Bulk download in zip.
+[x] Bulk download in zip.
 
-[ ] Bulk download to album.
+[x] Bulk download to album.
 
-[ ] Bulk delete.
+[x] Bulk delete.
 
 [ ] Tutorial of how the advanced controls work.

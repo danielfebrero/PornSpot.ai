@@ -85,12 +85,18 @@ const UserAlbumsPage: React.FC = () => {
 
   // Handle edit album
   const handleEditAlbum = useCallback((album: Album) => {
-    setEditingAlbum(album);
+    // Use setTimeout to ensure this runs after any event handling
+    setTimeout(() => {
+      setEditingAlbum(album);
+    }, 0);
   }, []);
 
   // Handle delete album
   const handleDeleteAlbum = useCallback((album: Album) => {
-    setDeletingAlbum(album);
+    // Use setTimeout to ensure this runs after any event handling
+    setTimeout(() => {
+      setDeletingAlbum(album);
+    }, 0);
   }, []);
 
   // Handle album update
