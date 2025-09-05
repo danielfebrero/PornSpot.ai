@@ -544,10 +544,9 @@ export default function AnalyticsPage() {
             {/* User Growth Chart */}
             <ChartCard
               title="User Growth"
-              subtitle={`New and active users and visitors per ${selectedGranularity.slice(
-                0,
-                -2
-              )}`}
+              subtitle={`New and active users and visitors per ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={Users}
             >
               {(() => {
@@ -584,7 +583,9 @@ export default function AnalyticsPage() {
             {/* Media Generation Chart */}
             <ChartCard
               title="Media Generations"
-              subtitle={`New media per ${selectedGranularity.slice(0, -2)}`}
+              subtitle={`New media per ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={Image}
             >
               {(() => {
@@ -607,7 +608,9 @@ export default function AnalyticsPage() {
             {/* Album Creation Chart */}
             <ChartCard
               title="Album Creation"
-              subtitle={`New albums per ${selectedGranularity.slice(0, -2)}`}
+              subtitle={`New albums per ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={FolderOpen}
             >
               {(() => {
@@ -630,7 +633,9 @@ export default function AnalyticsPage() {
             {/* Engagement Chart */}
             <ChartCard
               title="User Engagement"
-              subtitle={`Interactions per ${selectedGranularity.slice(0, -2)}`}
+              subtitle={`Interactions per ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={Activity}
             >
               {(() => {
@@ -667,10 +672,9 @@ export default function AnalyticsPage() {
             {/* Media Visibility Chart */}
             <ChartCard
               title="Media Visibility"
-              subtitle={`Public vs Private media per ${selectedGranularity.slice(
-                0,
-                -2
-              )}`}
+              subtitle={`Public vs Private media per ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={Lock}
             >
               {(() => {
@@ -701,10 +705,9 @@ export default function AnalyticsPage() {
             {/* Storage Usage Chart */}
             <ChartCard
               title="Storage Usage"
-              subtitle={`Storage usage in GB per ${selectedGranularity.slice(
-                0,
-                -2
-              )}`}
+              subtitle={`Storage usage in GB per ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
               icon={HardDrive}
             >
               {(() => {
