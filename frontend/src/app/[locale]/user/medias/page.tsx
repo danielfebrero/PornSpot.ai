@@ -21,6 +21,7 @@ import { useUserMedia, useUpdateMedia } from "@/hooks/queries/useMediaQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { Media, UnifiedMediaResponse } from "@/types";
 import { useUserContext } from "@/contexts/UserContext";
+import { useDevice } from "@/contexts/DeviceContext";
 import { isMediaOwner } from "@/lib/userUtils";
 import { Globe, Lock, Edit } from "lucide-react";
 
@@ -30,7 +31,11 @@ const UserMediasPage: React.FC = () => {
   const [editingMedia, setEditingMedia] = useState<Media | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedMedias, setSelectedMedias] = useState<Set<string>>(new Set());
+  const [mobileExpandedAction, setMobileExpandedAction] = useState<
+    string | null
+  >(null);
   const { user } = useUserContext();
+  const { isMobile } = useDevice();
 
   // Use TanStack Query hook for media updates
   const updateMedia = useUpdateMedia();
@@ -132,7 +137,23 @@ const UserMediasPage: React.FC = () => {
   const handleCancelSelection = useCallback(() => {
     setIsSelecting(false);
     setSelectedMedias(new Set());
+    setMobileExpandedAction(null);
   }, []);
+
+  // Handler for mobile action button tap
+  const handleMobileActionTap = useCallback(
+    (actionId: string, action: () => void) => {
+      if (mobileExpandedAction === actionId) {
+        // Second tap - trigger action
+        action();
+        setMobileExpandedAction(null);
+      } else {
+        // First tap - show label
+        setMobileExpandedAction(actionId);
+      }
+    },
+    [mobileExpandedAction]
+  );
 
   // Handler for add to album
   const handleAddToAlbum = useCallback(() => {
@@ -229,29 +250,74 @@ const UserMediasPage: React.FC = () => {
 
             <div className="flex items-center gap-2">
               <button
-                onClick={handleAddToAlbum}
-                className="group p-2 rounded-md text-admin-accent hover:bg-admin-accent/10 focus:bg-admin-accent/10 focus:outline-none transition-all flex items-center overflow-hidden"
+                onClick={() => {
+                  // Check if we're on mobile (touch device)
+                  if (isMobile) {
+                    handleMobileActionTap("addToAlbum", handleAddToAlbum);
+                  } else {
+                    handleAddToAlbum();
+                  }
+                }}
+                className={`group p-2 rounded-md text-admin-accent hover:bg-admin-accent/10 focus:bg-admin-accent/10 focus:outline-none transition-all flex items-center overflow-hidden ${
+                  mobileExpandedAction === "addToAlbum"
+                    ? "bg-admin-accent/10"
+                    : ""
+                }`}
               >
                 <Plus className="h-4 w-4 flex-shrink-0" />
-                <span className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20">
+                <span
+                  className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20 ${
+                    mobileExpandedAction === "addToAlbum"
+                      ? "opacity-100 ml-2 max-w-20"
+                      : ""
+                  }`}
+                >
                   Album
                 </span>
               </button>
               <button
-                onClick={handleDownload}
-                className="group p-2 rounded-md text-foreground hover:bg-muted focus:bg-muted focus:outline-none transition-all flex items-center overflow-hidden"
+                onClick={() => {
+                  if (isMobile) {
+                    handleMobileActionTap("download", handleDownload);
+                  } else {
+                    handleDownload();
+                  }
+                }}
+                className={`group p-2 rounded-md text-foreground hover:bg-muted focus:bg-muted focus:outline-none transition-all flex items-center overflow-hidden ${
+                  mobileExpandedAction === "download" ? "bg-muted" : ""
+                }`}
               >
                 <Download className="h-4 w-4 flex-shrink-0" />
-                <span className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-24 group-focus:max-w-24">
+                <span
+                  className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-24 group-focus:max-w-24 ${
+                    mobileExpandedAction === "download"
+                      ? "opacity-100 ml-2 max-w-24"
+                      : ""
+                  }`}
+                >
                   Download
                 </span>
               </button>
               <button
-                onClick={handleDelete}
-                className="group p-2 rounded-md text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 focus:outline-none transition-all flex items-center overflow-hidden"
+                onClick={() => {
+                  if (isMobile) {
+                    handleMobileActionTap("delete", handleDelete);
+                  } else {
+                    handleDelete();
+                  }
+                }}
+                className={`group p-2 rounded-md text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 focus:outline-none transition-all flex items-center overflow-hidden ${
+                  mobileExpandedAction === "delete" ? "bg-red-500/10" : ""
+                }`}
               >
                 <Trash2 className="h-4 w-4 flex-shrink-0" />
-                <span className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20">
+                <span
+                  className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20 ${
+                    mobileExpandedAction === "delete"
+                      ? "opacity-100 ml-2 max-w-20"
+                      : ""
+                  }`}
+                >
                   Delete
                 </span>
               </button>
