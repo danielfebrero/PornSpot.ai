@@ -308,13 +308,6 @@ Resources:
     Properties:
       Name: !Sub "${Environment}-pornspot-api"
       StageName: !Ref Environment
-      BinaryMediaTypes:
-        - "application/zip"
-        - "application/octet-stream"
-        - "multipart/form-data"
-        - "image/*"
-        - "video/*"
-        - "audio/*"
       Auth:
         DefaultAuthorizer: AWS_IAM
         Authorizers:
@@ -970,6 +963,8 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
         - S3ReadPolicy:
+            BucketName: !Ref MediaBucket
+        - S3WritePolicy:
             BucketName: !Ref MediaBucket
 
   UserMediaListFunction:

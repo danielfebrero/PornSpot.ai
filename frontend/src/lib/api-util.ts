@@ -465,40 +465,23 @@ export class ApiUtil {
       const data = await response.json();
 
       // Check if response contains a download URL (for large files)
-      if (data.downloadUrl) {
-        // Download from pre-signed URL
-        const downloadResponse = await fetch(data.downloadUrl);
-        if (!downloadResponse.ok) {
-          throw new Error("Failed to download file from URL");
-        }
-
-        const blob = await downloadResponse.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-
-        const link = document.createElement("a");
-        link.href = downloadUrl;
-        link.download = data.filename || filename || "download.zip";
-        document.body.appendChild(link);
-        link.click();
-
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(downloadUrl);
-      } else {
-        // Small file - direct download (legacy support)
-        const blob = await response.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-
-        // Create temporary link element and trigger download
-        const link = document.createElement("a");
-        link.href = downloadUrl;
-        link.download = data.filename || filename || "download.zip";
-        document.body.appendChild(link);
-        link.click();
-
-        // Cleanup
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(downloadUrl);
+      // Download from pre-signed URL
+      const downloadResponse = await fetch(data.downloadUrl);
+      if (!downloadResponse.ok) {
+        throw new Error("Failed to download file from URL");
       }
+
+      const blob = await downloadResponse.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = data.filename || filename || "download.zip";
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
       console.error(`Download request failed for ${url}:`, error);
       throw error;

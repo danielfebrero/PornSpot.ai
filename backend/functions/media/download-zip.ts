@@ -110,38 +110,25 @@ const handleDownloadMediaZip = async (
     const sizeInMB = zipBuffer.length / (1024 * 1024);
     console.log(`ZIP file size: ${sizeInMB.toFixed(2)} MB`);
 
-    if (sizeInMB > 5) {
-      // Upload to S3 temp bucket
-      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const tempKey = `temp-downloads/${userId}/${uuidv4()}-${timestamp}.zip`;
-
-      await S3Service.uploadBuffer(tempKey, zipBuffer, "application/zip");
-
-      // Generate pre-signed URL (expires in 1 hour)
-      const presignedUrl = await S3Service.generatePresignedDownloadUrl(
-        tempKey,
-        3600
-      );
-
-      // Return URL instead of file
-      return ResponseUtil.success(event, {
-        downloadUrl: presignedUrl,
-        expiresIn: 3600,
-        filename: `media-download-${timestamp}.zip`,
-        sizeInMB: sizeInMB.toFixed(2),
-      });
-    }
-
-    // If under 5MB, return directly
+    // Upload to S3 temp bucket
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const filename = `media-download-${timestamp}.zip`;
+    const tempKey = `temp-downloads/${userId}/${uuidv4()}-${timestamp}.zip`;
 
-    return ResponseUtil.binaryFile(
-      event,
-      zipBuffer,
-      filename,
-      "application/zip"
+    await S3Service.uploadBuffer(tempKey, zipBuffer, "application/zip");
+
+    // Generate pre-signed URL (expires in 1 hour)
+    const presignedUrl = await S3Service.generatePresignedDownloadUrl(
+      tempKey,
+      3600
     );
+
+    // Return URL instead of file
+    return ResponseUtil.success(event, {
+      downloadUrl: presignedUrl,
+      expiresIn: 3600,
+      filename: `media-download-${timestamp}.zip`,
+      sizeInMB: sizeInMB.toFixed(2),
+    });
   } catch (error) {
     console.error("Error creating zip download:", error);
     return ResponseUtil.error(event, "Failed to create zip download", 500);
