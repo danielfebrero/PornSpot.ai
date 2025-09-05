@@ -108,9 +108,9 @@
 
 [x] In media, bookmarks and likes user page, place "count" in locale instead of two separate strings.
 
-[ ] Be able to like and bookmark album from album page, not only its content card.
+[x] Be able to like and bookmark album from album page, not only its content card.
 
-[ ] Send original prompt additionally to the optimized prompt, on the Generate page, so we can select loRAs based on original prompt always. If not, the second generation row do not use the same loRA because they are selected based on optimized one.
+[x] Send original prompt additionally to the optimized prompt, on the Generate page, so we can select loRAs based on original prompt always. If not, the second generation row do not use the same loRA because they are selected based on optimized one.
 
 [ ] Add a button to copy prompt from media page.
 
