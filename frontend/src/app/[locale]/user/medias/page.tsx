@@ -17,6 +17,7 @@ import LocaleLink from "@/components/ui/LocaleLink";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import { EditTitleDialog } from "@/components/ui/EditTitleDialog";
 import { ShareDropdown } from "@/components/ui/ShareDropdown";
+import { AddToAlbumDialog } from "@/components/user/AddToAlbumDialog";
 import { useUserMedia, useUpdateMedia } from "@/hooks/queries/useMediaQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { Media, UnifiedMediaResponse } from "@/types";
@@ -31,6 +32,7 @@ const UserMediasPage: React.FC = () => {
   const [editingMedia, setEditingMedia] = useState<Media | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedMedias, setSelectedMedias] = useState<Set<string>>(new Set());
+  const [showAddToAlbumDialog, setShowAddToAlbumDialog] = useState(false);
   const [mobileExpandedAction, setMobileExpandedAction] = useState<
     string | null
   >(null);
@@ -170,9 +172,20 @@ const UserMediasPage: React.FC = () => {
 
   // Handler for add to album
   const handleAddToAlbum = useCallback(() => {
-    console.log("Add to album clicked for", selectedMedias.size, "items");
-    // TODO: Implement add to album functionality
+    if (selectedMedias.size > 0) {
+      setShowAddToAlbumDialog(true);
+    }
   }, [selectedMedias]);
+
+  // Get selected media objects
+  const selectedMediaObjects = useMemo(() => {
+    return medias.filter((media) => selectedMedias.has(media.id));
+  }, [medias, selectedMedias]);
+
+  // Handler for closing add to album dialog
+  const handleCloseAddToAlbumDialog = useCallback(() => {
+    setShowAddToAlbumDialog(false);
+  }, []);
 
   // Handler for download
   const handleDownload = useCallback(() => {
@@ -565,6 +578,15 @@ const UserMediasPage: React.FC = () => {
           onConfirm={handleConfirmTitleEdit}
           currentTitle={editingMedia.originalFilename || ""}
           loading={updateMedia.isPending}
+        />
+      )}
+
+      {/* Add to Album Dialog */}
+      {showAddToAlbumDialog && selectedMediaObjects.length > 0 && (
+        <AddToAlbumDialog
+          isOpen={showAddToAlbumDialog}
+          onClose={handleCloseAddToAlbumDialog}
+          media={selectedMediaObjects}
         />
       )}
     </div>

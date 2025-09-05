@@ -21,7 +21,7 @@ import { useUserContext } from "@/contexts/UserContext";
 interface AddToAlbumDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  media: Media;
+  media: Media | Media[];
 }
 
 export function AddToAlbumDialog({
@@ -29,6 +29,9 @@ export function AddToAlbumDialog({
   onClose,
   media,
 }: AddToAlbumDialogProps) {
+  // Normalize media to always be an array for consistent handling
+  const mediaArray = Array.isArray(media) ? media : [media];
+  const mediaIds = mediaArray.map((m) => m.id);
   const t = useTranslations("album");
   const tCommon = useTranslations("common");
   const { canCreatePrivateContent } = usePermissions();
@@ -120,8 +123,8 @@ export function AddToAlbumDialog({
           title: newAlbumTitle.trim(),
           tags: newAlbumTags,
           isPublic: newAlbumIsPublic,
-          mediaIds: [media.id],
-          ...(useAsCover && { coverImageId: media.id }),
+          mediaIds: mediaIds,
+          ...(useAsCover && { coverImageId: mediaArray[0].id }),
         });
 
         if (newAlbum) {
@@ -133,7 +136,7 @@ export function AddToAlbumDialog({
       // Add to selected existing albums
       if (selectedAlbumIds.size > 0) {
         const promises = Array.from(selectedAlbumIds).map((albumId) =>
-          addMediaToAlbumHook({ albumId, mediaId: media.id })
+          addMediaToAlbumHook({ albumId, mediaIds: mediaIds })
         );
 
         await Promise.all(promises);
@@ -159,6 +162,12 @@ export function AddToAlbumDialog({
         <div className="flex items-center justify-between p-4 border-b border-border">
           <h2 className="text-lg font-semibold text-foreground">
             {showCreateForm ? t("createAlbum") : t("addToAlbum")}
+            {mediaArray.length > 1 && !showCreateForm && (
+              <span className="text-sm font-normal text-muted-foreground ml-2">
+                ({mediaArray.length}{" "}
+                {mediaArray.length === 1 ? t("image") : t("images")})
+              </span>
+            )}
           </h2>
           <button
             onClick={onClose}
@@ -215,7 +224,9 @@ export function AddToAlbumDialog({
 
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-foreground">
-                  {t("useAsCover")}
+                  {mediaArray.length === 1
+                    ? t("useAsCover")
+                    : t("useFirstAsCover")}
                 </label>
                 <Switch checked={useAsCover} onCheckedChange={setUseAsCover} />
               </div>
@@ -223,6 +234,17 @@ export function AddToAlbumDialog({
           ) : (
             /* Album Selection List */
             <div className="p-4">
+              {/* Media count summary for multiple items */}
+              {mediaArray.length > 1 && (
+                <div className="mb-4 p-3 bg-accent/30 rounded-lg border border-accent">
+                  <p className="text-sm text-foreground">
+                    Adding <strong>{mediaArray.length}</strong>{" "}
+                    {mediaArray.length === 1 ? t("image") : t("images")} to
+                    selected albums
+                  </p>
+                </div>
+              )}
+
               {/* Create New Album Button */}
               <button
                 onClick={handleCreateNew}
@@ -265,20 +287,25 @@ export function AddToAlbumDialog({
                   <div className="max-h-64 overflow-y-auto space-y-2 pr-1 scrollbar-hide">
                     {albums.map((album) => {
                       const isSelected = selectedAlbumIds.has(album.id);
-                      // Check if media is already in this album
-                      const isAlreadyInAlbum =
-                        album.mediaIds?.includes(media.id) ?? false;
+                      // Check if any of the media items are already in this album
+                      const hasAnyMediaInAlbum = mediaIds.some(
+                        (mediaId) => album.mediaIds?.includes(mediaId) ?? false
+                      );
+                      // Check if all media items are already in this album
+                      const allMediaInAlbum = mediaIds.every(
+                        (mediaId) => album.mediaIds?.includes(mediaId) ?? false
+                      );
 
                       return (
                         <button
                           key={album.id}
                           onClick={() =>
-                            !isAlreadyInAlbum && handleAlbumToggle(album.id)
+                            !allMediaInAlbum && handleAlbumToggle(album.id)
                           }
-                          disabled={isAlreadyInAlbum}
+                          disabled={allMediaInAlbum}
                           className={cn(
                             "w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left",
-                            isAlreadyInAlbum
+                            allMediaInAlbum
                               ? "border-border bg-muted/50 cursor-not-allowed opacity-60"
                               : isSelected
                               ? "border-primary bg-primary/10"
@@ -301,9 +328,13 @@ export function AddToAlbumDialog({
                             </p>
                           </div>
                           <div className="flex-shrink-0">
-                            {isAlreadyInAlbum ? (
+                            {allMediaInAlbum ? (
                               <span className="text-xs text-green-600 font-medium">
                                 {t("alreadyAdded")}
+                              </span>
+                            ) : hasAnyMediaInAlbum ? (
+                              <span className="text-xs text-orange-600 font-medium">
+                                {t("partiallyAdded")}
                               </span>
                             ) : isSelected ? (
                               <Check className="h-4 w-4 text-primary" />
@@ -344,7 +375,11 @@ export function AddToAlbumDialog({
             loading={isSubmitting}
             className="flex-1"
           >
-            {showCreateForm ? t("createAndAdd") : t("addToSelected")}
+            {showCreateForm
+              ? t("createAndAdd")
+              : mediaArray.length === 1
+              ? t("addToSelected")
+              : t("addAllToSelected")}
           </Button>
         </div>
       </div>

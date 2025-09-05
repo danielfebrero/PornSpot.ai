@@ -989,20 +989,32 @@ export function useBulkRemoveMediaFromAlbum() {
   });
 }
 
-// Mutation for adding media to album
+// Mutation for adding media to album (supports both single and bulk operations)
 export function useAddMediaToAlbum() {
   return useMutation({
     mutationFn: async ({
       albumId,
       mediaId,
+      mediaIds,
     }: {
       albumId: string;
-      mediaId: string;
+      mediaId?: string;
+      mediaIds?: string[];
     }) => {
-      await albumsApi.addMediaToAlbum(albumId, mediaId);
-      return { albumId, mediaId };
+      // Support both single and bulk operations
+      if (mediaIds && mediaIds.length > 0) {
+        // Bulk operation
+        const results = await albumsApi.bulkAddMediaToAlbum(albumId, mediaIds);
+        return { albumId, mediaIds, results, isBulk: true };
+      } else if (mediaId) {
+        // Single operation
+        await albumsApi.addMediaToAlbum(albumId, mediaId);
+        return { albumId, mediaId, isBulk: false };
+      } else {
+        throw new Error("Either mediaId or mediaIds must be provided");
+      }
     },
-    onMutate: async ({ albumId, mediaId }) => {
+    onMutate: async ({ albumId, mediaId, mediaIds }) => {
       // Cancel outgoing refetches for the album detail
       await queryClient.cancelQueries({
         queryKey: queryKeys.albums.detail(albumId),
@@ -1013,6 +1025,9 @@ export function useAddMediaToAlbum() {
         queryKeys.albums.detail(albumId)
       );
 
+      // Calculate the number of media items being added
+      const addCount = mediaIds ? mediaIds.length : 1;
+
       // Optimistically update the album's media count in detail cache
       queryClient.setQueryData(
         queryKeys.albums.detail(albumId),
@@ -1020,7 +1035,7 @@ export function useAddMediaToAlbum() {
           return old
             ? {
                 ...old,
-                mediaCount: (old.mediaCount || 0) + 1,
+                mediaCount: (old.mediaCount || 0) + addCount,
                 // Optionally update lastModified timestamp
                 lastModified: new Date().toISOString(),
               }
@@ -1045,7 +1060,7 @@ export function useAddMediaToAlbum() {
                     album.id === albumId
                       ? {
                           ...album,
-                          mediaCount: (album.mediaCount || 0) + 1,
+                          mediaCount: (album.mediaCount || 0) + addCount,
                           lastModified: new Date().toISOString(),
                         }
                       : album
@@ -1062,7 +1077,7 @@ export function useAddMediaToAlbum() {
                 album.id === albumId
                   ? {
                       ...album,
-                      mediaCount: (album.mediaCount || 0) + 1,
+                      mediaCount: (album.mediaCount || 0) + addCount,
                       lastModified: new Date().toISOString(),
                     }
                   : album
@@ -1075,13 +1090,13 @@ export function useAddMediaToAlbum() {
       );
 
       // Return context with previous data for rollback
-      return { previousAlbum, albumId, mediaId };
+      return { previousAlbum, albumId, mediaId, mediaIds, addCount };
     },
     onError: (error, variables, context) => {
       console.error("Failed to add media to album:", error);
 
       // Rollback optimistic update
-      if (context?.previousAlbum) {
+      if (context?.previousAlbum && context?.addCount) {
         queryClient.setQueryData(
           queryKeys.albums.detail(context.albumId),
           context.previousAlbum
@@ -1141,6 +1156,16 @@ export function useAddMediaToAlbum() {
 
       // Optionally invalidate albums lists to ensure consistency
       invalidateQueries.albumsLists();
+
+      // For bulk operations, invalidate individual media items that were successfully added
+      if (data.isBulk && data.results?.successfullyAdded) {
+        data.results.successfullyAdded.forEach((mediaId: string) => {
+          invalidateQueries.media(mediaId);
+        });
+      } else if (!data.isBulk && data.mediaId) {
+        // For single operations, invalidate the specific media item
+        invalidateQueries.media(data.mediaId);
+      }
     },
   });
 }
