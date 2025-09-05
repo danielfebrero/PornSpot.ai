@@ -794,7 +794,11 @@
       "noMediaYet": "Noch keine Medien",
       "startCreatingMedia": "Beginnen Sie mit der Erstellung von KI-generierten Medien, um sie hier zu sehen!",
       "loadingMoreMedia": "Laden weiterer Medien...",
-      "noMoreMediaToLoad": "Keine weiteren Medien zu laden"
+      "noMoreMediaToLoad": "Keine weiteren Medien zu laden",
+      "confirmDeleteTitle": "Medien Löschen",
+      "confirmDeleteMessage": "Sind Sie sicher, dass Sie {count, plural, =1 {# ausgewähltes Medienelement} other {# ausgewählte Medienelemente}} löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "delete": "Löschen",
+      "cancel": "Abbrechen"
     },
     "albums": {
       "myAlbums": "Meine Alben",

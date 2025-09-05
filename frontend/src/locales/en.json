@@ -832,7 +832,11 @@
       "noMediaYet": "No media yet",
       "startCreatingMedia": "Start creating AI-generated media to see them here!",
       "loadingMoreMedia": "Loading more media...",
-      "noMoreMediaToLoad": "No more media to load"
+      "noMoreMediaToLoad": "No more media to load",
+      "confirmDeleteTitle": "Delete Media",
+      "confirmDeleteMessage": "Are you sure you want to delete {count, plural, =1 {# selected media item} other {# selected media items}}? This action cannot be undone.",
+      "delete": "Delete",
+      "cancel": "Cancel"
     },
     "albums": {
       "myAlbums": "My Albums",

@@ -53,7 +53,7 @@ export const ShareDropdown: React.FC<ShareDropdownProps> = ({
         <div
           className={`absolute ${
             align === "right" ? "right-0" : "left-0"
-          } mt-2 w-64 bg-card border border-border rounded-lg shadow-lg z-50`}
+          } mt-2 w-auto bg-card border border-border rounded-lg shadow-lg z-50`}
         >
           <div className="p-2">{children({ close: () => setOpen(false) })}</div>
         </div>

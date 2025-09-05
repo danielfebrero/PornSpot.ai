@@ -794,7 +794,11 @@
       "noMediaYet": "Aún no hay medios",
       "startCreatingMedia": "¡Comienza a crear contenido generado por IA para verlo aquí!",
       "loadingMoreMedia": "Cargando más medios...",
-      "noMoreMediaToLoad": "No hay más medios para cargar"
+      "noMoreMediaToLoad": "No hay más medios para cargar",
+      "confirmDeleteTitle": "Eliminar Medios",
+      "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar {count, plural, =1 {# elemento de medios seleccionado} other {# elementos de medios seleccionados}}? Esta acción no se puede deshacer.",
+      "delete": "Eliminar",
+      "cancel": "Cancelar"
     },
     "albums": {
       "myAlbums": "Mis álbumes",

@@ -141,3 +141,5 @@
 [ ] Admin edit album missing locales.
 
 [ ] Edit album does not work on mobile.
+
+[ ] frontend/src/components/ui/ContentCard.tsx ConfirmDialog texts are hardcoded.

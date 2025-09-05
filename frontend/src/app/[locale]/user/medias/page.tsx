@@ -17,8 +17,13 @@ import LocaleLink from "@/components/ui/LocaleLink";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import { EditTitleDialog } from "@/components/ui/EditTitleDialog";
 import { ShareDropdown } from "@/components/ui/ShareDropdown";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { AddToAlbumDialog } from "@/components/user/AddToAlbumDialog";
-import { useUserMedia, useUpdateMedia } from "@/hooks/queries/useMediaQuery";
+import {
+  useUserMedia,
+  useUpdateMedia,
+  useBulkDeleteMedia,
+} from "@/hooks/queries/useMediaQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { Media, UnifiedMediaResponse } from "@/types";
 import { useUserContext } from "@/contexts/UserContext";
@@ -33,6 +38,7 @@ const UserMediasPage: React.FC = () => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedMedias, setSelectedMedias] = useState<Set<string>>(new Set());
   const [showAddToAlbumDialog, setShowAddToAlbumDialog] = useState(false);
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
   const [mobileExpandedAction, setMobileExpandedAction] = useState<
     string | null
   >(null);
@@ -41,6 +47,9 @@ const UserMediasPage: React.FC = () => {
 
   // Use TanStack Query hook for media updates
   const updateMedia = useUpdateMedia();
+
+  // Use TanStack Query hook for bulk deletion
+  const bulkDeleteMedia = useBulkDeleteMedia();
 
   // Use TanStack Query hook for user media with infinite scroll
   const {
@@ -195,9 +204,25 @@ const UserMediasPage: React.FC = () => {
 
   // Handler for delete
   const handleDelete = useCallback(() => {
-    console.log("Delete clicked for", selectedMedias.size, "items");
-    // TODO: Implement delete functionality
+    if (selectedMedias.size > 0) {
+      setShowDeleteConfirmDialog(true);
+    }
   }, [selectedMedias]);
+
+  // Handler for confirming delete
+  const handleConfirmDelete = useCallback(async () => {
+    if (selectedMedias.size === 0) return;
+
+    try {
+      const mediaIds = Array.from(selectedMedias);
+      setIsSelecting(false);
+      setShowDeleteConfirmDialog(false);
+      bulkDeleteMedia.mutateAsync(mediaIds);
+      setSelectedMedias(new Set());
+    } catch (error) {
+      console.error("Failed to delete media:", error);
+    }
+  }, [selectedMedias, bulkDeleteMedia]);
 
   // Load more data when approaching the end
   const loadMore = () => {
@@ -585,6 +610,19 @@ const UserMediasPage: React.FC = () => {
           media={selectedMediaObjects}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirmDialog}
+        onClose={() => setShowDeleteConfirmDialog(false)}
+        onConfirm={handleConfirmDelete}
+        title={t("confirmDeleteTitle")}
+        message={t("confirmDeleteMessage", { count: selectedMedias.size })}
+        confirmText={t("delete")}
+        cancelText={t("cancel")}
+        confirmVariant="danger"
+        loading={bulkDeleteMedia.isPending}
+      />
     </div>
   );
 };

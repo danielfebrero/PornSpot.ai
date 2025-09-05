@@ -796,7 +796,11 @@
       "noMediaYet": "还没有媒体",
       "startCreatingMedia": "开始创建AI生成的媒体，在这里查看！",
       "loadingMoreMedia": "加载更多媒体...",
-      "noMoreMediaToLoad": "没有更多媒体可加载"
+      "noMoreMediaToLoad": "没有更多媒体可加载",
+      "confirmDeleteTitle": "删除媒体",
+      "confirmDeleteMessage": "您确定要删除{count, plural, other {#个选中的媒体项目}}吗？此操作无法撤销。",
+      "delete": "删除",
+      "cancel": "取消"
     },
     "albums": {
       "myAlbums": "我的相册",

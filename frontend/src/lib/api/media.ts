@@ -61,6 +61,42 @@ export const mediaApi = {
     await ApiUtil.delete(`/media/${mediaId}`);
   },
 
+  // Bulk delete media
+  bulkDeleteMedia: async (
+    mediaIds: string[]
+  ): Promise<{
+    message: string;
+    results: Array<{
+      mediaId: string;
+      success: boolean;
+      error?: string;
+      filename?: string;
+    }>;
+    summary: {
+      total: number;
+      successful: number;
+      failed: number;
+    };
+    affectedAlbums: string[];
+  }> => {
+    const response = await ApiUtil.delete<{
+      message: string;
+      results: Array<{
+        mediaId: string;
+        success: boolean;
+        error?: string;
+        filename?: string;
+      }>;
+      summary: {
+        total: number;
+        successful: number;
+        failed: number;
+      };
+      affectedAlbums: string[];
+    }>("/media/bulk", { mediaIds });
+    return ApiUtil.extractData(response);
+  },
+
   // Update media properties (title, visibility, etc.)
   updateMedia: async (
     mediaId: string,

@@ -3,6 +3,7 @@ import {
   S3ClientConfig,
   PutObjectCommand,
   DeleteObjectCommand,
+  DeleteObjectsCommand,
   GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -106,11 +107,11 @@ export class S3Service {
       }
     );
 
-interface SignedUrlOptions {
-  expiresIn: number;
-  signableHeaders: Set<string>;
-  unsignableHeaders?: Set<string>;
-}
+    interface SignedUrlOptions {
+      expiresIn: number;
+      signableHeaders: Set<string>;
+      unsignableHeaders?: Set<string>;
+    }
 
     const signedUrlOptions: SignedUrlOptions = {
       expiresIn,
@@ -193,6 +194,64 @@ interface SignedUrlOptions {
     });
 
     await s3Client.send(command);
+  }
+
+  static async deleteObjects(keys: string[]): Promise<{
+    successful: string[];
+    failed: Array<{ key: string; error: string }>;
+  }> {
+    if (keys.length === 0) {
+      return { successful: [], failed: [] };
+    }
+
+    const successful: string[] = [];
+    const failed: Array<{ key: string; error: string }> = [];
+
+    // AWS S3 DeleteObjects supports up to 1000 objects per request
+    const BATCH_SIZE = 1000;
+
+    for (let i = 0; i < keys.length; i += BATCH_SIZE) {
+      const batch = keys.slice(i, i + BATCH_SIZE);
+
+      try {
+        const command = new DeleteObjectsCommand({
+          Bucket: BUCKET_NAME,
+          Delete: {
+            Objects: batch.map((key) => ({ Key: key })),
+            Quiet: false, // Get back info about deleted objects
+          },
+        });
+
+        const response = await s3Client.send(command);
+
+        // Track successful deletions
+        if (response.Deleted) {
+          successful.push(...response.Deleted.map((obj) => obj.Key!));
+        }
+
+        // Track failed deletions
+        if (response.Errors) {
+          failed.push(
+            ...response.Errors.map((err) => ({
+              key: err.Key!,
+              error: `${err.Code}: ${err.Message}`,
+            }))
+          );
+        }
+      } catch (error) {
+        // If entire batch fails, mark all as failed
+        failed.push(
+          ...batch.map((key) => ({
+            key,
+            error: `Batch deletion failed: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          }))
+        );
+      }
+    }
+
+    return { successful, failed };
   }
 
   static getPublicUrl(key: string): string {

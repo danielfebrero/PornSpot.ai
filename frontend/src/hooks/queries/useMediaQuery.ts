@@ -270,6 +270,211 @@ export function useDeleteMedia() {
   });
 }
 
+// Mutation hook for bulk deleting media
+export function useBulkDeleteMedia() {
+  return useMutation({
+    mutationFn: async (mediaIds: string[]) => {
+      return await mediaApi.bulkDeleteMedia(mediaIds);
+    },
+    onMutate: async (mediaIds) => {
+      // Cancel any outgoing refetches for these media
+      for (const mediaId of mediaIds) {
+        await queryClient.cancelQueries({
+          queryKey: queryKeys.media.detail(mediaId),
+        });
+      }
+
+      // Cancel any outgoing refetches for admin media queries
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.admin.media.all(),
+      });
+
+      // Snapshot the previous values for rollback
+      const previousMediaDetails: Record<string, any> = {};
+      for (const mediaId of mediaIds) {
+        previousMediaDetails[mediaId] = queryClient.getQueryData(
+          queryKeys.media.detail(mediaId)
+        );
+      }
+
+      // Get all album media queries to update them optimistically
+      const albumMediaQueries = queryClient.getQueriesData({
+        queryKey: ["media", "album"],
+      });
+
+      // Snapshot the previous admin media values for rollback
+      const previousAdminMedia = queryClient.getQueriesData({
+        queryKey: queryKeys.admin.media.all(),
+      });
+
+      // Snapshot the previous user media values for rollback
+      const previousUserMedia = queryClient.getQueriesData({
+        queryKey: ["media", "user"],
+      });
+
+      // Optimistically remove the media from all album media infinite queries
+      albumMediaQueries.forEach(([queryKey, data]) => {
+        if (data) {
+          queryClient.setQueryData(
+            queryKey,
+            (old: InfiniteMediaQueryData | undefined) => {
+              if (!old?.pages) return old;
+
+              const newPages = old.pages.map((page) => ({
+                ...page,
+                media: page.media.filter((m) => !mediaIds.includes(m.id)),
+              }));
+
+              return {
+                ...old,
+                pages: newPages,
+              };
+            }
+          );
+        }
+      });
+
+      // Optimistically remove from user media infinite queries
+      queryClient.setQueriesData(
+        { queryKey: ["media", "user"] },
+        (old: InfiniteMediaQueryData | undefined) => {
+          if (!old?.pages) return old;
+
+          const newPages = old.pages.map((page) => ({
+            ...page,
+            media: page.media.filter((m) => !mediaIds.includes(m.id)),
+          }));
+
+          return {
+            ...old,
+            pages: newPages,
+          };
+        }
+      );
+
+      // Optimistically remove the media from all admin media queries
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.admin.media.all() },
+        (old: any) => {
+          if (!old?.pages) return old;
+
+          const newPages = old.pages.map((page: any) => ({
+            ...page,
+            media: page.media.filter((m: any) => !mediaIds.includes(m.id)),
+          }));
+
+          return {
+            ...old,
+            pages: newPages,
+          };
+        }
+      );
+
+      // Remove from detail cache
+      for (const mediaId of mediaIds) {
+        queryClient.removeQueries({
+          queryKey: queryKeys.media.detail(mediaId),
+        });
+      }
+
+      // Return context for rollback
+      return {
+        previousMediaDetails,
+        mediaIds,
+        albumMediaQueries,
+        previousAdminMedia,
+        previousUserMedia,
+      };
+    },
+    onError: (err, mediaIds, context) => {
+      // If the mutation fails, restore the previous data
+      if (context?.previousMediaDetails) {
+        for (const mediaId of mediaIds) {
+          const previousData = context.previousMediaDetails[mediaId];
+          if (previousData) {
+            queryClient.setQueryData(
+              queryKeys.media.detail(mediaId),
+              previousData
+            );
+          }
+        }
+      }
+
+      // Restore album media queries
+      if (context?.albumMediaQueries) {
+        context.albumMediaQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
+      // Restore admin media queries
+      if (context?.previousAdminMedia) {
+        context.previousAdminMedia.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
+      // Restore user media queries
+      if (context?.previousUserMedia) {
+        context.previousUserMedia.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
+      // Invalidate to refetch correct data
+      for (const mediaId of mediaIds) {
+        invalidateQueries.media(mediaId);
+      }
+      queryClient.invalidateQueries({ queryKey: ["media", "user"] });
+      queryClient.invalidateQueries({ queryKey: ["media", "album"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.media.all() });
+
+      console.error("Failed to bulk delete media:", err);
+    },
+    onSuccess: (data) => {
+      // Check for any failed deletions and invalidate those specific media
+      const failedMediaIds = data.results
+        .filter((result) => !result.success)
+        .map((result) => result.mediaId);
+
+      // For failed deletions, invalidate the specific media to refetch correct data
+      for (const failedMediaId of failedMediaIds) {
+        invalidateQueries.media(failedMediaId);
+      }
+
+      // If there were failures, also invalidate all queries to ensure consistency
+      if (failedMediaIds.length > 0) {
+        queryClient.invalidateQueries({ queryKey: ["media", "user"] });
+        queryClient.invalidateQueries({ queryKey: ["media", "album"] });
+      }
+
+      // Invalidate all album queries since media counts have changed
+      queryClient.invalidateQueries({
+        queryKey: ["albums"],
+      });
+
+      // Invalidate admin media queries to ensure counts and data are fresh
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.media.all(),
+      });
+
+      // Invalidate user profile query since media counts may have changed
+      invalidateQueries.user();
+
+      // Log bulk deletion results
+      console.log(
+        `Bulk deletion completed: ${data.summary.successful} successful, ${data.summary.failed} failed`
+      );
+      if (data.summary.failed > 0) {
+        console.warn(
+          "Some media failed to delete:",
+          data.results.filter((r) => !r.success)
+        );
+      }
+    },
+  });
+}
+
 // Mutation hook for updating media properties
 export function useUpdateMedia() {
   return useMutation({
