@@ -2,7 +2,17 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { ImageIcon, Grid, List, Plus, MoreVertical } from "lucide-react";
+import {
+  ImageIcon,
+  Grid,
+  List,
+  Plus,
+  MoreVertical,
+  FolderPlus,
+  Download,
+  Trash2,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
@@ -19,6 +29,8 @@ const UserMediasPage: React.FC = () => {
   const t = useTranslations("user.medias");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [editingMedia, setEditingMedia] = useState<Media | null>(null);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectedMedias, setSelectedMedias] = useState<Set<string>>(new Set());
   const { user } = useUserContext();
 
   // Use TanStack Query hook for media updates
@@ -114,9 +126,32 @@ const UserMediasPage: React.FC = () => {
 
   // Handler for select many action
   const handleSelectMany = useCallback(() => {
-    console.log("Select many clicked");
-    // TODO: Implement select many functionality
+    setIsSelecting(true);
   }, []);
+
+  // Handler for cancel selection
+  const handleCancelSelection = useCallback(() => {
+    setIsSelecting(false);
+    setSelectedMedias(new Set());
+  }, []);
+
+  // Handler for add to album
+  const handleAddToAlbum = useCallback(() => {
+    console.log("Add to album clicked for", selectedMedias.size, "items");
+    // TODO: Implement add to album functionality
+  }, [selectedMedias]);
+
+  // Handler for download
+  const handleDownload = useCallback(() => {
+    console.log("Download clicked for", selectedMedias.size, "items");
+    // TODO: Implement download functionality
+  }, [selectedMedias]);
+
+  // Handler for delete
+  const handleDelete = useCallback(() => {
+    console.log("Delete clicked for", selectedMedias.size, "items");
+    // TODO: Implement delete functionality
+  }, [selectedMedias]);
 
   // Load more data when approaching the end
   const loadMore = () => {
@@ -173,149 +208,204 @@ const UserMediasPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-admin-accent/10 to-admin-primary/10 rounded-xl border border-admin-accent/20 shadow-lg p-6">
-        {/* Mobile Layout */}
-        <div className="block sm:hidden space-y-4">
+      <div
+        className={`bg-gradient-to-r from-admin-accent/10 to-admin-primary/10 rounded-xl border border-admin-accent/20 shadow-lg p-6 ${
+          isSelecting ? "sticky top-0 z-10" : ""
+        }`}
+      >
+        {isSelecting ? (
+          /* Selection Header */
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-admin-accent to-admin-primary rounded-lg flex items-center justify-center">
-                <ImageIcon className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">
-                  {t("medias")}
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  {t("personalMediaGallery")}
-                </p>
-              </div>
+              <span className="text-lg font-semibold text-foreground">
+                Selected: {selectedMedias.size}
+              </span>
             </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
-              {t("mediasCount", {
-                count: totalCount,
-                hasNextPage: hasNextPage ? 1 : 0,
-              })}
-            </span>
             <div className="flex items-center space-x-2">
-              <ShareDropdown
-                trigger={({ toggle }) => (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={toggle}
-                    className="h-10 px-0 bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg"
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleAddToAlbum}
+                className="flex items-center space-x-2"
               >
-                {({ close }) => (
-                  <div className="py-1">
-                    <button
-                      onClick={() => {
-                        handleSelectMany();
-                        close();
-                      }}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground flex items-center space-x-2"
-                    >
-                      <span>{t("selectMany")}</span>
-                    </button>
-                  </div>
-                )}
-              </ShareDropdown>
-              <LocaleLink href="/generate">
-                <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
-                  <Plus className="h-4 w-4" />
-                  <span>{t("generate")}</span>
-                </Button>
-              </LocaleLink>
-            </div>
-          </div>
-        </div>
-
-        {/* Desktop Layout */}
-        <div className="hidden sm:flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-admin-accent to-admin-primary rounded-lg flex items-center justify-center">
-              <ImageIcon className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                {t("medias")}
-              </h1>
-              <p className="text-muted-foreground">
-                {t("personalMediaGallery")}
-              </p>
-            </div>
-            <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
-              {t("mediasCount", {
-                count: totalCount,
-                hasNextPage: hasNextPage ? 1 : 0,
-              })}
-            </span>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <ShareDropdown
-              trigger={({ toggle }) => (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={toggle}
-                  className="h-10 px-2 bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              )}
-            >
-              {({ close }) => (
-                <div className="py-1">
-                  <button
-                    onClick={() => {
-                      handleSelectMany();
-                      close();
-                    }}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground flex items-center space-x-2"
-                  >
-                    <span>{t("selectMany")}</span>
-                  </button>
-                </div>
-              )}
-            </ShareDropdown>
-            <LocaleLink href="/generate">
-              <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
-                <Plus className="h-4 w-4" />
-                <span>{t("generateMedia")}</span>
+                <FolderPlus className="h-4 w-4" />
+                <span>Album</span>
               </Button>
-            </LocaleLink>
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("grid")}
-              className={
-                viewMode === "grid"
-                  ? "bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90"
-                  : ""
-              }
-            >
-              <Grid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("list")}
-              className={
-                viewMode === "list"
-                  ? "bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90"
-                  : ""
-              }
-            >
-              <List className="h-4 w-4" />
-            </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDownload}
+                className="flex items-center space-x-2"
+              >
+                <Download className="h-4 w-4" />
+                <span>Download</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDelete}
+                className="flex items-center space-x-2 text-red-500 hover:text-red-400"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Delete</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCancelSelection}
+                className="flex items-center space-x-2"
+              >
+                <X className="h-4 w-4" />
+                <span>Cancel</span>
+              </Button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Mobile Layout */}
+            <div className="block sm:hidden space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-admin-accent to-admin-primary rounded-lg flex items-center justify-center">
+                    <ImageIcon className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-bold text-foreground">
+                      {t("medias")}
+                    </h1>
+                    <p className="text-sm text-muted-foreground">
+                      {t("personalMediaGallery")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
+                  {t("mediasCount", {
+                    count: totalCount,
+                    hasNextPage: hasNextPage ? 1 : 0,
+                  })}
+                </span>
+                <div className="flex items-center space-x-2">
+                  <ShareDropdown
+                    trigger={({ toggle }) => (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={toggle}
+                        className="h-10 px-2 bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg"
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    )}
+                  >
+                    {({ close }) => (
+                      <div className="py-1">
+                        <button
+                          onClick={() => {
+                            handleSelectMany();
+                            close();
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground flex items-center space-x-2"
+                        >
+                          <span>{t("selectMany")}</span>
+                        </button>
+                      </div>
+                    )}
+                  </ShareDropdown>
+                  <LocaleLink href="/generate">
+                    <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
+                      <Plus className="h-4 w-4" />
+                      <span>{t("generate")}</span>
+                    </Button>
+                  </LocaleLink>
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop Layout */}
+            <div className="hidden sm:flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-admin-accent to-admin-primary rounded-lg flex items-center justify-center">
+                  <ImageIcon className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-foreground">
+                    {t("medias")}
+                  </h1>
+                  <p className="text-muted-foreground">
+                    {t("personalMediaGallery")}
+                  </p>
+                </div>
+                <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
+                  {t("mediasCount", {
+                    count: totalCount,
+                    hasNextPage: hasNextPage ? 1 : 0,
+                  })}
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <ShareDropdown
+                  trigger={({ toggle }) => (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={toggle}
+                      className="h-10 px-2 bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg"
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  )}
+                >
+                  {({ close }) => (
+                    <div className="py-1">
+                      <button
+                        onClick={() => {
+                          handleSelectMany();
+                          close();
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground flex items-center space-x-2"
+                      >
+                        <span>{t("selectMany")}</span>
+                      </button>
+                    </div>
+                  )}
+                </ShareDropdown>
+                <LocaleLink href="/generate">
+                  <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
+                    <Plus className="h-4 w-4" />
+                    <span>{t("generateMedia")}</span>
+                  </Button>
+                </LocaleLink>
+                <Button
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className={
+                    viewMode === "grid"
+                      ? "bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90"
+                      : ""
+                  }
+                >
+                  <Grid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className={
+                    viewMode === "list"
+                      ? "bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90"
+                      : ""
+                  }
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Content */}
