@@ -437,70 +437,71 @@ export class ApiUtil {
    * Download request helper for binary data (like zip files)
    */
   static async download(
-  endpoint: string,
-  body?: unknown,
-  filename?: string
-): Promise<void> {
-  const url = this.buildUrl(endpoint);
+    endpoint: string,
+    body?: unknown,
+    filename?: string
+  ): Promise<void> {
+    const url = this.buildUrl(endpoint);
 
-  const requestConfig: RequestInit = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: body ? JSON.stringify(body) : undefined,
-  };
+    const requestConfig: RequestInit = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: body ? JSON.stringify(body) : undefined,
+    };
 
-  try {
-    const response = await fetch(url, requestConfig);
+    try {
+      const response = await fetch(url, requestConfig);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        errorData.error || `HTTP ${response.status}: ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-    
-    // Check if response contains a download URL (for large files)
-    if (data.downloadUrl) {
-      // Download from pre-signed URL
-      const downloadResponse = await fetch(data.downloadUrl);
-      if (!downloadResponse.ok) {
-        throw new Error("Failed to download file from URL");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || `HTTP ${response.status}: ${response.statusText}`
+        );
       }
-      
-      const blob = await downloadResponse.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = data.filename || filename || "download.zip";
-      document.body.appendChild(link);
-      link.click();
-      
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
-    } else {
-      // Small file - direct download (legacy support)
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
 
-      // Create temporary link element and trigger download
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = data.filename || filename || "download.zip";
-      document.body.appendChild(link);
-      link.click();
+      const data = await response.json();
 
-      // Cleanup
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
+      // Check if response contains a download URL (for large files)
+      if (data.downloadUrl) {
+        // Download from pre-signed URL
+        const downloadResponse = await fetch(data.downloadUrl);
+        if (!downloadResponse.ok) {
+          throw new Error("Failed to download file from URL");
+        }
+
+        const blob = await downloadResponse.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = data.filename || filename || "download.zip";
+        document.body.appendChild(link);
+        link.click();
+
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+      } else {
+        // Small file - direct download (legacy support)
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+
+        // Create temporary link element and trigger download
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = data.filename || filename || "download.zip";
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+      }
+    } catch (error) {
+      console.error(`Download request failed for ${url}:`, error);
+      throw error;
     }
-  } catch (error) {
-    console.error(`Download request failed for ${url}:`, error);
-    throw error;
   }
 }
