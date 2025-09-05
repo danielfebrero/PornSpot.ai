@@ -828,6 +828,7 @@
       "mediasCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {medias} =1 {media} other {medias}}",
       "generate": "Generate",
       "generateMedia": "Generate Media",
+      "selectMany": "Select many",
       "noMediaYet": "No media yet",
       "startCreatingMedia": "Start creating AI-generated media to see them here!",
       "loadingMoreMedia": "Loading more media...",

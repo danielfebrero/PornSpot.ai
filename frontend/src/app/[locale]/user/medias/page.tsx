@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { ImageIcon, Grid, List, Plus } from "lucide-react";
+import { ImageIcon, Grid, List, Plus, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import { EditTitleDialog } from "@/components/ui/EditTitleDialog";
+import { ShareDropdown } from "@/components/ui/ShareDropdown";
 import { useUserMedia, useUpdateMedia } from "@/hooks/queries/useMediaQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { Media, UnifiedMediaResponse } from "@/types";
@@ -111,6 +112,12 @@ const UserMediasPage: React.FC = () => {
     };
   }, [user, updateMedia]);
 
+  // Handler for select many action
+  const handleSelectMany = useCallback(() => {
+    console.log("Select many clicked");
+    // TODO: Implement select many functionality
+  }, []);
+
   // Load more data when approaching the end
   const loadMore = () => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -191,12 +198,40 @@ const UserMediasPage: React.FC = () => {
                 hasNextPage: hasNextPage ? 1 : 0,
               })}
             </span>
-            <LocaleLink href="/generate">
-              <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
-                <Plus className="h-4 w-4" />
-                <span>{t("generate")}</span>
-              </Button>
-            </LocaleLink>
+            <div className="flex items-center space-x-2">
+              <LocaleLink href="/generate">
+                <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
+                  <Plus className="h-4 w-4" />
+                  <span>{t("generate")}</span>
+                </Button>
+              </LocaleLink>
+              <ShareDropdown
+                trigger={({ toggle }) => (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggle}
+                    className="h-10 w-10 p-0 hover:bg-admin-accent/10"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                )}
+              >
+                {({ close }) => (
+                  <div className="py-1">
+                    <button
+                      onClick={() => {
+                        handleSelectMany();
+                        close();
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground flex items-center space-x-2"
+                    >
+                      <span>{t("selectMany")}</span>
+                    </button>
+                  </div>
+                )}
+              </ShareDropdown>
+            </div>
           </div>
         </div>
 
@@ -229,6 +264,32 @@ const UserMediasPage: React.FC = () => {
                 <span>{t("generateMedia")}</span>
               </Button>
             </LocaleLink>
+            <ShareDropdown
+              trigger={({ toggle }) => (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggle}
+                  className="h-10 w-10 p-0 hover:bg-admin-accent/10"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              )}
+            >
+              {({ close }) => (
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      handleSelectMany();
+                      close();
+                    }}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground flex items-center space-x-2"
+                  >
+                    <span>{t("selectMany")}</span>
+                  </button>
+                </div>
+              )}
+            </ShareDropdown>
             <Button
               variant={viewMode === "grid" ? "default" : "ghost"}
               size="sm"

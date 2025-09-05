@@ -790,6 +790,7 @@
       "mediasCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {Medien} one {Medium} other {Medien}}",
       "generate": "Generieren",
       "generateMedia": "Medien generieren",
+      "selectMany": "Mehrere auswählen",
       "noMediaYet": "Noch keine Medien",
       "startCreatingMedia": "Beginnen Sie mit der Erstellung von KI-generierten Medien, um sie hier zu sehen!",
       "loadingMoreMedia": "Laden weiterer Medien...",

@@ -792,6 +792,7 @@
       "mediasCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {个媒体} other {个媒体}}",
       "generate": "生成",
       "generateMedia": "生成媒体",
+      "selectMany": "选择多个",
       "noMediaYet": "还没有媒体",
       "startCreatingMedia": "开始创建AI生成的媒体，在这里查看！",
       "loadingMoreMedia": "加载更多媒体...",
