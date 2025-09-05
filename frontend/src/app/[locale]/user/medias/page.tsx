@@ -304,19 +304,28 @@ const UserMediasPage: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div
-        className={`bg-gradient-to-r from-admin-accent/10 to-admin-primary/10 rounded-xl border border-admin-accent/20 shadow-lg p-6 ${
-          isSelecting ? "sticky top-0 z-20" : ""
-        }`}
+        className={`${
+          isSelecting
+            ? "sticky top-0 z-50 bg-background/95 backdrop-blur-lg border-border/50 shadow-2xl rounded-none border-x-0 border-t-0 border-b"
+            : "bg-gradient-to-r from-admin-accent/10 to-admin-primary/10 rounded-xl border border-admin-accent/20 shadow-lg"
+        } p-6 transition-all duration-300 md:min-h-[140px] min-h-[120px]`}
       >
         {isSelecting ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-lg font-semibold text-foreground">
-                Selected: {selectedMedias.size}/{MAX_BULK_SELECTION}
-              </span>
+              <div className="flex items-center space-x-3">
+                <div className="bg-admin-accent/20 text-admin-accent text-lg font-bold px-4 py-2 rounded-lg border border-admin-accent/30 shadow-sm">
+                  {selectedMedias.size}/{MAX_BULK_SELECTION}
+                </div>
+                <span className="text-lg font-semibold text-foreground">
+                  {selectedMedias.size === 1
+                    ? "item selected"
+                    : "items selected"}
+                </span>
+              </div>
               <button
                 onClick={handleCancelSelection}
-                className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors border border-border/50 bg-background/50"
                 aria-label="Cancel selection"
               >
                 <X className="h-5 w-5" />
@@ -333,15 +342,15 @@ const UserMediasPage: React.FC = () => {
                     handleAddToAlbum();
                   }
                 }}
-                className={`group p-2 rounded-md text-admin-accent hover:bg-admin-accent/10 focus:bg-admin-accent/10 focus:outline-none transition-all flex items-center overflow-hidden ${
+                className={`group p-3 rounded-lg bg-admin-accent/20 text-admin-accent hover:bg-admin-accent/30 focus:bg-admin-accent/30 focus:outline-none transition-all flex items-center border border-admin-accent/30 shadow-sm overflow-hidden ${
                   mobileExpandedAction === "addToAlbum"
-                    ? "bg-admin-accent/10"
+                    ? "bg-admin-accent/30"
                     : ""
                 }`}
               >
                 <Plus className="h-4 w-4 flex-shrink-0" />
                 <span
-                  className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20 ${
+                  className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm font-medium whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20 ${
                     mobileExpandedAction === "addToAlbum"
                       ? "opacity-100 ml-2 max-w-20"
                       : ""
@@ -359,8 +368,8 @@ const UserMediasPage: React.FC = () => {
                   }
                 }}
                 disabled={downloadMediaZip.isPending}
-                className={`group p-2 rounded-md text-foreground hover:bg-muted focus:bg-muted focus:outline-none transition-all flex items-center overflow-hidden ${
-                  mobileExpandedAction === "download" ? "bg-muted" : ""
+                className={`group p-3 rounded-lg bg-background/80 text-foreground hover:bg-background/90 focus:bg-background/90 focus:outline-none transition-all flex items-center border border-border/50 shadow-sm overflow-hidden ${
+                  mobileExpandedAction === "download" ? "bg-background/90" : ""
                 } ${
                   downloadMediaZip.isPending
                     ? "opacity-50 cursor-not-allowed"
@@ -373,7 +382,7 @@ const UserMediasPage: React.FC = () => {
                   <Download className="h-4 w-4 flex-shrink-0" />
                 )}
                 <span
-                  className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-24 group-focus:max-w-24 ${
+                  className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm font-medium whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-24 group-focus:max-w-24 ${
                     mobileExpandedAction === "download"
                       ? "opacity-100 ml-2 max-w-24"
                       : ""
@@ -390,13 +399,13 @@ const UserMediasPage: React.FC = () => {
                     handleDelete();
                   }
                 }}
-                className={`group p-2 rounded-md text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 focus:outline-none transition-all flex items-center overflow-hidden ${
-                  mobileExpandedAction === "delete" ? "bg-red-500/10" : ""
+                className={`group p-3 rounded-lg bg-red-500/20 text-red-500 hover:bg-red-500/30 focus:bg-red-500/30 focus:outline-none transition-all flex items-center border border-red-500/30 shadow-sm overflow-hidden ${
+                  mobileExpandedAction === "delete" ? "bg-red-500/30" : ""
                 }`}
               >
                 <Trash2 className="h-4 w-4 flex-shrink-0" />
                 <span
-                  className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20 ${
+                  className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm font-medium whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20 ${
                     mobileExpandedAction === "delete"
                       ? "opacity-100 ml-2 max-w-20"
                       : ""
