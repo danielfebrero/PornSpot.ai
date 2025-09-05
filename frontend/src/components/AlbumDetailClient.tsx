@@ -53,7 +53,6 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
                 <BookmarkButton
                   targetType="album"
                   targetId={album.id}
-                  showCount={true}
                   size="sm"
                   className="text-foreground"
                 />
