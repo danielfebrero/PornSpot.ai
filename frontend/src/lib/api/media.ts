@@ -93,7 +93,7 @@ export const mediaApi = {
         failed: number;
       };
       affectedAlbums: string[];
-    }>("/media/bulk", { mediaIds });
+    }>("/media/bulk", { mediaIds }, {});
     return ApiUtil.extractData(response);
   },
 
