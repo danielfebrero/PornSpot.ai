@@ -18,6 +18,8 @@ import {
 } from "./ErrorBoundaries";
 import { useUserContext } from "@/contexts/UserContext";
 import { useTranslations } from "next-intl";
+import { LikeButton } from "@/components/user/LikeButton";
+import { BookmarkButton } from "@/components/user/BookmarkButton";
 
 interface AlbumDetailClientProps {
   album: Album;
@@ -45,7 +47,25 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
             </button>
           </Tooltip>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-semibold truncate">{album.title}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-semibold truncate">{album.title}</h1>
+              <div className="flex items-center gap-1">
+                <BookmarkButton
+                  targetType="album"
+                  targetId={album.id}
+                  showCount={true}
+                  size="sm"
+                  className="text-foreground"
+                />
+                <LikeButton
+                  targetType="album"
+                  targetId={album.id}
+                  showCount={true}
+                  size="sm"
+                  className="text-foreground"
+                />
+              </div>
+            </div>
             {/* Album Metadata in Header */}
             <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground mt-1">
               {/* Creation Date */}

@@ -139,3 +139,5 @@
 [x] On media page, delete sibling dialog and add to albums appears in the scrollable container instead of in the middle of the page. Add to albums is not usable.
 
 [ ] Admin edit album missing locales.
+
+[ ] Edit album does not work on mobile.
