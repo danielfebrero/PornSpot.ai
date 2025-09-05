@@ -34,6 +34,7 @@ import {
   PlayCircle,
   MoreVertical,
   Folder,
+  Check,
 } from "lucide-react";
 import ResponsivePicture from "@/components/ui/ResponsivePicture";
 import { composeThumbnailUrls } from "@/lib/urlUtils";
@@ -114,6 +115,11 @@ interface ContentCardProps {
 
   // Current album context for remove functionality
   currentAlbumId?: string;
+
+  // Selection functionality
+  isSelecting?: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: () => void;
 }
 
 export function ContentCard({
@@ -148,6 +154,9 @@ export function ContentCard({
   isFetchingNextPage = false,
   onLoadMore,
   currentAlbumId,
+  isSelecting = false,
+  isSelected = false,
+  onToggleSelection,
 }: ContentCardProps) {
   const router = useLocaleRouter();
   const { startNavigation } = useNavigationLoading();
@@ -252,6 +261,14 @@ export function ContentCard({
 
   // Handle click events based on content type
   const handleClick = (e: React.MouseEvent) => {
+    // If in selection mode, toggle selection instead of normal behavior
+    if (isSelecting && onToggleSelection) {
+      e.preventDefault();
+      e.stopPropagation();
+      onToggleSelection();
+      return;
+    }
+
     if (onClick) {
       // Custom onClick handler provided
       if (isMobileInterface) {
@@ -739,6 +756,22 @@ export function ContentCard({
               </div>
             )}
 
+            {/* Selection indicator (top-left) */}
+            {isSelecting && (
+              <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
+                <div
+                  className={cn(
+                    "w-6 h-6 rounded-full border-2 transition-all duration-200 flex items-center justify-center",
+                    isSelected
+                      ? "bg-admin-accent border-admin-accent text-white"
+                      : "bg-white/20 border-white/50 backdrop-blur-sm"
+                  )}
+                >
+                  {isSelected && <Check className="h-4 w-4" />}
+                </div>
+              </div>
+            )}
+
             {/* Right column - Action buttons over image */}
             <div
               className={cn(
@@ -1081,6 +1114,22 @@ export function ContentCard({
                 )}
               </div>
             </div>
+
+            {/* Selection indicator (top-left) */}
+            {isSelecting && (
+              <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
+                <div
+                  className={cn(
+                    "w-6 h-6 rounded-full border-2 transition-all duration-200 flex items-center justify-center",
+                    isSelected
+                      ? "bg-admin-accent border-admin-accent text-white"
+                      : "bg-white/20 border-white/50 backdrop-blur-sm"
+                  )}
+                >
+                  {isSelected && <Check className="h-4 w-4" />}
+                </div>
+              </div>
+            )}
 
             {/* Right column - Action buttons over image */}
             <div

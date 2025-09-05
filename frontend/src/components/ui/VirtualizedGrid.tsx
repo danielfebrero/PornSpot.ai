@@ -107,6 +107,12 @@ interface VirtualizedGridProps<T extends GridItem> {
   // Error handling
   error?: string | null;
   onRetry?: () => void;
+
+  // Selection functionality
+  isSelecting?: boolean;
+  selectedItems?: Set<string>;
+  // eslint-disable-next-line no-unused-vars
+  onToggleSelection?: (itemId: string) => void;
 }
 
 // Default grid columns configuration
@@ -166,6 +172,9 @@ export function VirtualizedGrid<T extends GridItem>({
   loadingState,
   error,
   onRetry,
+  isSelecting = false,
+  selectedItems,
+  onToggleSelection,
 }: VirtualizedGridProps<T>) {
   const t = useTranslations("ui.virtualizedGrid");
   const pathname = usePathname();
@@ -343,6 +352,9 @@ export function VirtualizedGrid<T extends GridItem>({
                     : undefined
                 }
                 currentIndex={row.startIndex}
+                isSelecting={isSelecting}
+                isSelected={selectedItems?.has(item.id) || false}
+                onToggleSelection={() => onToggleSelection?.(item.id)}
               />
             </ComponentErrorBoundary>
           </div>
@@ -389,6 +401,9 @@ export function VirtualizedGrid<T extends GridItem>({
                   hasNextPage={hasNextPage}
                   isFetchingNextPage={isFetchingNextPage}
                   onLoadMore={onLoadMore}
+                  isSelecting={isSelecting}
+                  isSelected={selectedItems?.has(item.id) || false}
+                  onToggleSelection={() => onToggleSelection?.(item.id)}
                 />
               </ComponentErrorBoundary>
             );
@@ -413,6 +428,9 @@ export function VirtualizedGrid<T extends GridItem>({
       hasNextPage,
       isFetchingNextPage,
       onLoadMore,
+      isSelecting,
+      selectedItems,
+      onToggleSelection,
     ]
   );
 

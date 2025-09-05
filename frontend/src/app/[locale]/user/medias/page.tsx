@@ -140,6 +140,19 @@ const UserMediasPage: React.FC = () => {
     setMobileExpandedAction(null);
   }, []);
 
+  // Handler for toggling media selection
+  const handleToggleSelection = useCallback((mediaId: string) => {
+    setSelectedMedias((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(mediaId)) {
+        newSet.delete(mediaId);
+      } else {
+        newSet.add(mediaId);
+      }
+      return newSet;
+    });
+  }, []);
+
   // Handler for mobile action button tap
   const handleMobileActionTap = useCallback(
     (actionId: string, action: () => void) => {
@@ -481,6 +494,9 @@ const UserMediasPage: React.FC = () => {
           isFetchingNextPage={isFetchingNextPage}
           onLoadMore={loadMore}
           scrollRestorationKey="user-medias-grid"
+          isSelecting={isSelecting}
+          selectedItems={selectedMedias}
+          onToggleSelection={handleToggleSelection}
           contentCardProps={{
             canLike: true,
             canBookmark: true,
