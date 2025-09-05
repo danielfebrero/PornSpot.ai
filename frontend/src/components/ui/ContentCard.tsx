@@ -773,101 +773,104 @@ export function ContentCard({
             )}
 
             {/* Right column - Action buttons over image */}
-            <div
-              className={cn(
-                "absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex flex-col gap-1 sm:gap-2 transition-opacity duration-200",
-                isMobileInterface
-                  ? showMobileActions
+            {!isSelecting && (
+              <div
+                className={cn(
+                  "absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex flex-col gap-1 sm:gap-2 transition-opacity duration-200",
+                  isMobileInterface
+                    ? showMobileActions
+                      ? "opacity-100"
+                      : "opacity-0 pointer-events-none"
+                    : isHovered || isDropdownHovered
                     ? "opacity-100"
-                    : "opacity-0 pointer-events-none"
-                  : isHovered || isDropdownHovered
-                  ? "opacity-100"
-                  : "opacity-0"
-              )}
-            >
-              {builtCustomActions && (
-                <div className="relative">
-                  <button
-                    ref={dropdownButtonRef}
-                    onClick={handleDropdownToggle}
-                    className="p-2.5 sm:p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                    aria-label="Content actions"
-                  >
-                    <MoreVertical className="h-4 w-4 sm:h-4 sm:w-4" />
-                  </button>
-                </div>
-              )}
-              {canFullscreen && (
-                <Tooltip content="View fullscreen" side="left">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleFullscreen();
-                    }}
-                    className="p-2.5 sm:p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                    aria-label="View fullscreen"
-                  >
-                    <Maximize2 className="h-4 w-4 sm:h-4 sm:w-4" />
-                  </button>
-                </Tooltip>
-              )}
-              {canAddToAlbum && !inActions?.addToAlbum && (
-                <Tooltip content="Add to album" side="left">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddToAlbum();
-                    }}
-                    className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-gray-800 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                    aria-label="Add to album"
-                  >
-                    <Plus className="h-4 w-4 sm:h-4 sm:w-4" />
-                  </button>
-                </Tooltip>
-              )}
-              {canRemoveFromAlbum && !inActions?.removeFromAlbum && (
-                <Tooltip content="Remove from album" side="left">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setRemoveConfirmOpen(true);
-                    }}
-                    className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-red-600 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                    aria-label="Remove from album"
-                  >
-                    <Minus className="h-4 w-4 sm:h-4 sm:w-4" />
-                  </button>
-                </Tooltip>
-              )}
-              {canDownload && !inActions?.download && (
-                <Tooltip content="Download" side="left">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDownload();
-                    }}
-                    className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-gray-800 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                    aria-label="Download"
-                  >
-                    <Download className="h-4 w-4 sm:h-4 sm:w-4" />
-                  </button>
-                </Tooltip>
-              )}
-              {(canDelete || user?.role === "admin") && !inActions?.delete && (
-                <Tooltip content="Delete" side="left">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDeleteConfirmOpen(true);
-                    }}
-                    className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-red-600 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                    aria-label="Delete"
-                  >
-                    <Trash2 className="h-4 w-4 sm:h-4 sm:w-4" />
-                  </button>
-                </Tooltip>
-              )}
-            </div>
+                    : "opacity-0"
+                )}
+              >
+                {builtCustomActions && (
+                  <div className="relative">
+                    <button
+                      ref={dropdownButtonRef}
+                      onClick={handleDropdownToggle}
+                      className="p-2.5 sm:p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                      aria-label="Content actions"
+                    >
+                      <MoreVertical className="h-4 w-4 sm:h-4 sm:w-4" />
+                    </button>
+                  </div>
+                )}
+                {canFullscreen && (
+                  <Tooltip content="View fullscreen" side="left">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFullscreen();
+                      }}
+                      className="p-2.5 sm:p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                      aria-label="View fullscreen"
+                    >
+                      <Maximize2 className="h-4 w-4 sm:h-4 sm:w-4" />
+                    </button>
+                  </Tooltip>
+                )}
+                {canAddToAlbum && !inActions?.addToAlbum && (
+                  <Tooltip content="Add to album" side="left">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToAlbum();
+                      }}
+                      className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-gray-800 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                      aria-label="Add to album"
+                    >
+                      <Plus className="h-4 w-4 sm:h-4 sm:w-4" />
+                    </button>
+                  </Tooltip>
+                )}
+                {canRemoveFromAlbum && !inActions?.removeFromAlbum && (
+                  <Tooltip content="Remove from album" side="left">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setRemoveConfirmOpen(true);
+                      }}
+                      className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-red-600 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                      aria-label="Remove from album"
+                    >
+                      <Minus className="h-4 w-4 sm:h-4 sm:w-4" />
+                    </button>
+                  </Tooltip>
+                )}
+                {canDownload && !inActions?.download && (
+                  <Tooltip content="Download" side="left">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownload();
+                      }}
+                      className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-gray-800 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                      aria-label="Download"
+                    >
+                      <Download className="h-4 w-4 sm:h-4 sm:w-4" />
+                    </button>
+                  </Tooltip>
+                )}
+                {(canDelete || user?.role === "admin") &&
+                  !inActions?.delete && (
+                    <Tooltip content="Delete" side="left">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteConfirmOpen(true);
+                        }}
+                        className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-red-600 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                        aria-label="Delete"
+                      >
+                        <Trash2 className="h-4 w-4 sm:h-4 sm:w-4" />
+                      </button>
+                    </Tooltip>
+                  )}
+              </div>
+            )}
 
             {/* Bottom content for media - exactly like albums */}
             <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -876,7 +879,7 @@ export function ContentCard({
                 <div></div>
 
                 {/* Like, Bookmark, View count */}
-                {showCounts && (
+                {showCounts && !isSelecting && (
                   <div className="flex items-center gap-3">
                     {canBookmark && (
                       <div
@@ -1039,7 +1042,7 @@ export function ContentCard({
                   {album.mediaCount ?? 0}{" "}
                   {album.mediaCount === 1 ? "item" : "items"}
                 </p>
-                {showCounts && (
+                {showCounts && !isSelecting && (
                   <div className="flex items-center gap-3">
                     {canBookmark && !inActions?.bookmark && (
                       <div
@@ -1132,45 +1135,48 @@ export function ContentCard({
             )}
 
             {/* Right column - Action buttons over image */}
-            <div
-              className={cn(
-                "absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex flex-col gap-1 sm:gap-2 transition-opacity duration-200",
-                isMobileInterface
-                  ? showMobileActions
+            {!isSelecting && (
+              <div
+                className={cn(
+                  "absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex flex-col gap-1 sm:gap-2 transition-opacity duration-200",
+                  isMobileInterface
+                    ? showMobileActions
+                      ? "opacity-100"
+                      : "opacity-0 pointer-events-none"
+                    : isHovered || isDropdownHovered
                     ? "opacity-100"
-                    : "opacity-0 pointer-events-none"
-                  : isHovered || isDropdownHovered
-                  ? "opacity-100"
-                  : "opacity-0"
-              )}
-            >
-              {builtCustomActions && (
-                <div className="relative">
-                  <button
-                    ref={dropdownButtonRef}
-                    onClick={handleDropdownToggle}
-                    className="p-2.5 sm:p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                    aria-label="Album actions"
-                  >
-                    <MoreVertical className="h-4 w-4 sm:h-4 sm:w-4" />
-                  </button>
-                </div>
-              )}
-              {(canDelete || user?.role === "admin") && !inActions?.delete && (
-                <Tooltip content="Delete" side="left">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDeleteConfirmOpen(true);
-                    }}
-                    className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-red-600 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-                    aria-label="Delete"
-                  >
-                    <Trash2 className="h-4 w-4 sm:h-4 sm:w-4" />
-                  </button>
-                </Tooltip>
-              )}
-            </div>
+                    : "opacity-0"
+                )}
+              >
+                {builtCustomActions && (
+                  <div className="relative">
+                    <button
+                      ref={dropdownButtonRef}
+                      onClick={handleDropdownToggle}
+                      className="p-2.5 sm:p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                      aria-label="Album actions"
+                    >
+                      <MoreVertical className="h-4 w-4 sm:h-4 sm:w-4" />
+                    </button>
+                  </div>
+                )}
+                {(canDelete || user?.role === "admin") &&
+                  !inActions?.delete && (
+                    <Tooltip content="Delete" side="left">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteConfirmOpen(true);
+                        }}
+                        className="p-2.5 sm:p-2 rounded-lg bg-white/90 hover:bg-white text-red-600 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+                        aria-label="Delete"
+                      >
+                        <Trash2 className="h-4 w-4 sm:h-4 sm:w-4" />
+                      </button>
+                    </Tooltip>
+                  )}
+              </div>
+            )}
           </div>
         ) : null}
       </div>
