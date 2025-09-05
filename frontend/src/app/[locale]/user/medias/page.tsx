@@ -306,7 +306,7 @@ const UserMediasPage: React.FC = () => {
       <div
         className={`${
           isSelecting
-            ? "sticky top-0 z-50 bg-background/60 backdrop-blur-lg border-border/50 shadow-2xl rounded-none border-x-0 border-t-0 border-b"
+            ? "sticky top-0 z-50 bg-background/60 backdrop-blur-lg border-border/50 shadow-2xl rounded-none border-x-0 border-t-0 border-b overflow-hidden"
             : "bg-gradient-to-r from-admin-accent/10 to-admin-primary/10 rounded-xl border border-admin-accent/20 shadow-lg"
         } p-6 transition-all duration-300 ${
           isSelecting

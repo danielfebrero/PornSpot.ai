@@ -201,7 +201,7 @@ export function ContentCard({
       }
 
       // Don't hide if clicking within the dropdown content (portal)
-      if ((target as Element).closest('[data-dropdown-content]')) {
+      if ((target as Element).closest("[data-dropdown-content]")) {
         return;
       }
 

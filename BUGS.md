@@ -143,3 +143,5 @@
 [ ] Edit album does not work on mobile.
 
 [ ] frontend/src/components/ui/ContentCard.tsx ConfirmDialog texts are hardcoded.
+
+[ ] On user album page content cards Delete button should not appear because it's already in the custom actions.
