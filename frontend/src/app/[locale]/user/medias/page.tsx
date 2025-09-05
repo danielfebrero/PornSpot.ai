@@ -230,28 +230,28 @@ const UserMediasPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleAddToAlbum}
-                className="group px-2 py-2 rounded-md text-admin-accent hover:bg-admin-accent/10 focus:bg-admin-accent/10 focus:outline-none transition-colors flex items-center gap-2"
+                className="group p-2 rounded-md text-admin-accent hover:bg-admin-accent/10 focus:bg-admin-accent/10 focus:outline-none transition-all flex items-center overflow-hidden"
               >
-                <Plus className="h-4 w-4" />
-                <span className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity text-sm">
+                <Plus className="h-4 w-4 flex-shrink-0" />
+                <span className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20">
                   Album
                 </span>
               </button>
               <button
                 onClick={handleDownload}
-                className="group px-2 py-2 rounded-md text-foreground hover:bg-muted focus:bg-muted focus:outline-none transition-colors flex items-center gap-2"
+                className="group p-2 rounded-md text-foreground hover:bg-muted focus:bg-muted focus:outline-none transition-all flex items-center overflow-hidden"
               >
-                <Download className="h-4 w-4" />
-                <span className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity text-sm">
+                <Download className="h-4 w-4 flex-shrink-0" />
+                <span className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-24 group-focus:max-w-24">
                   Download
                 </span>
               </button>
               <button
                 onClick={handleDelete}
-                className="group px-2 py-2 rounded-md text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 focus:outline-none transition-colors flex items-center gap-2"
+                className="group p-2 rounded-md text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 focus:outline-none transition-all flex items-center overflow-hidden"
               >
-                <Trash2 className="h-4 w-4" />
-                <span className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity text-sm">
+                <Trash2 className="h-4 w-4 flex-shrink-0" />
+                <span className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20">
                   Delete
                 </span>
               </button>
