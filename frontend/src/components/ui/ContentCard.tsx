@@ -200,6 +200,11 @@ export function ContentCard({
         return;
       }
 
+      // Don't hide if clicking within the dropdown content (portal)
+      if ((target as Element).closest('[data-dropdown-content]')) {
+        return;
+      }
+
       // Hide mobile actions only for this card
       setShowMobileActions(false);
     };
