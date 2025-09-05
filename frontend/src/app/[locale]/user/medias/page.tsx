@@ -199,19 +199,13 @@ const UserMediasPage: React.FC = () => {
               })}
             </span>
             <div className="flex items-center space-x-2">
-              <LocaleLink href="/generate">
-                <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
-                  <Plus className="h-4 w-4" />
-                  <span>{t("generate")}</span>
-                </Button>
-              </LocaleLink>
               <ShareDropdown
                 trigger={({ toggle }) => (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={toggle}
-                    className="h-10 w-10 p-0 hover:bg-admin-accent/10"
+                    className="h-10 px-0 bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg"
                   >
                     <MoreVertical className="h-4 w-4" />
                   </Button>
@@ -231,6 +225,12 @@ const UserMediasPage: React.FC = () => {
                   </div>
                 )}
               </ShareDropdown>
+              <LocaleLink href="/generate">
+                <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
+                  <Plus className="h-4 w-4" />
+                  <span>{t("generate")}</span>
+                </Button>
+              </LocaleLink>
             </div>
           </div>
         </div>
@@ -258,19 +258,13 @@ const UserMediasPage: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-2">
-            <LocaleLink href="/generate">
-              <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
-                <Plus className="h-4 w-4" />
-                <span>{t("generateMedia")}</span>
-              </Button>
-            </LocaleLink>
             <ShareDropdown
               trigger={({ toggle }) => (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={toggle}
-                  className="h-10 w-10 p-0 hover:bg-admin-accent/10"
+                  className="h-10 px-2 bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg"
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
@@ -290,6 +284,12 @@ const UserMediasPage: React.FC = () => {
                 </div>
               )}
             </ShareDropdown>
+            <LocaleLink href="/generate">
+              <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
+                <Plus className="h-4 w-4" />
+                <span>{t("generateMedia")}</span>
+              </Button>
+            </LocaleLink>
             <Button
               variant={viewMode === "grid" ? "default" : "ghost"}
               size="sm"
