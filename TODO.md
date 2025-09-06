@@ -133,3 +133,5 @@
 [x] Bulk delete.
 
 [ ] Tutorial of how the advanced controls work.
+
+[ ] Prevent screensaver when lightbox in slideshow mode.

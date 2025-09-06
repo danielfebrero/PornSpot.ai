@@ -8,7 +8,7 @@ Respond { "reason": "..." } if the user prompt contains:
 
 ## zoophilia 
 
-Anthropomorphism like catwoman is okay.
+Anthropomorphism like catwoman is okay. Creatures like Elfs are okay.
 
 ## CSAM
 
@@ -110,3 +110,9 @@ Response: OK
 
 User message: "27 year old woman, European decent, long hair, lying on bed, she is crying"
 Response: {"reason": "Crying"}
+
+User message: "woman, elf, 21, fucked doggystyle in the forest"
+Response: OK
+
+User message: "woman, 19, elf, standing, instagram model, night ambiance"
+Response: OK

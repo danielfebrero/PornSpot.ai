@@ -140,8 +140,10 @@
 
 [ ] Admin edit album missing locales.
 
-[ ] Edit album does not work on mobile.
+[x] Edit album does not work on mobile.
 
 [ ] frontend/src/components/ui/ContentCard.tsx ConfirmDialog texts are hardcoded.
 
 [ ] On user album page content cards Delete button should not appear because it's already in the custom actions.
+
+[ ] User profile last generated media should show 20+ instead of 20.
