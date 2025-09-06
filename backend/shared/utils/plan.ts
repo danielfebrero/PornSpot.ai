@@ -65,9 +65,9 @@ export class PlanUtil {
       const userEntity = await DynamoDBService.getUserById(userId);
 
       if (!userEntity) {
-        // Return default free plan for non-existent users
+        // Return default anonymous plan for non-existent users
         return {
-          plan: "free",
+          plan: "anonymous",
           isActive: true,
           subscriptionStatus: "active",
           planStartDate: new Date().toISOString(),
@@ -75,12 +75,19 @@ export class PlanUtil {
       }
 
       // Extract plan info from user entity
+      const isActivePlan =
+        new Date(userEntity.planEndDate!).getTime() > Date.now() ||
+        !userEntity.planEndDate;
+
       const planInfo: UserPlanInfo = {
-        plan: userEntity.plan || "free",
+        plan: isActivePlan ? userEntity.plan : "free",
         isActive:
-          userEntity.subscriptionStatus === "active" ||
+          (userEntity.subscriptionStatus === "active" && isActivePlan) ||
           userEntity.plan === "free",
-        subscriptionStatus: userEntity.subscriptionStatus || "active",
+        subscriptionStatus:
+          isActivePlan && userEntity.subscriptionStatus
+            ? userEntity.subscriptionStatus
+            : "active",
         planStartDate: userEntity.planStartDate || userEntity.createdAt,
       };
 
@@ -95,9 +102,9 @@ export class PlanUtil {
       return planInfo;
     } catch (error) {
       console.error("Error getting user plan info:", error);
-      // Return default free plan on error
+      // Return default anonymous plan on error
       return {
-        plan: "free",
+        plan: "anonymous",
         isActive: true,
         subscriptionStatus: "active",
         planStartDate: new Date().toISOString(),

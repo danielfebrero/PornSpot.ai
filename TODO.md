@@ -118,7 +118,7 @@
 
 [x] Add "play" button in lightbox to auto play images.
 
-[ ] Handle user plans valid until date.
+[x] Handle user plans valid until date.
 
 [ ] On delete from Discover, must optimistically disappear.
 
