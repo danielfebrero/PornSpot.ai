@@ -9,6 +9,7 @@ import { MediaPlayer } from "@/components/ui/MediaPlayer";
 import { ViewTracker } from "@/components/ui//ViewTracker";
 import { useLightboxPreloader } from "@/hooks/useLightboxPreloader";
 import { useAdvancedGestures } from "@/hooks/useAdvancedGestures";
+import { useSleepPrevention } from "@/hooks/useSleepPrevention";
 
 interface LightboxProps {
   media: Media[];
@@ -52,6 +53,10 @@ export const Lightbox: React.FC<LightboxProps> = ({
   const [slideshowInterval, setSlideshowInterval] = useState(3000); // Default 3 seconds
   const [areControlsVisible, setAreControlsVisible] = useState(true);
   const hideControlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Sleep prevention for slideshow
+  const { enableSleepPrevention, disableSleepPrevention } =
+    useSleepPrevention();
 
   const currentMedia = media[currentIndex];
   const nextMedia = media[currentIndex + 1];
@@ -100,6 +105,22 @@ export const Lightbox: React.FC<LightboxProps> = ({
     onNext,
     onGoToIndex,
   ]);
+
+  // Sleep prevention effect - prevent device sleep during slideshow
+  useEffect(() => {
+    if (isSlideshow && isOpen) {
+      // Enable sleep prevention when slideshow starts
+      enableSleepPrevention();
+    } else {
+      // Disable sleep prevention when slideshow stops or lightbox closes
+      disableSleepPrevention();
+    }
+
+    // Cleanup on unmount
+    return () => {
+      disableSleepPrevention();
+    };
+  }, [isSlideshow, isOpen, enableSleepPrevention, disableSleepPrevention]);
 
   // Wrapped navigation functions that stop slideshow when manually navigating
   const handleNext = useCallback(() => {
