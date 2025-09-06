@@ -1,4 +1,13 @@
-// Notification types for user interactions
+/**
+ * @fileoverview Notification Shared Types
+ * @description Types for notifications and user notifications.
+ * @notes
+ * - Notification, NotificationEntity for database.
+ * - CreateNotificationRequest for creation.
+ * - GetUserNotificationsRequest for retrieval.
+ * - NotificationTargetType enum.
+ * - NotificationType enum.
+ */
 
 export type NotificationType = "like" | "comment" | "bookmark" | "follow";
 export type NotificationTargetType = "album" | "media" | "comment" | "user";

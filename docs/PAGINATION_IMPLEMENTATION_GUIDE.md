@@ -20,11 +20,12 @@ The unified pagination system standardizes all backend pagination using:
 - Cursor encoding/decoding functions
 - Request parameter parsing and validation
 
-### 2. **Updated Types** (`/backend/shared/types/index.ts`)
+### 2. **Updated Types** (`/backend/shared/shared-types/core.ts`)
 
-- Added `PaginationRequest`, `PaginationMeta`, `PaginatedApiResponse`
-- Marked legacy `PaginatedResponse` as deprecated
-- Maintains backward compatibility
+- Added `PaginationRequest`, `PaginationMeta`, `ApiPaginatedResponse<T>`
+- Added `KeyedPaginatedPayload<K, T>` for keyed responses (e.g., { interactions: T[]; pagination: PaginationMeta })
+- Deprecated top-level array + pagination shapes
+- Note: Use `ApiPaginatedResponse<T>` for "data" key, `ApiKeyedPaginatedResponse<K, T>` for domain keys
 
 ### 3. **Documentation** (`/docs/PAGINATION_SYSTEM_AUDIT.md`)
 

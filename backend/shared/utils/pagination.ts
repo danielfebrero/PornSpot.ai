@@ -1,12 +1,13 @@
 /**
- * Unified Pagination System for PornSpot.ai Backend
- *
- * This module provides standardized pagination utilities for consistent
- * DynamoDB cursor-based pagination across all Lambda functions.
- *
- * @fileoverview Centralized pagination utilities
- * @author PornSpot.ai Development Team
- * @since 2024-12
+ * @fileoverview Pagination Utility
+ * @description Unified cursor-based pagination for DynamoDB queries with Base64 encoding.
+ * @notes
+ * - Encodes/decodes LastEvaluatedKey as Base64 cursor.
+ * - Parses request params for limit/cursor with defaults/max.
+ * - Creates paginated responses with meta (hasNext, cursor, limit).
+ * - Validates cursor format.
+ * - Defaults and max limits for entities (albums, media, etc.).
+ * - Errors for invalid limit/cursor.
  */
 
 import { ApiKeyedPaginatedResponse, PaginationMeta } from "@shared";

@@ -1,3 +1,14 @@
+/**
+ * @fileoverview User Authentication Middleware
+ * @description Middleware for validating user sessions from cookies, checking expiry, and fetching user details.
+ * @notes
+ * - Validates session from cookie, checks expiry, gets user entity.
+ * - Repairs missing usernames with UsernameGenerator.
+ * - Enhances user with PlanUtil.
+ * - Logs extensively for debugging.
+ * - Returns UserSessionValidationResult with user and session data.
+ * - Handles anonymous if allowed (not in this class, but in UserAuthUtil).
+ */
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { UserSessionValidationResult } from "@shared";

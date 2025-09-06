@@ -6,7 +6,17 @@ import { ValidationUtil } from "@shared/utils/validation";
 import { DisableUserRequest } from "@shared";
 
 /**
- * Disable a user (set isActive = false) and delete their active sessions
+ * @fileoverview Admin User Disable Handler
+ * @description Disables a user account by setting isActive to false and deleting all active sessions for immediate logout.
+ * @auth Requires admin authentication.
+ * @body DisableUserRequest: { userId: string }
+ * @notes
+ * - Validates userId presence.
+ * - Verifies user existence and checks if already inactive.
+ * - Updates user entity in DynamoDB.
+ * - Calls deleteUserSessionsByUserId to invalidate all sessions.
+ * - Returns updated user info without sensitive data.
+ * - Logs for auditing.
  */
 const handleAdminUserDisable = async (
   event: APIGatewayProxyEvent

@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Admin Media Listing Handler
+ * @description Retrieves a paginated list of all media items across the platform for administrative review.
+ * @auth Requires admin authentication.
+ * @queryParams Supports pagination: limit (default/max per admin limits), cursor (lastEvaluatedKey).
+ * @notes
+ * - Uses unified PaginationUtil for parsing and response formatting.
+ * - Queries all media without user or visibility filters (admin view).
+ * - Calls DynamoDBService.listAllMedia for comprehensive listing.
+ * - Returns paginated payload with media array and next cursor.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

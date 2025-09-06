@@ -1,3 +1,13 @@
+/**
+ * @fileoverview OpenRouter Shared Types
+ * @description Types for OpenRouter chat completion API interactions.
+ * @notes
+ * - ChatCompletionRequest, ChatCompletionResponse for API.
+ * - OpenRouterChatRequest, OpenRouterChatResponse, OpenRouterStreamChunk for service.
+ * - InstructionTemplate for system prompts.
+ * - OpenRouterMessage for messages.
+ * - ProviderOptions for model selection.
+ */
 export interface OpenRouterMessage {
   role: "system" | "user" | "assistant";
   content: string;

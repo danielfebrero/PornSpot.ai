@@ -1553,37 +1553,6 @@ Resources:
                 - !GetAtt MediaTable.Arn
                 - !Sub "${MediaTable.Arn}/index/*"
 
-  AdminStatsFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub "${Environment}-pornspot-admin-stats-v2"
-      PackageType: Image
-      ImageUri: !Ref ImageUri
-      ImageConfig:
-        Command: ["functions/admin/stats.handler"]
-      Events:
-        GetStats:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /admin/stats
-            Method: GET
-            Auth:
-              Authorizer: AdminAuthorizer
-        OptionsStats:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /admin/stats
-            Method: OPTIONS
-            Auth:
-              Authorizer: NONE
-      Policies:
-        - DynamoDBReadPolicy:
-            TableName: !Ref MediaTable
-        - S3ReadPolicy:
-            BucketName: !Ref MediaBucket
-
   # Admin Users Functions
   AdminUsersListFunction:
     Type: AWS::Serverless::Function

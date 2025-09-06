@@ -1,3 +1,25 @@
+/**
+ * @fileoverview Simple Rate Limiting Service
+ * @description Enforces generation limits based on user plan, concurrent generations, IP quotas, and anonymous restrictions.
+ * @notes
+ * - Checks concurrent (one at a time), daily/monthly quotas, IP limits to prevent abuse.
+ * - Temporary unlimited quota until Sep 30, 2025 for registered users.
+ * - Records generations for IP and user with union counting.
+ * - Anonymous: 1 per IP per day.
+ * - Uses GenerationQueueService and DynamoDB for counting.
+ * - Returns SimplifiedRateLimitResult with allowed/reason/remaining.
+ */
+/**
+ * @fileoverview Simple Rate Limiting Service
+ * @description Enforces generation limits based on user plan, concurrent generations, IP quotas, and anonymous restrictions.
+ * @notes
+ * - Checks concurrent (one at a time), daily/monthly quotas, IP limits to prevent abuse.
+ * - Temporary unlimited quota until Sep 30, 2025 for registered users.
+ * - Records generations for IP and user with union counting.
+ * - Anonymous: 1 per IP per day.
+ * - Uses GenerationQueueService and DynamoDB for counting.
+ * - Returns SimplifiedRateLimitResult with allowed/reason/remaining.
+ */
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { GenerationQueueService } from "./generation-queue";
 import { DynamoDBService } from "../utils/dynamodb";

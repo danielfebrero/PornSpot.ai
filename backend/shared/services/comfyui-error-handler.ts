@@ -1,3 +1,14 @@
+/**
+ * @fileoverview ComfyUI Error Handler
+ * @description Custom error types and retry handler for ComfyUI API interactions.
+ * @notes
+ * - ComfyUIErrorType enum for error categories.
+ * - ComfyUIError class with type, statusCode, promptId, retryable, originalError.
+ * - Static fromHttpError, fromWebSocketError methods.
+ * - ComfyUIRetryHandler with exponential backoff.
+ * - ComfyUICircuitBreaker for failure isolation.
+ * - Determines retryability based on type/status.
+ */
 export enum ComfyUIErrorType {
   CONNECTION_FAILED = "CONNECTION_FAILED",
   TIMEOUT = "TIMEOUT",

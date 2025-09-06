@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Lambda Handler Utility
+ * @description Wrapper utilities for common Lambda patterns: auth, body/path/query validation, error handling.
+ * @notes
+ * - Wrappers: withAuth (required auth), withoutAuth (no auth), withOptionalAuth (anonymous allowed), withAdminAuth.
+ * - Handles OPTIONS for CORS.
+ * - Validates body, path params, query params (method-scoped).
+ * - Includes helpers: parseJsonBody, getPathParam, checkOwnershipOrAdmin.
+ * - AuthResult interfaces for user/admin.
+ * - Centralized error responses.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "./response";
 import { UserAuthUtil } from "./user-auth";

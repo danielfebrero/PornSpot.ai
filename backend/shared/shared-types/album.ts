@@ -1,4 +1,13 @@
-// Album-related types
+/**
+ * @fileoverview Album Shared Types
+ * @description Interfaces for album creation, update, and related entities.
+ * @notes
+ * - Album, AlbumEntity for database.
+ * - CreateAlbumRequest, UpdateAlbumRequest for API.
+ * - AlbumMediaEntity for album-media relationships.
+ * - AlbumTagEntity for album tags.
+ * - AlbumCoverImage for cover handling.
+ */
 import type { ThumbnailUrls, Metadata, CreatorType } from "./core";
 
 export interface Album {

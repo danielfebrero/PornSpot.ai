@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Admin Authentication Middleware
+ * @description Middleware for validating admin sessions, checking admin role, and maintaining backwards compatibility with admin_session cookies.
+ * @notes
+ * - Delegates to UserAuthMiddleware for session validation.
+ * - Checks user role == "admin".
+ * - Legacy support for admin_session cookie.
+ * - Returns SessionValidationResult with AdminUser.
+ * - Logs admin validation steps.
+ */
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { SessionValidationResult, AdminUser } from "@shared";
@@ -12,17 +22,21 @@ export class AuthMiddleware {
 
       // Use user authentication middleware to validate the session
       const userValidation = await UserAuthMiddleware.validateSession(event);
-      
+
       if (!userValidation.isValid || !userValidation.user) {
         console.log("❌ Admin middleware: User session validation failed");
         return { isValid: false };
       }
 
-      console.log("✅ Admin middleware: User session valid, checking admin role");
+      console.log(
+        "✅ Admin middleware: User session valid, checking admin role"
+      );
 
       // Get the user entity to check the role
-      const userEntity = await DynamoDBService.getUserById(userValidation.user.userId);
-      
+      const userEntity = await DynamoDBService.getUserById(
+        userValidation.user.userId
+      );
+
       if (!userEntity || !userEntity.isActive) {
         console.log("❌ Admin middleware: User not found or inactive");
         return { isValid: false };
@@ -30,11 +44,15 @@ export class AuthMiddleware {
 
       // Check if user has admin role
       if (userEntity.role !== "admin") {
-        console.log(`❌ Admin middleware: User role '${userEntity.role}' is not admin`);
+        console.log(
+          `❌ Admin middleware: User role '${userEntity.role}' is not admin`
+        );
         return { isValid: false };
       }
 
-      console.log("✅ Admin middleware: User has admin role, validation successful");
+      console.log(
+        "✅ Admin middleware: User has admin role, validation successful"
+      );
 
       // Create admin user object compatible with existing code
       const admin: AdminUser = {
@@ -69,12 +87,12 @@ export class AuthMiddleware {
     if (!cookieHeader) return null;
 
     const cookies = cookieHeader.split(";").map((cookie) => cookie.trim());
-    
+
     // Try admin_session first for backwards compatibility
     const adminSessionCookie = cookies.find((cookie) =>
       cookie.startsWith("admin_session=")
     );
-    
+
     if (adminSessionCookie) {
       return adminSessionCookie.split("=")[1] || null;
     }

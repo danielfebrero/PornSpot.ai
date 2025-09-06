@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Parameter Store Service
+ * @description Fetches configuration from AWS SSM Parameter Store with local fallback.
+ * @notes
+ * - Caches parameters for the Lambda execution.
+ * - Environment-specific paths (/prod, /stage, /dev).
+ * - Local development uses environment variables.
+ * - Methods: getParameter, getRevalidateSecret, getFrontendUrl, getGoogleClientSecret, getSendGridApiKey, getComfyUIApiEndpoint, getOpenRouterApiKey, getJwtEncryptionKey, getJwtSecret.
+ * - Handles decryption for secure strings.
+ */
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 
 const isLocal =

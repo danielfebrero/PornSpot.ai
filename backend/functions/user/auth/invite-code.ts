@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Invitation Code Validation Handler
+ * @description Public API to validate invitation codes for private beta access.
+ * @auth Public via LambdaHandlerUtil.withoutAuth.
+ * @body InvitationCodeRequest: { code: string }
+ * @notes
+ * - Validates code against hardcoded VALID_INVITATION_CODES list (normalized to uppercase).
+ * - Returns { valid: boolean, message }.
+ * - POST method only.
+ * - No database lookup; simple string match.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";

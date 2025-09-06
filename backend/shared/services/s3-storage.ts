@@ -1,3 +1,15 @@
+/**
+ * @fileoverview S3 Storage Service
+ * @description Service for uploading generated images to S3 with metadata and custom filenames.
+ * @notes
+ * - Uploads buffers to S3 with generation ID.
+ * - Supports custom filenames for predictable URLs.
+ * - Bulk upload for multiple images.
+ * - Deletes images and multiple images.
+ * - Generates public URLs via CloudFront or direct S3.
+ * - Validates S3 URLs.
+ * - Singleton pattern.
+ */
 import {
   S3Client,
   PutObjectCommand,

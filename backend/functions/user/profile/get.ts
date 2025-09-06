@@ -1,3 +1,15 @@
+/**
+ * @fileoverview User Profile Retrieval Handler
+ * @description Retrieves public user profile by username, including follow status and counts.
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth.
+ * @queryParams {string} username - Username to retrieve profile for.
+ * @notes
+ * - Validates username, fetches user, checks active.
+ * - Checks follow relationships between current and target user.
+ * - Returns PublicUserProfile with planInfo, follow status, followerCount.
+ * - Excludes sensitive data.
+ * - Logs follow relationships.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";

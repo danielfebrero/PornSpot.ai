@@ -1,3 +1,16 @@
+/**
+ * @fileoverview User Account Deletion Handler
+ * @description Soft-deletes user account by anonymizing data and invalidating sessions.
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth.
+ * @notes
+ * - DELETE method only.
+ * - Anonymizes email, username to "[deleted]", sets isActive=false, isEmailVerified=false.
+ * - Updates GSI indexes to prevent conflicts.
+ * - Clears personal fields: firstName, lastName, googleId, bio, location, website.
+ * - Deletes active sessions (simplified; relies on isActive flag).
+ * - Content remains but shows as "[deleted] user".
+ * - Returns success message.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";

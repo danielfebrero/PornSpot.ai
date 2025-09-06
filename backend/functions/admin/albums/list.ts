@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Admin Albums Listing Handler
+ * @description Retrieves a paginated list of all albums (public and private) for administrative purposes.
+ * @auth Requires admin authentication.
+ * @queryParams Supports pagination: limit (default/max per admin limits), cursor (lastEvaluatedKey).
+ * @notes
+ * - Uses unified PaginationUtil for parameter parsing and response formatting.
+ * - Queries DynamoDB for albums without visibility filters (admin view).
+ * - Returns paginated response with albums array and next cursor if applicable.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

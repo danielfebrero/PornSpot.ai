@@ -1,4 +1,13 @@
-import { APIGatewayProxyResult, APIGatewayProxyEvent } from "aws-lambda";
+/**
+ * @fileoverview API Response Utility
+ * @description Standardized utility for creating consistent API responses with CORS handling and status codes.
+ * @notes
+ * - Supports success, error, notFound, badRequest, unauthorized, forbidden, methodNotAllowed, internalError, created, noContent, redirect, binaryFile.
+ * - Automatically adds CORS headers based on allowed origins (localhost, production domains, Vercel).
+ * - Allows credentials and specifies headers/methods.
+ * - For binary files, sets Content-Disposition for downloads.
+ */
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ApiResponse } from "@shared/shared-types";
 
 const allowedOrigins = [

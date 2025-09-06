@@ -6,6 +6,16 @@ Special notes:
 - Returns null if no settings are found (user can use defaults)
 - Settings include: image size, custom dimensions, batch count, isPublic, cfg scale, steps, negative prompt
 */
+/**
+ * @fileoverview User Generation Settings Handler
+ * @description Retrieves user's saved AI generation settings or null for defaults.
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth.
+ * @notes
+ * - GET method only.
+ * - Fetches from DynamoDB.getGenerationSettings.
+ * - Returns settings: imageSize, customWidth/Height, batchCount, isPublic, cfgScale, steps, negativePrompt, lastUpdated.
+ * - Returns null if no settings, for frontend defaults.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

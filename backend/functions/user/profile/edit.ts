@@ -1,3 +1,15 @@
+/**
+ * @fileoverview User Profile Edit Handler
+ * @description Updates user profile fields like username, bio, location, website, preferredLanguage.
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth.
+ * @notes
+ * - PUT method only.
+ * - Validates each field: username availability, lengths, URL for website, supported languages.
+ * - Updates GSI indexes for username change.
+ * - Removes empty fields.
+ * - Returns updated user data excluding sensitive info.
+ * - Logs validation errors.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";

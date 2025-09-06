@@ -1,8 +1,26 @@
+/**
+ * @fileoverview Admin Album Update Handler
+ * @description Updates album metadata such as title, tags, visibility, and cover image, including thumbnail generation for covers.
+ * @auth Requires admin authentication.
+ * @pathParams {string} albumId - ID of the album to update.
+ * @body UpdateAlbumRequest: { title?: string, tags?: string[], isPublic?: boolean, coverImageUrl?: string }
+ * @notes
+ * - Validates title if provided.
+ * - Lazy-loads heavy dependencies (DynamoDBService, CoverThumbnailUtil) after OPTIONS preflight.
+ * - Generates thumbnails for new cover images using CoverThumbnailUtil.
+ * - Clears thumbnails if cover is removed.
+ * - Updates updatedAt timestamp.
+ * - Fetches and returns the full updated album entity.
+ * - Triggers revalidation for the specific album page.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { RevalidationService } from "@shared/utils/revalidation";
 import { UpdateAlbumRequest } from "@shared";
-import { LambdaHandlerUtil, AdminAuthResult } from "@shared/utils/lambda-handler";
+import {
+  LambdaHandlerUtil,
+  AdminAuthResult,
+} from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 
 const handleUpdateAlbum = async (

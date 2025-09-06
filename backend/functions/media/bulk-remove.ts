@@ -1,3 +1,16 @@
+/**
+ * @fileoverview Bulk Media Removal from Album Handler
+ * @description Removes multiple media items from an album (associations only, no deletion).
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth (includes role).
+ * @pathParams {string} albumId - Album to remove media from.
+ * @body RemoveMediaFromAlbumRequest: { mediaIds: string[] }
+ * @notes
+ * - Verifies album ownership or admin role.
+ * - Validates mediaIds array (<=50 items, non-empty strings).
+ * - Calls bulkRemoveMediaFromAlbum, returns successful/failed.
+ * - Revalidates album if any successful.
+ * - Logs authorization and results.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

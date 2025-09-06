@@ -1,3 +1,19 @@
+"""
+Configure S3 Notification Handler
+
+This CloudFormation Custom Resource Lambda function configures S3 bucket notifications to trigger media processing functions on object creation events.
+
+Events: CloudFormation Create/Update/Delete for S3 notification configuration.
+Auth: Internal (executed by CloudFormation).
+Notes:
+- Configures Lambda triggers for specific S3 prefixes: 'albums/', 'users/' (avatars), 'generated/'.
+- Idempotent: Upserts triggers on Create/Update, removes on Delete.
+- Uses boto3 to get current config, filter rules for prefixes, and put_bucket_notification_configuration.
+- Handles errors with traceback logging and cfnresponse for SUCCESS/FAILED.
+- Physical resource ID is the bucket name for update-in-place.
+- TRIGGERS list defines the notification configurations.
+"""
+
 import boto3
 import json
 import cfnresponse

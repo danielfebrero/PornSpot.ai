@@ -1,11 +1,17 @@
-/*
-File objective: Handle WebSocket message routing and subscription management
-Auth: Connection-based (validates connection exists)
-Special notes:
-- Routes different message types (subscribe, unsubscribe, etc.)
-- Manages subscriptions to generation updates by queueId
-- Sends responses back through WebSocket connection
-*/
+/**
+ * @fileoverview WebSocket Message Routing Handler
+ * @description Routes WebSocket messages for subscriptions, progress updates, and generation completion handling.
+ * @auth Connection-based (validates connection exists).
+ * @body WebSocketMessage: { action: 'get_client_connectionId' | 'subscribe' | 'unsubscribe' | 'ping'; type: 'progress_state' | 'executed' }
+ * @notes
+ * - Handles actions: get_client_connectionId, subscribe, unsubscribe, ping.
+ * - For ComfyUI messages: progress_state (updates progress), executed (handles generation complete, creates media entities, uploads to S3).
+ * - Manages promptId cache for queue lookups.
+ * - Broadcasts to subscribers on generation complete.
+ * - Local cache TTL 5min for promptId to queueEntry.
+ * - Cleans up cache on disconnect.
+ * - Large file with helper functions for media creation, download/upload, progress transformation.
+ */
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import {

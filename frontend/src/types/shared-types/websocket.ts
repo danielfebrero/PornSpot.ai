@@ -1,3 +1,13 @@
+/**
+ * @fileoverview WebSocket Shared Types
+ * @description Types for WebSocket messages and connections.
+ * @notes
+ * - WebSocketMessage for general messages.
+ * - WebSocketSubscription for subscriptions.
+ * - WebSocketUnsubscribe for unsubscriptions.
+ * - WebSocketError for errors.
+ * - WebSocketConnection for pool.
+ */
 import { WorkflowData } from "./generation";
 
 // WebSocket Types

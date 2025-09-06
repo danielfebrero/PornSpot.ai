@@ -1,5 +1,15 @@
 /**
- * Shared validation utilities to reduce duplication across Lambda functions
+ * @fileoverview Validation Utility
+ * @description Shared validation methods for strings, arrays, enums, emails, UUIDs, passwords, usernames, etc.
+ * @notes
+ * - validateRequiredString, validateOptionalString.
+ * - validateBoolean, validateOptionalBoolean.
+ * - validateArray, validateOptionalArray.
+ * - validateEmail, validateUUID, validatePassword, validateUsername.
+ * - validateImageMimeType, validatePositiveInteger, validatePaginationLimit.
+ * - validateTags, validateSortOrder, validateEnum, validateObject.
+ * - Specific: validateAlbumTitle, validateMediaFilename, validateUserRole, validateInteractionType.
+ * - Constants for error messages.
  */
 export class ValidationUtil {
   /**
@@ -23,10 +33,7 @@ export class ValidationUtil {
   /**
    * Validate required string field
    */
-  static validateRequiredString(
-    value: unknown,
-    fieldName: string
-  ): string {
+  static validateRequiredString(value: unknown, fieldName: string): string {
     if (!value || typeof value !== "string" || value.trim().length === 0) {
       throw new Error(`${fieldName} is required and cannot be empty`);
     }
@@ -43,25 +50,22 @@ export class ValidationUtil {
     if (value === undefined || value === null) {
       return undefined;
     }
-    
+
     if (typeof value !== "string") {
       throw new Error(`${fieldName} must be a string`);
     }
-    
+
     if (value.trim().length === 0) {
       throw new Error(`${fieldName} cannot be empty`);
     }
-    
+
     return value.trim();
   }
 
   /**
    * Validate boolean field
    */
-  static validateBoolean(
-    value: unknown,
-    fieldName: string
-  ): boolean {
+  static validateBoolean(value: unknown, fieldName: string): boolean {
     if (typeof value !== "boolean") {
       throw new Error(`${fieldName} must be a boolean`);
     }
@@ -129,7 +133,8 @@ export class ValidationUtil {
    * Validate UUID format
    */
   static validateUUID(value: string, fieldName: string): string {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(value)) {
       throw new Error(`${fieldName} must be a valid UUID`);
     }
@@ -188,16 +193,18 @@ export class ValidationUtil {
   static validateImageMimeType(mimeType: string): string {
     const allowedTypes = [
       "image/jpeg",
-      "image/jpg", 
+      "image/jpg",
       "image/png",
       "image/webp",
-      "image/gif"
+      "image/gif",
     ];
-    
+
     if (!allowedTypes.includes(mimeType.toLowerCase())) {
-      throw new Error(`Invalid file type. Allowed types: ${allowedTypes.join(", ")}`);
+      throw new Error(
+        `Invalid file type. Allowed types: ${allowedTypes.join(", ")}`
+      );
     }
-    
+
     return mimeType.toLowerCase();
   }
 
@@ -212,11 +219,11 @@ export class ValidationUtil {
     if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
       throw new Error(`${fieldName} must be a positive integer`);
     }
-    
+
     if (max && value > max) {
       throw new Error(`${fieldName} cannot exceed ${max}`);
     }
-    
+
     return value;
   }
 
@@ -227,8 +234,9 @@ export class ValidationUtil {
     if (limit === undefined) {
       return 20; // Default limit
     }
-    
-    const numericLimit = typeof limit === "string" ? parseInt(limit, 10) : limit;
+
+    const numericLimit =
+      typeof limit === "string" ? parseInt(limit, 10) : limit;
     return this.validatePositiveInteger(numericLimit, "limit", 100);
   }
 
@@ -239,24 +247,24 @@ export class ValidationUtil {
     if (!Array.isArray(tags)) {
       throw new Error("Tags must be an array");
     }
-    
+
     const validatedTags = tags.map((tag, index) => {
       if (typeof tag !== "string") {
         throw new Error(`Tag at index ${index} must be a string`);
       }
-      
+
       const trimmedTag = tag.trim();
       if (trimmedTag.length === 0) {
         throw new Error(`Tag at index ${index} cannot be empty`);
       }
-      
+
       if (trimmedTag.length > 50) {
         throw new Error(`Tag at index ${index} cannot exceed 50 characters`);
       }
-      
+
       return trimmedTag;
     });
-    
+
     // Remove duplicates
     return [...new Set(validatedTags)];
   }
@@ -268,11 +276,11 @@ export class ValidationUtil {
     if (order === undefined) {
       return "desc"; // Default to descending
     }
-    
+
     if (order !== "asc" && order !== "desc") {
       throw new Error("Sort order must be 'asc' or 'desc'");
     }
-    
+
     return order;
   }
 
@@ -301,7 +309,7 @@ export class ValidationUtil {
     if (!value || typeof value !== "object" || Array.isArray(value)) {
       throw new Error(`${fieldName} must be an object`);
     }
-    
+
     return validator(value as Record<string, unknown>);
   }
 
@@ -310,11 +318,11 @@ export class ValidationUtil {
    */
   static validateAlbumTitle(title: unknown): string {
     const validatedTitle = this.validateRequiredString(title, "title");
-    
+
     if (validatedTitle.length > 200) {
       throw new Error("Album title cannot exceed 200 characters");
     }
-    
+
     return validatedTitle;
   }
 
@@ -323,11 +331,11 @@ export class ValidationUtil {
    */
   static validateMediaFilename(filename: unknown): string {
     const validatedFilename = this.validateRequiredString(filename, "filename");
-    
+
     if (validatedFilename.length > 255) {
       throw new Error("Filename cannot exceed 255 characters");
     }
-    
+
     return validatedFilename;
   }
 

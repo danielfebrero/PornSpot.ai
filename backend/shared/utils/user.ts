@@ -1,3 +1,16 @@
+/**
+ * @fileoverview User Management Utility
+ * @description Utilities for user creation, password handling, email verification, and OAuth integration.
+ * @notes
+ * - createUser with hashing and uniqueness checks.
+ * - updateUserPassword, deactivateUser, activateUser, markEmailVerified, updateLastLogin.
+ * - validatePassword, validateEmail, validateUsername methods.
+ * - generateEmailVerificationToken, verifyEmailToken, cleanupExpiredEmailTokens.
+ * - createGoogleUser, linkGoogleToUser, createOrLinkGoogleUser for OAuth.
+ * - sanitizeUserForResponse removes sensitive fields.
+ * - generateOAuthState, validateOAuthState for CSRF.
+ * - Salt rounds: 12, expiry: 24 hours.
+ */
 import { v4 as uuidv4 } from "uuid";
 import * as bcrypt from "bcrypt";
 import { DynamoDBService } from "./dynamodb";

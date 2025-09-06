@@ -1,9 +1,16 @@
-/*
-File objective: Hourly analytics aggregation Lambda function
-Scheduled execution: Every hour via EventBridge
-Auth: Internal Lambda (no external auth required)
-Purpose: Calculates and stores hourly metrics for all metric types
-*/
+/**
+ * @fileoverview Hourly Analytics Aggregation Handler
+ * @description Scheduled Lambda function that calculates and stores hourly metrics for all types by querying source data.
+ * @event EventBridgeEvent - Scheduled every hour.
+ * @auth Internal (no external auth).
+ * @notes
+ * - Aggregates directly from source data for the previous hour.
+ * - Processes all metric types: users, media, albums, interactions, generations, storage.
+ * - Stores in DynamoDB with hourly granularity.
+ * - LocalStack config for development.
+ * - Logs metrics; re-throws errors for alerting.
+ * - Commented cache update logic.
+ */
 
 import { EventBridgeEvent } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";

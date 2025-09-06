@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Generation Shared Types
+ * @description Types for AI image generation requests, responses, and queue management.
+ * @notes
+ * - WorkflowParameters for prompt, dimensions, batch, etc.
+ * - QueueEntry for queue items.
+ * - QueueStats for queue statistics.
+ * - GenerationProgress for real-time updates.
+ * - ComfyUIPromptResponse, ComfyUIMessage, ComfyUIMessageData, ComfyUIImageResult, ComfyUISystemStats, ComfyUIQueueItem, ComfyUIHistoryResult from ComfyUI integration.
+ */
 import type { Media } from "./media";
 
 export interface GenerationSettings {

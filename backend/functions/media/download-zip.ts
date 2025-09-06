@@ -1,3 +1,17 @@
+/**
+ * @fileoverview Media ZIP Download Handler
+ * @description Creates a ZIP archive of multiple media files and provides a presigned S3 URL for download.
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth.
+ * @body DownloadMediaZipRequest: { mediaIds: string[] }
+ * @notes
+ * - Validates mediaIds (<=50, non-empty).
+ * - Fetches media entities, checks ownership/public access.
+ * - Uses archiver to create ZIP in memory.
+ * - If >5MB, uploads to S3 temp bucket and generates presigned URL (1 hour expiry).
+ * - Appends original filenames with ID prefix.
+ * - Returns downloadUrl, expiresIn, filename, sizeInMB.
+ * - Skips failed downloads, continues with others.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

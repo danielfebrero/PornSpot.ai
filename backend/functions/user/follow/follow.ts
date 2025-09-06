@@ -1,3 +1,15 @@
+/**
+ * @fileoverview User Follow Handler
+ * @description Allows authenticated user to follow another user, creating relationship and notification.
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth.
+ * @queryParams {string} username - Username to follow.
+ * @notes
+ * - Validates username, checks not self-follow.
+ * - Checks existing follow.
+ * - Creates follow relationship, increments follower count.
+ * - Creates notification for followed user.
+ * - Returns success message.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";

@@ -1,3 +1,16 @@
+/**
+ * @fileoverview Media Addition Handler
+ * @description Adds existing media to an album or uploads new media by generating presigned S3 URL and creating record.
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth (includes role).
+ * @pathParams {string} albumId - Album to add media to.
+ * @body AddMediaToAlbumRequest or UploadMediaRequest: { mediaId?: string, mediaIds?: string[], filename: string, mimeType: string, size?: number } for upload.
+ * @notes
+ * - Verifies album ownership or admin role.
+ * - For association: validates media existence, adds to album, revalidates.
+ * - For upload: generates presigned URL, creates pending media entity, links to album, increments metric, revalidates.
+ * - Bulk association supported via mediaIds.
+ * - Returns upload details or success message.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { v4 as uuidv4 } from "uuid";
 import { DynamoDBService } from "@shared/utils/dynamodb";

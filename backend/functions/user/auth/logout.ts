@@ -1,3 +1,13 @@
+/**
+ * @fileoverview User Logout Handler
+ * @description Logs out the authenticated user by deleting session and clearing cookie.
+ * @auth Public via LambdaHandlerUtil.withoutAuth (no auth needed for logout).
+ * @notes
+ * - Extracts sessionId from cookie header.
+ * - Deletes user session from DynamoDB.
+ * - Sets cookie to expire immediately.
+ * - No auth required for public logout endpoint.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
@@ -8,10 +18,8 @@ const handleLogout = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   // Extract session from cookie and delete it, even if expired
-  const cookieHeader =
-    event.headers["Cookie"] || event.headers["cookie"] || "";
-  const sessionId =
-    UserAuthMiddleware.extractSessionFromCookies(cookieHeader);
+  const cookieHeader = event.headers["Cookie"] || event.headers["cookie"] || "";
+  const sessionId = UserAuthMiddleware.extractSessionFromCookies(cookieHeader);
 
   if (sessionId) {
     // Delete the session from database, ignoring if it doesn't exist

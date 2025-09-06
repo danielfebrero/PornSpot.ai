@@ -1,3 +1,17 @@
+/**
+ * @fileoverview Admin Login Handler
+ * @description Handles admin authentication by validating username/password, creating a user session (admins use unified user sessions), and setting session cookie.
+ * @event APIGatewayProxyEvent
+ * @body LoginRequest: { username: string, password: string }
+ * @returns APIGatewayProxyResult - Success with admin details and sessionId, sets Set-Cookie header.
+ * @notes
+ * - Supports login by username or email.
+ * - Enforces admin role check.
+ * - Uses bcrypt for password comparison.
+ * - Creates session with 24-hour expiry, TTL, and GSI indexes for expiry and user lookup.
+ * - Includes timing delay on invalid attempts for security.
+ * - Returns forbidden if account disabled or non-admin.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { v4 as uuidv4 } from "uuid";
 import * as bcrypt from "bcrypt";

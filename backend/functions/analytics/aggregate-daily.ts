@@ -1,9 +1,16 @@
-/*
-File objective: Daily analytics aggregation Lambda function
-Scheduled execution: Once per day at 00:05 UTC via EventBridge
-Auth: Internal Lambda (no external auth required)
-Purpose: Calculates and stores daily metrics by aggregating hourly data or recalculating from source
-*/
+/**
+ * @fileoverview Daily Analytics Aggregation Handler
+ * @description Scheduled Lambda function that aggregates hourly analytics data into daily metrics for all metric types, storing in DynamoDB.
+ * @event EventBridgeEvent - Scheduled at 00:05 UTC daily.
+ * @auth Internal (no external auth).
+ * @notes
+ * - Aggregates from hourly data if available; falls back to source calculation if no hourly data.
+ * - Processes metrics for previous day (yesterday).
+ * - Handles all metric types: users, media, albums, interactions, generations, storage.
+ * - Calculates totals (latest), new items (sum), active users, visitors.
+ * - LocalStack config for development.
+ * - Logs aggregation details; re-throws errors for alerting.
+ */
 
 import { EventBridgeEvent } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";

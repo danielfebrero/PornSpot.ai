@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Generation Queue Service
+ * @description Manages the queue for AI image generations with status tracking, timeouts, and stats.
+ * @notes
+ * - QueueEntry interface for queue items.
+ * - Methods: addToQueue, getNextPendingItem, updateQueueEntry, getQueueEntry, removeQueueEntry, getQueueStats, findQueueEntryByPromptId, getUserQueueEntries, getUserQueueEntriesByStatus, updateQueuePositions, cleanupTimeoutEntries, getUserPendingCount, getUserProcessingCount.
+ * - Uses DynamoDB with GSIs for status, user, prompt ID.
+ * - Calculates queue positions and estimated wait times based on batch sizes.
+ * - Cleanup for timeouts.
+ * - Singleton pattern.
+ */
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,

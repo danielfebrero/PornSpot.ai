@@ -1,3 +1,16 @@
+/**
+ * @fileoverview Email Verification Handler
+ * @description Verifies email token, marks user email as verified, and creates session for auto-login.
+ * @auth Public via LambdaHandlerUtil.withoutAuth; creates session on success.
+ * @queryParams or body { token: string } - Supports GET/POST.
+ * @notes
+ * - Validates token from query or body.
+ * - Calls UserUtil.verifyEmailToken to check validity.
+ * - Marks email verified and deletes token.
+ * - Sends welcome email (commented).
+ * - Creates session with updateLastLogin.
+ * - Returns success and session cookie.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { UserUtil } from "@shared/utils/user";

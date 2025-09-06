@@ -1,10 +1,15 @@
-/*
-File objective: Get a single album by ID with a small recent comments list.
-Auth: Public endpoint via LambdaHandlerUtil.withoutAuth.
-Special notes:
-- Retrieves up to 20 comments and attaches them to the album response; failure to fetch comments does not fail request
-- Uses API-facing album shape helper (getAlbumForAPI)
-*/
+/**
+ * @fileoverview Single Album Retrieval Handler
+ * @description Fetches a specific album by ID, including up to 20 recent comments.
+ * @auth Public endpoint via LambdaHandlerUtil.withoutAuth.
+ * @pathParams {string} albumId - ID of the album to retrieve.
+ * @notes
+ * - Validates albumId presence.
+ * - Uses getAlbumForAPI for API-safe response shape.
+ * - Fetches recent comments (limit 20) for the album; attaches to response.
+ * - Gracefully handles comment fetch failures (returns empty array).
+ * - No auth required; album must be public or accessible.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

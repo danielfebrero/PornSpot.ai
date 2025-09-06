@@ -1,4 +1,14 @@
-// Media-related types
+/**
+ * @fileoverview Media Shared Types
+ * @description Types for media uploads, entities, and operations.
+ * @notes
+ * - Media, MediaEntity for database.
+ * - CreateMediaRequest, UpdateMediaRequest for API.
+ * - MediaStatus enum.
+ * - UploadMediaRequest, UploadMediaResponse for uploads.
+ * - AdminUploadMediaResponse for admin.
+ * - DownloadMediaZipRequest for downloads.
+ */
 import type { ThumbnailUrls, Metadata, CreatorType, MediaStatus } from "./core";
 
 export interface Media {

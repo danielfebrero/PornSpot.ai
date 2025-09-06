@@ -7,6 +7,20 @@ Special notes:
 - Updates per-target like counters and increments/decrements creator's totalLikesReceived
 - Idempotency: returns 409 on duplicate like attempts
 */
+/**
+ * @fileoverview Like Interaction Handler
+ * @description Adds or removes a like on album, media, or comment, updating counters and notifications.
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth.
+ * @body InteractionRequest: { targetType: 'album'|'media'|'comment', targetId: string, action: 'add'|'remove' }
+ * @notes
+ * - Validates action and target type; verifies target existence.
+ * - Checks existing like to prevent duplicates.
+ * - Updates interaction entity, increments/decrements counters.
+ * - Increments/decrements creator's totalLikesReceived metric.
+ * - Creates notification for target creator.
+ * - Idempotent: 409 on duplicate add.
+ * - Returns action result.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

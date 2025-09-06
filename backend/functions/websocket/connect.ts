@@ -7,6 +7,17 @@ Special notes:
 - Sets up connection tracking for cleanup
 */
 
+/**
+ * @fileoverview WebSocket Connection Handler
+ * @description Establishes WebSocket connection, validates JWT token, and stores connection info in DynamoDB.
+ * @auth Public (connection establishment).
+ * @queryParams {string} token - JWT token for authentication.
+ * @notes
+ * - Decrypts userId from JWT.
+ * - Stores ConnectionEntity with TTL (24 hours).
+ * - Returns 200 on success, 401 on invalid token.
+ * - Logs connection details.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";

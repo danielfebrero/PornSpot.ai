@@ -1,9 +1,16 @@
-/*
-File objective: Weekly analytics aggregation Lambda function
-Scheduled execution: Every Monday at 00:10 UTC via EventBridge
-Auth: Internal Lambda (no external auth required)
-Purpose: Calculates and stores weekly metrics by aggregating daily data or recalculating from source
-*/
+/**
+ * @fileoverview Weekly Analytics Aggregation Handler
+ * @description Scheduled Lambda function that aggregates daily data into weekly metrics for all types (Monday-Sunday).
+ * @event EventBridgeEvent - Scheduled every Monday at 00:10 UTC.
+ * @auth Internal (no external auth).
+ * @notes
+ * - Aggregates from daily data; falls back to source if no daily data.
+ * - Processes previous week.
+ * - Handles all metric types; calculates totals (latest), new items (sum), active users, visitors, storage.
+ * - LocalStack config.
+ * - Commented metadata and cache updates.
+ * - Logs details; re-throws errors.
+ */
 
 import { EventBridgeEvent } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";

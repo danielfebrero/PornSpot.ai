@@ -1,4 +1,13 @@
-// Shared permission and plan types
+/**
+ * @fileoverview Permissions Shared Types
+ * @description Types for permissions and role-based access control.
+ * @notes
+ * - UserRole enum (user, admin, moderator).
+ * - PermissionSet interface.
+ * - RolePermissions map.
+ * - checkPermission function.
+ * - getUserPermissions from role.
+ */
 
 export type UserPlan = "anonymous" | "free" | "starter" | "unlimited" | "pro";
 

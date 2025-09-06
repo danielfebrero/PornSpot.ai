@@ -1,3 +1,14 @@
+/**
+ * @fileoverview User Followers Listing Handler
+ * @description Retrieves paginated list of followers for a user by username.
+ * @auth Public via LambdaHandlerUtil.withoutAuth.
+ * @queryParams username (required); limit, cursor (pagination).
+ * @notes
+ * - Validates username, fetches user.
+ * - Queries follow relationships, fetches active followers' minimal data (userId, username, avatar).
+ * - Unified pagination response.
+ * - Logs number of followers.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";

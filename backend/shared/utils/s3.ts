@@ -1,3 +1,15 @@
+/**
+ * @fileoverview S3 Service Utility
+ * @description Centralized S3 operations for uploads, downloads, presigned URLs, and deletions.
+ * @notes
+ * - Supports LocalStack in development with path style.
+ * - Generates presigned URLs for upload/download with metadata.
+ * - Handles avatar/media uploads with context-specific keys.
+ * - Bulk delete with batching (1000 max per request).
+ * - Public URL generation via CloudFront or direct S3.
+ * - Relative path utilities.
+ * - Disables checksums for LocalStack compatibility.
+ */
 import {
   S3Client,
   S3ClientConfig,

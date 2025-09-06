@@ -1,12 +1,13 @@
-/*
-File objective: Connection pool manager for ComfyUI WebSocket connections
-Auth: Used by generation services to maintain efficient WebSocket connections
-Special notes:
-- Manages pool of persistent WebSocket connections to ComfyUI
-- Handles connection health checks and automatic reconnection
-- Provides connection reuse to reduce overhead
-- Thread-safe connection management for concurrent requests
-*/
+/**
+ * @fileoverview ComfyUI Connection Pool Service
+ * @description Manages pool of persistent WebSocket connections to ComfyUI with health checks and cleanup.
+ * @notes
+ * - Options for max connections, idle timeout, health check interval, reconnect attempts.
+ * - Events: connection-created, connection-removed, connection-error, pool-empty, pool-full.
+ * - Methods: getConnection, releaseConnection, removeConnection, getStats, shutdown.
+ * - Handles timeouts, errors, and idle cleanup.
+ * - Global pool with initializeConnectionPool, getConnectionPool, shutdownConnectionPool.
+ */
 
 import WebSocket from "ws";
 import { EventEmitter } from "events";

@@ -1,8 +1,17 @@
-/*
-File objective: Analytics API endpoint for retrieving metrics
-Auth: Requires admin authentication via LambdaHandlerUtil.withAdminAuth
-Purpose: Provides flexible API to query pre-calculated analytics data with filtering, pagination, and aggregation
-*/
+/**
+ * @fileoverview Analytics Metrics Retrieval Handler
+ * @description API endpoint for admins to query pre-aggregated analytics data with filtering, summaries, and trends.
+ * @auth Requires admin authentication via LambdaHandlerUtil.withAdminAuth.
+ * @queryParams metricType (required), granularity (required), startDate/endDate (required), metrics (optional comma-separated).
+ * @notes
+ * - Supports 'all' for multiple metric types or specific type.
+ * - Validates params; queries DynamoDB for specified range/granularity.
+ * - Filters metrics if specific fields requested.
+ * - Calculates summaries: averages, trends (percentage change).
+ * - Routes to dashboard stats for /dashboard path (real-time visitors).
+ * - LocalStack config.
+ * - Returns paginated data points and summary.
+ */
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";

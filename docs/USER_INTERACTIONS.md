@@ -94,7 +94,7 @@ User interactions are stored in the same DynamoDB table as other entities, follo
 
 - **PK**: `USER#<userId>`
 - **SK**: `INTERACTION#<interactionType>#<targetId>`
-- **GSI1PK**: `MEDIA_INTERACTION#<targetId>`
+- **GSI1PK**: `INTERACTION#{interactionType}#{targetId}`
 - **GSI1SK**: `<interactionType>#<userId>`
 - **EntityType**: `UserInteraction`
 

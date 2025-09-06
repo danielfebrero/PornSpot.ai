@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Session Management Utility
+ * @description Utilities for creating and managing user sessions with cookies and database storage.
+ * @notes
+ * - CreateUserSessionOptions and CreateUserSessionResult interfaces.
+ * - createUserSession creates session entity, updates last login, saves to DynamoDB.
+ * - createUserSessionResponse for complete API responses with Set-Cookie header.
+ * - 30-day session duration.
+ * - Sanitizes user data for responses.
+ * - Uses UserUtil.updateLastLogin.
+ */
 import { v4 as uuidv4 } from "uuid";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "./dynamodb";

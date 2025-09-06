@@ -1,3 +1,14 @@
+/**
+ * @fileoverview User Unfollow Handler
+ * @description Allows authenticated user to unfollow another user, removing relationship and decrementing count.
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth.
+ * @queryParams {string} username - Username to unfollow.
+ * @notes
+ * - Validates username, checks not self-unfollow.
+ * - Checks existing follow.
+ * - Deletes follow relationship, decrements follower count.
+ * - Returns success message.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";

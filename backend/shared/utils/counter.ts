@@ -1,5 +1,13 @@
 /**
- * Shared utilities for DynamoDB counter operations to reduce duplication
+ * @fileoverview Counter Utility for DynamoDB
+ * @description Utilities for incrementing/decrementing counters on albums, media, comments with popularity scoring.
+ * @notes
+ * - Generic incrementCounter for any entity.
+ * - Specific methods for like, bookmark, view, comment, media counts.
+ * - Popularity multipliers for GSI6SK (like/bookmark 10x, view 1x, comment 3x).
+ * - Bulk operations for multiple counters.
+ * - Uses UpdateCommand with ADD for atomic increments.
+ * - LocalStack config.
  */
 
 interface DynamoDBClientConfig {

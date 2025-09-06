@@ -194,7 +194,7 @@ interface PaginatedResponse<T> {
 
 ### **Type Definitions**
 
-#### **Shared Pagination Types**
+#### **Shared Pagination Types** (from backend/shared/shared-types/core.ts)
 
 ```typescript
 // Request parameter interface
@@ -210,19 +210,10 @@ export interface PaginationMeta {
   limit: number;
 }
 
-// Generic paginated response
-export interface PaginatedApiResponse<T> {
-  success: boolean;
-  data: T[];
-  pagination: PaginationMeta;
-  error?: string;
-}
+// Generic paginated response for endpoints returning array under "data"
+export type ApiPaginatedResponse<T> = ApiResponse<PaginatedListPayload<T>>;
 
-// Utility function types
-export interface DynamoDBPaginationResult<T> {
-  items: T[];
-  lastEvaluatedKey?: Record<string, any>;
-}
+// Where PaginatedListPayload<T> = { data: T[]; pagination: PaginationMeta }
 ```
 
 #### **Utility Functions**

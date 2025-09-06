@@ -1,4 +1,12 @@
-// Analytics Types for PornSpot.ai
+/**
+ * @fileoverview Analytics Shared Types
+ * @description Types for analytics aggregation and metrics.
+ * @notes
+ * - AggregateDailyRequest, AggregateHourlyRequest for aggregation.
+ * - GetMetricsRequest, GetMetricsResponse for metrics API.
+ * - AnalyticsEntity for database storage.
+ * - MetricsCache for caching.
+ */
 
 export type MetricGranularity = "hourly" | "daily" | "weekly" | "monthly";
 

@@ -1,12 +1,15 @@
-/*
-File objective: ComfyUI client service for HTTP API calls and WebSocket connection management
-Auth: Used by generation services to interact with ComfyUI API
-Special notes:
-- Integrates with connection pool for efficient WebSocket management
-- Handles all ComfyUI API interactions (submit, status, retrieve images)
-- Provides real-time progress updates via WebSocket
-- Robust error handling and reconnection logic
-*/
+/**
+ * @fileoverview ComfyUI Client Service
+ * @description Handles HTTP API calls and WebSocket connections to ComfyUI for AI image generation.
+ * @notes
+ * - Manages prompt submission, queue status, history retrieval, image downloads.
+ * - Uses connection pool for WebSocket updates.
+ * - Includes circuit breaker and retry handler for reliability.
+ * - Parses messages for progress, execution, and completion events.
+ * - Supports system stats and interruption.
+ * - EventEmitter for error events.
+ * - Interfaces for messages, progress, queue items.
+ */
 
 import * as WebSocket from "ws";
 import { EventEmitter } from "events";

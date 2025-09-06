@@ -1,3 +1,16 @@
+/\*\*
+
+- @fileoverview Email Templates README
+- @description Documentation for email templates in the shared directory.
+- @notes
+- - Structure: HTML and TXT pairs for each template.
+- - Available templates: verification, welcome.
+- - Variables per template.
+- - Usage with EmailTemplateService.
+- - Design guidelines for HTML (responsive, dark theme) and text.
+- - Testing with validation methods.
+    \*/
+
 # Email Templates
 
 This directory contains HTML and text email templates for the PornSpot.ai application.

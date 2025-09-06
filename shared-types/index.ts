@@ -1,4 +1,9 @@
-// Core types and API responses
+/**
+ * @fileoverview Shared Types Index
+ * @description Re-exports all shared type definitions for easy imports.
+ * @notes
+ * - Re-exports from admin, album, analytics, comfyui-events, comment, core, database, discover, generation, interaction, media, notification, openrouter, permissions, user, websocket.
+ */
 export * from "./core";
 
 // Domain types

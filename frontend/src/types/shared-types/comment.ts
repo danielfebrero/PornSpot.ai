@@ -1,4 +1,11 @@
-// Comment-related types
+/**
+ * @fileoverview Comment Shared Types
+ * @description Types for comments and interactions.
+ * @notes
+ * - Comment, CommentEntity for database.
+ * - CreateCommentRequest, UpdateCommentRequest for API.
+ * - CommentTargetType enum.
+ */
 import type { CommentTargetType } from "./core";
 
 export interface Comment {

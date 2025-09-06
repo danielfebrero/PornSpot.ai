@@ -1,4 +1,12 @@
-// User interaction types
+/**
+ * @fileoverview Interaction Shared Types
+ * @description Types for likes, bookmarks, and user interactions.
+ * @notes
+ * - Interaction, UserInteractionEntity for database.
+ * - CreateInteractionRequest, UpdateInteractionRequest for API.
+ * - InteractionType enum.
+ * - TargetType, CommentTargetType enums.
+ */
 import type { InteractionType, TargetType } from "./core";
 import type { Album } from "./album";
 import type { Media } from "./media";

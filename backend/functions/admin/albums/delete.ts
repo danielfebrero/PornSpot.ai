@@ -1,8 +1,23 @@
+/**
+ * @fileoverview Admin Album Deletion Handler
+ * @description Deletes an entire album, removing media associations (without deleting media files), cleaning up comments and interactions, and triggering revalidation.
+ * @auth Requires admin authentication.
+ * @pathParams {string} albumId - ID of the album to delete.
+ * @notes
+ * - Fetches and removes all media from the album but preserves media records.
+ * - Deletes all comments for the album (cascades to comment likes).
+ * - Cleans album-level interactions (likes, bookmarks).
+ * - Uses DynamoDB delete operations for cleanup.
+ * - Revalidates the albums listing page post-deletion.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { RevalidationService } from "@shared/utils/revalidation";
-import { LambdaHandlerUtil, AdminAuthResult } from "@shared/utils/lambda-handler";
+import {
+  LambdaHandlerUtil,
+  AdminAuthResult,
+} from "@shared/utils/lambda-handler";
 
 const handleDeleteAlbum = async (
   event: APIGatewayProxyEvent,
@@ -39,7 +54,9 @@ const handleDeleteAlbum = async (
   // Trigger revalidation
   await RevalidationService.revalidateAlbums();
 
-  console.log(`🗑️ Admin ${auth.username} deleted album ${albumId} with ${media.length} media items`);
+  console.log(
+    `🗑️ Admin ${auth.username} deleted album ${albumId} with ${media.length} media items`
+  );
 
   return ResponseUtil.success(event, {
     message:

@@ -1,4 +1,13 @@
-// DynamoDB Entity Types
+/**
+ * @fileoverview Database Entity Types
+ * @description Core database entity interfaces for AlbumEntity, MediaEntity, UserEntity, etc.
+ * @notes
+ * - EntityType enum.
+ * - AlbumEntity, MediaEntity, UserEntity, UserSessionEntity, CommentEntity, AlbumMediaEntity, AlbumTagEntity, EmailVerificationTokenEntity, PasswordResetTokenEntity, AnalyticsEntity, MetricsCacheEntity, GenerationSettingsEntity, FollowEntity.
+ * - ThumbnailUrls, Metadata.
+ * - ViewCountTarget, ViewCountItem, ViewCountResponse.
+ * - ViewTrackingRequest.
+ */
 import type {
   EntityType,
   CreatorType,

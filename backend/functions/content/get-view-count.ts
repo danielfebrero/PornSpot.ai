@@ -1,11 +1,15 @@
-/*
-File objective: Bulk-fetch view counts for albums and media by IDs.
-Auth: Public endpoint via LambdaHandlerUtil.withoutAuth.
-Special notes:
-- Accepts up to 100 targets in request body; validates each target
-- Reads current viewCount for each item; returns 0 on per-item failure instead of failing request
-- Designed for client-side batching to reduce round-trips
-*/
+/**
+ * @fileoverview Bulk View Count Retrieval Handler
+ * @description Public API for fetching view counts in bulk for multiple albums and media items to optimize client requests.
+ * @auth Public endpoint via LambdaHandlerUtil.withoutAuth.
+ * @body { targets: ViewCountTarget[] } - Array of { targetType: 'album' | 'media', targetId: string }
+ * @notes
+ * - Validates targets array (non-empty, <=100 items, valid type and ID).
+ * - Fetches viewCount from DynamoDB for each target.
+ * - Gracefully handles individual failures (returns 0 for that item).
+ * - Returns array of { targetType, targetId, viewCount }.
+ * - Designed for client-side batching to minimize API calls.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

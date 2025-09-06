@@ -1,4 +1,17 @@
-// Admin authentication and management types
+/**
+ * @fileoverview Admin Shared Types
+ * @description Types for admin authentication, sessions, album/media management, stats, user management.
+ * @notes
+ * - AdminUser interface for admin details.
+ * - AdminSession for session data.
+ * - LoginRequest/Response for authentication.
+ * - SessionValidationResult for validation.
+ * - CreateAdminAlbumRequest, UpdateAdminAlbumRequest for album management.
+ * - AdminUploadMediaResponse for media uploads.
+ * - AdminDeleteMediaRequest for deletions.
+ * - AdminStats for statistics.
+ * - DisableUserRequest, EnableUserRequest for user management.
+ */
 
 export interface AdminUser {
   adminId: string;

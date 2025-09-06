@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Current User Profile Handler
+ * @description Retrieves the authenticated user's profile with enhanced plan information.
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth.
+ * @notes
+ * - Fetches user entity from DynamoDB by userId.
+ * - Enhances with PlanUtil.enhanceUser (adds plan details).
+ * - Returns { user } with full profile.
+ * - Logs for debugging.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
@@ -9,7 +19,7 @@ const handleGetMe = async (
   auth: AuthResult
 ): Promise<APIGatewayProxyResult> => {
   const { userId } = auth;
-  
+
   console.log("🔍 /user/me handler called");
   console.log("✅ Authenticated user:", userId);
 

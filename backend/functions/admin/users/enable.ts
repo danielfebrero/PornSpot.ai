@@ -6,7 +6,17 @@ import { ValidationUtil } from "@shared/utils/validation";
 import { EnableUserRequest } from "@shared";
 
 /**
- * Enable a user (set isActive = true)
+ * @fileoverview Admin User Enable Handler
+ * @description Enables a previously disabled user account by setting isActive to true.
+ * @auth Requires admin authentication.
+ * @body EnableUserRequest: { userId: string }
+ * @notes
+ * - Validates userId presence.
+ * - Verifies user existence and checks if already active.
+ * - Updates user entity in DynamoDB.
+ * - Returns updated user info including isActive=true.
+ * - No session creation or management (user must login again).
+ * - Logs for auditing.
  */
 const handleAdminUserEnable = async (
   event: APIGatewayProxyEvent

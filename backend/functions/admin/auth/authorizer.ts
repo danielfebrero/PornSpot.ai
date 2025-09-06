@@ -5,8 +5,17 @@ import {
 import { AuthorizerUtil } from "@shared/utils/authorizer";
 
 /**
- * Admin-Only Authorizer - Only allows admin role
- * This authorizer validates user sessions and checks if the user has admin role only
+ * @fileoverview Admin-Only Request Authorizer
+ * @description AWS Lambda authorizer that validates user sessions via cookies and enforces admin role only for protected API Gateway endpoints.
+ * @event APIGatewayRequestAuthorizerEvent
+ * @returns APIGatewayAuthorizerResult - Allow policy with user context if admin, Deny otherwise.
+ * @notes
+ * - Bypasses auth for OPTIONS (CORS preflight).
+ * - Extracts and validates session from cookie header.
+ * - Queries user role from DynamoDB.
+ * - Generates wildcard resource policy for all admin methods.
+ * - Includes user context (userId, email, role, sessionId) in policy.
+ * - Logs extensively for debugging.
  */
 export const handler = async (
   event: APIGatewayRequestAuthorizerEvent

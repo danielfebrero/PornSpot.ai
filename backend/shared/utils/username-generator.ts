@@ -1,3 +1,12 @@
+/**
+ * @fileoverview Username Generator Utility
+ * @description Generates unique usernames using adjectives + nouns + numbers, ensuring availability.
+ * @notes
+ * - Uses predefined lists of adjectives (500) and nouns for random generation.
+ * - Methods: generateUniqueUsername, generateRandomUsername, generateTimestampBasedUsername, generateUsernameFromEmail, repairMissingUsername.
+ * - Validates generated usernames.
+ * - Handles uniqueness checks with DynamoDB.
+ */
 import { DynamoDBService } from "./dynamodb";
 
 // 500 adjectives for username generation

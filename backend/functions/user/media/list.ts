@@ -1,3 +1,15 @@
+/**
+ * @fileoverview User Media Listing Handler
+ * @description Retrieves paginated list of user's media, optionally for a specific user by username (public only).
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth.
+ * @queryParams username (optional for public profile); limit, cursor (pagination).
+ * @notes
+ * - Validates username if provided, fetches user, checks active.
+ * - Fetches media for current or target user; publicOnly if username provided.
+ * - Converts entities to Media format.
+ * - Unified pagination response.
+ * - Logs user and publicOnly flag.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

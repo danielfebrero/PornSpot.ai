@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Revalidation Service
+ * @description Triggers Next.js revalidation for tags and paths using API calls.
+ * @notes
+ * - Uses ParameterStore for frontend URL and secret.
+ * - Supports local development with host.docker.internal.
+ * - Revalidates tags (e.g., 'albums', 'medias') or paths across locales.
+ * - Methods: revalidate(tags), revalidateAlbums, revalidateAlbum, revalidateMedia, revalidateByPath, revalidatePath, revalidatePathAllLocales.
+ * - Logs revalidation status.
+ * - Best-effort; doesn't block on failure.
+ */
 import { ParameterStoreService } from "./parameters";
 
 export class RevalidationService {

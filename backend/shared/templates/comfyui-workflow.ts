@@ -1,11 +1,14 @@
-/*
-File objective: ComfyUI workflow template for text-to-image generation with dynamic parameter injection
-Auth: Used by generation service to create API-format workflows
-Special notes:
-- Supports dynamic prompt, dimensions, batch count, and LoRA injection
-- Based on standard SDXL text-to-image workflow
-- Uses placeholder COMFYUI_API_ENDPOINT for configuration
-*/
+/**
+ * @fileoverview ComfyUI Workflow Template
+ * @description Creates ComfyUI workflows for text-to-image generation with dynamic LoRA and parameter injection.
+ * @notes
+ * - WorkflowParameters interface for prompt, dimensions, batch, seed, etc.
+ * - createComfyUIWorkflow builds SDXL workflow with LoRA chain.
+ * - createPromptRequest for API submission.
+ * - validateWorkflowParameters for input validation.
+ * - DEFAULT_WORKFLOW_PARAMS for defaults.
+ * - Uses specific LoRA models and samplers.
+ */
 
 export interface WorkflowParameters {
   prompt: string;

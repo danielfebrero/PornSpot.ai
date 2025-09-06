@@ -1,3 +1,16 @@
+/**
+ * @fileoverview Email Verification Resend Handler
+ * @description Resends verification email to user email if account exists and needs verification.
+ * @auth Public via LambdaHandlerUtil.withoutAuth.
+ * @body ResendVerificationRequest: { email: string }
+ * @notes
+ * - Validates email format.
+ * - Checks if user exists, active, and unverified; always returns generic success for security.
+ * - Generates new verification token if needed.
+ * - Sends verification email via EmailService.
+ * - Rate limiting noted but not implemented.
+ * - Logs attempts for security.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { UserUtil } from "@shared/utils/user";
@@ -10,7 +23,9 @@ interface ResendVerificationRequest {
   email: string;
 }
 
-const handleResendVerification = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+const handleResendVerification = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   const request: ResendVerificationRequest = JSON.parse(event.body!);
 
   // Validate email using shared validation
@@ -27,10 +42,7 @@ const handleResendVerification = async (event: APIGatewayProxyEvent): Promise<AP
 
   // If user doesn't exist, just return the standard response
   if (!userEntity) {
-    console.log(
-      "Resend verification attempt for non-existent email:",
-      email
-    );
+    console.log("Resend verification attempt for non-existent email:", email);
     return ResponseUtil.success(event, standardResponse);
   }
 

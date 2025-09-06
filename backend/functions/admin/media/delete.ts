@@ -1,3 +1,17 @@
+/**
+ * @fileoverview Admin Media Deletion Handler
+ * @description Permanently deletes a media item system-wide, including S3 object, DynamoDB record, associated comments and interactions, and revalidates affected albums.
+ * @auth Requires admin authentication.
+ * @pathParams {string} mediaId - ID of the media to delete.
+ * @notes
+ * - Verifies media existence before deletion.
+ * - Fetches affected album IDs to trigger targeted revalidation.
+ * - Deletes S3 object using filename.
+ * - Cascades deletion to comments (including their likes) and media interactions.
+ * - Album associations are automatically cleaned via deleteMedia.
+ * - Logs detailed deletion steps for auditing.
+ * - Returns affected album IDs in response.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

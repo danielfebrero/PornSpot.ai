@@ -1,3 +1,12 @@
+/**
+ * @fileoverview Discover Shared Types
+ * @description Types for discover functionality and content discovery.
+ * @notes
+ * - DiscoverRequest for search/filtering.
+ * - DiscoverResponse with paginated albums/media.
+ * - DiscoverAlbum, DiscoverMedia for response items.
+ * - DiscoverCursors for pagination.
+ */
 import { Album } from "./album";
 import { Media } from "./media";
 

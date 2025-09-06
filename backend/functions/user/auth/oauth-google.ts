@@ -1,3 +1,16 @@
+/**
+ * @fileoverview Google OAuth Callback Handler
+ * @description Handles Google OAuth callback, exchanges code for tokens, verifies ID token, creates/links user, and creates session.
+ * @auth Public via LambdaHandlerUtil.withoutAuth; sets session cookie on success.
+ * @body { code: string, error?: string, state?: string }
+ * @notes
+ * - Exchanges auth code for tokens using google-auth-library.
+ * - Verifies ID token with audience check and email verification.
+ * - Calls OAuthUserUtil.createOrLinkGoogleUser to handle account.
+ * - Creates session with SessionUtil.createUserSession.
+ * - Redirects to /auth/success?new_user=true if new user.
+ * - Includes helper functions for profile fetch and token validation (not used in main handler).
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";

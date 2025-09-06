@@ -1,3 +1,20 @@
+"""
+cfnresponse - CloudFormation Custom Resource Response Module
+
+This module provides a function to send responses to CloudFormation for custom resources.
+It handles the HTTP PUT request to the pre-signed S3 URL provided by CloudFormation.
+
+Auth: Internal utility module for AWS Lambda custom resources.
+Notes:
+- Standard AWS utility for sending SUCCESS or FAILED responses.
+- Includes logging for debugging.
+- Handles JSON serialization and HTTP request with urllib3.
+- Used in ConfigureS3Notification to respond to CloudFormation events.
+
+Original: Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: MIT-0
+"""
+
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 

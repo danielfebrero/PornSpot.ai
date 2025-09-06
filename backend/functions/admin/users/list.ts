@@ -8,7 +8,15 @@ import {
   MAX_PAGINATION_LIMITS,
 } from "@shared/utils/pagination";
 /**
- * List all users for admin management
+ * @fileoverview Admin Users Listing Handler
+ * @description Retrieves a paginated list of all users for administrative management.
+ * @auth Requires admin authentication.
+ * @queryParams Supports pagination: limit (default/max per admin limits), cursor (lastEvaluatedKey).
+ * @notes
+ * - Uses unified PaginationUtil for parsing and response formatting.
+ * - Calls DynamoDBService.getAllUsers for all users without filters.
+ * - Returns paginated payload with users array and next cursor.
+ * - Logs number of retrieved users.
  */
 const handleAdminUsersList = async (
   event: APIGatewayProxyEvent

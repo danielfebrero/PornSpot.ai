@@ -8,6 +8,18 @@ Special notes:
   • profile     -> increments totalProfileViews for the profile owner (by username)
 - Uses single-table DynamoDB accessors and always returns success even if metric increments fail (best-effort)
 */
+/**
+ * @fileoverview View Tracking Handler
+ * @description Records view events for albums, media, or profiles, updating view counts and metrics.
+ * @auth Public via LambdaHandlerUtil.withoutAuth.
+ * @body ViewRequest: { targetType: 'album'|'media'|'profile', targetId: string }
+ * @notes
+ * - Validates targetType and targetId; verifies target existence.
+ * - Increments viewCount for target.
+ * - Increments creator's totalMediaViews or totalProfileViews metric.
+ * - Calls incrementViewCountForAnalytics.
+ * - Always returns success even if metric increment fails (best-effort).
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

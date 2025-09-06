@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Email Verification Template (Text)
+ * @description Plain text template for email verification.
+ * @notes
+ * - Includes verification URL and code.
+ * - Variables: {{displayName}}, {{verificationUrl}}, {{verificationToken}}.
+ */
 Hello {{displayName}},
 
 Thank you for signing up for PornSpot.ai! To complete your registration, please verify your email address.

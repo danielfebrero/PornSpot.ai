@@ -1,3 +1,11 @@
+/**
+ * @fileoverview Welcome Email Template (Text)
+ * @description Plain text template for welcome email.
+ * @notes
+ * - Lists features.
+ * - Includes login URL.
+ * - Variables: {{displayName}}, {{loginUrl}}.
+ */
 Hello {{displayName}},
 
 🎉 Congratulations! Your email has been successfully verified and your PornSpot.ai account is now active.

@@ -1,4 +1,18 @@
-// User Authentication Types
+/**
+ * @fileoverview User Shared Types
+ * @description Types for users, sessions, plans, and authentication.
+ * @notes
+ * - User, UserEntity for database.
+ * - UserPlan enum.
+ * - UserPlanInfo, UserUsageStats interfaces.
+ * - EnhancedUser with plan, usage, insights.
+ * - LoginRequest, LoginResponse.
+ * - CreateUserRequest, UpdateUserRequest for API.
+ * - DisableUserRequest, EnableUserRequest.
+ * - UserSessionEntity for sessions.
+ * - EmailVerificationTokenEntity, PasswordResetTokenEntity for auth.
+ * - AuthProvider, SubscriptionStatus enums.
+ */
 import type { ThumbnailUrls } from "./core";
 import type { UserPlan, PlanPermissions } from "./permissions";
 

@@ -8,6 +8,19 @@ Special notes:
 - Automatically logs user in on successful reset
 - Cleans up used reset token for security
 */
+/**
+ * @fileoverview Password Reset Handler
+ * @description Completes password reset by validating token, updating password, and logging in user.
+ * @auth Public via LambdaHandlerUtil.withoutAuth; creates session on success.
+ * @body ResetPasswordRequest: { token: string, newPassword: string }
+ * @notes
+ * - Validates token and new password strength.
+ * - Checks token expiry and user status.
+ * - Hashes new password with bcrypt (salt 12).
+ * - Updates user and deletes used token.
+ * - Creates session with auto-login.
+ * - Returns success message and session cookie.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

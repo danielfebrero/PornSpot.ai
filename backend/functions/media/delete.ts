@@ -1,3 +1,18 @@
+/**
+ * @fileoverview Media Deletion Handler
+ * @description Deletes single or bulk media items, including S3 objects, DynamoDB records, comments, interactions, and revalidates affected albums.
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth (includes role).
+ * @pathParams {string} [mediaId] - Optional for single deletion.
+ * @body BulkDeleteRequest: { mediaIds?: string[] } for bulk.
+ * @notes
+ * - Supports single (path param) or bulk (body) deletion.
+ * - Validates ownership for each media.
+ * - Collects affected albums for revalidation.
+ * - Deletes S3 objects in batch.
+ * - Cleans comments, interactions, media record.
+ * - Returns results with successful/failed, summary, affected albums.
+ * - Uses 207 status for partial success.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";

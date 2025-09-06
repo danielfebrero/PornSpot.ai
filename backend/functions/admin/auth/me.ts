@@ -1,3 +1,16 @@
+/**
+ * @fileoverview Admin Profile Retrieval Handler
+ * @description Fetches the current authenticated admin's profile information, verifying admin or moderator role.
+ * @event APIGatewayProxyEvent
+ * @returns APIGatewayProxyResult - Success with admin object (id, username, email, role, createdAt, isActive).
+ * @notes
+ * - Primarily uses authorizer context for userId and role.
+ * - Fallback to session validation if context missing (e.g., local dev).
+ * - Queries user entity from DynamoDB by userId.
+ * - Enforces admin or moderator role; forbids others.
+ * - Formats response as 'admin' object for compatibility.
+ * - No sensitive data like passwordHash returned.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";

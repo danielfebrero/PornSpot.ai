@@ -1,3 +1,14 @@
+/**
+ * @fileoverview OpenRouter Chat Service
+ * @description Service for interacting with OpenRouter API for chat completions with instruction templates.
+ * @notes
+ * - Loads templates from instructions directory.
+ * - Processes variables in templates.
+ * - Supports non-streaming and streaming chat completions.
+ * - Uses ParameterStore for API key.
+ * - Templates: loras-selection, prompt-moderation, prompt-optimization, prompt-to-title.
+ * - Default model: mistralai/mistral-medium-3.1.
+ */
 import { ParameterStoreService } from "@shared/utils/parameters";
 import * as fs from "fs";
 import * as path from "path";

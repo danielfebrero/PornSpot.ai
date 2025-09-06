@@ -8,50 +8,56 @@ All entities in the application are stored in a single DynamoDB table. This desi
 
 ## Key Schema
 
-- **Partition Key (PK)**: The primary identifier for an item. It is composed of the entity type and a unique ID (e.g., `ALBUM#<albumId>`).
+- **Partition Key (PK)**: The primary identifier for an item. It is composed of the entity type and a unique ID (e.g., `ALBUM#{albumId}`).
 - **Sort Key (SK)**: Used to define relationships between items and to sort items within a partition. For a primary item, the sort key is often `METADATA`. For related items, it can be a combination of the entity type and other attributes.
 
 ## Global Secondary Indexes (GSIs)
 
-The table uses Global Secondary Indexes (GSIs) to support additional query patterns.
+The table uses Global Secondary Indexes (GSIs) to support additional query patterns. The following GSIs are defined:
 
 - **GSI1**:
-  - `GSI1PK`: The partition key for GSI1.
-  - `GSI1SK`: The sort key for GSI1.
+  - `GSI1PK`: Used for various entity-specific partitions (e.g., `ALBUM`, `MEDIA_BY_CREATOR`, `COMMENTS_BY_TARGET`).
+  - `GSI1SK`: Sort key for chronological or relationship-based sorting.
 - **GSI2**:
-  - `GSI2PK`: The partition key for GSI2.
-  - `GSI2SK`: The sort key for GSI2.
+  - `GSI2PK`: Used for direct lookups (e.g., `MEDIA_ID`).
+  - `GSI2SK`: Entity ID for exact matches.
 - **GSI3**:
-  - `GSI3PK`: The partition key for GSI3.
-  - `GSI3SK`: The sort key for GSI3.
+  - `GSI3PK`: Used for user-specific queries (e.g., `MEDIA_BY_USER_true/false`, `USER_USERNAME`).
+  - `GSI3SK`: Sort key for chronological ordering by creator.
 - **GSI4**:
-  - `GSI4PK`: The partition key for GSI4.
-  - `GSI4SK`: The sort key for GSI4.
+  - `GSI4PK`: Used for entity lists by date or creator (e.g., `MEDIA`, `ALBUM_BY_CREATOR`).
+  - `GSI4SK`: Timestamp-based sorting.
 - **GSI5**:
-  - `GSI5PK`: The partition key for GSI5.
-  - `GSI5SK`: The sort key for GSI5.
+  - `GSI5PK`: Used for visibility-based queries (e.g., `ALBUM`, `MEDIA` with `isPublic`).
+  - `GSI5SK`: Boolean string for public/private filtering.
+- **GSI6**:
+  - `GSI6PK`: `POPULARITY` for ranking entities.
+  - `GSI6SK`: Placeholder (0) for sorting by popularity metrics.
+- **GSI7**:
+  - `GSI7PK`: `CONTENT` for content by creation date.
+  - `GSI7SK`: Timestamp for chronological content queries.
 
-## New Global Secondary Index: isPublic-createdAt-index
+**Note**: `isPublic` is stored as a string (`"true"` or `"false"`) for GSI compatibility in boolean-based partitions.
 
-To efficiently support server-side filtering and pagination for public/private albums, the following GSI must be present:
+## isPublic-createdAt-index (GSI5 Usage)
 
-- **isPublic-createdAt-index**
-  - **Partition Key**: `isPublic`
-  - **Sort Key**: `createdAt`
+To efficiently support server-side filtering and pagination for public/private albums and media:
 
-Every album **must** have the `isPublic` attribute (boolean, required for all records). Album inserts and updates must enforce this requirement.
+- **Partition Key**: `isPublic` (string: `"true"` or `"false"`).
+- **Sort Key**: `createdAt`.
 
-**Migration:** Existing album items without `isPublic` must be backfilled using the script at [`backend/scripts/backfill-isPublic.ts`](../backend/scripts/backfill-isPublic.ts:1). This script only updates items missing `isPublic`, defaulting them to `true`.
+Every album and media **must** have the `isPublic` attribute (string). Album and media inserts/updates must enforce this.
 
-## New Global Secondary Index: GSI4 for Albums by Creator
+**Migration**: Existing items without `isPublic` must be backfilled using [`backend/scripts/backfill-isPublic.ts`](../backend/scripts/backfill-isPublic.ts:1), defaulting to `"true"`.
 
-To efficiently support querying albums by creator, the following GSI has been added:
+## GSI4 for Albums by Creator
 
-- **GSI4**
-  - **Partition Key**: `GSI4PK = "ALBUM_BY_CREATOR"`
-  - **Sort Key**: `GSI4SK = "<createdBy>#<createdAt>#<albumId>"`
+To query albums by creator:
 
-**Migration:** Existing album items without GSI4 fields must be backfilled using the script at [`backend/scripts/backfill-gsi4-albums.ts`](../backend/scripts/backfill-gsi4-albums.ts). This script adds the GSI4PK and GSI4SK fields to all existing albums that have a `createdBy` field.
+- **Partition Key**: `GSI4PK = "ALBUM_BY_CREATOR"`.
+- **Sort Key**: `GSI4SK = "{createdBy}#{createdAt}#{albumId}"`.
+
+**Migration**: Backfill using [`backend/scripts/backfill-gsi4-albums.ts`](../backend/scripts/backfill-gsi4-albums.ts:1).
 
 ## Entity Schemas
 
@@ -59,330 +65,522 @@ To efficiently support querying albums by creator, the following GSI has been ad
 
 Represents a collection of media items.
 
-- **PK**: `ALBUM#<albumId>`
+- **PK**: `ALBUM#{albumId}`
 - **SK**: `METADATA`
 - **GSI1PK**: `ALBUM`
-- **GSI1SK**: `<createdAt>#<albumId>`
+- **GSI1SK**: `{createdAt}#{albumId}`
 - **GSI4PK**: `ALBUM_BY_CREATOR`
-- **GSI4SK**: `<createdBy>#<createdAt>#<albumId>`
+- **GSI4SK**: `{createdBy}#{createdAt}#{albumId}`
+- **GSI5PK**: `ALBUM`
+- **GSI5SK**: `{isPublic}`
+- **GSI6PK**: `POPULARITY`
+- **GSI6SK**: `0`
+- **GSI7PK**: `CONTENT`
+- **GSI7SK**: `{createdAt}`
 - **EntityType**: `Album`
 
-| Attribute       | Type       | Description                                |
-| --------------- | ---------- | ------------------------------------------ |
-| `id`            | `string`   | The unique ID of the album.                |
-| `title`         | `string`   | The title of the album.                    |
-| `tags`          | `string[]` | Optional tags for the album.               |
-| `coverImageUrl` | `string`   | The URL of the album's cover image.        |
-| `thumbnailUrls` | `object`   | URLs for different thumbnail sizes.        |
-| `createdAt`     | `string`   | The ISO 8601 timestamp of creation.        |
-| `updatedAt`     | `string`   | The ISO 8601 timestamp of the last update. |
-| `mediaCount`    | `number`   | The number of media items in the album.    |
-| `isPublic`      | `boolean`  | Whether the album is public.               |
-| `createdBy`     | `string`   | User ID or admin ID who created the album. |
-| `createdByType` | `string`   | Type of creator: "user" or "admin".        |
+| Attribute       | Type             | Description                                  |
+| --------------- | ---------------- | -------------------------------------------- |
+| `id`            | `string`         | The unique ID of the album.                  |
+| `title`         | `string`         | The title of the album.                      |
+| `tags`          | `string[]`       | Optional tags for the album.                 |
+| `coverImageUrl` | `string?`        | The URL of the album's cover image.          |
+| `thumbnailUrls` | `ThumbnailUrls?` | URLs for different thumbnail sizes.          |
+| `createdAt`     | `string`         | The ISO 8601 timestamp of creation.          |
+| `updatedAt`     | `string`         | The ISO 8601 timestamp of the last update.   |
+| `mediaCount`    | `number`         | The number of media items in the album.      |
+| `isPublic`      | `string`         | `"true"` or `"false"` for GSI compatibility. |
+| `likeCount`     | `number?`        | Number of likes.                             |
+| `bookmarkCount` | `number?`        | Number of bookmarks.                         |
+| `viewCount`     | `number?`        | Number of views.                             |
+| `commentCount`  | `number?`        | Number of comments.                          |
+| `metadata`      | `Metadata?`      | Additional metadata.                         |
+| `createdBy`     | `string?`        | User ID who created the album.               |
+| `createdByType` | `CreatorType?`   | Type of creator ("user" or "admin").         |
 
 ### Media Entity
 
-**NEW DESIGN (v2.0)**: Media entities are now independent of albums and support many-to-many relationships through a separate AlbumMedia entity.
+Represents a single media item that can belong to multiple albums (many-to-many via AlbumMediaEntity).
 
-Represents a single media item (e.g., an image) that can belong to multiple albums.
-
-- **PK**: `MEDIA#<mediaId>`
+- **PK**: `MEDIA#{mediaId}`
 - **SK**: `METADATA`
 - **GSI1PK**: `MEDIA_BY_CREATOR`
-- **GSI1SK**: `<createdBy>#<createdAt>#<mediaId>`
+- **GSI1SK**: `{createdBy}#{createdAt}#{mediaId}`
 - **GSI2PK**: `MEDIA_ID`
-- **GSI2SK**: `<mediaId>`
+- **GSI2SK**: `{mediaId}`
 - **GSI3PK**: `MEDIA_BY_USER_{isPublic}`
-- **GSI3SK**: `<createdBy>#<createdAt>#<mediaId>`
+- **GSI3SK**: `{createdBy}#{createdAt}#{mediaId}`
 - **GSI4PK**: `MEDIA`
-- **GSI4SK**: `<createdAt>#<mediaId>`
+- **GSI4SK**: `{createdAt}#{mediaId}`
+- **GSI5PK**: `MEDIA`
+- **GSI5SK**: `{isPublic}`
+- **GSI6PK**: `POPULARITY`
+- **GSI6SK**: `0`
+- **GSI7PK**: `CONTENT`
+- **GSI7SK**: `{createdAt}`
 - **EntityType**: `Media`
 
-| Attribute          | Type     | Description                                  |
-| ------------------ | -------- | -------------------------------------------- |
-| `id`               | `string` | The unique ID of the media item.             |
-| `filename`         | `string` | The name of the file in S3.                  |
-| `originalFilename` | `string` | The original name of the uploaded file.      |
-| `mimeType`         | `string` | The MIME type of the file.                   |
-| `size`             | `number` | The size of the file in bytes.               |
-| `width`            | `number` | The width of the image in pixels.            |
-| `height`           | `number` | The height of the image in pixels.           |
-| `url`              | `string` | The URL of the original file.                |
-| `thumbnailUrls`    | `object` | URLs for different thumbnail sizes.          |
-| `status`           | `string` | The processing status of the media item.     |
-| `createdAt`        | `string` | The ISO 8601 timestamp of creation.          |
-| `updatedAt`        | `string` | The ISO 8601 timestamp of the last update.   |
-| `createdBy`        | `string` | User ID or admin ID who uploaded this media. |
-| `createdByType`    | `string` | Type of creator: "user" or "admin".          |
-| `metadata`         | `object` | Additional metadata for the media item.      |
+| Attribute          | Type             | Description                                          |
+| ------------------ | ---------------- | ---------------------------------------------------- |
+| `id`               | `string`         | The unique ID of the media item.                     |
+| `filename`         | `string`         | The name of the file in S3.                          |
+| `originalFilename` | `string`         | The original name of the uploaded file.              |
+| `mimeType`         | `string`         | The MIME type of the file.                           |
+| `size`             | `number?`        | The size of the file in bytes.                       |
+| `width`            | `number?`        | The width of the image in pixels.                    |
+| `height`           | `number?`        | The height of the image in pixels.                   |
+| `url`              | `string?`        | The URL of the original file.                        |
+| `thumbnailUrl`     | `string?`        | Legacy thumbnail URL (deprecated).                   |
+| `thumbnailUrls`    | `ThumbnailUrls?` | URLs for different thumbnail sizes.                  |
+| `status`           | `MediaStatus?`   | Processing status ("pending", "uploaded", "failed"). |
+| `createdAt`        | `string`         | The ISO 8601 timestamp of creation.                  |
+| `updatedAt`        | `string`         | The ISO 8601 timestamp of the last update.           |
+| `isPublic`         | `string?`        | `"true"` or `"false"` for GSI compatibility.         |
+| `likeCount`        | `number?`        | Number of likes.                                     |
+| `bookmarkCount`    | `number?`        | Number of bookmarks.                                 |
+| `viewCount`        | `number?`        | Number of views.                                     |
+| `commentCount`     | `number?`        | Number of comments.                                  |
+| `metadata`         | `Metadata?`      | Additional metadata.                                 |
+| `createdBy`        | `string?`        | User ID who uploaded this media.                     |
+| `createdByType`    | `CreatorType?`   | Type of creator ("user" or "admin").                 |
 
-### Album-Media Relationship Entity
+### AlbumMediaEntity (Many-to-Many Relationship)
 
-**NEW**: Junction table entity for many-to-many relationships between albums and media.
-
-Represents the relationship between an album and a media item, allowing one media item to belong to multiple albums.
-
-- **PK**: `ALBUM#<albumId>`
-- **SK**: `MEDIA#<mediaId>`
-- **GSI1PK**: `MEDIA#<mediaId>`
-- **GSI1SK**: `ALBUM#<albumId>#<addedAt>`
+- **PK**: `ALBUM#{albumId}`
+- **SK**: `MEDIA#{mediaId}`
+- **GSI1PK**: `MEDIA#{mediaId}`
+- **GSI1SK**: `ALBUM#{albumId}#{addedAt}`
 - **GSI2PK**: `ALBUM_MEDIA_BY_DATE`
-- **GSI2SK**: `<addedAt>#<albumId>#<mediaId>`
+- **GSI2SK**: `{addedAt}#{albumId}#{mediaId}`
 - **EntityType**: `AlbumMedia`
 
-| Attribute | Type     | Description                                  |
-| --------- | -------- | -------------------------------------------- |
-| `albumId` | `string` | The ID of the album.                         |
-| `mediaId` | `string` | The ID of the media item.                    |
-| `addedAt` | `string` | The ISO 8601 timestamp when media was added. |
-| `addedBy` | `string` | Optional: who added the media to this album. |
+| Attribute | Type      | Description                                  |
+| --------- | --------- | -------------------------------------------- |
+| `albumId` | `string`  | The ID of the album.                         |
+| `mediaId` | `string`  | The ID of the media item.                    |
+| `addedAt` | `string`  | The ISO 8601 timestamp when media was added. |
+| `addedBy` | `string?` | Who added it to this album.                  |
 
-**Important**: The PK+SK combination ensures duplicate prevention. The condition expression `attribute_not_exists(PK) AND attribute_not_exists(SK)` prevents the same media from being added to the same album twice.
+**Note**: Prevents duplicates with condition `attribute_not_exists(PK) AND attribute_not_exists(SK)`.
+
+### AlbumTagEntity (Many-to-Many Tags)
+
+- **PK**: `ALBUM_TAG#{normalizedTag}`
+- **SK**: `ALBUM#{albumId}#{createdAt}`
+- **GSI1PK**: `ALBUM_TAG`
+- **GSI1SK**: `{normalizedTag}#{createdAt}#{albumId}`
+- **GSI2PK**: `ALBUM_TAG#{normalizedTag}#{isPublic}`
+- **GSI2SK**: `{createdAt}`
+- **GSI3PK**: `ALBUM_TAG#{userId}#{isPublic}`
+- **GSI3SK**: `{normalizedTag}#{createdAt}`
+- **EntityType**: `AlbumTag`
+
+| Attribute       | Type     | Description               |
+| --------------- | -------- | ------------------------- |
+| `albumId`       | `string` | Album ID.                 |
+| `userId`        | `string` | Creator ID.               |
+| `tag`           | `string` | Original tag.             |
+| `normalizedTag` | `string` | Lowercase, trimmed tag.   |
+| `createdAt`     | `string` | Album creation timestamp. |
+| `isPublic`      | `string` | `"true"` or `"false"`.    |
+
+### CommentEntity
+
+- **PK**: `COMMENT#{commentId}`
+- **SK**: `METADATA`
+- **GSI1PK**: `COMMENTS_BY_TARGET`
+- **GSI1SK**: `{targetType}#{targetId}#{createdAt}#{commentId}`
+- **GSI2PK**: `COMMENTS_BY_USER`
+- **GSI2SK**: `{userId}#{createdAt}#{commentId}`
+- **GSI3PK**: `INTERACTION#comment`
+- **GSI3SK**: `{createdAt}`
+- **EntityType**: `Comment`
+
+| Attribute    | Type                | Description            |
+| ------------ | ------------------- | ---------------------- |
+| `id`         | `string`            | Unique ID.             |
+| `content`    | `string`            | Comment text.          |
+| `targetType` | `CommentTargetType` | "album" or "media".    |
+| `targetId`   | `string`            | Target ID.             |
+| `userId`     | `string`            | Commenter ID.          |
+| `username`   | `string?`           | Commenter's username.  |
+| `createdAt`  | `string`            | Creation timestamp.    |
+| `updatedAt`  | `string`            | Last update timestamp. |
+| `likeCount`  | `number?`           | Number of likes.       |
+| `isEdited`   | `boolean?`          | Whether edited.        |
+
+### UserEntity
+
+- **PK**: `USER#{userId}`
+- **SK**: `METADATA`
+- **GSI1PK**: `USER_EMAIL`
+- **GSI1SK**: `{email}`
+- **GSI2PK?**: `USER_GOOGLE`
+- **GSI2SK?**: `{googleId}`
+- **GSI3PK**: `USER_USERNAME`
+- **GSI3SK**: `{username}`
+- **EntityType**: `User`
+
+| Attribute                  | Type                   | Description                           |
+| -------------------------- | ---------------------- | ------------------------------------- |
+| `userId`                   | `string`               | Unique ID.                            |
+| `email`                    | `string`               | Email address.                        |
+| `username`                 | `string`               | Required unique username.             |
+| `firstName`                | `string?`              | First name.                           |
+| `lastName`                 | `string?`              | Last name.                            |
+| `passwordHash`             | `string?`              | Hashed password (optional for OAuth). |
+| `salt`                     | `string?`              | Salt (optional for OAuth).            |
+| `provider`                 | `AuthProvider`         | "email" or "google".                  |
+| `createdAt`                | `string`               | Creation timestamp.                   |
+| `isActive`                 | `boolean`              | Active status.                        |
+| `isEmailVerified`          | `boolean`              | Email verified.                       |
+| `lastLoginAt`              | `string?`              | Last login.                           |
+| `lastActive`               | `string?`              | Last activity.                        |
+| `googleId`                 | `string?`              | Google ID.                            |
+| `bio`                      | `string?`              | Biography.                            |
+| `location`                 | `string?`              | Location.                             |
+| `website`                  | `string?`              | Website.                              |
+| `preferredLanguage`        | `string?`              | Preferred language (ISO 639-1).       |
+| `avatarUrl`                | `string?`              | Avatar URL.                           |
+| `avatarThumbnails`         | `ThumbnailUrls?`       | Avatar thumbnails.                    |
+| `role`                     | `string`               | "user", "admin", or "moderator".      |
+| `plan`                     | `UserPlan`             | Current plan.                         |
+| `subscriptionId`           | `string?`              | Subscription ID.                      |
+| `subscriptionStatus`       | `SubscriptionStatus?`  | Status.                               |
+| `planStartDate`            | `string?`              | Plan start.                           |
+| `planEndDate`              | `string?`              | Plan end.                             |
+| `imagesGeneratedThisMonth` | `number?`              | Monthly generations.                  |
+| `imagesGeneratedToday`     | `number?`              | Daily generations.                    |
+| `lastGenerationAt`         | `string?`              | Last generation.                      |
+| `profileInsights`          | `UserProfileInsights?` | Profile metrics.                      |
+| `followerCount`            | `number?`              | Follower count.                       |
+
+### UserSessionEntity
+
+- **PK**: `SESSION#{sessionId}`
+- **SK**: `METADATA`
+- **GSI1PK**: `USER_SESSION_EXPIRY`
+- **GSI1SK**: `{expiresAt}#{sessionId}`
+- **GSI2PK**: `USER#{userId}#SESSION`
+- **GSI2SK**: `{createdAt}#{sessionId}`
+- **EntityType**: `UserSession`
+
+| Attribute        | Type     | Description           |
+| ---------------- | -------- | --------------------- |
+| `sessionId`      | `string` | Unique session ID.    |
+| `userId`         | `string` | User ID.              |
+| `userEmail`      | `string` | User email.           |
+| `createdAt`      | `string` | Creation timestamp.   |
+| `expiresAt`      | `string` | Expiration timestamp. |
+| `lastAccessedAt` | `string` | Last access.          |
+| `ttl`            | `number` | DynamoDB TTL.         |
+
+### UserInteractionEntity
+
+- **PK**: `USER#{userId}`
+- **SK**: `INTERACTION#{interactionType}#{targetId}`
+- **GSI1PK**: `INTERACTION#{interactionType}#{targetId}`
+- **GSI1SK**: `{userId}`
+- **GSI2PK?**: `USER#{userId}#INTERACTIONS#{interactionType}`
+- **GSI2SK?**: `{createdAt}`
+- **GSI3PK?**: `INTERACTION#{interactionType}`
+- **GSI3SK?**: `{createdAt}`
+- **EntityType**: `UserInteraction`
+
+| Attribute         | Type              | Description                     |
+| ----------------- | ----------------- | ------------------------------- |
+| `userId`          | `string`          | User ID.                        |
+| `interactionType` | `InteractionType` | "like" or "bookmark".           |
+| `targetType`      | `TargetType`      | "album", "media", or "comment". |
+| `targetId`        | `string`          | Target ID.                      |
+| `createdAt`       | `string`          | Creation timestamp.             |
+
+### EmailVerificationTokenEntity
+
+- **PK**: `EMAIL_VERIFICATION#{token}`
+- **SK**: `METADATA`
+- **GSI1PK**: `EMAIL_VERIFICATION_EXPIRY`
+- **GSI1SK**: `{expiresAt}#{token}`
+- **EntityType**: `EmailVerificationToken`
+
+| Attribute   | Type     | Description           |
+| ----------- | -------- | --------------------- |
+| `token`     | `string` | Verification token.   |
+| `userId`    | `string` | User ID.              |
+| `email`     | `string` | Email.                |
+| `createdAt` | `string` | Creation timestamp.   |
+| `expiresAt` | `string` | Expiration timestamp. |
+| `ttl`       | `number` | DynamoDB TTL.         |
+
+### PasswordResetTokenEntity
+
+- **PK**: `PASSWORD_RESET#{token}`
+- **SK**: `TOKEN`
+- **GSI1PK**: `PASSWORD_RESET_EXPIRY`
+- **GSI1SK**: `{expiresAt}#{token}`
+- **EntityType**: `PasswordResetToken`
+
+| Attribute   | Type     | Description           |
+| ----------- | -------- | --------------------- |
+| `token`     | `string` | Reset token.          |
+| `userId`    | `string` | User ID.              |
+| `email`     | `string` | Email.                |
+| `createdAt` | `string` | Creation timestamp.   |
+| `expiresAt` | `string` | Expiration timestamp. |
+| `ttl`       | `number` | DynamoDB TTL.         |
+
+### AnalyticsEntity
+
+- **PK**: `ANALYTICS#{metricType}#{granularity}`
+- **SK**: `{timestamp}`
+- **GSI1PK**: `ANALYTICS`
+- **GSI1SK**: `{granularity}#{timestamp}#{metricType}`
+- **GSI2PK**: `ANALYTICS_TYPE#{metricType}`
+- **GSI2SK**: `{timestamp}`
+- **EntityType**: `Analytics`
+
+| Attribute      | Type     | Description                  |
+| -------------- | -------- | ---------------------------- |
+| `metricType`   | `string` | Metric type (e.g., "users"). |
+| `granularity`  | `string` | "hourly", "daily", etc.      |
+| `timestamp`    | `string` | Start timestamp.             |
+| `endTimestamp` | `string` | End timestamp.               |
+| `metrics`      | `object` | Flexible metrics object.     |
+| `calculatedAt` | `string` | Calculation timestamp.       |
+| `version`      | `number` | Schema version.              |
+
+### MetricsCacheEntity
+
+- **PK**: `METRICS_CACHE`
+- **SK**: `{metricKey}`
+- **EntityType**: `MetricsCache`
+
+| Attribute     | Type     | Description   |
+| ------------- | -------- | ------------- |
+| `metricKey`   | `string` | Cache key.    |
+| `value`       | `any`    | Cached value. |
+| `lastUpdated` | `string` | Last update.  |
+| `ttl`         | `number` | DynamoDB TTL. |
+
+### GenerationSettingsEntity
+
+- **PK**: `GEN_SETTINGS#{userId}`
+- **SK**: `METADATA`
+- **EntityType**: `GenerationSettings`
+
+| Attribute        | Type     | Description            |
+| ---------------- | -------- | ---------------------- |
+| `userId`         | `string` | User ID.               |
+| `imageSize`      | `string` | Image size.            |
+| `customWidth`    | `number` | Custom width.          |
+| `customHeight`   | `number` | Custom height.         |
+| `batchCount`     | `number` | Batch count.           |
+| `isPublic`       | `string` | `"true"` or `"false"`. |
+| `cfgScale`       | `number` | CFG scale.             |
+| `steps`          | `number` | Steps.                 |
+| `negativePrompt` | `string` | Negative prompt.       |
+| `createdAt`      | `string` | Creation timestamp.    |
+| `updatedAt`      | `string` | Last update.           |
+
+### FollowEntity
+
+- **PK**: `FOLLOW#{followerId}#{followedId}`
+- **SK**: `METADATA`
+- **GSI1PK**: `FOLLOWING#{followerId}`
+- **GSI1SK**: `{createdAt}#{followedId}`
+- **GSI2PK**: `FOLLOWERS#{followedId}`
+- **GSI2SK**: `{createdAt}#{followerId}`
+- **EntityType**: `Follow`
+
+| Attribute    | Type     | Description         |
+| ------------ | -------- | ------------------- |
+| `followerId` | `string` | Follower ID.        |
+| `followedId` | `string` | Followed ID.        |
+| `createdAt`  | `string` | Creation timestamp. |
+
+### NotificationEntity
+
+- **PK**: `NOTIFICATION#{notificationId}`
+- **SK**: `METADATA`
+- **GSI1PK**: `USER#{targetUserId}#NOTIFICATIONS`
+- **GSI1SK**: `{status}#{createdAt}#{notificationId}`
+- **GSI2PK**: `USER#{targetUserId}#NOTIFICATIONS#{status}`
+- **GSI2SK**: `{createdAt}#{notificationId}`
+- **EntityType**: `Notification`
+
+| Attribute          | Type                     | Description          |
+| ------------------ | ------------------------ | -------------------- |
+| `notificationId`   | `string`                 | Unique ID.           |
+| `targetUserId`     | `string`                 | Recipient ID.        |
+| `sourceUserId`     | `string`                 | Sender ID.           |
+| `notificationType` | `NotificationType`       | Type (e.g., "like"). |
+| `targetType`       | `NotificationTargetType` | Target type.         |
+| `targetId`         | `string`                 | Target ID.           |
+| `status`           | `NotificationStatus`     | "unread" or "read".  |
+| `createdAt`        | `string`                 | Creation timestamp.  |
+| `readAt`           | `string?`                | Read timestamp.      |
 
 ## Access Patterns
 
 ### Album Access Patterns
 
-1. **Get all albums (chronological)**: Use GSI1 with `GSI1PK = "ALBUM"` sorted by `GSI1SK = "<createdAt>#<albumId>"`
-2. **Get albums by creator**: Use GSI4 with `GSI4PK = "ALBUM_BY_CREATOR"` and `GSI4SK begins_with "<createdBy>#"`
-3. **Get public/private albums**: Use `isPublic-createdAt-index` with `isPublic = "true"` or `"false"`
+1. **Get all albums (chronological)**: GSI1 with `GSI1PK = "ALBUM"`, sorted by `GSI1SK`.
+2. **Get albums by creator**: GSI4 with `GSI4PK = "ALBUM_BY_CREATOR"`, `GSI4SK begins_with "{createdBy}#"`.
+3. **Get public/private albums**: GSI5 with `GSI5PK = "ALBUM"`, `GSI5SK = "{isPublic}"`.
+4. **Get popular albums**: GSI6 with `GSI6PK = "POPULARITY"`.
+5. **Get content by date**: GSI7 with `GSI7PK = "CONTENT"`.
 
 ### Media Access Patterns
 
-1. **Get media by ID**: Use GSI2 with `GSI2PK = "MEDIA_ID"` and `GSI2SK = <mediaId>`
-2. **Get all media for an album**: Query main table with `PK = "ALBUM#<albumId>"` and `SK begins_with "MEDIA#"`
-3. **Get all albums for a media**: Use GSI1 with `GSI1PK = "MEDIA#<mediaId>"`
-4. **Get all media by creator**: Use GSI1 with `GSI1PK = "MEDIA_BY_CREATOR"` and `GSI1SK begins_with "<createdBy>#"`
-5. **Get all media (admin/chronological)** (**NEW**): Use GSI4 with `GSI4PK = "MEDIA"` sorted by `GSI4SK = "<createdAt>#<mediaId>"` (newest first)
-6. **Get public media by user** (**NEW - OPTIMIZED**): Use GSI3 with `GSI3PK = "MEDIA_BY_USER_true"` and `GSI3SK begins_with "<userId>#"`
-7. **Get private media by user** (**NEW - OPTIMIZED**): Use GSI3 with `GSI3PK = "MEDIA_BY_USER_false"` and `GSI3SK begins_with "<userId>#"`
-8. **Get all public media**:
-   - First: Query albums with `isPublic-createdAt-index` where `isPublic = "true"`
-   - Then: For each album, query media relationships
-   - Finally: Fetch unique media records
+1. **Get media by ID**: GSI2 with `GSI2PK = "MEDIA_ID"`, `GSI2SK = "{mediaId}"`.
+2. **Get all media for an album**: Main table with `PK = "ALBUM#{albumId}"`, `SK begins_with "MEDIA#"`.
+3. **Get all albums for a media**: GSI1 with `GSI1PK = "MEDIA#{mediaId}"`.
+4. **Get all media by creator**: GSI1 with `GSI1PK = "MEDIA_BY_CREATOR"`, `GSI1SK begins_with "{createdBy}#"`.
+5. **Get all media (chronological)**: GSI4 with `GSI4PK = "MEDIA"`, sorted by `GSI4SK`.
+6. **Get public/private media by user**: GSI3 with `GSI3PK = "MEDIA_BY_USER_{isPublic}"`, `GSI3SK begins_with "{userId}#"`.
+7. **Get public media**: GSI5 with `GSI5PK = "MEDIA"`, `GSI5SK = "true"`.
 
-**Performance Note**: Patterns 5 and 6 using GSI3 are highly optimized as they avoid FilterExpression usage and directly query the desired partition.
+### Comment Access Patterns
 
-### Migration from v1.0
+1. **Get comments by target**: GSI1 with `GSI1PK = "COMMENTS_BY_TARGET"`, `GSI1SK begins_with "{targetType}#{targetId}#"`.
+2. **Get comments by user**: GSI2 with `GSI2PK = "COMMENTS_BY_USER"`, `GSI2SK begins_with "{userId}#"`.
+3. **Get all comments (chronological)**: GSI3 with `GSI3PK = "INTERACTION#comment"`.
 
-The old schema stored media with:
+### User Access Patterns
 
-- **PK**: `ALBUM#<albumId>`
-- **SK**: `MEDIA#<mediaId>`
-- **albumId**: Direct reference
+1. **Get user by email**: GSI1 with `GSI1PK = "USER_EMAIL"`, `GSI1SK = "{email}"`.
+2. **Get user by Google ID**: GSI2 with `GSI2PK = "USER_GOOGLE"`, `GSI2SK = "{googleId}"`.
+3. **Get user by username**: GSI3 with `GSI3PK = "USER_USERNAME"`, `GSI3SK = "{username}"`.
 
-The new schema separates concerns:
+### Session Access Patterns
 
-- Media entities are independent (no albumId field)
-- Album-Media relationships are separate entities
-- One media can belong to multiple albums
-- Better scalability and flexibility
+1. **Get sessions by expiry**: GSI1 with `GSI1PK = "USER_SESSION_EXPIRY"`.
+2. **Get sessions by user**: GSI2 with `GSI2PK = "USER#{userId}#SESSION"`.
+
+### Token Access Patterns
+
+1. **Get verification tokens by expiry**: GSI1 for `EMAIL_VERIFICATION_EXPIRY`.
+2. **Get reset tokens by expiry**: GSI1 for `PASSWORD_RESET_EXPIRY`.
+
+### Analytics Access Patterns
+
+1. **Get all analytics by granularity/time**: GSI1 with `GSI1PK = "ANALYTICS"`, `GSI1SK begins_with "{granularity}#"`.
+2. **Get analytics by type**: GSI2 with `GSI2PK = "ANALYTICS_TYPE#{metricType}"`.
+
+### Follow Access Patterns
+
+1. **Get following for user**: GSI1 with `GSI1PK = "FOLLOWING#{followerId}"`.
+2. **Get followers for user**: GSI2 with `GSI2PK = "FOLLOWERS#{followedId}"`.
+
+### Notification Access Patterns
+
+1. **Get notifications by user/status**: GSI1 with `GSI1PK = "USER#{targetUserId}#NOTIFICATIONS"`.
+2. **Get unread notifications**: GSI2 with `GSI2PK = "USER#{targetUserId}#NOTIFICATIONS#unread"`.
+
+## Migration from v1.0
+
+The old schema stored media with PK: `ALBUM#{albumId}`, SK: `MEDIA#{mediaId}`. New schema separates media as independent entities with relationships via AlbumMediaEntity. Update endpoints to handle new patterns.
 
 **Breaking Changes**:
 
-- `albumId` field removed from Media entity
-- Media endpoints no longer require albumId parameter
-- Album-media relationships managed separately
-
-### Admin User Entity
-
-Represents an administrative user.
-
-- **PK**: `ADMIN#<adminId>`
-- **SK**: `METADATA`
-- **GSI1PK**: `ADMIN_USERNAME`
-- **GSI1SK**: `<username>`
-- **EntityType**: `AdminUser`
-
-| Attribute      | Type      | Description                             |
-| -------------- | --------- | --------------------------------------- |
-| `adminId`      | `string`  | The unique ID of the admin user.        |
-| `username`     | `string`  | The username of the admin user.         |
-| `passwordHash` | `string`  | The hashed password.                    |
-| `salt`         | `string`  | The salt used for hashing the password. |
-| `createdAt`    | `string`  | The ISO 8601 timestamp of creation.     |
-| `isActive`     | `boolean` | Whether the admin user is active.       |
-
-### Admin Session Entity
-
-Represents a session for an administrative user.
-
-- **PK**: `SESSION#<sessionId>`
-- **SK**: `METADATA`
-- **GSI1PK**: `SESSION_EXPIRY`
-- **GSI1SK**: `<expiresAt>#<sessionId>`
-- **EntityType**: `AdminSession`
-
-| Attribute        | Type     | Description                                      |
-| ---------------- | -------- | ------------------------------------------------ |
-| `sessionId`      | `string` | The unique ID of the session.                    |
-| `adminId`        | `string` | The ID of the admin user this session is for.    |
-| `adminUsername`  | `string` | The username of the admin user.                  |
-| `createdAt`      | `string` | The ISO 8601 timestamp of creation.              |
-| `expiresAt`      | `string` | The ISO 8601 timestamp when the session expires. |
-| `lastAccessedAt` | `string` | The ISO 8601 timestamp of the last access.       |
-| `ttl`            | `number` | The Time To Live value for DynamoDB TTL.         |
-
-### User Entity
-
-Represents a regular user.
-
-- **PK**: `USER#<userId>`
-- **SK**: `METADATA`
-- **GSI1PK**: `USER_EMAIL`
-- **GSI1SK**: `<email>`
-- **GSI2PK**: `USER_GOOGLE`
-- **GSI2SK**: `<googleId>`
-- **GSI3PK**: `USER_USERNAME`
-- **GSI3SK**: `<username>`
-- **EntityType**: `User`
-
-| Attribute       | Type      | Description                                 |
-| --------------- | --------- | ------------------------------------------- |
-| `userId`        | `string`  | The unique ID of the user.                  |
-| `email`         | `string`  | The email of the user.                      |
-| `username`      | `string`  | The unique username of the user.            |
-| `passwordHash`  | `string`  | The hashed password.                        |
-| `googleId`      | `string`  | The user's Google ID for OAuth.             |
-| `role`          | `string`  | User role: "user", "admin", or "moderator". |
-| `createdAt`     | `string`  | The ISO 8601 timestamp of creation.         |
-| `emailVerified` | `boolean` | Whether the user's email is verified.       |
-
-### User Session Entity
-
-Represents a session for a regular user.
-
-- **PK**: `USER_SESSION#<sessionId>`
-- **SK**: `METADATA`
-- **GSI1PK**: `USER_SESSION_EXPIRY`
-- **GSI1SK**: `<expiresAt>#<sessionId>`
-- **EntityType**: `UserSession`
-
-| Attribute        | Type     | Description                                      |
-| ---------------- | -------- | ------------------------------------------------ |
-| `sessionId`      | `string` | The unique ID of the session.                    |
-| `userId`         | `string` | The ID of the user this session is for.          |
-| `createdAt`      | `string` | The ISO 8601 timestamp of creation.              |
-| `expiresAt`      | `string` | The ISO 8601 timestamp when the session expires. |
-| `lastAccessedAt` | `string` | The ISO 8601 timestamp of the last access.       |
-
-### Email Verification Token Entity
-
-Represents a token for verifying a user's email.
-
-- **PK**: `EMAIL_VERIFICATION_TOKEN#<token>`
-- **SK**: `METADATA`
-- **EntityType**: `EmailVerificationToken`
-
-| Attribute   | Type     | Description                                    |
-| ----------- | -------- | ---------------------------------------------- |
-| `token`     | `string` | The verification token.                        |
-| `userId`    | `string` | The ID of the user this token is for.          |
-| `expiresAt` | `string` | The ISO 8601 timestamp when the token expires. |
-
-### User Interaction Entity
-
-Represents a user's interaction with a media item (e.g., a like or a bookmark).
-
-- **PK**: `USER#<userId>`
-- **SK**: `INTERACTION#<interactionType>#<mediaId>`
-- **GSI1PK**: `MEDIA_INTERACTION#<mediaId>`
-- **GSI1SK**: `<interactionType>#<userId>`
-- **EntityType**: `UserInteraction`
-
-| Attribute         | Type     | Description                                         |
-| ----------------- | -------- | --------------------------------------------------- |
-| `userId`          | `string` | The ID of the user who made the interaction.        |
-| `mediaId`         | `string` | The ID of the media item.                           |
-| `interactionType` | `string` | The type of interaction (e.g., `like`, `bookmark`). |
-| `createdAt`       | `string` | The ISO 8601 timestamp of the interaction.          |
-
-### ComfyUI Monitor Entity
-
-Represents the system configuration for the ComfyUI monitor client connection.
-
-- **PK**: `SYSTEM#COMFYUI_MONITOR`
-- **SK**: `METADATA`
-- **EntityType**: `ComfyUIMonitor`
-
-| Attribute         | Type     | Description                                            |
-| ----------------- | -------- | ------------------------------------------------------ |
-| `clientId`        | `string` | The WebSocket client ID of the ComfyUI monitor.        |
-| `comfyui_host`    | `string` | The hostname of the ComfyUI server being monitored.    |
-| `version`         | `string` | The version of the monitor script.                     |
-| `lastConnectedAt` | `string` | The ISO 8601 timestamp of the last monitor connection. |
-| `updatedAt`       | `string` | The ISO 8601 timestamp of the last update.             |
-
-**Purpose**: This entity stores the client_id used by the ComfyUI monitor WebSocket connection. The backend retrieves this client_id when submitting prompts to ComfyUI, ensuring that the monitor receives real-time updates for queued jobs.
+- Removed `albumId` from MediaEntity.
+- Media endpoints no longer require albumId.
+- Use separate relationship management.
 
 ## Entity Relationship Diagram
 
 ```mermaid
 erDiagram
-    ALBUM ||--o{ MEDIA : contains
-    USER ||--o{ USER_INTERACTION : "interacts with"
-    MEDIA ||--o{ USER_INTERACTION : "is interacted with by"
-    USER ||--o{ USER_SESSION : "has"
-    ADMIN_USER ||--o{ ADMIN_SESSION : "has"
-    USER ||--o{ EMAIL_VERIFICATION_TOKEN : "has"
+    ALBUM ||--o{ ALBUM_MEDIA : contains
+    MEDIA ||--o{ ALBUM_MEDIA : belongs_to
+    USER ||--o{ COMMENT : creates
+    ALBUM ||--o{ COMMENT : receives
+    MEDIA ||--o{ COMMENT : receives
+    USER ||--o{ USER_INTERACTION : performs
+    ALBUM ||--o{ USER_INTERACTION : receives
+    MEDIA ||--o{ USER_INTERACTION : receives
+    USER ||--o{ FOLLOW : follows
+    USER ||--o{ FOLLOW : followed_by
+    USER ||--o{ USER_SESSION : has
+    ADMIN ||--o{ ADMIN_SESSION : has
+    USER ||--o{ EMAIL_VERIFICATION_TOKEN : has
+    USER ||--o{ PASSWORD_RESET_TOKEN : has
+    USER ||--o{ GENERATION_SETTINGS : has
+    USER ||--o{ NOTIFICATION : receives
 
     ALBUM {
-        string PK "ALBUM#<albumId>"
+        string PK "ALBUM#{albumId}"
         string SK "METADATA"
         string GSI1PK "ALBUM"
-        string GSI1SK "<createdAt>#<albumId>"
+        string GSI1SK "{createdAt}#{albumId}"
     }
 
     MEDIA {
-        string PK "ALBUM#<albumId>"
-        string SK "MEDIA#<mediaId>"
-        string GSI1PK "MEDIA#<albumId>"
-        string GSI1SK "<createdAt>#<mediaId>"
+        string PK "MEDIA#{mediaId}"
+        string SK "METADATA"
+        string GSI1PK "MEDIA_BY_CREATOR"
+        string GSI1SK "{createdBy}#{createdAt}#{mediaId}"
     }
 
-    ADMIN_USER {
-        string PK "ADMIN#<adminId>"
-        string SK "METADATA"
-        string GSI1PK "ADMIN_USERNAME"
-        string GSI1SK "<username>"
+    ALBUM_MEDIA {
+        string PK "ALBUM#{albumId}"
+        string SK "MEDIA#{mediaId}"
+        string GSI1PK "MEDIA#{mediaId}"
+        string GSI1SK "ALBUM#{albumId}#{addedAt}"
     }
 
-    ADMIN_SESSION {
-        string PK "SESSION#<sessionId>"
+    COMMENT {
+        string PK "COMMENT#{commentId}"
         string SK "METADATA"
-        string GSI1PK "SESSION_EXPIRY"
-        string GSI1SK "<expiresAt>#<sessionId>"
+        string GSI1PK "COMMENTS_BY_TARGET"
+        string GSI1SK "{targetType}#{targetId}#{createdAt}#{commentId}"
     }
 
     USER {
-        string PK "USER#<userId>"
+        string PK "USER#{userId}"
         string SK "METADATA"
         string GSI1PK "USER_EMAIL"
-        string GSI1SK "<email>"
-        string GSI2PK "USER_GOOGLE"
-        string GSI2SK "<googleId>"
+        string GSI1SK "{email}"
         string GSI3PK "USER_USERNAME"
-        string GSI3SK "<username>"
+        string GSI3SK "{username}"
     }
 
     USER_SESSION {
-        string PK "USER_SESSION#<sessionId>"
+        string PK "SESSION#{sessionId}"
         string SK "METADATA"
         string GSI1PK "USER_SESSION_EXPIRY"
-        string GSI1SK "<expiresAt>#<sessionId>"
+        string GSI1SK "{expiresAt}#{sessionId}"
     }
 
     EMAIL_VERIFICATION_TOKEN {
-        string PK "EMAIL_VERIFICATION_TOKEN#<token>"
+        string PK "EMAIL_VERIFICATION#{token}"
         string SK "METADATA"
     }
 
-    USER_INTERACTION {
-        string PK "USER#<userId>"
-        string SK "INTERACTION#<type>#<mediaId>"
-        string GSI1PK "MEDIA_INTERACTION#<mediaId>"
-        string GSI1SK "<type>#<userId>"
+    PASSWORD_RESET_TOKEN {
+        string PK "PASSWORD_RESET#{token}"
+        string SK "TOKEN"
+    }
+
+    ANALYTICS {
+        string PK "ANALYTICS#{metricType}#{granularity}"
+        string SK "{timestamp}"
+        string GSI1PK "ANALYTICS"
+        string GSI1SK "{granularity}#{timestamp}#{metricType}"
+    }
+
+    FOLLOW {
+        string PK "FOLLOW#{followerId}#{followedId}"
+        string SK "METADATA"
+        string GSI1PK "FOLLOWING#{followerId}"
+        string GSI1SK "{createdAt}#{followedId}"
+    }
+
+    NOTIFICATION {
+        string PK "NOTIFICATION#{notificationId}"
+        string SK "METADATA"
+        string GSI1PK "USER#{targetUserId}#NOTIFICATIONS"
+        string GSI1SK "{status}#{createdAt}#{notificationId}"
     }
 ```
 
@@ -390,38 +588,18 @@ erDiagram
 
 ### Admin Authorization Issues
 
-**Problem**: Getting "User is not authorized to access this resource" when accessing admin endpoints despite being logged in.
+**Problem**: "User is not authorized" despite login.
 
-**Cause**: The user account doesn't have the `role` field set to "admin" in the database.
+**Cause**: Missing `role: "admin"` in UserEntity.
 
-**Solution**: Use the admin role script to set the role:
-
-```bash
-# Find your session ID from browser cookies (user_session value)
-cd backend
-node scripts/set-admin-role.js <your-session-id> admin
-```
-
-Example:
-
-```bash
-node scripts/set-admin-role.js dcf48ce9-d13b-46d0-a6c1-bcd6ffa08edc admin
-```
-
-**Manual Fix**: Update the user record directly in DynamoDB:
-
-1. Find the user record: `PK = "USER#<userId>"`, `SK = "METADATA"`
-2. Add/update the `role` attribute to `"admin"`
-3. Update the `updatedAt` timestamp
+**Solution**: Use `node scripts/set-admin-role.js <sessionId> admin` or update DynamoDB directly: Set `role` to `"admin"` on `PK = "USER#{userId}"`, `SK = "METADATA"`.
 
 ### Media Upload Issues
 
-**Problem**: Media upload fails after schema migration.
+**Problem**: Upload fails post-migration.
 
-**Cause**: The upload function still uses old schema patterns.
+**Solution**:
 
-**Solution**: Update media upload functions to:
-
-1. Create media entity with new PK pattern: `MEDIA#<mediaId>`
-2. Create album-media relationship separately
-3. Use `addMediaToAlbum()` method for linking
+1. Create media with `PK = "MEDIA#{mediaId}"`.
+2. Use AlbumMediaEntity for relationships.
+3. Call `addMediaToAlbum()` for linking.

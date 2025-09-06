@@ -1,11 +1,19 @@
-/*
-File objective: Update album metadata (title, tags, visibility, cover image).
-Auth: Requires user/admin via LambdaHandlerUtil.withAuth (includeRole).
-Special notes:
-- Verifies ownership or admin role before updates
-- Regenerates cover thumbnails on cover change; clears when removed
-- Triggers revalidation after update
-*/
+/**
+ * @fileoverview Album Update Handler
+ * @description Updates album metadata, including title, tags, visibility, and cover image with thumbnail regeneration.
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth (includes role check).
+ * @pathParams {string} albumId - ID of the album to update.
+ * @body UpdateAlbumRequest: { title?: string, tags?: string[], isPublic?: boolean, coverImageUrl?: string }
+ * @notes
+ * - Lazy-loads heavy dependencies after OPTIONS.
+ * - Verifies ownership or admin role.
+ * - Validates optional fields (title, tags).
+ * - Regenerates thumbnails for new cover; clears for removal.
+ * - Updates Album-Tag relations if tags changed.
+ * - Updates updatedAt timestamp.
+ * - Triggers albums list revalidation.
+ * - Returns full updated album.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { RevalidationService } from "@shared/utils/revalidation";

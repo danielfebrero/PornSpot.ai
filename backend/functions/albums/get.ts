@@ -1,11 +1,17 @@
-/*
-File objective: List public albums with optional tag filter and profile views.
-Auth: Public endpoint; supports anonymous and authenticated users (no difference in visibility unless querying own data elsewhere).
-Special notes:
-- Supports username-based profile filter (?user=username) and tag filter (?tag=)
-- Cursor-based pagination via PaginationUtil and DynamoDB GSIs
-- Ensures only public albums are returned in public/profile contexts
-*/
+/**
+ * @fileoverview Public Albums Listing Handler
+ * @description Lists public albums with filtering by tag or user profile, supporting pagination and anonymous access.
+ * @auth Public endpoint via LambdaHandlerUtil.withoutAuth (allows anonymous).
+ * @queryParams limit, cursor (pagination); tag (filter); user (username for profile); includeMediaIds, includeContentPreview (optional expansions).
+ * @notes
+ * - Resolves username to userId for profile views, shows only public albums.
+ * - No user param: lists all public albums.
+ * - Uses GSIs for efficient querying (public status, by creator).
+ * - Applies server-side tag filtering where supported.
+ * - Optionally expands with mediaIds or contentPreview (first few media items).
+ * - Filters to public only for non-owner views.
+ * - Unified pagination response format.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
@@ -17,26 +23,6 @@ import {
 } from "@shared/utils/pagination";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 import { Album } from "@shared";
-
-/**
- * Albums GET endpoint with intelligent filtering based on user permissions:
- *
- * Authentication: Optional - supports both authenticated and anonymous requests
- * - Authenticated users: userId available from authorizer context or session validation
- * - Anonymous users: currentUserId is null, only public content accessible
- *
- * Logic:
- * - If user parameter is provided: always show only public albums (public profile view)
- * - If no user is provided: all public albums from everyone
- *
- * - Queries are DynamoDB-native with proper pagination using LastEvaluatedKey cursors
- * - No in-memory filtering or offset logic for optimal performance
- * - Tag filtering is applied server-side when supported by the query method
- * - Supports user (username) parameter for profile views
- *
- * ⚠️ All album items MUST have the 'isPublic' attribute for the GSI to work properly.
- *   If some don't, a backfill is required to set this field on all items.
- */
 
 const handleGetAlbums = async (
   event: APIGatewayProxyEvent

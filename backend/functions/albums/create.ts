@@ -1,13 +1,19 @@
-/*
-File objective: Create a new album for the authenticated user or admin.
-Auth: Requires user/admin session via LambdaHandlerUtil.withAuth (includeRole).
-Special notes:
-- Validates title, optional tags, mediaIds, and optional coverImageId
-- Enforces plan-based permission for private content (isPublic) using PlanUtil/getPlanPermissions
-- Generates cover thumbnails if cover image provided; stores 5-tier thumbnailUrls
-- Writes Album entity (single-table design, GSI1/GSI4), increments user's totalAlbums
-- Optionally adds provided mediaIds to the new album; triggers frontend revalidation
-*/
+/**
+ * @fileoverview Album Creation Handler
+ * @description Creates a new album for authenticated users or admins, handling validation, permissions, thumbnail generation, and initial media addition.
+ * @auth Requires authentication via LambdaHandlerUtil.withAuth (includes role check).
+ * @body CreateAlbumRequest: { title: string, tags?: string[], mediaIds?: string[], isPublic?: boolean, coverImageId?: string }
+ * @notes
+ * - Validates title, tags, mediaIds (ownership check for users), coverImageId.
+ * - Enforces private content permissions based on user plan; admins bypass.
+ * - Generates 5-tier thumbnails for cover image using CoverThumbnailUtil.
+ * - Creates Album entity with GSIs for indexing (ALBUM, BY_CREATOR, PUBLIC, POPULARITY, CONTENT).
+ * - Increments user's totalAlbums metric.
+ * - Adds media to album if provided, skips duplicates.
+ * - Creates Album-Tag relations if tags present.
+ * - Triggers albums list revalidation.
+ * - Returns created album with 201 status.
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { v4 as uuidv4 } from "uuid";
 import { DynamoDBService } from "@shared/utils/dynamodb";

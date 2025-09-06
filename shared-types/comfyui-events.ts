@@ -1,9 +1,16 @@
 /**
- * Standardized ComfyUI Event Interfaces
- *
- * This file defines the complete event structure used throughout the ComfyUI monitoring system.
- * All events flow from the Python monitor to backend lambdas via EventBridge and then to
- * frontend via WebSocket.
+ * @fileoverview ComfyUI Events Types
+ * @description Types for ComfyUI WebSocket events and messages.
+ * @notes
+ * - BaseComfyUIEvent for common fields.
+ * - MonitorInitializedEvent, MonitorStoppedEvent for monitor lifecycle.
+ * - JobStartedEvent, JobCompletedEvent, JobFailedEvent for job lifecycle.
+ * - NodeProgressEvent, NodeExecutingEvent, NodeExecutedEvent for progress.
+ * - ImagesGeneratedEvent for output.
+ * - QueueStatusEvent for queue.
+ * - ComfyUIEvent union type.
+ * - WebSocket messages: WebSocketProgress, WebSocketJobStarted, WebSocketJobCompleted, WebSocketJobFailed, WebSocketJobRetry, WebSocketWorkflowNodes.
+ * - COMFYUI_EVENT_TYPES constants.
  */
 
 // Base interface for all ComfyUI events

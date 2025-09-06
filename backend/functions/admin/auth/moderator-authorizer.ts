@@ -5,8 +5,16 @@ import {
 import { AuthorizerUtil } from "@shared/utils/authorizer";
 
 /**
- * Moderator Authorizer - Allows admin and moderator roles
- * This authorizer validates user sessions and checks if the user has moderator or admin role
+ * @fileoverview Moderator Request Authorizer
+ * @description AWS Lambda authorizer that allows access to users with admin or moderator roles, validating sessions via cookies.
+ * @event APIGatewayRequestAuthorizerEvent
+ * @returns APIGatewayAuthorizerResult - Allow policy with user context if authorized, Deny otherwise.
+ * @notes
+ * - Bypasses for OPTIONS (CORS).
+ * - Similar to AdminOnlyAuthorizer but permits 'moderator' role too.
+ * - Generates policy for specific methodArn (no wildcard).
+ * - Includes user context in policy.
+ * - Extensive logging for auth flow.
  */
 export const handler = async (
   event: APIGatewayRequestAuthorizerEvent

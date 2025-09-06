@@ -1,3 +1,16 @@
+/**
+ * @fileoverview DynamoDB Service Utility
+ * @description Centralized DynamoDB operations for entities like Album, Media, User, Session, Comment, etc.
+ * @notes
+ * - Uses DynamoDBDocumentClient for JSON handling.
+ * - Supports LocalStack in development.
+ * - Includes conversion methods for entities to API formats.
+ * - Handles counters, relationships, interactions, notifications.
+ * - Large class with static methods for CRUD and complex queries.
+ * - GSI indexes for efficient querying (e.g., by creator, public status, expiry).
+ * - Popularity scoring via GSI6SK.
+ * - Cleanup methods for expired tokens/sessions.
+ */
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,

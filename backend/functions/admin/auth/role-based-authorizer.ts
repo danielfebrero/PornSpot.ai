@@ -1,21 +1,23 @@
-/*
-File objective: Custom API Gateway request authorizer allowing admin and moderator roles.
-Auth: Executed by API Gateway before target lambdas; not a standard REST handler.
-Special notes:
-- Validates session from cookies, resolves role, and issues IAM policy (Allow/Deny) with wildcard resource
-- Permits CORS preflight (OPTIONS) without authentication
-- Adds user context (userId, email, role) into authorizer context on Allow
-*/
+/**
+ * @fileoverview Role-Based Admin Request Authorizer
+ * @description AWS Lambda authorizer for API Gateway that enforces admin or moderator roles using wildcard policies, validating sessions via cookies.
+ * @event APIGatewayRequestAuthorizerEvent
+ * @returns APIGatewayAuthorizerResult - Allow with wildcard resource and user context if authorized, Deny otherwise.
+ * @notes
+ * - Bypasses auth for OPTIONS preflight (CORS).
+ * - Validates user session from cookie.
+ * - Queries role from DynamoDB.
+ * - Generates wildcard resource for all admin endpoints.
+ * - Includes user context (userId, email, role) in Allow policy.
+ * - Explicit Deny for non-authorized roles or invalid sessions.
+ * - Comprehensive error logging with stack traces.
+ */
 import {
   APIGatewayRequestAuthorizerEvent,
   APIGatewayAuthorizerResult,
 } from "aws-lambda";
 import { AuthorizerUtil } from "@shared/utils/authorizer";
 
-/**
- * Role-Based Admin Authorizer - Allows admin and moderator roles
- * This authorizer validates user sessions and checks if the user has admin or moderator role
- */
 export const handler = async (
   event: APIGatewayRequestAuthorizerEvent
 ): Promise<APIGatewayAuthorizerResult> => {

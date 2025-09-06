@@ -7,6 +7,17 @@ Special notes:
 - Logs disconnection for monitoring
 */
 
+/**
+ * @fileoverview WebSocket Disconnection Handler
+ * @description Cleans up WebSocket connection, active generations, and queue subscriptions on disconnect.
+ * @auth Public (connection termination).
+ * @notes
+ * - Deletes connection from DynamoDB.
+ * - Marks active generations as disconnected.
+ * - Removes connection from queue entries.
+ * - Logs cleanup actions.
+ * - Returns 200 always, even if cleanup fails (best-effort).
+ */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import {
   DynamoDBDocumentClient,
