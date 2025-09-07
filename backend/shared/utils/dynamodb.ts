@@ -37,6 +37,8 @@ import {
   NotificationWithDetails,
   GenerationSettingsEntity,
   FollowEntity,
+  TransactionEntity,
+  DailyBudgetEntity,
 } from "@shared/shared-types";
 import {
   UserEntity,
@@ -4208,6 +4210,350 @@ export class DynamoDBService {
         ExpressionAttributeValues: {
           ":decrement": -1,
         },
+      })
+    );
+  }
+
+  // ===== PornSpotCoin (PSC) Methods =====
+
+  /**
+   * Create a transaction record
+   */
+  static async createTransaction(
+    transaction: TransactionEntity
+  ): Promise<void> {
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: transaction,
+      })
+    );
+  }
+
+  /**
+   * Get transaction by ID
+   */
+  static async getTransactionById(
+    transactionId: string
+  ): Promise<TransactionEntity | null> {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `TRANSACTION#${transactionId}`,
+          SK: "METADATA",
+        },
+      })
+    );
+
+    return (result.Item as TransactionEntity) || null;
+  }
+
+  /**
+   * Update transaction
+   */
+  static async updateTransaction(
+    transactionId: string,
+    updates: Partial<TransactionEntity>
+  ): Promise<void> {
+    const updateExpressions: string[] = [];
+    const expressionAttributeNames: Record<string, string> = {};
+    const expressionAttributeValues: Record<string, any> = {};
+
+    Object.entries(updates).forEach(([key, value], index) => {
+      const attrName = `#attr${index}`;
+      const attrValue = `:val${index}`;
+      updateExpressions.push(`${attrName} = ${attrValue}`);
+      expressionAttributeNames[attrName] = key;
+      expressionAttributeValues[attrValue] = value;
+    });
+
+    await docClient.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `TRANSACTION#${transactionId}`,
+          SK: "METADATA",
+        },
+        UpdateExpression: `SET ${updateExpressions.join(", ")}`,
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues,
+      })
+    );
+  }
+
+  /**
+   * Get transactions by user (to or from)
+   */
+  static async getTransactionsByUser(
+    userId: string,
+    limit: number = 20,
+    exclusiveStartKey?: string,
+    transactionType?: string,
+    status?: string
+  ): Promise<{
+    items: TransactionEntity[];
+    lastEvaluatedKey?: string;
+    count: number;
+  }> {
+    const allTransactions: TransactionEntity[] = [];
+    const lastKey: any = exclusiveStartKey
+      ? JSON.parse(exclusiveStartKey)
+      : undefined;
+
+    // Build filter expression for optional parameters
+    const filterExpressions: string[] = [];
+    const expressionAttributeValues: Record<string, any> = {};
+
+    if (transactionType) {
+      filterExpressions.push("transactionType = :transactionType");
+      expressionAttributeValues[":transactionType"] = transactionType;
+    }
+
+    if (status) {
+      filterExpressions.push("#status = :status");
+      expressionAttributeValues[":status"] = status;
+    }
+
+    const filterExpression =
+      filterExpressions.length > 0
+        ? filterExpressions.join(" AND ")
+        : undefined;
+    const expressionAttributeNames = status
+      ? { "#status": "status" }
+      : undefined;
+
+    // Query transactions where user is the recipient (GSI3)
+    const toUserQuery = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI3",
+        KeyConditionExpression:
+          "GSI3PK = :gsi3pk AND begins_with(GSI3SK, :userPrefix)",
+        ExpressionAttributeValues: {
+          ":gsi3pk": "TRANSACTION_BY_TO_USER",
+          ":userPrefix": `${userId}#`,
+          ...expressionAttributeValues,
+        },
+        ...(filterExpression && { FilterExpression: filterExpression }),
+        ...(expressionAttributeNames && {
+          ExpressionAttributeNames: expressionAttributeNames,
+        }),
+        ScanIndexForward: false,
+        Limit: Math.ceil(limit / 2), // Split limit between "to" and "from" queries
+        ExclusiveStartKey: lastKey,
+      })
+    );
+
+    const toUserTransactions = (toUserQuery.Items as TransactionEntity[]) || [];
+    allTransactions.push(...toUserTransactions);
+
+    // Query transactions where user is the sender (GSI2) - only if user is not "TREASURE"
+    let fromUserTransactions: TransactionEntity[] = [];
+    if (userId !== "TREASURE" && allTransactions.length < limit) {
+      const fromUserQuery = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI2",
+          KeyConditionExpression:
+            "GSI2PK = :gsi2pk AND begins_with(GSI2SK, :userPrefix)",
+          ExpressionAttributeValues: {
+            ":gsi2pk": "TRANSACTION_BY_FROM_USER",
+            ":userPrefix": `${userId}#`,
+            ...expressionAttributeValues,
+          },
+          ...(filterExpression && { FilterExpression: filterExpression }),
+          ...(expressionAttributeNames && {
+            ExpressionAttributeNames: expressionAttributeNames,
+          }),
+          ScanIndexForward: false,
+          Limit: limit - allTransactions.length,
+        })
+      );
+
+      fromUserTransactions = (fromUserQuery.Items as TransactionEntity[]) || [];
+      allTransactions.push(...fromUserTransactions);
+    }
+
+    // Sort by createdAt timestamp (most recent first)
+    allTransactions.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    // Limit to requested amount
+    const finalTransactions = allTransactions.slice(0, limit);
+
+    return {
+      items: finalTransactions,
+      lastEvaluatedKey: toUserQuery.LastEvaluatedKey
+        ? JSON.stringify(toUserQuery.LastEvaluatedKey)
+        : undefined,
+      count: finalTransactions.length,
+    };
+  }
+
+  /**
+   * Get transactions by date range
+   */
+  static async getTransactionsByDateRange(
+    startDate: string,
+    endDate: string,
+    limit: number = 100,
+    exclusiveStartKey?: string
+  ): Promise<{
+    items: TransactionEntity[];
+    lastEvaluatedKey?: string;
+    count: number;
+  }> {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI1",
+        KeyConditionExpression:
+          "GSI1PK = :gsi1pk AND GSI1SK BETWEEN :startDate AND :endDate",
+        ExpressionAttributeValues: {
+          ":gsi1pk": "TRANSACTION_BY_DATE",
+          ":startDate": startDate,
+          ":endDate": endDate,
+        },
+        ScanIndexForward: false,
+        Limit: limit,
+        ExclusiveStartKey: exclusiveStartKey
+          ? JSON.parse(exclusiveStartKey)
+          : undefined,
+      })
+    );
+
+    return {
+      items: (result.Items as TransactionEntity[]) || [],
+      lastEvaluatedKey: result.LastEvaluatedKey
+        ? JSON.stringify(result.LastEvaluatedKey)
+        : undefined,
+      count: result.Count || 0,
+    };
+  }
+
+  /**
+   * Get transactions by type
+   */
+  static async getTransactionsByType(
+    transactionType: string,
+    limit: number = 100,
+    exclusiveStartKey?: string
+  ): Promise<{
+    items: TransactionEntity[];
+    lastEvaluatedKey?: string;
+    count: number;
+  }> {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI4",
+        KeyConditionExpression: "GSI4PK = :gsi4pk",
+        FilterExpression: "begins_with(GSI4SK, :typePrefix)",
+        ExpressionAttributeValues: {
+          ":gsi4pk": "TRANSACTION_BY_TYPE",
+          ":typePrefix": `${transactionType}#`,
+        },
+        ScanIndexForward: false,
+        Limit: limit,
+        ExclusiveStartKey: exclusiveStartKey
+          ? JSON.parse(exclusiveStartKey)
+          : undefined,
+      })
+    );
+
+    return {
+      items: (result.Items as TransactionEntity[]) || [],
+      lastEvaluatedKey: result.LastEvaluatedKey
+        ? JSON.stringify(result.LastEvaluatedKey)
+        : undefined,
+      count: result.Count || 0,
+    };
+  }
+
+  /**
+   * Create daily budget entity
+   */
+  static async createDailyBudget(budget: DailyBudgetEntity): Promise<void> {
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: budget,
+      })
+    );
+  }
+
+  /**
+   * Get daily budget by date
+   */
+  static async getBudgetByDate(
+    date: string
+  ): Promise<DailyBudgetEntity | null> {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `PSC_BUDGET#${date}`,
+          SK: "METADATA",
+        },
+      })
+    );
+
+    return (result.Item as DailyBudgetEntity) || null;
+  }
+
+  /**
+   * Update daily budget activity
+   */
+  static async updateDailyBudgetActivity(
+    date: string,
+    eventType: string,
+    amount: number
+  ): Promise<void> {
+    const updateExpressions: string[] = [];
+    const expressionAttributeValues: Record<string, any> = {
+      ":amount": amount,
+      ":increment": 1,
+      ":lastUpdated": new Date().toISOString(),
+    };
+
+    // Update the specific activity counter
+    switch (eventType) {
+      case "view":
+        updateExpressions.push("ADD totalViews :increment");
+        break;
+      case "like":
+        updateExpressions.push("ADD totalLikes :increment");
+        break;
+      case "comment":
+        updateExpressions.push("ADD totalComments :increment");
+        break;
+      case "bookmark":
+        updateExpressions.push("ADD totalBookmarks :increment");
+        break;
+      case "profile_view":
+        updateExpressions.push("ADD totalProfileViews :increment");
+        break;
+    }
+
+    // Update budget amounts
+    updateExpressions.push("ADD distributedBudget :amount");
+    updateExpressions.push("ADD remainingBudget :negativeAmount");
+    updateExpressions.push("SET lastUpdated = :lastUpdated");
+
+    expressionAttributeValues[":negativeAmount"] = -amount;
+
+    await docClient.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `PSC_BUDGET#${date}`,
+          SK: "METADATA",
+        },
+        UpdateExpression: updateExpressions.join(", "),
+        ExpressionAttributeValues: expressionAttributeValues,
       })
     );
   }

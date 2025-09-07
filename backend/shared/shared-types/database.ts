@@ -215,6 +215,13 @@ export interface UserEntity extends BaseEntity {
   // Real-time profile insights/metrics
   profileInsights?: UserProfileInsights;
   followerCount?: number;
+
+  // PornSpotCoin balance information
+  pscBalance?: number; // Current PSC balance (off-chain tracking)
+  pscTotalEarned?: number; // Total PSC earned from rewards
+  pscTotalSpent?: number; // Total PSC spent on subscriptions/purchases
+  pscTotalWithdrawn?: number; // Total PSC withdrawn to wallet
+  pscLastTransactionAt?: string; // Last PSC transaction timestamp
 }
 
 // User Session Entity
