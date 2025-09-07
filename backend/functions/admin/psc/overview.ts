@@ -22,7 +22,7 @@ const handlePSCOverview = async (
     const budget = await DynamoDBService.getBudgetByDate(today!);
 
     // Get system configuration
-    const systemConfig = PSCPayoutService.getSystemConfig();
+    const systemConfig = await PSCPayoutService.getSystemConfig();
 
     // If no budget exists for today, create default budget data
     const currentBudget =

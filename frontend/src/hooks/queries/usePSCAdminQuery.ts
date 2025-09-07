@@ -165,3 +165,60 @@ export function usePSCBudgetMutation() {
     },
   });
 }
+
+// Mutation hook for deleting daily budget
+export function usePSCBudgetDeleteMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (date: string) => adminPSCApi.deleteBudget(date),
+    onMutate: async (date) => {
+      // Cancel any outgoing refetches for all budget queries
+      await queryClient.cancelQueries({
+        queryKey: ["admin", "psc", "budgets"],
+      });
+
+      // Get all matching query keys and update them
+      const queryCache = queryClient.getQueryCache();
+      const previousData = new Map();
+
+      queryCache
+        .findAll({ queryKey: ["admin", "psc", "budgets"] })
+        .forEach((query) => {
+          const queryKey = query.queryKey;
+          const currentData = queryClient.getQueryData<DailyBudget[]>(queryKey);
+
+          if (currentData) {
+            // Store previous data for rollback
+            previousData.set(queryKey, currentData);
+
+            // Optimistically remove the budget from cache
+            queryClient.setQueryData<DailyBudget[]>(queryKey, (old) => {
+              if (!old) return old;
+              return old.filter((budget) => budget.date !== date);
+            });
+          }
+        });
+
+      return { previousData };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context to roll back all affected queries
+      if (context?.previousData) {
+        context.previousData.forEach((data, queryKey) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+      console.error("Failed to delete budget:", err);
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "psc", "budgets"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.psc.overview(),
+      });
+    },
+  });
+}

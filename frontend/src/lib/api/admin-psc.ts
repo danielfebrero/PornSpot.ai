@@ -147,6 +147,15 @@ export const adminPSCApi = {
     return ApiUtil.extractData(response);
   },
 
+  deleteBudget: async (
+    date: string
+  ): Promise<{ message: string; date: string }> => {
+    const response = await ApiUtil.delete<{ message: string; date: string }>(
+      `/admin/psc/budgets/${date}`
+    );
+    return ApiUtil.extractData(response);
+  },
+
   // Transactions
   getTransactions: async (
     filters?: TransactionFilters

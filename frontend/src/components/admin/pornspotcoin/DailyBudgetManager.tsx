@@ -14,10 +14,12 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Trash2,
 } from "lucide-react";
 import {
   usePSCBudgetsQuery,
   usePSCBudgetMutation,
+  usePSCBudgetDeleteMutation,
 } from "@/hooks/queries/usePSCAdminQuery";
 
 interface DailyBudgetManagerProps {
@@ -52,12 +54,14 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
   });
 
   const updateBudgetMutation = usePSCBudgetMutation();
+  const deleteBudgetMutation = usePSCBudgetDeleteMutation();
 
   const [selectedDate, setSelectedDate] = useState(
     formatDateForAPI(new Date())
   ); // Default to today
   const [editingBudget, setEditingBudget] = useState<string | null>(null);
   const [newBudgetValue, setNewBudgetValue] = useState<number>(0);
+  const [deletingBudget, setDeletingBudget] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Find today's budget or closest available date when budgets load (only on initial load)
@@ -145,6 +149,46 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
   const handleCancelEdit = () => {
     setEditingBudget(null);
     setNewBudgetValue(0);
+  };
+
+  const handleDeleteBudget = (date: string) => {
+    setDeletingBudget(date);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deletingBudget) return;
+
+    const dateToDelete = deletingBudget;
+    setDeletingBudget(null);
+
+    // If we're deleting the currently selected date, select a different date
+    if (selectedDate === dateToDelete) {
+      const otherBudgets = budgets.filter((b) => b.date !== dateToDelete);
+      if (otherBudgets.length > 0) {
+        // Select the closest date to today
+        const today = formatDateForAPI(new Date());
+        const closestBudget = otherBudgets.reduce((closest, current) => {
+          const closestDiff = Math.abs(
+            new Date(closest.date).getTime() - new Date(today).getTime()
+          );
+          const currentDiff = Math.abs(
+            new Date(current.date).getTime() - new Date(today).getTime()
+          );
+          return currentDiff < closestDiff ? current : closest;
+        });
+        setSelectedDate(closestBudget.date);
+      }
+    }
+
+    deleteBudgetMutation.mutate(dateToDelete, {
+      onError: (error) => {
+        console.error("Failed to delete budget:", error);
+      },
+    });
+  };
+
+  const handleCancelDelete = () => {
+    setDeletingBudget(null);
   };
 
   const formatDate = (dateString: string) => {
@@ -353,19 +397,42 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
                     </Button>
                   </div>
                 ) : (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() =>
-                      handleEditBudget(
-                        selectedBudget.date,
-                        selectedBudget.totalBudget
-                      )
-                    }
-                  >
-                    <Edit className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        handleEditBudget(
+                          selectedBudget.date,
+                          selectedBudget.totalBudget
+                        )
+                      }
+                    >
+                      <Edit className="h-3 w-3 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleDeleteBudget(selectedBudget.date)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950"
+                      disabled={
+                        selectedBudget.totalBudget -
+                          selectedBudget.remainingBudget >
+                        0
+                      }
+                      title={
+                        selectedBudget.totalBudget -
+                          selectedBudget.remainingBudget >
+                        0
+                          ? "Cannot delete budget with distributed PSC"
+                          : "Delete this budget"
+                      }
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
                 )}
               </div>
             </CardHeader>
@@ -479,6 +546,52 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
                     </div>
                   )
                 )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deletingBudget && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-md mx-4">
+            <CardHeader>
+              <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">
+                Delete Budget
+              </h3>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Are you sure you want to delete the budget for{" "}
+                <span className="font-semibold">
+                  {formatDate(deletingBudget)}
+                </span>
+                ?
+              </p>
+              <p className="text-xs text-muted-foreground bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded p-2">
+                ⚠️ This action cannot be undone. The budget will be permanently
+                removed.
+              </p>
+              <div className="flex gap-2 justify-end">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleCancelDelete}
+                  disabled={deleteBudgetMutation.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleConfirmDelete}
+                  disabled={deleteBudgetMutation.isPending}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {deleteBudgetMutation.isPending
+                    ? "Deleting..."
+                    : "Delete Budget"}
+                </Button>
               </div>
             </CardContent>
           </Card>

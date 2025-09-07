@@ -24,6 +24,8 @@ const handlePSCBudgets = async (
         return await handleGetBudgets(event);
       case "PUT":
         return await handleUpdateBudget(event);
+      case "DELETE":
+        return await handleDeleteBudget(event);
       default:
         return ResponseUtil.error(event, `Method ${method} not allowed`, 405);
     }
@@ -74,6 +76,9 @@ async function handleGetBudgets(
     // Fetch budgets for each date
     const budgets: DailyBudgetEntity[] = [];
 
+    // Get system config once for mock budgets
+    const systemConfig = await PSCPayoutService.getSystemConfig();
+
     for (const dateString of limitedDates) {
       // Try to get budget from database
       const budget = await DynamoDBService.getBudgetByDate(dateString);
@@ -82,7 +87,6 @@ async function handleGetBudgets(
         budgets.push(budget);
       } else {
         // Create mock budget data for dates without records
-        const systemConfig = PSCPayoutService.getSystemConfig();
         const mockBudget: DailyBudgetEntity = {
           PK: `PSC_BUDGET#${dateString}`,
           SK: "METADATA",
@@ -113,26 +117,28 @@ async function handleGetBudgets(
     }
 
     // Transform to frontend format
-    const transformedBudgets = budgets.map((budget) => ({
-      date: budget.date,
-      totalBudget: budget.totalBudget,
-      remainingBudget: budget.remainingBudget,
-      distributedAmount: budget.totalBudget - budget.remainingBudget,
-      totalActivity:
-        (budget.totalViews || 0) +
-        (budget.totalLikes || 0) +
-        (budget.totalComments || 0) +
-        (budget.totalBookmarks || 0) +
-        (budget.totalProfileViews || 0),
-      weightedActivity: calculateWeightedActivity(budget),
-      currentRates: {
-        viewRate: budget.currentRates?.viewRate || 0,
-        likeRate: budget.currentRates?.likeRate || 0,
-        commentRate: budget.currentRates?.commentRate || 0,
-        bookmarkRate: budget.currentRates?.bookmarkRate || 0,
-        profileViewRate: budget.currentRates?.profileViewRate || 0,
-      },
-    }));
+    const transformedBudgets = await Promise.all(
+      budgets.map(async (budget) => ({
+        date: budget.date,
+        totalBudget: budget.totalBudget,
+        remainingBudget: budget.remainingBudget,
+        distributedAmount: budget.totalBudget - budget.remainingBudget,
+        totalActivity:
+          (budget.totalViews || 0) +
+          (budget.totalLikes || 0) +
+          (budget.totalComments || 0) +
+          (budget.totalBookmarks || 0) +
+          (budget.totalProfileViews || 0),
+        weightedActivity: await calculateWeightedActivity(budget),
+        currentRates: {
+          viewRate: budget.currentRates?.viewRate || 0,
+          likeRate: budget.currentRates?.likeRate || 0,
+          commentRate: budget.currentRates?.commentRate || 0,
+          bookmarkRate: budget.currentRates?.bookmarkRate || 0,
+          profileViewRate: budget.currentRates?.profileViewRate || 0,
+        },
+      }))
+    );
 
     console.log(`✅ Retrieved ${transformedBudgets.length} budget records`);
     return ResponseUtil.success(event, transformedBudgets);
@@ -211,7 +217,7 @@ async function handleUpdateBudget(
       budget.lastUpdated = new Date().toISOString();
 
       // Recalculate rates if there's activity
-      const systemConfig = PSCPayoutService.getSystemConfig();
+      const systemConfig = await PSCPayoutService.getSystemConfig();
       try {
         budget.currentRates = await PSCPayoutService.calculateCurrentRates(
           budget,
@@ -237,7 +243,7 @@ async function handleUpdateBudget(
         (budget.totalComments || 0) +
         (budget.totalBookmarks || 0) +
         (budget.totalProfileViews || 0),
-      weightedActivity: calculateWeightedActivity(budget),
+      weightedActivity: await calculateWeightedActivity(budget),
       currentRates: {
         viewRate: budget.currentRates?.viewRate || 0,
         likeRate: budget.currentRates?.likeRate || 0,
@@ -256,10 +262,70 @@ async function handleUpdateBudget(
 }
 
 /**
+ * Delete a daily budget
+ */
+async function handleDeleteBudget(
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> {
+  const date = event.pathParameters?.["date"];
+
+  if (!date) {
+    return ResponseUtil.error(event, "Date parameter is required", 400);
+  }
+
+  try {
+    // Validate date format (YYYY-MM-DD)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(date)) {
+      return ResponseUtil.error(
+        event,
+        "Invalid date format. Use YYYY-MM-DD",
+        400
+      );
+    }
+
+    // Check if budget exists
+    const existingBudget = await DynamoDBService.getBudgetByDate(date);
+    if (!existingBudget) {
+      return ResponseUtil.error(
+        event,
+        `Budget for date ${date} not found`,
+        404
+      );
+    }
+
+    // Prevent deletion of budgets with distributed amounts
+    const distributedAmount =
+      existingBudget.totalBudget - existingBudget.remainingBudget;
+    if (distributedAmount > 0) {
+      return ResponseUtil.error(
+        event,
+        `Cannot delete budget for ${date}. ${distributedAmount} PSC has already been distributed.`,
+        400
+      );
+    }
+
+    // Delete the budget
+    await DynamoDBService.deleteBudget(date);
+
+    console.log(`✅ Deleted budget for ${date}`);
+    return ResponseUtil.success(event, {
+      message: `Budget for ${date} deleted successfully`,
+      date,
+    });
+  } catch (error) {
+    console.error("❌ Budget deletion error:", error);
+    return ResponseUtil.internalError(event, "Failed to delete budget");
+  }
+}
+
+/**
  * Calculate weighted activity for a budget
  */
-function calculateWeightedActivity(budget: DailyBudgetEntity): number {
-  const config = PSCPayoutService.getSystemConfig();
+async function calculateWeightedActivity(
+  budget: DailyBudgetEntity
+): Promise<number> {
+  const config = await PSCPayoutService.getSystemConfig();
 
   return (
     (budget.totalViews || 0) * config.rateWeights.view +

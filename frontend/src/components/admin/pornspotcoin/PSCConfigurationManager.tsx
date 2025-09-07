@@ -24,25 +24,7 @@ export function PSCConfigurationManager({}: PSCConfigurationManagerProps) {
   const updateConfigMutation = usePSCConfigMutation();
   const resetConfigMutation = usePSCConfigResetMutation();
 
-  const defaultConfig: PSCSystemConfig = {
-    dailyBudgetAmount: 33.0,
-    enableRewards: true,
-    enableUserToUserTransfers: true,
-    enableWithdrawals: false,
-    minimumPayoutAmount: 0.000000001,
-    maxPayoutPerAction: 1000,
-    rateWeights: {
-      view: 1,
-      like: 6,
-      comment: 10,
-      bookmark: 8,
-      profileView: 4,
-    },
-  };
-
-  const [config, setConfig] = useState<PSCSystemConfig>(
-    serverConfig || defaultConfig
-  );
+  const [config, setConfig] = useState<PSCSystemConfig | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
 
   // Update local config when server config changes
@@ -53,13 +35,74 @@ export function PSCConfigurationManager({}: PSCConfigurationManagerProps) {
     }
   }, [serverConfig]);
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Settings className="h-5 w-5 text-purple-500" />
+            <div>
+              <h2 className="text-xl font-semibold">System Configuration</h2>
+              <p className="text-sm text-gray-600">
+                Loading PornSpotCoin system settings...
+              </p>
+            </div>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="py-8">
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+              <span className="ml-3 text-muted-foreground">
+                Loading configuration...
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Settings className="h-5 w-5 text-purple-500" />
+            <div>
+              <h2 className="text-xl font-semibold">System Configuration</h2>
+              <p className="text-sm text-gray-600">
+                Error loading PornSpotCoin system settings
+              </p>
+            </div>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="py-8">
+            <div className="flex items-center justify-center text-red-500">
+              <AlertTriangle className="h-8 w-8 mr-3" />
+              <span>Failed to load configuration. Please try again.</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Don't render if config is not yet loaded
+  if (!config) {
+    return null;
+  }
+
   const handleConfigChange = (field: keyof PSCSystemConfig, value: any) => {
+    if (!config) return;
+
     setConfig((prev) => {
+      if (!prev) return prev;
       const newConfig = { ...prev, [field]: value };
-      setHasChanges(
-        JSON.stringify(newConfig) !==
-          JSON.stringify(serverConfig || defaultConfig)
-      );
+      setHasChanges(JSON.stringify(newConfig) !== JSON.stringify(serverConfig));
       return newConfig;
     });
   };
@@ -68,15 +111,15 @@ export function PSCConfigurationManager({}: PSCConfigurationManagerProps) {
     action: keyof PSCSystemConfig["rateWeights"],
     value: number
   ) => {
+    if (!config) return;
+
     setConfig((prev) => {
+      if (!prev) return prev;
       const newConfig = {
         ...prev,
         rateWeights: { ...prev.rateWeights, [action]: value },
       };
-      setHasChanges(
-        JSON.stringify(newConfig) !==
-          JSON.stringify(serverConfig || defaultConfig)
-      );
+      setHasChanges(JSON.stringify(newConfig) !== JSON.stringify(serverConfig));
       return newConfig;
     });
   };

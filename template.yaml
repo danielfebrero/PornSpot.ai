@@ -1749,6 +1749,14 @@ Resources:
             Method: PUT
             Auth:
               Authorizer: AdminAuthorizer
+        DeleteBudget:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/budgets/{date}
+            Method: DELETE
+            Auth:
+              Authorizer: AdminAuthorizer
         OptionsBudgets:
           Type: Api
           Properties:

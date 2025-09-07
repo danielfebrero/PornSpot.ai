@@ -41,9 +41,26 @@ export class PSCPayoutService {
   /**
    * Get current system configuration
    */
-  static getSystemConfig(): PSCSystemConfig {
-    // TODO: In the future, load this from DynamoDB or environment variables
-    return { ...PSCPayoutService.DEFAULT_CONFIG };
+  static async getSystemConfig(): Promise<PSCSystemConfig> {
+    try {
+      // Import DynamoDBService dynamically to avoid circular dependency
+      const config = await DynamoDBService.getPSCConfig();
+
+      if (config) {
+        return config;
+      }
+
+      // If no config exists in database, return default and save it
+      const defaultConfig = { ...PSCPayoutService.DEFAULT_CONFIG };
+      await DynamoDBService.savePSCConfig(defaultConfig);
+      return defaultConfig;
+    } catch (error) {
+      console.warn(
+        "Failed to load PSC config from database, using defaults:",
+        error
+      );
+      return { ...PSCPayoutService.DEFAULT_CONFIG };
+    }
   }
 
   /**
@@ -75,7 +92,7 @@ export class PSCPayoutService {
    */
   static async getTodaysBudget(): Promise<DailyBudgetEntity> {
     const today = PSCPayoutService.getTodayDateString();
-    const config = PSCPayoutService.getSystemConfig();
+    const config = await PSCPayoutService.getSystemConfig();
 
     try {
       // Try to get existing budget
@@ -238,7 +255,7 @@ export class PSCPayoutService {
    * Calculate payout for a specific event
    */
   static async calculatePayout(event: PayoutEvent): Promise<PayoutCalculation> {
-    const config = PSCPayoutService.getSystemConfig();
+    const config = await PSCPayoutService.getSystemConfig();
 
     if (!config.enableRewards) {
       return {
@@ -442,7 +459,7 @@ export class PSCPayoutService {
    */
   static async getCurrentRates(): Promise<DailyBudgetEntity["currentRates"]> {
     const budget = await PSCPayoutService.getTodaysBudget();
-    const config = PSCPayoutService.getSystemConfig();
+    const config = await PSCPayoutService.getSystemConfig();
     return await PSCPayoutService.calculateCurrentRates(budget, config);
   }
 

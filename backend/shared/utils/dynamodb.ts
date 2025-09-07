@@ -4560,6 +4560,21 @@ export class DynamoDBService {
   }
 
   /**
+   * Delete daily budget by date
+   */
+  static async deleteBudget(date: string): Promise<void> {
+    await docClient.send(
+      new DeleteCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `PSC_BUDGET#${date}`,
+          SK: "METADATA",
+        },
+      })
+    );
+  }
+
+  /**
    * Get all transactions for admin view with filtering and pagination
    */
   static async getAdminTransactions(params: {

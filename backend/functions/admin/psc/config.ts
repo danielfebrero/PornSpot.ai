@@ -93,7 +93,7 @@ async function handleUpdateConfig(
     let currentConfig = await DynamoDBService.getPSCConfig();
 
     if (!currentConfig) {
-      currentConfig = PSCPayoutService.getSystemConfig();
+      currentConfig = await PSCPayoutService.getSystemConfig();
     }
 
     // Merge with updates
