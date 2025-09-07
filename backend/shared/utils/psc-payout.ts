@@ -139,31 +139,36 @@ export class PSCPayoutService {
 
       try {
         const yesterday = PSCPayoutService.getYesterdayDateString();
-        const yesterdayBudget = await DynamoDBService.getBudgetByDate(yesterday);
-        
+        const yesterdayBudget = await DynamoDBService.getBudgetByDate(
+          yesterday
+        );
+
         if (yesterdayBudget) {
-          const yesterdayWeightedActivity = 
+          const yesterdayWeightedActivity =
             yesterdayBudget.totalViews * config.rateWeights.view +
             yesterdayBudget.totalLikes * config.rateWeights.like +
             yesterdayBudget.totalComments * config.rateWeights.comment +
             yesterdayBudget.totalBookmarks * config.rateWeights.bookmark +
             yesterdayBudget.totalProfileViews * config.rateWeights.profileView;
-          
+
           // Use yesterday's weighted activity if it's reasonable (> 0), otherwise use default
           if (yesterdayWeightedActivity > 0) {
             estimatedDailyWeightedActivity = yesterdayWeightedActivity;
           }
         }
       } catch (error) {
-        console.log("Could not fetch yesterday's activity, using default:", error);
+        console.log(
+          "Could not fetch yesterday's activity, using default:",
+          error
+        );
         // Keep default value
       }
 
       const baseRate = budget.remainingBudget / estimatedDailyWeightedActivity;
-      
+
       // Ensure no single rate exceeds half the remaining budget
       const maxSafeRate = budget.remainingBudget / 2;
-      
+
       return {
         viewRate: Math.min(
           baseRate * config.rateWeights.view,

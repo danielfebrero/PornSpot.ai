@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  Settings, 
-  TrendingUp, 
-  DollarSign, 
+import {
+  Settings,
+  TrendingUp,
+  DollarSign,
   Activity,
   Users,
   Zap,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -30,15 +30,15 @@ export default function PSCAdminPage() {
         likes: 67,
         comments: 23,
         bookmarks: 34,
-        profileViews: 12
-      }
+        profileViews: 12,
+      },
     },
     currentRates: {
       viewRate: 0.035,
       likeRate: 0.21,
       commentRate: 0.35,
       bookmarkRate: 0.28,
-      profileViewRate: 0.14
+      profileViewRate: 0.14,
     },
     systemConfig: {
       enableRewards: true,
@@ -52,21 +52,21 @@ export default function PSCAdminPage() {
         like: 6,
         comment: 10,
         bookmark: 8,
-        profileView: 4
-      }
+        profileView: 4,
+      },
     },
     recentStats: {
       totalDistributedToday: 14.5,
       totalTransactionsToday: 381,
       activeUsersEarning: 45,
-      averageEarningsPerUser: 0.32
-    }
+      averageEarningsPerUser: 0.32,
+    },
   };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     // TODO: Implement actual refresh logic
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsRefreshing(false);
   };
 
@@ -88,7 +88,9 @@ export default function PSCAdminPage() {
           variant="outline"
           size="sm"
         >
-          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+          />
           Refresh
         </Button>
       </div>
@@ -100,10 +102,20 @@ export default function PSCAdminPage() {
           value={`${mockOverviewData.dailyBudget.remaining.toFixed(2)} PSC`}
           subtitle={`of ${mockOverviewData.dailyBudget.total} PSC`}
           icon={DollarSign}
-          trend={+((mockOverviewData.dailyBudget.distributed / mockOverviewData.dailyBudget.total) * 100)}
-          trendLabel={`${Math.round((mockOverviewData.dailyBudget.distributed / mockOverviewData.dailyBudget.total) * 100)}% distributed`}
+          trend={
+            +(
+              (mockOverviewData.dailyBudget.distributed /
+                mockOverviewData.dailyBudget.total) *
+              100
+            )
+          }
+          trendLabel={`${Math.round(
+            (mockOverviewData.dailyBudget.distributed /
+              mockOverviewData.dailyBudget.total) *
+              100
+          )}% distributed`}
         />
-        
+
         <StatusCard
           title="Total Transactions"
           value={mockOverviewData.recentStats.totalTransactionsToday.toString()}
@@ -112,7 +124,7 @@ export default function PSCAdminPage() {
           trend={+12}
           trendLabel="+12% vs yesterday"
         />
-        
+
         <StatusCard
           title="Active Earners"
           value={mockOverviewData.recentStats.activeUsersEarning.toString()}
@@ -121,10 +133,12 @@ export default function PSCAdminPage() {
           trend={+8}
           trendLabel="+8% vs yesterday"
         />
-        
+
         <StatusCard
           title="Average Earnings"
-          value={`${mockOverviewData.recentStats.averageEarningsPerUser.toFixed(3)} PSC`}
+          value={`${mockOverviewData.recentStats.averageEarningsPerUser.toFixed(
+            3
+          )} PSC`}
           subtitle="Per User"
           icon={TrendingUp}
           trend={-3}
@@ -142,28 +156,28 @@ export default function PSCAdminPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <RateDisplay 
-              label="View" 
+            <RateDisplay
+              label="View"
               rate={mockOverviewData.currentRates.viewRate}
               weight={mockOverviewData.systemConfig.rateWeights.view}
             />
-            <RateDisplay 
-              label="Like" 
+            <RateDisplay
+              label="Like"
               rate={mockOverviewData.currentRates.likeRate}
               weight={mockOverviewData.systemConfig.rateWeights.like}
             />
-            <RateDisplay 
-              label="Comment" 
+            <RateDisplay
+              label="Comment"
               rate={mockOverviewData.currentRates.commentRate}
               weight={mockOverviewData.systemConfig.rateWeights.comment}
             />
-            <RateDisplay 
-              label="Bookmark" 
+            <RateDisplay
+              label="Bookmark"
               rate={mockOverviewData.currentRates.bookmarkRate}
               weight={mockOverviewData.systemConfig.rateWeights.bookmark}
             />
-            <RateDisplay 
-              label="Profile View" 
+            <RateDisplay
+              label="Profile View"
               rate={mockOverviewData.currentRates.profileViewRate}
               weight={mockOverviewData.systemConfig.rateWeights.profileView}
             />
@@ -236,24 +250,24 @@ export default function PSCAdminPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <ActivityStat 
-                  label="Views" 
+                <ActivityStat
+                  label="Views"
                   count={mockOverviewData.dailyBudget.activity.views}
                 />
-                <ActivityStat 
-                  label="Likes" 
+                <ActivityStat
+                  label="Likes"
                   count={mockOverviewData.dailyBudget.activity.likes}
                 />
-                <ActivityStat 
-                  label="Comments" 
+                <ActivityStat
+                  label="Comments"
                   count={mockOverviewData.dailyBudget.activity.comments}
                 />
-                <ActivityStat 
-                  label="Bookmarks" 
+                <ActivityStat
+                  label="Bookmarks"
                   count={mockOverviewData.dailyBudget.activity.bookmarks}
                 />
-                <ActivityStat 
-                  label="Profile Views" 
+                <ActivityStat
+                  label="Profile Views"
                   count={mockOverviewData.dailyBudget.activity.profileViews}
                 />
               </div>
@@ -293,7 +307,14 @@ interface StatusCardProps {
   trendLabel: string;
 }
 
-function StatusCard({ title, value, subtitle, icon: Icon, trend, trendLabel }: StatusCardProps) {
+function StatusCard({
+  title,
+  value,
+  subtitle,
+  icon: Icon,
+  trend,
+  trendLabel,
+}: StatusCardProps) {
   return (
     <Card>
       <CardContent className="p-6">
@@ -305,8 +326,12 @@ function StatusCard({ title, value, subtitle, icon: Icon, trend, trendLabel }: S
           <p className="text-2xl font-bold text-foreground">{value}</p>
           <p className="text-xs text-muted-foreground">{subtitle}</p>
           <div className="flex items-center space-x-1">
-            <span className={`text-xs ${trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {trend >= 0 ? '↗' : '↘'} {trendLabel}
+            <span
+              className={`text-xs ${
+                trend >= 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {trend >= 0 ? "↗" : "↘"} {trendLabel}
             </span>
           </div>
         </div>
@@ -344,9 +369,13 @@ function SystemStatusItem({ label, value, type }: SystemStatusItemProps) {
     if (type === "boolean") {
       return (
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${value ? 'bg-green-500' : 'bg-red-500'}`} />
-          <span className={value ? 'text-green-600' : 'text-red-600'}>
-            {value ? 'Enabled' : 'Disabled'}
+          <div
+            className={`w-2 h-2 rounded-full ${
+              value ? "bg-green-500" : "bg-red-500"
+            }`}
+          />
+          <span className={value ? "text-green-600" : "text-red-600"}>
+            {value ? "Enabled" : "Disabled"}
           </span>
         </div>
       );
@@ -372,7 +401,9 @@ function ActivityStat({ label, count }: ActivityStatProps) {
   return (
     <div className="text-center p-3 bg-muted/30 rounded-lg">
       <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="text-xl font-bold text-foreground">{count.toLocaleString()}</p>
+      <p className="text-xl font-bold text-foreground">
+        {count.toLocaleString()}
+      </p>
     </div>
   );
 }
@@ -389,8 +420,8 @@ function TabButton({ active, onClick, children }: TabButtonProps) {
     <button
       className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
         active
-          ? 'bg-background text-foreground shadow-sm'
-          : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+          ? "bg-background text-foreground shadow-sm"
+          : "text-muted-foreground hover:text-foreground hover:bg-background/50"
       }`}
       onClick={onClick}
     >
@@ -414,11 +445,17 @@ function PSCSystemConfigSection({ config }: { config: any }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium">Daily Budget Amount</label>
-              <p className="text-lg font-semibold">{config.dailyBudgetAmount} PSC</p>
+              <p className="text-lg font-semibold">
+                {config.dailyBudgetAmount} PSC
+              </p>
             </div>
             <div>
-              <label className="text-sm font-medium">Maximum Payout per Action</label>
-              <p className="text-lg font-semibold">{config.maxPayoutPerAction} PSC</p>
+              <label className="text-sm font-medium">
+                Maximum Payout per Action
+              </label>
+              <p className="text-lg font-semibold">
+                {config.maxPayoutPerAction} PSC
+              </p>
             </div>
           </div>
         </div>
