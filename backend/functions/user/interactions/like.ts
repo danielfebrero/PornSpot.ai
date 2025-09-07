@@ -28,6 +28,7 @@ import { InteractionRequest, NotificationTargetType } from "@shared";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 import { CounterUtil } from "@shared/utils/counter";
+import { PSCIntegrationService } from "@shared/utils/psc-integration";
 
 const handleLikeInteraction = async (
   event: APIGatewayProxyEvent,
@@ -62,6 +63,15 @@ const handleLikeInteraction = async (
   if (!["add", "remove"].includes(action)) {
     return ResponseUtil.badRequest(event, "action must be 'add' or 'remove'");
   }
+
+  // Declare PSC payout result at function level
+  let pscPayoutResult: {
+    success: boolean;
+    amount?: number;
+    shouldPayout?: boolean;
+    reason?: string;
+    viewCount?: number;
+  } | null = null;
 
   // Verify target exists
   if (targetType === "album") {
@@ -200,6 +210,70 @@ const handleLikeInteraction = async (
       }
     }
 
+    // PSC Payout Integration for likes (immediate payout)
+    if (targetCreatorId && userId !== targetCreatorId) {
+      try {
+        let pscTargetType: "album" | "media" | "profile";
+        let pscTargetId: string;
+        const pscMetadata: any = {};
+
+        if (targetType === "comment") {
+          // For comments, we need to get the parent content (album/media) for PSC
+          if (comment?.targetType && comment?.targetId) {
+            pscTargetType = comment.targetType as "album" | "media";
+            pscTargetId = comment.targetId;
+            pscMetadata.commentId = targetId;
+            if (comment.targetType === "album") {
+              pscMetadata.albumId = comment.targetId;
+            } else if (comment.targetType === "media") {
+              pscMetadata.mediaId = comment.targetId;
+            }
+          } else {
+            console.warn(
+              "⚠️ Comment missing targetType/targetId, skipping PSC payout"
+            );
+            // Skip PSC payout but continue with the response
+          }
+        } else {
+          // For albums and media, use directly
+          pscTargetType = targetType as "album" | "media";
+          pscTargetId = targetId;
+          if (targetType === "album") {
+            pscMetadata.albumId = targetId;
+          } else {
+            pscMetadata.mediaId = targetId;
+          }
+        }
+
+        // Only process payout if we have valid target info
+        if (pscTargetType! && pscTargetId!) {
+          const payoutEvent = PSCIntegrationService.createPayoutEvent(
+            "like",
+            pscTargetType,
+            pscTargetId,
+            userId,
+            targetCreatorId,
+            pscMetadata
+          );
+
+          pscPayoutResult =
+            await PSCIntegrationService.processInteractionPayout(
+              payoutEvent,
+              true // Likes require auth
+            );
+
+          if (pscPayoutResult.success && pscPayoutResult.shouldPayout) {
+            console.log(
+              `💰 PSC Payout: ${pscPayoutResult.amount} PSC to ${targetCreatorId} for ${targetType} like`
+            );
+          }
+        }
+      } catch (error) {
+        console.warn("⚠️ PSC payout failed:", error);
+        // Don't fail the entire request if PSC payout fails
+      }
+    }
+
     console.log(`✅ Like added for ${targetType} ${targetId}`);
   } else {
     // Remove like - use different method for comments
@@ -291,6 +365,14 @@ const handleLikeInteraction = async (
     targetType,
     targetId,
     action: action === "add" ? "added" : "removed",
+    psc: pscPayoutResult
+      ? {
+          success: pscPayoutResult.success,
+          amount: pscPayoutResult.amount,
+          shouldPayout: pscPayoutResult.shouldPayout,
+          reason: pscPayoutResult.reason,
+        }
+      : null,
   });
 };
 

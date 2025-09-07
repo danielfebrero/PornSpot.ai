@@ -138,6 +138,21 @@ export interface DailyBudgetEntity {
   createdAt: string;
 }
 
+// User view counter for tracking 10-view cycles for media views
+export interface UserViewCounterEntity {
+  PK: string; // USER_VIEW_COUNTER#{userId}
+  SK: string; // METADATA
+  EntityType: "UserViewCounter";
+
+  userId: string;
+  mediaViewCount: number; // Current count (0-9), resets to 0 when reaching 10
+  totalMediaViews: number; // Total lifetime media views by this user
+  lastViewAt: string; // Timestamp of last media view
+  lastPayoutAt?: string; // Timestamp of last payout (every 10 views)
+  createdAt: string;
+  lastUpdated: string;
+}
+
 // PSC balance summary for users
 export interface PSCBalance {
   userId: string;

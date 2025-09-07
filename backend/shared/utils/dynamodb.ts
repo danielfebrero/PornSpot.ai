@@ -40,6 +40,7 @@ import {
   TransactionEntity,
   DailyBudgetEntity,
   PSCSystemConfig,
+  UserViewCounterEntity,
 } from "@shared/shared-types";
 import {
   UserEntity,
@@ -4763,6 +4764,101 @@ export class DynamoDBService {
       );
     } catch (error) {
       console.error("Error saving PSC config:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user view counter for PSC view tracking
+   */
+  static async getUserViewCounter(
+    userId: string
+  ): Promise<UserViewCounterEntity | null> {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `USER_VIEW_COUNTER#${userId}`,
+          SK: "METADATA",
+        },
+      })
+    );
+
+    return (result.Item as UserViewCounterEntity) || null;
+  }
+
+  /**
+   * Create or update user view counter for PSC view tracking
+   */
+  static async updateUserViewCounter(
+    userId: string,
+    incrementMediaViews: boolean = false
+  ): Promise<UserViewCounterEntity> {
+    const now = new Date().toISOString();
+
+    try {
+      // Try to get existing counter
+      const existing = await DynamoDBService.getUserViewCounter(userId);
+
+      if (existing) {
+        // Update existing counter
+        let newMediaViewCount = existing.mediaViewCount;
+        let newTotalMediaViews = existing.totalMediaViews;
+        let lastPayoutAt = existing.lastPayoutAt;
+
+        if (incrementMediaViews) {
+          newMediaViewCount = (existing.mediaViewCount + 1) % 10; // Reset to 0 when reaching 10
+          newTotalMediaViews = existing.totalMediaViews + 1;
+
+          // If we just reset to 0, it means we hit 10 views
+          if (newMediaViewCount === 0) {
+            lastPayoutAt = now;
+          }
+        }
+
+        const updatedCounter: UserViewCounterEntity = {
+          ...existing,
+          mediaViewCount: newMediaViewCount,
+          totalMediaViews: newTotalMediaViews,
+          lastViewAt: now,
+          lastPayoutAt,
+          lastUpdated: now,
+        };
+
+        await docClient.send(
+          new PutCommand({
+            TableName: TABLE_NAME,
+            Item: updatedCounter,
+          })
+        );
+
+        return updatedCounter;
+      } else {
+        // Create new counter
+        const newCounter: UserViewCounterEntity = {
+          PK: `USER_VIEW_COUNTER#${userId}`,
+          SK: "METADATA",
+          EntityType: "UserViewCounter",
+          userId,
+          mediaViewCount: incrementMediaViews ? 1 : 0,
+          totalMediaViews: incrementMediaViews ? 1 : 0,
+          lastViewAt: now,
+          lastPayoutAt: undefined,
+          createdAt: now,
+          lastUpdated: now,
+        };
+
+        await docClient.send(
+          new PutCommand({
+            TableName: TABLE_NAME,
+            Item: newCounter,
+          })
+        );
+
+        return newCounter;
+      }
+    } catch (error) {
+      console.error("Error updating user view counter:", error);
       throw error;
     }
   }
