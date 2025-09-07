@@ -4514,7 +4514,8 @@ export class DynamoDBService {
     eventType: string,
     amount: number
   ): Promise<void> {
-    const updateExpressions: string[] = [];
+    const addExpressions: string[] = [];
+    const setExpressions: string[] = [];
     const expressionAttributeValues: Record<string, any> = {
       ":amount": amount,
       ":increment": 1,
@@ -4524,28 +4525,39 @@ export class DynamoDBService {
     // Update the specific activity counter
     switch (eventType) {
       case "view":
-        updateExpressions.push("ADD totalViews :increment");
+        addExpressions.push("totalViews :increment");
         break;
       case "like":
-        updateExpressions.push("ADD totalLikes :increment");
+        addExpressions.push("totalLikes :increment");
         break;
       case "comment":
-        updateExpressions.push("ADD totalComments :increment");
+        addExpressions.push("totalComments :increment");
         break;
       case "bookmark":
-        updateExpressions.push("ADD totalBookmarks :increment");
+        addExpressions.push("totalBookmarks :increment");
         break;
       case "profile_view":
-        updateExpressions.push("ADD totalProfileViews :increment");
+        addExpressions.push("totalProfileViews :increment");
         break;
     }
 
     // Update budget amounts
-    updateExpressions.push("ADD distributedBudget :amount");
-    updateExpressions.push("ADD remainingBudget :negativeAmount");
-    updateExpressions.push("SET lastUpdated = :lastUpdated");
+    addExpressions.push("distributedBudget :amount");
+    addExpressions.push("remainingBudget :negativeAmount");
+
+    // Update timestamp
+    setExpressions.push("lastUpdated = :lastUpdated");
 
     expressionAttributeValues[":negativeAmount"] = -amount;
+
+    // Build the proper UpdateExpression format
+    const updateParts: string[] = [];
+    if (addExpressions.length > 0) {
+      updateParts.push(`ADD ${addExpressions.join(", ")}`);
+    }
+    if (setExpressions.length > 0) {
+      updateParts.push(`SET ${setExpressions.join(", ")}`);
+    }
 
     await docClient.send(
       new UpdateCommand({
@@ -4554,7 +4566,7 @@ export class DynamoDBService {
           PK: `PSC_BUDGET#${date}`,
           SK: "METADATA",
         },
-        UpdateExpression: updateExpressions.join(", "),
+        UpdateExpression: updateParts.join(" "),
         ExpressionAttributeValues: expressionAttributeValues,
       })
     );
