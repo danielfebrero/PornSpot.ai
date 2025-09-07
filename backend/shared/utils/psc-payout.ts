@@ -136,7 +136,25 @@ export class PSCPayoutService {
   }
 
   /**
+   * Calculate percentage of day that has passed (0.0 to 1.0)
+   */
+  private static getPercentageOfDayPassed(): number {
+    const now = new Date();
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+    const millisecondsInDay = 24 * 60 * 60 * 1000;
+    const millisecondsPassed = now.getTime() - startOfDay.getTime();
+
+    return Math.min(1.0, Math.max(0.0, millisecondsPassed / millisecondsInDay));
+  }
+
+  /**
    * Calculate current rates based on activity and remaining budget
+   * Formula: Rate needed to reach 0 daily remaining budget at end of day at current pace
+   * Current pace = (totalWeightedDailyActivity + rateweight) / % of day already spent
    */
   static async calculateCurrentRates(
     budget: DailyBudgetEntity,
@@ -148,6 +166,12 @@ export class PSCPayoutService {
       budget.totalComments * config.rateWeights.comment +
       budget.totalBookmarks * config.rateWeights.bookmark +
       budget.totalProfileViews * config.rateWeights.profileView;
+
+    // Calculate percentage of day that has passed
+    const percentageOfDayPassed = PSCPayoutService.getPercentageOfDayPassed();
+
+    // Prevent division by zero if it's very early in the day (use minimum 1% of day)
+    const safePercentagePassed = Math.max(0.01, percentageOfDayPassed);
 
     // If no activity yet, set initial rates based on yesterday's activity
     if (totalWeightedActivity === 0) {
@@ -181,7 +205,10 @@ export class PSCPayoutService {
         // Keep default value
       }
 
-      const baseRate = budget.remainingBudget / estimatedDailyWeightedActivity;
+      // Calculate projected pace based on estimated activity and current time of day
+      const projectedDailyPace =
+        estimatedDailyWeightedActivity / safePercentagePassed;
+      const baseRate = budget.remainingBudget / projectedDailyPace;
 
       // Ensure no single rate exceeds half the remaining budget
       const maxSafeRate = budget.remainingBudget / 2;
@@ -215,9 +242,14 @@ export class PSCPayoutService {
       };
     }
 
-    // Calculate rate per weighted unit
-    const ratePerWeightedUnit =
-      budget.remainingBudget / (totalWeightedActivity + 100); // +100 buffer for remaining day
+    // Calculate current pace of expenses based on actual activity
+    // Pace = (totalWeightedActivity + buffer for remaining activity) / % of day passed
+    const bufferWeightedActivity = 100; // Small buffer for anticipated remaining activity
+    const currentPace =
+      (totalWeightedActivity + bufferWeightedActivity) / safePercentagePassed;
+
+    // Calculate rate per weighted unit to reach 0 remaining budget at end of day
+    const ratePerWeightedUnit = budget.remainingBudget / currentPace;
 
     // Ensure no single rate exceeds half the remaining budget
     const maxSafeRate = budget.remainingBudget / 2;
