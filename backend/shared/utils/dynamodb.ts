@@ -39,6 +39,7 @@ import {
   FollowEntity,
   TransactionEntity,
   DailyBudgetEntity,
+  PSCSystemConfig,
 } from "@shared/shared-types";
 import {
   UserEntity,
@@ -4698,5 +4699,56 @@ export class DynamoDBService {
       timestamp: transaction.createdAt,
       metadata: transaction.metadata,
     };
+  }
+
+  // ===== PSC Configuration Methods =====
+
+  /**
+   * Get PSC system configuration
+   */
+  static async getPSCConfig(): Promise<PSCSystemConfig | null> {
+    try {
+      const result = await docClient.send(
+        new GetCommand({
+          TableName: TABLE_NAME,
+          Key: {
+            PK: "PSC_CONFIG",
+            SK: "SYSTEM",
+          },
+        })
+      );
+
+      if (!result.Item) {
+        return null;
+      }
+
+      return result.Item as PSCSystemConfig;
+    } catch (error) {
+      console.error("Error getting PSC config:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Save PSC system configuration
+   */
+  static async savePSCConfig(config: PSCSystemConfig): Promise<void> {
+    try {
+      await docClient.send(
+        new PutCommand({
+          TableName: TABLE_NAME,
+          Item: {
+            PK: "PSC_CONFIG",
+            SK: "SYSTEM",
+            EntityType: "PSCConfig",
+            ...config,
+            lastUpdated: new Date().toISOString(),
+          },
+        })
+      );
+    } catch (error) {
+      console.error("Error saving PSC config:", error);
+      throw error;
+    }
   }
 }

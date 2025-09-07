@@ -49,8 +49,24 @@ const handlePSCConfig = async (
 async function handleGetConfig(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
-  const config = PSCPayoutService.getSystemConfig();
-  return ResponseUtil.success(event, config);
+  try {
+    // Try to get config from database first
+    const { DynamoDBService } = await import("@shared/utils/dynamodb");
+    const savedConfig = await DynamoDBService.getPSCConfig();
+
+    if (savedConfig) {
+      return ResponseUtil.success(event, savedConfig);
+    }
+
+    // If no saved config, return default config
+    const config = PSCPayoutService.getSystemConfig();
+    return ResponseUtil.success(event, config);
+  } catch (error) {
+    console.error("Error getting PSC config:", error);
+    // Fallback to default config
+    const config = PSCPayoutService.getSystemConfig();
+    return ResponseUtil.success(event, config);
+  }
 }
 
 /**
@@ -72,8 +88,13 @@ async function handleUpdateConfig(
       return ResponseUtil.error(event, validationError);
     }
 
-    // Get current config
-    const currentConfig = PSCPayoutService.getSystemConfig();
+    // Get current config (from database or default)
+    const { DynamoDBService } = await import("@shared/utils/dynamodb");
+    let currentConfig = await DynamoDBService.getPSCConfig();
+
+    if (!currentConfig) {
+      currentConfig = PSCPayoutService.getSystemConfig();
+    }
 
     // Merge with updates
     const updatedConfig: PSCSystemConfig = {
@@ -86,9 +107,10 @@ async function handleUpdateConfig(
       },
     };
 
-    // TODO: In the future, save this to DynamoDB
-    // For now, we just return the merged config
-    console.log("Updated PSC config:", updatedConfig);
+    // Save to DynamoDB
+    await DynamoDBService.savePSCConfig(updatedConfig);
+
+    console.log("Updated and saved PSC config:", updatedConfig);
 
     return ResponseUtil.success(event, updatedConfig);
   } catch (error) {

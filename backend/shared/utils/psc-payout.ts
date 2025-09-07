@@ -438,7 +438,7 @@ export class PSCPayoutService {
   }
 
   /**
-   * Get current rates for display
+   * Get current payout rates for different actions
    */
   static async getCurrentRates(): Promise<DailyBudgetEntity["currentRates"]> {
     const budget = await PSCPayoutService.getTodaysBudget();

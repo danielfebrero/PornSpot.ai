@@ -58,10 +58,11 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
   ); // Default to today
   const [editingBudget, setEditingBudget] = useState<string | null>(null);
   const [newBudgetValue, setNewBudgetValue] = useState<number>(0);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Find today's budget or closest available date when budgets load
+  // Find today's budget or closest available date when budgets load (only on initial load)
   React.useEffect(() => {
-    if (budgets.length > 0) {
+    if (budgets.length > 0 && !isInitialized) {
       const today = formatDateForAPI(new Date());
       const todayBudget = budgets.find((b) => b.date === today);
 
@@ -89,8 +90,9 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
 
         setSelectedDate(closestBudget.date);
       }
+      setIsInitialized(true);
     }
-  }, [budgets]);
+  }, [budgets, isInitialized]);
 
   // Handle navigation to new date ranges
   const [pendingNavigation, setPendingNavigation] = React.useState<{
