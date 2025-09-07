@@ -344,7 +344,7 @@ export function TransactionHistory({}: TransactionHistoryProps = {}) {
                 {transactions.map((transaction: PSCTransaction) => (
                   <tr
                     key={transaction.id}
-                    className="border-b hover:bg-gray-50"
+                    className="border-b border-border hover:bg-muted/50 transition-colors cursor-pointer"
                   >
                     <td className="p-2">
                       <div className="flex items-center gap-2">
@@ -356,7 +356,7 @@ export function TransactionHistory({}: TransactionHistoryProps = {}) {
                     </td>
                     <td className="p-2">
                       <div className="font-medium">{transaction.username}</div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         {transaction.userId}
                       </div>
                     </td>
@@ -374,7 +374,7 @@ export function TransactionHistory({}: TransactionHistoryProps = {}) {
                     <td className="p-2">
                       {getStatusBadge(transaction.status)}
                     </td>
-                    <td className="p-2 text-gray-600">
+                    <td className="p-2 text-muted-foreground">
                       {formatDate(transaction.timestamp)}
                     </td>
                     <td className="p-2">
