@@ -17,6 +17,7 @@ import {
   Image,
   Users,
   BarChart3,
+  Coins,
 } from "lucide-react";
 
 interface AdminLayoutProps {
@@ -76,6 +77,11 @@ function AdminLayoutContent({
       href: "/admin/users",
       label: t("users"),
       icon: Users,
+    },
+    {
+      href: "/admin/pornspotcoin",
+      label: t("pornspotcoin"),
+      icon: Coins,
     },
   ];
 
