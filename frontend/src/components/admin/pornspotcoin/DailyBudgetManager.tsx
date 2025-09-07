@@ -280,14 +280,18 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
                   variant={selectedDate === budget.date ? "default" : "outline"}
                   className={`p-3 h-auto flex flex-col transition-all hover:bg-muted/70 ${
                     selectedDate === budget.date
-                      ? "ring-2 ring-primary/20 bg-primary hover:bg-primary/90"
+                      ? "ring-2 ring-primary/20 bg-primary/90 text-primary-foreground hover:bg-primary"
                       : "hover:border-primary/50"
                   } ${isToday ? "border-blue-500 dark:border-blue-400" : ""}`}
                   onClick={() => setSelectedDate(budget.date)}
                 >
                   <span
                     className={`text-xs font-medium ${
-                      isToday ? "text-blue-600 dark:text-blue-400" : ""
+                      selectedDate === budget.date
+                        ? "text-primary-foreground"
+                        : isToday
+                        ? "text-blue-600 dark:text-blue-400"
+                        : ""
                     }`}
                   >
                     {new Date(budget.date).toLocaleDateString("en-US", {
@@ -297,10 +301,14 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
                     {isToday && <span className="ml-1">📅</span>}
                   </span>
                   <span
-                    className={`text-xs ${getStatusColor(
-                      budget.remainingBudget,
-                      budget.totalBudget
-                    )}`}
+                    className={`text-xs ${
+                      selectedDate === budget.date
+                        ? "text-primary-foreground/80"
+                        : getStatusColor(
+                            budget.remainingBudget,
+                            budget.totalBudget
+                          )
+                    }`}
                   >
                     {formatCurrency(budget.remainingBudget)} left
                   </span>

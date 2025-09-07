@@ -104,46 +104,60 @@ export function usePSCBudgetMutation() {
     mutationFn: ({ date, amount }: { date: string; amount: number }) =>
       adminPSCApi.updateBudget(date, amount),
     onMutate: async ({ date, amount }) => {
-      // Cancel any outgoing refetches
+      // Cancel any outgoing refetches for all budget queries
       await queryClient.cancelQueries({
-        queryKey: queryKeys.admin.psc.budgets(),
+        queryKey: ["admin", "psc", "budgets"],
       });
 
-      // Snapshot the previous value
-      const previousBudgets = queryClient.getQueryData(
-        queryKeys.admin.psc.budgets()
-      );
+      // Get all matching query keys and update them
+      const queryCache = queryClient.getQueryCache();
+      const previousData = new Map();
 
-      // Optimistically update to the new value
-      queryClient.setQueryData(
-        queryKeys.admin.psc.budgets(),
-        (old: DailyBudget[] | undefined) => {
-          if (!old) return old;
-          return old.map((budget) =>
-            budget.date === date
-              ? { ...budget, totalBudget: amount, remainingBudget: amount }
-              : budget
-          );
-        }
-      );
+      queryCache
+        .findAll({ queryKey: ["admin", "psc", "budgets"] })
+        .forEach((query) => {
+          const queryKey = query.queryKey;
+          const currentData = queryClient.getQueryData<DailyBudget[]>(queryKey);
 
-      // Return a context object with the snapshotted value
-      return { previousBudgets };
+          if (currentData) {
+            // Store previous data for rollback
+            previousData.set(queryKey, currentData);
+
+            // Optimistically update the cache
+            queryClient.setQueryData<DailyBudget[]>(queryKey, (old) => {
+              if (!old) return old;
+              return old.map((budget) =>
+                budget.date === date
+                  ? {
+                      ...budget,
+                      totalBudget: amount,
+                      // Calculate remaining budget correctly: new total - already distributed
+                      remainingBudget: Math.max(
+                        0,
+                        amount - (budget.totalBudget - budget.remainingBudget)
+                      ),
+                    }
+                  : budget
+              );
+            });
+          }
+        });
+
+      return { previousData };
     },
     onError: (err, variables, context) => {
-      // If the mutation fails, use the context returned from onMutate to roll back
-      if (context?.previousBudgets) {
-        queryClient.setQueryData(
-          queryKeys.admin.psc.budgets(),
-          context.previousBudgets
-        );
+      // If the mutation fails, use the context to roll back all affected queries
+      if (context?.previousData) {
+        context.previousData.forEach((data, queryKey) => {
+          queryClient.setQueryData(queryKey, data);
+        });
       }
       console.error("Failed to update budget:", err);
     },
     onSettled: () => {
       // Always refetch after error or success
       queryClient.invalidateQueries({
-        queryKey: queryKeys.admin.psc.budgets(),
+        queryKey: ["admin", "psc", "budgets"],
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.psc.overview(),
