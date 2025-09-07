@@ -86,8 +86,8 @@ async function handleGetBudgets(
       if (budget) {
         budgets.push(budget);
       } else {
-        // Create mock budget data for dates without records
-        const mockBudget: DailyBudgetEntity = {
+        // Create and save real budget entity for dates without records
+        const newBudget: DailyBudgetEntity = {
           PK: `PSC_BUDGET#${dateString}`,
           SK: "METADATA",
           GSI1PK: "PSC_BUDGET",
@@ -112,7 +112,14 @@ async function handleGetBudgets(
           createdAt: new Date().toISOString(),
           lastUpdated: new Date().toISOString(),
         };
-        budgets.push(mockBudget);
+
+        // Save the new budget to DynamoDB
+        await DynamoDBService.createDailyBudget(newBudget);
+        console.log(
+          `📝 Created new budget for ${dateString}: ${systemConfig.dailyBudgetAmount} PSC`
+        );
+
+        budgets.push(newBudget);
       }
     }
 
