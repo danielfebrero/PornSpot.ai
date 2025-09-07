@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Settings,
   TrendingUp,
@@ -16,62 +16,92 @@ import { SectionErrorBoundary } from "@/components/ErrorBoundaries";
 import { PSCConfigurationManager } from "@/components/admin/pornspotcoin/PSCConfigurationManager";
 import { DailyBudgetManager } from "@/components/admin/pornspotcoin/DailyBudgetManager";
 import { TransactionHistory } from "@/components/admin/pornspotcoin/TransactionHistory";
+import { adminPSCApi, PSCOverviewData } from "@/lib/api/admin-psc";
 
 export default function PSCAdminPage() {
   // const t = useTranslations("admin.pornspotcoin");
   const [activeTab, setActiveTab] = useState("overview");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [overviewData, setOverviewData] = useState<PSCOverviewData | null>(
+    null
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data - will be replaced with actual API calls
-  const mockOverviewData = {
-    dailyBudget: {
-      total: 33.0,
-      remaining: 18.5,
-      distributed: 14.5,
-      activity: {
-        views: 245,
-        likes: 67,
-        comments: 23,
-        bookmarks: 34,
-        profileViews: 12,
-      },
-    },
-    currentRates: {
-      viewRate: 0.035,
-      likeRate: 0.21,
-      commentRate: 0.35,
-      bookmarkRate: 0.28,
-      profileViewRate: 0.14,
-    },
-    systemConfig: {
-      enableRewards: true,
-      enableUserToUserTransfers: true,
-      enableWithdrawals: false,
-      dailyBudgetAmount: 33.0,
-      minimumPayoutAmount: 0.000000001,
-      maxPayoutPerAction: 1000,
-      rateWeights: {
-        view: 1,
-        like: 6,
-        comment: 10,
-        bookmark: 8,
-        profileView: 4,
-      },
-    },
-    recentStats: {
-      totalDistributedToday: 14.5,
-      totalTransactionsToday: 381,
-      activeUsersEarning: 45,
-      averageEarningsPerUser: 0.32,
-    },
+  // Load overview data on component mount
+  useEffect(() => {
+    loadOverviewData();
+  }, []);
+
+  const loadOverviewData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await adminPSCApi.getOverview();
+      setOverviewData(data);
+    } catch (err) {
+      console.error("Failed to load PSC overview data:", err);
+      setError(err instanceof Error ? err.message : "Failed to load data");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // TODO: Implement actual refresh logic
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsRefreshing(false);
+    try {
+      await loadOverviewData();
+    } finally {
+      setIsRefreshing(false);
+    }
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">
+              PornSpotCoin Management
+            </h1>
+            <p className="text-muted-foreground mt-1">Loading PSC data...</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="h-20 bg-muted rounded"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error || !overviewData) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">
+              PornSpotCoin Management
+            </h1>
+            <p className="text-red-500 mt-1">
+              {error || "Failed to load PSC data"}
+            </p>
+          </div>
+          <Button onClick={handleRefresh} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -102,50 +132,48 @@ export default function PSCAdminPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatusCard
           title="Daily Budget Remaining"
-          value={`${mockOverviewData.dailyBudget.remaining.toFixed(2)} PSC`}
-          subtitle={`of ${mockOverviewData.dailyBudget.total} PSC`}
+          value={`${overviewData.dailyBudget.remaining.toFixed(2)} PSC`}
+          subtitle={`of ${overviewData.dailyBudget.total} PSC`}
           icon={DollarSign}
           trend={
             +(
-              (mockOverviewData.dailyBudget.distributed /
-                mockOverviewData.dailyBudget.total) *
+              (overviewData.dailyBudget.distributed /
+                overviewData.dailyBudget.total) *
               100
             )
           }
           trendLabel={`${Math.round(
-            (mockOverviewData.dailyBudget.distributed /
-              mockOverviewData.dailyBudget.total) *
+            (overviewData.dailyBudget.distributed /
+              overviewData.dailyBudget.total) *
               100
           )}% distributed`}
         />
 
         <StatusCard
           title="Total Transactions"
-          value={mockOverviewData.recentStats.totalTransactionsToday.toString()}
+          value="N/A"
           subtitle="Today"
           icon={Activity}
-          trend={+12}
-          trendLabel="+12% vs yesterday"
+          trend={0}
+          trendLabel="See transactions tab"
         />
 
         <StatusCard
           title="Active Earners"
-          value={mockOverviewData.recentStats.activeUsersEarning.toString()}
+          value="N/A"
           subtitle="Users"
           icon={Users}
-          trend={+8}
-          trendLabel="+8% vs yesterday"
+          trend={0}
+          trendLabel="Data coming soon"
         />
 
         <StatusCard
-          title="Average Earnings"
-          value={`${mockOverviewData.recentStats.averageEarningsPerUser.toFixed(
-            3
-          )} PSC`}
-          subtitle="Per User"
+          title="Current Budget"
+          value={`${overviewData.dailyBudget.total.toFixed(2)} PSC`}
+          subtitle="Daily Total"
           icon={TrendingUp}
-          trend={-3}
-          trendLabel="-3% vs yesterday"
+          trend={0}
+          trendLabel="Per day"
         />
       </div>
 
@@ -161,28 +189,28 @@ export default function PSCAdminPage() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <RateDisplay
               label="View"
-              rate={mockOverviewData.currentRates.viewRate}
-              weight={mockOverviewData.systemConfig.rateWeights.view}
+              rate={overviewData.currentRates.viewRate}
+              weight={overviewData.systemConfig.rateWeights.view}
             />
             <RateDisplay
               label="Like"
-              rate={mockOverviewData.currentRates.likeRate}
-              weight={mockOverviewData.systemConfig.rateWeights.like}
+              rate={overviewData.currentRates.likeRate}
+              weight={overviewData.systemConfig.rateWeights.like}
             />
             <RateDisplay
               label="Comment"
-              rate={mockOverviewData.currentRates.commentRate}
-              weight={mockOverviewData.systemConfig.rateWeights.comment}
+              rate={overviewData.currentRates.commentRate}
+              weight={overviewData.systemConfig.rateWeights.comment}
             />
             <RateDisplay
               label="Bookmark"
-              rate={mockOverviewData.currentRates.bookmarkRate}
-              weight={mockOverviewData.systemConfig.rateWeights.bookmark}
+              rate={overviewData.currentRates.bookmarkRate}
+              weight={overviewData.systemConfig.rateWeights.bookmark}
             />
             <RateDisplay
               label="Profile View"
-              rate={mockOverviewData.currentRates.profileViewRate}
-              weight={mockOverviewData.systemConfig.rateWeights.profileView}
+              rate={overviewData.currentRates.profileViewRate}
+              weight={overviewData.systemConfig.rateWeights.profileView}
             />
           </div>
         </CardContent>
@@ -200,17 +228,17 @@ export default function PSCAdminPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <SystemStatusItem
               label="Rewards Enabled"
-              value={mockOverviewData.systemConfig.enableRewards}
+              value={overviewData.systemConfig.enableRewards}
               type="boolean"
             />
             <SystemStatusItem
               label="Transfers Enabled"
-              value={mockOverviewData.systemConfig.enableUserToUserTransfers}
+              value={overviewData.systemConfig.enableUserToUserTransfers}
               type="boolean"
             />
             <SystemStatusItem
               label="Withdrawals Enabled"
-              value={mockOverviewData.systemConfig.enableWithdrawals}
+              value={overviewData.systemConfig.enableWithdrawals}
               type="boolean"
             />
           </div>
@@ -255,23 +283,23 @@ export default function PSCAdminPage() {
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <ActivityStat
                   label="Views"
-                  count={mockOverviewData.dailyBudget.activity.views}
+                  count={overviewData.dailyBudget.activity.views}
                 />
                 <ActivityStat
                   label="Likes"
-                  count={mockOverviewData.dailyBudget.activity.likes}
+                  count={overviewData.dailyBudget.activity.likes}
                 />
                 <ActivityStat
                   label="Comments"
-                  count={mockOverviewData.dailyBudget.activity.comments}
+                  count={overviewData.dailyBudget.activity.comments}
                 />
                 <ActivityStat
                   label="Bookmarks"
-                  count={mockOverviewData.dailyBudget.activity.bookmarks}
+                  count={overviewData.dailyBudget.activity.bookmarks}
                 />
                 <ActivityStat
                   label="Profile Views"
-                  count={mockOverviewData.dailyBudget.activity.profileViews}
+                  count={overviewData.dailyBudget.activity.profileViews}
                 />
               </div>
             </CardContent>

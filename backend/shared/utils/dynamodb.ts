@@ -4557,4 +4557,146 @@ export class DynamoDBService {
       })
     );
   }
+
+  /**
+   * Get all transactions for admin view with filtering and pagination
+   */
+  static async getAdminTransactions(params: {
+    limit?: number;
+    lastEvaluatedKey?: Record<string, any>;
+    type?: string;
+    status?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    userId?: string;
+  }): Promise<{
+    items: TransactionEntity[];
+    lastEvaluatedKey?: Record<string, any>;
+    count: number;
+  }> {
+    const {
+      limit = 20,
+      lastEvaluatedKey,
+      type,
+      status,
+      dateFrom,
+      dateTo,
+      userId,
+    } = params;
+
+    // Build filter expression for optional parameters
+    const filterExpressions: string[] = [];
+    const expressionAttributeValues: Record<string, any> = {
+      ":gsi1pk": "TRANSACTION_BY_DATE",
+    };
+    const expressionAttributeNames: Record<string, string> = {};
+
+    if (type && type !== "all") {
+      filterExpressions.push("transactionType = :transactionType");
+      expressionAttributeValues[":transactionType"] = type;
+    }
+
+    if (status && status !== "all") {
+      filterExpressions.push("#txStatus = :status");
+      expressionAttributeValues[":status"] = status;
+      expressionAttributeNames["#txStatus"] = "status";
+    }
+
+    if (userId) {
+      filterExpressions.push(
+        "(contains(fromUserId, :userId) OR contains(toUserId, :userId))"
+      );
+      expressionAttributeValues[":userId"] = userId;
+    }
+
+    // Date range filtering using GSI1SK if provided
+    let keyConditionExpression = "GSI1PK = :gsi1pk";
+    if (dateFrom && dateTo) {
+      keyConditionExpression += " AND GSI1SK BETWEEN :dateFrom AND :dateTo";
+      expressionAttributeValues[":dateFrom"] = dateFrom;
+      expressionAttributeValues[":dateTo"] = `${dateTo}#ZZZZZZZZ`; // Ensure we capture all transactions on the end date
+    } else if (dateFrom) {
+      keyConditionExpression += " AND GSI1SK >= :dateFrom";
+      expressionAttributeValues[":dateFrom"] = dateFrom;
+    } else if (dateTo) {
+      keyConditionExpression += " AND GSI1SK <= :dateTo";
+      expressionAttributeValues[":dateTo"] = `${dateTo}#ZZZZZZZZ`;
+    }
+
+    const queryParams: QueryCommandInput = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI1",
+      KeyConditionExpression: keyConditionExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ScanIndexForward: false, // Most recent first
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey,
+    };
+
+    if (filterExpressions.length > 0) {
+      queryParams.FilterExpression = filterExpressions.join(" AND ");
+    }
+
+    if (Object.keys(expressionAttributeNames).length > 0) {
+      queryParams.ExpressionAttributeNames = expressionAttributeNames;
+    }
+
+    const result = await docClient.send(new QueryCommand(queryParams));
+
+    return {
+      items: (result.Items as TransactionEntity[]) || [],
+      lastEvaluatedKey: result.LastEvaluatedKey,
+      count: result.Count || 0,
+    };
+  }
+
+  /**
+   * Convert TransactionEntity to admin API format with username lookup
+   */
+  static async convertTransactionEntityToAdminFormat(
+    transaction: TransactionEntity
+  ): Promise<{
+    id: string;
+    userId: string;
+    username: string;
+    type: string;
+    amount: number;
+    status: string;
+    timestamp: string;
+    metadata?: Record<string, any>;
+  }> {
+    // For admin view, we typically want to show the user who initiated or benefited from the transaction
+    // If it's a reward transaction, show the recipient (toUserId)
+    // If it's a user-to-user transaction, show the sender (fromUserId)
+    const relevantUserId =
+      transaction.fromUserId === "TREASURE"
+        ? transaction.toUserId
+        : transaction.fromUserId;
+
+    let username = "Unknown";
+    if (relevantUserId !== "TREASURE") {
+      try {
+        const user = await this.getUserById(relevantUserId);
+        username = user?.username || "Unknown";
+      } catch (error) {
+        console.warn(
+          `Failed to get username for user ${relevantUserId}:`,
+          error
+        );
+      }
+    } else {
+      username = "System";
+    }
+
+    return {
+      id: transaction.transactionId,
+      userId: relevantUserId,
+      username,
+      type: transaction.transactionType,
+      amount: transaction.amount,
+      status: transaction.status,
+      timestamp: transaction.createdAt,
+      metadata: transaction.metadata,
+    };
+  }
 }
