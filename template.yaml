@@ -1641,6 +1641,163 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref MediaTable
 
+  # PSC Admin Functions
+  AdminPSCOverviewFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-admin-psc-overview-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/admin/psc/overview.handler"]
+      Events:
+        GetOverview:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/overview
+            Method: GET
+            Auth:
+              Authorizer: AdminAuthorizer
+        OptionsOverview:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/overview
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
+  AdminPSCConfigFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-admin-psc-config-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/admin/psc/config.handler"]
+      Events:
+        GetConfig:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/config
+            Method: GET
+            Auth:
+              Authorizer: AdminAuthorizer
+        PutConfig:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/config
+            Method: PUT
+            Auth:
+              Authorizer: AdminAuthorizer
+        PostConfigReset:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/config/reset
+            Method: POST
+            Auth:
+              Authorizer: AdminAuthorizer
+        OptionsConfig:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/config
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+        OptionsConfigReset:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/config/reset
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaTable
+
+  AdminPSCBudgetsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-admin-psc-budgets-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/admin/psc/budgets.handler"]
+      Events:
+        GetBudgets:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/budgets
+            Method: GET
+            Auth:
+              Authorizer: AdminAuthorizer
+        PutBudget:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/budgets/{date}
+            Method: PUT
+            Auth:
+              Authorizer: AdminAuthorizer
+        OptionsBudgets:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/budgets
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+        OptionsBudgetDate:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/budgets/{date}
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaTable
+
+  AdminPSCTransactionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-admin-psc-transactions-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/admin/psc/transactions.handler"]
+      Events:
+        GetTransactions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/transactions
+            Method: GET
+            Auth:
+              Authorizer: AdminAuthorizer
+        OptionsTransactions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/transactions
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
   # User Authentication Functions
   UserRegisterFunction:
     Type: AWS::Serverless::Function

@@ -195,6 +195,15 @@ export const queryKeys = {
       }) => ["admin", "analytics", "metrics", params] as const,
       dashboard: () => ["admin", "analytics", "dashboard"] as const,
     },
+    psc: {
+      all: () => ["admin", "psc"] as const,
+      overview: () => ["admin", "psc", "overview"] as const,
+      config: () => ["admin", "psc", "config"] as const,
+      budgets: (params?: Record<string, unknown>) =>
+        ["admin", "psc", "budgets", params] as const,
+      transactions: (filters?: Record<string, unknown>) =>
+        ["admin", "psc", "transactions", filters] as const,
+    },
   },
 
   // Comments

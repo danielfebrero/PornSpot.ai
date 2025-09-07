@@ -13,6 +13,9 @@ import {
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { SectionErrorBoundary } from "@/components/ErrorBoundaries";
+import { PSCConfigurationManager } from "@/components/admin/pornspotcoin/PSCConfigurationManager";
+import { DailyBudgetManager } from "@/components/admin/pornspotcoin/DailyBudgetManager";
+import { TransactionHistory } from "@/components/admin/pornspotcoin/TransactionHistory";
 
 export default function PSCAdminPage() {
   // const t = useTranslations("admin.pornspotcoin");
@@ -277,19 +280,19 @@ export default function PSCAdminPage() {
 
         {activeTab === "configuration" && (
           <SectionErrorBoundary context="PSC System Configuration">
-            <PSCSystemConfigSection config={mockOverviewData.systemConfig} />
+            <PSCConfigurationManager />
           </SectionErrorBoundary>
         )}
 
         {activeTab === "budgets" && (
           <SectionErrorBoundary context="PSC Daily Budget Management">
-            <PSCDailyBudgetSection />
+            <DailyBudgetManager />
           </SectionErrorBoundary>
         )}
 
         {activeTab === "transactions" && (
           <SectionErrorBoundary context="PSC Transaction History">
-            <PSCTransactionHistorySection />
+            <TransactionHistory />
           </SectionErrorBoundary>
         )}
       </div>
@@ -427,69 +430,5 @@ function TabButton({ active, onClick, children }: TabButtonProps) {
     >
       {children}
     </button>
-  );
-}
-
-// Placeholder components for sections
-function PSCSystemConfigSection({ config }: { config: any }) {
-  return (
-    <Card>
-      <CardHeader>
-        <h3 className="text-lg font-semibold">System Configuration</h3>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <p className="text-muted-foreground">
-            PSC system configuration management will be implemented here.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium">Daily Budget Amount</label>
-              <p className="text-lg font-semibold">
-                {config.dailyBudgetAmount} PSC
-              </p>
-            </div>
-            <div>
-              <label className="text-sm font-medium">
-                Maximum Payout per Action
-              </label>
-              <p className="text-lg font-semibold">
-                {config.maxPayoutPerAction} PSC
-              </p>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function PSCDailyBudgetSection() {
-  return (
-    <Card>
-      <CardHeader>
-        <h3 className="text-lg font-semibold">Daily Budget Management</h3>
-      </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground">
-          Daily budget management interface will be implemented here.
-        </p>
-      </CardContent>
-    </Card>
-  );
-}
-
-function PSCTransactionHistorySection() {
-  return (
-    <Card>
-      <CardHeader>
-        <h3 className="text-lg font-semibold">Transaction History</h3>
-      </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground">
-          Transaction history and filtering interface will be implemented here.
-        </p>
-      </CardContent>
-    </Card>
   );
 }
