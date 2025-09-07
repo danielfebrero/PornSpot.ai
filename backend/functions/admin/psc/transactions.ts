@@ -34,7 +34,8 @@ const handlePSCTransactions = async (
       return ResponseUtil.badRequest(event, errorMessage);
     }
 
-    const { cursor: _lastEvaluatedKey, limit } = paginationParams;
+    const { limit } = paginationParams;
+    // const { cursor: _lastEvaluatedKey, limit } = paginationParams;
     // Note: _lastEvaluatedKey would be used in real DynamoDB implementation
 
     // Parse additional filter parameters
