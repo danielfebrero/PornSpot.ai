@@ -27,7 +27,7 @@ interface DailyBudgetManagerProps {
 export function DailyBudgetManager({}: DailyBudgetManagerProps) {
   // Helper function to format date as YYYY-MM-DD
   const formatDateForAPI = (date: Date) => {
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   };
 
   // Helper function to get date range (10 days before and after today)
@@ -37,7 +37,7 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
     startDate.setDate(today.getDate() - 10);
     const endDate = new Date(today);
     endDate.setDate(today.getDate() + 10);
-    
+
     return {
       startDate: formatDateForAPI(startDate),
       endDate: formatDateForAPI(endDate),
@@ -53,7 +53,9 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
 
   const updateBudgetMutation = usePSCBudgetMutation();
 
-  const [selectedDate, setSelectedDate] = useState(formatDateForAPI(new Date())); // Default to today
+  const [selectedDate, setSelectedDate] = useState(
+    formatDateForAPI(new Date())
+  ); // Default to today
   const [editingBudget, setEditingBudget] = useState<string | null>(null);
   const [newBudgetValue, setNewBudgetValue] = useState<number>(0);
 
@@ -61,18 +63,22 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
   React.useEffect(() => {
     if (budgets.length > 0) {
       const today = formatDateForAPI(new Date());
-      const todayBudget = budgets.find(b => b.date === today);
-      
+      const todayBudget = budgets.find((b) => b.date === today);
+
       if (todayBudget) {
         setSelectedDate(today);
       } else {
         // If today's budget doesn't exist, find the closest available date
-        const sortedBudgets = [...budgets].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const sortedBudgets = [...budgets].sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
         const todayTime = new Date(today).getTime();
-        
+
         let closestBudget = sortedBudgets[0];
-        let minDiff = Math.abs(new Date(closestBudget.date).getTime() - todayTime);
-        
+        let minDiff = Math.abs(
+          new Date(closestBudget.date).getTime() - todayTime
+        );
+
         for (const budget of sortedBudgets) {
           const diff = Math.abs(new Date(budget.date).getTime() - todayTime);
           if (diff < minDiff) {
@@ -80,15 +86,17 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
             closestBudget = budget;
           }
         }
-        
+
         setSelectedDate(closestBudget.date);
       }
     }
   }, [budgets]);
 
   // Handle navigation to new date ranges
-  const [pendingNavigation, setPendingNavigation] = React.useState<{direction: "prev" | "next"} | null>(null);
-  
+  const [pendingNavigation, setPendingNavigation] = React.useState<{
+    direction: "prev" | "next";
+  } | null>(null);
+
   React.useEffect(() => {
     if (pendingNavigation && budgets.length > 0) {
       if (pendingNavigation.direction === "prev") {
@@ -160,7 +168,7 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
 
   const navigateDate = (direction: "prev" | "next") => {
     const currentIndex = budgets.findIndex((b) => b.date === selectedDate);
-    
+
     if (direction === "prev") {
       if (currentIndex > 0) {
         // Navigate to previous available date
@@ -170,7 +178,7 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
         const earliestDate = new Date(budgets[0].date);
         const newStartDate = new Date(earliestDate);
         newStartDate.setDate(earliestDate.getDate() - 10);
-        
+
         setPendingNavigation({ direction: "prev" });
         setDateRange({
           startDate: formatDateForAPI(newStartDate),
@@ -186,7 +194,7 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
         const latestDate = new Date(budgets[budgets.length - 1].date);
         const newEndDate = new Date(latestDate);
         newEndDate.setDate(latestDate.getDate() + 10);
-        
+
         setPendingNavigation({ direction: "next" });
         setDateRange({
           startDate: dateRange.startDate,
@@ -218,7 +226,8 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
             <div>
               <h3 className="text-lg font-semibold">Select Date</h3>
               <p className="text-xs text-muted-foreground">
-                Showing {budgets.length} days ({budgets[0]?.date} to {budgets[budgets.length - 1]?.date})
+                Showing {budgets.length} days ({budgets[0]?.date} to{" "}
+                {budgets[budgets.length - 1]?.date})
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -227,7 +236,7 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
                 size="sm"
                 onClick={() => {
                   const today = formatDateForAPI(new Date());
-                  const todayBudget = budgets.find(b => b.date === today);
+                  const todayBudget = budgets.find((b) => b.date === today);
                   if (todayBudget) {
                     setSelectedDate(today);
                   } else {
@@ -270,13 +279,17 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
                   key={budget.date}
                   variant={selectedDate === budget.date ? "default" : "outline"}
                   className={`p-3 h-auto flex flex-col transition-all hover:bg-muted/70 ${
-                    selectedDate === budget.date 
-                      ? "ring-2 ring-primary/20 bg-primary hover:bg-primary/90" 
+                    selectedDate === budget.date
+                      ? "ring-2 ring-primary/20 bg-primary hover:bg-primary/90"
                       : "hover:border-primary/50"
                   } ${isToday ? "border-blue-500 dark:border-blue-400" : ""}`}
                   onClick={() => setSelectedDate(budget.date)}
                 >
-                  <span className={`text-xs font-medium ${isToday ? "text-blue-600 dark:text-blue-400" : ""}`}>
+                  <span
+                    className={`text-xs font-medium ${
+                      isToday ? "text-blue-600 dark:text-blue-400" : ""
+                    }`}
+                  >
                     {new Date(budget.date).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
@@ -368,7 +381,9 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
                     <div className="text-2xl font-bold text-blue-500 dark:text-blue-400">
                       {formatCurrency(selectedBudget.totalBudget)}
                     </div>
-                    <div className="text-sm text-muted-foreground">Total Budget</div>
+                    <div className="text-sm text-muted-foreground">
+                      Total Budget
+                    </div>
                   </div>
                   <div className="text-center">
                     <div
@@ -379,13 +394,17 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
                     >
                       {formatCurrency(selectedBudget.remainingBudget)}
                     </div>
-                    <div className="text-sm text-muted-foreground">Remaining</div>
+                    <div className="text-sm text-muted-foreground">
+                      Remaining
+                    </div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-500 dark:text-green-400">
                       {formatCurrency(selectedBudget.distributedAmount)}
                     </div>
-                    <div className="text-sm text-muted-foreground">Distributed</div>
+                    <div className="text-sm text-muted-foreground">
+                      Distributed
+                    </div>
                   </div>
                 </div>
               )}
@@ -393,13 +412,17 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
               <div className="pt-4 border-t border-border">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total Activity:</span>
+                    <span className="text-muted-foreground">
+                      Total Activity:
+                    </span>
                     <span className="font-medium">
                       {selectedBudget.totalActivity}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Weighted Activity:</span>
+                    <span className="text-muted-foreground">
+                      Weighted Activity:
+                    </span>
                     <span className="font-medium">
                       {selectedBudget.weightedActivity}
                     </span>
@@ -439,7 +462,9 @@ export function DailyBudgetManager({}: DailyBudgetManagerProps) {
                         <span className="font-mono text-sm font-semibold">
                           {rate.toFixed(3)}
                         </span>
-                        <span className="text-xs text-muted-foreground">PSC</span>
+                        <span className="text-xs text-muted-foreground">
+                          PSC
+                        </span>
                       </div>
                     </div>
                   )
