@@ -176,7 +176,7 @@ export class PSCPayoutService {
     // If no activity yet, set initial rates based on yesterday's activity
     if (totalWeightedActivity === 0) {
       // Try to get yesterday's weighted activity as benchmark
-      let estimatedDailyWeightedActivity = 1000; // Default fallback (assumes mix of activities)
+      let estimatedDailyWeightedActivity = 10000; // Default fallback (assumes mix of activities)
 
       try {
         const yesterday = PSCPayoutService.getYesterdayDateString();
@@ -244,7 +244,7 @@ export class PSCPayoutService {
 
     // Calculate current pace of expenses based on actual activity
     // Pace = (totalWeightedActivity + buffer for remaining activity) / % of day passed
-    const bufferWeightedActivity = 100; // Small buffer for anticipated remaining activity
+    const bufferWeightedActivity = 1; // Small buffer for anticipated remaining activity
     const currentPace =
       (totalWeightedActivity + bufferWeightedActivity) / safePercentagePassed;
 
