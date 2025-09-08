@@ -182,9 +182,9 @@ export default function PornSpotCoinPage() {
   const recentTransactions = dashboardData?.recentTransactions || [];
 
   // Extract weekly stats data with fallbacks
-  const weeklyTotalInteractions = weeklyStats?.totalInteractions || 0;
-  const weeklyTotalViews = weeklyStats?.totalViews || 0;
-  const weeklyPayoutGrowth = weeklyStats?.payoutGrowth || 0;
+  const weeklyTotalInteractions = weeklyStats?.stats.totalInteractions || 0;
+  const weeklyTotalViews = weeklyStats?.stats.totalViews || 0;
+  const weeklyPayoutGrowth = weeklyStats?.stats.payoutGrowth || 0;
 
   // Calculate daily stats from available data
   const todayEarned = recentTransactions

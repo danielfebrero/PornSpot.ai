@@ -311,7 +311,9 @@ export interface PSCRateSnapshotsResponse {
 
 // PSC stats response for user performance insights
 export interface PSCStatsResponse {
-  totalInteractions: number;
-  totalViews: number;
-  payoutGrowth: number;
+  stats: {
+    totalInteractions: number;
+    totalViews: number;
+    payoutGrowth: number;
+  };
 }
