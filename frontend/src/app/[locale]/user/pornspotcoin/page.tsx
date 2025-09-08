@@ -388,7 +388,7 @@ export default function PornSpotCoinPage() {
                 {balance.balance.toFixed(3)} PSC
               </div>
               <div className="text-sm text-muted-foreground">
-                ${(balance.balance * 0.95).toFixed(2)} USD
+                ${((balance.balance * 10) / 9).toFixed(2)} USD
               </div>
             </div>
           </CardContent>
