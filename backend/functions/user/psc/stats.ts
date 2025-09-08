@@ -11,7 +11,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { PSCRateSnapshotService } from "@shared/services/pscRateSnapshotService";
-import { PSCTransactionService } from "@shared/utils/psc-transactions";
+import { DynamoDBService } from "@shared/utils/dynamodb";
 import {
   PSCRateSnapshotsResponse,
   RateSnapshotEntity,
@@ -34,18 +34,12 @@ const handlePSCStats = async (
     }
 
     // Get user's transaction history to calculate stats
-    const transactionHistory =
-      await PSCTransactionService.getTransactionHistory({
-        userId,
-        limit: 200, // Get more transactions for better statistics
-      });
+    const transactionResult = await DynamoDBService.getTransactionsByUser(
+      userId,
+      200 // Get more transactions for better statistics
+    );
 
-    if (!transactionHistory.success || !transactionHistory.transactions) {
-      throw new Error("Failed to fetch transaction history");
-    }
-
-    // Calculate user statistics from transaction history
-    const transactions = transactionHistory.transactions;
+    const transactions = transactionResult.items;
     const rewardTransactions = transactions.filter(
       (t) => t.transactionType.startsWith("reward_") && t.status === "completed"
     );

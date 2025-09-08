@@ -14,8 +14,6 @@ import {
   PSCTransactionRequest,
   PSCTransactionResponse,
   PSCBalanceResponse,
-  PSCTransactionHistoryRequest,
-  PSCTransactionHistoryResponse,
   PSCBalance,
   TransactionType,
   TransactionStatus,
@@ -234,39 +232,6 @@ export class PSCTransactionService {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Failed to get balance",
-      };
-    }
-  }
-
-  /**
-   * Get transaction history for a user
-   */
-  static async getTransactionHistory(
-    request: PSCTransactionHistoryRequest
-  ): Promise<PSCTransactionHistoryResponse> {
-    try {
-      const transactions = await DynamoDBService.getTransactionsByUser(
-        request.userId,
-        request.limit || 20,
-        request.exclusiveStartKey,
-        request.transactionType,
-        request.status
-      );
-
-      return {
-        success: true,
-        transactions: transactions.items,
-        lastEvaluatedKey: transactions.lastEvaluatedKey,
-        totalCount: transactions.count,
-      };
-    } catch (error) {
-      console.error("Error getting transaction history:", error);
-      return {
-        success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to get transaction history",
       };
     }
   }

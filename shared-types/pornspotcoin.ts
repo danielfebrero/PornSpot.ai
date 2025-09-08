@@ -188,9 +188,9 @@ export interface PSCBalanceResponse {
 }
 
 export interface PSCTransactionHistoryRequest {
-  userId: string;
   limit?: number;
-  exclusiveStartKey?: string;
+  cursor?: string;
+  userId: string;
   transactionType?: TransactionType;
   status?: TransactionStatus;
   dateFrom?: string;

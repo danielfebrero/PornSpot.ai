@@ -4291,18 +4291,16 @@ export class DynamoDBService {
   static async getTransactionsByUser(
     userId: string,
     limit: number = 20,
-    exclusiveStartKey?: string,
+    exclusiveStartKey?: Record<string, unknown>,
     transactionType?: string,
     status?: string
   ): Promise<{
     items: TransactionEntity[];
-    lastEvaluatedKey?: string;
+    lastEvaluatedKey?: Record<string, unknown>;
     count: number;
   }> {
     const allTransactions: TransactionEntity[] = [];
-    const lastKey: any = exclusiveStartKey
-      ? JSON.parse(exclusiveStartKey)
-      : undefined;
+    const lastKey: any = exclusiveStartKey || undefined;
 
     // Build filter expression for optional parameters
     const filterExpressions: string[] = [];
@@ -4389,9 +4387,7 @@ export class DynamoDBService {
 
     return {
       items: finalTransactions,
-      lastEvaluatedKey: toUserQuery.LastEvaluatedKey
-        ? JSON.stringify(toUserQuery.LastEvaluatedKey)
-        : undefined,
+      lastEvaluatedKey: toUserQuery.LastEvaluatedKey || undefined,
       count: finalTransactions.length,
     };
   }
