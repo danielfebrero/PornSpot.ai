@@ -325,7 +325,19 @@ export class PSCPayoutService {
         rate = 0;
     }
 
-    const amount = Math.max(0, Math.min(rate, budget.remainingBudget));
+    let amount = Math.max(0, Math.min(rate, budget.remainingBudget));
+
+    // Check for batch multiplier (e.g., for 10-view batches)
+    const batchMultiplier = event.metadata?.["batchMultiplier"];
+    if (
+      batchMultiplier &&
+      typeof batchMultiplier === "number" &&
+      batchMultiplier > 1
+    ) {
+      amount = amount * batchMultiplier;
+      // Ensure we don't exceed the remaining budget / 2
+      amount = Math.min(amount, budget.remainingBudget / 2);
+    }
 
     // Check if payout meets minimum requirements
     if (amount < config.minimumPayoutAmount) {

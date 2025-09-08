@@ -99,15 +99,25 @@ export class PSCIntegrationService {
     }
 
     // Process the payout for the 10th view
-    const payoutResult = await PSCPayoutService.processPayout(event);
+    // Create a modified event with metadata indicating this is a 10-view batch payout
+    const batchEvent: PayoutEvent = {
+      ...event,
+      metadata: {
+        ...event.metadata,
+        batchMultiplier: 10, // Indicate this is a batch payout for 10 views
+        batchReason: "10 views accumulated",
+      },
+    };
+
+    const payoutResult = await PSCPayoutService.processPayout(batchEvent);
 
     if (payoutResult.success && payoutResult.transaction) {
       return {
         success: true,
         shouldPayout: true,
-        amount: payoutResult.transaction.amount,
+        amount: payoutResult.transaction.amount, // Amount already includes 10x multiplier
         viewCount: viewCounter.mediaViewCount, // Should be 0 after reset
-        reason: "10 views reached, payout processed",
+        reason: "10 views reached, payout processed (10x multiplier applied)",
       };
     } else {
       return {
