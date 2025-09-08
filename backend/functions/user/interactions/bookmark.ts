@@ -5,6 +5,7 @@ import { InteractionRequest } from "@shared";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 import { CounterUtil } from "@shared/utils/counter";
+import { PSCIntegrationService } from "@shared/utils/psc-integration";
 
 const handleBookmarkInteraction = async (
   event: APIGatewayProxyEvent,
@@ -39,6 +40,15 @@ const handleBookmarkInteraction = async (
   if (!["add", "remove"].includes(action)) {
     return ResponseUtil.badRequest(event, "action must be 'add' or 'remove'");
   }
+
+  // Declare PSC payout result at function level
+  let pscPayoutResult: {
+    success: boolean;
+    amount?: number;
+    shouldPayout?: boolean;
+    reason?: string;
+    viewCount?: number;
+  } | null = null;
 
   // Verify target exists
   if (targetType === "album") {
@@ -142,6 +152,38 @@ const handleBookmarkInteraction = async (
       } catch (error) {
         console.warn(`⚠️ Failed to create bookmark notification:`, error);
       }
+
+      // PSC Payout Integration for bookmarks (immediate payout)
+      if (userId !== targetCreatorId) {
+        try {
+          const payoutEvent = PSCIntegrationService.createPayoutEvent(
+            "bookmark",
+            targetType as "album" | "media",
+            targetId,
+            userId,
+            targetCreatorId,
+            {
+              albumId: targetType === "album" ? targetId : undefined,
+              mediaId: targetType === "media" ? targetId : undefined,
+            }
+          );
+
+          pscPayoutResult =
+            await PSCIntegrationService.processInteractionPayout(
+              payoutEvent,
+              true // Bookmarks require auth
+            );
+
+          if (pscPayoutResult.success && pscPayoutResult.shouldPayout) {
+            console.log(
+              `💰 PSC Payout: ${pscPayoutResult.amount} PSC to ${targetCreatorId} for ${targetType} bookmark`
+            );
+          }
+        } catch (error) {
+          console.warn("⚠️ PSC payout failed:", error);
+          // Don't fail the entire request if PSC payout fails
+        }
+      }
     }
 
     return ResponseUtil.created(event, {
@@ -150,6 +192,14 @@ const handleBookmarkInteraction = async (
       targetType,
       targetId,
       createdAt: now,
+      psc: pscPayoutResult
+        ? {
+            success: pscPayoutResult.success,
+            amount: pscPayoutResult.amount,
+            shouldPayout: pscPayoutResult.shouldPayout,
+            reason: pscPayoutResult.reason,
+          }
+        : null,
     });
   } else {
     // Remove bookmark

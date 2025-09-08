@@ -144,15 +144,21 @@ export const handler = async (
     console.log(`✅ WebSocket connection authenticated for user: ${userId}`);
 
     // Create connection entity following the proper schema
+    const clientIP = event.requestContext.identity.sourceIp || "UNKNOWN_IP";
     const currentTime = new Date().toISOString();
     const connectionEntity: ConnectionEntity = {
       PK: `CONNECTION#${connectionId}`,
       SK: "METADATA",
       GSI1PK: "WEBSOCKET_CONNECTIONS",
       GSI1SK: `${userId}#${connectionId}`,
+      GSI2PK: "WEBSOCKET_BY_IP",
+      GSI2SK: `${clientIP}#${connectionId}`,
+      GSI3PK: "WEBSOCKET_USER_BY_IP",
+      GSI3SK: `${userId}#${clientIP}#${connectionId}`,
       EntityType: "WebSocketConnection",
       connectionId,
       userId,
+      clientIp: clientIP,
       connectedAt: currentTime,
       lastActivity: currentTime,
       ttl: Math.floor(Date.now() / 1000) + 86400, // 24 hours TTL

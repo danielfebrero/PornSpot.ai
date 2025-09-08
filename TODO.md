@@ -76,7 +76,7 @@
 
 [x] Revalidate Discover page every 10 minutes.
 
-[ ] Update documentation (data models, apis...).
+[x] Update documentation (data models, apis...).
 
 [x] Notification system on like received and comment received.
 

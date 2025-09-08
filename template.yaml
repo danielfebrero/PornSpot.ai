@@ -1217,6 +1217,123 @@ Resources:
             Auth:
               Authorizer: NONE
 
+  # User PSC Functions
+  UserPSCStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-psc-stats-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/psc/stats.handler"]
+      Events:
+        GetStats:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/psc/stats
+            Method: GET
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsStats:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/psc/stats
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
+  UserPSCBalanceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-psc-balance-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/psc/balance.handler"]
+      Events:
+        GetBalance:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/psc/balance
+            Method: GET
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsBalance:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/psc/balance
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
+  UserPSCTransactionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-psc-transactions-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/psc/transactions.handler"]
+      Events:
+        GetTransactions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/psc/transactions
+            Method: GET
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsTransactions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/psc/transactions
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
+  UserPSCRatesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-psc-rates-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/psc/rates.handler"]
+      Events:
+        GetRates:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/psc/rates
+            Method: GET
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsRates:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/psc/rates
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
   AdminLogoutFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -1637,6 +1754,212 @@ Resources:
             Method: OPTIONS
             Auth:
               Authorizer: NONE
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaTable
+
+  # PSC Admin Functions
+  AdminPSCOverviewFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-admin-psc-overview-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/admin/psc/overview.handler"]
+      Events:
+        GetOverview:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/overview
+            Method: GET
+            Auth:
+              Authorizer: AdminAuthorizer
+        OptionsOverview:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/overview
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
+  AdminPSCConfigFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-admin-psc-config-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/admin/psc/config.handler"]
+      Events:
+        GetConfig:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/config
+            Method: GET
+            Auth:
+              Authorizer: AdminAuthorizer
+        PutConfig:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/config
+            Method: PUT
+            Auth:
+              Authorizer: AdminAuthorizer
+        PostConfigReset:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/config/reset
+            Method: POST
+            Auth:
+              Authorizer: AdminAuthorizer
+        OptionsConfig:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/config
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+        OptionsConfigReset:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/config/reset
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaTable
+
+  AdminPSCBudgetsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-admin-psc-budgets-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/admin/psc/budgets.handler"]
+      Events:
+        GetBudgets:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/budgets
+            Method: GET
+            Auth:
+              Authorizer: AdminAuthorizer
+        PutBudget:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/budgets/{date}
+            Method: PUT
+            Auth:
+              Authorizer: AdminAuthorizer
+        DeleteBudget:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/budgets/{date}
+            Method: DELETE
+            Auth:
+              Authorizer: AdminAuthorizer
+        OptionsBudgets:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/budgets
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+        OptionsBudgetDate:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/budgets/{date}
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaTable
+
+  AdminPSCTransactionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-admin-psc-transactions-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/admin/psc/transactions.handler"]
+      Events:
+        GetTransactions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/transactions
+            Method: GET
+            Auth:
+              Authorizer: AdminAuthorizer
+        OptionsTransactions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /admin/psc/transactions
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
+  # PSC Rate Snapshot Functions
+  PSCSnapshotRatesDailyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-psc-snapshot-rates-daily-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/psc/snapshotRatesDaily.handler"]
+      Events:
+        ScheduleRule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(*/5 * * * ? *) # Every 5 minutes
+            Name: !Sub "${Environment}-psc-daily-snapshot-schedule"
+            Description: "Trigger PSC rate snapshot every 5 minutes for daily stats"
+            Enabled: true
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaTable
+
+  PSCSnapshotRatesWeeklyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-psc-snapshot-rates-weekly-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/psc/snapshotRatesWeekly.handler"]
+      Events:
+        ScheduleRule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(1 * * * ? *) # Every hour at 1 minute past
+            Name: !Sub "${Environment}-psc-weekly-snapshot-schedule"
+            Description: "Trigger PSC rate snapshot every hour for weekly stats"
+            Enabled: true
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref MediaTable

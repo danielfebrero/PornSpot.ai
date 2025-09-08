@@ -88,9 +88,14 @@ export interface ConnectionEntity {
   SK: string; // METADATA
   GSI1PK: string; // WEBSOCKET_CONNECTIONS
   GSI1SK: string; // {userId}#{connectionId} or ANONYMOUS#{connectionId}
+  GSI2PK: string; // WEBSOCKET_BY_IP
+  GSI2SK: string; // {clientIp}#{connectionId}
+  GSI3PK: string; // WEBSOCKET_USER_BY_IP
+  GSI3SK: string; // {userId}#{clientIp}#{connectionId}
   EntityType: "WebSocketConnection";
   connectionId: string;
   userId?: string;
+  clientIp: string;
   connectedAt: string;
   lastActivity: string;
   ttl: number; // TTL for automatic cleanup after 24 hours

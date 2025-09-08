@@ -11,6 +11,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
+import { PSCIntegrationService } from "@shared/utils/psc-integration";
 
 const handleComment = async (
   event: APIGatewayProxyEvent,
@@ -136,6 +137,15 @@ async function createComment(
     targetCreatorId = media.createdBy;
   }
 
+  // Declare PSC payout result
+  let pscPayoutResult: {
+    success: boolean;
+    amount?: number;
+    shouldPayout?: boolean;
+    reason?: string;
+    viewCount?: number;
+  } | null = null;
+
   if (targetCreatorId) {
     try {
       await DynamoDBService.createNotification(
@@ -150,6 +160,38 @@ async function createComment(
       );
     } catch (error) {
       console.warn(`⚠️ Failed to create comment notification:`, error);
+    }
+
+    // PSC Payout Integration for comments (immediate payout)
+    if (userId !== targetCreatorId) {
+      try {
+        const payoutEvent = PSCIntegrationService.createPayoutEvent(
+          "comment",
+          targetType as "album" | "media",
+          targetId,
+          userId,
+          targetCreatorId,
+          {
+            albumId: targetType === "album" ? targetId : undefined,
+            mediaId: targetType === "media" ? targetId : undefined,
+            commentId: commentId,
+          }
+        );
+
+        pscPayoutResult = await PSCIntegrationService.processInteractionPayout(
+          payoutEvent,
+          true // Comments require auth
+        );
+
+        if (pscPayoutResult.success && pscPayoutResult.shouldPayout) {
+          console.log(
+            `💰 PSC Payout: ${pscPayoutResult.amount} PSC to ${targetCreatorId} for ${targetType} comment`
+          );
+        }
+      } catch (error) {
+        console.warn("⚠️ PSC payout failed:", error);
+        // Don't fail the entire request if PSC payout fails
+      }
     }
   }
 
@@ -174,6 +216,14 @@ async function createComment(
     updatedAt: now,
     likeCount: 0,
     isEdited: false,
+    psc: pscPayoutResult
+      ? {
+          success: pscPayoutResult.success,
+          amount: pscPayoutResult.amount,
+          shouldPayout: pscPayoutResult.shouldPayout,
+          reason: pscPayoutResult.reason,
+        }
+      : null,
   });
 }
 

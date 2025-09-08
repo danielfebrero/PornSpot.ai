@@ -163,6 +163,7 @@ export const DEFAULT_PAGINATION_LIMITS = {
   admin: 25,
   notifications: 20,
   follow: 20,
+  pscTransactions: 100,
 } as const;
 
 /**
@@ -177,6 +178,7 @@ export const MAX_PAGINATION_LIMITS = {
   admin: 100,
   notifications: 100,
   follow: 100,
+  pscTransactions: 500,
 } as const;
 
 /**

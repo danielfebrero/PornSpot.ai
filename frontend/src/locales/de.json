@@ -89,7 +89,8 @@
     "noMediaFound": "Keine Medien gefunden",
     "albumDoesntContainMediaFiles": "Dieses Album enthält noch keine Mediendateien.",
     "loadingMoreMedia": "Weitere Medien werden geladen...",
-    "failedToLoadMoreMedia": "Fehler beim Laden weiterer Medien"
+    "failedToLoadMoreMedia": "Fehler beim Laden weiterer Medien",
+    "pornspotcoin": "PornSpotCoin"
   },
   "profile": {
     "username": "Benutzername",
@@ -284,6 +285,7 @@
     "likes": "Gefällt mir",
     "albums": "Alben",
     "profile": "Profil",
+    "pornspotcoin": "PornSpotCoin",
     "following": "Folge ich",
     "menu": "Menü",
     "sidebar": "Seitenleiste",
@@ -619,6 +621,7 @@
       "users": "Benutzer",
       "albums": "Alben",
       "media": "Medien",
+      "pornspotcoin": "PornSpotCoin",
       "settings": "Einstellungen",
       "logs": "Protokolle",
       "reports": "Berichte"

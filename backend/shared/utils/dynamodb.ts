@@ -37,6 +37,11 @@ import {
   NotificationWithDetails,
   GenerationSettingsEntity,
   FollowEntity,
+  TransactionEntity,
+  DailyBudgetEntity,
+  PSCSystemConfig,
+  UserViewCounterEntity,
+  RateSnapshotEntity,
 } from "@shared/shared-types";
 import {
   UserEntity,
@@ -4210,5 +4215,743 @@ export class DynamoDBService {
         },
       })
     );
+  }
+
+  // ===== PornSpotCoin (PSC) Methods =====
+
+  /**
+   * Create a transaction record
+   */
+  static async createTransaction(
+    transaction: TransactionEntity
+  ): Promise<void> {
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: transaction,
+      })
+    );
+  }
+
+  /**
+   * Get transaction by ID
+   */
+  static async getTransactionById(
+    transactionId: string
+  ): Promise<TransactionEntity | null> {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `TRANSACTION#${transactionId}`,
+          SK: "METADATA",
+        },
+      })
+    );
+
+    return (result.Item as TransactionEntity) || null;
+  }
+
+  /**
+   * Update transaction
+   */
+  static async updateTransaction(
+    transactionId: string,
+    updates: Partial<TransactionEntity>
+  ): Promise<void> {
+    const updateExpressions: string[] = [];
+    const expressionAttributeNames: Record<string, string> = {};
+    const expressionAttributeValues: Record<string, any> = {};
+
+    Object.entries(updates).forEach(([key, value], index) => {
+      const attrName = `#attr${index}`;
+      const attrValue = `:val${index}`;
+      updateExpressions.push(`${attrName} = ${attrValue}`);
+      expressionAttributeNames[attrName] = key;
+      expressionAttributeValues[attrValue] = value;
+    });
+
+    await docClient.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `TRANSACTION#${transactionId}`,
+          SK: "METADATA",
+        },
+        UpdateExpression: `SET ${updateExpressions.join(", ")}`,
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues,
+      })
+    );
+  }
+
+  /**
+   * Get transactions by user (to or from)
+   */
+  static async getTransactionsByUser(
+    userId: string,
+    limit: number = 20,
+    exclusiveStartKey?: Record<string, unknown>,
+    transactionType?: string,
+    status?: string
+  ): Promise<{
+    items: TransactionEntity[];
+    lastEvaluatedKey?: Record<string, unknown>;
+    count: number;
+  }> {
+    const allTransactions: TransactionEntity[] = [];
+    const lastKey: any = exclusiveStartKey || undefined;
+
+    // Build filter expression for optional parameters
+    const filterExpressions: string[] = [];
+    const expressionAttributeValues: Record<string, any> = {};
+
+    if (transactionType) {
+      filterExpressions.push("transactionType = :transactionType");
+      expressionAttributeValues[":transactionType"] = transactionType;
+    }
+
+    if (status) {
+      filterExpressions.push("#status = :status");
+      expressionAttributeValues[":status"] = status;
+    }
+
+    const filterExpression =
+      filterExpressions.length > 0
+        ? filterExpressions.join(" AND ")
+        : undefined;
+    const expressionAttributeNames = status
+      ? { "#status": "status" }
+      : undefined;
+
+    // Query transactions where user is the recipient (GSI3)
+    const toUserQuery = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI3",
+        KeyConditionExpression:
+          "GSI3PK = :gsi3pk AND begins_with(GSI3SK, :userPrefix)",
+        ExpressionAttributeValues: {
+          ":gsi3pk": "TRANSACTION_BY_TO_USER",
+          ":userPrefix": `${userId}#`,
+          ...expressionAttributeValues,
+        },
+        ...(filterExpression && { FilterExpression: filterExpression }),
+        ...(expressionAttributeNames && {
+          ExpressionAttributeNames: expressionAttributeNames,
+        }),
+        ScanIndexForward: false,
+        Limit: Math.ceil(limit / 2), // Split limit between "to" and "from" queries
+        ExclusiveStartKey: lastKey,
+      })
+    );
+
+    const toUserTransactions = (toUserQuery.Items as TransactionEntity[]) || [];
+    allTransactions.push(...toUserTransactions);
+
+    // Query transactions where user is the sender (GSI2) - only if user is not "TREASURE"
+    let fromUserTransactions: TransactionEntity[] = [];
+    if (userId !== "TREASURE" && allTransactions.length < limit) {
+      const fromUserQuery = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI2",
+          KeyConditionExpression:
+            "GSI2PK = :gsi2pk AND begins_with(GSI2SK, :userPrefix)",
+          ExpressionAttributeValues: {
+            ":gsi2pk": "TRANSACTION_BY_FROM_USER",
+            ":userPrefix": `${userId}#`,
+            ...expressionAttributeValues,
+          },
+          ...(filterExpression && { FilterExpression: filterExpression }),
+          ...(expressionAttributeNames && {
+            ExpressionAttributeNames: expressionAttributeNames,
+          }),
+          ScanIndexForward: false,
+          Limit: limit - allTransactions.length,
+        })
+      );
+
+      fromUserTransactions = (fromUserQuery.Items as TransactionEntity[]) || [];
+      allTransactions.push(...fromUserTransactions);
+    }
+
+    // Sort by createdAt timestamp (most recent first)
+    allTransactions.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    // Limit to requested amount
+    const finalTransactions = allTransactions.slice(0, limit);
+
+    return {
+      items: finalTransactions,
+      lastEvaluatedKey: toUserQuery.LastEvaluatedKey || undefined,
+      count: finalTransactions.length,
+    };
+  }
+
+  /**
+   * Get transactions by date range
+   */
+  static async getTransactionsByDateRange(
+    startDate: string,
+    endDate: string,
+    limit: number = 100,
+    exclusiveStartKey?: string
+  ): Promise<{
+    items: TransactionEntity[];
+    lastEvaluatedKey?: string;
+    count: number;
+  }> {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI1",
+        KeyConditionExpression:
+          "GSI1PK = :gsi1pk AND GSI1SK BETWEEN :startDate AND :endDate",
+        ExpressionAttributeValues: {
+          ":gsi1pk": "TRANSACTION_BY_DATE",
+          ":startDate": startDate,
+          ":endDate": endDate,
+        },
+        ScanIndexForward: false,
+        Limit: limit,
+        ExclusiveStartKey: exclusiveStartKey
+          ? JSON.parse(exclusiveStartKey)
+          : undefined,
+      })
+    );
+
+    return {
+      items: (result.Items as TransactionEntity[]) || [],
+      lastEvaluatedKey: result.LastEvaluatedKey
+        ? JSON.stringify(result.LastEvaluatedKey)
+        : undefined,
+      count: result.Count || 0,
+    };
+  }
+
+  /**
+   * Get transactions by type
+   */
+  static async getTransactionsByType(
+    transactionType: string,
+    limit: number = 100,
+    exclusiveStartKey?: string
+  ): Promise<{
+    items: TransactionEntity[];
+    lastEvaluatedKey?: string;
+    count: number;
+  }> {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI4",
+        KeyConditionExpression: "GSI4PK = :gsi4pk",
+        FilterExpression: "begins_with(GSI4SK, :typePrefix)",
+        ExpressionAttributeValues: {
+          ":gsi4pk": "TRANSACTION_BY_TYPE",
+          ":typePrefix": `${transactionType}#`,
+        },
+        ScanIndexForward: false,
+        Limit: limit,
+        ExclusiveStartKey: exclusiveStartKey
+          ? JSON.parse(exclusiveStartKey)
+          : undefined,
+      })
+    );
+
+    return {
+      items: (result.Items as TransactionEntity[]) || [],
+      lastEvaluatedKey: result.LastEvaluatedKey
+        ? JSON.stringify(result.LastEvaluatedKey)
+        : undefined,
+      count: result.Count || 0,
+    };
+  }
+
+  /**
+   * Create daily budget entity
+   */
+  static async createDailyBudget(budget: DailyBudgetEntity): Promise<void> {
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: budget,
+      })
+    );
+  }
+
+  /**
+   * Get daily budget by date
+   */
+  static async getBudgetByDate(
+    date: string
+  ): Promise<DailyBudgetEntity | null> {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `PSC_BUDGET#${date}`,
+          SK: "METADATA",
+        },
+      })
+    );
+
+    return (result.Item as DailyBudgetEntity) || null;
+  }
+
+  /**
+   * Update daily budget activity
+   */
+  static async updateDailyBudgetActivity(
+    date: string,
+    eventType: string,
+    amount: number
+  ): Promise<void> {
+    const addExpressions: string[] = [];
+    const setExpressions: string[] = [];
+    const expressionAttributeValues: Record<string, any> = {
+      ":amount": amount,
+      ":increment": 1,
+      ":lastUpdated": new Date().toISOString(),
+    };
+
+    // Update the specific activity counter
+    switch (eventType) {
+      case "view":
+        addExpressions.push("totalViews :increment");
+        break;
+      case "like":
+        addExpressions.push("totalLikes :increment");
+        break;
+      case "comment":
+        addExpressions.push("totalComments :increment");
+        break;
+      case "bookmark":
+        addExpressions.push("totalBookmarks :increment");
+        break;
+      case "profile_view":
+        addExpressions.push("totalProfileViews :increment");
+        break;
+    }
+
+    // Update budget amounts
+    addExpressions.push("distributedBudget :amount");
+    addExpressions.push("remainingBudget :negativeAmount");
+
+    // Update timestamp
+    setExpressions.push("lastUpdated = :lastUpdated");
+
+    expressionAttributeValues[":negativeAmount"] = -amount;
+
+    // Build the proper UpdateExpression format
+    const updateParts: string[] = [];
+    if (addExpressions.length > 0) {
+      updateParts.push(`ADD ${addExpressions.join(", ")}`);
+    }
+    if (setExpressions.length > 0) {
+      updateParts.push(`SET ${setExpressions.join(", ")}`);
+    }
+
+    await docClient.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `PSC_BUDGET#${date}`,
+          SK: "METADATA",
+        },
+        UpdateExpression: updateParts.join(" "),
+        ExpressionAttributeValues: expressionAttributeValues,
+      })
+    );
+  }
+
+  /**
+   * Delete daily budget by date
+   */
+  static async deleteBudget(date: string): Promise<void> {
+    await docClient.send(
+      new DeleteCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `PSC_BUDGET#${date}`,
+          SK: "METADATA",
+        },
+      })
+    );
+  }
+
+  /**
+   * Get all transactions for admin view with filtering and pagination
+   */
+  static async getAdminTransactions(params: {
+    limit?: number;
+    lastEvaluatedKey?: Record<string, any>;
+    type?: string;
+    status?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    userId?: string;
+  }): Promise<{
+    items: TransactionEntity[];
+    lastEvaluatedKey?: Record<string, any>;
+    count: number;
+  }> {
+    const {
+      limit = 20,
+      lastEvaluatedKey,
+      type,
+      status,
+      dateFrom,
+      dateTo,
+      userId,
+    } = params;
+
+    // Build filter expression for optional parameters
+    const filterExpressions: string[] = [];
+    const expressionAttributeValues: Record<string, any> = {
+      ":gsi1pk": "TRANSACTION_BY_DATE",
+    };
+    const expressionAttributeNames: Record<string, string> = {};
+
+    if (type && type !== "all") {
+      filterExpressions.push("transactionType = :transactionType");
+      expressionAttributeValues[":transactionType"] = type;
+    }
+
+    if (status && status !== "all") {
+      filterExpressions.push("#txStatus = :status");
+      expressionAttributeValues[":status"] = status;
+      expressionAttributeNames["#txStatus"] = "status";
+    }
+
+    if (userId) {
+      filterExpressions.push(
+        "(contains(fromUserId, :userId) OR contains(toUserId, :userId))"
+      );
+      expressionAttributeValues[":userId"] = userId;
+    }
+
+    // Date range filtering using GSI1SK if provided
+    let keyConditionExpression = "GSI1PK = :gsi1pk";
+    if (dateFrom && dateTo) {
+      keyConditionExpression += " AND GSI1SK BETWEEN :dateFrom AND :dateTo";
+      expressionAttributeValues[":dateFrom"] = dateFrom;
+      expressionAttributeValues[":dateTo"] = `${dateTo}#ZZZZZZZZ`; // Ensure we capture all transactions on the end date
+    } else if (dateFrom) {
+      keyConditionExpression += " AND GSI1SK >= :dateFrom";
+      expressionAttributeValues[":dateFrom"] = dateFrom;
+    } else if (dateTo) {
+      keyConditionExpression += " AND GSI1SK <= :dateTo";
+      expressionAttributeValues[":dateTo"] = `${dateTo}#ZZZZZZZZ`;
+    }
+
+    const queryParams: QueryCommandInput = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI1",
+      KeyConditionExpression: keyConditionExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ScanIndexForward: false, // Most recent first
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey,
+    };
+
+    if (filterExpressions.length > 0) {
+      queryParams.FilterExpression = filterExpressions.join(" AND ");
+    }
+
+    if (Object.keys(expressionAttributeNames).length > 0) {
+      queryParams.ExpressionAttributeNames = expressionAttributeNames;
+    }
+
+    const result = await docClient.send(new QueryCommand(queryParams));
+
+    return {
+      items: (result.Items as TransactionEntity[]) || [],
+      lastEvaluatedKey: result.LastEvaluatedKey,
+      count: result.Count || 0,
+    };
+  }
+
+  /**
+   * Convert TransactionEntity to admin API format with username lookup
+   */
+  static async convertTransactionEntityToAdminFormat(
+    transaction: TransactionEntity
+  ): Promise<{
+    id: string;
+    userId: string;
+    username: string;
+    type: string;
+    amount: number;
+    status: string;
+    timestamp: string;
+    metadata?: Record<string, any>;
+  }> {
+    // For admin view, we typically want to show the user who initiated or benefited from the transaction
+    // If it's a reward transaction, show the recipient (toUserId)
+    // If it's a user-to-user transaction, show the sender (fromUserId)
+    const relevantUserId =
+      transaction.fromUserId === "TREASURE"
+        ? transaction.toUserId
+        : transaction.fromUserId;
+
+    let username = "Unknown";
+    if (relevantUserId !== "TREASURE") {
+      try {
+        const user = await this.getUserById(relevantUserId);
+        username = user?.username || "Unknown";
+      } catch (error) {
+        console.warn(
+          `Failed to get username for user ${relevantUserId}:`,
+          error
+        );
+      }
+    } else {
+      username = "System";
+    }
+
+    return {
+      id: transaction.transactionId,
+      userId: relevantUserId,
+      username,
+      type: transaction.transactionType,
+      amount: transaction.amount,
+      status: transaction.status,
+      timestamp: transaction.createdAt,
+      metadata: transaction.metadata,
+    };
+  }
+
+  // ===== PSC Configuration Methods =====
+
+  /**
+   * Get PSC system configuration
+   */
+  static async getPSCConfig(): Promise<PSCSystemConfig | null> {
+    try {
+      const result = await docClient.send(
+        new GetCommand({
+          TableName: TABLE_NAME,
+          Key: {
+            PK: "PSC_CONFIG",
+            SK: "SYSTEM",
+          },
+        })
+      );
+
+      if (!result.Item) {
+        return null;
+      }
+
+      return result.Item as PSCSystemConfig;
+    } catch (error) {
+      console.error("Error getting PSC config:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Save PSC system configuration
+   */
+  static async savePSCConfig(config: PSCSystemConfig): Promise<void> {
+    try {
+      await docClient.send(
+        new PutCommand({
+          TableName: TABLE_NAME,
+          Item: {
+            PK: "PSC_CONFIG",
+            SK: "SYSTEM",
+            EntityType: "PSCConfig",
+            ...config,
+            lastUpdated: new Date().toISOString(),
+          },
+        })
+      );
+    } catch (error) {
+      console.error("Error saving PSC config:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user view counter for PSC view tracking
+   */
+  static async getUserViewCounter(
+    userId: string
+  ): Promise<UserViewCounterEntity | null> {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `USER_VIEW_COUNTER#${userId}`,
+          SK: "METADATA",
+        },
+      })
+    );
+
+    return (result.Item as UserViewCounterEntity) || null;
+  }
+
+  /**
+   * Create or update user view counter for PSC view tracking
+   */
+  static async updateUserViewCounter(
+    userId: string,
+    incrementMediaViews: boolean = false
+  ): Promise<UserViewCounterEntity> {
+    const now = new Date().toISOString();
+
+    try {
+      // Try to get existing counter
+      const existing = await DynamoDBService.getUserViewCounter(userId);
+
+      if (existing) {
+        // Update existing counter
+        let newMediaViewCount = existing.mediaViewCount;
+        let newTotalMediaViews = existing.totalMediaViews;
+        let lastPayoutAt = existing.lastPayoutAt;
+
+        if (incrementMediaViews) {
+          newMediaViewCount = (existing.mediaViewCount + 1) % 10; // Reset to 0 when reaching 10
+          newTotalMediaViews = existing.totalMediaViews + 1;
+
+          // If we just reset to 0, it means we hit 10 views
+          if (newMediaViewCount === 0) {
+            lastPayoutAt = now;
+          }
+        }
+
+        const updatedCounter: UserViewCounterEntity = {
+          ...existing,
+          mediaViewCount: newMediaViewCount,
+          totalMediaViews: newTotalMediaViews,
+          lastViewAt: now,
+          lastPayoutAt,
+          lastUpdated: now,
+        };
+
+        await docClient.send(
+          new PutCommand({
+            TableName: TABLE_NAME,
+            Item: updatedCounter,
+          })
+        );
+
+        return updatedCounter;
+      } else {
+        // Create new counter
+        const newCounter: UserViewCounterEntity = {
+          PK: `USER_VIEW_COUNTER#${userId}`,
+          SK: "METADATA",
+          EntityType: "UserViewCounter",
+          userId,
+          mediaViewCount: incrementMediaViews ? 1 : 0,
+          totalMediaViews: incrementMediaViews ? 1 : 0,
+          lastViewAt: now,
+          lastPayoutAt: undefined,
+          createdAt: now,
+          lastUpdated: now,
+        };
+
+        await docClient.send(
+          new PutCommand({
+            TableName: TABLE_NAME,
+            Item: newCounter,
+          })
+        );
+
+        return newCounter;
+      }
+    } catch (error) {
+      console.error("Error updating user view counter:", error);
+      throw error;
+    }
+  }
+
+  // ===== PSC Rate Snapshot Methods =====
+
+  /**
+   * Save a rate snapshot
+   */
+  static async saveRateSnapshot(snapshot: RateSnapshotEntity): Promise<void> {
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: snapshot,
+      })
+    );
+  }
+
+  /**
+   * Get rate snapshots for a specific date and interval
+   */
+  static async getRateSnapshotsByDate(
+    date: string,
+    interval: "5min" | "1hour"
+  ): Promise<RateSnapshotEntity[]> {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        KeyConditionExpression: "PK = :pk",
+        FilterExpression: "contains(SK, :interval)",
+        ExpressionAttributeValues: {
+          ":pk": `PSC_RATE_SNAPSHOT#${date}`,
+          ":interval": `#${interval}`,
+        },
+        ScanIndexForward: true,
+      })
+    );
+
+    return (result.Items as RateSnapshotEntity[]) || [];
+  }
+
+  /**
+   * Delete old rate snapshots (older than cutoff date)
+   */
+  static async deleteOldRateSnapshots(cutoffDate: string): Promise<void> {
+    // Query for old snapshots using GSI1
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI1",
+        KeyConditionExpression: "GSI1PK = :gsi1pk AND GSI1SK < :cutoff",
+        ExpressionAttributeValues: {
+          ":gsi1pk": "PSC_RATE_SNAPSHOT",
+          ":cutoff": `${cutoffDate}#`,
+        },
+      })
+    );
+
+    if (!result.Items || result.Items.length === 0) {
+      return;
+    }
+
+    // Batch delete old snapshots
+    const deleteRequests = result.Items.map((item) => ({
+      DeleteRequest: {
+        Key: {
+          PK: item["PK"],
+          SK: item["SK"],
+        },
+      },
+    }));
+
+    // Process in batches of 25 (DynamoDB limit)
+    for (let i = 0; i < deleteRequests.length; i += 25) {
+      const batch = deleteRequests.slice(i, i + 25);
+      await docClient.send(
+        new BatchWriteCommand({
+          RequestItems: {
+            [TABLE_NAME]: batch,
+          },
+        })
+      );
+    }
+
+    console.log(`Deleted ${deleteRequests.length} old rate snapshots`);
   }
 }

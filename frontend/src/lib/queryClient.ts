@@ -127,6 +127,24 @@ export const queryKeys = {
     },
   },
 
+  // PSC (PornSpotCoin) related queries
+  psc: {
+    all: () => ["psc"] as const,
+    balance: () => ["psc", "balance"] as const,
+    rates: () => ["psc", "rates"] as const,
+    dashboard: () => ["psc", "dashboard"] as const,
+    transactions: (params?: {
+      limit?: number;
+      exclusiveStartKey?: string;
+      transactionType?: string;
+      status?: string;
+    }) => ["psc", "transactions", params] as const,
+    stats: (period?: "daily" | "weekly" | "monthly") =>
+      ["psc", "stats", period] as const,
+    rateSnapshots: (interval?: "daily" | "weekly") =>
+      ["psc", "rateSnapshots", interval] as const,
+  },
+
   // Album-related queries
   albums: {
     all: () => ["albums"] as const,
@@ -194,6 +212,15 @@ export const queryKeys = {
         endDate: string;
       }) => ["admin", "analytics", "metrics", params] as const,
       dashboard: () => ["admin", "analytics", "dashboard"] as const,
+    },
+    psc: {
+      all: () => ["admin", "psc"] as const,
+      overview: () => ["admin", "psc", "overview"] as const,
+      config: () => ["admin", "psc", "config"] as const,
+      budgets: (params?: Record<string, unknown>) =>
+        ["admin", "psc", "budgets", params] as const,
+      transactions: (filters?: Record<string, unknown>) =>
+        ["admin", "psc", "transactions", filters] as const,
     },
   },
 

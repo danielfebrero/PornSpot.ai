@@ -23,8 +23,12 @@ Special notes:
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
-import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
+import {
+  LambdaHandlerUtil,
+  OptionalAuthResult,
+} from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
+import { PSCIntegrationService } from "@shared/utils/psc-integration";
 
 interface ViewRequest {
   targetType: string;
@@ -32,7 +36,8 @@ interface ViewRequest {
 }
 
 const handleView = async (
-  event: APIGatewayProxyEvent
+  event: APIGatewayProxyEvent,
+  auth: OptionalAuthResult
 ): Promise<APIGatewayProxyResult> => {
   console.log("🔄 View tracking function called");
 
@@ -55,9 +60,14 @@ const handleView = async (
     );
   }
 
+  // Declare variables for PSC payout logic
+  let album: any = null;
+  let media: any = null;
+  let profileUser: any = null;
+
   // Verify target exists and increment appropriate counters
   if (targetType === "album") {
-    const album = await DynamoDBService.getAlbum(targetId);
+    album = await DynamoDBService.getAlbum(targetId);
     if (!album) {
       return ResponseUtil.notFound(event, "Album not found");
     }
@@ -84,7 +94,7 @@ const handleView = async (
     }
   } else if (targetType === "media") {
     // For media, verify it exists - no album context needed in new schema
-    const media = await DynamoDBService.getMedia(targetId);
+    media = await DynamoDBService.getMedia(targetId);
     if (!media) {
       return ResponseUtil.notFound(event, "Media not found");
     }
@@ -110,30 +120,70 @@ const handleView = async (
       }
     }
   } else if (targetType === "profile") {
-    // For profile views, targetId should be the username
-    const username = targetId;
-
-    // Get user by username to verify profile exists
-    const profileUser = await DynamoDBService.getUserByUsername(username);
+    // For profile, verify user exists
+    profileUser = await DynamoDBService.getUserByUsername(targetId);
     if (!profileUser) {
       return ResponseUtil.notFound(event, "Profile not found");
     }
 
-    // Increment profile view count for the profile owner
-    try {
-      await DynamoDBService.incrementUserProfileMetric(
-        profileUser.userId,
-        "totalProfileViews"
-      );
-      console.log(
-        `📈 Incremented totalProfileViews for user: ${profileUser.userId} (${username})`
-      );
-    } catch (error) {
-      console.warn(
-        `⚠️ Failed to increment totalProfileViews for user ${profileUser.userId}:`,
-        error
-      );
-      // Don't fail the entire request if profile view tracking fails
+    // Increment view count for profile
+    await DynamoDBService.incrementUserProfileMetric(
+      profileUser.userId,
+      "totalProfileViews"
+    );
+  }
+
+  // PSC Payout Integration
+  let pscPayoutResult = null;
+
+  // Process PSC payout if user is authenticated and different from creator
+  if (auth.userId) {
+    let creatorId: string | null = null;
+
+    // Determine creator ID for payout based on target type
+    if (targetType === "album" && album?.createdBy) {
+      creatorId = album.createdBy;
+    } else if (targetType === "media" && media?.createdBy) {
+      creatorId = media.createdBy;
+    } else if (targetType === "profile" && profileUser?.userId) {
+      creatorId = profileUser.userId;
+    }
+
+    // Only process payout if user is different from creator
+    if (creatorId && auth.userId !== creatorId) {
+      try {
+        const payoutEvent = PSCIntegrationService.createPayoutEvent(
+          targetType === "profile" ? "profile_view" : "view",
+          targetType as "album" | "media" | "profile",
+          targetId,
+          auth.userId,
+          creatorId,
+          {
+            albumId: targetType === "album" ? targetId : undefined,
+            mediaId: targetType === "media" ? targetId : undefined,
+            profileId:
+              targetType === "profile" ? profileUser?.userId : undefined,
+          }
+        );
+
+        pscPayoutResult = await PSCIntegrationService.processInteractionPayout(
+          payoutEvent,
+          true
+        );
+
+        if (pscPayoutResult.success && pscPayoutResult.shouldPayout) {
+          console.log(
+            `💰 PSC Payout: ${pscPayoutResult.amount} PSC to ${creatorId} for ${targetType} view`
+          );
+        } else if (pscPayoutResult.viewCount !== undefined) {
+          console.log(
+            `📊 View tracking: ${pscPayoutResult.viewCount}/10 for user ${auth.userId}`
+          );
+        }
+      } catch (error) {
+        console.warn("⚠️ PSC payout failed:", error);
+        // Don't fail the entire request if PSC payout fails
+      }
     }
   }
 
@@ -143,9 +193,18 @@ const handleView = async (
     targetType,
     targetId,
     action: "view_recorded",
+    psc: pscPayoutResult
+      ? {
+          success: pscPayoutResult.success,
+          amount: pscPayoutResult.amount,
+          shouldPayout: pscPayoutResult.shouldPayout,
+          viewCount: pscPayoutResult.viewCount,
+          reason: pscPayoutResult.reason,
+        }
+      : null,
   });
 };
 
-export const handler = LambdaHandlerUtil.withoutAuth(handleView, {
+export const handler = LambdaHandlerUtil.withOptionalAuth(handleView, {
   requireBody: true,
 });

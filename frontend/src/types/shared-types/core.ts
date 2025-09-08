@@ -59,7 +59,8 @@ export type EntityType =
   | "Analytics"
   | "MetricsCache"
   | "GenerationSettings"
-  | "Follow";
+  | "Follow"
+  | "UserViewCounter";
 
 export type CreatorType = "user" | "admin";
 
