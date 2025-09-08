@@ -1888,5 +1888,64 @@
     "discordLink": "Discord",
     "orText": "o",
     "redditLink": "Reddit"
+  },
+  "pornspotcoin": {
+    "dashboard": {
+      "title": "Panel de PornSpotCoin",
+      "description": "Rastrea tus ganancias PSC, tasas de pago y oportunidades de intercambio",
+      "liveData": "Datos en vivo",
+      "loadingData": "Cargando datos PSC...",
+      "errorTitle": "Error cargando datos PSC",
+      "unknownError": "Error desconocido ocurrido",
+      "tryAgain": "Intentar de nuevo"
+    },
+    "balance": {
+      "currentBalance": "Saldo actual",
+      "totalEarned": "Total ganado",
+      "todayEarnings": "Ganancias de hoy",
+      "recentActivity": "Actividad reciente",
+      "vsYesterday": "vs ayer",
+      "usd": "USD"
+    },
+    "rates": {
+      "title": "Tasas de pago en vivo",
+      "description": "Recompensas PSC actuales por acción",
+      "views": "Vistas",
+      "likes": "Me gusta",
+      "comments": "Comentarios",
+      "bookmarks": "Marcadores",
+      "profileViews": "Vistas de perfil",
+      "perAction": "por acción"
+    },
+    "exchange": {
+      "title": "Tasas de cambio PSC",
+      "description": "Tasas de cambio actuales para suscripciones premium",
+      "affordable": "Asequible",
+      "purchase": "Comprar",
+      "insufficientPsc": "PSC insuficiente",
+      "plans": {
+        "starter": "inicial",
+        "unlimited": "ilimitado",
+        "pro": "pro",
+        "lifetime": "de por vida"
+      },
+      "duration": {
+        "month": "1 mes",
+        "lifetime": "De por vida"
+      }
+    },
+    "insights": {
+      "title": "Perspectivas de rendimiento semanal",
+      "weeklyPayoutGrowth": "Crecimiento de pagos semanales",
+      "earningTips": "Consejos para ganar",
+      "tip1": "Publica contenido durante horas de baja actividad para tasas de pago más altas",
+      "tip2": "Participa temprano en el día cuando los presupuestos diarios están llenos",
+      "tip3": "El contenido de calidad obtiene más engagement y recompensas"
+    },
+    "transactions": {
+      "title": "Transacciones recientes",
+      "viewAll": "Ver todo",
+      "noTransactions": "No hay transacciones recientes"
+    }
   }
 }

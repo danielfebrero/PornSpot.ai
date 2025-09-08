@@ -1899,5 +1899,64 @@
     "discordLink": "Discord",
     "orText": "или",
     "redditLink": "Reddit"
+  },
+  "pornspotcoin": {
+    "dashboard": {
+      "title": "Панель PornSpotCoin",
+      "description": "Отслеживайте ваши доходы PSC, курсы выплат и возможности обмена",
+      "liveData": "Данные в реальном времени",
+      "loadingData": "Загрузка данных PSC...",
+      "errorTitle": "Ошибка загрузки данных PSC",
+      "unknownError": "Произошла неизвестная ошибка",
+      "tryAgain": "Попробовать снова"
+    },
+    "balance": {
+      "currentBalance": "Текущий баланс",
+      "totalEarned": "Всего заработано",
+      "todayEarnings": "Доходы сегодня",
+      "recentActivity": "Недавняя активность",
+      "vsYesterday": "по сравнению со вчера",
+      "usd": "USD"
+    },
+    "rates": {
+      "title": "Курсы выплат в реальном времени",
+      "description": "Текущие награды PSC за действие",
+      "views": "Просмотры",
+      "likes": "Лайки",
+      "comments": "Комментарии",
+      "bookmarks": "Закладки",
+      "profileViews": "Просмотры профиля",
+      "perAction": "за действие"
+    },
+    "exchange": {
+      "title": "Курсы обмена PSC",
+      "description": "Текущие курсы обмена для премиум подписок",
+      "affordable": "Доступно",
+      "purchase": "Купить",
+      "insufficientPsc": "Недостаточно PSC",
+      "plans": {
+        "starter": "стартер",
+        "unlimited": "неограниченный",
+        "pro": "про",
+        "lifetime": "пожизненный"
+      },
+      "duration": {
+        "month": "1 месяц",
+        "lifetime": "Пожизненно"
+      }
+    },
+    "insights": {
+      "title": "Еженедельная аналитика производительности",
+      "weeklyPayoutGrowth": "Еженедельный рост выплат",
+      "earningTips": "Советы по заработку",
+      "tip1": "Публикуйте контент в часы низкой активности для более высоких курсов выплат",
+      "tip2": "Участвуйте рано утром, когда дневные бюджеты полны",
+      "tip3": "Качественный контент получает больше вовлечения и вознаграждений"
+    },
+    "transactions": {
+      "title": "Недавние транзакции",
+      "viewAll": "Показать все",
+      "noTransactions": "Нет недавних транзакций"
+    }
   }
 }

@@ -1889,5 +1889,64 @@
     "discordLink": "Discord",
     "orText": "或",
     "redditLink": "Reddit"
+  },
+  "pornspotcoin": {
+    "dashboard": {
+      "title": "PornSpotCoin 仪表板",
+      "description": "跟踪您的 PSC 收入、支付率和兑换机会",
+      "liveData": "实时数据",
+      "loadingData": "正在加载 PSC 数据...",
+      "errorTitle": "加载 PSC 数据时出错",
+      "unknownError": "发生未知错误",
+      "tryAgain": "重试"
+    },
+    "balance": {
+      "currentBalance": "当前余额",
+      "totalEarned": "总收入",
+      "todayEarnings": "今日收入",
+      "recentActivity": "最近活动",
+      "vsYesterday": "与昨天相比",
+      "usd": "美元"
+    },
+    "rates": {
+      "title": "实时支付率",
+      "description": "当前每次操作的 PSC 奖励",
+      "views": "查看",
+      "likes": "点赞",
+      "comments": "评论",
+      "bookmarks": "书签",
+      "profileViews": "个人资料查看",
+      "perAction": "每次操作"
+    },
+    "exchange": {
+      "title": "PSC 兑换率",
+      "description": "高级订阅的当前兑换率",
+      "affordable": "可负担",
+      "purchase": "购买",
+      "insufficientPsc": "PSC 不足",
+      "plans": {
+        "starter": "入门",
+        "unlimited": "无限",
+        "pro": "专业",
+        "lifetime": "终身"
+      },
+      "duration": {
+        "month": "1个月",
+        "lifetime": "终身"
+      }
+    },
+    "insights": {
+      "title": "每周表现洞察",
+      "weeklyPayoutGrowth": "每周支付增长",
+      "earningTips": "收入提示",
+      "tip1": "在低活动时间发布内容以获得更高的支付率",
+      "tip2": "在每日预算充足的早晨早期参与",
+      "tip3": "优质内容获得更多参与和奖励"
+    },
+    "transactions": {
+      "title": "最近交易",
+      "viewAll": "查看全部",
+      "noTransactions": "没有最近的交易"
+    }
   }
 }

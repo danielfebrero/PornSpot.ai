@@ -1932,5 +1932,64 @@
     "discordLink": "Discord",
     "orText": "ou",
     "redditLink": "Reddit"
+  },
+  "pornspotcoin": {
+    "dashboard": {
+      "title": "Tableau de bord PornSpotCoin",
+      "description": "Suivez vos gains PSC, les taux de paiement et les opportunités d'échange",
+      "liveData": "Données en direct",
+      "loadingData": "Chargement des données PSC...",
+      "errorTitle": "Erreur lors du chargement des données PSC",
+      "unknownError": "Erreur inconnue survenue",
+      "tryAgain": "Réessayer"
+    },
+    "balance": {
+      "currentBalance": "Solde actuel",
+      "totalEarned": "Total gagné",
+      "todayEarnings": "Gains d'aujourd'hui",
+      "recentActivity": "Activité récente",
+      "vsYesterday": "par rapport à hier",
+      "usd": "USD"
+    },
+    "rates": {
+      "title": "Taux de paiement en direct",
+      "description": "Récompenses PSC actuelles par action",
+      "views": "Vues",
+      "likes": "J'aime",
+      "comments": "Commentaires",
+      "bookmarks": "Favoris",
+      "profileViews": "Vues de profil",
+      "perAction": "par action"
+    },
+    "exchange": {
+      "title": "Taux de change PSC",
+      "description": "Taux de change actuels pour les abonnements premium",
+      "affordable": "Abordable",
+      "purchase": "Acheter",
+      "insufficientPsc": "PSC insuffisant",
+      "plans": {
+        "starter": "débutant",
+        "unlimited": "illimité",
+        "pro": "pro",
+        "lifetime": "à vie"
+      },
+      "duration": {
+        "month": "1 mois",
+        "lifetime": "À vie"
+      }
+    },
+    "insights": {
+      "title": "Aperçus de performance hebdomadaire",
+      "weeklyPayoutGrowth": "Croissance des paiements hebdomadaires",
+      "earningTips": "Conseils pour gagner",
+      "tip1": "Publiez du contenu pendant les heures de faible activité pour des taux de paiement plus élevés",
+      "tip2": "Engagez-vous tôt dans la journée quand les budgets quotidiens sont pleins",
+      "tip3": "Un contenu de qualité obtient plus d'engagement et de récompenses"
+    },
+    "transactions": {
+      "title": "Transactions récentes",
+      "viewAll": "Voir tout",
+      "noTransactions": "Aucune transaction récente"
+    }
   }
 }

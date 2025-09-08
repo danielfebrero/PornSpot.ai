@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { usePSCDashboard, usePSCStats } from "@/hooks/queries/usePSCQuery";
+import { useTranslations } from "next-intl";
 
 // Register Chart.js components
 ChartJS.register(
@@ -117,6 +118,9 @@ ChartJS.register(
 // }
 
 export default function PornSpotCoinPage() {
+  // Initialize translations
+  const t = useTranslations("pornspotcoin");
+
   // Fetch real PSC data
   const {
     data: dashboardData,
@@ -136,7 +140,7 @@ export default function PornSpotCoinPage() {
       <div className="container mx-auto px-4 py-6 flex items-center justify-center min-h-[400px]">
         <div className="flex items-center gap-2">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading PSC data...</span>
+          <span>{t("dashboard.loadingData")}</span>
         </div>
       </div>
     );
@@ -148,15 +152,15 @@ export default function PornSpotCoinPage() {
       <div className="container mx-auto px-4 py-6">
         <div className="text-center py-8">
           <h2 className="text-xl font-semibold text-red-500 mb-2">
-            Error Loading PSC Data
+            {t("dashboard.errorTitle")}
           </h2>
           <p className="text-muted-foreground">
             {dashboardError?.message ||
               statsError?.message ||
-              "Unknown error occurred"}
+              t("dashboard.unknownError")}
           </p>
           <Button className="mt-4" onClick={() => window.location.reload()}>
-            Try Again
+            {t("dashboard.tryAgain")}
           </Button>
         </div>
       </div>
@@ -360,15 +364,13 @@ export default function PornSpotCoinPage() {
         <div className="space-y-1">
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Coins className="h-8 w-8 text-yellow-500" />
-            PornSpotCoin Dashboard
+            {t("dashboard.title")}
           </h1>
-          <p className="text-muted-foreground">
-            Track your PSC earnings, payout rates, and exchange opportunities
-          </p>
+          <p className="text-muted-foreground">{t("dashboard.description")}</p>
         </div>
         <Badge variant="outline" className="text-yellow-600 border-yellow-600">
           <Activity className="h-3 w-3 mr-1" />
-          Live Data
+          {t("dashboard.liveData")}
         </Badge>
       </div>
 
@@ -378,7 +380,7 @@ export default function PornSpotCoinPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-muted-foreground">
-                Current Balance
+                {t("balance.currentBalance")}
               </h3>
               <Coins className="h-4 w-4 text-yellow-500" />
             </div>
@@ -389,7 +391,7 @@ export default function PornSpotCoinPage() {
                 {balance.balance.toFixed(3)} PSC
               </div>
               <div className="text-sm text-muted-foreground">
-                ${((balance.balance * 10) / 9).toFixed(2)} USD
+                ${((balance.balance * 10) / 9).toFixed(2)} {t("balance.usd")}
               </div>
             </div>
           </CardContent>
@@ -399,7 +401,7 @@ export default function PornSpotCoinPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-muted-foreground">
-                Total Earned
+                {t("balance.totalEarned")}
               </h3>
               <TrendingUp className="h-4 w-4 text-green-500" />
             </div>
@@ -411,7 +413,7 @@ export default function PornSpotCoinPage() {
               </div>
               <div className="flex items-center text-sm text-green-600">
                 <ArrowUpRight className="h-3 w-3 mr-1" />+
-                {balanceTrend.toFixed(1)}% vs yesterday
+                {balanceTrend.toFixed(1)}% {t("balance.vsYesterday")}
               </div>
             </div>
           </CardContent>
@@ -421,7 +423,7 @@ export default function PornSpotCoinPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-muted-foreground">
-                Today&apos;s Earnings
+                {t("balance.todayEarnings")}
               </h3>
               <Calendar className="h-4 w-4 text-blue-500" />
             </div>
@@ -432,7 +434,7 @@ export default function PornSpotCoinPage() {
                 {todayEarned.toFixed(3)} PSC
               </div>
               <div className="text-sm text-muted-foreground">
-                Recent activity
+                {t("balance.recentActivity")}
               </div>
             </div>
           </CardContent>
@@ -444,9 +446,9 @@ export default function PornSpotCoinPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-lg font-semibold">Live Payout Rates</h3>
+              <h3 className="text-lg font-semibold">{t("rates.title")}</h3>
               <p className="text-sm text-muted-foreground">
-                Current PSC rewards per action
+                {t("rates.description")}
               </p>
             </div>
             <BarChart3 className="h-5 w-5 text-blue-500" />
@@ -457,7 +459,7 @@ export default function PornSpotCoinPage() {
             {[
               {
                 icon: Eye,
-                label: "Views",
+                label: t("rates.views"),
                 rate: rates.viewRate,
                 bgClass:
                   "bg-gradient-to-r from-blue-500/10 to-admin-secondary/10 border-blue-200 text-foreground",
@@ -466,7 +468,7 @@ export default function PornSpotCoinPage() {
               },
               {
                 icon: Heart,
-                label: "Likes",
+                label: t("rates.likes"),
                 rate: rates.likeRate,
                 bgClass:
                   "bg-gradient-to-r from-red-500/10 to-admin-secondary/10 border-red-200 text-foreground",
@@ -475,7 +477,7 @@ export default function PornSpotCoinPage() {
               },
               {
                 icon: MessageCircle,
-                label: "Comments",
+                label: t("rates.comments"),
                 rate: rates.commentRate,
                 bgClass:
                   "bg-gradient-to-r from-green-500/10 to-admin-secondary/10 border-green-200 text-foreground",
@@ -484,7 +486,7 @@ export default function PornSpotCoinPage() {
               },
               {
                 icon: Bookmark,
-                label: "Bookmarks",
+                label: t("rates.bookmarks"),
                 rate: rates.bookmarkRate,
                 bgClass:
                   "bg-gradient-to-r from-purple-500/10 to-admin-secondary/10 border-purple-200 text-foreground",
@@ -493,7 +495,7 @@ export default function PornSpotCoinPage() {
               },
               {
                 icon: User,
-                label: "Profile Views",
+                label: t("rates.profileViews"),
                 rate: rates.profileViewRate,
                 bgClass:
                   "bg-gradient-to-r from-orange-500/10 to-admin-secondary/10 border-orange-200 text-foreground",
@@ -512,7 +514,9 @@ export default function PornSpotCoinPage() {
                 <div className={`text-lg font-bold ${item.textClass}`}>
                   {item.rate.toFixed(4)} PSC
                 </div>
-                <div className="text-xs text-muted-foreground">per action</div>
+                <div className="text-xs text-muted-foreground">
+                  {t("rates.perAction")}
+                </div>
               </div>
             ))}
           </div>
@@ -545,9 +549,9 @@ export default function PornSpotCoinPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-lg font-semibold">PSC Exchange Rates</h3>
+              <h3 className="text-lg font-semibold">{t("exchange.title")}</h3>
               <p className="text-sm text-muted-foreground">
-                Current exchange rates for premium subscriptions
+                {t("exchange.description")}
               </p>
             </div>
             <DollarSign className="h-5 w-5 text-green-500" />
@@ -568,13 +572,15 @@ export default function PornSpotCoinPage() {
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-semibold capitalize">{plan}</h4>
+                      <h4 className="font-semibold capitalize">
+                        {t(`exchange.plans.${plan}`)}
+                      </h4>
                       {canAfford && (
                         <Badge
                           variant="outline"
                           className="text-green-600 border-green-600"
                         >
-                          Affordable
+                          {t("exchange.affordable")}
                         </Badge>
                       )}
                     </div>
@@ -582,7 +588,9 @@ export default function PornSpotCoinPage() {
                       {details.cost} PSC
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {details.duration}
+                      {plan === "lifetime"
+                        ? t("exchange.duration.lifetime")
+                        : t("exchange.duration.month")}
                     </div>
                     <Button
                       size="sm"
@@ -590,7 +598,9 @@ export default function PornSpotCoinPage() {
                       disabled={!canAfford}
                       className="w-full"
                     >
-                      {canAfford ? "Purchase" : "Insufficient PSC"}
+                      {canAfford
+                        ? t("exchange.purchase")
+                        : t("exchange.insufficientPsc")}
                     </Button>
                   </div>
                 </div>
@@ -605,9 +615,7 @@ export default function PornSpotCoinPage() {
         {/* Performance Insights */}
         <Card>
           <CardHeader>
-            <h3 className="text-lg font-semibold">
-              Weekly Performance Insights
-            </h3>
+            <h3 className="text-lg font-semibold">{t("insights.title")}</h3>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
@@ -629,7 +637,7 @@ export default function PornSpotCoinPage() {
               </div> */}
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">
-                  Weekly Payout Growth
+                  {t("insights.weeklyPayoutGrowth")}
                 </span>
                 <span
                   className={`font-semibold ${
@@ -644,14 +652,11 @@ export default function PornSpotCoinPage() {
 
             <div className="pt-4 border-t border-border">
               <div className="space-y-2">
-                <h4 className="font-medium">Earning Tips</h4>
+                <h4 className="font-medium">{t("insights.earningTips")}</h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>
-                    • Post content during low activity hours for higher payout
-                    rates
-                  </li>
-                  <li>• Engage early in the day when daily budgets are full</li>
-                  <li>• Quality content gets more engagement and rewards</li>
+                  <li>• {t("insights.tip1")}</li>
+                  <li>• {t("insights.tip2")}</li>
+                  <li>• {t("insights.tip3")}</li>
                 </ul>
               </div>
             </div>
@@ -662,10 +667,12 @@ export default function PornSpotCoinPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Recent Transactions</h3>
+              <h3 className="text-lg font-semibold">
+                {t("transactions.title")}
+              </h3>
               <LocaleLink href="/user/pornspotcoin/transactions">
                 <Button variant="outline" size="sm">
-                  View All
+                  {t("transactions.viewAll")}
                 </Button>
               </LocaleLink>
             </div>
@@ -711,7 +718,7 @@ export default function PornSpotCoinPage() {
               ))}
               {recentTransactions.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
-                  No recent transactions
+                  {t("transactions.noTransactions")}
                 </div>
               )}
             </div>

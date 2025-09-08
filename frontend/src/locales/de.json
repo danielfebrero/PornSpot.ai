@@ -1888,5 +1888,64 @@
     "discordLink": "Discord",
     "orText": "oder",
     "redditLink": "Reddit"
+  },
+  "pornspotcoin": {
+    "dashboard": {
+      "title": "PornSpotCoin Dashboard",
+      "description": "Verfolgen Sie Ihre PSC-Einnahmen, Auszahlungsraten und Tauschgelegenheiten",
+      "liveData": "Live-Daten",
+      "loadingData": "PSC-Daten werden geladen...",
+      "errorTitle": "Fehler beim Laden der PSC-Daten",
+      "unknownError": "Unbekannter Fehler aufgetreten",
+      "tryAgain": "Erneut versuchen"
+    },
+    "balance": {
+      "currentBalance": "Aktueller Saldo",
+      "totalEarned": "Gesamt verdient",
+      "todayEarnings": "Heutige Einnahmen",
+      "recentActivity": "Kürzliche Aktivität",
+      "vsYesterday": "vs gestern",
+      "usd": "USD"
+    },
+    "rates": {
+      "title": "Live-Auszahlungsraten",
+      "description": "Aktuelle PSC-Belohnungen pro Aktion",
+      "views": "Aufrufe",
+      "likes": "Likes",
+      "comments": "Kommentare",
+      "bookmarks": "Lesezeichen",
+      "profileViews": "Profilaufrufe",
+      "perAction": "pro Aktion"
+    },
+    "exchange": {
+      "title": "PSC-Wechselkurse",
+      "description": "Aktuelle Wechselkurse für Premium-Abonnements",
+      "affordable": "Erschwinglich",
+      "purchase": "Kaufen",
+      "insufficientPsc": "Unzureichende PSC",
+      "plans": {
+        "starter": "starter",
+        "unlimited": "unbegrenzt",
+        "pro": "pro",
+        "lifetime": "lebenslang"
+      },
+      "duration": {
+        "month": "1 Monat",
+        "lifetime": "Lebenslang"
+      }
+    },
+    "insights": {
+      "title": "Wöchentliche Leistungseinblicke",
+      "weeklyPayoutGrowth": "Wöchentliches Auszahlungswachstum",
+      "earningTips": "Verdiensttipps",
+      "tip1": "Veröffentlichen Sie Inhalte während Zeiten geringer Aktivität für höhere Auszahlungsraten",
+      "tip2": "Engagieren Sie sich früh am Tag, wenn die Tagesbudgets voll sind",
+      "tip3": "Qualitätsinhalte erhalten mehr Engagement und Belohnungen"
+    },
+    "transactions": {
+      "title": "Kürzliche Transaktionen",
+      "viewAll": "Alle anzeigen",
+      "noTransactions": "Keine kürzlichen Transaktionen"
+    }
   }
 }

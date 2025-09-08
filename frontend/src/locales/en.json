@@ -1933,5 +1933,64 @@
     "discordLink": "Discord",
     "orText": "or",
     "redditLink": "Reddit"
+  },
+  "pornspotcoin": {
+    "dashboard": {
+      "title": "PornSpotCoin Dashboard",
+      "description": "Track your PSC earnings, payout rates, and exchange opportunities",
+      "liveData": "Live Data",
+      "loadingData": "Loading PSC data...",
+      "errorTitle": "Error Loading PSC Data",
+      "unknownError": "Unknown error occurred",
+      "tryAgain": "Try Again"
+    },
+    "balance": {
+      "currentBalance": "Current Balance",
+      "totalEarned": "Total Earned",
+      "todayEarnings": "Today's Earnings",
+      "recentActivity": "Recent activity",
+      "vsYesterday": "vs yesterday",
+      "usd": "USD"
+    },
+    "rates": {
+      "title": "Live Payout Rates",
+      "description": "Current PSC rewards per action",
+      "views": "Views",
+      "likes": "Likes",
+      "comments": "Comments",
+      "bookmarks": "Bookmarks",
+      "profileViews": "Profile Views",
+      "perAction": "per action"
+    },
+    "exchange": {
+      "title": "PSC Exchange Rates",
+      "description": "Current exchange rates for premium subscriptions",
+      "affordable": "Affordable",
+      "purchase": "Purchase",
+      "insufficientPsc": "Insufficient PSC",
+      "plans": {
+        "starter": "starter",
+        "unlimited": "unlimited",
+        "pro": "pro",
+        "lifetime": "lifetime"
+      },
+      "duration": {
+        "month": "1 month",
+        "lifetime": "Lifetime"
+      }
+    },
+    "insights": {
+      "title": "Weekly Performance Insights",
+      "weeklyPayoutGrowth": "Weekly Payout Growth",
+      "earningTips": "Earning Tips",
+      "tip1": "Post content during low activity hours for higher payout rates",
+      "tip2": "Engage early in the day when daily budgets are full",
+      "tip3": "Quality content gets more engagement and rewards"
+    },
+    "transactions": {
+      "title": "Recent Transactions",
+      "viewAll": "View All",
+      "noTransactions": "No recent transactions"
+    }
   }
 }

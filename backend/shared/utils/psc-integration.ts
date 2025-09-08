@@ -159,6 +159,23 @@ export class PSCIntegrationService {
       };
     }
 
+    // Before processing payout, check for IP fraud
+    const fraudCheck = await PSCIntegrationService.checkForIPFraud(
+      event.userId,
+      event.creatorId
+    );
+
+    if (fraudCheck.isFraud) {
+      console.log(
+        `🚫 Blocking payout due to IP fraud detection: ${fraudCheck.reason}`
+      );
+      return {
+        success: true,
+        shouldPayout: false,
+        reason: `Payout blocked: ${fraudCheck.reason}`,
+      };
+    }
+
     // Update the user's view counter
     const viewCounter = await DynamoDBService.updateUserViewCounter(
       event.userId,
@@ -175,24 +192,6 @@ export class PSCIntegrationService {
         shouldPayout: false,
         viewCount: viewCounter.mediaViewCount,
         reason: `View ${viewCounter.mediaViewCount}/10 tracked, no payout yet`,
-      };
-    }
-
-    // Before processing payout, check for IP fraud
-    const fraudCheck = await PSCIntegrationService.checkForIPFraud(
-      event.userId,
-      event.creatorId
-    );
-
-    if (fraudCheck.isFraud) {
-      console.log(
-        `🚫 Blocking payout due to IP fraud detection: ${fraudCheck.reason}`
-      );
-      return {
-        success: true,
-        shouldPayout: false,
-        viewCount: viewCounter.mediaViewCount,
-        reason: `Payout blocked: ${fraudCheck.reason}`,
       };
     }
 
