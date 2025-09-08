@@ -3,7 +3,15 @@
 import { useEffect } from "react";
 import { useLocaleRouter } from "@/lib/navigation";
 import { useTranslations } from "next-intl";
-import { Heart, Bookmark, Image, FolderOpen, User, Users } from "lucide-react";
+import {
+  Heart,
+  Bookmark,
+  Image,
+  FolderOpen,
+  User,
+  Users,
+  Coins,
+} from "lucide-react";
 import {
   Skeleton,
   HeaderSkeleton,
@@ -108,6 +116,11 @@ const UserLayout: React.FC<UserLayoutProps> = ({
       href: `/user/profile`,
       label: t("profile"),
       icon: User,
+    },
+    {
+      href: `/user/pornspotcoin`,
+      label: t("pornspotcoin"),
+      icon: Coins,
     },
     {
       href: `/user/following`,

@@ -89,7 +89,8 @@
     "noMediaFound": "未找到媒体",
     "albumDoesntContainMediaFiles": "该专辑尚未包含任何媒体文件。",
     "loadingMoreMedia": "正在加载更多媒体...",
-    "failedToLoadMoreMedia": "加载更多媒体失败"
+    "failedToLoadMoreMedia": "加载更多媒体失败",
+    "pornspotcoin": "PornSpotCoin"
   },
   "profile": {
     "username": "用户名",
@@ -284,6 +285,7 @@
     "likes": "点赞",
     "albums": "相册",
     "profile": "个人资料",
+    "pornspotcoin": "PornSpotCoin",
     "following": "关注",
     "menu": "菜单",
     "sidebar": "侧边栏",

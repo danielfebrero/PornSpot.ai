@@ -350,14 +350,6 @@ export function PSCConfigurationManager({}: PSCConfigurationManagerProps) {
               </div>
             ))}
           </div>
-
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-xs text-blue-800">
-              <strong>Note:</strong> Rate weights are multipliers applied to the
-              base rate calculation. Final PSC amounts are calculated based on
-              yesterday&apos;s weighted activity to prevent gaming.
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

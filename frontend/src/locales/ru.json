@@ -89,7 +89,8 @@
     "noMediaFound": "Медиа не найдены",
     "albumDoesntContainMediaFiles": "Этот альбом пока не содержит медиафайлов.",
     "loadingMoreMedia": "Загрузка дополнительных медиа...",
-    "failedToLoadMoreMedia": "Не удалось загрузить дополнительные медиа"
+    "failedToLoadMoreMedia": "Не удалось загрузить дополнительные медиа",
+    "pornspotcoin": "PornSpotCoin"
   },
   "profile": {
     "username": "Имя пользователя",
@@ -285,6 +286,7 @@
     "albums": "Альбомы",
     "dashboard": "Панель управления",
     "profile": "Профиль",
+    "pornspotcoin": "PornSpotCoin",
     "following": "Подписки",
     "menu": "Меню",
     "sidebar": "Боковая панель",
