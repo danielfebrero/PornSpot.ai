@@ -52,7 +52,7 @@ const handlePSCStats = async (
       const viewTransactions = rewardTransactions.filter(
         (t) => t.transactionType === "reward_view"
       );
-      const totalViews = viewTransactions.length;
+      const totalViews = viewTransactions.length * 10;
 
       // Calculate payout growth (current week vs previous week)
       const now = new Date();
