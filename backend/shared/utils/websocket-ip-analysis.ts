@@ -181,7 +181,9 @@ export const checkUsersSharedIPRecently = async (
     const user2IPs = new Set(user2Connections.map((conn) => conn.clientIp));
 
     // Find shared IPs
-    const sharedIPs = Array.from(user1IPs).filter((ip) => user2IPs.has(ip));
+    const sharedIPs = Array.from(user1IPs)
+      .filter((ip) => user2IPs.has(ip))
+      .filter((ip) => ip); // Filter out empty strings
 
     const result: IPAnalysisResult = {
       hasSharedIP: sharedIPs.length > 0,
