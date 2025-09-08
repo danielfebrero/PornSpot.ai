@@ -5,13 +5,93 @@
  * - Handles view counter logic for media views (every 10 views)
  * - Processes immediate payouts for likes, comments, bookmarks, profile views
  * - Integrates with existing PSCPayoutService and DynamoDBService
+ * - Includes IP fraud detection to prevent self-payouts
  */
 
 import { DynamoDBService } from "./dynamodb";
 import { PSCPayoutService } from "./psc-payout";
 import { PayoutEvent } from "@shared/shared-types";
+import { checkUsersSharedIPRecently } from "./websocket-ip-analysis";
 
 export class PSCIntegrationService {
+  /**
+   * Check if users have shared IP recently (potential fraud detection)
+   * @param userId - The user performing the action
+   * @param creatorId - The creator receiving the payout
+   * @param daysBack - How many days back to check (default 30)
+   * @returns Promise<boolean> - true if fraud detected (shared IP), false if safe
+   */
+  private static async checkForIPFraud(
+    userId: string,
+    creatorId: string,
+    daysBack: number = 30
+  ): Promise<{
+    isFraud: boolean;
+    reason?: string;
+    sharedIPs?: string[];
+  }> {
+    try {
+      // Skip check if same user (self-interaction is valid in some cases)
+      if (userId === creatorId) {
+        return {
+          isFraud: false,
+          reason: "Same user, skipping IP check",
+        };
+      }
+
+      // Skip check for anonymous users
+      if (userId === "anonymous" || !userId || !creatorId) {
+        return {
+          isFraud: false,
+          reason: "Anonymous or missing user, skipping IP check",
+        };
+      }
+
+      console.log(
+        `🔍 Checking for IP fraud between user ${userId} and creator ${creatorId}`
+      );
+
+      const ipAnalysis = await checkUsersSharedIPRecently(
+        userId,
+        creatorId,
+        daysBack
+      );
+
+      if (ipAnalysis.hasSharedIP && ipAnalysis.sharedIPs.length > 0) {
+        console.log(
+          `⚠️ IP fraud detected: Users ${userId} and ${creatorId} shared IPs: ${ipAnalysis.sharedIPs.join(
+            ", "
+          )}`
+        );
+        return {
+          isFraud: true,
+          reason: `Users shared IP addresses recently: ${ipAnalysis.sharedIPs.join(
+            ", "
+          )}`,
+          sharedIPs: ipAnalysis.sharedIPs,
+        };
+      }
+
+      console.log(
+        `✅ No IP fraud detected between users ${userId} and ${creatorId}`
+      );
+      return {
+        isFraud: false,
+        reason: "No shared IP addresses detected",
+      };
+    } catch (error) {
+      console.error(
+        `❌ Error checking IP fraud between ${userId} and ${creatorId}:`,
+        error
+      );
+      // In case of error, allow payout but log the issue
+      return {
+        isFraud: false,
+        reason: "IP fraud check failed, allowing payout",
+      };
+    }
+  }
+
   /**
    * Process PSC payout for an interaction
    * @param event - The payout event details
@@ -98,6 +178,24 @@ export class PSCIntegrationService {
       };
     }
 
+    // Before processing payout, check for IP fraud
+    const fraudCheck = await PSCIntegrationService.checkForIPFraud(
+      event.userId,
+      event.creatorId
+    );
+
+    if (fraudCheck.isFraud) {
+      console.log(
+        `🚫 Blocking payout due to IP fraud detection: ${fraudCheck.reason}`
+      );
+      return {
+        success: true,
+        shouldPayout: false,
+        viewCount: viewCounter.mediaViewCount,
+        reason: `Payout blocked: ${fraudCheck.reason}`,
+      };
+    }
+
     // Process the payout for the 10th view
     // Create a modified event with metadata indicating this is a 10-view batch payout
     const batchEvent: PayoutEvent = {
@@ -138,6 +236,23 @@ export class PSCIntegrationService {
     shouldPayout?: boolean;
     reason?: string;
   }> {
+    // Check for IP fraud before processing payout
+    const fraudCheck = await PSCIntegrationService.checkForIPFraud(
+      event.userId,
+      event.creatorId
+    );
+
+    if (fraudCheck.isFraud) {
+      console.log(
+        `🚫 Blocking immediate payout due to IP fraud detection: ${fraudCheck.reason}`
+      );
+      return {
+        success: true,
+        shouldPayout: false,
+        reason: `Payout blocked: ${fraudCheck.reason}`,
+      };
+    }
+
     const payoutResult = await PSCPayoutService.processPayout(event);
 
     if (payoutResult.success && payoutResult.transaction) {
