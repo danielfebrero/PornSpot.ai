@@ -26,7 +26,7 @@ import {
   Legend,
   Filler,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
+// import { Line } from "react-chartjs-2";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -46,75 +46,75 @@ ChartJS.register(
 );
 
 // Generate mock data for 24x7 (168 points) over one week
-function generateMockWeeklyData() {
-  const data = [];
-  const actions = [
-    "view",
-    "like",
-    "comment",
-    "bookmark",
-    "profileView",
-  ] as const;
-  const baseRates: Record<string, number> = {
-    view: 0.0012,
-    like: 0.0045,
-    comment: 0.0078,
-    bookmark: 0.0034,
-    profileView: 0.0019,
-  };
+// function generateMockWeeklyData() {
+//   const data = [];
+//   const actions = [
+//     "view",
+//     "like",
+//     "comment",
+//     "bookmark",
+//     "profileView",
+//   ] as const;
+//   const baseRates: Record<string, number> = {
+//     view: 0.0012,
+//     like: 0.0045,
+//     comment: 0.0078,
+//     bookmark: 0.0034,
+//     profileView: 0.0019,
+//   };
 
-  for (let day = 0; day < 7; day++) {
-    for (let hour = 0; hour < 24; hour++) {
-      const timestamp = new Date();
-      timestamp.setDate(timestamp.getDate() - (6 - day));
-      timestamp.setHours(hour, 0, 0, 0);
+//   for (let day = 0; day < 7; day++) {
+//     for (let hour = 0; hour < 24; hour++) {
+//       const timestamp = new Date();
+//       timestamp.setDate(timestamp.getDate() - (6 - day));
+//       timestamp.setHours(hour, 0, 0, 0);
 
-      const point = {
-        timestamp: timestamp.toISOString(),
-        day: day,
-        hour: hour,
-        rates: {} as Record<string, number>,
-      };
+//       const point = {
+//         timestamp: timestamp.toISOString(),
+//         day: day,
+//         hour: hour,
+//         rates: {} as Record<string, number>,
+//       };
 
-      // Simulate activity patterns and budget effects
-      const activityMultiplier = getActivityMultiplier(day, hour);
-      const budgetFactor = getBudgetFactor(hour);
+//       // Simulate activity patterns and budget effects
+//       const activityMultiplier = getActivityMultiplier(day, hour);
+//       const budgetFactor = getBudgetFactor(hour);
 
-      actions.forEach((action) => {
-        // Base rate adjusted by activity and budget availability
-        point.rates[action] =
-          baseRates[action] *
-          activityMultiplier *
-          budgetFactor *
-          (0.8 + Math.random() * 0.4); // Add some randomness
-      });
+//       actions.forEach((action) => {
+//         // Base rate adjusted by activity and budget availability
+//         point.rates[action] =
+//           baseRates[action] *
+//           activityMultiplier *
+//           budgetFactor *
+//           (0.8 + Math.random() * 0.4); // Add some randomness
+//       });
 
-      data.push(point);
-    }
-  }
+//       data.push(point);
+//     }
+//   }
 
-  return data;
-}
+//   return data;
+// }
 
-function getActivityMultiplier(day: number, hour: number): number {
-  // Simulate higher activity on weekends and during peak hours
-  const isWeekend = day === 0 || day === 6;
-  const isPeakTime = hour >= 19 && hour <= 23; // 7 PM to 11 PM
-  const isLateNight = hour >= 0 && hour <= 2; // Midnight to 2 AM
+// function getActivityMultiplier(day: number, hour: number): number {
+//   // Simulate higher activity on weekends and during peak hours
+//   const isWeekend = day === 0 || day === 6;
+//   const isPeakTime = hour >= 19 && hour <= 23; // 7 PM to 11 PM
+//   const isLateNight = hour >= 0 && hour <= 2; // Midnight to 2 AM
 
-  let multiplier = 1;
-  if (isWeekend) multiplier *= 1.3;
-  if (isPeakTime) multiplier *= 1.5;
-  if (isLateNight) multiplier *= 0.7;
+//   let multiplier = 1;
+//   if (isWeekend) multiplier *= 1.3;
+//   if (isPeakTime) multiplier *= 1.5;
+//   if (isLateNight) multiplier *= 0.7;
 
-  return multiplier;
-}
+//   return multiplier;
+// }
 
-function getBudgetFactor(hour: number): number {
-  // Simulate budget depletion throughout the day
-  // Higher rates early in the day when budget is full
-  return Math.max(0.3, 1.2 - (hour / 24) * 0.9);
-}
+// function getBudgetFactor(hour: number): number {
+//   // Simulate budget depletion throughout the day
+//   // Higher rates early in the day when budget is full
+//   return Math.max(0.3, 1.2 - (hour / 24) * 0.9);
+// }
 
 export default function PornSpotCoinPage() {
   // Fetch real PSC data
@@ -222,136 +222,136 @@ export default function PornSpotCoinPage() {
   };
 
   // For weekly stats, we'll use mock data for the chart until we have historical data
-  const weeklyPayoutRates = generateMockWeeklyData();
+  //   const weeklyPayoutRates = generateMockWeeklyData();
 
   // Process chart data for weekly payout rates
-  const processWeeklyChartData = () => {
-    const weeklyData = weeklyPayoutRates;
+  //   const processWeeklyChartData = () => {
+  //     const weeklyData = weeklyPayoutRates;
 
-    // Create hourly labels for 168 hours (7 days * 24 hours)
-    const hourlyLabels = [];
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  //     // Create hourly labels for 168 hours (7 days * 24 hours)
+  //     const hourlyLabels = [];
+  //     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-    for (let day = 0; day < 7; day++) {
-      for (let hour = 0; hour < 24; hour++) {
-        hourlyLabels.push(
-          `${days[day]} ${hour.toString().padStart(2, "0")}:00`
-        );
-      }
-    }
+  //     for (let day = 0; day < 7; day++) {
+  //       for (let hour = 0; hour < 24; hour++) {
+  //         hourlyLabels.push(
+  //           `${days[day]} ${hour.toString().padStart(2, "0")}:00`
+  //         );
+  //       }
+  //     }
 
-    // Extract hourly data for each action type
-    const viewData = weeklyData.map((point) => point.rates.view);
-    const likeData = weeklyData.map((point) => point.rates.like);
-    const commentData = weeklyData.map((point) => point.rates.comment);
-    const bookmarkData = weeklyData.map((point) => point.rates.bookmark);
-    const profileViewData = weeklyData.map((point) => point.rates.profileView);
+  //     // Extract hourly data for each action type
+  //     const viewData = weeklyData.map((point) => point.rates.view);
+  //     const likeData = weeklyData.map((point) => point.rates.like);
+  //     const commentData = weeklyData.map((point) => point.rates.comment);
+  //     const bookmarkData = weeklyData.map((point) => point.rates.bookmark);
+  //     const profileViewData = weeklyData.map((point) => point.rates.profileView);
 
-    return {
-      labels: hourlyLabels,
-      datasets: [
-        {
-          label: "Views (PSC)",
-          data: viewData,
-          borderColor: "rgba(59, 130, 246, 1)",
-          backgroundColor: "rgba(59, 130, 246, 0.1)",
-          fill: true,
-          tension: 0.4,
-        },
-        {
-          label: "Likes (PSC)",
-          data: likeData,
-          borderColor: "rgba(239, 68, 68, 1)",
-          backgroundColor: "rgba(239, 68, 68, 0.1)",
-          fill: true,
-          tension: 0.4,
-        },
-        {
-          label: "Comments (PSC)",
-          data: commentData,
-          borderColor: "rgba(34, 197, 94, 1)",
-          backgroundColor: "rgba(34, 197, 94, 0.1)",
-          fill: true,
-          tension: 0.4,
-        },
-        {
-          label: "Bookmarks (PSC)",
-          data: bookmarkData,
-          borderColor: "rgba(168, 85, 247, 1)",
-          backgroundColor: "rgba(168, 85, 247, 0.1)",
-          fill: true,
-          tension: 0.4,
-        },
-        {
-          label: "Profile Views (PSC)",
-          data: profileViewData,
-          borderColor: "rgba(245, 158, 11, 1)",
-          backgroundColor: "rgba(245, 158, 11, 0.1)",
-          fill: true,
-          tension: 0.4,
-        },
-      ],
-    };
-  };
+  //     return {
+  //       labels: hourlyLabels,
+  //       datasets: [
+  //         {
+  //           label: "Views (PSC)",
+  //           data: viewData,
+  //           borderColor: "rgba(59, 130, 246, 1)",
+  //           backgroundColor: "rgba(59, 130, 246, 0.1)",
+  //           fill: true,
+  //           tension: 0.4,
+  //         },
+  //         {
+  //           label: "Likes (PSC)",
+  //           data: likeData,
+  //           borderColor: "rgba(239, 68, 68, 1)",
+  //           backgroundColor: "rgba(239, 68, 68, 0.1)",
+  //           fill: true,
+  //           tension: 0.4,
+  //         },
+  //         {
+  //           label: "Comments (PSC)",
+  //           data: commentData,
+  //           borderColor: "rgba(34, 197, 94, 1)",
+  //           backgroundColor: "rgba(34, 197, 94, 0.1)",
+  //           fill: true,
+  //           tension: 0.4,
+  //         },
+  //         {
+  //           label: "Bookmarks (PSC)",
+  //           data: bookmarkData,
+  //           borderColor: "rgba(168, 85, 247, 1)",
+  //           backgroundColor: "rgba(168, 85, 247, 0.1)",
+  //           fill: true,
+  //           tension: 0.4,
+  //         },
+  //         {
+  //           label: "Profile Views (PSC)",
+  //           data: profileViewData,
+  //           borderColor: "rgba(245, 158, 11, 1)",
+  //           backgroundColor: "rgba(245, 158, 11, 0.1)",
+  //           fill: true,
+  //           tension: 0.4,
+  //         },
+  //       ],
+  //     };
+  //   };
 
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "top" as const,
-        labels: {
-          padding: 20,
-          usePointStyle: true,
-        },
-      },
-      title: {
-        display: false,
-      },
-      tooltip: {
-        mode: "index" as const,
-        intersect: false,
-        callbacks: {
-          label: function (context: any) {
-            const label = context.dataset.label || "";
-            const value = context.parsed.y;
-            return `${label}: ${value.toFixed(4)} PSC`;
-          },
-        },
-      },
-    },
-    scales: {
-      x: {
-        display: true,
-        title: {
-          display: true,
-          text: "Hour of Week",
-        },
-        grid: {
-          display: false,
-        },
-        ticks: {
-          maxTicksLimit: 24, // Show only some labels to avoid crowding
-        },
-      },
-      y: {
-        display: true,
-        title: {
-          display: true,
-          text: "PSC per Action",
-        },
-        beginAtZero: true,
-        grid: {
-          color: "rgba(0, 0, 0, 0.1)",
-        },
-      },
-    },
-    interaction: {
-      mode: "nearest" as const,
-      axis: "x" as const,
-      intersect: false,
-    },
-  };
+  //   const chartOptions = {
+  //     responsive: true,
+  //     maintainAspectRatio: false,
+  //     plugins: {
+  //       legend: {
+  //         position: "top" as const,
+  //         labels: {
+  //           padding: 20,
+  //           usePointStyle: true,
+  //         },
+  //       },
+  //       title: {
+  //         display: false,
+  //       },
+  //       tooltip: {
+  //         mode: "index" as const,
+  //         intersect: false,
+  //         callbacks: {
+  //           label: function (context: any) {
+  //             const label = context.dataset.label || "";
+  //             const value = context.parsed.y;
+  //             return `${label}: ${value.toFixed(4)} PSC`;
+  //           },
+  //         },
+  //       },
+  //     },
+  //     scales: {
+  //       x: {
+  //         display: true,
+  //         title: {
+  //           display: true,
+  //           text: "Hour of Week",
+  //         },
+  //         grid: {
+  //           display: false,
+  //         },
+  //         ticks: {
+  //           maxTicksLimit: 24, // Show only some labels to avoid crowding
+  //         },
+  //       },
+  //       y: {
+  //         display: true,
+  //         title: {
+  //           display: true,
+  //           text: "PSC per Action",
+  //         },
+  //         beginAtZero: true,
+  //         grid: {
+  //           color: "rgba(0, 0, 0, 0.1)",
+  //         },
+  //       },
+  //     },
+  //     interaction: {
+  //       mode: "nearest" as const,
+  //       axis: "x" as const,
+  //       intersect: false,
+  //     },
+  //   };
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
@@ -520,7 +520,7 @@ export default function PornSpotCoinPage() {
       </Card>
 
       {/* Weekly Payout Rates Chart */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="space-y-1">
@@ -538,7 +538,7 @@ export default function PornSpotCoinPage() {
             <Line data={processWeeklyChartData()} options={chartOptions} />
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Exchange Rates */}
       <Card>
