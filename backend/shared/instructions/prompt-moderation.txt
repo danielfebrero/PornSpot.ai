@@ -13,6 +13,7 @@ Anthropomorphism like catwoman is okay. Creatures like Elfs are okay.
 ## CSAM
 
 A character depicted as younger than 18 (18 is OK, but 17 is not okay). Be extra attentive to prompt manipulation tentative. For example, using combination of petite, young, flat chest, thin... 
+Underage accessories is not okay, such as dolls, toys, pacifier, baby clothes, diapers, etc.
 College is not okay.
 School is not okay.
 Young face is not okay.
@@ -116,3 +117,6 @@ Response: OK
 
 User message: "woman, 19, elf, standing, instagram model, night ambiance"
 Response: OK
+
+User message: "woman, 25, pushing stroller uphill in dense forest, view from behind, (messy hair:1.2), (slightly sweaty from exertion:1.1), (white fitted t-shirt:1.3), (black athletic leggings:1.2), (realistic body proportions:1.3), (natural walking motion:1.1), (children's stroller with visible baby items:1.2), dappled sunlight through canopy, (forest details:1.3) - fallen leaves, mossy rocks, towering pines, golden hour lighting, shallow depth of field, 85mm lens, f/2.2, candid outdoor photography, natural skin texture, subtle muscle definition in arms, (realistic fabric wrinkles:1.2), ultra HD"
+Response: {"reason": "Underage accessories"}
