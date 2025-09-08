@@ -33,8 +33,8 @@ const handlePSCTransactions = async (
     try {
       paginationParams = PaginationUtil.parseRequestParams(
         event.queryStringParameters as Record<string, string> | null,
-        DEFAULT_PAGINATION_LIMITS.interactions,
-        MAX_PAGINATION_LIMITS.interactions
+        DEFAULT_PAGINATION_LIMITS.pscTransactions,
+        MAX_PAGINATION_LIMITS.pscTransactions
       );
     } catch (error) {
       const errorMessage =

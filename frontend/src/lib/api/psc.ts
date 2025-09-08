@@ -67,7 +67,7 @@ export const pscApi = {
     const [balanceData, ratesData, transactionsData] = await Promise.all([
       pscApi.getBalance(),
       pscApi.getCurrentRates(),
-      pscApi.getTransactionHistory({ limit: 10 }),
+      pscApi.getTransactionHistory({ limit: 200 }),
     ]);
 
     return {

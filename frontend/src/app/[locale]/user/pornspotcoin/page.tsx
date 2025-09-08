@@ -178,12 +178,6 @@ export default function PornSpotCoinPage() {
     profileViewRate: 0,
   };
 
-  const dailyBudget = dashboardData?.dailyBudget || {
-    total: 0,
-    remaining: 0,
-    distributed: 0,
-  };
-
   const recentTransactions = dashboardData?.recentTransactions || [];
 
   // Extract weekly stats data with fallbacks
@@ -378,7 +372,7 @@ export default function PornSpotCoinPage() {
       </div>
 
       {/* Balance Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
@@ -438,27 +432,6 @@ export default function PornSpotCoinPage() {
               </div>
               <div className="text-sm text-muted-foreground">
                 Recent activity
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Daily Budget
-              </h3>
-              <TrendingUp className="h-4 w-4 text-yellow-500" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-1">
-              <div className="text-2xl font-bold text-white">
-                {dailyBudget.remaining.toFixed(0)} PSC
-              </div>
-              <div className="text-sm text-white/80">
-                of {dailyBudget.total.toFixed(0)} remaining
               </div>
             </div>
           </CardContent>
