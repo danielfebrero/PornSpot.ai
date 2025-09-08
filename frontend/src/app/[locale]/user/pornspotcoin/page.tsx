@@ -10,7 +10,6 @@ import {
   Bookmark,
   User,
   Calendar,
-  Clock,
   DollarSign,
   BarChart3,
   PieChart,
@@ -27,7 +26,7 @@ const mockPSCData = {
     current: 127.845,
     totalEarned: 892.156,
     totalSpent: 764.311,
-    pendingRewards: 12.45,
+    globalRank: 127, // Rank among all earners since beginning
   },
   dailyStats: {
     todayEarned: 5.23,
@@ -73,10 +72,9 @@ const mockPSCData = {
     },
   ],
   performance: {
-    totalInteractions: 2847,
-    weeklyGrowth: 12.5,
-    topEarningDay: { date: "2025-09-07", amount: 8.45 },
-    topEarningAction: "comments",
+    weeklyTotalInteractions: 2847,
+    weeklyTotalViews: 1853,
+    weeklyPayoutGrowth: 12.5, // percentage growth in PSC earned this week vs last week
   },
 };
 
@@ -250,17 +248,19 @@ export default function PornSpotCoinPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-muted-foreground">
-                Pending Rewards
+                Global Rank
               </h3>
-              <Clock className="h-4 w-4 text-orange-500" />
+              <TrendingUp className="h-4 w-4 text-yellow-500" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              <div className="text-2xl font-bold">
-                {mockPSCData.balance.pendingRewards.toFixed(3)} PSC
+              <div className="text-2xl font-bold text-yellow-600">
+                #{mockPSCData.balance.globalRank}
               </div>
-              <div className="text-sm text-muted-foreground">Processing...</div>
+              <div className="text-sm text-muted-foreground">
+                All-time earners
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -286,44 +286,57 @@ export default function PornSpotCoinPage() {
                 icon: Eye,
                 label: "Views",
                 rate: mockPSCData.currentRates.viewRate,
-                color: "blue",
+                bgClass:
+                  "bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800",
+                iconClass: "text-blue-600",
+                textClass: "text-blue-700 dark:text-blue-300",
               },
               {
                 icon: Heart,
                 label: "Likes",
                 rate: mockPSCData.currentRates.likeRate,
-                color: "red",
+                bgClass:
+                  "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800",
+                iconClass: "text-red-600",
+                textClass: "text-red-700 dark:text-red-300",
               },
               {
                 icon: MessageCircle,
                 label: "Comments",
                 rate: mockPSCData.currentRates.commentRate,
-                color: "green",
+                bgClass:
+                  "bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800",
+                iconClass: "text-green-600",
+                textClass: "text-green-700 dark:text-green-300",
               },
               {
                 icon: Bookmark,
                 label: "Bookmarks",
                 rate: mockPSCData.currentRates.bookmarkRate,
-                color: "purple",
+                bgClass:
+                  "bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800",
+                iconClass: "text-purple-600",
+                textClass: "text-purple-700 dark:text-purple-300",
               },
               {
                 icon: User,
                 label: "Profile Views",
                 rate: mockPSCData.currentRates.profileViewRate,
-                color: "orange",
+                bgClass:
+                  "bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800",
+                iconClass: "text-orange-600",
+                textClass: "text-orange-700 dark:text-orange-300",
               },
             ].map((item, index) => (
               <div
                 key={index}
-                className={`p-4 border border-${item.color}-200 dark:border-${item.color}-800 rounded-lg bg-${item.color}-50 dark:bg-${item.color}-950`}
+                className={`p-4 border rounded-lg ${item.bgClass}`}
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <item.icon className={`h-4 w-4 text-${item.color}-600`} />
+                  <item.icon className={`h-4 w-4 ${item.iconClass}`} />
                   <span className="text-sm font-medium">{item.label}</span>
                 </div>
-                <div
-                  className={`text-lg font-bold text-${item.color}-700 dark:text-${item.color}-300`}
-                >
+                <div className={`text-lg font-bold ${item.textClass}`}>
                   {item.rate.toFixed(4)} PSC
                 </div>
                 <div className="text-xs text-muted-foreground">per action</div>
@@ -469,34 +482,26 @@ export default function PornSpotCoinPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">
-                  Total Interactions
+                  Weekly Total Interactions
                 </span>
                 <span className="font-semibold">
-                  {mockPSCData.performance.totalInteractions.toLocaleString()}
+                  {mockPSCData.performance.weeklyTotalInteractions.toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">
-                  Weekly Growth
+                  Weekly Total Views
+                </span>
+                <span className="font-semibold">
+                  {mockPSCData.performance.weeklyTotalViews.toLocaleString()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">
+                  Weekly Payout Growth
                 </span>
                 <span className="font-semibold text-green-600">
-                  +{mockPSCData.performance.weeklyGrowth}%
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">
-                  Best Earning Day
-                </span>
-                <span className="font-semibold">
-                  {mockPSCData.performance.topEarningDay.amount} PSC
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">
-                  Top Action Type
-                </span>
-                <span className="font-semibold capitalize">
-                  {mockPSCData.performance.topEarningAction}
+                  +{mockPSCData.performance.weeklyPayoutGrowth}%
                 </span>
               </div>
             </div>
@@ -506,7 +511,8 @@ export default function PornSpotCoinPage() {
                 <h4 className="font-medium">Earning Tips</h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>
-                    • Post content during peak hours (7-11 PM) for higher rates
+                    • Post content during low activity hours for higher payout
+                    rates
                   </li>
                   <li>• Engage early in the day when daily budgets are full</li>
                   <li>• Quality content gets more engagement and rewards</li>
@@ -559,82 +565,6 @@ export default function PornSpotCoinPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Additional Features */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <h3 className="text-lg font-semibold">Daily Goal</h3>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-sm">Target: 10 PSC</span>
-                <span className="text-sm font-medium">
-                  {((mockPSCData.dailyStats.todayEarned / 10) * 100).toFixed(0)}
-                  %
-                </span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-2">
-                <div
-                  className="bg-yellow-500 h-2 rounded-full transition-all"
-                  style={{
-                    width: `${Math.min(
-                      (mockPSCData.dailyStats.todayEarned / 10) * 100,
-                      100
-                    )}%`,
-                  }}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {(10 - mockPSCData.dailyStats.todayEarned).toFixed(2)} PSC to
-                reach goal
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <h3 className="text-lg font-semibold">Withdrawal</h3>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="text-sm text-muted-foreground">
-              Minimum withdrawal: 50 PSC
-            </div>
-            <Button
-              className="w-full"
-              variant="outline"
-              disabled={mockPSCData.balance.current < 50}
-            >
-              {mockPSCData.balance.current >= 50
-                ? "Withdraw PSC"
-                : "Need more PSC"}
-            </Button>
-            <p className="text-xs text-muted-foreground">
-              {mockPSCData.balance.current < 50 &&
-                `${(50 - mockPSCData.balance.current).toFixed(1)} PSC needed`}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <h3 className="text-lg font-semibold">Rank</h3>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-600">#127</div>
-              <div className="text-sm text-muted-foreground">
-                Global Ranking
-              </div>
-            </div>
-            <div className="text-xs text-muted-foreground text-center">
-              Based on total PSC earned
             </div>
           </CardContent>
         </Card>
