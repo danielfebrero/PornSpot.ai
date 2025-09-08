@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Coins,
   TrendingUp,
@@ -173,8 +172,6 @@ function getBudgetFactor(hour: number): number {
 }
 
 export default function PornSpotCoinPage() {
-  const [selectedChart, setSelectedChart] = useState("rates");
-
   // Calculate trends
   const balanceTrend =
     ((mockPSCData.dailyStats.todayEarned -
@@ -186,99 +183,31 @@ export default function PornSpotCoinPage() {
   const processWeeklyChartData = () => {
     const weeklyData = mockPSCData.weeklyPayoutRates;
 
-    // Group data by day for better visualization (24 points per day -> 7 daily averages)
-    const dailyAverages = [];
+    // Create hourly labels for 168 hours (7 days * 24 hours)
+    const hourlyLabels = [];
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
     for (let day = 0; day < 7; day++) {
-      const dayData = weeklyData.filter((point) => point.day === day);
-      const averages = {
-        day: days[day],
-        view:
-          dayData.reduce((sum, point) => sum + point.rates.view, 0) /
-          dayData.length,
-        like:
-          dayData.reduce((sum, point) => sum + point.rates.like, 0) /
-          dayData.length,
-        comment:
-          dayData.reduce((sum, point) => sum + point.rates.comment, 0) /
-          dayData.length,
-        bookmark:
-          dayData.reduce((sum, point) => sum + point.rates.bookmark, 0) /
-          dayData.length,
-        profileView:
-          dayData.reduce((sum, point) => sum + point.rates.profileView, 0) /
-          dayData.length,
-      };
-      dailyAverages.push(averages);
+      for (let hour = 0; hour < 24; hour++) {
+        hourlyLabels.push(
+          `${days[day]} ${hour.toString().padStart(2, "0")}:00`
+        );
+      }
     }
 
-    if (selectedChart === "volume") {
-      // For volume view, show simulated activity levels
-      return {
-        labels: days,
-        datasets: [
-          {
-            label: "Views",
-            data: dailyAverages.map((d) =>
-              Math.floor(d.view * 1000 + Math.random() * 500)
-            ),
-            borderColor: "rgba(59, 130, 246, 1)",
-            backgroundColor: "rgba(59, 130, 246, 0.1)",
-            fill: true,
-            tension: 0.4,
-          },
-          {
-            label: "Likes",
-            data: dailyAverages.map((d) =>
-              Math.floor(d.like * 400 + Math.random() * 200)
-            ),
-            borderColor: "rgba(239, 68, 68, 1)",
-            backgroundColor: "rgba(239, 68, 68, 0.1)",
-            fill: true,
-            tension: 0.4,
-          },
-          {
-            label: "Comments",
-            data: dailyAverages.map((d) =>
-              Math.floor(d.comment * 200 + Math.random() * 100)
-            ),
-            borderColor: "rgba(34, 197, 94, 1)",
-            backgroundColor: "rgba(34, 197, 94, 0.1)",
-            fill: true,
-            tension: 0.4,
-          },
-          {
-            label: "Bookmarks",
-            data: dailyAverages.map((d) =>
-              Math.floor(d.bookmark * 300 + Math.random() * 150)
-            ),
-            borderColor: "rgba(168, 85, 247, 1)",
-            backgroundColor: "rgba(168, 85, 247, 0.1)",
-            fill: true,
-            tension: 0.4,
-          },
-          {
-            label: "Profile Views",
-            data: dailyAverages.map((d) =>
-              Math.floor(d.profileView * 250 + Math.random() * 125)
-            ),
-            borderColor: "rgba(245, 158, 11, 1)",
-            backgroundColor: "rgba(245, 158, 11, 0.1)",
-            fill: true,
-            tension: 0.4,
-          },
-        ],
-      };
-    }
+    // Extract hourly data for each action type
+    const viewData = weeklyData.map((point) => point.rates.view);
+    const likeData = weeklyData.map((point) => point.rates.like);
+    const commentData = weeklyData.map((point) => point.rates.comment);
+    const bookmarkData = weeklyData.map((point) => point.rates.bookmark);
+    const profileViewData = weeklyData.map((point) => point.rates.profileView);
 
-    // Default rates view
     return {
-      labels: days,
+      labels: hourlyLabels,
       datasets: [
         {
           label: "Views (PSC)",
-          data: dailyAverages.map((d) => d.view),
+          data: viewData,
           borderColor: "rgba(59, 130, 246, 1)",
           backgroundColor: "rgba(59, 130, 246, 0.1)",
           fill: true,
@@ -286,7 +215,7 @@ export default function PornSpotCoinPage() {
         },
         {
           label: "Likes (PSC)",
-          data: dailyAverages.map((d) => d.like),
+          data: likeData,
           borderColor: "rgba(239, 68, 68, 1)",
           backgroundColor: "rgba(239, 68, 68, 0.1)",
           fill: true,
@@ -294,7 +223,7 @@ export default function PornSpotCoinPage() {
         },
         {
           label: "Comments (PSC)",
-          data: dailyAverages.map((d) => d.comment),
+          data: commentData,
           borderColor: "rgba(34, 197, 94, 1)",
           backgroundColor: "rgba(34, 197, 94, 0.1)",
           fill: true,
@@ -302,7 +231,7 @@ export default function PornSpotCoinPage() {
         },
         {
           label: "Bookmarks (PSC)",
-          data: dailyAverages.map((d) => d.bookmark),
+          data: bookmarkData,
           borderColor: "rgba(168, 85, 247, 1)",
           backgroundColor: "rgba(168, 85, 247, 0.1)",
           fill: true,
@@ -310,7 +239,7 @@ export default function PornSpotCoinPage() {
         },
         {
           label: "Profile Views (PSC)",
-          data: dailyAverages.map((d) => d.profileView),
+          data: profileViewData,
           borderColor: "rgba(245, 158, 11, 1)",
           backgroundColor: "rgba(245, 158, 11, 0.1)",
           fill: true,
@@ -341,11 +270,7 @@ export default function PornSpotCoinPage() {
           label: function (context: any) {
             const label = context.dataset.label || "";
             const value = context.parsed.y;
-            if (selectedChart === "rates") {
-              return `${label}: ${value.toFixed(4)} PSC`;
-            } else {
-              return `${label}: ${value.toLocaleString()} actions`;
-            }
+            return `${label}: ${value.toFixed(4)} PSC`;
           },
         },
       },
@@ -355,18 +280,20 @@ export default function PornSpotCoinPage() {
         display: true,
         title: {
           display: true,
-          text: "Day of Week",
+          text: "Hour of Week",
         },
         grid: {
           display: false,
+        },
+        ticks: {
+          maxTicksLimit: 24, // Show only some labels to avoid crowding
         },
       },
       y: {
         display: true,
         title: {
           display: true,
-          text:
-            selectedChart === "rates" ? "PSC per Action" : "Number of Actions",
+          text: "PSC per Action",
         },
         beginAtZero: true,
         grid: {
@@ -477,12 +404,10 @@ export default function PornSpotCoinPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              <div className="text-2xl font-bold text-yellow-600">
+              <div className="text-2xl font-bold text-white">
                 #{mockPSCData.balance.globalRank}
               </div>
-              <div className="text-sm text-muted-foreground">
-                All-time earners
-              </div>
+              <div className="text-sm text-white/80">All-time earners</div>
             </div>
           </CardContent>
         </Card>
@@ -509,45 +434,45 @@ export default function PornSpotCoinPage() {
                 label: "Views",
                 rate: mockPSCData.currentRates.viewRate,
                 bgClass:
-                  "bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800",
+                  "bg-gradient-to-r from-blue-500/10 to-admin-secondary/10 border-blue-200 text-foreground",
                 iconClass: "text-blue-600",
-                textClass: "text-blue-700 dark:text-blue-300",
+                textClass: "text-blue-700",
               },
               {
                 icon: Heart,
                 label: "Likes",
                 rate: mockPSCData.currentRates.likeRate,
                 bgClass:
-                  "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800",
+                  "bg-gradient-to-r from-red-500/10 to-admin-secondary/10 border-red-200 text-foreground",
                 iconClass: "text-red-600",
-                textClass: "text-red-700 dark:text-red-300",
+                textClass: "text-red-700",
               },
               {
                 icon: MessageCircle,
                 label: "Comments",
                 rate: mockPSCData.currentRates.commentRate,
                 bgClass:
-                  "bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800",
+                  "bg-gradient-to-r from-green-500/10 to-admin-secondary/10 border-green-200 text-foreground",
                 iconClass: "text-green-600",
-                textClass: "text-green-700 dark:text-green-300",
+                textClass: "text-green-700",
               },
               {
                 icon: Bookmark,
                 label: "Bookmarks",
                 rate: mockPSCData.currentRates.bookmarkRate,
                 bgClass:
-                  "bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800",
+                  "bg-gradient-to-r from-purple-500/10 to-admin-secondary/10 border-purple-200 text-foreground",
                 iconClass: "text-purple-600",
-                textClass: "text-purple-700 dark:text-purple-300",
+                textClass: "text-purple-700",
               },
               {
                 icon: User,
                 label: "Profile Views",
                 rate: mockPSCData.currentRates.profileViewRate,
                 bgClass:
-                  "bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800",
+                  "bg-gradient-to-r from-orange-500/10 to-admin-secondary/10 border-orange-200 text-foreground",
                 iconClass: "text-orange-600",
-                textClass: "text-orange-700 dark:text-orange-300",
+                textClass: "text-orange-700",
               },
             ].map((item, index) => (
               <div
@@ -577,21 +502,8 @@ export default function PornSpotCoinPage() {
                 Weekly Payout Rate Trends
               </h3>
               <p className="text-sm text-muted-foreground">
-                24x7 granular view of payout rates over the last week (168 data
-                points)
+                Hourly view of payout rates over the last week (168 data points)
               </p>
-            </div>
-            <div className="flex gap-2">
-              {["rates", "volume"].map((chart) => (
-                <Button
-                  key={chart}
-                  variant={selectedChart === chart ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedChart(chart)}
-                >
-                  {chart === "rates" ? "Rates" : "Volume"}
-                </Button>
-              ))}
             </div>
           </div>
         </CardHeader>
