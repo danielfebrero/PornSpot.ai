@@ -30,6 +30,7 @@ import { Line } from "react-chartjs-2";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import LocaleLink from "@/components/ui/LocaleLink";
 import { usePSCDashboard, usePSCStats } from "@/hooks/queries/usePSCQuery";
 
 // Register Chart.js components
@@ -445,7 +446,7 @@ export default function PornSpotCoinPage() {
             <div className="space-y-1">
               <h3 className="text-lg font-semibold">Live Payout Rates</h3>
               <p className="text-sm text-muted-foreground">
-                Current PSC rewards per action (updates every hour)
+                Current PSC rewards per action
               </p>
             </div>
             <BarChart3 className="h-5 w-5 text-blue-500" />
@@ -662,9 +663,11 @@ export default function PornSpotCoinPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold">Recent Transactions</h3>
-              <Button variant="outline" size="sm">
-                View All
-              </Button>
+              <LocaleLink href="/user/pornspotcoin/transactions">
+                <Button variant="outline" size="sm">
+                  View All
+                </Button>
+              </LocaleLink>
             </div>
           </CardHeader>
           <CardContent>
