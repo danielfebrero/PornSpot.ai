@@ -1217,6 +1217,36 @@ Resources:
             Auth:
               Authorizer: NONE
 
+  # User PSC Functions
+  UserPSCStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-psc-stats-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/psc/stats.handler"]
+      Events:
+        GetStats:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/psc/stats
+            Method: GET
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsStats:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/psc/stats
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
   AdminLogoutFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -1804,6 +1834,47 @@ Resources:
               Authorizer: NONE
       Policies:
         - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
+  # PSC Rate Snapshot Functions
+  PSCSnapshotRatesDailyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-psc-snapshot-rates-daily-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/psc/snapshotRatesDaily.handler"]
+      Events:
+        ScheduleRule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(*/5 * * * ? *) # Every 5 minutes
+            Name: !Sub "${Environment}-psc-daily-snapshot-schedule"
+            Description: "Trigger PSC rate snapshot every 5 minutes for daily stats"
+            Enabled: true
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaTable
+
+  PSCSnapshotRatesWeeklyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-psc-snapshot-rates-weekly-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/psc/snapshotRatesWeekly.handler"]
+      Events:
+        ScheduleRule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(1 * * * ? *) # Every hour at 1 minute past
+            Name: !Sub "${Environment}-psc-weekly-snapshot-schedule"
+            Description: "Trigger PSC rate snapshot every hour for weekly stats"
+            Enabled: true
+      Policies:
+        - DynamoDBCrudPolicy:
             TableName: !Ref MediaTable
 
   # User Authentication Functions

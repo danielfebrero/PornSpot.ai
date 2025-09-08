@@ -1,0 +1,161 @@
+import { ApiUtil } from "../api-util";
+import {
+  PSCBalance,
+  PSCBalanceResponse,
+  PSCTransactionHistoryRequest,
+  PSCTransactionHistoryResponse,
+  PSCRatesResponse,
+  PSCStatsResponse,
+  TransactionEntity,
+} from "@/types/shared-types/pornspotcoin";
+
+// PSC User API - endpoints for regular users to interact with PornSpotCoin
+export const pscApi = {
+  /**
+   * Get current user's PSC balance and summary
+   */
+  getBalance: async (): Promise<PSCBalance> => {
+    const response = await ApiUtil.get<PSCBalanceResponse>("/user/psc/balance");
+    const data = ApiUtil.extractData(response);
+    if (!data.success || !data.balance) {
+      throw new Error(data.error || "Failed to fetch PSC balance");
+    }
+    return data.balance;
+  },
+
+  /**
+   * Get user's PSC transaction history
+   */
+  getTransactionHistory: async (
+    params: Partial<PSCTransactionHistoryRequest> = {}
+  ): Promise<{
+    transactions: TransactionEntity[];
+    lastEvaluatedKey?: string;
+  }> => {
+    const response = await ApiUtil.get<PSCTransactionHistoryResponse>(
+      "/user/psc/transactions",
+      params
+    );
+    const data = ApiUtil.extractData(response);
+    if (!data.success || !data.transactions) {
+      throw new Error(data.error || "Failed to fetch transaction history");
+    }
+    return {
+      transactions: data.transactions,
+      lastEvaluatedKey: data.lastEvaluatedKey,
+    };
+  },
+
+  /**
+   * Get current PSC payout rates and daily budget status
+   */
+  getCurrentRates: async (): Promise<{
+    rates: {
+      viewRate: number;
+      likeRate: number;
+      commentRate: number;
+      bookmarkRate: number;
+      profileViewRate: number;
+    };
+    dailyBudget: {
+      total: number;
+      remaining: number;
+      distributed: number;
+    };
+  }> => {
+    const response = await ApiUtil.get<PSCRatesResponse>("/user/psc/rates");
+    const data = ApiUtil.extractData(response);
+    if (!data.success || !data.rates || !data.dailyBudget) {
+      throw new Error(data.error || "Failed to fetch current PSC rates");
+    }
+    return {
+      rates: data.rates,
+      dailyBudget: data.dailyBudget,
+    };
+  },
+
+  /**
+   * Get PSC dashboard data (combines balance, rates, and recent transactions)
+   */
+  getDashboardData: async (): Promise<{
+    balance: PSCBalance;
+    rates: {
+      viewRate: number;
+      likeRate: number;
+      commentRate: number;
+      bookmarkRate: number;
+      profileViewRate: number;
+    };
+    dailyBudget: {
+      total: number;
+      remaining: number;
+      distributed: number;
+    };
+    recentTransactions: TransactionEntity[];
+  }> => {
+    // Fetch all data in parallel for better performance
+    const [balanceData, ratesData, transactionsData] = await Promise.all([
+      pscApi.getBalance(),
+      pscApi.getCurrentRates(),
+      pscApi.getTransactionHistory({ limit: 10 }),
+    ]);
+
+    return {
+      balance: balanceData,
+      rates: ratesData.rates,
+      dailyBudget: ratesData.dailyBudget,
+      recentTransactions: transactionsData.transactions,
+    };
+  },
+
+  /**
+   * Get PSC statistics for performance insights
+   */
+  getStats: async (
+    period: "daily" | "weekly" | "monthly" = "weekly"
+  ): Promise<PSCStatsResponse> => {
+    const response = await ApiUtil.get<{
+      success: boolean;
+      stats: PSCStatsResponse;
+      error?: string;
+    }>("/user/psc/stats", { period });
+    const data = ApiUtil.extractData(response);
+    if (!data.success) {
+      throw new Error(data.error || "Failed to fetch PSC statistics");
+    }
+    return data.stats;
+  },
+
+  /**
+   * Get PSC rate snapshots for charting
+   */
+  getRateSnapshots: async (
+    interval: "daily" | "weekly" = "weekly"
+  ): Promise<{
+    snapshots: Array<{
+      timestamp: string;
+      rates: {
+        viewRate: number;
+        likeRate: number;
+        commentRate: number;
+        bookmarkRate: number;
+        profileViewRate: number;
+      };
+      budget: {
+        total: number;
+        remaining: number;
+        distributed: number;
+      };
+    }>;
+  }> => {
+    const response = await ApiUtil.get<any>("/user/psc/stats", {
+      period: "snapshots",
+      interval,
+    });
+    const data = ApiUtil.extractData(response);
+    if (!data.success) {
+      throw new Error(data.error || "Failed to fetch rate snapshots");
+    }
+    return data;
+  },
+};

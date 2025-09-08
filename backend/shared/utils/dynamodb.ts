@@ -41,6 +41,7 @@ import {
   DailyBudgetEntity,
   PSCSystemConfig,
   UserViewCounterEntity,
+  RateSnapshotEntity,
 } from "@shared/shared-types";
 import {
   UserEntity,
@@ -4873,5 +4874,88 @@ export class DynamoDBService {
       console.error("Error updating user view counter:", error);
       throw error;
     }
+  }
+
+  // ===== PSC Rate Snapshot Methods =====
+
+  /**
+   * Save a rate snapshot
+   */
+  static async saveRateSnapshot(snapshot: RateSnapshotEntity): Promise<void> {
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: snapshot,
+      })
+    );
+  }
+
+  /**
+   * Get rate snapshots for a specific date and interval
+   */
+  static async getRateSnapshotsByDate(
+    date: string,
+    interval: "5min" | "1hour"
+  ): Promise<RateSnapshotEntity[]> {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        KeyConditionExpression: "PK = :pk",
+        FilterExpression: "contains(SK, :interval)",
+        ExpressionAttributeValues: {
+          ":pk": `PSC_RATE_SNAPSHOT#${date}`,
+          ":interval": `#${interval}`,
+        },
+        ScanIndexForward: true,
+      })
+    );
+
+    return (result.Items as RateSnapshotEntity[]) || [];
+  }
+
+  /**
+   * Delete old rate snapshots (older than cutoff date)
+   */
+  static async deleteOldRateSnapshots(cutoffDate: string): Promise<void> {
+    // Query for old snapshots using GSI1
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI1",
+        KeyConditionExpression: "GSI1PK = :gsi1pk AND GSI1SK < :cutoff",
+        ExpressionAttributeValues: {
+          ":gsi1pk": "PSC_RATE_SNAPSHOT",
+          ":cutoff": `${cutoffDate}#`,
+        },
+      })
+    );
+
+    if (!result.Items || result.Items.length === 0) {
+      return;
+    }
+
+    // Batch delete old snapshots
+    const deleteRequests = result.Items.map((item) => ({
+      DeleteRequest: {
+        Key: {
+          PK: item["PK"],
+          SK: item["SK"],
+        },
+      },
+    }));
+
+    // Process in batches of 25 (DynamoDB limit)
+    for (let i = 0; i < deleteRequests.length; i += 25) {
+      const batch = deleteRequests.slice(i, i + 25);
+      await docClient.send(
+        new BatchWriteCommand({
+          RequestItems: {
+            [TABLE_NAME]: batch,
+          },
+        })
+      );
+    }
+
+    console.log(`Deleted ${deleteRequests.length} old rate snapshots`);
   }
 }

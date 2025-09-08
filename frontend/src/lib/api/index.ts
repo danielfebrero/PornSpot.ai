@@ -7,6 +7,7 @@ export { adminMediaApi } from "./admin-media";
 export { adminUsersApi } from "./admin-users";
 export { adminAnalyticsApi } from "./admin-analytics";
 export { adminPSCApi } from "./admin-psc";
+export { pscApi } from "./psc";
 export { mediaApi } from "./media";
 export { contentApi } from "./content";
 export { discoverApi } from "./discover";

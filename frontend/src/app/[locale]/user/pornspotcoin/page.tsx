@@ -13,6 +13,7 @@ import {
   BarChart3,
   Activity,
   ArrowUpRight,
+  Loader2,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -29,6 +30,7 @@ import { Line } from "react-chartjs-2";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { usePSCDashboard, usePSCStats } from "@/hooks/queries/usePSCQuery";
 
 // Register Chart.js components
 ChartJS.register(
@@ -41,64 +43,6 @@ ChartJS.register(
   Legend,
   Filler
 );
-
-// Mock data for PSC dashboard
-const mockPSCData = {
-  balance: {
-    current: 127.845,
-    totalEarned: 892.156,
-    totalSpent: 764.311,
-    globalRank: 127, // Rank among all earners since beginning
-  },
-  dailyStats: {
-    todayEarned: 5.23,
-    yesterdayEarned: 7.89,
-    averageDaily: 6.12,
-    streak: 15, // consecutive earning days
-  },
-  currentRates: {
-    viewRate: 0.0012,
-    likeRate: 0.0045,
-    commentRate: 0.0078,
-    bookmarkRate: 0.0034,
-    profileViewRate: 0.0019,
-  },
-  exchangeRates: {
-    starter: { duration: "1 month", cost: 9 },
-    unlimited: { duration: "1 month", cost: 18 },
-    pro: { duration: "1 month", cost: 27 },
-    lifetime: { duration: "Lifetime", cost: 1000 },
-  },
-  weeklyPayoutRates: generateMockWeeklyData(),
-  recentTransactions: [
-    {
-      id: "1",
-      type: "reward_like",
-      amount: 0.0045,
-      timestamp: new Date().toISOString(),
-      description: "Like reward",
-    },
-    {
-      id: "2",
-      type: "reward_view",
-      amount: 0.0012,
-      timestamp: new Date(Date.now() - 3600000).toISOString(),
-      description: "View reward",
-    },
-    {
-      id: "3",
-      type: "reward_comment",
-      amount: 0.0078,
-      timestamp: new Date(Date.now() - 7200000).toISOString(),
-      description: "Comment reward",
-    },
-  ],
-  performance: {
-    weeklyTotalInteractions: 2847,
-    weeklyTotalViews: 1853,
-    weeklyPayoutGrowth: 12.5, // percentage growth in PSC earned this week vs last week
-  },
-};
 
 // Generate mock data for 24x7 (168 points) over one week
 function generateMockWeeklyData() {
@@ -172,16 +116,122 @@ function getBudgetFactor(hour: number): number {
 }
 
 export default function PornSpotCoinPage() {
+  // Fetch real PSC data
+  const {
+    data: dashboardData,
+    isLoading: isDashboardLoading,
+    error: dashboardError,
+  } = usePSCDashboard();
+
+  const {
+    data: weeklyStats,
+    isLoading: isStatsLoading,
+    error: statsError,
+  } = usePSCStats("weekly");
+
+  // Handle loading state
+  if (isDashboardLoading || isStatsLoading) {
+    return (
+      <div className="container mx-auto px-4 py-6 flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading PSC data...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (dashboardError || statsError) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="text-center py-8">
+          <h2 className="text-xl font-semibold text-red-500 mb-2">
+            Error Loading PSC Data
+          </h2>
+          <p className="text-muted-foreground">
+            {dashboardError?.message ||
+              statsError?.message ||
+              "Unknown error occurred"}
+          </p>
+          <Button className="mt-4" onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Use dashboard data or fallbacks
+  const balance = dashboardData?.balance || {
+    balance: 0,
+    totalEarned: 0,
+    totalSpent: 0,
+    totalWithdrawn: 0,
+  };
+
+  const rates = dashboardData?.rates || {
+    viewRate: 0,
+    likeRate: 0,
+    commentRate: 0,
+    bookmarkRate: 0,
+    profileViewRate: 0,
+  };
+
+  const dailyBudget = dashboardData?.dailyBudget || {
+    total: 0,
+    remaining: 0,
+    distributed: 0,
+  };
+
+  const recentTransactions = dashboardData?.recentTransactions || [];
+
+  // Extract weekly stats data with fallbacks
+  const weeklyTotalInteractions = weeklyStats?.totalInteractions || 0;
+  const weeklyTotalViews = weeklyStats?.totalViews || 0;
+  const weeklyPayoutGrowth = weeklyStats?.payoutGrowth || 0;
+
+  // Calculate daily stats from available data
+  const todayEarned = recentTransactions
+    .filter((tx) => {
+      const txDate = new Date(tx.createdAt).toDateString();
+      const today = new Date().toDateString();
+      return txDate === today && tx.amount > 0;
+    })
+    .reduce((sum, tx) => sum + tx.amount, 0);
+
+  const yesterdayEarned = recentTransactions
+    .filter((tx) => {
+      const txDate = new Date(tx.createdAt).toDateString();
+      const yesterday = new Date(
+        Date.now() - 24 * 60 * 60 * 1000
+      ).toDateString();
+      return txDate === yesterday && tx.amount > 0;
+    })
+    .reduce((sum, tx) => sum + tx.amount, 0);
+
   // Calculate trends
   const balanceTrend =
-    ((mockPSCData.dailyStats.todayEarned -
-      mockPSCData.dailyStats.yesterdayEarned) /
-      mockPSCData.dailyStats.yesterdayEarned) *
-    100;
+    yesterdayEarned > 0
+      ? ((todayEarned - yesterdayEarned) / yesterdayEarned) * 100
+      : todayEarned > 0
+      ? 100
+      : 0;
+
+  // Mock exchange rates (these could be fetched from a separate API)
+  const exchangeRates = {
+    starter: { duration: "1 month", cost: 9 },
+    unlimited: { duration: "1 month", cost: 18 },
+    pro: { duration: "1 month", cost: 27 },
+    lifetime: { duration: "Lifetime", cost: 1000 },
+  };
+
+  // For weekly stats, we'll use mock data for the chart until we have historical data
+  const weeklyPayoutRates = generateMockWeeklyData();
 
   // Process chart data for weekly payout rates
   const processWeeklyChartData = () => {
-    const weeklyData = mockPSCData.weeklyPayoutRates;
+    const weeklyData = weeklyPayoutRates;
 
     // Create hourly labels for 168 hours (7 days * 24 hours)
     const hourlyLabels = [];
@@ -341,10 +391,10 @@ export default function PornSpotCoinPage() {
           <CardContent>
             <div className="space-y-1">
               <div className="text-2xl font-bold text-yellow-600">
-                {mockPSCData.balance.current.toFixed(3)} PSC
+                {balance.balance.toFixed(3)} PSC
               </div>
               <div className="text-sm text-muted-foreground">
-                ${(mockPSCData.balance.current * 0.95).toFixed(2)} USD
+                ${(balance.balance * 0.95).toFixed(2)} USD
               </div>
             </div>
           </CardContent>
@@ -362,7 +412,7 @@ export default function PornSpotCoinPage() {
           <CardContent>
             <div className="space-y-1">
               <div className="text-2xl font-bold">
-                {mockPSCData.balance.totalEarned.toFixed(3)} PSC
+                {balance.totalEarned.toFixed(3)} PSC
               </div>
               <div className="flex items-center text-sm text-green-600">
                 <ArrowUpRight className="h-3 w-3 mr-1" />+
@@ -384,10 +434,10 @@ export default function PornSpotCoinPage() {
           <CardContent>
             <div className="space-y-1">
               <div className="text-2xl font-bold">
-                {mockPSCData.dailyStats.todayEarned.toFixed(3)} PSC
+                {todayEarned.toFixed(3)} PSC
               </div>
               <div className="text-sm text-muted-foreground">
-                {mockPSCData.dailyStats.streak} day streak
+                Recent activity
               </div>
             </div>
           </CardContent>
@@ -397,7 +447,7 @@ export default function PornSpotCoinPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-muted-foreground">
-                Global Rank
+                Daily Budget
               </h3>
               <TrendingUp className="h-4 w-4 text-yellow-500" />
             </div>
@@ -405,9 +455,11 @@ export default function PornSpotCoinPage() {
           <CardContent>
             <div className="space-y-1">
               <div className="text-2xl font-bold text-white">
-                #{mockPSCData.balance.globalRank}
+                {dailyBudget.remaining.toFixed(0)} PSC
               </div>
-              <div className="text-sm text-white/80">All-time earners</div>
+              <div className="text-sm text-white/80">
+                of {dailyBudget.total.toFixed(0)} remaining
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -432,7 +484,7 @@ export default function PornSpotCoinPage() {
               {
                 icon: Eye,
                 label: "Views",
-                rate: mockPSCData.currentRates.viewRate,
+                rate: rates.viewRate,
                 bgClass:
                   "bg-gradient-to-r from-blue-500/10 to-admin-secondary/10 border-blue-200 text-foreground",
                 iconClass: "text-blue-600",
@@ -441,7 +493,7 @@ export default function PornSpotCoinPage() {
               {
                 icon: Heart,
                 label: "Likes",
-                rate: mockPSCData.currentRates.likeRate,
+                rate: rates.likeRate,
                 bgClass:
                   "bg-gradient-to-r from-red-500/10 to-admin-secondary/10 border-red-200 text-foreground",
                 iconClass: "text-red-600",
@@ -450,7 +502,7 @@ export default function PornSpotCoinPage() {
               {
                 icon: MessageCircle,
                 label: "Comments",
-                rate: mockPSCData.currentRates.commentRate,
+                rate: rates.commentRate,
                 bgClass:
                   "bg-gradient-to-r from-green-500/10 to-admin-secondary/10 border-green-200 text-foreground",
                 iconClass: "text-green-600",
@@ -459,7 +511,7 @@ export default function PornSpotCoinPage() {
               {
                 icon: Bookmark,
                 label: "Bookmarks",
-                rate: mockPSCData.currentRates.bookmarkRate,
+                rate: rates.bookmarkRate,
                 bgClass:
                   "bg-gradient-to-r from-purple-500/10 to-admin-secondary/10 border-purple-200 text-foreground",
                 iconClass: "text-purple-600",
@@ -468,7 +520,7 @@ export default function PornSpotCoinPage() {
               {
                 icon: User,
                 label: "Profile Views",
-                rate: mockPSCData.currentRates.profileViewRate,
+                rate: rates.profileViewRate,
                 bgClass:
                   "bg-gradient-to-r from-orange-500/10 to-admin-secondary/10 border-orange-200 text-foreground",
                 iconClass: "text-orange-600",
@@ -529,49 +581,47 @@ export default function PornSpotCoinPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Object.entries(mockPSCData.exchangeRates).map(
-              ([plan, details]) => {
-                const canAfford = mockPSCData.balance.current >= details.cost;
-                return (
-                  <div
-                    key={plan}
-                    className={`p-4 border rounded-lg transition-colors ${
-                      canAfford
-                        ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
-                        : "border-border bg-card"
-                    }`}
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-semibold capitalize">{plan}</h4>
-                        {canAfford && (
-                          <Badge
-                            variant="outline"
-                            className="text-green-600 border-green-600"
-                          >
-                            Affordable
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="text-2xl font-bold text-yellow-600">
-                        {details.cost} PSC
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {details.duration}
-                      </div>
-                      <Button
-                        size="sm"
-                        variant={canAfford ? "default" : "outline"}
-                        disabled={!canAfford}
-                        className="w-full"
-                      >
-                        {canAfford ? "Purchase" : "Insufficient PSC"}
-                      </Button>
+            {Object.entries(exchangeRates).map(([plan, details]) => {
+              const canAfford = balance.balance >= details.cost;
+              return (
+                <div
+                  key={plan}
+                  className={`p-4 border rounded-lg transition-colors ${
+                    canAfford
+                      ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
+                      : "border-border bg-card"
+                  }`}
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-semibold capitalize">{plan}</h4>
+                      {canAfford && (
+                        <Badge
+                          variant="outline"
+                          className="text-green-600 border-green-600"
+                        >
+                          Affordable
+                        </Badge>
+                      )}
                     </div>
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {details.cost} PSC
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {details.duration}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={canAfford ? "default" : "outline"}
+                      disabled={!canAfford}
+                      className="w-full"
+                    >
+                      {canAfford ? "Purchase" : "Insufficient PSC"}
+                    </Button>
                   </div>
-                );
-              }
-            )}
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
@@ -581,7 +631,9 @@ export default function PornSpotCoinPage() {
         {/* Performance Insights */}
         <Card>
           <CardHeader>
-            <h3 className="text-lg font-semibold">Performance Insights</h3>
+            <h3 className="text-lg font-semibold">
+              Weekly Performance Insights
+            </h3>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
@@ -590,7 +642,7 @@ export default function PornSpotCoinPage() {
                   Weekly Total Interactions
                 </span>
                 <span className="font-semibold">
-                  {mockPSCData.performance.weeklyTotalInteractions.toLocaleString()}
+                  {weeklyTotalInteractions.toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -598,15 +650,20 @@ export default function PornSpotCoinPage() {
                   Weekly Total Views
                 </span>
                 <span className="font-semibold">
-                  {mockPSCData.performance.weeklyTotalViews.toLocaleString()}
+                  {weeklyTotalViews.toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">
                   Weekly Payout Growth
                 </span>
-                <span className="font-semibold text-green-600">
-                  +{mockPSCData.performance.weeklyPayoutGrowth}%
+                <span
+                  className={`font-semibold ${
+                    weeklyPayoutGrowth >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {weeklyPayoutGrowth > 0 ? "+" : ""}
+                  {weeklyPayoutGrowth.toFixed(1)}%
                 </span>
               </div>
             </div>
@@ -639,21 +696,27 @@ export default function PornSpotCoinPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {mockPSCData.recentTransactions.map((tx) => (
+              {recentTransactions.slice(0, 5).map((tx) => (
                 <div
-                  key={tx.id}
+                  key={tx.transactionId}
                   className="flex items-center justify-between p-3 border border-border rounded-lg"
                 >
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-green-100 dark:bg-green-900 rounded-full">
-                      {tx.type.includes("like") && (
+                      {tx.transactionType.includes("like") && (
                         <Heart className="h-3 w-3 text-green-600" />
                       )}
-                      {tx.type.includes("view") && (
+                      {tx.transactionType.includes("view") && (
                         <Eye className="h-3 w-3 text-green-600" />
                       )}
-                      {tx.type.includes("comment") && (
+                      {tx.transactionType.includes("comment") && (
                         <MessageCircle className="h-3 w-3 text-green-600" />
+                      )}
+                      {tx.transactionType.includes("bookmark") && (
+                        <Bookmark className="h-3 w-3 text-green-600" />
+                      )}
+                      {tx.transactionType.includes("profileView") && (
+                        <User className="h-3 w-3 text-green-600" />
                       )}
                     </div>
                     <div>
@@ -661,7 +724,7 @@ export default function PornSpotCoinPage() {
                         {tx.description}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {new Date(tx.timestamp).toLocaleTimeString()}
+                        {new Date(tx.createdAt).toLocaleTimeString()}
                       </div>
                     </div>
                   </div>
@@ -670,6 +733,11 @@ export default function PornSpotCoinPage() {
                   </div>
                 </div>
               ))}
+              {recentTransactions.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  No recent transactions
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

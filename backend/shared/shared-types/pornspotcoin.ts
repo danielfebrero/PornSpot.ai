@@ -254,6 +254,46 @@ export interface PSCSystemConfig {
   enableWithdrawals: boolean;
 }
 
+// Rate snapshot for historical tracking
+export interface RateSnapshotEntity {
+  PK: string; // PSC_RATE_SNAPSHOT#{date}
+  SK: string; // {timestamp}#{interval} - e.g., "2024-01-15T14:05:00.000Z#5min" or "2024-01-15T14:00:00.000Z#1hour"
+  GSI1PK: string; // PSC_RATE_SNAPSHOT
+  GSI1SK: string; // {date}#{interval}#{timestamp}
+  EntityType: "RateSnapshot";
+
+  date: string; // YYYY-MM-DD format
+  timestamp: string; // ISO 8601 timestamp
+  interval: "5min" | "1hour"; // Snapshot interval type
+
+  // Snapshot of current rates at this time
+  rates: {
+    viewRate: number;
+    likeRate: number;
+    commentRate: number;
+    bookmarkRate: number;
+    profileViewRate: number;
+  };
+
+  // Budget information at snapshot time
+  budget: {
+    total: number;
+    remaining: number;
+    distributed: number;
+  };
+
+  // Activity counters at snapshot time
+  activity: {
+    totalViews: number;
+    totalLikes: number;
+    totalComments: number;
+    totalBookmarks: number;
+    totalProfileViews: number;
+  };
+
+  createdAt: string;
+}
+
 // Withdrawal request
 export interface WithdrawalRequest {
   userId: string;
@@ -268,4 +308,19 @@ export interface WithdrawalResponse {
   transactionId?: string;
   estimatedFee?: number;
   error?: string;
+}
+
+// Rate snapshots response for user stats
+export interface PSCRateSnapshotsResponse {
+  snapshots?: RateSnapshotEntity[];
+  dailySnapshots?: RateSnapshotEntity[]; // 5-minute snapshots for daily view
+  weeklySnapshots?: RateSnapshotEntity[]; // Hourly snapshots for weekly view
+  error?: string;
+}
+
+// PSC stats response for user performance insights
+export interface PSCStatsResponse {
+  totalInteractions: number;
+  totalViews: number;
+  payoutGrowth: number;
 }
