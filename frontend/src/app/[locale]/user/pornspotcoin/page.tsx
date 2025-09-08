@@ -182,8 +182,8 @@ export default function PornSpotCoinPage() {
   const recentTransactions = dashboardData?.recentTransactions || [];
 
   // Extract weekly stats data with fallbacks
-  const weeklyTotalInteractions = weeklyStats?.stats.totalInteractions || 0;
-  const weeklyTotalViews = weeklyStats?.stats.totalViews || 0;
+  //   const weeklyTotalInteractions = weeklyStats?.stats.totalInteractions || 0;
+  //   const weeklyTotalViews = weeklyStats?.stats.totalViews || 0;
   const weeklyPayoutGrowth = weeklyStats?.stats.payoutGrowth || 0;
 
   // Calculate daily stats from available data
@@ -611,7 +611,7 @@ export default function PornSpotCoinPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              <div className="flex justify-between items-center">
+              {/* <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">
                   Weekly Total Interactions
                 </span>
@@ -626,7 +626,7 @@ export default function PornSpotCoinPage() {
                 <span className="font-semibold">
                   {weeklyTotalViews.toLocaleString()}
                 </span>
-              </div>
+              </div> */}
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">
                   Weekly Payout Growth
