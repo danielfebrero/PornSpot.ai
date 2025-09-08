@@ -9,6 +9,8 @@
  * - PSC rate tracking for dynamic reward distribution
  */
 
+import { PaginationMeta } from "./core";
+
 // Transaction types
 export type TransactionType =
   | "reward_view"
@@ -175,16 +177,12 @@ export interface PSCTransactionRequest {
 }
 
 export interface PSCTransactionResponse {
-  success: boolean;
   transaction?: TransactionEntity;
   balance?: number;
-  error?: string;
 }
 
 export interface PSCBalanceResponse {
-  success: boolean;
   balance?: PSCBalance;
-  error?: string;
 }
 
 export interface PSCTransactionHistoryRequest {
@@ -198,15 +196,12 @@ export interface PSCTransactionHistoryRequest {
 }
 
 export interface PSCTransactionHistoryResponse {
-  success: boolean;
   transactions?: TransactionEntity[];
-  lastEvaluatedKey?: string;
+  pagination: PaginationMeta;
   totalCount?: number;
-  error?: string;
 }
 
 export interface PSCRatesResponse {
-  success: boolean;
   rates?: {
     viewRate: number;
     likeRate: number;
@@ -219,7 +214,6 @@ export interface PSCRatesResponse {
     remaining: number;
     distributed: number;
   };
-  error?: string;
 }
 
 // Payout calculation result
@@ -303,11 +297,9 @@ export interface WithdrawalRequest {
 }
 
 export interface WithdrawalResponse {
-  success: boolean;
   withdrawalId?: string;
   transactionId?: string;
   estimatedFee?: number;
-  error?: string;
 }
 
 // Rate snapshots response for user stats
@@ -315,7 +307,6 @@ export interface PSCRateSnapshotsResponse {
   snapshots?: RateSnapshotEntity[];
   dailySnapshots?: RateSnapshotEntity[]; // 5-minute snapshots for daily view
   weeklySnapshots?: RateSnapshotEntity[]; // Hourly snapshots for weekly view
-  error?: string;
 }
 
 // PSC stats response for user performance insights

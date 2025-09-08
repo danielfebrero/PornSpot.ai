@@ -4,6 +4,7 @@ import { queryKeys, queryClient } from "@/lib/queryClient";
 import {
   PSCBalance,
   PSCTransactionHistoryRequest,
+  PSCTransactionHistoryResponse,
   TransactionEntity,
 } from "@/types/shared-types/pornspotcoin";
 
@@ -70,11 +71,15 @@ export function usePSCTransactionHistoryInfinite(
     queryFn: async ({ pageParam }: { pageParam?: string }) => {
       const result = await pscApi.getTransactionHistory({
         ...params,
-        exclusiveStartKey: pageParam,
+        cursor: pageParam,
       });
       return result;
     },
-    getNextPageParam: (lastPage) => lastPage.lastEvaluatedKey,
+    getNextPageParam: (lastPage: PSCTransactionHistoryResponse) => {
+      return lastPage.pagination.hasNext
+        ? lastPage.pagination.cursor
+        : undefined;
+    },
     initialPageParam: undefined as string | undefined,
     staleTime: 60 * 1000, // 1 minute
     gcTime: 10 * 60 * 1000, // 10 minutes

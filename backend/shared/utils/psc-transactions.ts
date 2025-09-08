@@ -12,8 +12,6 @@ import { DynamoDBService } from "./dynamodb";
 import {
   TransactionEntity,
   PSCTransactionRequest,
-  PSCTransactionResponse,
-  PSCBalanceResponse,
   PSCBalance,
   TransactionType,
   TransactionStatus,
@@ -79,9 +77,12 @@ export class PSCTransactionService {
   /**
    * Create a new transaction
    */
-  static async createTransaction(
-    request: PSCTransactionRequest
-  ): Promise<PSCTransactionResponse> {
+  static async createTransaction(request: PSCTransactionRequest): Promise<{
+    success: boolean;
+    transaction?: TransactionEntity;
+    balance?: number;
+    error?: string;
+  }> {
     try {
       const transactionId = uuidv4();
       const now = new Date().toISOString();
@@ -203,7 +204,9 @@ export class PSCTransactionService {
   /**
    * Get user PSC balance summary
    */
-  static async getUserBalance(userId: string): Promise<PSCBalanceResponse> {
+  static async getUserBalance(
+    userId: string
+  ): Promise<{ success: boolean; balance?: PSCBalance; error?: string }> {
     try {
       const user = await DynamoDBService.getUserById(userId);
       if (!user) {
