@@ -12,13 +12,36 @@ import {
   Calendar,
   DollarSign,
   BarChart3,
-  PieChart,
   Activity,
   ArrowUpRight,
 } from "lucide-react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 // Mock data for PSC dashboard
 const mockPSCData = {
@@ -158,6 +181,205 @@ export default function PornSpotCoinPage() {
       mockPSCData.dailyStats.yesterdayEarned) /
       mockPSCData.dailyStats.yesterdayEarned) *
     100;
+
+  // Process chart data for weekly payout rates
+  const processWeeklyChartData = () => {
+    const weeklyData = mockPSCData.weeklyPayoutRates;
+
+    // Group data by day for better visualization (24 points per day -> 7 daily averages)
+    const dailyAverages = [];
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    for (let day = 0; day < 7; day++) {
+      const dayData = weeklyData.filter((point) => point.day === day);
+      const averages = {
+        day: days[day],
+        view:
+          dayData.reduce((sum, point) => sum + point.rates.view, 0) /
+          dayData.length,
+        like:
+          dayData.reduce((sum, point) => sum + point.rates.like, 0) /
+          dayData.length,
+        comment:
+          dayData.reduce((sum, point) => sum + point.rates.comment, 0) /
+          dayData.length,
+        bookmark:
+          dayData.reduce((sum, point) => sum + point.rates.bookmark, 0) /
+          dayData.length,
+        profileView:
+          dayData.reduce((sum, point) => sum + point.rates.profileView, 0) /
+          dayData.length,
+      };
+      dailyAverages.push(averages);
+    }
+
+    if (selectedChart === "volume") {
+      // For volume view, show simulated activity levels
+      return {
+        labels: days,
+        datasets: [
+          {
+            label: "Views",
+            data: dailyAverages.map((d) =>
+              Math.floor(d.view * 1000 + Math.random() * 500)
+            ),
+            borderColor: "rgba(59, 130, 246, 1)",
+            backgroundColor: "rgba(59, 130, 246, 0.1)",
+            fill: true,
+            tension: 0.4,
+          },
+          {
+            label: "Likes",
+            data: dailyAverages.map((d) =>
+              Math.floor(d.like * 400 + Math.random() * 200)
+            ),
+            borderColor: "rgba(239, 68, 68, 1)",
+            backgroundColor: "rgba(239, 68, 68, 0.1)",
+            fill: true,
+            tension: 0.4,
+          },
+          {
+            label: "Comments",
+            data: dailyAverages.map((d) =>
+              Math.floor(d.comment * 200 + Math.random() * 100)
+            ),
+            borderColor: "rgba(34, 197, 94, 1)",
+            backgroundColor: "rgba(34, 197, 94, 0.1)",
+            fill: true,
+            tension: 0.4,
+          },
+          {
+            label: "Bookmarks",
+            data: dailyAverages.map((d) =>
+              Math.floor(d.bookmark * 300 + Math.random() * 150)
+            ),
+            borderColor: "rgba(168, 85, 247, 1)",
+            backgroundColor: "rgba(168, 85, 247, 0.1)",
+            fill: true,
+            tension: 0.4,
+          },
+          {
+            label: "Profile Views",
+            data: dailyAverages.map((d) =>
+              Math.floor(d.profileView * 250 + Math.random() * 125)
+            ),
+            borderColor: "rgba(245, 158, 11, 1)",
+            backgroundColor: "rgba(245, 158, 11, 0.1)",
+            fill: true,
+            tension: 0.4,
+          },
+        ],
+      };
+    }
+
+    // Default rates view
+    return {
+      labels: days,
+      datasets: [
+        {
+          label: "Views (PSC)",
+          data: dailyAverages.map((d) => d.view),
+          borderColor: "rgba(59, 130, 246, 1)",
+          backgroundColor: "rgba(59, 130, 246, 0.1)",
+          fill: true,
+          tension: 0.4,
+        },
+        {
+          label: "Likes (PSC)",
+          data: dailyAverages.map((d) => d.like),
+          borderColor: "rgba(239, 68, 68, 1)",
+          backgroundColor: "rgba(239, 68, 68, 0.1)",
+          fill: true,
+          tension: 0.4,
+        },
+        {
+          label: "Comments (PSC)",
+          data: dailyAverages.map((d) => d.comment),
+          borderColor: "rgba(34, 197, 94, 1)",
+          backgroundColor: "rgba(34, 197, 94, 0.1)",
+          fill: true,
+          tension: 0.4,
+        },
+        {
+          label: "Bookmarks (PSC)",
+          data: dailyAverages.map((d) => d.bookmark),
+          borderColor: "rgba(168, 85, 247, 1)",
+          backgroundColor: "rgba(168, 85, 247, 0.1)",
+          fill: true,
+          tension: 0.4,
+        },
+        {
+          label: "Profile Views (PSC)",
+          data: dailyAverages.map((d) => d.profileView),
+          borderColor: "rgba(245, 158, 11, 1)",
+          backgroundColor: "rgba(245, 158, 11, 0.1)",
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    };
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top" as const,
+        labels: {
+          padding: 20,
+          usePointStyle: true,
+        },
+      },
+      title: {
+        display: false,
+      },
+      tooltip: {
+        mode: "index" as const,
+        intersect: false,
+        callbacks: {
+          label: function (context: any) {
+            const label = context.dataset.label || "";
+            const value = context.parsed.y;
+            if (selectedChart === "rates") {
+              return `${label}: ${value.toFixed(4)} PSC`;
+            } else {
+              return `${label}: ${value.toLocaleString()} actions`;
+            }
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        display: true,
+        title: {
+          display: true,
+          text: "Day of Week",
+        },
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        display: true,
+        title: {
+          display: true,
+          text:
+            selectedChart === "rates" ? "PSC per Action" : "Number of Actions",
+        },
+        beginAtZero: true,
+        grid: {
+          color: "rgba(0, 0, 0, 0.1)",
+        },
+      },
+    },
+    interaction: {
+      mode: "nearest" as const,
+      axis: "x" as const,
+      intersect: false,
+    },
+  };
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
@@ -374,37 +596,8 @@ export default function PornSpotCoinPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="h-80 flex items-center justify-center border-2 border-dashed border-border rounded-lg">
-            <div className="text-center space-y-2">
-              <PieChart className="h-12 w-12 text-muted-foreground mx-auto" />
-              <div className="text-lg font-medium">
-                Interactive Chart Placeholder
-              </div>
-              <div className="text-sm text-muted-foreground max-w-md">
-                This would contain a dynamic chart showing payout rates for each
-                action type over 168 data points (24 hours × 7 days). Each point
-                represents hourly rates influenced by activity volume and daily
-                budget distribution.
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded"></div>
-                  <span>Views</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-red-500 rounded"></div>
-                  <span>Likes</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-green-500 rounded"></div>
-                  <span>Comments</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-purple-500 rounded"></div>
-                  <span>Bookmarks</span>
-                </div>
-              </div>
-            </div>
+          <div className="h-80">
+            <Line data={processWeeklyChartData()} options={chartOptions} />
           </div>
         </CardContent>
       </Card>
