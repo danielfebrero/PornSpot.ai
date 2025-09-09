@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { RichTagsFunction, useTranslations } from "next-intl";
-import Head from "next/head";
+import { useDocumentHeadAndMeta } from "@/hooks/useDocumentHeadAndMeta";
 import {
   Bell,
   Clock,
@@ -236,6 +236,9 @@ const UserNotificationsPage: React.FC = () => {
   const t = useTranslations("user.notifications");
   const tCommon = useTranslations("common");
 
+  // Set document title and meta description
+  useDocumentHeadAndMeta(t("meta.title"), t("meta.description"));
+
   const [limit] = useState(20);
 
   // Fetch notifications with automatic read marking
@@ -292,10 +295,6 @@ const UserNotificationsPage: React.FC = () => {
 
   return (
     <>
-      <Head>
-        <title>{t("meta.title")}</title>
-        <meta name="description" content={t("meta.description")} />
-      </Head>
       <div className="space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 rounded-xl border border-orange-500/20 shadow-lg p-6">

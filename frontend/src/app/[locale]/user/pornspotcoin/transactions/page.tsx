@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import Head from "next/head";
+import { useDocumentHeadAndMeta } from "@/hooks/useDocumentHeadAndMeta";
 import {
   ArrowLeft,
   Calendar,
@@ -101,7 +101,10 @@ interface TransactionItemProps {
   t: any;
 }
 
-const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, t }) => {
+const TransactionItem: React.FC<TransactionItemProps> = ({
+  transaction,
+  t,
+}) => {
   const { formatRelativeTime } = useDateUtils();
 
   return (
@@ -267,7 +270,9 @@ const Filters: React.FC<FiltersProps> = ({
 
               {/* Status */}
               <div>
-                <label className="text-sm font-medium mb-2 block">{t("filters.status")}</label>
+                <label className="text-sm font-medium mb-2 block">
+                  {t("filters.status")}
+                </label>
                 <select
                   value={filters.status || ""}
                   onChange={(e) =>
@@ -352,6 +357,10 @@ const TransactionSkeleton = () => (
 // Main transactions page component
 export default function TransactionsPage() {
   const t = useTranslations("pornspotcoin.transactions");
+
+  // Set document title and meta description
+  useDocumentHeadAndMeta(t("meta.title"), t("meta.description"));
+
   const [filters, setFilters] = useState<FiltersState>({});
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -403,16 +412,15 @@ export default function TransactionsPage() {
   if (isError) {
     return (
       <>
-        <Head>
-          <title>{t("meta.title")}</title>
-          <meta name="description" content={t("meta.description")} />
-        </Head>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <div className="text-red-500 mb-4">
-              {t("page.errorLoading")} {error?.message || t("page.unknownError")}
+              {t("page.errorLoading")}{" "}
+              {error?.message || t("page.unknownError")}
             </div>
-            <Button onClick={() => window.location.reload()}>{t("page.tryAgain")}</Button>
+            <Button onClick={() => window.location.reload()}>
+              {t("page.tryAgain")}
+            </Button>
           </div>
         </div>
       </>
@@ -421,10 +429,6 @@ export default function TransactionsPage() {
 
   return (
     <>
-      <Head>
-        <title>{t("meta.title")}</title>
-        <meta name="description" content={t("meta.description")} />
-      </Head>
       <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
@@ -436,9 +440,7 @@ export default function TransactionsPage() {
           </LocaleLink>
           <div>
             <h1 className="text-2xl font-bold">{t("page.title")}</h1>
-            <p className="text-muted-foreground">
-              {t("page.description")}
-            </p>
+            <p className="text-muted-foreground">{t("page.description")}</p>
           </div>
         </div>
 
@@ -497,7 +499,9 @@ export default function TransactionsPage() {
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-orange-500" />
                 <div>
-                  <div className="text-sm text-muted-foreground">{t("summary.completed")}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {t("summary.completed")}
+                  </div>
                   <div className="font-bold text-green-600">
                     {summaryStats.completedCount}
                   </div>
@@ -520,7 +524,9 @@ export default function TransactionsPage() {
         <Card>
           <CardHeader>
             <h2 className="text-lg font-semibold">
-              {t("list.transactionsCount", { count: summaryStats.totalTransactions })}
+              {t("list.transactionsCount", {
+                count: summaryStats.totalTransactions,
+              })}
             </h2>
           </CardHeader>
           <CardContent className="p-0">

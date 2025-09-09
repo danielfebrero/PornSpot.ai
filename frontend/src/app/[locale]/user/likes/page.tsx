@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import Head from "next/head";
 import { Heart, Grid, List } from "lucide-react";
+import { useDocumentHeadAndMeta } from "@/hooks/useDocumentHeadAndMeta";
 import { useLikesQuery } from "@/hooks/queries/useLikesQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { Button } from "@/components/ui/Button";
@@ -38,6 +38,9 @@ interface LikesPageData {
 const UserLikesPage: React.FC = () => {
   const t = useTranslations("common");
   const tUser = useTranslations("user.likes");
+
+  // Set document title and meta description
+  useDocumentHeadAndMeta(tUser("meta.title"), tUser("meta.description"));
 
   // Use TanStack Query hook for likes
   const {
@@ -119,10 +122,6 @@ const UserLikesPage: React.FC = () => {
 
   return (
     <>
-      <Head>
-        <title>{tUser("meta.title")}</title>
-        <meta name="description" content={tUser("meta.description")} />
-      </Head>
       <div className="space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-red-500/10 to-admin-secondary/10 rounded-xl border border-red-500/20 shadow-lg p-6">

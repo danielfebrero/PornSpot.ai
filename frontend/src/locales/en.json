@@ -2065,7 +2065,7 @@
       },
       "types": {
         "reward_view": "View",
-        "reward_like": "Like", 
+        "reward_like": "Like",
         "reward_comment": "Comment",
         "reward_bookmark": "Bookmark",
         "reward_profile_view": "Profile View"

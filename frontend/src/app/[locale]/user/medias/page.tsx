@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import Head from "next/head";
+import { useDocumentHeadAndMeta } from "@/hooks/useDocumentHeadAndMeta";
 import {
   ImageIcon,
   Grid,
@@ -36,6 +36,10 @@ import { Globe, Lock, Edit } from "lucide-react";
 
 const UserMediasPage: React.FC = () => {
   const t = useTranslations("user.medias");
+
+  // Set document title and meta description
+  useDocumentHeadAndMeta(t("meta.title"), t("meta.description"));
+
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [editingMedia, setEditingMedia] = useState<Media | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
@@ -303,10 +307,6 @@ const UserMediasPage: React.FC = () => {
 
   return (
     <>
-      <Head>
-        <title>{t("meta.title")}</title>
-        <meta name="description" content={t("meta.description")} />
-      </Head>
       <div className="space-y-6">
         {/* Header */}
         <div

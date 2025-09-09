@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import Head from "next/head";
 import { Bookmark, Grid, List } from "lucide-react";
+import { useDocumentHeadAndMeta } from "@/hooks/useDocumentHeadAndMeta";
 import { useBookmarksQuery } from "@/hooks/queries/useBookmarksQuery";
 import { Button } from "@/components/ui/Button";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
@@ -18,6 +18,9 @@ interface BookmarkPageData {
 const UserBookmarksPage: React.FC = () => {
   const t = useTranslations("user.bookmarks");
   const tCommon = useTranslations("common");
+
+  // Set document title and meta description
+  useDocumentHeadAndMeta(t("meta.title"), t("meta.description"));
   // Use TanStack Query hook for bookmarks
   const {
     data: bookmarksData,
@@ -93,10 +96,6 @@ const UserBookmarksPage: React.FC = () => {
 
   return (
     <>
-      <Head>
-        <title>{t("meta.title")}</title>
-        <meta name="description" content={t("meta.description")} />
-      </Head>
       <div className="space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-500/10 to-admin-secondary/10 rounded-xl border border-blue-500/20 shadow-lg p-6">

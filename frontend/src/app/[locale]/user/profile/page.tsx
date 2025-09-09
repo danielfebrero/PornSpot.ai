@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import Head from "next/head";
+import { useDocumentHeadAndMeta } from "@/hooks/useDocumentHeadAndMeta";
 import ProfileComponent from "@/components/profile/ProfileComponent";
 import { useUserContext } from "@/contexts/UserContext";
 
@@ -9,14 +9,13 @@ export default function ProfilePage() {
   const { user, loading } = useUserContext();
   const t = useTranslations("user.profile");
 
+  // Set document title and meta description
+  useDocumentHeadAndMeta(t("meta.title"), t("meta.description"));
+
   // No user state
   if (!user && !loading) {
     return (
       <>
-        <Head>
-          <title>{t("meta.title")}</title>
-          <meta name="description" content={t("meta.description")} />
-        </Head>
         <div className="min-h-screen bg-background flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-xl font-semibold text-foreground">
@@ -31,10 +30,6 @@ export default function ProfilePage() {
 
   return (
     <>
-      <Head>
-        <title>{t("meta.title")}</title>
-        <meta name="description" content={t("meta.description")} />
-      </Head>
       <ProfileComponent user={user} isOwner={true} loading={loading} />
     </>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import Head from "next/head";
+import { useDocumentHeadAndMeta } from "@/hooks/useDocumentHeadAndMeta";
 import {
   Coins,
   TrendingUp,
@@ -122,6 +122,9 @@ export default function PornSpotCoinPage() {
   // Initialize translations
   const t = useTranslations("pornspotcoin");
 
+  // Set document title and meta description
+  useDocumentHeadAndMeta(t("meta.title"), t("meta.description"));
+
   // Fetch real PSC data
   const {
     data: dashboardData,
@@ -151,10 +154,6 @@ export default function PornSpotCoinPage() {
   if (dashboardError || statsError) {
     return (
       <>
-        <Head>
-          <title>{t("meta.title")}</title>
-          <meta name="description" content={t("meta.description")} />
-        </Head>
         <div className="container mx-auto px-4 py-6">
           <div className="text-center py-8">
             <h2 className="text-xl font-semibold text-red-500 mb-2">
@@ -366,10 +365,6 @@ export default function PornSpotCoinPage() {
 
   return (
     <>
-      <Head>
-        <title>{t("meta.title")}</title>
-        <meta name="description" content={t("meta.description")} />
-      </Head>
       <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import Head from "next/head";
 import { FolderOpen, Grid, List, Plus, Edit2, Trash2 } from "lucide-react";
+import { useDocumentHeadAndMeta } from "@/hooks/useDocumentHeadAndMeta";
 import { Button } from "@/components/ui/Button";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
@@ -24,6 +24,9 @@ const UserAlbumsPage: React.FC = () => {
   const [editingAlbum, setEditingAlbum] = useState<Album | null>(null);
   const [deletingAlbum, setDeletingAlbum] = useState<Album | null>(null);
   const t = useTranslations("user.albums");
+
+  // Set document title and meta description
+  useDocumentHeadAndMeta(t("meta.title"), t("meta.description"));
 
   // Get current user info
   const { user } = useUserContext();
@@ -224,10 +227,6 @@ const UserAlbumsPage: React.FC = () => {
 
   return (
     <>
-      <Head>
-        <title>{t("meta.title")}</title>
-        <meta name="description" content={t("meta.description")} />
-      </Head>
       <div className="space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-admin-primary/10 to-admin-secondary/10 rounded-xl border border-admin-primary/20 shadow-lg p-6">
