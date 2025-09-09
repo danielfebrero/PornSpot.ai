@@ -245,12 +245,12 @@ export class PSCPayoutService {
     // Calculate current pace of expenses based on actual activity
     // Pace = (totalWeightedActivity + buffer for remaining activity) / % of day passed
     const bufferWeightedActivity = 10; // Small buffer for anticipated remaining activity
-    const currentPace =
-      (totalWeightedActivity + bufferWeightedActivity) / safePercentagePassed;
 
     // Calculate rate per weighted unit to reach 0 remaining budget at end of day
-    const ratePerWeightedUnit = budget.remainingBudget / currentPace;
-
+    const ratePerWeightedUnit =
+      budget.remainingBudget /
+      ((totalWeightedActivity + bufferWeightedActivity) / safePercentagePassed -
+        (totalWeightedActivity + bufferWeightedActivity));
     // Ensure no single rate exceeds half the remaining budget
     const maxSafeRate = budget.remainingBudget / 2;
 
