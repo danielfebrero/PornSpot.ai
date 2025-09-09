@@ -37,7 +37,7 @@ export function useDocumentHeadAndMeta(
   const { restoreOnUnmount = true, appendSiteName = false } = options;
   const originalTitleRef = useRef<string | null>(null);
   const originalDescriptionRef = useRef<string | null>(null);
-  
+
   // Get site name from translations for interpolation
   const tSite = useTranslations("site");
   const siteName = tSite("name");
@@ -55,7 +55,7 @@ export function useDocumentHeadAndMeta(
     } else if (appendSiteName && siteName) {
       fullTitle = `${title} - ${siteName}`;
     }
-    
+
     document.title = fullTitle;
 
     // Cleanup function to restore original title
