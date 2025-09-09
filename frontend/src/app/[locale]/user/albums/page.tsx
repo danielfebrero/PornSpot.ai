@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useTranslations } from "next-intl";
+import Head from "next/head";
 import { FolderOpen, Grid, List, Plus, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import LocaleLink from "@/components/ui/LocaleLink";
@@ -16,7 +18,6 @@ import { EditAlbumDialog } from "@/components/albums/EditAlbumDialog";
 import { DeleteAlbumDialog } from "@/components/albums/DeleteAlbumDialog";
 import { Album, UnifiedAlbumsResponse } from "@/types";
 import { useUserContext } from "@/contexts/UserContext";
-import { useTranslations } from "next-intl";
 
 const UserAlbumsPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -222,7 +223,12 @@ const UserAlbumsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      <Head>
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
+      </Head>
+      <div className="space-y-6">
       {/* Header */}
       <div className="bg-gradient-to-r from-admin-primary/10 to-admin-secondary/10 rounded-xl border border-admin-primary/20 shadow-lg p-6">
         {/* Mobile Layout */}
@@ -393,6 +399,7 @@ const UserAlbumsPage: React.FC = () => {
         loading={false}
       />
     </div>
+    </>
   );
 };
 

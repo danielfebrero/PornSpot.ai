@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import Head from "next/head";
 import { useLocaleRouter } from "@/lib/navigation";
 import { UserAlbumForm } from "@/components/user/UserAlbumForm";
 import { useCreateAlbum } from "@/hooks/queries/useAlbumsQuery";
@@ -9,6 +10,7 @@ import { FolderPlus } from "lucide-react";
 
 export default function CreateUserAlbumPage() {
   const t = useTranslations("user.albums");
+  const tForm = useTranslations("user.userAlbumForm");
   const router = useLocaleRouter();
   const createAlbumMutation = useCreateAlbum();
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +36,12 @@ export default function CreateUserAlbumPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <>
+      <Head>
+        <title>{tForm("meta.title")}</title>
+        <meta name="description" content={tForm("meta.description")} />
+      </Head>
+      <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div className="bg-gradient-to-r from-admin-primary/10 to-admin-secondary/10 rounded-xl p-6 border border-admin-primary/20">
         <div className="flex items-center space-x-3 mb-2">
@@ -80,5 +87,6 @@ export default function CreateUserAlbumPage() {
         />
       </div>
     </div>
+    </>
   );
 }

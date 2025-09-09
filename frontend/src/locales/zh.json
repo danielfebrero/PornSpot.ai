@@ -803,7 +803,11 @@
       "confirmDeleteTitle": "删除媒体",
       "confirmDeleteMessage": "您确定要删除{count, plural, other {#个选中的媒体项目}}吗？此操作无法撤销。",
       "delete": "删除",
-      "cancel": "取消"
+      "cancel": "取消",
+      "meta": {
+        "title": "我的媒体 - {siteName}",
+        "description": "查看和管理您的AI生成图像"
+      }
     },
     "albums": {
       "myAlbums": "我的相册",
@@ -828,7 +832,11 @@
       "albumDeleted": "相册删除成功",
       "failedToCreateAlbum": "创建相册失败",
       "createNewAlbum": "创建新相册",
-      "createBeautifulPhotoAlbum": "创建一个美丽的相册来整理您的图片并分享您的收藏"
+      "createBeautifulPhotoAlbum": "创建一个美丽的相册来整理您的图片并分享您的收藏",
+      "meta": {
+        "title": "我的相册 - {siteName}",
+        "description": "查看和管理您的个人相册收藏"
+      }
     },
     "userAlbumForm": {
       "title": "相册标题",
@@ -854,7 +862,11 @@
       "creating": "创建中...",
       "loadingMore": "加载更多...",
       "allImagesLoaded": "所有图片已加载",
-      "scrollToLoadMore": "滚动以加载更多"
+      "scrollToLoadMore": "滚动以加载更多",
+      "meta": {
+        "title": "创建相册 - {siteName}",
+        "description": "创建新相册来整理您的图片"
+      }
     },
     "images": {
       "myImages": "我的图片",
@@ -878,7 +890,11 @@
       "noBookmarksYet": "还没有收藏",
       "startExploringContent": "开始探索内容并收藏您想要保存的内容！",
       "loadingMoreBookmarks": "加载更多收藏...",
-      "noMoreBookmarksToLoad": "没有更多收藏可加载"
+      "noMoreBookmarksToLoad": "没有更多收藏可加载",
+      "meta": {
+        "title": "我的收藏 - {siteName}",
+        "description": "查看和管理您收藏的图片和相册"
+      }
     },
     "likes": {
       "myLikes": "我的点赞",
@@ -894,7 +910,11 @@
       "noLikesYet": "暂无点赞",
       "startExploringContent": "开始探索内容并点赞您喜欢的！发现我们社区中的精彩专辑和媒体。",
       "loadingMoreLikes": "正在加载更多点赞...",
-      "allLikesLoaded": "所有点赞已加载"
+      "allLikesLoaded": "所有点赞已加载",
+      "meta": {
+        "title": "我的点赞 - {siteName}",
+        "description": "查看您点赞的所有内容"
+      }
     },
     "following": {
       "following": "关注",
@@ -906,6 +926,10 @@
       },
       "loading": {
         "noMore": "没有更多用户可加载"
+      },
+      "meta": {
+        "title": "我的关注 - {siteName}",
+        "description": "管理您关注的用户"
       }
     },
     "menu": {
@@ -1119,6 +1143,10 @@
         "updateError": "更新失败",
         "confirmAction": "您确定吗？",
         "actionCannotBeUndone": "此操作无法撤销"
+      },
+      "meta": {
+        "title": "我的资料 - {siteName}",
+        "description": "管理您的个人资料设置和偏好"
       }
     },
     "coverImageSelector": {
@@ -1177,6 +1205,10 @@
       "loading": {
         "loadingMore": "正在加载更多通知...",
         "noMore": "没有更多通知"
+      },
+      "meta": {
+        "title": "通知 - {siteName}",
+        "description": "查看您的通知和最新活动"
       }
     }
   },
@@ -1946,7 +1978,15 @@
     "transactions": {
       "title": "最近交易",
       "viewAll": "查看全部",
-      "noTransactions": "没有最近的交易"
+      "noTransactions": "没有最近的交易",
+      "meta": {
+        "title": "PornSpotCoin 交易 - {siteName}",
+        "description": "查看您的PornSpotCoin余额并跟踪所有交易"
+      }
+    },
+    "meta": {
+      "title": "PornSpotCoin - {siteName}",
+      "description": "管理您的PornSpotCoin余额并跟踪收入"
     }
   }
 }

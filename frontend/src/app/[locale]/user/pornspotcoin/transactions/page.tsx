@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useTranslations } from "next-intl";
+import Head from "next/head";
 import {
   ArrowLeft,
   Calendar,
@@ -346,6 +348,7 @@ const TransactionSkeleton = () => (
 
 // Main transactions page component
 export default function TransactionsPage() {
+  const t = useTranslations("pornspotcoin.transactions");
   const [filters, setFilters] = useState<FiltersState>({});
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -396,173 +399,185 @@ export default function TransactionsPage() {
 
   if (isError) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <div className="text-red-500 mb-4">
-            Error loading transactions: {error?.message || "Unknown error"}
+      <>
+        <Head>
+          <title>{t("meta.title")}</title>
+          <meta name="description" content={t("meta.description")} />
+        </Head>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="text-red-500 mb-4">
+              Error loading transactions: {error?.message || "Unknown error"}
+            </div>
+            <Button onClick={() => window.location.reload()}>Try Again</Button>
           </div>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <LocaleLink href="/user/pornspotcoin">
-          <Button variant="ghost" size="sm" className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to PornSpotCoin
-          </Button>
-        </LocaleLink>
-        <div>
-          <h1 className="text-2xl font-bold">Transaction History</h1>
-          <p className="text-muted-foreground">
-            View all your PornSpotCoin transactions and earnings
-          </p>
-        </div>
-      </div>
-
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-green-500" />
-              <div>
-                <div className="text-sm text-muted-foreground">
-                  Total Earned
-                </div>
-                <div className="font-bold text-green-600">
-                  {summaryStats.totalEarned.toFixed(4)} PSC
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-blue-500" />
-              <div>
-                <div className="text-sm text-muted-foreground">
-                  Total Transactions
-                </div>
-                <div className="font-bold">
-                  {summaryStats.totalTransactions}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-purple-500" />
-              <div>
-                <div className="text-sm text-muted-foreground">
-                  Avg Per Transaction
-                </div>
-                <div className="font-bold">
-                  {summaryStats.avgAmount.toFixed(4)} PSC
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-orange-500" />
-              <div>
-                <div className="text-sm text-muted-foreground">Completed</div>
-                <div className="font-bold text-green-600">
-                  {summaryStats.completedCount}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <Filters
-        filters={filters}
-        onFilterChange={setFilters}
-        isOpen={filtersOpen}
-        onToggle={() => setFiltersOpen(!filtersOpen)}
-      />
-
-      {/* Transactions List */}
-      <Card>
-        <CardHeader>
-          <h2 className="text-lg font-semibold">
-            Transactions ({summaryStats.totalTransactions})
-          </h2>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="divide-y divide-border">
-            {isLoading ? (
-              <div className="p-4 space-y-4">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <TransactionSkeleton key={i} />
-                ))}
-              </div>
-            ) : transactions.length === 0 ? (
-              <div className="text-center py-12 px-4">
-                <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">
-                  No transactions found
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  {Object.values(filters).some(Boolean)
-                    ? "Try adjusting your filters to see more transactions."
-                    : "Start engaging with content to earn PornSpotCoin!"}
-                </p>
-                {Object.values(filters).some(Boolean) && (
-                  <Button variant="outline" onClick={() => setFilters({})}>
-                    Clear Filters
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <>
-                {transactions.map((transaction) => (
-                  <TransactionItem
-                    key={transaction.transactionId}
-                    transaction={transaction}
-                  />
-                ))}
-
-                {/* Load more trigger */}
-                {hasNextPage && (
-                  <div ref={loadMoreRef} className="p-4 text-center">
-                    {isFetchingNextPage ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Loading more transactions...
-                      </div>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        onClick={() => fetchNextPage()}
-                        disabled={!hasNextPage}
-                      >
-                        Load More
-                      </Button>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
+    <>
+      <Head>
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
+      </Head>
+      <div className="container mx-auto px-4 py-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-4">
+          <LocaleLink href="/user/pornspotcoin">
+            <Button variant="ghost" size="sm" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to PornSpotCoin
+            </Button>
+          </LocaleLink>
+          <div>
+            <h1 className="text-2xl font-bold">Transaction History</h1>
+            <p className="text-muted-foreground">
+              View all your PornSpotCoin transactions and earnings
+            </p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-green-500" />
+                <div>
+                  <div className="text-sm text-muted-foreground">
+                    Total Earned
+                  </div>
+                  <div className="font-bold text-green-600">
+                    {summaryStats.totalEarned.toFixed(4)} PSC
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-blue-500" />
+                <div>
+                  <div className="text-sm text-muted-foreground">
+                    Total Transactions
+                  </div>
+                  <div className="font-bold">
+                    {summaryStats.totalTransactions}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-purple-500" />
+                <div>
+                  <div className="text-sm text-muted-foreground">
+                    Avg Per Transaction
+                  </div>
+                  <div className="font-bold">
+                    {summaryStats.avgAmount.toFixed(4)} PSC
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-orange-500" />
+                <div>
+                  <div className="text-sm text-muted-foreground">Completed</div>
+                  <div className="font-bold text-green-600">
+                    {summaryStats.completedCount}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Filters */}
+        <Filters
+          filters={filters}
+          onFilterChange={setFilters}
+          isOpen={filtersOpen}
+          onToggle={() => setFiltersOpen(!filtersOpen)}
+        />
+
+        {/* Transactions List */}
+        <Card>
+          <CardHeader>
+            <h2 className="text-lg font-semibold">
+              Transactions ({summaryStats.totalTransactions})
+            </h2>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-border">
+              {isLoading ? (
+                <div className="p-4 space-y-4">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <TransactionSkeleton key={i} />
+                  ))}
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="text-center py-12 px-4">
+                  <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">
+                    No transactions found
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    {Object.values(filters).some(Boolean)
+                      ? "Try adjusting your filters to see more transactions."
+                      : "Start engaging with content to earn PornSpotCoin!"}
+                  </p>
+                  {Object.values(filters).some(Boolean) && (
+                    <Button variant="outline" onClick={() => setFilters({})}>
+                      Clear Filters
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {transactions.map((transaction) => (
+                    <TransactionItem
+                      key={transaction.transactionId}
+                      transaction={transaction}
+                    />
+                  ))}
+
+                  {/* Load more trigger */}
+                  {hasNextPage && (
+                    <div ref={loadMoreRef} className="p-4 text-center">
+                      {isFetchingNextPage ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Loading more transactions...
+                        </div>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          onClick={() => fetchNextPage()}
+                          disabled={!hasNextPage}
+                        >
+                          Load More
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }

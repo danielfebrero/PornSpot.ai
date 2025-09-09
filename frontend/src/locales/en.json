@@ -826,6 +826,10 @@
   },
   "user": {
     "medias": {
+      "meta": {
+        "title": "My Media - {siteName}",
+        "description": "View and manage your personal AI-generated media gallery. Upload, organize, and share your creative content."
+      },
       "medias": "Medias",
       "personalMediaGallery": "Your personal media gallery",
       "mediasCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {medias} =1 {media} other {medias}}",
@@ -842,6 +846,10 @@
       "cancel": "Cancel"
     },
     "albums": {
+      "meta": {
+        "title": "My Albums - {siteName}",
+        "description": "Manage your personal AI-generated content collections and organize your media into beautiful albums."
+      },
       "myAlbums": "My Albums",
       "albums": "Albums",
       "personalCollections": "Your personal collections",
@@ -867,6 +875,10 @@
       "createBeautifulPhotoAlbum": "Create a beautiful photo album to organize your images and share your collection"
     },
     "userAlbumForm": {
+      "meta": {
+        "title": "Create Album - {siteName}",
+        "description": "Create a beautiful photo album to organize your AI-generated content and share your collection with the community."
+      },
       "title": "Album Title",
       "titleRequired": "Title is required",
       "titleTooShort": "Title must be at least 2 characters",
@@ -901,6 +913,10 @@
       "generateImage": "Generate Image"
     },
     "bookmarks": {
+      "meta": {
+        "title": "My Bookmarks - {siteName}",
+        "description": "Access your saved favorites and bookmarked content from the AI-generated adult content community."
+      },
       "myBookmarks": "My Bookmarks",
       "noBookmarks": "You haven't bookmarked anything yet",
       "bookmarkAdded": "Added to bookmarks",
@@ -917,6 +933,10 @@
       "noMoreBookmarksToLoad": "No more bookmarks to load"
     },
     "likes": {
+      "meta": {
+        "title": "My Likes - {siteName}",
+        "description": "View all the content you've liked on the AI-generated adult content platform. Discover and revisit your favorite albums and media."
+      },
       "myLikes": "My Likes",
       "noLikes": "You haven't liked anything yet",
       "likeAdded": "Liked",
@@ -941,6 +961,10 @@
       "logout": "Logout"
     },
     "following": {
+      "meta": {
+        "title": "Following - {siteName}",
+        "description": "Manage the users you follow and discover their latest AI-generated content, albums, and media uploads."
+      },
       "following": "Following",
       "usersYouFollow": "Users you follow",
       "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {users} =1 {user} other {users}}",
@@ -953,6 +977,10 @@
       }
     },
     "profile": {
+      "meta": {
+        "title": "My Profile - {siteName}",
+        "description": "Manage your profile settings, view your account information, and customize your AI content creation preferences."
+      },
       "profile": "Profile",
       "settings": "Settings",
       "unverified": "Unverified",
@@ -1026,6 +1054,10 @@
       }
     },
     "notifications": {
+      "meta": {
+        "title": "Notifications - {siteName}",
+        "description": "Stay updated with your latest activities, interactions, and community engagement on the AI-generated content platform."
+      },
       "title": "Notifications",
       "description": "Stay updated with your latest activities and interactions",
       "count": "{count, plural, =0 {0 notifications} =1 {1 notification} other {# notifications}}",
@@ -1935,6 +1967,10 @@
     "redditLink": "Reddit"
   },
   "pornspotcoin": {
+    "meta": {
+      "title": "PornSpotCoin - {siteName}",
+      "description": "Track your PSC earnings, exchange rates, and manage your rewards from the AI-generated content platform."
+    },
     "dashboard": {
       "title": "PornSpotCoin Dashboard",
       "description": "Track your PSC earnings, payout rates, and exchange opportunities",
@@ -1988,6 +2024,10 @@
       "tip3": "Quality content gets more engagement and rewards"
     },
     "transactions": {
+      "meta": {
+        "title": "PornSpotCoin Transactions - {siteName}",
+        "description": "View your detailed PSC transaction history, earnings breakdown, and payment records from the AI content platform."
+      },
       "title": "Recent Transactions",
       "viewAll": "View All",
       "noTransactions": "No recent transactions"

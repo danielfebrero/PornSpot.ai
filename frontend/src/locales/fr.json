@@ -826,6 +826,10 @@
   },
   "user": {
     "medias": {
+      "meta": {
+        "title": "Mes Médias - {siteName}",
+        "description": "Visualisez et gérez votre galerie de médias IA personnelle. Téléchargez, organisez et partagez votre contenu créatif."
+      },
       "medias": "Médias",
       "personalMediaGallery": "Votre galerie de médias personnelle",
       "mediasCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {médias} one {média} other {médias}}",
@@ -842,6 +846,10 @@
       "cancel": "Annuler"
     },
     "albums": {
+      "meta": {
+        "title": "Mes Albums - {siteName}",
+        "description": "Gérez vos collections de contenu IA personnel et organisez vos médias en beaux albums."
+      },
       "myAlbums": "Mes albums",
       "albums": "Albums",
       "personalCollections": "Vos collections personnelles",
@@ -867,6 +875,10 @@
       "createBeautifulPhotoAlbum": "Créez un bel album photo pour organiser vos images et partager votre collection"
     },
     "userAlbumForm": {
+      "meta": {
+        "title": "Créer un Album - {siteName}",
+        "description": "Créez un bel album photo pour organiser votre contenu IA et partager votre collection avec la communauté."
+      },
       "title": "Titre de l'album",
       "titleRequired": "Le titre est requis",
       "titleTooShort": "Le titre doit contenir au moins 2 caractères",
@@ -901,6 +913,10 @@
       "generateImage": "Générer une image"
     },
     "bookmarks": {
+      "meta": {
+        "title": "Mes Favoris - {siteName}",
+        "description": "Accédez à vos favoris sauvegardés et contenu mis en favoris de la communauté de contenu adulte IA."
+      },
       "myBookmarks": "Mes favoris",
       "noBookmarks": "Vous n'avez pas encore de favoris",
       "bookmarkAdded": "Ajouté aux favoris",
@@ -917,6 +933,10 @@
       "noMoreBookmarksToLoad": "Plus de favoris à charger"
     },
     "likes": {
+      "meta": {
+        "title": "Mes J'aime - {siteName}",
+        "description": "Visualisez tout le contenu que vous avez aimé sur la plateforme de contenu adulte IA. Découvrez et revisitez vos albums et médias favoris."
+      },
       "myLikes": "Mes j'aime",
       "noLikes": "Vous n'avez encore rien aimé",
       "likeAdded": "Aimé",
@@ -933,6 +953,10 @@
       "allLikesLoaded": "Tous vos j'aime sont chargés"
     },
     "following": {
+      "meta": {
+        "title": "Abonnements - {siteName}",
+        "description": "Gérez les utilisateurs que vous suivez et découvrez leur dernier contenu IA, albums et téléchargements de médias."
+      },
       "following": "Abonnements",
       "usersYouFollow": "Utilisateurs que vous suivez",
       "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {utilisateurs} =1 {utilisateur} other {utilisateurs}}",
@@ -945,6 +969,10 @@
       }
     },
     "notifications": {
+      "meta": {
+        "title": "Notifications - {siteName}",
+        "description": "Restez informé de vos dernières activités, interactions et engagements communautaires sur la plateforme de contenu IA."
+      },
       "title": "Notifications",
       "description": "Restez informé de vos dernières activités et interactions",
       "count": "{count, plural, =0 {0 notification} =1 {1 notification} other {# notifications}}",
@@ -983,6 +1011,10 @@
       "logout": "Déconnexion"
     },
     "profile": {
+      "meta": {
+        "title": "Mon Profil - {siteName}",
+        "description": "Gérez vos paramètres de profil, visualisez vos informations de compte et personnalisez vos préférences de création de contenu IA."
+      },
       "profile": "Profil",
       "settings": "Paramètres",
       "unverified": "Non vérifié",
@@ -1934,6 +1966,10 @@
     "redditLink": "Reddit"
   },
   "pornspotcoin": {
+    "meta": {
+      "title": "PornSpotCoin - {siteName}",
+      "description": "Suivez vos gains PSC, les taux de change et gérez vos récompenses de la plateforme de contenu IA."
+    },
     "dashboard": {
       "title": "Tableau de bord PornSpotCoin",
       "description": "Suivez vos gains PSC, les taux de paiement et les opportunités d'échange",
@@ -1987,6 +2023,10 @@
       "tip3": "Un contenu de qualité obtient plus d'engagement et de récompenses"
     },
     "transactions": {
+      "meta": {
+        "title": "Transactions PornSpotCoin - {siteName}",
+        "description": "Visualisez votre historique détaillé des transactions PSC, la répartition des gains et les enregistrements de paiement de la plateforme de contenu IA."
+      },
       "title": "Transactions récentes",
       "viewAll": "Voir tout",
       "noTransactions": "Aucune transaction récente"

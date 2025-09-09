@@ -788,6 +788,10 @@
   },
   "user": {
     "medias": {
+      "meta": {
+        "title": "Meine Medien - {siteName}",
+        "description": "Betrachten und verwalten Sie Ihre persönliche KI-generierte Mediengalerie. Laden Sie hoch, organisieren und teilen Sie Ihre kreativen Inhalte."
+      },
       "medias": "Medien",
       "personalMediaGallery": "Ihre persönliche Mediengalerie",
       "mediasCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {Medien} one {Medium} other {Medien}}",
@@ -804,6 +808,10 @@
       "cancel": "Abbrechen"
     },
     "albums": {
+      "meta": {
+        "title": "Meine Alben - {siteName}",
+        "description": "Verwalten Sie Ihre persönlichen KI-Inhaltssammlungen und organisieren Sie Ihre Medien in schöne Alben."
+      },
       "myAlbums": "Meine Alben",
       "albums": "Alben",
       "personalCollections": "Ihre persönlichen Sammlungen",
@@ -829,6 +837,10 @@
       "createBeautifulPhotoAlbum": "Erstellen Sie ein schönes Fotoalbum, um Ihre Bilder zu organisieren und Ihre Sammlung zu teilen"
     },
     "userAlbumForm": {
+      "meta": {
+        "title": "Album Erstellen - {siteName}",
+        "description": "Erstellen Sie ein schönes Fotoalbum, um Ihre KI-Inhalte zu organisieren und Ihre Sammlung mit der Community zu teilen."
+      },
       "title": "Album-Titel",
       "titleRequired": "Titel ist erforderlich",
       "titleTooShort": "Titel muss mindestens 2 Zeichen lang sein",
@@ -863,6 +875,10 @@
       "generateImage": "Bild generieren"
     },
     "bookmarks": {
+      "meta": {
+        "title": "Meine Lesezeichen - {siteName}",
+        "description": "Greifen Sie auf Ihre gespeicherten Favoriten und Lesezeichen aus der KI-generierten Adult-Content-Community zu."
+      },
       "myBookmarks": "Meine Lesezeichen",
       "noBookmarks": "Sie haben noch keine Lesezeichen gesetzt",
       "bookmarkAdded": "Zu Lesezeichen hinzugefügt",
@@ -879,6 +895,10 @@
       "noMoreBookmarksToLoad": "Keine weiteren Lesezeichen zu laden"
     },
     "likes": {
+      "meta": {
+        "title": "Meine Likes - {siteName}",
+        "description": "Sehen Sie alle Inhalte, die Sie auf der KI-generierten Adult-Content-Plattform geliked haben. Entdecken und besuchen Sie Ihre Lieblingsalben und -medien."
+      },
       "myLikes": "Meine Likes",
       "noLikes": "Sie haben noch nichts geliked",
       "likeAdded": "Geliked",
@@ -895,6 +915,10 @@
       "allLikesLoaded": "Alle Ihre Likes geladen"
     },
     "following": {
+      "meta": {
+        "title": "Folge ich - {siteName}",
+        "description": "Verwalten Sie die Benutzer, denen Sie folgen, und entdecken Sie deren neueste KI-Inhalte, Alben und Medien-Uploads."
+      },
       "following": "Folge ich",
       "usersYouFollow": "Benutzer denen Sie folgen",
       "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {Benutzer} =1 {Benutzer} other {Benutzer}}",
@@ -915,6 +939,10 @@
       "logout": "Abmelden"
     },
     "profile": {
+      "meta": {
+        "title": "Mein Profil - {siteName}",
+        "description": "Verwalten Sie Ihre Profileinstellungen, sehen Sie Ihre Kontoinformationen und passen Sie Ihre KI-Inhaltserstellung an."
+      },
       "profile": "Profil",
       "settings": "Einstellungen",
       "unverified": "Nicht verifiziert",
@@ -1890,6 +1918,10 @@
     "redditLink": "Reddit"
   },
   "pornspotcoin": {
+    "meta": {
+      "title": "PornSpotCoin - {siteName}",
+      "description": "Verfolgen Sie Ihre PSC-Einnahmen, Wechselkurse und verwalten Sie Ihre Belohnungen von der KI-Content-Plattform."
+    },
     "dashboard": {
       "title": "PornSpotCoin Dashboard",
       "description": "Verfolgen Sie Ihre PSC-Einnahmen, Auszahlungsraten und Tauschgelegenheiten",
@@ -1945,7 +1977,11 @@
     "transactions": {
       "title": "Kürzliche Transaktionen",
       "viewAll": "Alle anzeigen",
-      "noTransactions": "Keine kürzlichen Transaktionen"
+      "noTransactions": "Keine kürzlichen Transaktionen",
+      "meta": {
+        "title": "PornSpotCoin Transaktionen - {siteName}",
+        "description": "Verwalten Sie Ihr PornSpotCoin-Guthaben und verfolgen Sie alle Ihre Transaktionen"
+      }
     }
   }
 }

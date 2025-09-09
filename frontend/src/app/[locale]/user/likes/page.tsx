@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import Head from "next/head";
 import { Heart, Grid, List } from "lucide-react";
 import { useLikesQuery } from "@/hooks/queries/useLikesQuery";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
@@ -118,6 +119,10 @@ const UserLikesPage: React.FC = () => {
 
   return (
     <>
+      <Head>
+        <title>{tUser("meta.title")}</title>
+        <meta name="description" content={tUser("meta.description")} />
+      </Head>
       <div className="space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-red-500/10 to-admin-secondary/10 rounded-xl border border-red-500/20 shadow-lg p-6">

@@ -1,5 +1,6 @@
 "use client";
 
+import Head from "next/head";
 import {
   Coins,
   TrendingUp,
@@ -149,21 +150,27 @@ export default function PornSpotCoinPage() {
   // Handle error state
   if (dashboardError || statsError) {
     return (
-      <div className="container mx-auto px-4 py-6">
-        <div className="text-center py-8">
-          <h2 className="text-xl font-semibold text-red-500 mb-2">
-            {t("dashboard.errorTitle")}
-          </h2>
-          <p className="text-muted-foreground">
-            {dashboardError?.message ||
-              statsError?.message ||
-              t("dashboard.unknownError")}
-          </p>
-          <Button className="mt-4" onClick={() => window.location.reload()}>
-            {t("dashboard.tryAgain")}
-          </Button>
+      <>
+        <Head>
+          <title>{t("meta.title")}</title>
+          <meta name="description" content={t("meta.description")} />
+        </Head>
+        <div className="container mx-auto px-4 py-6">
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-red-500 mb-2">
+              {t("dashboard.errorTitle")}
+            </h2>
+            <p className="text-muted-foreground">
+              {dashboardError?.message ||
+                statsError?.message ||
+                t("dashboard.unknownError")}
+            </p>
+            <Button className="mt-4" onClick={() => window.location.reload()}>
+              {t("dashboard.tryAgain")}
+            </Button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -358,21 +365,26 @@ export default function PornSpotCoinPage() {
   //   };
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Coins className="h-8 w-8 text-yellow-500" />
-            {t("dashboard.title")}
-          </h1>
-          <p className="text-muted-foreground">{t("dashboard.description")}</p>
+    <>
+      <Head>
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
+      </Head>
+      <div className="container mx-auto px-4 py-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <Coins className="h-8 w-8 text-yellow-500" />
+              {t("dashboard.title")}
+            </h1>
+            <p className="text-muted-foreground">{t("dashboard.description")}</p>
+          </div>
+          <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+            <Activity className="h-3 w-3 mr-1" />
+            {t("dashboard.liveData")}
+          </Badge>
         </div>
-        <Badge variant="outline" className="text-yellow-600 border-yellow-600">
-          <Activity className="h-3 w-3 mr-1" />
-          {t("dashboard.liveData")}
-        </Badge>
-      </div>
 
       {/* Balance Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
@@ -726,5 +738,6 @@ export default function PornSpotCoinPage() {
         </Card>
       </div>
     </div>
+    </>
   );
 }

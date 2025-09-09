@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import Head from "next/head";
 import {
   ImageIcon,
   Grid,
@@ -301,7 +302,12 @@ const UserMediasPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      <Head>
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
+      </Head>
+      <div className="space-y-6">
       {/* Header */}
       <div
         className={`${
@@ -660,6 +666,7 @@ const UserMediasPage: React.FC = () => {
         loading={bulkDeleteMedia.isPending}
       />
     </div>
+    </>
   );
 };
 
