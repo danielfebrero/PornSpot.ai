@@ -53,7 +53,7 @@ const getTransactionIcon = (type: string) => {
 };
 
 // Transaction status badge
-const getStatusBadge = (status: TransactionStatus) => {
+const getStatusBadge = (status: TransactionStatus, t: any) => {
   switch (status) {
     case "completed":
       return (
@@ -61,19 +61,19 @@ const getStatusBadge = (status: TransactionStatus) => {
           variant="default"
           className="bg-green-100 text-green-800 border-green-200"
         >
-          Completed
+          {t("status.completed")}
         </Badge>
       );
     case "pending":
       return (
         <Badge variant="outline" className="text-yellow-800 border-yellow-300">
-          Pending
+          {t("status.pending")}
         </Badge>
       );
     case "failed":
-      return <Badge variant="destructive">Failed</Badge>;
+      return <Badge variant="destructive">{t("status.failed")}</Badge>;
     case "cancelled":
-      return <Badge variant="secondary">Cancelled</Badge>;
+      return <Badge variant="secondary">{t("status.cancelled")}</Badge>;
     default:
       return <Badge variant="secondary">{status}</Badge>;
   }
@@ -98,9 +98,10 @@ const transactionStatuses: TransactionStatus[] = [
 // Transaction item component
 interface TransactionItemProps {
   transaction: TransactionEntity;
+  t: any;
 }
 
-const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
+const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, t }) => {
   const { formatRelativeTime } = useDateUtils();
 
   return (
@@ -117,7 +118,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
             <div className="font-medium text-sm truncate">
               {transaction.description}
             </div>
-            {getStatusBadge(transaction.status)}
+            {getStatusBadge(transaction.status, t)}
           </div>
 
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -160,7 +161,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
           </div>
           {transaction.metadata?.rate && (
             <div className="text-xs text-muted-foreground">
-              Rate: {transaction.metadata.rate.toFixed(4)}
+              {t("list.rate")} {transaction.metadata.rate.toFixed(4)}
             </div>
           )}
         </div>
@@ -179,9 +180,10 @@ interface FiltersState {
 
 interface FiltersProps {
   filters: FiltersState;
-  onFilterChange: (filters: FiltersState) => void;
+  onFilterChange: (_filters: FiltersState) => void;
   isOpen: boolean;
   onToggle: () => void;
+  t: any;
 }
 
 const Filters: React.FC<FiltersProps> = ({
@@ -189,6 +191,7 @@ const Filters: React.FC<FiltersProps> = ({
   onFilterChange,
   isOpen,
   onToggle,
+  t,
 }) => {
   const clearFilters = () => {
     onFilterChange({});
@@ -206,7 +209,7 @@ const Filters: React.FC<FiltersProps> = ({
           className="gap-2"
         >
           <Filter className="h-4 w-4" />
-          Filters
+          {t("filters.title")}
           {hasActiveFilters && (
             <Badge variant="secondary" className="ml-1">
               {Object.values(filters).filter(Boolean).length}
@@ -227,7 +230,7 @@ const Filters: React.FC<FiltersProps> = ({
             className="gap-1"
           >
             <X className="h-3 w-3" />
-            Clear
+            {t("filters.clear")}
           </Button>
         )}
       </div>
@@ -239,7 +242,7 @@ const Filters: React.FC<FiltersProps> = ({
               {/* Transaction Type */}
               <div>
                 <label className="text-sm font-medium mb-2 block">
-                  Transaction Type
+                  {t("filters.transactionType")}
                 </label>
                 <select
                   value={filters.transactionType || ""}
@@ -253,10 +256,10 @@ const Filters: React.FC<FiltersProps> = ({
                   }
                   className="w-full p-2 border border-border rounded-md bg-background text-sm"
                 >
-                  <option value="">All Types</option>
+                  <option value="">{t("filters.allTypes")}</option>
                   {transactionTypes.map((type) => (
                     <option key={type} value={type}>
-                      {type.replace("reward_", "").replace("_", " ")}
+                      {t(`types.${type}`)}
                     </option>
                   ))}
                 </select>
@@ -264,7 +267,7 @@ const Filters: React.FC<FiltersProps> = ({
 
               {/* Status */}
               <div>
-                <label className="text-sm font-medium mb-2 block">Status</label>
+                <label className="text-sm font-medium mb-2 block">{t("filters.status")}</label>
                 <select
                   value={filters.status || ""}
                   onChange={(e) =>
@@ -277,10 +280,10 @@ const Filters: React.FC<FiltersProps> = ({
                   }
                   className="w-full p-2 border border-border rounded-md bg-background text-sm"
                 >
-                  <option value="">All Statuses</option>
+                  <option value="">{t("filters.allStatuses")}</option>
                   {transactionStatuses.map((status) => (
                     <option key={status} value={status}>
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                      {t(`status.${status}`)}
                     </option>
                   ))}
                 </select>
@@ -289,7 +292,7 @@ const Filters: React.FC<FiltersProps> = ({
               {/* Date From */}
               <div>
                 <label className="text-sm font-medium mb-2 block">
-                  From Date
+                  {t("filters.fromDate")}
                 </label>
                 <input
                   type="date"
@@ -307,7 +310,7 @@ const Filters: React.FC<FiltersProps> = ({
               {/* Date To */}
               <div>
                 <label className="text-sm font-medium mb-2 block">
-                  To Date
+                  {t("filters.toDate")}
                 </label>
                 <input
                   type="date"
@@ -407,9 +410,9 @@ export default function TransactionsPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <div className="text-red-500 mb-4">
-              Error loading transactions: {error?.message || "Unknown error"}
+              {t("page.errorLoading")} {error?.message || t("page.unknownError")}
             </div>
-            <Button onClick={() => window.location.reload()}>Try Again</Button>
+            <Button onClick={() => window.location.reload()}>{t("page.tryAgain")}</Button>
           </div>
         </div>
       </>
@@ -428,13 +431,13 @@ export default function TransactionsPage() {
           <LocaleLink href="/user/pornspotcoin">
             <Button variant="ghost" size="sm" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Back to PornSpotCoin
+              {t("page.backToPornSpotCoin")}
             </Button>
           </LocaleLink>
           <div>
-            <h1 className="text-2xl font-bold">Transaction History</h1>
+            <h1 className="text-2xl font-bold">{t("page.title")}</h1>
             <p className="text-muted-foreground">
-              View all your PornSpotCoin transactions and earnings
+              {t("page.description")}
             </p>
           </div>
         </div>
@@ -447,7 +450,7 @@ export default function TransactionsPage() {
                 <DollarSign className="h-4 w-4 text-green-500" />
                 <div>
                   <div className="text-sm text-muted-foreground">
-                    Total Earned
+                    {t("summary.totalEarned")}
                   </div>
                   <div className="font-bold text-green-600">
                     {summaryStats.totalEarned.toFixed(4)} PSC
@@ -463,7 +466,7 @@ export default function TransactionsPage() {
                 <Clock className="h-4 w-4 text-blue-500" />
                 <div>
                   <div className="text-sm text-muted-foreground">
-                    Total Transactions
+                    {t("summary.totalTransactions")}
                   </div>
                   <div className="font-bold">
                     {summaryStats.totalTransactions}
@@ -479,7 +482,7 @@ export default function TransactionsPage() {
                 <DollarSign className="h-4 w-4 text-purple-500" />
                 <div>
                   <div className="text-sm text-muted-foreground">
-                    Avg Per Transaction
+                    {t("summary.avgPerTransaction")}
                   </div>
                   <div className="font-bold">
                     {summaryStats.avgAmount.toFixed(4)} PSC
@@ -494,7 +497,7 @@ export default function TransactionsPage() {
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-orange-500" />
                 <div>
-                  <div className="text-sm text-muted-foreground">Completed</div>
+                  <div className="text-sm text-muted-foreground">{t("summary.completed")}</div>
                   <div className="font-bold text-green-600">
                     {summaryStats.completedCount}
                   </div>
@@ -510,13 +513,14 @@ export default function TransactionsPage() {
           onFilterChange={setFilters}
           isOpen={filtersOpen}
           onToggle={() => setFiltersOpen(!filtersOpen)}
+          t={t}
         />
 
         {/* Transactions List */}
         <Card>
           <CardHeader>
             <h2 className="text-lg font-semibold">
-              Transactions ({summaryStats.totalTransactions})
+              {t("list.transactionsCount", { count: summaryStats.totalTransactions })}
             </h2>
           </CardHeader>
           <CardContent className="p-0">
@@ -531,16 +535,16 @@ export default function TransactionsPage() {
                 <div className="text-center py-12 px-4">
                   <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">
-                    No transactions found
+                    {t("list.noTransactionsFound")}
                   </h3>
                   <p className="text-muted-foreground mb-4">
                     {Object.values(filters).some(Boolean)
-                      ? "Try adjusting your filters to see more transactions."
-                      : "Start engaging with content to earn PornSpotCoin!"}
+                      ? t("list.noTransactionsWithFilters")
+                      : t("list.noTransactionsGeneral")}
                   </p>
                   {Object.values(filters).some(Boolean) && (
                     <Button variant="outline" onClick={() => setFilters({})}>
-                      Clear Filters
+                      {t("list.clearFilters")}
                     </Button>
                   )}
                 </div>
@@ -550,6 +554,7 @@ export default function TransactionsPage() {
                     <TransactionItem
                       key={transaction.transactionId}
                       transaction={transaction}
+                      t={t}
                     />
                   ))}
 
@@ -559,7 +564,7 @@ export default function TransactionsPage() {
                       {isFetchingNextPage ? (
                         <div className="flex items-center justify-center gap-2">
                           <Loader2 className="h-4 w-4 animate-spin" />
-                          Loading more transactions...
+                          {t("page.loadingMore")}
                         </div>
                       ) : (
                         <Button
@@ -567,7 +572,7 @@ export default function TransactionsPage() {
                           onClick={() => fetchNextPage()}
                           disabled={!hasNextPage}
                         >
-                          Load More
+                          {t("page.loadMore")}
                         </Button>
                       )}
                     </div>

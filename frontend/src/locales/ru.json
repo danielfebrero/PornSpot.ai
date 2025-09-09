@@ -1992,6 +1992,53 @@
       "meta": {
         "title": "PornSpotCoin Транзакции - {siteName}",
         "description": "Просматривайте свой баланс PornSpotCoin и отслеживайте все транзакции"
+      },
+      "page": {
+        "title": "История транзакций",
+        "description": "Просмотр всех ваших транзакций и доходов PornSpotCoin",
+        "backToPornSpotCoin": "Вернуться к PornSpotCoin",
+        "loadingMore": "Загружается больше транзакций...",
+        "loadMore": "Загрузить больше",
+        "tryAgain": "Попробовать снова",
+        "errorLoading": "Ошибка загрузки транзакций:",
+        "unknownError": "Неизвестная ошибка"
+      },
+      "summary": {
+        "totalEarned": "Всего заработано",
+        "totalTransactions": "Всего транзакций",
+        "avgPerTransaction": "Среднее за транзакцию",
+        "completed": "Завершено"
+      },
+      "filters": {
+        "title": "Фильтры",
+        "clear": "Очистить",
+        "transactionType": "Тип транзакции",
+        "status": "Статус",
+        "fromDate": "С даты",
+        "toDate": "По дату",
+        "allTypes": "Все типы",
+        "allStatuses": "Все статусы"
+      },
+      "status": {
+        "completed": "Завершена",
+        "pending": "В ожидании",
+        "failed": "Неудачна",
+        "cancelled": "Отменена"
+      },
+      "types": {
+        "reward_view": "Просмотр",
+        "reward_like": "Лайк",
+        "reward_comment": "Комментарий",
+        "reward_bookmark": "Закладка",
+        "reward_profile_view": "Просмотр профиля"
+      },
+      "list": {
+        "transactionsCount": "Транзакции ({count})",
+        "rate": "Ставка:",
+        "noTransactionsFound": "Транзакции не найдены",
+        "noTransactionsWithFilters": "Попробуйте настроить фильтры, чтобы увидеть больше транзакций.",
+        "noTransactionsGeneral": "Начните взаимодействовать с контентом, чтобы заработать PornSpotCoin!",
+        "clearFilters": "Очистить фильтры"
       }
     },
     "meta": {

@@ -138,137 +138,139 @@ export default function UserFollowingPage() {
         <meta name="description" content={t("meta.description")} />
       </Head>
       <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-yellow-500/10 to-admin-secondary/10 rounded-xl border border-yellow-500/20 shadow-lg p-6">
-        {/* Mobile Layout */}
-        <div className="block sm:hidden space-y-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center">
-              <Users className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                {t("following")}
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                {t("usersYouFollow")}
-              </p>
-            </div>
-            <span className="bg-yellow-500/20 text-yellow-500 text-sm font-semibold px-3 py-1.5 rounded-full">
-              {t("count", {
-                count: following.length,
-                hasNextPage: hasNext ? 1 : 0,
-              })}
-            </span>
-          </div>
-        </div>
-
-        {/* Desktop Layout */}
-        <div className="hidden sm:flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center">
-              <Users className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                {t("following")}
-              </h1>
-              <p className="text-muted-foreground">{t("usersYouFollow")}</p>
-            </div>
-            <span className="bg-yellow-500/20 text-yellow-500 text-sm font-semibold px-3 py-1.5 rounded-full">
-              {t("count", {
-                count: following.length,
-                hasNextPage: hasNext ? 1 : 0,
-              })}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Following list */}
-      <Card
-        className="border-admin-primary/10 shadow-lg"
-        hideBorder={isMobile}
-        hideMargin={isMobile}
-      >
-        <CardContent className={cn("p-0", !isMobile && "p-6")}>
-          {following.length === 0 && !followingLoading ? (
-            // Empty state
-            <div className="text-center py-12">
-              <div className="w-20 h-20 bg-gradient-to-br from-yellow-500/20 to-amber-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Users className="h-10 w-10 text-yellow-600" />
+        {/* Header */}
+        <div className="bg-gradient-to-r from-yellow-500/10 to-admin-secondary/10 rounded-xl border border-yellow-500/20 shadow-lg p-6">
+          {/* Mobile Layout */}
+          <div className="block sm:hidden space-y-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center">
+                <Users className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                {t("empty.title")}
-              </h3>
-              <p className="text-muted-foreground">{t("empty.description")}</p>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {t("following")}
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {t("usersYouFollow")}
+                </p>
+              </div>
+              <span className="bg-yellow-500/20 text-yellow-500 text-sm font-semibold px-3 py-1.5 rounded-full">
+                {t("count", {
+                  count: following.length,
+                  hasNextPage: hasNext ? 1 : 0,
+                })}
+              </span>
             </div>
-          ) : (
-            <div className="space-y-0">
-              {following.map((followedUser: MinimalUser, index: number) => (
-                <div
-                  key={followedUser.userId || followedUser.username || index}
-                  className={cn(
-                    "flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors",
-                    index !== following.length - 1 &&
-                      "border-b border-border/50"
-                  )}
-                >
-                  {/* User Avatar */}
-                  <LocaleLink href={`/profile/${followedUser.username}`}>
-                    <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-md hover:scale-105 transition-transform cursor-pointer">
-                      <Avatar user={followedUser} size="medium" />
-                    </div>
-                  </LocaleLink>
+          </div>
 
-                  {/* User Info */}
-                  <div className="flex-1 min-w-0">
-                    <LocaleLink
-                      href={`/profile/${followedUser.username}`}
-                      className="hover:underline"
-                    >
-                      <span className="font-semibold text-foreground truncate">
-                        {followedUser.username}
-                      </span>
-                    </LocaleLink>
-                  </div>
+          {/* Desktop Layout */}
+          <div className="hidden sm:flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center">
+                <Users className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">
+                  {t("following")}
+                </h1>
+                <p className="text-muted-foreground">{t("usersYouFollow")}</p>
+              </div>
+              <span className="bg-yellow-500/20 text-yellow-500 text-sm font-semibold px-3 py-1.5 rounded-full">
+                {t("count", {
+                  count: following.length,
+                  hasNextPage: hasNext ? 1 : 0,
+                })}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Following list */}
+        <Card
+          className="border-admin-primary/10 shadow-lg"
+          hideBorder={isMobile}
+          hideMargin={isMobile}
+        >
+          <CardContent className={cn("p-0", !isMobile && "p-6")}>
+            {following.length === 0 && !followingLoading ? (
+              // Empty state
+              <div className="text-center py-12">
+                <div className="w-20 h-20 bg-gradient-to-br from-yellow-500/20 to-amber-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Users className="h-10 w-10 text-yellow-600" />
                 </div>
-              ))}
-
-              {/* Load more button */}
-              {hasNext && (
-                <div className="flex justify-center p-4">
-                  <Button
-                    onClick={loadMore}
-                    disabled={loadingMore}
-                    variant="outline"
-                    className="min-w-32"
-                  >
-                    {loadingMore ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                        {tCommon("loading")}
-                      </div>
-                    ) : (
-                      tCommon("loadMore")
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  {t("empty.title")}
+                </h3>
+                <p className="text-muted-foreground">
+                  {t("empty.description")}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-0">
+                {following.map((followedUser: MinimalUser, index: number) => (
+                  <div
+                    key={followedUser.userId || followedUser.username || index}
+                    className={cn(
+                      "flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors",
+                      index !== following.length - 1 &&
+                        "border-b border-border/50"
                     )}
-                  </Button>
-                </div>
-              )}
+                  >
+                    {/* User Avatar */}
+                    <LocaleLink href={`/profile/${followedUser.username}`}>
+                      <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-md hover:scale-105 transition-transform cursor-pointer">
+                        <Avatar user={followedUser} size="medium" />
+                      </div>
+                    </LocaleLink>
 
-              {/* No more results */}
-              {!hasNext && following.length > 0 && (
-                <div className="text-center py-4">
-                  <p className="text-sm text-muted-foreground">
-                    {t("loading.noMore")}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+                    {/* User Info */}
+                    <div className="flex-1 min-w-0">
+                      <LocaleLink
+                        href={`/profile/${followedUser.username}`}
+                        className="hover:underline"
+                      >
+                        <span className="font-semibold text-foreground truncate">
+                          {followedUser.username}
+                        </span>
+                      </LocaleLink>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Load more button */}
+                {hasNext && (
+                  <div className="flex justify-center p-4">
+                    <Button
+                      onClick={loadMore}
+                      disabled={loadingMore}
+                      variant="outline"
+                      className="min-w-32"
+                    >
+                      {loadingMore ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          {tCommon("loading")}
+                        </div>
+                      ) : (
+                        tCommon("loadMore")
+                      )}
+                    </Button>
+                  </div>
+                )}
+
+                {/* No more results */}
+                {!hasNext && following.length > 0 && (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-muted-foreground">
+                      {t("loading.noMore")}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </>
   );
 }

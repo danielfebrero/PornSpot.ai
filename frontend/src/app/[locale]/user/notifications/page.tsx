@@ -297,107 +297,107 @@ const UserNotificationsPage: React.FC = () => {
         <meta name="description" content={t("meta.description")} />
       </Head>
       <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 rounded-xl border border-orange-500/20 shadow-lg p-6">
-        {/* Mobile Layout */}
-        <div className="block sm:hidden space-y-4">
-          <div className="flex items-center justify-between">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 rounded-xl border border-orange-500/20 shadow-lg p-6">
+          {/* Mobile Layout */}
+          <div className="block sm:hidden space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
+                  <Bell className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    {t("title")}
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    {t("description")}
+                  </p>
+                </div>
+              </div>
+            </div>
+            {notifications.length > 0 && (
+              <div className="flex justify-center">
+                <span className="bg-orange-500/20 text-orange-600 text-sm font-semibold px-3 py-1.5 rounded-full">
+                  {t("count", { count: notifications.length })}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden sm:flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
                 <Bell className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">
+                <h1 className="text-3xl font-bold text-foreground">
                   {t("title")}
                 </h1>
-                <p className="text-sm text-muted-foreground">
-                  {t("description")}
-                </p>
+                <p className="text-muted-foreground">{t("description")}</p>
               </div>
             </div>
-          </div>
-          {notifications.length > 0 && (
-            <div className="flex justify-center">
-              <span className="bg-orange-500/20 text-orange-600 text-sm font-semibold px-3 py-1.5 rounded-full">
-                {t("count", { count: notifications.length })}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Desktop Layout */}
-        <div className="hidden sm:flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
-              <Bell className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                {t("title")}
-              </h1>
-              <p className="text-muted-foreground">{t("description")}</p>
-            </div>
-          </div>
-          {notifications.length > 0 && (
-            <div className="flex items-center space-x-3">
-              <span className="bg-orange-500/20 text-orange-600 text-sm font-semibold px-3 py-1.5 rounded-full">
-                {t("count", { count: notifications.length })}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Notifications List */}
-      <div className="space-y-1">
-        {/* Loading state */}
-        {isLoading && (
-          <div className="space-y-1">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <NotificationSkeleton key={index} />
-            ))}
-          </div>
-        )}
-
-        {/* Notifications */}
-        {notifications.map((notification, index) => (
-          <NotificationItem
-            key={`${notification.notificationId}-${index}`}
-            notification={notification}
-          />
-        ))}
-
-        {/* Load more trigger (infinite scroll sentinel) */}
-        {hasNextPage && (
-          <div ref={loadMoreRef} className="flex justify-center py-4">
-            {isFetchingNextPage && (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">{t("loading.loadingMore")}</span>
+            {notifications.length > 0 && (
+              <div className="flex items-center space-x-3">
+                <span className="bg-orange-500/20 text-orange-600 text-sm font-semibold px-3 py-1.5 rounded-full">
+                  {t("count", { count: notifications.length })}
+                </span>
               </div>
             )}
           </div>
-        )}
+        </div>
 
-        {/* Empty state */}
-        {!isLoading && notifications.length === 0 && (
-          <div className="text-center py-12">
-            <div className="p-4 bg-muted/30 rounded-full w-16 h-16 mx-auto mb-4">
-              <Bell className="h-8 w-8 text-muted-foreground mx-auto" />
+        {/* Notifications List */}
+        <div className="space-y-1">
+          {/* Loading state */}
+          {isLoading && (
+            <div className="space-y-1">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <NotificationSkeleton key={index} />
+              ))}
             </div>
-            <h2 className="text-xl font-semibold text-foreground mb-2">
-              {t("empty.title")}
-            </h2>
-            <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-              {t("empty.description")}
-            </p>
-            <LocaleLink href="/">
-              <Button variant="outline">{tCommon("discover")}</Button>
-            </LocaleLink>
-          </div>
-        )}
+          )}
+
+          {/* Notifications */}
+          {notifications.map((notification, index) => (
+            <NotificationItem
+              key={`${notification.notificationId}-${index}`}
+              notification={notification}
+            />
+          ))}
+
+          {/* Load more trigger (infinite scroll sentinel) */}
+          {hasNextPage && (
+            <div ref={loadMoreRef} className="flex justify-center py-4">
+              {isFetchingNextPage && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm">{t("loading.loadingMore")}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!isLoading && notifications.length === 0 && (
+            <div className="text-center py-12">
+              <div className="p-4 bg-muted/30 rounded-full w-16 h-16 mx-auto mb-4">
+                <Bell className="h-8 w-8 text-muted-foreground mx-auto" />
+              </div>
+              <h2 className="text-xl font-semibold text-foreground mb-2">
+                {t("empty.title")}
+              </h2>
+              <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                {t("empty.description")}
+              </p>
+              <LocaleLink href="/">
+                <Button variant="outline">{tCommon("discover")}</Button>
+              </LocaleLink>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 };

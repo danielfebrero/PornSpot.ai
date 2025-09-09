@@ -229,176 +229,176 @@ const UserAlbumsPage: React.FC = () => {
         <meta name="description" content={t("meta.description")} />
       </Head>
       <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-admin-primary/10 to-admin-secondary/10 rounded-xl border border-admin-primary/20 shadow-lg p-6">
-        {/* Mobile Layout */}
-        <div className="block sm:hidden space-y-4">
-          <div className="flex items-center justify-between">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-admin-primary/10 to-admin-secondary/10 rounded-xl border border-admin-primary/20 shadow-lg p-6">
+          {/* Mobile Layout */}
+          <div className="block sm:hidden space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-admin-primary to-admin-secondary rounded-lg flex items-center justify-center">
+                  <FolderOpen className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    {t("albums")}
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    {t("personalCollections")}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="bg-admin-primary/20 text-admin-primary text-sm font-semibold px-3 py-1.5 rounded-full">
+                {t("albumsCount", {
+                  count: totalCount,
+                  hasNextPage: hasNextPage ? 1 : 0,
+                })}
+              </span>
+              <LocaleLink href="/user/albums/create">
+                <Button className="bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-primary-foreground shadow-lg flex items-center space-x-2">
+                  <Plus className="h-4 w-4" />
+                  <span>{t("create")}</span>
+                </Button>
+              </LocaleLink>
+            </div>
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden sm:flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-admin-primary to-admin-secondary rounded-lg flex items-center justify-center">
                 <FolderOpen className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">
+                <h1 className="text-3xl font-bold text-foreground">
                   {t("albums")}
                 </h1>
-                <p className="text-sm text-muted-foreground">
-                  {t("personalCollections")}
+                <p className="text-muted-foreground">
+                  {t("personalPhotoCollections")}
                 </p>
               </div>
+              <span className="bg-admin-primary/20 text-admin-primary text-sm font-semibold px-3 py-1.5 rounded-full">
+                {t("albumsCount", {
+                  count: totalCount,
+                  hasNextPage: hasNextPage ? 1 : 0,
+                })}
+              </span>
             </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="bg-admin-primary/20 text-admin-primary text-sm font-semibold px-3 py-1.5 rounded-full">
-              {t("albumsCount", {
-                count: totalCount,
-                hasNextPage: hasNextPage ? 1 : 0,
-              })}
-            </span>
-            <LocaleLink href="/user/albums/create">
-              <Button className="bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-primary-foreground shadow-lg flex items-center space-x-2">
-                <Plus className="h-4 w-4" />
-                <span>{t("create")}</span>
-              </Button>
-            </LocaleLink>
-          </div>
-        </div>
 
-        {/* Desktop Layout */}
-        <div className="hidden sm:flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-admin-primary to-admin-secondary rounded-lg flex items-center justify-center">
-              <FolderOpen className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                {t("albums")}
-              </h1>
-              <p className="text-muted-foreground">
-                {t("personalPhotoCollections")}
-              </p>
-            </div>
-            <span className="bg-admin-primary/20 text-admin-primary text-sm font-semibold px-3 py-1.5 rounded-full">
-              {t("albumsCount", {
-                count: totalCount,
-                hasNextPage: hasNextPage ? 1 : 0,
-              })}
-            </span>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <LocaleLink href="/user/albums/create">
-              <Button className="bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-primary-foreground shadow-lg flex items-center space-x-2">
-                <Plus className="h-4 w-4" />
-                <span>{t("createAlbum")}</span>
-              </Button>
-            </LocaleLink>
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("grid")}
-              className={cn(
-                "hidden sm:inline-flex",
-                viewMode === "grid"
-                  ? "bg-admin-primary text-admin-primary-foreground hover:bg-admin-primary/90"
-                  : ""
-              )}
-            >
-              <Grid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("list")}
-              className={cn(
-                "hidden sm:inline-flex",
-                viewMode === "list"
-                  ? "bg-admin-primary text-admin-primary-foreground hover:bg-admin-primary/90"
-                  : ""
-              )}
-            >
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <VirtualizedGrid
-        items={albums}
-        viewMode={viewMode}
-        isLoading={isLoading && !loadingMore}
-        hasNextPage={hasNext}
-        isFetchingNextPage={loadingMore}
-        onLoadMore={loadMore}
-        scrollRestorationKey="user-albums-grid"
-        contentCardProps={{
-          canLike: true,
-          canBookmark: true,
-          canFullscreen: false,
-          canAddToAlbum: false,
-          canDownload: false,
-          canDelete: false,
-          showTags: true,
-          customActions: (item) => [
-            {
-              label: t("editAlbum"),
-              icon: <Edit2 className="h-4 w-4" />,
-              onClick: () => handleEditAlbum(item as Album),
-              variant: "default" as const,
-            },
-            {
-              label: t("deleteAlbum"),
-              icon: <Trash2 className="h-4 w-4" />,
-              onClick: () => handleDeleteAlbum(item as Album),
-              variant: "destructive" as const,
-            },
-          ],
-        }}
-        emptyState={{
-          icon: (
-            <div className="w-20 h-20 bg-gradient-to-br from-admin-primary/20 to-admin-secondary/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <FolderOpen className="h-10 w-10 text-admin-primary" />
-            </div>
-          ),
-          title: t("noAlbumsYet"),
-          description: t("createFirstAlbum"),
-          action: (
-            <div className="flex justify-center space-x-4">
+            <div className="flex items-center space-x-2">
               <LocaleLink href="/user/albums/create">
                 <Button className="bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-primary-foreground shadow-lg flex items-center space-x-2">
                   <Plus className="h-4 w-4" />
                   <span>{t("createAlbum")}</span>
                 </Button>
               </LocaleLink>
+              <Button
+                variant={viewMode === "grid" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("grid")}
+                className={cn(
+                  "hidden sm:inline-flex",
+                  viewMode === "grid"
+                    ? "bg-admin-primary text-admin-primary-foreground hover:bg-admin-primary/90"
+                    : ""
+                )}
+              >
+                <Grid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("list")}
+                className={cn(
+                  "hidden sm:inline-flex",
+                  viewMode === "list"
+                    ? "bg-admin-primary text-admin-primary-foreground hover:bg-admin-primary/90"
+                    : ""
+                )}
+              >
+                <List className="h-4 w-4" />
+              </Button>
             </div>
-          ),
-        }}
-        loadingState={{
-          loadingText: t("loadingAlbums"),
-          noMoreText: t("allAlbumsLoaded"),
-        }}
-        error={error}
-      />
+          </div>
+        </div>
 
-      {/* Edit Album Dialog */}
-      <EditAlbumDialog
-        album={editingAlbum}
-        open={!!editingAlbum}
-        onClose={() => setEditingAlbum(null)}
-        onSave={handleUpdateAlbum}
-        loading={false}
-      />
+        {/* Content */}
+        <VirtualizedGrid
+          items={albums}
+          viewMode={viewMode}
+          isLoading={isLoading && !loadingMore}
+          hasNextPage={hasNext}
+          isFetchingNextPage={loadingMore}
+          onLoadMore={loadMore}
+          scrollRestorationKey="user-albums-grid"
+          contentCardProps={{
+            canLike: true,
+            canBookmark: true,
+            canFullscreen: false,
+            canAddToAlbum: false,
+            canDownload: false,
+            canDelete: false,
+            showTags: true,
+            customActions: (item) => [
+              {
+                label: t("editAlbum"),
+                icon: <Edit2 className="h-4 w-4" />,
+                onClick: () => handleEditAlbum(item as Album),
+                variant: "default" as const,
+              },
+              {
+                label: t("deleteAlbum"),
+                icon: <Trash2 className="h-4 w-4" />,
+                onClick: () => handleDeleteAlbum(item as Album),
+                variant: "destructive" as const,
+              },
+            ],
+          }}
+          emptyState={{
+            icon: (
+              <div className="w-20 h-20 bg-gradient-to-br from-admin-primary/20 to-admin-secondary/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <FolderOpen className="h-10 w-10 text-admin-primary" />
+              </div>
+            ),
+            title: t("noAlbumsYet"),
+            description: t("createFirstAlbum"),
+            action: (
+              <div className="flex justify-center space-x-4">
+                <LocaleLink href="/user/albums/create">
+                  <Button className="bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-primary-foreground shadow-lg flex items-center space-x-2">
+                    <Plus className="h-4 w-4" />
+                    <span>{t("createAlbum")}</span>
+                  </Button>
+                </LocaleLink>
+              </div>
+            ),
+          }}
+          loadingState={{
+            loadingText: t("loadingAlbums"),
+            noMoreText: t("allAlbumsLoaded"),
+          }}
+          error={error}
+        />
 
-      {/* Delete Album Dialog */}
-      <DeleteAlbumDialog
-        albumTitle={deletingAlbum?.title || ""}
-        open={!!deletingAlbum}
-        onClose={() => setDeletingAlbum(null)}
-        onConfirm={handleConfirmDelete}
-        loading={false}
-      />
-    </div>
+        {/* Edit Album Dialog */}
+        <EditAlbumDialog
+          album={editingAlbum}
+          open={!!editingAlbum}
+          onClose={() => setEditingAlbum(null)}
+          onSave={handleUpdateAlbum}
+          loading={false}
+        />
+
+        {/* Delete Album Dialog */}
+        <DeleteAlbumDialog
+          albumTitle={deletingAlbum?.title || ""}
+          open={!!deletingAlbum}
+          onClose={() => setDeletingAlbum(null)}
+          onConfirm={handleConfirmDelete}
+          loading={false}
+        />
+      </div>
     </>
   );
 };

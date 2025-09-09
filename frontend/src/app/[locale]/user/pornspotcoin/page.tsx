@@ -378,165 +378,170 @@ export default function PornSpotCoinPage() {
               <Coins className="h-8 w-8 text-yellow-500" />
               {t("dashboard.title")}
             </h1>
-            <p className="text-muted-foreground">{t("dashboard.description")}</p>
+            <p className="text-muted-foreground">
+              {t("dashboard.description")}
+            </p>
           </div>
-          <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+          <Badge
+            variant="outline"
+            className="text-yellow-600 border-yellow-600"
+          >
             <Activity className="h-3 w-3 mr-1" />
             {t("dashboard.liveData")}
           </Badge>
         </div>
 
-      {/* Balance Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
+        {/* Balance Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  {t("balance.currentBalance")}
+                </h3>
+                <Coins className="h-4 w-4 text-yellow-500" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-1">
+                <div className="text-2xl font-bold text-yellow-600">
+                  {balance.balance.toFixed(3)} PSC
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  ${((balance.balance * 10) / 9).toFixed(2)} {t("balance.usd")}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  {t("balance.totalEarned")}
+                </h3>
+                <TrendingUp className="h-4 w-4 text-green-500" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-1">
+                <div className="text-2xl font-bold">
+                  {balance.totalEarned.toFixed(3)} PSC
+                </div>
+                <div className="flex items-center text-sm text-green-600">
+                  <ArrowUpRight className="h-3 w-3 mr-1" />+
+                  {balanceTrend.toFixed(1)}% {t("balance.vsYesterday")}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  {t("balance.todayEarnings")}
+                </h3>
+                <Calendar className="h-4 w-4 text-blue-500" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-1">
+                <div className="text-2xl font-bold">
+                  {todayEarned.toFixed(3)} PSC
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {t("balance.recentActivity")}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Current Payout Rates */}
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader>
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                {t("balance.currentBalance")}
-              </h3>
-              <Coins className="h-4 w-4 text-yellow-500" />
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold">{t("rates.title")}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {t("rates.description")}
+                </p>
+              </div>
+              <BarChart3 className="h-5 w-5 text-blue-500" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-1">
-              <div className="text-2xl font-bold text-yellow-600">
-                {balance.balance.toFixed(3)} PSC
-              </div>
-              <div className="text-sm text-muted-foreground">
-                ${((balance.balance * 10) / 9).toFixed(2)} {t("balance.usd")}
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              {[
+                {
+                  icon: Eye,
+                  label: t("rates.views"),
+                  rate: rates.viewRate,
+                  bgClass:
+                    "bg-gradient-to-r from-blue-500/10 to-admin-secondary/10 border-blue-200 text-foreground",
+                  iconClass: "text-blue-600",
+                  textClass: "text-blue-700",
+                },
+                {
+                  icon: Heart,
+                  label: t("rates.likes"),
+                  rate: rates.likeRate,
+                  bgClass:
+                    "bg-gradient-to-r from-red-500/10 to-admin-secondary/10 border-red-200 text-foreground",
+                  iconClass: "text-red-600",
+                  textClass: "text-red-700",
+                },
+                {
+                  icon: MessageCircle,
+                  label: t("rates.comments"),
+                  rate: rates.commentRate,
+                  bgClass:
+                    "bg-gradient-to-r from-green-500/10 to-admin-secondary/10 border-green-200 text-foreground",
+                  iconClass: "text-green-600",
+                  textClass: "text-green-700",
+                },
+                {
+                  icon: Bookmark,
+                  label: t("rates.bookmarks"),
+                  rate: rates.bookmarkRate,
+                  bgClass:
+                    "bg-gradient-to-r from-purple-500/10 to-admin-secondary/10 border-purple-200 text-foreground",
+                  iconClass: "text-purple-600",
+                  textClass: "text-purple-700",
+                },
+                {
+                  icon: User,
+                  label: t("rates.profileViews"),
+                  rate: rates.profileViewRate,
+                  bgClass:
+                    "bg-gradient-to-r from-orange-500/10 to-admin-secondary/10 border-orange-200 text-foreground",
+                  iconClass: "text-orange-600",
+                  textClass: "text-orange-700",
+                },
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className={`p-4 border rounded-lg ${item.bgClass}`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <item.icon className={`h-4 w-4 ${item.iconClass}`} />
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </div>
+                  <div className={`text-lg font-bold ${item.textClass}`}>
+                    {item.rate.toFixed(4)} PSC
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("rates.perAction")}
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                {t("balance.totalEarned")}
-              </h3>
-              <TrendingUp className="h-4 w-4 text-green-500" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-1">
-              <div className="text-2xl font-bold">
-                {balance.totalEarned.toFixed(3)} PSC
-              </div>
-              <div className="flex items-center text-sm text-green-600">
-                <ArrowUpRight className="h-3 w-3 mr-1" />+
-                {balanceTrend.toFixed(1)}% {t("balance.vsYesterday")}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                {t("balance.todayEarnings")}
-              </h3>
-              <Calendar className="h-4 w-4 text-blue-500" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-1">
-              <div className="text-2xl font-bold">
-                {todayEarned.toFixed(3)} PSC
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {t("balance.recentActivity")}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Current Payout Rates */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="text-lg font-semibold">{t("rates.title")}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t("rates.description")}
-              </p>
-            </div>
-            <BarChart3 className="h-5 w-5 text-blue-500" />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {[
-              {
-                icon: Eye,
-                label: t("rates.views"),
-                rate: rates.viewRate,
-                bgClass:
-                  "bg-gradient-to-r from-blue-500/10 to-admin-secondary/10 border-blue-200 text-foreground",
-                iconClass: "text-blue-600",
-                textClass: "text-blue-700",
-              },
-              {
-                icon: Heart,
-                label: t("rates.likes"),
-                rate: rates.likeRate,
-                bgClass:
-                  "bg-gradient-to-r from-red-500/10 to-admin-secondary/10 border-red-200 text-foreground",
-                iconClass: "text-red-600",
-                textClass: "text-red-700",
-              },
-              {
-                icon: MessageCircle,
-                label: t("rates.comments"),
-                rate: rates.commentRate,
-                bgClass:
-                  "bg-gradient-to-r from-green-500/10 to-admin-secondary/10 border-green-200 text-foreground",
-                iconClass: "text-green-600",
-                textClass: "text-green-700",
-              },
-              {
-                icon: Bookmark,
-                label: t("rates.bookmarks"),
-                rate: rates.bookmarkRate,
-                bgClass:
-                  "bg-gradient-to-r from-purple-500/10 to-admin-secondary/10 border-purple-200 text-foreground",
-                iconClass: "text-purple-600",
-                textClass: "text-purple-700",
-              },
-              {
-                icon: User,
-                label: t("rates.profileViews"),
-                rate: rates.profileViewRate,
-                bgClass:
-                  "bg-gradient-to-r from-orange-500/10 to-admin-secondary/10 border-orange-200 text-foreground",
-                iconClass: "text-orange-600",
-                textClass: "text-orange-700",
-              },
-            ].map((item, index) => (
-              <div
-                key={index}
-                className={`p-4 border rounded-lg ${item.bgClass}`}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <item.icon className={`h-4 w-4 ${item.iconClass}`} />
-                  <span className="text-sm font-medium">{item.label}</span>
-                </div>
-                <div className={`text-lg font-bold ${item.textClass}`}>
-                  {item.rate.toFixed(4)} PSC
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {t("rates.perAction")}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Weekly Payout Rates Chart */}
-      {/* <Card>
+        {/* Weekly Payout Rates Chart */}
+        {/* <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="space-y-1">
@@ -556,82 +561,82 @@ export default function PornSpotCoinPage() {
         </CardContent>
       </Card> */}
 
-      {/* Exchange Rates */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="text-lg font-semibold">{t("exchange.title")}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t("exchange.description")}
-              </p>
-            </div>
-            <DollarSign className="h-5 w-5 text-green-500" />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Object.entries(exchangeRates).map(([plan, details]) => {
-              const canAfford = balance.balance >= details.cost;
-              return (
-                <div
-                  key={plan}
-                  className={`p-4 border rounded-lg transition-colors ${
-                    canAfford
-                      ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
-                      : "border-border bg-card"
-                  }`}
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-semibold capitalize">
-                        {t(`exchange.plans.${plan}`)}
-                      </h4>
-                      {canAfford && (
-                        <Badge
-                          variant="outline"
-                          className="text-green-600 border-green-600"
-                        >
-                          {t("exchange.affordable")}
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="text-2xl font-bold text-yellow-600">
-                      {details.cost} PSC
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {plan === "lifetime"
-                        ? t("exchange.duration.lifetime")
-                        : t("exchange.duration.month")}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant={canAfford ? "default" : "outline"}
-                      disabled={!canAfford}
-                      className="w-full"
-                    >
-                      {canAfford
-                        ? t("exchange.purchase")
-                        : t("exchange.insufficientPsc")}
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Performance Insights & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Performance Insights */}
+        {/* Exchange Rates */}
         <Card>
           <CardHeader>
-            <h3 className="text-lg font-semibold">{t("insights.title")}</h3>
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold">{t("exchange.title")}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {t("exchange.description")}
+                </p>
+              </div>
+              <DollarSign className="h-5 w-5 text-green-500" />
+            </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              {/* <div className="flex justify-between items-center">
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Object.entries(exchangeRates).map(([plan, details]) => {
+                const canAfford = balance.balance >= details.cost;
+                return (
+                  <div
+                    key={plan}
+                    className={`p-4 border rounded-lg transition-colors ${
+                      canAfford
+                        ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
+                        : "border-border bg-card"
+                    }`}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-semibold capitalize">
+                          {t(`exchange.plans.${plan}`)}
+                        </h4>
+                        {canAfford && (
+                          <Badge
+                            variant="outline"
+                            className="text-green-600 border-green-600"
+                          >
+                            {t("exchange.affordable")}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="text-2xl font-bold text-yellow-600">
+                        {details.cost} PSC
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {plan === "lifetime"
+                          ? t("exchange.duration.lifetime")
+                          : t("exchange.duration.month")}
+                      </div>
+                      <Button
+                        size="sm"
+                        variant={canAfford ? "default" : "outline"}
+                        disabled={!canAfford}
+                        className="w-full"
+                      >
+                        {canAfford
+                          ? t("exchange.purchase")
+                          : t("exchange.insufficientPsc")}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Performance Insights & Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Performance Insights */}
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-semibold">{t("insights.title")}</h3>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                {/* <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">
                   Weekly Total Interactions
                 </span>
@@ -647,97 +652,99 @@ export default function PornSpotCoinPage() {
                   {weeklyTotalViews.toLocaleString()}
                 </span>
               </div> */}
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">
-                  {t("insights.weeklyPayoutGrowth")}
-                </span>
-                <span
-                  className={`font-semibold ${
-                    weeklyPayoutGrowth >= 0 ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {weeklyPayoutGrowth > 0 ? "+" : ""}
-                  {weeklyPayoutGrowth.toFixed(1)}%
-                </span>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    {t("insights.weeklyPayoutGrowth")}
+                  </span>
+                  <span
+                    className={`font-semibold ${
+                      weeklyPayoutGrowth >= 0
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {weeklyPayoutGrowth > 0 ? "+" : ""}
+                    {weeklyPayoutGrowth.toFixed(1)}%
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <div className="pt-4 border-t border-border">
-              <div className="space-y-2">
-                <h4 className="font-medium">{t("insights.earningTips")}</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• {t("insights.tip1")}</li>
-                  <li>• {t("insights.tip2")}</li>
-                  <li>• {t("insights.tip3")}</li>
-                </ul>
+              <div className="pt-4 border-t border-border">
+                <div className="space-y-2">
+                  <h4 className="font-medium">{t("insights.earningTips")}</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• {t("insights.tip1")}</li>
+                    <li>• {t("insights.tip2")}</li>
+                    <li>• {t("insights.tip3")}</li>
+                  </ul>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Recent Transactions */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">
-                {t("transactions.title")}
-              </h3>
-              <LocaleLink href="/user/pornspotcoin/transactions">
-                <Button variant="outline" size="sm">
-                  {t("transactions.viewAll")}
-                </Button>
-              </LocaleLink>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recentTransactions.slice(0, 5).map((tx) => (
-                <div
-                  key={tx.transactionId}
-                  className="flex items-center justify-between p-3 border border-border rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-100 dark:bg-green-900 rounded-full">
-                      {tx.transactionType.includes("like") && (
-                        <Heart className="h-3 w-3 text-green-600" />
-                      )}
-                      {tx.transactionType.includes("view") && (
-                        <Eye className="h-3 w-3 text-green-600" />
-                      )}
-                      {tx.transactionType.includes("comment") && (
-                        <MessageCircle className="h-3 w-3 text-green-600" />
-                      )}
-                      {tx.transactionType.includes("bookmark") && (
-                        <Bookmark className="h-3 w-3 text-green-600" />
-                      )}
-                      {tx.transactionType.includes("profileView") && (
-                        <User className="h-3 w-3 text-green-600" />
-                      )}
+          {/* Recent Transactions */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">
+                  {t("transactions.title")}
+                </h3>
+                <LocaleLink href="/user/pornspotcoin/transactions">
+                  <Button variant="outline" size="sm">
+                    {t("transactions.viewAll")}
+                  </Button>
+                </LocaleLink>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {recentTransactions.slice(0, 5).map((tx) => (
+                  <div
+                    key={tx.transactionId}
+                    className="flex items-center justify-between p-3 border border-border rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-100 dark:bg-green-900 rounded-full">
+                        {tx.transactionType.includes("like") && (
+                          <Heart className="h-3 w-3 text-green-600" />
+                        )}
+                        {tx.transactionType.includes("view") && (
+                          <Eye className="h-3 w-3 text-green-600" />
+                        )}
+                        {tx.transactionType.includes("comment") && (
+                          <MessageCircle className="h-3 w-3 text-green-600" />
+                        )}
+                        {tx.transactionType.includes("bookmark") && (
+                          <Bookmark className="h-3 w-3 text-green-600" />
+                        )}
+                        {tx.transactionType.includes("profileView") && (
+                          <User className="h-3 w-3 text-green-600" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium">
+                          {tx.description}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {new Date(tx.createdAt).toLocaleTimeString()}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-sm font-medium">
-                        {tx.description}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {new Date(tx.createdAt).toLocaleTimeString()}
-                      </div>
+                    <div className="text-sm font-bold text-green-600">
+                      +{tx.amount.toFixed(4)} PSC
                     </div>
                   </div>
-                  <div className="text-sm font-bold text-green-600">
-                    +{tx.amount.toFixed(4)} PSC
+                ))}
+                {recentTransactions.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    {t("transactions.noTransactions")}
                   </div>
-                </div>
-              ))}
-              {recentTransactions.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  {t("transactions.noTransactions")}
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
     </>
   );
 }

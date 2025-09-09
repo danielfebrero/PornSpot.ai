@@ -1982,6 +1982,53 @@
       "meta": {
         "title": "PornSpotCoin 交易 - {siteName}",
         "description": "查看您的PornSpotCoin余额并跟踪所有交易"
+      },
+      "page": {
+        "title": "交易历史",
+        "description": "查看您所有的PornSpotCoin交易和收益",
+        "backToPornSpotCoin": "返回PornSpotCoin",
+        "loadingMore": "正在加载更多交易...",
+        "loadMore": "加载更多",
+        "tryAgain": "重试",
+        "errorLoading": "加载交易时出错：",
+        "unknownError": "未知错误"
+      },
+      "summary": {
+        "totalEarned": "总收益",
+        "totalTransactions": "总交易数",
+        "avgPerTransaction": "每笔交易平均值",
+        "completed": "已完成"
+      },
+      "filters": {
+        "title": "筛选器",
+        "clear": "清除",
+        "transactionType": "交易类型",
+        "status": "状态",
+        "fromDate": "开始日期",
+        "toDate": "结束日期",
+        "allTypes": "所有类型",
+        "allStatuses": "所有状态"
+      },
+      "status": {
+        "completed": "已完成",
+        "pending": "待处理",
+        "failed": "失败",
+        "cancelled": "已取消"
+      },
+      "types": {
+        "reward_view": "查看",
+        "reward_like": "点赞",
+        "reward_comment": "评论",
+        "reward_bookmark": "书签",
+        "reward_profile_view": "个人资料查看"
+      },
+      "list": {
+        "transactionsCount": "交易 ({count})",
+        "rate": "费率：",
+        "noTransactionsFound": "未找到交易",
+        "noTransactionsWithFilters": "尝试调整您的筛选器以查看更多交易。",
+        "noTransactionsGeneral": "开始与内容互动以赚取PornSpotCoin！",
+        "clearFilters": "清除筛选器"
       }
     },
     "meta": {

@@ -1981,6 +1981,53 @@
       "meta": {
         "title": "PornSpotCoin Transaktionen - {siteName}",
         "description": "Verwalten Sie Ihr PornSpotCoin-Guthaben und verfolgen Sie alle Ihre Transaktionen"
+      },
+      "page": {
+        "title": "Transaktionsverlauf",
+        "description": "Alle Ihre PornSpotCoin-Transaktionen und Einnahmen anzeigen",
+        "backToPornSpotCoin": "Zurück zu PornSpotCoin",
+        "loadingMore": "Weitere Transaktionen laden...",
+        "loadMore": "Mehr laden",
+        "tryAgain": "Erneut versuchen",
+        "errorLoading": "Fehler beim Laden der Transaktionen:",
+        "unknownError": "Unbekannter Fehler"
+      },
+      "summary": {
+        "totalEarned": "Gesamt verdient",
+        "totalTransactions": "Gesamttransaktionen",
+        "avgPerTransaction": "Durchschnitt pro Transaktion",
+        "completed": "Abgeschlossen"
+      },
+      "filters": {
+        "title": "Filter",
+        "clear": "Löschen",
+        "transactionType": "Transaktionstyp",
+        "status": "Status",
+        "fromDate": "Von Datum",
+        "toDate": "Bis Datum",
+        "allTypes": "Alle Typen",
+        "allStatuses": "Alle Status"
+      },
+      "status": {
+        "completed": "Abgeschlossen",
+        "pending": "Ausstehend",
+        "failed": "Fehlgeschlagen",
+        "cancelled": "Storniert"
+      },
+      "types": {
+        "reward_view": "Ansicht",
+        "reward_like": "Like",
+        "reward_comment": "Kommentar",
+        "reward_bookmark": "Lesezeichen",
+        "reward_profile_view": "Profilansicht"
+      },
+      "list": {
+        "transactionsCount": "Transaktionen ({count})",
+        "rate": "Rate:",
+        "noTransactionsFound": "Keine Transaktionen gefunden",
+        "noTransactionsWithFilters": "Passen Sie Ihre Filter an, um weitere Transaktionen zu sehen.",
+        "noTransactionsGeneral": "Beginnen Sie mit der Interaktion mit Inhalten, um PornSpotCoin zu verdienen!",
+        "clearFilters": "Filter löschen"
       }
     }
   }

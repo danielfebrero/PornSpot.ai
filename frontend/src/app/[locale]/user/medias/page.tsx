@@ -308,140 +308,199 @@ const UserMediasPage: React.FC = () => {
         <meta name="description" content={t("meta.description")} />
       </Head>
       <div className="space-y-6">
-      {/* Header */}
-      <div
-        className={`${
-          isSelecting
-            ? "sticky top-0 z-50 bg-background/60 backdrop-blur-lg border-border/50 shadow-2xl rounded-none border-x-0 border-t-0 border-b overflow-hidden"
-            : "bg-gradient-to-r from-admin-accent/10 to-admin-primary/10 rounded-xl border border-admin-accent/20 shadow-lg"
-        } p-6 transition-all duration-300 ${
-          isSelecting
-            ? "md:min-h-[80px] min-h-[70px]"
-            : "md:min-h-[140px] min-h-[120px]"
-        }`}
-      >
-        {isSelecting ? (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="bg-admin-accent/20 text-admin-accent text-sm font-bold px-3 py-1.5 rounded-lg border border-admin-accent/30 shadow-sm">
-                {selectedMedias.size}/{MAX_BULK_SELECTION}
+        {/* Header */}
+        <div
+          className={`${
+            isSelecting
+              ? "sticky top-0 z-50 bg-background/60 backdrop-blur-lg border-border/50 shadow-2xl rounded-none border-x-0 border-t-0 border-b overflow-hidden"
+              : "bg-gradient-to-r from-admin-accent/10 to-admin-primary/10 rounded-xl border border-admin-accent/20 shadow-lg"
+          } p-6 transition-all duration-300 ${
+            isSelecting
+              ? "md:min-h-[80px] min-h-[70px]"
+              : "md:min-h-[140px] min-h-[120px]"
+          }`}
+        >
+          {isSelecting ? (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="bg-admin-accent/20 text-admin-accent text-sm font-bold px-3 py-1.5 rounded-lg border border-admin-accent/30 shadow-sm">
+                  {selectedMedias.size}/{MAX_BULK_SELECTION}
+                </div>
+                <button
+                  onClick={() => {
+                    // Check if we're on mobile (touch device)
+                    if (isMobile) {
+                      handleMobileActionTap("addToAlbum", handleAddToAlbum);
+                    } else {
+                      handleAddToAlbum();
+                    }
+                  }}
+                  className={`group p-3 rounded-lg bg-admin-accent/20 text-admin-accent hover:bg-admin-accent/30 focus:bg-admin-accent/30 focus:outline-none transition-all flex items-center border border-admin-accent/30 shadow-sm overflow-hidden ${
+                    mobileExpandedAction === "addToAlbum"
+                      ? "bg-admin-accent/30"
+                      : ""
+                  }`}
+                >
+                  <Plus className="h-4 w-4 flex-shrink-0" />
+                  <span
+                    className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm font-medium whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20 ${
+                      mobileExpandedAction === "addToAlbum"
+                        ? "opacity-100 ml-2 max-w-20"
+                        : ""
+                    }`}
+                  >
+                    Album
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (isMobile) {
+                      handleMobileActionTap("download", handleDownload);
+                    } else {
+                      handleDownload();
+                    }
+                  }}
+                  disabled={downloadMediaZip.isPending}
+                  className={`group p-3 rounded-lg bg-background/80 text-foreground hover:bg-background/90 focus:bg-background/90 focus:outline-none transition-all flex items-center border border-border/50 shadow-sm overflow-hidden ${
+                    mobileExpandedAction === "download"
+                      ? "bg-background/90"
+                      : ""
+                  } ${
+                    downloadMediaZip.isPending
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
+                >
+                  {downloadMediaZip.isPending ? (
+                    <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4 flex-shrink-0" />
+                  )}
+                  <span
+                    className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm font-medium whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-24 group-focus:max-w-24 ${
+                      mobileExpandedAction === "download"
+                        ? "opacity-100 ml-2 max-w-24"
+                        : ""
+                    }`}
+                  >
+                    Download
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (isMobile) {
+                      handleMobileActionTap("delete", handleDelete);
+                    } else {
+                      handleDelete();
+                    }
+                  }}
+                  className={`group p-3 rounded-lg bg-red-500/20 text-red-500 hover:bg-red-500/30 focus:bg-red-500/30 focus:outline-none transition-all flex items-center border border-red-500/30 shadow-sm overflow-hidden ${
+                    mobileExpandedAction === "delete" ? "bg-red-500/30" : ""
+                  }`}
+                >
+                  <Trash2 className="h-4 w-4 flex-shrink-0" />
+                  <span
+                    className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm font-medium whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20 ${
+                      mobileExpandedAction === "delete"
+                        ? "opacity-100 ml-2 max-w-20"
+                        : ""
+                    }`}
+                  >
+                    Delete
+                  </span>
+                </button>
               </div>
               <button
-                onClick={() => {
-                  // Check if we're on mobile (touch device)
-                  if (isMobile) {
-                    handleMobileActionTap("addToAlbum", handleAddToAlbum);
-                  } else {
-                    handleAddToAlbum();
-                  }
-                }}
-                className={`group p-3 rounded-lg bg-admin-accent/20 text-admin-accent hover:bg-admin-accent/30 focus:bg-admin-accent/30 focus:outline-none transition-all flex items-center border border-admin-accent/30 shadow-sm overflow-hidden ${
-                  mobileExpandedAction === "addToAlbum"
-                    ? "bg-admin-accent/30"
-                    : ""
-                }`}
+                onClick={handleCancelSelection}
+                className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors border border-border/50 bg-background/50"
+                aria-label="Cancel selection"
               >
-                <Plus className="h-4 w-4 flex-shrink-0" />
-                <span
-                  className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm font-medium whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20 ${
-                    mobileExpandedAction === "addToAlbum"
-                      ? "opacity-100 ml-2 max-w-20"
-                      : ""
-                  }`}
-                >
-                  Album
-                </span>
-              </button>
-              <button
-                onClick={() => {
-                  if (isMobile) {
-                    handleMobileActionTap("download", handleDownload);
-                  } else {
-                    handleDownload();
-                  }
-                }}
-                disabled={downloadMediaZip.isPending}
-                className={`group p-3 rounded-lg bg-background/80 text-foreground hover:bg-background/90 focus:bg-background/90 focus:outline-none transition-all flex items-center border border-border/50 shadow-sm overflow-hidden ${
-                  mobileExpandedAction === "download" ? "bg-background/90" : ""
-                } ${
-                  downloadMediaZip.isPending
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
-              >
-                {downloadMediaZip.isPending ? (
-                  <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin" />
-                ) : (
-                  <Download className="h-4 w-4 flex-shrink-0" />
-                )}
-                <span
-                  className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm font-medium whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-24 group-focus:max-w-24 ${
-                    mobileExpandedAction === "download"
-                      ? "opacity-100 ml-2 max-w-24"
-                      : ""
-                  }`}
-                >
-                  Download
-                </span>
-              </button>
-              <button
-                onClick={() => {
-                  if (isMobile) {
-                    handleMobileActionTap("delete", handleDelete);
-                  } else {
-                    handleDelete();
-                  }
-                }}
-                className={`group p-3 rounded-lg bg-red-500/20 text-red-500 hover:bg-red-500/30 focus:bg-red-500/30 focus:outline-none transition-all flex items-center border border-red-500/30 shadow-sm overflow-hidden ${
-                  mobileExpandedAction === "delete" ? "bg-red-500/30" : ""
-                }`}
-              >
-                <Trash2 className="h-4 w-4 flex-shrink-0" />
-                <span
-                  className={`opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 text-sm font-medium whitespace-nowrap ml-0 group-hover:ml-2 group-focus:ml-2 max-w-0 group-hover:max-w-20 group-focus:max-w-20 ${
-                    mobileExpandedAction === "delete"
-                      ? "opacity-100 ml-2 max-w-20"
-                      : ""
-                  }`}
-                >
-                  Delete
-                </span>
+                <X className="h-5 w-5" />
               </button>
             </div>
-            <button
-              onClick={handleCancelSelection}
-              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors border border-border/50 bg-background/50"
-              aria-label="Cancel selection"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-        ) : (
-          <>
-            {/* Mobile Layout */}
-            <div className="block sm:hidden space-y-4">
-              <div className="flex items-center justify-between">
+          ) : (
+            <>
+              {/* Mobile Layout */}
+              <div className="block sm:hidden space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-admin-accent to-admin-primary rounded-lg flex items-center justify-center">
+                      <ImageIcon className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl font-bold text-foreground">
+                        {t("medias")}
+                      </h1>
+                      <p className="text-sm text-muted-foreground">
+                        {t("personalMediaGallery")}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
+                    {t("mediasCount", {
+                      count: totalCount,
+                      hasNextPage: hasNextPage ? 1 : 0,
+                    })}
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <ShareDropdown
+                      trigger={({ toggle }) => (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={toggle}
+                          className="h-10 px-2 bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      )}
+                    >
+                      {({ close }) => (
+                        <button
+                          onClick={() => {
+                            handleSelectMany();
+                            close();
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
+                        >
+                          <span>{t("selectMany")}</span>
+                        </button>
+                      )}
+                    </ShareDropdown>
+                    <LocaleLink href="/generate">
+                      <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
+                        <Plus className="h-4 w-4" />
+                        <span>{t("generate")}</span>
+                      </Button>
+                    </LocaleLink>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop Layout */}
+              <div className="hidden sm:flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-admin-accent to-admin-primary rounded-lg flex items-center justify-center">
                     <ImageIcon className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold text-foreground">
+                    <h1 className="text-3xl font-bold text-foreground">
                       {t("medias")}
                     </h1>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground">
                       {t("personalMediaGallery")}
                     </p>
                   </div>
+                  <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
+                    {t("mediasCount", {
+                      count: totalCount,
+                      hasNextPage: hasNextPage ? 1 : 0,
+                    })}
+                  </span>
                 </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
-                  {t("mediasCount", {
-                    count: totalCount,
-                    hasNextPage: hasNextPage ? 1 : 0,
-                  })}
-                </span>
+
                 <div className="flex items-center space-x-2">
                   <ShareDropdown
                     trigger={({ toggle }) => (
@@ -470,202 +529,145 @@ const UserMediasPage: React.FC = () => {
                   <LocaleLink href="/generate">
                     <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
                       <Plus className="h-4 w-4" />
-                      <span>{t("generate")}</span>
+                      <span>{t("generateMedia")}</span>
                     </Button>
                   </LocaleLink>
+                  <Button
+                    variant={viewMode === "grid" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("grid")}
+                    className={
+                      viewMode === "grid"
+                        ? "bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90"
+                        : ""
+                    }
+                  >
+                    <Grid className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === "list" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("list")}
+                    className={
+                      viewMode === "list"
+                        ? "bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90"
+                        : ""
+                    }
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
-            </div>
+            </>
+          )}
+        </div>
 
-            {/* Desktop Layout */}
-            <div className="hidden sm:flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-admin-accent to-admin-primary rounded-lg flex items-center justify-center">
-                  <ImageIcon className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-foreground">
-                    {t("medias")}
-                  </h1>
-                  <p className="text-muted-foreground">
-                    {t("personalMediaGallery")}
-                  </p>
-                </div>
-                <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
-                  {t("mediasCount", {
-                    count: totalCount,
-                    hasNextPage: hasNextPage ? 1 : 0,
-                  })}
-                </span>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <ShareDropdown
-                  trigger={({ toggle }) => (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={toggle}
-                      className="h-10 px-2 bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg"
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  )}
-                >
-                  {({ close }) => (
-                    <button
-                      onClick={() => {
-                        handleSelectMany();
-                        close();
-                      }}
-                      className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
-                    >
-                      <span>{t("selectMany")}</span>
-                    </button>
-                  )}
-                </ShareDropdown>
+        {/* Content */}
+        {medias.length > 0 ? (
+          <VirtualizedGrid
+            items={medias}
+            viewMode={viewMode}
+            isLoading={isLoading}
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            onLoadMore={loadMore}
+            scrollRestorationKey="user-medias-grid"
+            isSelecting={isSelecting}
+            selectedItems={selectedMedias}
+            onToggleSelection={handleToggleSelection}
+            contentCardProps={{
+              canLike: true,
+              canBookmark: true,
+              canFullscreen: true,
+              canAddToAlbum: true,
+              canDownload: true,
+              canDelete: true,
+              showCounts: true,
+              showTags: false,
+              customActions: getCustomActions,
+              preferredThumbnailSize:
+                viewMode === "grid" ? undefined : "originalSize",
+              inActions: {
+                addToAlbum: true,
+                removeFromAlbum: true,
+                download: true,
+                delete: true,
+              },
+            }}
+            mediaList={medias}
+            emptyState={{
+              icon: (
+                <ImageIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              ),
+              title: t("noMediaYet"),
+              description: t("startCreatingMedia"),
+              action: (
                 <LocaleLink href="/generate">
-                  <Button className="bg-gradient-to-r from-admin-accent to-admin-primary hover:from-admin-accent/90 hover:to-admin-primary/90 text-admin-accent-foreground shadow-lg flex items-center space-x-2">
+                  <Button className="flex items-center space-x-2">
                     <Plus className="h-4 w-4" />
                     <span>{t("generateMedia")}</span>
                   </Button>
                 </LocaleLink>
-                <Button
-                  variant={viewMode === "grid" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode("grid")}
-                  className={
-                    viewMode === "grid"
-                      ? "bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90"
-                      : ""
-                  }
-                >
-                  <Grid className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === "list" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode("list")}
-                  className={
-                    viewMode === "list"
-                      ? "bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90"
-                      : ""
-                  }
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Content */}
-      {medias.length > 0 ? (
-        <VirtualizedGrid
-          items={medias}
-          viewMode={viewMode}
-          isLoading={isLoading}
-          hasNextPage={hasNextPage}
-          isFetchingNextPage={isFetchingNextPage}
-          onLoadMore={loadMore}
-          scrollRestorationKey="user-medias-grid"
-          isSelecting={isSelecting}
-          selectedItems={selectedMedias}
-          onToggleSelection={handleToggleSelection}
-          contentCardProps={{
-            canLike: true,
-            canBookmark: true,
-            canFullscreen: true,
-            canAddToAlbum: true,
-            canDownload: true,
-            canDelete: true,
-            showCounts: true,
-            showTags: false,
-            customActions: getCustomActions,
-            preferredThumbnailSize:
-              viewMode === "grid" ? undefined : "originalSize",
-            inActions: {
-              addToAlbum: true,
-              removeFromAlbum: true,
-              download: true,
-              delete: true,
-            },
-          }}
-          mediaList={medias}
-          emptyState={{
-            icon: (
-              <ImageIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            ),
-            title: t("noMediaYet"),
-            description: t("startCreatingMedia"),
-            action: (
+              ),
+            }}
+            loadingState={{
+              loadingText: t("loadingMoreMedia"),
+              noMoreText: t("noMoreMediaToLoad"),
+            }}
+          />
+        ) : (
+          <div className="bg-card/80 backdrop-blur-sm rounded-xl shadow-lg border border-admin-primary/10 p-12 text-center">
+            <ImageIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
+              {t("noMediaYet")}
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              {t("startCreatingMedia")}
+            </p>
+            <div className="flex justify-center space-x-4">
               <LocaleLink href="/generate">
                 <Button className="flex items-center space-x-2">
                   <Plus className="h-4 w-4" />
                   <span>{t("generateMedia")}</span>
                 </Button>
               </LocaleLink>
-            ),
-          }}
-          loadingState={{
-            loadingText: t("loadingMoreMedia"),
-            noMoreText: t("noMoreMediaToLoad"),
-          }}
-        />
-      ) : (
-        <div className="bg-card/80 backdrop-blur-sm rounded-xl shadow-lg border border-admin-primary/10 p-12 text-center">
-          <ImageIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">
-            {t("noMediaYet")}
-          </h3>
-          <p className="text-muted-foreground mb-6">
-            {t("startCreatingMedia")}
-          </p>
-          <div className="flex justify-center space-x-4">
-            <LocaleLink href="/generate">
-              <Button className="flex items-center space-x-2">
-                <Plus className="h-4 w-4" />
-                <span>{t("generateMedia")}</span>
-              </Button>
-            </LocaleLink>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Edit Title Dialog */}
-      {editingMedia && (
-        <EditTitleDialog
-          isOpen={!!editingMedia}
-          onClose={() => setEditingMedia(null)}
-          onConfirm={handleConfirmTitleEdit}
-          currentTitle={editingMedia.originalFilename || ""}
-          loading={updateMedia.isPending}
+        {/* Edit Title Dialog */}
+        {editingMedia && (
+          <EditTitleDialog
+            isOpen={!!editingMedia}
+            onClose={() => setEditingMedia(null)}
+            onConfirm={handleConfirmTitleEdit}
+            currentTitle={editingMedia.originalFilename || ""}
+            loading={updateMedia.isPending}
+          />
+        )}
+
+        {/* Add to Album Dialog */}
+        {showAddToAlbumDialog && selectedMediaObjects.length > 0 && (
+          <AddToAlbumDialog
+            isOpen={showAddToAlbumDialog}
+            onClose={handleCloseAddToAlbumDialog}
+            media={selectedMediaObjects}
+          />
+        )}
+
+        {/* Delete Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={showDeleteConfirmDialog}
+          onClose={() => setShowDeleteConfirmDialog(false)}
+          onConfirm={handleConfirmDelete}
+          title={t("confirmDeleteTitle")}
+          message={t("confirmDeleteMessage", { count: selectedMedias.size })}
+          confirmText={t("delete")}
+          cancelText={t("cancel")}
+          confirmVariant="danger"
+          loading={bulkDeleteMedia.isPending}
         />
-      )}
-
-      {/* Add to Album Dialog */}
-      {showAddToAlbumDialog && selectedMediaObjects.length > 0 && (
-        <AddToAlbumDialog
-          isOpen={showAddToAlbumDialog}
-          onClose={handleCloseAddToAlbumDialog}
-          media={selectedMediaObjects}
-        />
-      )}
-
-      {/* Delete Confirmation Dialog */}
-      <ConfirmDialog
-        isOpen={showDeleteConfirmDialog}
-        onClose={() => setShowDeleteConfirmDialog(false)}
-        onConfirm={handleConfirmDelete}
-        title={t("confirmDeleteTitle")}
-        message={t("confirmDeleteMessage", { count: selectedMedias.size })}
-        confirmText={t("delete")}
-        cancelText={t("cancel")}
-        confirmVariant="danger"
-        loading={bulkDeleteMedia.isPending}
-      />
-    </div>
+      </div>
     </>
   );
 };
