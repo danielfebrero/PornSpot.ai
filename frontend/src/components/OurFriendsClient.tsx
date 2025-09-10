@@ -32,7 +32,7 @@ export function OurFriendsClient() {
       title: "Build Your Own Female (BYOF)",
       url: "https://byof.app",
       description: t("friends.byof.description"),
-      logo: "/our-friends/byof.avif",
+      logo: "/our-friends/byof.png",
     },
   ];
 
