@@ -141,7 +141,7 @@ export default async function LocaleLayout({
                                   </MainContentWrapper>
                                 </SectionErrorBoundary>
                                 <SectionErrorBoundary context="Footer">
-                                  <footer className="border-t border-border mt-16 pb-[55px] lg:pb-0">
+                                  <footer className="border-t border-border mt-16 pb-[55px] lg:pb-0 text-sm">
                                     <div className="container mx-auto py-4">
                                       <div className="text-center">
                                         <p className="text-muted-foreground">
@@ -149,10 +149,18 @@ export default async function LocaleLayout({
                                           reserved.{" "}
                                           <LocaleLink
                                             href="/terms"
-                                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                            className="text-muted-foreground hover:text-foreground transition-colors"
                                           >
                                             {t("terms")}
                                           </LocaleLink>
+                                          .{" "}
+                                          <LocaleLink
+                                            href="/our-friends"
+                                            className="text-muted-foreground hover:text-foreground transition-colors"
+                                          >
+                                            {t("ourFriends")}
+                                          </LocaleLink>
+                                          .
                                         </p>
                                       </div>
                                     </div>

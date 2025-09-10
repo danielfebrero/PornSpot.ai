@@ -577,6 +577,7 @@
     "about": "关于",
     "contact": "联系",
     "terms": "服务条款",
+    "ourFriends": "我们的朋友",
     "privacy": "隐私政策",
     "copyright": "版权",
     "allRightsReserved": "版权所有",
@@ -2035,5 +2036,20 @@
       "title": "PornSpotCoin - {siteName}",
       "description": "管理您的PornSpotCoin余额并跟踪收入"
     }
+  },
+  "ourFriends": {
+    "metaTitle": "我们的朋友 - {siteName}",
+    "metaDescription": "探索我们推荐的合作伙伴平台和成人内容生成和娱乐服务。",
+    "title": "我们的朋友",
+    "subtitle": "探索我们值得信赖的合作伙伴，发现与我们一样致力于优质成人内容的精彩平台。",
+    "friends": {
+      "fabularius": {
+        "description": "在Fabularius上创建NSFW角色、生成图像、编写故事和玩游戏！"
+      },
+      "slykiwi": {
+        "description": "Fansly创作者使用我们的标签分析来增加观看次数、覆盖面和小费"
+      }
+    },
+    "additionalInfo": "这些是我们推荐和信任的平台。某些链接可能包含帮助支持我们平台的推荐代码。"
   }
 }

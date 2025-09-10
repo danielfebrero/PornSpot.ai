@@ -578,6 +578,7 @@
     "about": "About",
     "contact": "Contact",
     "terms": "Terms of Service",
+    "ourFriends": "Our Friends",
     "privacy": "Privacy Policy",
     "copyright": "Copyright",
     "allRightsReserved": "All rights reserved",
@@ -2079,5 +2080,20 @@
         "clearFilters": "Clear Filters"
       }
     }
+  },
+  "ourFriends": {
+    "metaTitle": "Our Friends - {siteName}",
+    "metaDescription": "Discover our recommended partner platforms and services for adult content generation and entertainment.",
+    "title": "Our Friends",
+    "subtitle": "Explore our trusted partners and discover amazing platforms that share our commitment to quality adult content.",
+    "friends": {
+      "fabularius": {
+        "description": "Create NSFW characters, generate images, make stories and play games on Fabularius!"
+      },
+      "slykiwi": {
+        "description": "Fansly creators use our tag analytics to increase views, reach, and tips"
+      }
+    },
+    "additionalInfo": "These are platforms we recommend and trust. Some links may contain affiliate codes that help support our platform."
   }
 }

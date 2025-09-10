@@ -577,6 +577,7 @@
     "about": "Über uns",
     "contact": "Kontakt",
     "terms": "Nutzungsbedingungen",
+    "ourFriends": "Unsere Freunde",
     "privacy": "Datenschutzrichtlinie",
     "copyright": "Urheberrecht",
     "allRightsReserved": "Alle Rechte vorbehalten",
@@ -2030,5 +2031,20 @@
         "clearFilters": "Filter löschen"
       }
     }
+  },
+  "ourFriends": {
+    "metaTitle": "Unsere Freunde - {siteName}",
+    "metaDescription": "Entdecken Sie unsere empfohlenen Partnerplattformen und Services für die Generierung von Adult-Content und Unterhaltung.",
+    "title": "Unsere Freunde",
+    "subtitle": "Erkunden Sie unsere vertrauenswürdigen Partner und entdecken Sie großartige Plattformen, die unser Engagement für hochwertigen Adult-Content teilen.",
+    "friends": {
+      "fabularius": {
+        "description": "Erstellen Sie NSFW-Charaktere, generieren Sie Bilder, erstellen Sie Geschichten und spielen Sie Spiele auf Fabularius!"
+      },
+      "slykiwi": {
+        "description": "Fansly-Ersteller nutzen unsere Tag-Analysen, um Aufrufe, Reichweite und Trinkgelder zu steigern"
+      }
+    },
+    "additionalInfo": "Diese Plattformen empfehlen und vertrauen wir. Einige Links können Affiliate-Codes enthalten, die unsere Plattform unterstützen."
   }
 }
