@@ -16,14 +16,14 @@ export function OurFriendsClient() {
   // Friends list - can be expanded in the future
   const friends: FriendLink[] = [
     {
-      title: "Fabularius Chatbot",
-      url: "https://fabularius.ai/18",
-      description: t("friends.fabularius.description"),
-    },
-    {
       title: "SlyKiwi - Tag Analytics for Fansly",
       url: "https://slykiwi.com/",
       description: t("friends.slykiwi.description"),
+    },
+    {
+      title: "Fabularius Chatbot",
+      url: "https://fabularius.ai/18",
+      description: t("friends.fabularius.description"),
     },
   ];
 
