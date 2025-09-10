@@ -352,11 +352,13 @@ const handleGetDiscover = async (
 
     // Add content preview for each album
     const albumsWithPreview = await Promise.all(
-      tagBasedResult.albums.map(async (album) => ({
-        ...album,
-        contentPreview:
-          (await DynamoDBService.getContentPreviewForAlbum(album.id)) || null,
-      }))
+      tagBasedResult.albums
+        .filter((a) => a.mediaCount > 0)
+        .map(async (album) => ({
+          ...album,
+          contentPreview:
+            (await DynamoDBService.getContentPreviewForAlbum(album.id)) || null,
+        }))
     );
 
     // Build response for tag-based discovery
