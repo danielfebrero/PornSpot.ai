@@ -8,6 +8,7 @@ interface FriendLink {
   title: string;
   url: string;
   description: string;
+  logo: string;
 }
 
 export function OurFriendsClient() {
@@ -19,11 +20,13 @@ export function OurFriendsClient() {
       title: "SlyKiwi - Tag Analytics for Fansly",
       url: "https://slykiwi.com/",
       description: t("friends.slykiwi.description"),
+      logo: "/our-friends/slykiwi.webp",
     },
     {
       title: "Fabularius Chatbot",
       url: "https://fabularius.ai/18",
       description: t("friends.fabularius.description"),
+      logo: "/our-friends/fabularius.png",
     },
   ];
 
@@ -43,9 +46,13 @@ export function OurFriendsClient() {
           <Card key={index} className="hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
-                {/* Link Icon */}
-                <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <ExternalLink className="w-6 h-6 text-primary" />
+                {/* Friend Logo */}
+                <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center overflow-hidden">
+                  <img
+                    src={friend.logo}
+                    alt={`${friend.title} logo`}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
 
                 {/* Content */}
