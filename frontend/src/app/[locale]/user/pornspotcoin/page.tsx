@@ -424,7 +424,7 @@ export default function PornSpotCoinPage() {
                   {balance.totalEarned.toFixed(3)} PSC
                 </div>
                 <div className="flex items-center text-sm text-green-600">
-                  <ArrowUpRight className="h-3 w-3 mr-1" />+
+                  <ArrowUpRight className="h-3 w-3 mr-1" />
                   {balanceTrend.toFixed(1)}% {t("balance.vsYesterday")}
                 </div>
               </div>
