@@ -28,6 +28,12 @@ export function OurFriendsClient() {
       description: t("friends.fabularius.description"),
       logo: "/our-friends/fabularius.png",
     },
+    {
+      title: "Build Your Own Female (BYOF)",
+      url: "https://byof.app",
+      description: t("friends.byof.description"),
+      logo: "/our-friends/byof.avif",
+    },
   ];
 
   return (
