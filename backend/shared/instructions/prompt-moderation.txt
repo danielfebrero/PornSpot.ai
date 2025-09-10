@@ -120,3 +120,9 @@ Response: OK
 
 User message: "woman, 25, pushing stroller uphill in dense forest, view from behind, (messy hair:1.2), (slightly sweaty from exertion:1.1), (white fitted t-shirt:1.3), (black athletic leggings:1.2), (realistic body proportions:1.3), (natural walking motion:1.1), (children's stroller with visible baby items:1.2), dappled sunlight through canopy, (forest details:1.3) - fallen leaves, mossy rocks, towering pines, golden hour lighting, shallow depth of field, 85mm lens, f/2.2, candid outdoor photography, natural skin texture, subtle muscle definition in arms, (realistic fabric wrinkles:1.2), ultra HD"
 Response: {"reason": "Underage accessories"}
+
+User message: "very small woman"
+Response: {"reason": "Looks underage"}
+
+User message: "short woman, 21, (thin petite frame:1.3), platinum blonde hair with subtle root regrowth, (piercing ice-blue eyes:1.2), (pale porcelain skin with faint freckles:1.1), (very small perky breasts:1.2), (pink not erect nipples:1.3), completely shaved, (full body view:1.3), in dimly lit bedroom touching herself while looking at the camera like if it was the first time, with her mouth open like surprised, ultra HD, 8K resolution"
+Resposne: {"reason": "Looks underage"}
