@@ -147,3 +147,5 @@
 [ ] On user album page content cards Delete button should not appear because it's already in the custom actions.
 
 [ ] User profile last generated media should show 20+ instead of 20.
+
+[ ] Sort by popularity takes too long, revise GSI.

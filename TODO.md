@@ -135,3 +135,5 @@
 [ ] Tutorial of how the advanced controls work.
 
 [x] Prevent screensaver when lightbox in slideshow mode.
+
+[ ] Auto reset generation param of users when their plan end.
