@@ -466,7 +466,7 @@ export default function AnalyticsPage() {
               color="hsl(var(--chart-4))"
             />
             <SummaryCard
-              title="Total Views"
+              title="Total Media Views"
               value={
                 analyticsData?.allMetrics?.find(
                   (m: any) => m.metricType === "interactions"
