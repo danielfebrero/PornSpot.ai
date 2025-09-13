@@ -149,3 +149,5 @@
 [ ] User profile last generated media should show 20+ instead of 20.
 
 [ ] Sort by popularity takes too long, revise GSI.
+
+[ ] The PornSpotCoin page on mobile is ugly.

@@ -137,3 +137,13 @@
 [x] Prevent screensaver when lightbox in slideshow mode.
 
 [ ] Auto reset generation param of users when their plan end.
+
+[ ] Redesign Generate page for mobile.
+
+[ ] Integrate "select many" in admin page.
+
+[ ] Integrate "select many" in other users pages and Generate page.
+
+[ ] Send email when users have unread notifications.
+
+[ ] Send email when the accumulate PornSpotCoin.
