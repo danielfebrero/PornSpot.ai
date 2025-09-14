@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 import { AlertDialog } from "@/components/ui/AlertDialog";
+import { Mail } from "lucide-react";
 
 interface LanguageOption {
   code: string;
@@ -73,6 +74,14 @@ export default function SettingsPage() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
+  // Email notification preferences
+  const [pscEmailPref, setPscEmailPref] = useState<"intelligently" | "never">(
+    "intelligently"
+  );
+  const [unreadEmailPref, setUnreadEmailPref] = useState<
+    "intelligently" | "never"
+  >("intelligently");
+  const [isSavingEmailPrefs, setIsSavingEmailPrefs] = useState(false);
 
   // Alert Dialog states
   const [alertDialog, setAlertDialog] = useState<{
@@ -145,6 +154,47 @@ export default function SettingsPage() {
       setIsLanguageAutomatic(browserLangMatches);
     }
   }, [currentLocale, user?.preferredLanguage, router]);
+
+  // Initialize email preferences from user
+  useEffect(() => {
+    if (user?.emailPreferences) {
+      if (user.emailPreferences.pscBalance) {
+        setPscEmailPref(user.emailPreferences.pscBalance);
+      }
+      if (user.emailPreferences.unreadNotifications) {
+        setUnreadEmailPref(user.emailPreferences.unreadNotifications);
+      }
+    }
+  }, [user?.emailPreferences]);
+
+  const updateEmailPreference = async (
+    field: "pscBalance" | "unreadNotifications",
+    value: "intelligently" | "never",
+    prevValue: "intelligently" | "never"
+  ) => {
+    setIsSavingEmailPrefs(true);
+    try {
+      await userApi.updateProfile({
+        emailPreferences: {
+          [field]: value,
+        },
+      });
+      showAlert(
+        tSettings("notifications.title"),
+        tSettings("messages.updateSuccess"),
+        "success"
+      );
+    } catch (error: unknown) {
+      // revert on error
+      if (field === "pscBalance") setPscEmailPref(prevValue);
+      else setUnreadEmailPref(prevValue);
+      const errorMessage =
+        error instanceof Error ? error.message : tSettings("messages.updateError");
+      showAlert(tSettings("notifications.title"), errorMessage, "error");
+    } finally {
+      setIsSavingEmailPrefs(false);
+    }
+  };
 
   // Handle language change
   const handleLanguageChange = async (languageCode: string) => {
@@ -361,6 +411,75 @@ export default function SettingsPage() {
         </div>
 
         <div className="space-y-8">
+          {/* Notifications Settings */}
+          <Card>
+            <CardHeader className="flex flex-row items-center space-y-0 pb-4">
+              <div className="flex items-center space-x-3">
+                <Mail className="h-5 w-5 text-primary" />
+                <div>
+                  <h2 className="text-xl font-semibold">
+                    {tSettings("notifications.title")}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {tSettings("notifications.description")}
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-foreground">
+                    {tSettings("notifications.pscBalance.label")}
+                  </div>
+                  <select
+                    value={pscEmailPref}
+                    onChange={(e) => {
+                      const next = e.target.value as "intelligently" | "never";
+                      const prev = pscEmailPref;
+                      setPscEmailPref(next);
+                      updateEmailPreference("pscBalance", next, prev);
+                    }}
+                    disabled={isSavingEmailPrefs}
+                    className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+                  >
+                    <option value="intelligently">
+                      {tSettings("notifications.options.intelligently")}
+                    </option>
+                    <option value="never">
+                      {tSettings("notifications.options.never")}
+                    </option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-foreground">
+                    {tSettings("notifications.unread.label")}
+                  </div>
+                  <select
+                    value={unreadEmailPref}
+                    onChange={(e) => {
+                      const next = e.target.value as "intelligently" | "never";
+                      const prev = unreadEmailPref;
+                      setUnreadEmailPref(next);
+                      updateEmailPreference("unreadNotifications", next, prev);
+                    }}
+                    disabled={isSavingEmailPrefs}
+                    className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+                  >
+                    <option value="intelligently">
+                      {tSettings("notifications.options.intelligently")}
+                    </option>
+                    <option value="never">
+                      {tSettings("notifications.options.never")}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Auto-save on change; no explicit save button */}
+            </CardContent>
+          </Card>
           {/* Language Settings */}
           <Card>
             <CardHeader className="flex flex-row items-center space-y-0 pb-4">

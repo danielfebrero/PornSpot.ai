@@ -7,6 +7,7 @@ import type {
   UserLoginRequest,
   UserRegistrationRequest,
   PublicUserProfile,
+  EmailPreferences,
 } from "@/types/shared-types";
 import type { UserInteraction } from "@/types/shared-types";
 
@@ -165,6 +166,7 @@ export interface UserProfileUpdateRequest {
   location?: string;
   website?: string;
   preferredLanguage?: string;
+  emailPreferences?: EmailPreferences;
 }
 
 export interface UserProfileUpdateResponse {

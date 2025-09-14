@@ -17,6 +17,8 @@ import {
   UserEntity,
   UserProfileUpdateRequest,
   UserProfileUpdateResponse,
+  EmailPreferences,
+  EmailPreferenceMode,
 } from "@shared";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
@@ -144,6 +146,36 @@ const handleEditProfile = async (
     }
   }
 
+  // Email preferences validation
+  if (updateData.emailPreferences !== undefined) {
+    try {
+      const prefs = updateData.emailPreferences as EmailPreferences;
+      const validModes: EmailPreferenceMode[] = [
+        "intelligently",
+        "never",
+      ];
+      if (prefs.pscBalance && !validModes.includes(prefs.pscBalance)) {
+        validationErrors.push(
+          "Invalid email preference for PSC balance"
+        );
+      }
+      if (
+        prefs.unreadNotifications &&
+        !validModes.includes(prefs.unreadNotifications)
+      ) {
+        validationErrors.push(
+          "Invalid email preference for unread notifications"
+        );
+      }
+    } catch (error) {
+      validationErrors.push(
+        error instanceof Error
+          ? error.message
+          : "Email preferences validation failed"
+      );
+    }
+  }
+
   if (validationErrors.length > 0) {
     console.log("❌ Validation errors:", validationErrors);
     return ResponseUtil.badRequest(
@@ -214,6 +246,16 @@ const handleEditProfile = async (
     updates.preferredLanguage = updateData.preferredLanguage.trim();
   }
 
+  if (updateData.emailPreferences !== undefined) {
+    // Merge with existing preferences to avoid overwriting other keys in future
+    const existingPrefs = currentUserEntity.emailPreferences || {};
+    const newPrefs = updateData.emailPreferences || {};
+    updates.emailPreferences = {
+      ...existingPrefs,
+      ...newPrefs,
+    } as EmailPreferences;
+  }
+
   // Only proceed if there are actually changes to make
   if (Object.keys(updates).length === 0) {
     console.log("ℹ️ No changes to apply");
@@ -274,6 +316,9 @@ const handleEditProfile = async (
       ...(updatedUser.website && { website: updatedUser.website }),
       ...(updatedUser.preferredLanguage && {
         preferredLanguage: updatedUser.preferredLanguage,
+      }),
+      ...(updatedUser.emailPreferences && {
+        emailPreferences: updatedUser.emailPreferences,
       }),
       createdAt: updatedUser.createdAt,
       ...(updatedUser.lastLoginAt && {

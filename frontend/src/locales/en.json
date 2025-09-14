@@ -1212,6 +1212,20 @@
           "billingCycle": "Based on your billing cycle"
         }
       },
+      "notifications": {
+        "title": "Email Notifications",
+        "description": "Choose how often we email you about key updates",
+        "pscBalance": {
+          "label": "PornSpotCoin balance updates"
+        },
+        "unread": {
+          "label": "Unread notifications summary"
+        },
+        "options": {
+          "intelligently": "Intelligently",
+          "never": "Never"
+        }
+      },
       "messages": {
         "saveSuccess": "Settings saved successfully",
         "saveError": "Failed to save settings",

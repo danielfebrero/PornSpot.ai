@@ -1139,6 +1139,20 @@
           "billingCycle": "Basado en tu ciclo de facturación"
         }
       },
+      "notifications": {
+        "title": "Notificaciones por correo electrónico",
+        "description": "Elige con qué frecuencia te enviamos actualizaciones importantes por correo",
+        "pscBalance": {
+          "label": "Actualizaciones del saldo PornSpotCoin"
+        },
+        "unread": {
+          "label": "Resumen de notificaciones no leídas"
+        },
+        "options": {
+          "intelligently": "Inteligentemente",
+          "never": "Nunca"
+        }
+      },
       "messages": {
         "saveSuccess": "Configuración guardada correctamente",
         "saveError": "Error al guardar la configuración",

@@ -3360,7 +3360,7 @@ Resources:
       PackageType: Image
       ImageUri: !Ref ImageUri
       ImageConfig:
-        Command: ["functions/notifications/unread-digest.handler"]
+        Command: ["functions/scheduled-emails/unread-digest.handler"]
       MemorySize: 512
       Timeout: 900
       Events:
@@ -3397,7 +3397,7 @@ Resources:
       PackageType: Image
       ImageUri: !Ref ImageUri
       ImageConfig:
-        Command: ["functions/notifications/psc-balance-digest.handler"]
+        Command: ["functions/scheduled-emails/psc-balance-digest.handler"]
       MemorySize: 512
       Timeout: 900
       Events:

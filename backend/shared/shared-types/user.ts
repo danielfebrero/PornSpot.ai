@@ -16,6 +16,14 @@
 import type { ThumbnailUrls } from "./core";
 import type { UserPlan, PlanPermissions } from "./permissions";
 
+// Email notification preferences
+export type EmailPreferenceMode = "intelligently" | "never";
+
+export interface EmailPreferences {
+  pscBalance?: EmailPreferenceMode;
+  unreadNotifications?: EmailPreferenceMode;
+}
+
 export interface User {
   userId: string;
   email: string;
@@ -53,6 +61,8 @@ export interface User {
     storageUsedGB?: number;
     lastGenerationAt?: string;
   };
+  // Email notification preferences
+  emailPreferences?: EmailPreferences;
   profileInsights?: UserProfileInsights;
   followerCount: number;
 }
@@ -134,6 +144,7 @@ export interface UserProfileUpdateRequest {
   location?: string;
   website?: string;
   preferredLanguage?: string;
+  emailPreferences?: EmailPreferences;
 }
 
 export interface UserProfileUpdateResponse {
@@ -146,6 +157,7 @@ export interface UserProfileUpdateResponse {
     location?: string;
     website?: string;
     preferredLanguage?: string;
+    emailPreferences?: EmailPreferences;
     createdAt: string;
     lastLoginAt?: string;
     avatarUrl?: string;

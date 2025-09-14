@@ -1137,6 +1137,20 @@
           "billingCycle": "基于您的计费周期"
         }
       },
+      "notifications": {
+        "title": "邮件通知",
+        "description": "选择我们发送重要更新邮件的频率",
+        "pscBalance": {
+          "label": "PornSpotCoin余额更新"
+        },
+        "unread": {
+          "label": "未读通知摘要"
+        },
+        "options": {
+          "intelligently": "智能",
+          "never": "从不"
+        }
+      },
       "messages": {
         "saveSuccess": "设置保存成功",
         "saveError": "保存设置失败",

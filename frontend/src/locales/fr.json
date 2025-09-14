@@ -1211,6 +1211,20 @@
           "billingCycle": "Basé sur votre cycle de facturation"
         }
       },
+      "notifications": {
+        "title": "Notifications par e-mail",
+        "description": "Choisissez la fréquence de nos e-mails concernant les mises à jour importantes",
+        "pscBalance": {
+          "label": "Mises à jour du solde PornSpotCoin"
+        },
+        "unread": {
+          "label": "Résumé des notifications non lues"
+        },
+        "options": {
+          "intelligently": "Intelligemment",
+          "never": "Jamais"
+        }
+      },
       "messages": {
         "saveSuccess": "Paramètres enregistrés avec succès",
         "saveError": "Échec de l'enregistrement des paramètres",

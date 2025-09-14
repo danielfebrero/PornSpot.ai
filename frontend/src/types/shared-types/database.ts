@@ -21,7 +21,7 @@ import type {
   SubscriptionStatus,
 } from "./core";
 import { UserPlan } from "./permissions";
-import type { UserProfileInsights } from "./user";
+import type { UserProfileInsights, EmailPreferences } from "./user";
 
 // DynamoDB Entity base interface
 interface BaseEntity {
@@ -226,6 +226,9 @@ export interface UserEntity extends BaseEntity {
   // emails
   lastSentUnreadNotificationsEmailAt?: string; // when the last unread notifications email was sent
   lastSentPscBalanceEmailAt?: string; // when the last PSC balance email was sent
+
+  // email notification preferences
+  emailPreferences?: EmailPreferences; // per-user email notification preferences
 }
 
 // User Session Entity

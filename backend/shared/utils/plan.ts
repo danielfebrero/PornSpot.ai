@@ -193,6 +193,7 @@ export class PlanUtil {
       lastActive: userEntity.lastActive,
       googleId: userEntity.googleId,
       preferredLanguage: userEntity.preferredLanguage,
+      emailPreferences: userEntity.emailPreferences,
 
       // Avatar information
       avatarUrl: userEntity.avatarUrl,
