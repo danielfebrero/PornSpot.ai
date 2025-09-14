@@ -34,6 +34,10 @@ export interface NotificationEntity extends NotificationItem {
   GSI1SK: string; // {status}#{createdAt}#{notificationId} - for status-based queries
   GSI2PK: string; // USER#{targetUserId}#NOTIFICATIONS#{status}
   GSI2SK: string; // {createdAt}#{notificationId} - for efficient unread counting
+  GSI3PK: string; // NOTIFICATION_STATUS
+  GSI3SK: string; // UNREAD or READ
+  EntityType: "Notification";
+}
   EntityType: "Notification";
 }
 

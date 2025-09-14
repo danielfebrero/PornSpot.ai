@@ -3564,6 +3564,8 @@ export class DynamoDBService {
       GSI1SK: `${now}#unread#${notificationId}`, // Sort by date, then status
       GSI2PK: `USER#${targetUserId}#NOTIFICATIONS#unread`,
       GSI2SK: `${now}#${notificationId}`, // For efficient unread counting
+      GSI3PK: `NOTIFICATION_STATUS`,
+      GSI3SK: `UNREAD`,
       EntityType: "Notification",
       notificationId,
       targetUserId,
@@ -3708,6 +3710,50 @@ export class DynamoDBService {
   }
 
   /**
+   * Aggregate unread notification counts per user using GSI3 (NOTIFICATION_STATUS = UNREAD)
+   * Note: This queries across all unread notifications globally and groups by targetUserId.
+   */
+  static async getUnreadNotificationCountsByUserGSI3(
+    pageLimit: number = 1000
+  ): Promise<Record<string, number>> {
+    const counts: Record<string, number> = {};
+    let lastEvaluatedKey: Record<string, any> | undefined = undefined;
+
+    do {
+      const params: QueryCommandInput = {
+        TableName: TABLE_NAME,
+        IndexName: "GSI3",
+        KeyConditionExpression: "GSI3PK = :pk AND GSI3SK = :unread",
+        ExpressionAttributeValues: {
+          ":pk": "NOTIFICATION_STATUS",
+          ":unread": "UNREAD",
+        },
+        Limit: pageLimit,
+        ExclusiveStartKey: lastEvaluatedKey,
+        ProjectionExpression: "targetUserId, notificationId, GSI3PK, GSI3SK", // limit payload
+      };
+
+      const result = await docClient.send(new QueryCommand(params));
+      const items = (result.Items || []) as NotificationEntity[];
+
+      for (const n of items) {
+        const uid = n.targetUserId;
+        if (!uid) continue;
+        counts[uid] = (counts[uid] || 0) + 1;
+      }
+
+      lastEvaluatedKey = result.LastEvaluatedKey as any;
+    } while (lastEvaluatedKey);
+
+    console.log("Aggregated unread counts by user (GSI3)", {
+      users: Object.keys(counts).length,
+      totalUnread: Object.values(counts).reduce((a, b) => a + b, 0),
+    });
+
+    return counts;
+  }
+
+  /**
    * Mark multiple notifications as read
    */
   private static async markNotificationsAsRead(
@@ -3727,7 +3773,7 @@ export class DynamoDBService {
             SK: "METADATA",
           },
           UpdateExpression:
-            "SET #status = :read, readAt = :readAt, GSI1SK = :gsi1sk, GSI2PK = :gsi2pk",
+            "SET #status = :read, readAt = :readAt, GSI1SK = :gsi1sk, GSI2PK = :gsi2pk, GSI3SK = :read",
           ExpressionAttributeNames: {
             "#status": "status",
           },

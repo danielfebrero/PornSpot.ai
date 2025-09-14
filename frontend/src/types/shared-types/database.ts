@@ -222,6 +222,9 @@ export interface UserEntity extends BaseEntity {
   pscTotalSpent?: number; // Total PSC spent on subscriptions/purchases
   pscTotalWithdrawn?: number; // Total PSC withdrawn to wallet
   pscLastTransactionAt?: string; // Last PSC transaction timestamp
+
+  // emails
+  lastSentUnreadNotificationsEmailAt?: string; // when the last unread notifications email was sent
 }
 
 // User Session Entity

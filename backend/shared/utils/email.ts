@@ -95,6 +95,36 @@ export class EmailService {
   }
 
   /**
+   * Send unread notifications email
+   */
+  static async sendUnreadNotificationsEmail(options: {
+    to: string;
+    username: string;
+    unreadCount: number;
+  }): Promise<EmailSendResult> {
+    const { to, username, unreadCount } = options;
+    const displayName = username || to;
+    const subject =
+      unreadCount === 1
+        ? `You have 1 unread notification`
+        : `You have ${unreadCount} unread notifications`;
+
+    const { htmlBody, textBody } = await EmailTemplateService.loadTemplate(
+      "unread-notifications",
+      {
+        subject,
+        displayName,
+        unreadCount: String(unreadCount),
+      }
+    );
+
+    return this.sendEmail({
+      to,
+      template: { subject, htmlBody, textBody },
+    });
+  }
+
+  /**
    * Send email verification email
    */
   static async sendVerificationEmail(

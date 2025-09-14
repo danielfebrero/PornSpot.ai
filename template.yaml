@@ -3352,6 +3352,43 @@ Resources:
                 - !GetAtt MediaTable.Arn
                 - !Sub "${MediaTable.Arn}/index/*"
 
+  # Daily Unread Notifications Email Digest
+  UnreadNotificationsDigestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-unread-notifications-digest"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/notifications/unread-digest.handler"]
+      MemorySize: 512
+      Timeout: 900
+      Events:
+        DailySevenUtc:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(0 7 * * ? *)" # Every day at 07:00 UTC
+            Name: !Sub "${Environment}-pornspot-unread-digest-07utc"
+            Description: "Sends unread notifications digest emails daily at 07:00 UTC"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:UpdateItem
+              Resource:
+                - !GetAtt MediaTable.Arn
+                - !Sub "${MediaTable.Arn}/index/*"
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/sendgrid-api-key"
+
 Outputs:
   ApiGatewayUrl:
     Description: API Gateway endpoint URL

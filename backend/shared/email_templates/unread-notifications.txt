@@ -1,0 +1,21 @@
+/**
+ * @fileoverview Unread Notifications Email Template (Text)
+ * @description Plain text template to notify users about unread notifications.
+ * @notes
+ * - Includes notifications URL.
+ * - Variables: {{displayName}}, {{notificationsUrl}}, {{unreadCount}}.
+ */
+Hello {{displayName}},
+
+You have {{unreadCount}} unread notifications waiting for you on PornSpot.ai.
+
+View your notifications here:
+{{notificationsUrl}}
+
+Tip: Enable notifications to stay up to date with new likes, comments, and followers.
+
+See you soon,
+The PornSpot.ai Team
+
+© 2025 PornSpot.ai. All rights reserved.
+This is an automated email. Please do not reply to this message.

@@ -1,5 +1,3 @@
-/\*\*
-
 - @fileoverview Email Templates README
 - @description Documentation for email templates in the shared directory.
 - @notes
@@ -9,7 +7,6 @@
 - - Usage with EmailTemplateService.
 - - Design guidelines for HTML (responsive, dark theme) and text.
 - - Testing with validation methods.
-    \*/
 
 # Email Templates
 
@@ -40,6 +37,15 @@ Each email template consists of two files:
   - `{{subject}}` - Email subject line
   - `{{displayName}}` - User's display name (first name or email)
   - `{{loginUrl}}` - Login URL for the application
+
+### unread-notifications
+
+- **Purpose**: Notify user about unread notifications and link them to the notifications page
+- **Variables**:
+  - `{{subject}}` - Email subject line
+  - `{{displayName}}` - User's display name (first name or email)
+  - `{{notificationsUrl}}` - URL to the notifications page
+  - `{{unreadCount}}` - Number of unread notifications
 
 ## Template Variables
 
