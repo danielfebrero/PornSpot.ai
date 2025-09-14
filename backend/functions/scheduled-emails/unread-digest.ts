@@ -76,6 +76,11 @@ export async function handler(
       const unreadCount = countsByUser[user.userId] || 0;
       if (unreadCount <= 0) continue;
 
+      // Respect user email preferences: skip if user opted out
+      if (user.emailPreferences?.unreadNotifications === "never") {
+        continue;
+      }
+
       const canSend = await shouldSendEmail({
         lastActive: user.lastActive,
         lastSent: user.lastSentUnreadNotificationsEmailAt,

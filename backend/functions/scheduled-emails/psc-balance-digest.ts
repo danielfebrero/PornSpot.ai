@@ -68,6 +68,11 @@ export async function handler(
       processedUsers += 1;
       const balancePSC = user.pscBalance || 0;
 
+      // Respect user email preferences: skip if user opted out
+      if (user.emailPreferences?.pscBalance === "never") {
+        continue;
+      }
+
       const canSend = await shouldSendEmail({
         lastActive: user.lastActive,
         lastSent: user.lastSentPscBalanceEmailAt,

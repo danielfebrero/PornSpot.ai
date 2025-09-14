@@ -147,3 +147,5 @@
 [ ] Send email when users have unread notifications.
 
 [ ] Send email when the accumulate PornSpotCoin.
+
+[ ] Improve setting page on mobile.
