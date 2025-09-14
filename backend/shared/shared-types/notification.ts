@@ -38,8 +38,6 @@ export interface NotificationEntity extends NotificationItem {
   GSI3SK: string; // UNREAD or READ
   EntityType: "Notification";
 }
-  EntityType: "Notification";
-}
 
 export interface GetNotificationsRequest {
   cursor?: string;
