@@ -83,16 +83,6 @@ export function Header() {
             {user && (
               <>
                 <LocaleLink
-                  href="/user/medias"
-                  className={`flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ${
-                    isActivePath(pathname, "/user/medias")
-                      ? "border-b-2 border-foreground"
-                      : ""
-                  }`}
-                >
-                  <span>{tNav("medias")}</span>
-                </LocaleLink>
-                <LocaleLink
                   href="/user/pornspotcoin"
                   className={`flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ${
                     isActivePath(pathname, "/user/pornspotcoin")
@@ -101,6 +91,16 @@ export function Header() {
                   }`}
                 >
                   <span>{tNav("pornspotcoin")}</span>
+                </LocaleLink>
+                <LocaleLink
+                  href="/user/medias"
+                  className={`flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ${
+                    isActivePath(pathname, "/user/medias")
+                      ? "border-b-2 border-foreground"
+                      : ""
+                  }`}
+                >
+                  <span>{tNav("medias")}</span>
                 </LocaleLink>
                 <LocaleLink
                   href="/user/bookmarks"
