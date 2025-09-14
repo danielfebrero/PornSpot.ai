@@ -1323,7 +1323,7 @@ Resources:
             Path: /user/psc/rates
             Method: GET
             Auth:
-              Authorizer: UserAuthorizer
+              Authorizer: NONE
         OptionsRates:
           Type: Api
           Properties:
