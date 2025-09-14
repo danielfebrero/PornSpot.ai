@@ -179,17 +179,14 @@ export default function SettingsPage() {
           [field]: value,
         },
       });
-      showAlert(
-        tSettings("notifications.title"),
-        tSettings("messages.updateSuccess"),
-        "success"
-      );
     } catch (error: unknown) {
       // revert on error
       if (field === "pscBalance") setPscEmailPref(prevValue);
       else setUnreadEmailPref(prevValue);
       const errorMessage =
-        error instanceof Error ? error.message : tSettings("messages.updateError");
+        error instanceof Error
+          ? error.message
+          : tSettings("messages.updateError");
       showAlert(tSettings("notifications.title"), errorMessage, "error");
     } finally {
       setIsSavingEmailPrefs(false);
