@@ -42,7 +42,7 @@ export class EmailService {
   private static readonly DEFAULT_FROM_EMAIL =
     process.env["FROM_EMAIL"] || "noreply@pornspot.ai";
   private static readonly DEFAULT_FROM_NAME =
-    process.env["FROM_NAME"] || "PornSpot.ai";
+    process.env["FROM_NAME"] || "PSpot.ai";
 
   /**
    * Send an email using SendGrid
