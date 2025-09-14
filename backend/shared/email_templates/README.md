@@ -44,8 +44,16 @@ Each email template consists of two files:
 - **Variables**:
   - `{{subject}}` - Email subject line
   - `{{displayName}}` - User's display name (first name or email)
-  - `{{notificationsUrl}}` - URL to the notifications page
   - `{{unreadCount}}` - Number of unread notifications
+
+### pornspotcoin-balance
+
+- **Purpose**: Notify users that they've accumulated a PornSpotCoin (PSC) balance from their popular content and explain how to redeem it
+- **Variables**:
+  - `{{subject}}` - Email subject line
+  - `{{displayName}}` - User's display name (first name or email)
+  - `{{balancePSC}}` - Current PSC balance to display
+  - `{{dashboardUrl}}` - Link to the PSC dashboard (e.g., <https://www.pornspot.ai/en/user/pornspotcoin>)
 
 ## Template Variables
 

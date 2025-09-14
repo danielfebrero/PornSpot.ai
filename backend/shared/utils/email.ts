@@ -193,6 +193,35 @@ export class EmailService {
   }
 
   /**
+   * Send PornSpotCoin balance email
+   */
+  static async sendPornSpotCoinBalanceEmail(options: {
+    to: string;
+    username?: string;
+    balancePSC: number | string;
+  }): Promise<EmailSendResult> {
+    const { to, username, balancePSC } = options;
+    const displayName = username ? username : to;
+    const balanceStr = String(balancePSC);
+
+    const subject = `You've earned PSpotCoin! Balance: ${balanceStr} PSC`;
+
+    const { htmlBody, textBody } = await EmailTemplateService.loadTemplate(
+      "pornspotcoin-balance",
+      {
+        subject,
+        displayName,
+        balancePSC: balanceStr,
+      }
+    );
+
+    return this.sendEmail({
+      to,
+      template: { subject, htmlBody, textBody },
+    });
+  }
+
+  /**
    * Get email verification template
    */
   private static async getVerificationEmailTemplate(

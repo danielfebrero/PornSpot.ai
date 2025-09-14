@@ -3389,6 +3389,43 @@ Resources:
               Resource:
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/sendgrid-api-key"
 
+  # Daily PSC Balance Email Digest
+  PscBalanceDigestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-psc-balance-digest"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/notifications/psc-balance-digest.handler"]
+      MemorySize: 512
+      Timeout: 900
+      Events:
+        DailySixUtc:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(0 6 * * ? *)" # Every day at 06:00 UTC
+            Name: !Sub "${Environment}-pornspot-psc-balance-06utc"
+            Description: "Sends PSC balance emails daily at 06:00 UTC"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:UpdateItem
+              Resource:
+                - !GetAtt MediaTable.Arn
+                - !Sub "${MediaTable.Arn}/index/*"
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/sendgrid-api-key"
+
 Outputs:
   ApiGatewayUrl:
     Description: API Gateway endpoint URL

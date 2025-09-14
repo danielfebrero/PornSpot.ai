@@ -1,0 +1,22 @@
+/*
+ * @fileoverview PornSpotCoin Balance Email Template (Text)
+ * @description Plain text version notifying users of their PSC balance and redemption info.
+ * @variables
+ * - {{displayName}}
+ * - {{balancePSC}}
+ * - {{dashboardUrl}}
+ */
+Hello {{displayName}},
+
+Thanks to your popular content, you've accumulated a balance of {{balancePSC}} PSC.
+
+PornSpotCoin (PSC) can be used to pay for your subscription.
+9 PSC gives you 1 month free of PornSpot.ai.
+
+You earn PSC when your media or albums receive views, likes, bookmarks, and comments — and also when your user profile gets views.
+
+View your balance and spend PSC here:
+https://www.pornspot.ai/en/user/pornspotcoin
+
+© 2025 PornSpot.ai. All rights reserved.
+This is an automated email. Please do not reply to this message.

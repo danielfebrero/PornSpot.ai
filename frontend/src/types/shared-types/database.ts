@@ -225,6 +225,7 @@ export interface UserEntity extends BaseEntity {
 
   // emails
   lastSentUnreadNotificationsEmailAt?: string; // when the last unread notifications email was sent
+  lastSentPscBalanceEmailAt?: string; // when the last PSC balance email was sent
 }
 
 // User Session Entity
