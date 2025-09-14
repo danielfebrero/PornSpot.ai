@@ -19,7 +19,9 @@ Parameters:
     Description: Docker image URI for Lambda functions
     Default: "688567299790.dkr.ecr.us-east-1.amazonaws.com/prod-pornspot-lambda:latest"
 
-# Conditions removed - IsProduction was not used
+# Conditions
+Conditions:
+  IsProd: !Equals [!Ref Environment, "prod"]
 
 Globals:
   Function:
@@ -3364,12 +3366,13 @@ Resources:
       MemorySize: 512
       Timeout: 900
       Events:
-        DailySevenUtc:
+        Daily:
           Type: Schedule
           Properties:
-            Schedule: "cron(0 7 * * ? *)" # Every day at 07:00 UTC
-            Name: !Sub "${Environment}-pornspot-unread-digest-07utc"
-            Description: "Sends unread notifications digest emails daily at 07:00 UTC"
+            Schedule: "cron(0 3 * * ? *)" # Every day at 03:00 UTC
+            Name: !Sub "${Environment}-pornspot-unread-digest-03utc"
+            Description: "Sends unread notifications digest emails daily at 03:00 UTC"
+            Enabled: !If [IsProd, true, false]
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
@@ -3401,12 +3404,13 @@ Resources:
       MemorySize: 512
       Timeout: 900
       Events:
-        DailySixUtc:
+        Daily:
           Type: Schedule
           Properties:
-            Schedule: "cron(0 6 * * ? *)" # Every day at 06:00 UTC
-            Name: !Sub "${Environment}-pornspot-psc-balance-06utc"
-            Description: "Sends PSC balance emails daily at 06:00 UTC"
+            Schedule: "cron(0 4 * * ? *)" # Every day at 04:00 UTC
+            Name: !Sub "${Environment}-pornspot-psc-balance-04utc"
+            Description: "Sends PSC balance emails daily at 04:00 UTC"
+            Enabled: !If [IsProd, true, false]
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
