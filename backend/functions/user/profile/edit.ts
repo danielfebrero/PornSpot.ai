@@ -150,14 +150,9 @@ const handleEditProfile = async (
   if (updateData.emailPreferences !== undefined) {
     try {
       const prefs = updateData.emailPreferences as EmailPreferences;
-      const validModes: EmailPreferenceMode[] = [
-        "intelligently",
-        "never",
-      ];
+      const validModes: EmailPreferenceMode[] = ["intelligently", "never"];
       if (prefs.pscBalance && !validModes.includes(prefs.pscBalance)) {
-        validationErrors.push(
-          "Invalid email preference for PSC balance"
-        );
+        validationErrors.push("Invalid email preference for PSC balance");
       }
       if (
         prefs.unreadNotifications &&
