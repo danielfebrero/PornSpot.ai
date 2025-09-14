@@ -10,11 +10,14 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { PSCPayoutService } from "@shared/utils/psc-payout";
-import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
+import {
+  LambdaHandlerUtil,
+  OptionalAuthResult,
+} from "@shared/utils/lambda-handler";
 
 const handlePSCRates = async (
   event: APIGatewayProxyEvent,
-  _auth: AuthResult
+  _auth: OptionalAuthResult
 ): Promise<APIGatewayProxyResult> => {
   console.log("📊 /user/psc/rates handler called");
 
@@ -40,6 +43,7 @@ const handlePSCRates = async (
   }
 };
 
-export const handler = LambdaHandlerUtil.withAuth(handlePSCRates, {
+// Allow anonymous access so public pages can display live rates
+export const handler = LambdaHandlerUtil.withOptionalAuth(handlePSCRates, {
   requireBody: false,
 });

@@ -41,6 +41,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
       changeFrequency: "yearly" as const,
     },
+    {
+      path: "/pornspotcoin",
+      priority: 0.8,
+      changeFrequency: "monthly" as const,
+    },
   ];
 
   // Generate locale-specific static routes

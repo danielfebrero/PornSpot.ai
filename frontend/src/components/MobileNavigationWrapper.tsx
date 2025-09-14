@@ -41,6 +41,14 @@ export function MobileNavigationWrapper() {
     },
   ];
 
+  if (!user) {
+    baseNavigationItems.push({
+      href: "/pornspotcoin",
+      label: tNav("pornspotcoin"),
+      icon: Coins,
+    });
+  }
+
   // Additional navigation items for logged-in users
   const userNavigationItems = user
     ? [
