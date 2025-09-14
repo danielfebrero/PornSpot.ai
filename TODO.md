@@ -144,8 +144,8 @@
 
 [ ] Integrate "select many" in other users pages and Generate page.
 
-[ ] Send email when users have unread notifications.
+[x] Send email when users have unread notifications.
 
-[ ] Send email when the accumulate PornSpotCoin.
+[x] Send email when they accumulate PornSpotCoin.
 
 [ ] Improve setting page on mobile.
