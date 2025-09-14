@@ -50,6 +50,7 @@
     "all": "All",
     "none": "None",
     "followerCount": "{count, number} {count, plural, =0 {followers} =1 {follower} other {followers}}",
+    "itemsCount": "{count, number} {count, plural, =0 {items} =1 {item} other {items}}",
     "toggle": "Toggle",
     "expand": "Expand",
     "collapse": "Collapse",
@@ -90,6 +91,9 @@
     "albumDoesntContainMediaFiles": "This album doesn't contain any media files yet.",
     "loadingMoreMedia": "Loading more media...",
     "failedToLoadMoreMedia": "Failed to load more media",
+    "selectMany": "Select many",
+    "confirmDeleteTitle": "Delete selected?",
+    "confirmDeleteMessage": "Are you sure you want to delete {count, plural, =1 {# selected item} other {# selected items}}? This action cannot be undone.",
     "pornspotcoin": "PornSpotCoin"
   },
   "profile": {

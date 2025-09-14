@@ -50,6 +50,7 @@
     "all": "Все",
     "none": "Ничего",
     "followerCount": "{count, number} {count, plural, =0 {подписчиков} =1 {подписчик} other {подписчиков}}",
+    "itemsCount": "{count, number} {count, plural, =0 {элементов} =1 {элемент} other {элементов}}",
     "toggle": "Переключить",
     "expand": "Развернуть",
     "collapse": "Свернуть",
@@ -90,6 +91,9 @@
     "albumDoesntContainMediaFiles": "Этот альбом пока не содержит медиафайлов.",
     "loadingMoreMedia": "Загрузка дополнительных медиа...",
     "failedToLoadMoreMedia": "Не удалось загрузить дополнительные медиа",
+    "selectMany": "Выбрать несколько",
+    "confirmDeleteTitle": "Удалить выбранные?",
+    "confirmDeleteMessage": "Вы уверены, что хотите удалить {count, plural, =1 {# выбранный элемент} =2 {# выбранных элемента} =3 {# выбранных элемента} =4 {# выбранных элемента} other {# выбранных элементов}}? Это действие нельзя отменить.",
     "pornspotcoin": "PornSpotCoin"
   },
   "profile": {

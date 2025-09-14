@@ -50,6 +50,7 @@
     "all": "Tout",
     "none": "Aucun",
     "followerCount": "{count, number} {count, plural, =0 {abonnés} =1 {abonné} other {abonnés}}",
+    "itemsCount": "{count, number} {count, plural, =0 {éléments} =1 {élément} other {éléments}}",
     "toggle": "Basculer",
     "expand": "Développer",
     "collapse": "Réduire",
@@ -90,6 +91,9 @@
     "albumDoesntContainMediaFiles": "Cet album ne contient pas encore de fichiers multimédias.",
     "loadingMoreMedia": "Chargement de plus de médias...",
     "failedToLoadMoreMedia": "Échec du chargement de plus de médias",
+    "selectMany": "Sélectionner plusieurs",
+    "confirmDeleteTitle": "Supprimer la sélection ?",
+    "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {count, plural, =1 {# élément sélectionné} other {# éléments sélectionnés}} ? Cette action ne peut pas être annulée.",
     "pornspotcoin": "PornSpotCoin"
   },
   "profile": {

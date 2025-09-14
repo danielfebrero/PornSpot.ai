@@ -50,6 +50,7 @@
     "all": "全部",
     "none": "无",
     "followerCount": "{count, number} {count, plural, other {位粉丝}}",
+    "itemsCount": "{count, number} {count, plural, other {个项目}}",
     "toggle": "切换",
     "expand": "展开",
     "collapse": "收起",
@@ -90,6 +91,9 @@
     "albumDoesntContainMediaFiles": "该专辑尚未包含任何媒体文件。",
     "loadingMoreMedia": "正在加载更多媒体...",
     "failedToLoadMoreMedia": "加载更多媒体失败",
+    "selectMany": "选择多个",
+    "confirmDeleteTitle": "删除所选项？",
+    "confirmDeleteMessage": "您确定要删除{count, plural, other {# 个选中的项目}}吗？此操作无法撤销。",
     "pornspotcoin": "PornSpotCoin"
   },
   "profile": {
