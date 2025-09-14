@@ -1,10 +1,14 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
-import { Image as ImageIcon } from "lucide-react";
+import { Image as ImageIcon, MoreVertical, Trash2, X } from "lucide-react";
 import { useAdminMediaData } from "@/hooks/queries/useAdminMediaQuery";
+import { useBulkDeleteMedia } from "@/hooks/queries/useMediaQuery";
+import { Button } from "@/components/ui/Button";
+import { ShareDropdown } from "@/components/ui/ShareDropdown";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export default function AdminMediaPage() {
   const t = useTranslations("admin.media");
@@ -19,12 +23,64 @@ export default function AdminMediaPage() {
     isFetchingNextPage,
   } = useAdminMediaData({ limit: 20 });
 
+  // Select-many state
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectedMedias, setSelectedMedias] = useState<Set<string>>(new Set());
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+
+  const MAX_BULK_SELECTION = 50;
+
+  const totalCount = useMemo(() => media.length, [media]);
+
+  const bulkDeleteMedia = useBulkDeleteMedia();
+
   // Memoize load more function
   const loadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Handlers for selection mode
+  const handleSelectMany = useCallback(() => setIsSelecting(true), []);
+
+  const handleCancelSelection = useCallback(() => {
+    setIsSelecting(false);
+    setSelectedMedias(new Set());
+  }, []);
+
+  const handleToggleSelection = useCallback(
+    (mediaId: string) => {
+      setSelectedMedias((prev) => {
+        const next = new Set(prev);
+        if (next.has(mediaId)) {
+          next.delete(mediaId);
+        } else if (next.size < MAX_BULK_SELECTION) {
+          next.add(mediaId);
+        }
+        return next;
+      });
+    },
+    [MAX_BULK_SELECTION]
+  );
+
+  const handleDelete = useCallback(() => {
+    if (selectedMedias.size > 0) setShowDeleteConfirmDialog(true);
+  }, [selectedMedias]);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (selectedMedias.size === 0) return;
+    try {
+      const ids = Array.from(selectedMedias);
+      setIsSelecting(false);
+      setShowDeleteConfirmDialog(false);
+      await bulkDeleteMedia.mutateAsync(ids);
+      setSelectedMedias(new Set());
+    } catch (e) {
+      // Error toast handled by mutation layer
+      console.error("Bulk delete failed", e);
+    }
+  }, [selectedMedias, bulkDeleteMedia]);
 
   if (loading && media.length === 0) {
     return (
@@ -67,22 +123,83 @@ export default function AdminMediaPage() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-admin-primary/10 to-admin-secondary/10 rounded-xl p-6 border border-admin-primary/20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-admin-primary to-admin-secondary rounded-lg flex items-center justify-center">
-              <ImageIcon className="w-6 h-6 text-white" />
+      <div
+        className={`$${""} ${
+          isSelecting
+            ? "sticky top-0 z-40 bg-background/60 backdrop-blur-lg border-border/50 shadow-2xl rounded-none border-x-0 border-t-0 border-b"
+            : "bg-gradient-to-r from-admin-primary/10 to-admin-secondary/10 rounded-xl border border-admin-primary/20 shadow-lg"
+        } p-6`}
+      >
+        {isSelecting ? (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="bg-admin-primary/20 text-admin-primary text-sm font-bold px-3 py-1.5 rounded-lg border border-admin-primary/30 shadow-sm">
+                {selectedMedias.size}/{MAX_BULK_SELECTION}
+              </div>
+              <button
+                onClick={handleDelete}
+                className="group p-3 rounded-lg bg-red-500/20 text-red-500 hover:bg-red-500/30 focus:bg-red-500/30 focus:outline-none transition-all flex items-center border border-red-500/30 shadow-sm"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="ml-2 text-sm font-medium">
+                  {tCommon("delete")}
+                </span>
+              </button>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                {t("media")}
-              </h1>
-              <p className="text-muted-foreground">
-                {t("manageAndReviewAllMediaContent")}
-              </p>
-            </div>
+            <button
+              onClick={handleCancelSelection}
+              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors border border-border/50 bg-background/50"
+              aria-label="Cancel selection"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
-        </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-admin-primary to-admin-secondary rounded-lg flex items-center justify-center">
+                <ImageIcon className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">
+                  {t("media")}
+                </h1>
+                <p className="text-muted-foreground">
+                  {t("manageAndReviewAllMediaContent")}
+                </p>
+              </div>
+              <span className="bg-admin-primary/15 text-admin-primary text-sm font-semibold px-3 py-1.5 rounded-full">
+                {tCommon("itemsCount", { count: totalCount })}
+              </span>
+            </div>
+            <ShareDropdown
+              trigger={({ toggle }) => (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggle}
+                  className="h-10 px-2 bg-gradient-to-r from-admin-primary to-admin-secondary hover:from-admin-primary/90 hover:to-admin-secondary/90 text-admin-accent-foreground shadow-lg"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              )}
+            >
+              {({ close }) => (
+                <button
+                  onClick={() => {
+                    handleSelectMany();
+                    close();
+                  }}
+                  className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
+                >
+                  <span>
+                    {tCommon("selectMany", { default: "Select many" })}
+                  </span>
+                </button>
+              )}
+            </ShareDropdown>
+          </div>
+        )}
       </div>
 
       {error && (
@@ -115,6 +232,9 @@ export default function AdminMediaPage() {
         isFetchingNextPage={isFetchingNextPage}
         onLoadMore={loadMore}
         scrollRestorationKey="admin-media-grid"
+        isSelecting={isSelecting}
+        selectedItems={selectedMedias}
+        onToggleSelection={handleToggleSelection}
         gridColumns={{
           mobile: 2,
           sm: 3,
@@ -126,8 +246,8 @@ export default function AdminMediaPage() {
           canLike: true,
           canBookmark: true,
           canFullscreen: true,
-          canAddToAlbum: true,
-          canDownload: true,
+          canAddToAlbum: false,
+          canDownload: false,
           canDelete: true,
           showTags: true,
           showCounts: true,
@@ -147,6 +267,22 @@ export default function AdminMediaPage() {
           skeletonCount: 8,
         }}
         error={error ? String(error) : null}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirmDialog}
+        onClose={() => setShowDeleteConfirmDialog(false)}
+        onConfirm={handleConfirmDelete}
+        title={tCommon("confirmDeleteTitle", { default: "Delete selected?" })}
+        message={tCommon("confirmDeleteMessage", {
+          default: "Are you sure you want to delete the selected items?",
+          count: selectedMedias.size,
+        })}
+        confirmText={tCommon("delete")}
+        cancelText={tCommon("cancel")}
+        confirmVariant="danger"
+        loading={bulkDeleteMedia.isPending}
       />
     </div>
   );
