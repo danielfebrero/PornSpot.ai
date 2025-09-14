@@ -6,11 +6,11 @@ import { MobileNavigation } from "@/components/ui/MobileNavigation";
 import {
   Compass,
   Zap,
-  User,
   Heart,
   Bookmark,
   Image,
   FolderOpen,
+  Coins,
 } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 
@@ -45,9 +45,9 @@ export function MobileNavigationWrapper() {
   const userNavigationItems = user
     ? [
         {
-          href: "/user/profile",
-          label: tNav("profile"),
-          icon: User,
+          href: "/user/pornspotcoin",
+          label: tNav("pornspotcoin"),
+          icon: Coins,
         },
         {
           href: "/user/likes",
