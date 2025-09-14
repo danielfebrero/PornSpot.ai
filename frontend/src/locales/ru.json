@@ -1957,6 +1957,32 @@
       "unknownError": "Произошла неизвестная ошибка",
       "tryAgain": "Попробовать снова"
     },
+    "public": {
+      "title": "PornSpotCoin",
+      "tokenDescription": "Это токен, вознаграждаемый за популярный контент и просмотры профиля.",
+      "membershipDescription": "Используйте его для покупки подписок на pornspot.ai.",
+      "starterMembership": "Подписка Starter: 9 PSC за 1 месяц.",
+      "exploreMemberships": "Изучить подписки",
+      "howItWorks": {
+        "create": {
+          "title": "Создавать",
+          "description": "Создавайте качественный контент, который нравится пользователям."
+        },
+        "earn": {
+          "title": "Зарабатывать",
+          "description": "Зарабатывайте PSC, когда ваш контент получает просмотры, лайки, комментарии и закладки."
+        },
+        "use": {
+          "title": "Использовать",
+          "description": "Обменивайте PSC на подписки. Starter всего 9 PSC/месяц."
+        }
+      },
+      "exchange": {
+        "membershipExchange": "Цены подписок в PSC",
+        "starterRate": "Подписка Starter = 9 PSC / месяц",
+        "seePlans": "Смотреть планы"
+      }
+    },
     "balance": {
       "currentBalance": "Текущий баланс",
       "totalEarned": "Всего заработано",

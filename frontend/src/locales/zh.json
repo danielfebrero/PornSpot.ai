@@ -1947,6 +1947,32 @@
       "unknownError": "发生未知错误",
       "tryAgain": "重试"
     },
+    "public": {
+      "title": "PornSpotCoin",
+      "tokenDescription": "这是一个因热门内容和个人资料浏览而获得奖励的代币。",
+      "membershipDescription": "使用它在 pornspot.ai 上购买会员资格。",
+      "starterMembership": "Starter 会员：1个月9个PSC。",
+      "exploreMemberships": "探索会员资格",
+      "howItWorks": {
+        "create": {
+          "title": "创建",
+          "description": "生成用户喜爱的高质量内容。"
+        },
+        "earn": {
+          "title": "赚取",
+          "description": "当您的内容获得浏览、点赞、评论和收藏时赚取PSC。"
+        },
+        "use": {
+          "title": "使用",
+          "description": "用PSC兑换会员资格。Starter仅需9个PSC/月。"
+        }
+      },
+      "exchange": {
+        "membershipExchange": "PSC会员价格",
+        "starterRate": "Starter 会员 = 9 PSC / 月",
+        "seePlans": "查看计划"
+      }
+    },
     "balance": {
       "currentBalance": "当前余额",
       "totalEarned": "总收入",

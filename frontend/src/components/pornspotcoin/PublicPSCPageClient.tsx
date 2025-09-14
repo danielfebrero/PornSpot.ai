@@ -30,24 +30,21 @@ export function PublicPSCPageClient() {
               <Coins className="h-4 w-4" /> PSC
             </div>
             <h1 className="text-3xl md:text-5xl font-bold leading-tight">
-              PornSpotCoin
+              {t("public.title")}
             </h1>
             <p className="text-muted-foreground text-base md:text-lg">
               {t("dashboard.description")}
             </p>
             <ul className="list-disc pl-5 text-sm md:text-base space-y-1 text-foreground/90">
-              <li>
-                It&apos;s a token rewarded for popular content and profile
-                views.
-              </li>
-              <li>Use it to purchase memberships on pornspot.ai.</li>
-              <li>Starter membership: 9 PSC for 1 month.</li>
+              <li>{t("public.tokenDescription")}</li>
+              <li>{t("public.membershipDescription")}</li>
+              <li>{t("public.starterMembership")}</li>
             </ul>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <LocaleLink href="/pricing">
                 <Button size="lg" className="w-full sm:w-auto">
-                  Explore memberships
+                  {t("public.exploreMemberships")}
                 </Button>
               </LocaleLink>
             </div>
@@ -106,16 +103,16 @@ export function PublicPSCPageClient() {
       <section className="container mx-auto px-4 py-8 md:py-12">
         <div className="grid md:grid-cols-3 gap-4 md:gap-6">
           <FeatureCard
-            title="Create"
-            description="Generate high-quality content that users love."
+            title={t("public.howItWorks.create.title")}
+            description={t("public.howItWorks.create.description")}
           />
           <FeatureCard
-            title="Earn"
-            description="Earn PSC as your content gets views, likes, comments and bookmarks."
+            title={t("public.howItWorks.earn.title")}
+            description={t("public.howItWorks.earn.description")}
           />
           <FeatureCard
-            title="Use"
-            description="Redeem PSC for memberships. Starter is just 9 PSC/month."
+            title={t("public.howItWorks.use.title")}
+            description={t("public.howItWorks.use.description")}
           />
         </div>
       </section>
@@ -127,16 +124,15 @@ export function PublicPSCPageClient() {
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">
-                  Membership exchange
+                  {t("public.exchange.membershipExchange")}
                 </div>
                 <div className="text-xl md:text-2xl font-semibold">
-                  Starter membership ={" "}
-                  <span className="text-primary">9 PSC</span> / month
+                  {t("public.exchange.starterRate")}
                 </div>
               </div>
               <LocaleLink href="/pricing">
                 <Button size="lg">
-                  See plans
+                  {t("public.exchange.seePlans")}
                   <TrendingUp className="ml-2 h-4 w-4" />
                 </Button>
               </LocaleLink>

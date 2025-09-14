@@ -1994,6 +1994,32 @@
       "unknownError": "Erreur inconnue survenue",
       "tryAgain": "Réessayer"
     },
+    "public": {
+      "title": "PornSpotCoin",
+      "tokenDescription": "C'est un token récompensé pour le contenu populaire et les vues de profil.",
+      "membershipDescription": "Utilisez-le pour acheter des abonnements sur pornspot.ai.",
+      "starterMembership": "Abonnement Starter : 9 PSC pour 1 mois.",
+      "exploreMemberships": "Explorer les abonnements",
+      "howItWorks": {
+        "create": {
+          "title": "Créer",
+          "description": "Générez du contenu de haute qualité que les utilisateurs adorent."
+        },
+        "earn": {
+          "title": "Gagner",
+          "description": "Gagnez des PSC lorsque votre contenu obtient des vues, des likes, des commentaires et des favoris."
+        },
+        "use": {
+          "title": "Utiliser",
+          "description": "Échangez des PSC contre des abonnements. Starter à seulement 9 PSC/mois."
+        }
+      },
+      "exchange": {
+        "membershipExchange": "Prix des abonnements en PSC",
+        "starterRate": "Abonnement Starter = 9 PSC / mois",
+        "seePlans": "Voir les plans"
+      }
+    },
     "balance": {
       "currentBalance": "Solde actuel",
       "totalEarned": "Total gagné",
