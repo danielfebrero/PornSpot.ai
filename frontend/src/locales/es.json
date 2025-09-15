@@ -1829,11 +1829,11 @@
     },
     "informationSharing": {
       "title": "Compartir y Divulgar Información",
-      "content": "No vendemos, intercambiamos ni compartimos su información personal con terceros. Solo usamos SendGrid para entrega de correos electrónicos, que puede retener registros de direcciones de correo electrónico utilizadas. Ningún otro dato se comparte con partes externas. Su contenido generado, prompts e información personal permanecen estrictamente confidenciales dentro de nuestra infraestructura AWS."
+      "content": "No vendemos, intercambiamos ni compartimos su información personal con terceros. Nuestro único servicio de terceros es SendGrid para entrega de correos electrónicos, al cual solo enviamos direcciones de correo electrónico y nombres de usuario - ningún otro dato personal se comparte. SendGrid puede retener registros de direcciones de correo electrónico utilizadas para fines de entrega. Su contenido generado, prompts y otra información personal permanecen estrictamente confidenciales dentro de nuestra infraestructura AWS."
     },
     "dataStorage": {
       "title": "Almacenamiento y Seguridad de Datos",
-      "content": "Sus datos se almacenan de forma segura en servidores AWS us-east-1. Usamos cifrado bcrypt para contraseñas de usuario (mínimo 12 rondas con sal única) para usuarios que se registran directamente. Los usuarios que inician sesión a través de Google Login no comparten contraseñas con nosotros. Todo el contenido NSFW sensible y prompts se almacenan de forma segura dentro de nuestra infraestructura AWS. Implementamos moderación automatizada basada en IA (LLM-as-a-judge) y revisión manual de contenido para todos los prompts de usuario e imágenes generadas."
+      "content": "Sus datos se almacenan de forma segura en servidores AWS us-east-1 con cifrado TLS 1.3 para todos los datos en tránsito. Usamos cifrado bcrypt para contraseñas de usuario (mínimo 12 rondas con sal única) para usuarios que se registran directamente. Los usuarios que inician sesión a través de Google Login no comparten contraseñas con nosotros. Todo el contenido NSFW sensible y prompts se almacenan de forma segura dentro de nuestra infraestructura AWS. Implementamos moderación automatizada basada en IA (LLM-as-a-judge) y revisión manual de contenido para todos los prompts de usuario e imágenes generadas."
     },
     "cookies": {
       "title": "Cookies y Tecnologías de Seguimiento",
@@ -1841,11 +1841,11 @@
     },
     "dataRetention": {
       "title": "Retención de Datos",
-      "content": "Conservamos sus datos indefinidamente para asegurar la calidad y continuidad del servicio. Esto incluye: prompts de usuario (conservados indefinidamente para mejorar nuestros servicios), imágenes generadas y álbumes (preservados para mantener su biblioteca), estadísticas de uso (para análisis interno), e información de cuenta (para proporcionar servicio continuo). Los datos se conservan para garantizar que su biblioteca de imágenes y prompts nunca se pierdan. Puede solicitar eliminación de cuenta contactando support@pornspot.ai, aunque esto resultará en pérdida permanente de todo contenido generado."
+      "content": "Las imágenes no guardadas por los usuarios se eliminan instantánea y permanentemente junto con sus prompts y metadatos asociados. Para el contenido guardado, conservamos sus datos indefinidamente para asegurar la calidad y continuidad del servicio. Esto incluye: prompts de usuario (conservados indefinidamente para mejorar nuestros servicios), imágenes generadas y álbumes (preservados para mantener su biblioteca), estadísticas de uso (para análisis interno), e información de cuenta (para proporcionar servicio continuo). Los datos se conservan para garantizar que su biblioteca de imágenes y prompts nunca se pierdan. Puede solicitar eliminación de cuenta contactando support@pornspot.ai, aunque esto resultará en pérdida permanente de todo contenido generado."
     },
     "yourRights": {
       "title": "Sus Derechos de Privacidad",
-      "content": "Dependiendo de su ubicación, puede tener ciertos derechos con respecto a su información personal, incluido el derecho a acceder, actualizar o eliminar su información. También puede tener el derecho de restringir u oponerse a ciertos procesamientos de sus datos."
+      "content": "Dependiendo de su ubicación, puede tener ciertos derechos con respecto a su información personal, incluido el derecho a acceder, actualizar o eliminar su información. También puede tener el derecho de restringir u oponerse a ciertos procesamientos de sus datos. Proporcionamos herramientas de panel de control en su cuenta de usuario que le permiten acceder, ver y eliminar permanentemente sus datos de forma instantánea a su discreción."
     },
     "childrenPrivacy": {
       "title": "Privacidad de Menores",
@@ -1865,7 +1865,7 @@
     },
     "thirdPartyLinks": {
       "title": "Enlaces de Terceros",
-      "content": "Nuestro servicio puede contener enlaces a sitios web o servicios de terceros. No somos responsables de las prácticas de privacidad de estos terceros. Le recomendamos que lea sus políticas de privacidad antes de proporcionar cualquier información."
+      "content": "Nuestro servicio puede contener enlaces a sitios web o servicios de terceros. No somos responsables de las prácticas de privacidad de estos terceros. Le recomendamos que lea sus políticas de privacidad antes de proporcionar cualquier información. Puede revisar las políticas de privacidad de nuestros servicios de terceros: Política de Privacidad de SendGrid (https://www.twilio.com/en-us/legal/privacy) y Política de Privacidad de Google Login (https://policies.google.com/privacy)."
     },
     "policyChanges": {
       "title": "Cambios a Esta Política de Privacidad",
@@ -1873,11 +1873,11 @@
     },
     "contact": {
       "title": "Contáctenos",
-      "content": "Si tiene alguna pregunta sobre esta Política de Privacidad, solicitudes GDPR o preocupaciones sobre protección de datos, contáctenos en support@pornspot.ai o a través de nuestros canales de soporte. Para quejas y solicitudes tipo GDPR, envíenos un correo electrónico directamente a support@pornspot.ai."
+      "content": "Si tiene alguna pregunta sobre esta Política de Privacidad, solicitudes GDPR o preocupaciones sobre protección de datos, contáctenos en support@pornspot.ai o a través de nuestros canales de soporte. Para asuntos GDPR y protección de datos, nuestro Oficial de Protección de Datos (DPO) es Daniel Febrero, 2 avenue Gambetta, 74000 Annecy, Francia. Para quejas y solicitudes tipo GDPR, envíenos un correo electrónico directamente a support@pornspot.ai."
     },
     "aiEthics": {
       "title": "IA y Ética",
-      "content": "De acuerdo con estándares emergentes (UNESCO, AI Act, ISO/IEC 42001): Transparencia - Documentamos procesos de IA que afectan sus datos, accesibles bajo solicitud. No discriminación - Nuestros algoritmos son auditados para minimizar sesgos (ej.: sesgo de género o cultural en generación de contenido). Contenido sensible - Los prompts e imágenes NSFW están aislados y nunca se reusan sin consentimiento explícito. Protección de datos - No entrenamos modelos de IA con datos de usuario."
+      "content": "De acuerdo con estándares emergentes (UNESCO, AI Act, ISO/IEC 42001): Transparencia - Documentamos procesos de IA que afectan sus datos, accesibles bajo solicitud. No discriminación - Nuestros algoritmos son auditados para minimizar sesgos (ej.: sesgo de género o cultural en generación de contenido). Contenido sensible - Los prompts e imágenes NSFW están aislados y nunca se reusan sin consentimiento explícito. Protección de datos - No entrenamos modelos de IA con datos de usuario. Riesgos específicos NSFW del AI Act: Prevenimos la reproducción de celebridades y la creación de deepfakes prohibiendo la carga de imágenes y filtrando prompts por cualquier referencia de celebridad."
     },
     "ukGdpr": {
       "title": "Cumplimiento GDPR del Reino Unido",

@@ -1878,11 +1878,11 @@
     },
     "informationSharing": {
       "title": "Information Sharing and Disclosure",
-      "content": "We do not sell, trade, or share your personal information with third parties. We only use SendGrid for email delivery, which may retain logs of email addresses used. No other data is shared with external parties. Your generated content, prompts, and personal information remain strictly confidential within our AWS infrastructure."
+      "content": "We do not sell, trade, or share your personal information with third parties. Our only third-party service is SendGrid for email delivery, to which we only send email addresses and usernames - no other personal data is shared. SendGrid may retain logs of email addresses used for delivery purposes. Your generated content, prompts, and other personal information remain strictly confidential within our AWS infrastructure."
     },
     "dataStorage": {
       "title": "Data Storage and Security",
-      "content": "Your data is securely stored on AWS us-east-1 servers. We use bcrypt encryption for user passwords (minimum 12 rounds with unique salt) for users who register directly. Users who sign in via Google Login do not share passwords with us. All sensitive NSFW content and prompts are stored securely within our AWS infrastructure. We implement automated AI-based moderation (LLM-as-a-judge) and manual content review for all user prompts and generated images."
+      "content": "Your data is securely stored on AWS us-east-1 servers with TLS 1.3 encryption for all data in transit. We use bcrypt encryption for user passwords (minimum 12 rounds with unique salt) for users who register directly. Users who sign in via Google Login do not share passwords with us. All sensitive NSFW content and prompts are stored securely within our AWS infrastructure. We implement automated AI-based moderation (LLM-as-a-judge) and manual content review for all user prompts and generated images."
     },
     "cookies": {
       "title": "Cookies and Tracking Technologies",
@@ -1890,11 +1890,11 @@
     },
     "dataRetention": {
       "title": "Data Retention",
-      "content": "We retain your data indefinitely to ensure service quality and continuity. This includes: user prompts (kept indefinitely to improve our services), generated images and albums (preserved to maintain your library), usage statistics (for internal analytics), and account information (to provide ongoing service). Data is retained to guarantee that your image library and prompts are never lost. You may request account deletion by contacting support@pornspot.ai, though this will result in permanent loss of all generated content."
+      "content": "Images not saved by users are instantly and permanently deleted along with their associated prompts and metadata. For saved content, we retain your data indefinitely to ensure service quality and continuity. This includes: user prompts (kept indefinitely to improve our services), generated images and albums (preserved to maintain your library), usage statistics (for internal analytics), and account information (to provide ongoing service). Data is retained to guarantee that your image library and prompts are never lost. You may request account deletion by contacting support@pornspot.ai, though this will result in permanent loss of all generated content."
     },
     "yourRights": {
       "title": "Your Privacy Rights",
-      "content": "Depending on your location, you may have certain rights regarding your personal information, including the right to access, update, or delete your information. You may also have the right to restrict or object to certain processing of your data."
+      "content": "Depending on your location, you may have certain rights regarding your personal information, including the right to access, update, or delete your information. You may also have the right to restrict or object to certain processing of your data. We provide dashboard tools in your user account that allow you to access, view, and permanently delete your data instantly at your discretion."
     },
     "childrenPrivacy": {
       "title": "Children's Privacy",
@@ -1914,7 +1914,7 @@
     },
     "thirdPartyLinks": {
       "title": "Third-Party Links",
-      "content": "Our service may contain links to third-party websites or services. We are not responsible for the privacy practices of these third parties. We encourage you to read their privacy policies before providing any information."
+      "content": "Our service may contain links to third-party websites or services. We are not responsible for the privacy practices of these third parties. We encourage you to read their privacy policies before providing any information. You can review our third-party service privacy policies: SendGrid Privacy Policy (https://www.twilio.com/en-us/legal/privacy) and Google Login Privacy Policy (https://policies.google.com/privacy)."
     },
     "policyChanges": {
       "title": "Changes to This Privacy Policy",
@@ -1922,11 +1922,11 @@
     },
     "contact": {
       "title": "Contact Us",
-      "content": "If you have any questions about this Privacy Policy, GDPR requests, or data protection concerns, please contact us at support@pornspot.ai or through our support channels. For complaints and GDPR-type requests, email us directly at support@pornspot.ai."
+      "content": "If you have any questions about this Privacy Policy, GDPR requests, or data protection concerns, please contact us at support@pornspot.ai or through our support channels. For GDPR and data protection matters, our Data Protection Officer (DPO) is Daniel Febrero, 2 avenue Gambetta, 74000 Annecy, France. For complaints and GDPR-type requests, email us directly at support@pornspot.ai."
     },
     "aiEthics": {
       "title": "AI and Ethics",
-      "content": "In accordance with emerging standards (UNESCO, AI Act, ISO/IEC 42001): Transparency - We document AI processes affecting your data, accessible upon request. Non-discrimination - Our algorithms are audited to minimize bias (e.g., gender or cultural bias in content generation). Sensitive content - NSFW prompts and images are isolated and never reused without explicit consent. Data protection - We do not train AI models with user data."
+      "content": "In accordance with emerging standards (UNESCO, AI Act, ISO/IEC 42001): Transparency - We document AI processes affecting your data, accessible upon request. Non-discrimination - Our algorithms are audited to minimize bias (e.g., gender or cultural bias in content generation). Sensitive content - NSFW prompts and images are isolated and never reused without explicit consent. Data protection - We do not train AI models with user data. AI Act NSFW-specific risks: We prevent celebrity reproduction and deepfake creation by prohibiting image uploads and filtering prompts for any celebrity references."
     },
     "ukGdpr": {
       "title": "UK GDPR Compliance",

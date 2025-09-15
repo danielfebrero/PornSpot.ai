@@ -1877,11 +1877,11 @@
     },
     "informationSharing": {
       "title": "Partage et divulgation d'informations",
-      "content": "Nous ne vendons, n'échangeons ni ne partageons vos informations personnelles avec des tiers. Nous utilisons uniquement SendGrid pour la livraison d'e-mails, qui peut conserver des journaux des adresses e-mail utilisées. Aucune autre donnée n'est partagée avec des parties externes. Votre contenu généré, vos prompts et vos informations personnelles restent strictement confidentiels au sein de notre infrastructure AWS."
+      "content": "Nous ne vendons, n'échangeons ni ne partageons vos informations personnelles avec des tiers. Notre seul service tiers est SendGrid pour la livraison d'e-mails, auquel nous envoyons uniquement les adresses e-mail et les noms d'utilisateur - aucune autre donnée personnelle n'est partagée. SendGrid peut conserver des journaux des adresses e-mail utilisées à des fins de livraison. Votre contenu généré, vos prompts et vos autres informations personnelles restent strictement confidentiels au sein de notre infrastructure AWS."
     },
     "dataStorage": {
       "title": "Stockage et sécurité des données",
-      "content": "Vos données sont stockées de manière sécurisée sur les serveurs AWS us-east-1. Nous utilisons le chiffrement bcrypt pour les mots de passe utilisateur (minimum 12 rounds avec sel unique) pour les utilisateurs qui s'inscrivent directement. Les utilisateurs qui se connectent via Google Login ne partagent pas de mots de passe avec nous. Tout le contenu NSFW sensible et les prompts sont stockés de manière sécurisée au sein de notre infrastructure AWS. Nous mettons en œuvre une modération automatisée basée sur l'IA (LLM-as-a-judge) et une révision manuelle du contenu pour tous les prompts utilisateur et les images générées."
+      "content": "Vos données sont stockées de manière sécurisée sur les serveurs AWS us-east-1 avec un chiffrement TLS 1.3 pour toutes les données en transit. Nous utilisons le chiffrement bcrypt pour les mots de passe utilisateur (minimum 12 rounds avec sel unique) pour les utilisateurs qui s'inscrivent directement. Les utilisateurs qui se connectent via Google Login ne partagent pas de mots de passe avec nous. Tout le contenu NSFW sensible et les prompts sont stockés de manière sécurisée au sein de notre infrastructure AWS. Nous mettons en œuvre une modération automatisée basée sur l'IA (LLM-as-a-judge) et une révision manuelle du contenu pour tous les prompts utilisateur et les images générées."
     },
     "cookies": {
       "title": "Cookies et technologies de suivi",
@@ -1889,11 +1889,11 @@
     },
     "dataRetention": {
       "title": "Conservation des données",
-      "content": "Nous conservons vos données indéfiniment pour garantir la qualité et la continuité du service. Cela inclut : les prompts utilisateur (conservés indéfiniment pour améliorer nos services), les images générées et les albums (préservés pour maintenir votre bibliothèque), les statistiques d'utilisation (pour l'analyse interne), et les informations de compte (pour fournir un service continu). Les données sont conservées pour garantir que votre bibliothèque d'images et vos prompts ne soient jamais perdus. Vous pouvez demander la suppression de votre compte en contactant support@pornspot.ai, bien que cela entraîne la perte permanente de tout le contenu généré."
+      "content": "Les images non conservées par les utilisateurs sont instantanément et définitivement supprimées ainsi que leurs prompts et métadonnées associés. Pour le contenu sauvegardé, nous conservons vos données indéfiniment pour garantir la qualité et la continuité du service. Cela inclut : les prompts utilisateur (conservés indéfiniment pour améliorer nos services), les images générées et les albums (préservés pour maintenir votre bibliothèque), les statistiques d'utilisation (pour l'analyse interne), et les informations de compte (pour fournir un service continu). Les données sont conservées pour garantir que votre bibliothèque d'images et vos prompts ne soient jamais perdus. Vous pouvez demander la suppression de votre compte en contactant support@pornspot.ai, bien que cela entraîne la perte permanente de tout le contenu généré."
     },
     "yourRights": {
       "title": "Vos droits de confidentialité",
-      "content": "Selon votre localisation, vous pouvez avoir certains droits concernant vos informations personnelles, y compris le droit d'accéder, de mettre à jour ou de supprimer vos informations. Vous pouvez également avoir le droit de restreindre ou de vous opposer à certains traitements de vos données."
+      "content": "Selon votre localisation, vous pouvez avoir certains droits concernant vos informations personnelles, y compris le droit d'accéder, de mettre à jour ou de supprimer vos informations. Vous pouvez également avoir le droit de restreindre ou de vous opposer à certains traitements de vos données. Nous fournissons des outils de tableau de bord dans votre compte utilisateur qui vous permettent d'accéder, de consulter et de supprimer définitivement vos données instantanément à votre convenance."
     },
     "childrenPrivacy": {
       "title": "Confidentialité des enfants",
@@ -1913,7 +1913,7 @@
     },
     "thirdPartyLinks": {
       "title": "Liens vers des tiers",
-      "content": "Notre service peut contenir des liens vers des sites web ou services tiers. Nous ne sommes pas responsables des pratiques de confidentialité de ces tiers. Nous vous encourageons à lire leurs politiques de confidentialité avant de fournir des informations."
+      "content": "Notre service peut contenir des liens vers des sites web ou services tiers. Nous ne sommes pas responsables des pratiques de confidentialité de ces tiers. Nous vous encourageons à lire leurs politiques de confidentialité avant de fournir des informations. Vous pouvez consulter les politiques de confidentialité de nos services tiers : Politique de confidentialité SendGrid (https://www.twilio.com/en-us/legal/privacy) et Politique de confidentialité Google Login (https://policies.google.com/privacy)."
     },
     "policyChanges": {
       "title": "Modifications de cette politique de confidentialité",
@@ -1921,11 +1921,11 @@
     },
     "contact": {
       "title": "Nous contacter",
-      "content": "Si vous avez des questions sur cette Politique de confidentialité, des demandes RGPD, ou des préoccupations concernant la protection des données, veuillez nous contacter à support@pornspot.ai ou via nos canaux de support. Pour les plaintes et les demandes de type RGPD, envoyez-nous un e-mail directement à support@pornspot.ai."
+      "content": "Si vous avez des questions sur cette Politique de confidentialité, des demandes RGPD, ou des préoccupations concernant la protection des données, veuillez nous contacter à support@pornspot.ai ou via nos canaux de support. Pour les questions RGPD et de protection des données, notre Délégué à la Protection des Données (DPO) est Daniel Febrero, 2 avenue Gambetta, 74000 Annecy, France. Pour les plaintes et les demandes de type RGPD, envoyez-nous un e-mail directement à support@pornspot.ai."
     },
     "aiEthics": {
       "title": "IA et Éthique",
-      "content": "Conformément aux standards émergents (UNESCO, AI Act, ISO/IEC 42001) : Transparence - Nous documentons les processus IA affectant vos données, accessibles sur demande. Non-discrimination - Nos algorithmes sont audités pour minimiser les biais (ex. : biais de genre ou culturels dans la génération de contenu). Contenu sensible - Les prompts et images NSFW sont isolés et ne sont jamais réutilisés sans consentement explicite. Protection des données - Nous n'entraînons pas les modèles d'IA avec les données des utilisateurs."
+      "content": "Conformément aux standards émergents (UNESCO, AI Act, ISO/IEC 42001) : Transparence - Nous documentons les processus IA affectant vos données, accessibles sur demande. Non-discrimination - Nos algorithmes sont audités pour minimiser les biais (ex. : biais de genre ou culturels dans la génération de contenu). Contenu sensible - Les prompts et images NSFW sont isolés et ne sont jamais réutilisés sans consentement explicite. Protection des données - Nous n'entraînons pas les modèles d'IA avec les données des utilisateurs. Risques spécifiques NSFW de l'AI Act : Nous empêchons la reproduction de célébrités et la création de deepfakes en interdisant l'upload d'images et en filtrant les prompts de toute référence de célébrité."
     },
     "ukGdpr": {
       "title": "Conformité RGPD Royaume-Uni",

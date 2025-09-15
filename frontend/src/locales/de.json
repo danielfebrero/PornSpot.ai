@@ -1829,11 +1829,11 @@
     },
     "informationSharing": {
       "title": "Informationsaustausch und -offenlegung",
-      "content": "Wir verkaufen, tauschen oder teilen Ihre persönlichen Informationen nicht mit Dritten. Wir verwenden nur SendGrid für die E-Mail-Zustellung, das möglicherweise Protokolle der verwendeten E-Mail-Adressen aufbewahrt. Keine anderen Daten werden mit externen Parteien geteilt. Ihre generierten Inhalte, Prompts und persönlichen Informationen bleiben strikt vertraulich innerhalb unserer AWS-Infrastruktur."
+      "content": "Wir verkaufen, tauschen oder teilen Ihre persönlichen Informationen nicht mit Dritten. Unser einziger Drittanbieter-Service ist SendGrid für die E-Mail-Zustellung, an den wir nur E-Mail-Adressen und Benutzernamen senden - keine anderen persönlichen Daten werden geteilt. SendGrid kann Protokolle der für Zustellungszwecke verwendeten E-Mail-Adressen aufbewahren. Ihre generierten Inhalte, Prompts und anderen persönlichen Informationen bleiben strikt vertraulich innerhalb unserer AWS-Infrastruktur."
     },
     "dataStorage": {
       "title": "Datenspeicherung und -sicherheit",
-      "content": "Ihre Daten werden sicher auf AWS us-east-1 Servern gespeichert. Wir verwenden bcrypt-Verschlüsselung für Benutzerpasswörter (mindestens 12 Runden mit eindeutigem Salt) für Benutzer, die sich direkt registrieren. Benutzer, die sich über Google Login anmelden, teilen keine Passwörter mit uns. Alle sensiblen NSFW-Inhalte und Prompts werden sicher in unserer AWS-Infrastruktur gespeichert. Wir implementieren automatisierte KI-basierte Moderation (LLM-as-a-judge) und manuelle Inhaltsüberprüfung für alle Benutzer-Prompts und generierten Bilder."
+      "content": "Ihre Daten werden sicher auf AWS us-east-1 Servern mit TLS 1.3 Verschlüsselung für alle Daten im Transit gespeichert. Wir verwenden bcrypt-Verschlüsselung für Benutzerpasswörter (mindestens 12 Runden mit eindeutigem Salt) für Benutzer, die sich direkt registrieren. Benutzer, die sich über Google Login anmelden, teilen keine Passwörter mit uns. Alle sensiblen NSFW-Inhalte und Prompts werden sicher in unserer AWS-Infrastruktur gespeichert. Wir implementieren automatisierte KI-basierte Moderation (LLM-as-a-judge) und manuelle Inhaltsüberprüfung für alle Benutzer-Prompts und generierten Bilder."
     },
     "cookies": {
       "title": "Cookies und Tracking-Technologien",
@@ -1841,11 +1841,11 @@
     },
     "dataRetention": {
       "title": "Datenaufbewahrung",
-      "content": "Wir bewahren Ihre Daten unbegrenzt auf, um Servicequalität und Kontinuität zu gewährleisten. Dies umfasst: Benutzer-Prompts (unbegrenzt aufbewahrt zur Verbesserung unserer Services), generierte Bilder und Alben (aufbewahrt zur Erhaltung Ihrer Bibliothek), Nutzungsstatistiken (für interne Analysen) und Kontoinformationen (zur Bereitstellung kontinuierlicher Services). Daten werden aufbewahrt, um zu garantieren, dass Ihre Bilderbibliothek und Prompts niemals verloren gehen. Sie können die Kontolöschung durch Kontaktaufnahme mit support@pornspot.ai beantragen, obwohl dies zum dauerhaften Verlust aller generierten Inhalte führt."
+      "content": "Bilder, die nicht von Benutzern gespeichert werden, werden sofort und dauerhaft zusammen mit ihren zugehörigen Prompts und Metadaten gelöscht. Für gespeicherte Inhalte bewahren wir Ihre Daten unbegrenzt auf, um Servicequalität und Kontinuität zu gewährleisten. Dies umfasst: Benutzer-Prompts (unbegrenzt aufbewahrt zur Verbesserung unserer Services), generierte Bilder und Alben (aufbewahrt zur Erhaltung Ihrer Bibliothek), Nutzungsstatistiken (für interne Analysen) und Kontoinformationen (zur Bereitstellung kontinuierlicher Services). Daten werden aufbewahrt, um zu garantieren, dass Ihre Bilderbibliothek und Prompts niemals verloren gehen. Sie können die Kontolöschung durch Kontaktaufnahme mit support@pornspot.ai beantragen, obwohl dies zum dauerhaften Verlust aller generierten Inhalte führt."
     },
     "yourRights": {
       "title": "Ihre Datenschutzrechte",
-      "content": "Je nach Ihrem Standort haben Sie möglicherweise bestimmte Rechte bezüglich Ihrer persönlichen Informationen, einschließlich des Rechts auf Zugang, Aktualisierung oder Löschung Ihrer Informationen. Sie können auch das Recht haben, bestimmte Verarbeitungen Ihrer Daten zu beschränken oder zu widersprechen."
+      "content": "Je nach Ihrem Standort haben Sie möglicherweise bestimmte Rechte bezüglich Ihrer persönlichen Informationen, einschließlich des Rechts auf Zugang, Aktualisierung oder Löschung Ihrer Informationen. Sie können auch das Recht haben, bestimmte Verarbeitungen Ihrer Daten zu beschränken oder zu widersprechen. Wir stellen Dashboard-Tools in Ihrem Benutzerkonto bereit, die es Ihnen ermöglichen, nach eigenem Ermessen sofort auf Ihre Daten zuzugreifen, sie einzusehen und dauerhaft zu löschen."
     },
     "childrenPrivacy": {
       "title": "Kinderdatenschutz",
@@ -1865,7 +1865,7 @@
     },
     "thirdPartyLinks": {
       "title": "Drittanbieter-Links",
-      "content": "Unser Service kann Links zu Drittanbieter-Websites oder -Diensten enthalten. Wir sind nicht verantwortlich für die Datenschutzpraktiken dieser Dritten. Wir ermutigen Sie, deren Datenschutzrichtlinien zu lesen, bevor Sie Informationen bereitstellen."
+      "content": "Unser Service kann Links zu Drittanbieter-Websites oder -Diensten enthalten. Wir sind nicht verantwortlich für die Datenschutzpraktiken dieser Dritten. Wir ermutigen Sie, deren Datenschutzrichtlinien zu lesen, bevor Sie Informationen bereitstellen. Sie können die Datenschutzrichtlinien unserer Drittanbieter-Services einsehen: SendGrid Datenschutzrichtlinie (https://www.twilio.com/en-us/legal/privacy) und Google Login Datenschutzrichtlinie (https://policies.google.com/privacy)."
     },
     "policyChanges": {
       "title": "Änderungen an dieser Datenschutzrichtlinie",
@@ -1873,11 +1873,11 @@
     },
     "contact": {
       "title": "Kontaktieren Sie uns",
-      "content": "Wenn Sie Fragen zu dieser Datenschutzrichtlinie, DSGVO-Anfragen oder Datenschutzbedenken haben, kontaktieren Sie uns bitte unter support@pornspot.ai oder über unsere Support-Kanäle. Für Beschwerden und DSGVO-Anfragen senden Sie uns direkt eine E-Mail an support@pornspot.ai."
+      "content": "Wenn Sie Fragen zu dieser Datenschutzrichtlinie, DSGVO-Anfragen oder Datenschutzbedenken haben, kontaktieren Sie uns bitte unter support@pornspot.ai oder über unsere Support-Kanäle. Für DSGVO- und Datenschutzangelegenheiten ist unser Datenschutzbeauftragter (DSB) Daniel Febrero, 2 avenue Gambetta, 74000 Annecy, Frankreich. Für Beschwerden und DSGVO-Anfragen senden Sie uns direkt eine E-Mail an support@pornspot.ai."
     },
     "aiEthics": {
       "title": "KI und Ethik",
-      "content": "In Übereinstimmung mit aufkommenden Standards (UNESCO, AI Act, ISO/IEC 42001): Transparenz - Wir dokumentieren KI-Prozesse, die Ihre Daten betreffen, auf Anfrage verfügbar. Nicht-Diskriminierung - Unsere Algorithmen werden geprüft, um Voreingenommenheit zu minimieren (z.B. Geschlechts- oder kulturelle Voreingenommenheit bei der Inhaltsgenerierung). Sensible Inhalte - NSFW-Prompts und -Bilder werden isoliert und niemals ohne ausdrückliche Zustimmung wiederverwendet. Datenschutz - Wir trainieren keine KI-Modelle mit Benutzerdaten."
+      "content": "In Übereinstimmung mit aufkommenden Standards (UNESCO, AI Act, ISO/IEC 42001): Transparenz - Wir dokumentieren KI-Prozesse, die Ihre Daten betreffen, auf Anfrage verfügbar. Nicht-Diskriminierung - Unsere Algorithmen werden geprüft, um Voreingenommenheit zu minimieren (z.B. Geschlechts- oder kulturelle Voreingenommenheit bei der Inhaltsgenerierung). Sensible Inhalte - NSFW-Prompts und -Bilder werden isoliert und niemals ohne ausdrückliche Zustimmung wiederverwendet. Datenschutz - Wir trainieren keine KI-Modelle mit Benutzerdaten. AI Act NSFW-spezifische Risiken: Wir verhindern die Reproduktion von Prominenten und die Erstellung von Deepfakes, indem wir Bild-Uploads verbieten und Prompts nach Prominentenbezügen filtern."
     },
     "ukGdpr": {
       "title": "UK DSGVO-Konformität",
