@@ -329,19 +329,15 @@ export function GenerateClient() {
     }, 0);
   };
 
-  // Update prompt when optimized
   useEffect(() => {
-    if (optimizationStream !== null && optimizationStream !== settings.prompt) {
+    if (optimizationStream !== null) {
+      // Cache the optimized prompt
       setOptimizedPromptCache(optimizationStream);
+
+      // Update the settings immediately if magic text is not showing
       updateSettings("prompt", optimizationStream);
     }
-    // include necessary deps to satisfy hooks rules
-  }, [
-    optimizationStream,
-    settings.prompt,
-    setOptimizedPromptCache,
-    updateSettings,
-  ]);
+  }, [optimizationStream, setOptimizedPromptCache, updateSettings]);
 
   // Auto-scroll opened parameter section into view on mobile/tablet
   useEffect(() => {
@@ -566,7 +562,7 @@ export function GenerateClient() {
       {!canUseLoras && settings.loraSelectionMode === "manual" && (
         <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
           <p className="text-xs text-amber-700 dark:text-amber-300">
-            Upgrade to Pro to use LoRA models
+            {t("upgradeToProForLora")}
           </p>
         </div>
       )}
@@ -1369,7 +1365,7 @@ export function GenerateClient() {
         </AnimatePresence>
 
         {/* Fixed Generate Button - Higher z-index to stay above footer */}
-        <div className="fixed bottom-[63px] left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t z-50">
+        <div className="fixed bottom-[62px] left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t z-50">
           <Button
             onClick={
               isGenerating || isOptimizing
@@ -1462,7 +1458,7 @@ export function GenerateClient() {
                       : "bg-amber-500"
                   )}
                 />
-                {plan} Plan
+                {plan} {t("plan")}
               </div>
             </Badge>
             {remaining !== "unlimited" && (
@@ -1521,7 +1517,7 @@ export function GenerateClient() {
                         className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"
                       >
                         <X className="h-3 w-3" />
-                        Clear
+                        {t("clear")}
                       </button>
                     )}
                   </div>
@@ -1548,7 +1544,7 @@ export function GenerateClient() {
                     <div>
                       <p className="font-medium">{t("optimizePrompt")}</p>
                       <p className="text-xs text-muted-foreground">
-                        Enhance with AI
+                        {t("enhanceWithAi")}
                       </p>
                     </div>
                   </div>
@@ -1580,7 +1576,7 @@ export function GenerateClient() {
               <CardHeader>
                 <h3 className="font-semibold flex items-center gap-2">
                   <Settings2 className="h-4 w-4" />
-                  Quick Settings
+                  {t("quickSettings")}
                 </h3>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -1631,7 +1627,7 @@ export function GenerateClient() {
                   {!canUseCustomSizes() && (
                     <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
                       <Crown className="h-3 w-3" />
-                      Pro feature
+                      {t("proFeature")}
                     </p>
                   )}
                 </div>
@@ -1665,7 +1661,7 @@ export function GenerateClient() {
                   {!canUseBulk && (
                     <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
                       <Crown className="h-3 w-3" />
-                      Bulk generation is a Pro feature
+                      {t("bulkGenerationProFeature")}
                     </p>
                   )}
                 </div>
@@ -1698,7 +1694,7 @@ export function GenerateClient() {
                   {!canCreatePrivateContent() && (
                     <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
                       <Crown className="h-3 w-3" />
-                      Private content is a Pro feature
+                      {t("privateContentProFeature")}
                     </p>
                   )}
                 </div>
@@ -1711,11 +1707,11 @@ export function GenerateClient() {
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold flex items-center gap-2">
                     <SlidersHorizontal className="h-4 w-4" />
-                    Advanced Settings
+                    {t("advancedSettings")}
                   </h3>
                   <Button variant="ghost" size="sm" onClick={resetSettings}>
                     <RotateCcw className="h-3 w-3 mr-1" />
-                    Reset
+                    {t("reset")}
                   </Button>
                 </div>
               </CardHeader>
@@ -1785,7 +1781,7 @@ export function GenerateClient() {
                       updateSettings("seed", parseInt(e.target.value) || 0)
                     }
                     disabled={!canUseSeed()}
-                    placeholder="Random seed"
+                    placeholder={t("randomSeed")}
                   />
                 </div>
 
@@ -1886,7 +1882,9 @@ export function GenerateClient() {
             ) : filteredGeneratedImages.length > 0 ? (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Generated Images</h3>
+                  <h3 className="text-lg font-semibold">
+                    {t("generatedImages")}
+                  </h3>
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary">
                       {filteredGeneratedImages.length}{" "}
@@ -1897,7 +1895,7 @@ export function GenerateClient() {
                     <div className="flex items-center gap-1">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                       <span className="text-xs text-muted-foreground">
-                        Complete
+                        {t("complete")}
                       </span>
                     </div>
                   </div>
@@ -1941,38 +1939,12 @@ export function GenerateClient() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold mb-2">
-                        No images generated yet
+                        {t("noImagesGenerated")}
                       </h3>
                       <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                        Enter a prompt and click generate to create amazing AI
-                        images
+                        {t("enterPromptToGenerate")}
                       </p>
                     </div>
-                    {!settings.prompt && (
-                      <div className="pt-4">
-                        <p className="text-xs text-muted-foreground mb-3">
-                          Need inspiration? Try one of these:
-                        </p>
-                        <div className="flex flex-wrap gap-2 justify-center">
-                          {[
-                            "A majestic dragon in clouds",
-                            "Cyberpunk city at night",
-                            "Fantasy forest with magic",
-                            "Portrait in oil painting style",
-                          ].map((suggestion) => (
-                            <button
-                              key={suggestion}
-                              onClick={() =>
-                                updateSettings("prompt", suggestion)
-                              }
-                              className="px-3 py-1 text-xs bg-muted hover:bg-muted/80 rounded-full transition-colors"
-                            >
-                              {suggestion}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -1988,7 +1960,7 @@ export function GenerateClient() {
                       {t("recentGenerations")}
                     </h3>
                     <Badge variant="outline">
-                      {filteredAllGeneratedImages.length} total
+                      {filteredAllGeneratedImages.length} {t("total")}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -2020,8 +1992,8 @@ export function GenerateClient() {
                   {filteredAllGeneratedImages.length > 20 && (
                     <div className="mt-4 text-center">
                       <p className="text-sm text-muted-foreground">
-                        +{filteredAllGeneratedImages.length - 20} more images in
-                        history
+                        +{filteredAllGeneratedImages.length - 20}{" "}
+                        {t("moreImagesInHistory")}
                       </p>
                     </div>
                   )}
@@ -2039,7 +2011,9 @@ export function GenerateClient() {
               <Card className="w-80 shadow-2xl border-2 no-spin-desktop">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-sm">Custom Dimensions</h4>
+                    <h4 className="font-semibold text-sm">
+                      {t("customDimensions")}
+                    </h4>
                     <button
                       onClick={() => updateSettings("imageSize", "1024x1024")}
                       className="p-1 hover:bg-muted rounded-lg transition-colors"
@@ -2139,7 +2113,7 @@ export function GenerateClient() {
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t">
                     <span className="text-xs text-muted-foreground">
-                      Aspect Ratio:{" "}
+                      {t("aspectRatio")}:{" "}
                       {(settings.customWidth / settings.customHeight).toFixed(
                         2
                       )}
@@ -2150,7 +2124,7 @@ export function GenerateClient() {
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { label: "Square", width: 1024, height: 1024 },
+                      { label: t("square"), width: 1024, height: 1024 },
                       { label: "16:9", width: 1792, height: 1024 },
                       { label: "9:16", width: 1024, height: 1792 },
                     ].map((preset) => (
