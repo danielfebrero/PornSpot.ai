@@ -140,7 +140,7 @@
 
 [ ] Redesign Generate page for mobile.
 
-[ ] Integrate "select many" in admin page.
+[x] Integrate "select many" in admin page.
 
 [ ] Integrate "select many" in other users pages and Generate page.
 

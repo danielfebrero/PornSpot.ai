@@ -398,7 +398,7 @@ export default function SettingsPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center space-x-3 mb-2">
+          <div className="flex items-center gap-3 mb-2">
             <SettingsIcon className="h-8 w-8 text-primary" />
             <h1 className="text-3xl font-bold text-foreground">
               {tSettings("title")}
@@ -410,8 +410,8 @@ export default function SettingsPage() {
         <div className="space-y-8">
           {/* Notifications Settings */}
           <Card>
-            <CardHeader className="flex flex-row items-center space-y-0 pb-4">
-              <div className="flex items-center space-x-3">
+            <CardHeader className="flex flex-row items-center pb-4">
+              <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-primary" />
                 <div>
                   <h2 className="text-xl font-semibold">
@@ -438,6 +438,7 @@ export default function SettingsPage() {
                       updateEmailPreference("pscBalance", next, prev);
                     }}
                     disabled={isSavingEmailPrefs}
+                    aria-label={tSettings("notifications.pscBalance.label")}
                     className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
                   >
                     <option value="intelligently">
@@ -462,6 +463,7 @@ export default function SettingsPage() {
                       updateEmailPreference("unreadNotifications", next, prev);
                     }}
                     disabled={isSavingEmailPrefs}
+                    aria-label={tSettings("notifications.unread.label")}
                     className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
                   >
                     <option value="intelligently">
@@ -479,8 +481,8 @@ export default function SettingsPage() {
           </Card>
           {/* Language Settings */}
           <Card>
-            <CardHeader className="flex flex-row items-center space-y-0 pb-4">
-              <div className="flex items-center space-x-3">
+            <CardHeader className="flex flex-row items-center pb-4">
+              <div className="flex items-center gap-3">
                 <Globe className="h-5 w-5 text-primary" />
                 <div>
                   <h2 className="text-xl font-semibold">
@@ -503,6 +505,7 @@ export default function SettingsPage() {
                     value={isLanguageAutomatic ? "auto" : selectedLanguage}
                     onChange={(e) => handleLanguageChange(e.target.value)}
                     disabled={isChangingLanguage}
+                    aria-label={tSettings("language.current")}
                     className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
                   >
                     <option value="auto">
@@ -533,8 +536,8 @@ export default function SettingsPage() {
 
           {/* Usage & Quotas */}
           <Card>
-            <CardHeader className="flex flex-row items-center space-y-0 pb-4">
-              <div className="flex items-center space-x-3">
+            <CardHeader className="flex flex-row items-center pb-4">
+              <div className="flex items-center gap-3">
                 <BarChart3 className="h-5 w-5 text-primary" />
                 <div>
                   <h2 className="text-xl font-semibold">
@@ -600,8 +603,8 @@ export default function SettingsPage() {
 
           {/* Subscription Management */}
           <Card>
-            <CardHeader className="flex flex-row items-center space-y-0 pb-4">
-              <div className="flex items-center space-x-3">
+            <CardHeader className="flex flex-row items-center pb-4">
+              <div className="flex items-center gap-3">
                 <CreditCard className="h-5 w-5 text-primary" />
                 <div>
                   <h2 className="text-xl font-semibold">
@@ -621,10 +624,10 @@ export default function SettingsPage() {
                 <UserPlanBadge plan={user.planInfo.plan} />
               </div>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
                 {currentPlan === "free" && (
                   <LocaleLink href="/pricing">
-                    <Button className="flex items-center space-x-2">
+                    <Button className="w-full sm:w-auto justify-center flex items-center gap-2">
                       <span>{tSettings("subscription.upgrade")}</span>
                       <ExternalLink className="h-4 w-4" />
                     </Button>
@@ -633,7 +636,7 @@ export default function SettingsPage() {
 
                 {currentPlan !== "free" && currentPlan !== "pro" && (
                   <LocaleLink href="/pricing">
-                    <Button className="flex items-center space-x-2">
+                    <Button className="w-full sm:w-auto justify-center flex items-center gap-2">
                       <span>
                         {tSettings("subscription.actions.upgradeTo", {
                           plan: "Pro",
@@ -648,7 +651,7 @@ export default function SettingsPage() {
                   <Button
                     variant="outline"
                     onClick={() => setShowCancelSubscription(true)}
-                    className="text-destructive hover:bg-destructive/10"
+                    className="w-full sm:w-auto justify-center text-destructive hover:bg-destructive/10"
                   >
                     {tSettings("subscription.cancel")}
                   </Button>
@@ -658,18 +661,19 @@ export default function SettingsPage() {
               {/* Cancellation Confirmation Modal */}
               {showCancelSubscription && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                  <div className="bg-card rounded-lg border max-w-md w-full p-6">
+                  <div className="bg-card rounded-lg border max-w-md w-full p-4 sm:p-6 max-h-[85vh] overflow-y-auto">
                     <h3 className="text-lg font-semibold mb-2">
                       {tSettings("subscription.confirmCancel.title")}
                     </h3>
                     <p className="text-muted-foreground mb-6">
                       {tSettings("subscription.confirmCancel.message")}
                     </p>
-                    <div className="flex space-x-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <Button
                         variant="destructive"
                         onClick={handleCancelSubscription}
                         disabled={isUpdating}
+                        className="w-full sm:w-auto justify-center"
                       >
                         {isUpdating
                           ? tCommon("loading")
@@ -679,6 +683,7 @@ export default function SettingsPage() {
                         variant="outline"
                         onClick={() => setShowCancelSubscription(false)}
                         disabled={isUpdating}
+                        className="w-full sm:w-auto justify-center"
                       >
                         {tSettings("subscription.confirmCancel.keep")}
                       </Button>
@@ -691,8 +696,8 @@ export default function SettingsPage() {
 
           {/* Security Settings */}
           <Card>
-            <CardHeader className="flex flex-row items-center space-y-0 pb-4">
-              <div className="flex items-center space-x-3">
+            <CardHeader className="flex flex-row items-center pb-4">
+              <div className="flex items-center gap-3">
                 <Shield className="h-5 w-5 text-primary" />
                 <div>
                   <h2 className="text-xl font-semibold">
@@ -719,7 +724,7 @@ export default function SettingsPage() {
                     onClick={() =>
                       window.open("https://myaccount.google.com", "_blank")
                     }
-                    className="flex items-center space-x-2"
+                    className="w-full sm:w-auto justify-center flex items-center gap-2"
                   >
                     <span>{tSettings("security.unavailable.action")}</span>
                     <ExternalLink className="h-4 w-4" />
@@ -807,6 +812,7 @@ export default function SettingsPage() {
                       !passwordData.newPassword ||
                       !passwordData.confirmPassword
                     }
+                    className="w-full sm:w-auto"
                   >
                     {isChangingPassword
                       ? tCommon("loading")
@@ -819,8 +825,8 @@ export default function SettingsPage() {
 
           {/* Danger Zone - Account Deletion */}
           <Card className="border-destructive/20">
-            <CardHeader className="flex flex-row items-center space-y-0 pb-4">
-              <div className="flex items-center space-x-3">
+            <CardHeader className="flex flex-row items-center pb-4">
+              <div className="flex items-center gap-3">
                 <AlertTriangle className="h-5 w-5 text-destructive" />
                 <div>
                   <h2 className="text-xl font-semibold text-destructive">
@@ -843,7 +849,7 @@ export default function SettingsPage() {
                 <Button
                   variant="destructive"
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="flex items-center space-x-2"
+                  className="w-full sm:w-auto justify-center flex items-center gap-2"
                 >
                   <Trash2 className="h-4 w-4" />
                   <span>{tSettings("account.deleteAccount.button")}</span>
@@ -865,14 +871,14 @@ export default function SettingsPage() {
                     />
                   </div>
 
-                  <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row gap-3">
                     <Button
                       variant="destructive"
                       onClick={handleDeleteAccount}
                       disabled={
                         isDeletingAccount || deleteConfirmation !== "DELETE"
                       }
-                      className="flex items-center space-x-2"
+            className="w-full sm:w-auto justify-center flex items-center gap-2"
                     >
                       <Trash2 className="h-4 w-4" />
                       <span>
@@ -889,7 +895,8 @@ export default function SettingsPage() {
                         setShowDeleteConfirm(false);
                         setDeleteConfirmation("");
                       }}
-                      disabled={isDeletingAccount}
+            disabled={isDeletingAccount}
+            className="w-full sm:w-auto"
                     >
                       {tSettings("account.deleteAccount.confirmation.cancel")}
                     </Button>
