@@ -376,6 +376,10 @@ export function GenerateClient() {
     fetchConnectionId();
   }, [fetchConnectionId, isConnected]);
 
+  useEffect(() => {
+    if (!isOptimizing) setShowMagicText(false);
+  }, [isOptimizing, setShowMagicText]);
+
   // Shared LoRA component with individual strength controls
   const LoRAModelsSection = ({ compact = false }: { compact?: boolean }) => (
     <div className="space-y-3">
