@@ -1269,35 +1269,7 @@ export function GenerateClient() {
                 )}
               </AnimatePresence>
 
-              {/* Recent Generations */}
-              {filteredAllGeneratedImages.length > 0 && (
-                <Card>
-                  <CardContent className="p-3">
-                    <h3 className="font-medium mb-2.5 text-sm">
-                      {t("recentGenerations")}
-                    </h3>
-                    <div className="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2">
-                      {filteredAllGeneratedImages
-                        .slice(0, 10)
-                        .map((image, index) => (
-                          <button
-                            key={index}
-                            onClick={() =>
-                              openThumbnailLightbox(image.url || "")
-                            }
-                            className="flex-shrink-0 relative w-14 h-14 rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-colors"
-                          >
-                            <img
-                              src={composeMediaUrl(image.url)}
-                              alt={`${t("previous")} ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                          </button>
-                        ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+              {/* Recent Generations intentionally hidden on Generate tab for mobile/tablet */}
             </motion.div>
           ) : (
             <motion.div
