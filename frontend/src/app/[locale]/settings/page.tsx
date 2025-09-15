@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useLogout } from "@/hooks/queries/useUserQuery";
@@ -24,6 +24,7 @@ import {
   AlertTriangle,
   ExternalLink,
   Trash2,
+  X,
 } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 import { AlertDialog } from "@/components/ui/AlertDialog";
@@ -69,6 +70,7 @@ export default function SettingsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showCancelSubscription, setShowCancelSubscription] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const confirmCancelRef = useRef<HTMLButtonElement | null>(null);
 
   // Loading states
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -82,6 +84,14 @@ export default function SettingsPage() {
     "intelligently" | "never"
   >("intelligently");
   const [isSavingEmailPrefs, setIsSavingEmailPrefs] = useState(false);
+
+  // Focus primary action when modal opens (accessibility)
+  useEffect(() => {
+    if (showCancelSubscription) {
+      const id = setTimeout(() => confirmCancelRef.current?.focus(), 0);
+      return () => clearTimeout(id);
+    }
+  }, [showCancelSubscription]);
 
   // Alert Dialog states
   const [alertDialog, setAlertDialog] = useState<{
@@ -407,8 +417,50 @@ export default function SettingsPage() {
           <p className="text-muted-foreground">{tSettings("description")}</p>
         </div>
 
+        {/* Quick Navigation */}
+        <nav
+          aria-label="Settings sections"
+          className="sticky top-0 z-20 -mx-4 mb-6 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+        >
+          <div className="px-4 overflow-x-auto">
+            <ul className="flex gap-3 py-2 text-sm">
+              <li>
+                <a href="#section-notifications" className="px-3 py-1.5 rounded-full border hover:bg-muted whitespace-nowrap">
+                  {tSettings("notifications.title")}
+                </a>
+              </li>
+              <li>
+                <a href="#section-language" className="px-3 py-1.5 rounded-full border hover:bg-muted whitespace-nowrap">
+                  {tSettings("language.title")}
+                </a>
+              </li>
+              <li>
+                <a href="#section-usage" className="px-3 py-1.5 rounded-full border hover:bg-muted whitespace-nowrap">
+                  {tSettings("usage.title")}
+                </a>
+              </li>
+              <li>
+                <a href="#section-subscription" className="px-3 py-1.5 rounded-full border hover:bg-muted whitespace-nowrap">
+                  {tSettings("subscription.title")}
+                </a>
+              </li>
+              <li>
+                <a href="#section-security" className="px-3 py-1.5 rounded-full border hover:bg-muted whitespace-nowrap">
+                  {tSettings("security.title")}
+                </a>
+              </li>
+              <li>
+                <a href="#section-danger" className="px-3 py-1.5 rounded-full border hover:bg-muted text-destructive whitespace-nowrap">
+                  {tSettings("account.deleteAccount.title")}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
         <div className="space-y-8">
           {/* Notifications Settings */}
+          <div id="section-notifications" className="scroll-mt-24">
           <Card>
             <CardHeader className="flex flex-row items-center pb-4">
               <div className="flex items-center gap-3">
@@ -479,7 +531,9 @@ export default function SettingsPage() {
               {/* Auto-save on change; no explicit save button */}
             </CardContent>
           </Card>
+          </div>
           {/* Language Settings */}
+          <div id="section-language" className="scroll-mt-24">
           <Card>
             <CardHeader className="flex flex-row items-center pb-4">
               <div className="flex items-center gap-3">
@@ -533,8 +587,10 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+          </div>
 
           {/* Usage & Quotas */}
+          <div id="section-usage" className="scroll-mt-24">
           <Card>
             <CardHeader className="flex flex-row items-center pb-4">
               <div className="flex items-center gap-3">
@@ -600,8 +656,10 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+          </div>
 
           {/* Subscription Management */}
+          <div id="section-subscription" className="scroll-mt-24">
           <Card>
             <CardHeader className="flex flex-row items-center pb-4">
               <div className="flex items-center gap-3">
@@ -660,12 +718,33 @@ export default function SettingsPage() {
 
               {/* Cancellation Confirmation Modal */}
               {showCancelSubscription && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                  <div className="bg-card rounded-lg border max-w-md w-full p-4 sm:p-6 max-h-[85vh] overflow-y-auto">
-                    <h3 className="text-lg font-semibold mb-2">
+                <div
+                  className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="cancel-subscription-title"
+                  aria-describedby="cancel-subscription-desc"
+                  onClick={(e) => {
+                    if (e.target === e.currentTarget && !isUpdating) {
+                      setShowCancelSubscription(false);
+                    }
+                  }}
+                >
+                  <div className="bg-card rounded-lg border max-w-md w-full p-4 sm:p-6 max-h-[85vh] overflow-y-auto shadow-xl">
+                    <div className="flex items-start justify-between gap-4">
+                      <h3 id="cancel-subscription-title" className="text-lg font-semibold mb-2">
                       {tSettings("subscription.confirmCancel.title")}
-                    </h3>
-                    <p className="text-muted-foreground mb-6">
+                      </h3>
+                      <button
+                        type="button"
+                        aria-label={tCommon("close")}
+                        onClick={() => !isUpdating && setShowCancelSubscription(false)}
+                        className="-mr-1 -mt-1 rounded p-1 hover:bg-muted"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                    <p className="text-muted-foreground mb-6" id="cancel-subscription-desc">
                       {tSettings("subscription.confirmCancel.message")}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3">
@@ -674,6 +753,7 @@ export default function SettingsPage() {
                         onClick={handleCancelSubscription}
                         disabled={isUpdating}
                         className="w-full sm:w-auto justify-center"
+                        ref={confirmCancelRef}
                       >
                         {isUpdating
                           ? tCommon("loading")
@@ -693,8 +773,10 @@ export default function SettingsPage() {
               )}
             </CardContent>
           </Card>
+          </div>
 
           {/* Security Settings */}
+          <div id="section-security" className="scroll-mt-24">
           <Card>
             <CardHeader className="flex flex-row items-center pb-4">
               <div className="flex items-center gap-3">
@@ -822,8 +904,10 @@ export default function SettingsPage() {
               )}
             </CardContent>
           </Card>
+          </div>
 
           {/* Danger Zone - Account Deletion */}
+          <div id="section-danger" className="scroll-mt-24">
           <Card className="border-destructive/20">
             <CardHeader className="flex flex-row items-center pb-4">
               <div className="flex items-center gap-3">
@@ -871,14 +955,14 @@ export default function SettingsPage() {
                     />
                   </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <Button
                       variant="destructive"
                       onClick={handleDeleteAccount}
                       disabled={
                         isDeletingAccount || deleteConfirmation !== "DELETE"
                       }
-            className="w-full sm:w-auto justify-center flex items-center gap-2"
+                      className="w-full sm:w-auto justify-center flex items-center gap-2"
                     >
                       <Trash2 className="h-4 w-4" />
                       <span>
@@ -895,8 +979,8 @@ export default function SettingsPage() {
                         setShowDeleteConfirm(false);
                         setDeleteConfirmation("");
                       }}
-            disabled={isDeletingAccount}
-            className="w-full sm:w-auto"
+                      disabled={isDeletingAccount}
+                      className="w-full sm:w-auto"
                     >
                       {tSettings("account.deleteAccount.confirmation.cancel")}
                     </Button>
@@ -905,6 +989,7 @@ export default function SettingsPage() {
               )}
             </CardContent>
           </Card>
+          </div>
         </div>
       </div>
 
