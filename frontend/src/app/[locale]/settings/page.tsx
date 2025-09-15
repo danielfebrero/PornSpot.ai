@@ -25,25 +25,50 @@ import {
   ExternalLink,
   Trash2,
   X,
+  Bell,
+  Lock,
+  User,
+  Sparkles,
+  ChevronRight,
+  Check,
+  ArrowLeft,
 } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 import { AlertDialog } from "@/components/ui/AlertDialog";
-import { Mail } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface LanguageOption {
   code: string;
   name: string;
   nativeName: string;
+  flag: string;
 }
 
 const languageOptions: LanguageOption[] = [
-  { code: "en", name: "English", nativeName: "English" },
-  { code: "fr", name: "French", nativeName: "Français" },
-  { code: "de", name: "German", nativeName: "Deutsch" },
-  { code: "es", name: "Spanish", nativeName: "Español" },
-  { code: "ru", name: "Russian", nativeName: "Русский" },
-  { code: "zh", name: "Chinese", nativeName: "中文" },
+  { code: "en", name: "English", nativeName: "English", flag: "🇬🇧" },
+  { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷" },
+  { code: "de", name: "German", nativeName: "Deutsch", flag: "🇩🇪" },
+  { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸" },
+  { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺" },
+  { code: "zh", name: "Chinese", nativeName: "中文", flag: "🇨🇳" },
 ];
+
+type SectionId =
+  | "overview"
+  | "notifications"
+  | "language"
+  | "usage"
+  | "subscription"
+  | "security"
+  | "danger";
+
+interface Section {
+  id: SectionId;
+  title: string;
+  icon: React.ElementType;
+  color: string;
+  badge?: string;
+}
 
 export default function SettingsPage() {
   const { user, loading } = useUserContext();
@@ -55,6 +80,10 @@ export default function SettingsPage() {
   const params = useParams();
   const router = useLocaleRouter();
   const currentLocale = params.locale as string;
+
+  // Mobile navigation state
+  const [activeSection, setActiveSection] = useState<SectionId>("overview");
+  const [isMobile, setIsMobile] = useState(false);
 
   // State for various sections
   const [selectedLanguage, setSelectedLanguage] = useState(
@@ -76,6 +105,7 @@ export default function SettingsPage() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
+
   // Email notification preferences
   const [pscEmailPref, setPscEmailPref] = useState<"intelligently" | "never">(
     "intelligently"
@@ -84,14 +114,6 @@ export default function SettingsPage() {
     "intelligently" | "never"
   >("intelligently");
   const [isSavingEmailPrefs, setIsSavingEmailPrefs] = useState(false);
-
-  // Focus primary action when modal opens (accessibility)
-  useEffect(() => {
-    if (showCancelSubscription) {
-      const id = setTimeout(() => confirmCancelRef.current?.focus(), 0);
-      return () => clearTimeout(id);
-    }
-  }, [showCancelSubscription]);
 
   // Alert Dialog states
   const [alertDialog, setAlertDialog] = useState<{
@@ -105,6 +127,110 @@ export default function SettingsPage() {
     message: "",
     variant: "info",
   });
+
+  const sections: Section[] = [
+    {
+      id: "overview",
+      title: tSettings("overview.title"),
+      icon: User,
+      color: "text-primary",
+    },
+    {
+      id: "notifications",
+      title: tSettings("notifications.title"),
+      icon: Bell,
+      color: "text-blue-500",
+    },
+    {
+      id: "language",
+      title: tSettings("language.title"),
+      icon: Globe,
+      color: "text-green-500",
+    },
+    {
+      id: "usage",
+      title: tSettings("usage.title"),
+      icon: BarChart3,
+      color: "text-purple-500",
+    },
+    {
+      id: "subscription",
+      title: tSettings("subscription.title"),
+      icon: CreditCard,
+      color: "text-yellow-500",
+      badge: user?.planInfo?.plan,
+    },
+    {
+      id: "security",
+      title: tSettings("security.title"),
+      icon: Shield,
+      color: "text-indigo-500",
+    },
+    {
+      id: "danger",
+      title: tSettings("account.deleteAccount.title"),
+      icon: AlertTriangle,
+      color: "text-destructive",
+    },
+  ];
+
+  // Check if mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Focus primary action when modal opens
+  useEffect(() => {
+    if (showCancelSubscription) {
+      const id = setTimeout(() => confirmCancelRef.current?.focus(), 0);
+      return () => clearTimeout(id);
+    }
+  }, [showCancelSubscription]);
+
+  // Initialize language preference
+  useEffect(() => {
+    if (user?.preferredLanguage && user.preferredLanguage !== "") {
+      setSelectedLanguage(user.preferredLanguage);
+      setIsLanguageAutomatic(false);
+      if (currentLocale !== user.preferredLanguage) {
+        router.replace(`/${user.preferredLanguage}/settings`);
+      }
+    } else if (user?.preferredLanguage === "") {
+      const browserLang = navigator.language.split("-")[0];
+      const supportedLang = locales.includes(browserLang as any)
+        ? browserLang
+        : "en";
+      setSelectedLanguage(supportedLang);
+      setIsLanguageAutomatic(true);
+      if (currentLocale !== supportedLang) {
+        router.replace(`/${supportedLang}/settings`);
+      }
+    } else {
+      const browserLang = navigator.language.split("-")[0];
+      const isBrowserLangSupported = locales.includes(browserLang as any);
+      const browserLangMatches =
+        isBrowserLangSupported && browserLang === currentLocale;
+      setSelectedLanguage(currentLocale);
+      setIsLanguageAutomatic(browserLangMatches);
+    }
+  }, [currentLocale, user?.preferredLanguage, router]);
+
+  // Initialize email preferences
+  useEffect(() => {
+    if (user?.emailPreferences) {
+      if (user.emailPreferences.pscBalance) {
+        setPscEmailPref(user.emailPreferences.pscBalance);
+      }
+      if (user.emailPreferences.unreadNotifications) {
+        setUnreadEmailPref(user.emailPreferences.unreadNotifications);
+      }
+    }
+  }, [user?.emailPreferences]);
 
   const showAlert = (
     title: string,
@@ -128,55 +254,6 @@ export default function SettingsPage() {
     });
   };
 
-  useEffect(() => {
-    // Check if user has a language preference
-    if (user?.preferredLanguage && user.preferredLanguage !== "") {
-      // User has a specific language preference set
-      setSelectedLanguage(user.preferredLanguage);
-      setIsLanguageAutomatic(false);
-      // If current locale doesn't match preference, redirect
-      if (currentLocale !== user.preferredLanguage) {
-        router.replace(`/${user.preferredLanguage}/settings`);
-      }
-    } else if (user?.preferredLanguage === "") {
-      // User explicitly chose "auto" mode (empty string)
-      const browserLang = navigator.language.split("-")[0];
-      const supportedLang = locales.includes(browserLang as any)
-        ? browserLang
-        : "en";
-
-      setSelectedLanguage(supportedLang);
-      setIsLanguageAutomatic(true);
-
-      // If current locale doesn't match browser language, redirect
-      if (currentLocale !== supportedLang) {
-        router.replace(`/${supportedLang}/settings`);
-      }
-    } else {
-      // User has never set a preference (undefined/null)
-      // Show automatic if browser language matches current locale
-      const browserLang = navigator.language.split("-")[0];
-      const isBrowserLangSupported = locales.includes(browserLang as any);
-      const browserLangMatches =
-        isBrowserLangSupported && browserLang === currentLocale;
-
-      setSelectedLanguage(currentLocale);
-      setIsLanguageAutomatic(browserLangMatches);
-    }
-  }, [currentLocale, user?.preferredLanguage, router]);
-
-  // Initialize email preferences from user
-  useEffect(() => {
-    if (user?.emailPreferences) {
-      if (user.emailPreferences.pscBalance) {
-        setPscEmailPref(user.emailPreferences.pscBalance);
-      }
-      if (user.emailPreferences.unreadNotifications) {
-        setUnreadEmailPref(user.emailPreferences.unreadNotifications);
-      }
-    }
-  }, [user?.emailPreferences]);
-
   const updateEmailPreference = async (
     field: "pscBalance" | "unreadNotifications",
     value: "intelligently" | "never",
@@ -190,7 +267,6 @@ export default function SettingsPage() {
         },
       });
     } catch (error: unknown) {
-      // revert on error
       if (field === "pscBalance") setPscEmailPref(prevValue);
       else setUnreadEmailPref(prevValue);
       const errorMessage =
@@ -203,38 +279,24 @@ export default function SettingsPage() {
     }
   };
 
-  // Handle language change
   const handleLanguageChange = async (languageCode: string) => {
     setIsChangingLanguage(true);
-
     try {
       if (languageCode === "auto") {
-        // Clear user's language preference to enable automatic detection
         await userApi.updateLanguage("");
-
-        // Get browser language and determine target locale
         const browserLang = navigator.language.split("-")[0];
         const supportedLang = locales.includes(browserLang as any)
           ? browserLang
           : "en";
-
-        // Set the UI state to show automatic mode
         setIsLanguageAutomatic(true);
         setSelectedLanguage(supportedLang);
-
-        // Only navigate if we need to change locale
         if (currentLocale !== supportedLang) {
           router.push(`/${supportedLang}/settings`);
         }
       } else {
-        // Save language preference to user profile
         await userApi.updateLanguage(languageCode);
-
-        // Set manual mode and selection
         setIsLanguageAutomatic(false);
         setSelectedLanguage(languageCode);
-
-        // Navigate to selected language if different
         if (currentLocale !== languageCode) {
           router.push(`/${languageCode}/settings`);
         }
@@ -250,10 +312,8 @@ export default function SettingsPage() {
     }
   };
 
-  // Handle password change
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!user || user.googleId) return;
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -280,13 +340,11 @@ export default function SettingsPage() {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
-
       setPasswordData({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
-
       showAlert(
         tSettings("security.changePassword.title"),
         tSettings("security.changePassword.success"),
@@ -307,7 +365,6 @@ export default function SettingsPage() {
     }
   };
 
-  // Handle account deletion
   const handleDeleteAccount = async () => {
     if (deleteConfirmation !== "DELETE") {
       showAlert(
@@ -321,11 +378,7 @@ export default function SettingsPage() {
     setIsDeletingAccount(true);
     try {
       await userApi.deleteAccount();
-
-      // Log out the user automatically after successful account deletion
       await logoutMutation.mutateAsync();
-
-      // Redirect to home page after deletion and logout
       router.push("/");
     } catch (error: unknown) {
       const errorMessage =
@@ -342,7 +395,6 @@ export default function SettingsPage() {
     }
   };
 
-  // Handle subscription cancellation
   const handleCancelSubscription = async () => {
     setIsUpdating(true);
     try {
@@ -353,7 +405,6 @@ export default function SettingsPage() {
         "success"
       );
       setShowCancelSubscription(false);
-      // Refresh user data
       window.location.reload();
     } catch (error: unknown) {
       const errorMessage =
@@ -368,10 +419,12 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">{tCommon("loading")}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground animate-pulse">
+            {tCommon("loading")}
+          </p>
         </div>
       </div>
     );
@@ -379,619 +432,936 @@ export default function SettingsPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-foreground mb-2">
-            Not authenticated
-          </h2>
-          <p className="text-muted-foreground mb-4">
-            Please log in to access settings.
-          </p>
-          <LocaleLink href="/auth/login">
-            <Button>{t("auth.signIn")}</Button>
-          </LocaleLink>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="text-center py-12">
+            <Lock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Not authenticated
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Please log in to access settings.
+            </p>
+            <LocaleLink href="/auth/login">
+              <Button className="w-full sm:w-auto">{t("auth.signIn")}</Button>
+            </LocaleLink>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   const currentPlan = userPermissions.getCurrentPlan();
   const planLimits = userPermissions.getPlanLimits();
-  const userWithPlan = user;
-  const usageStats = userWithPlan.usageStats || {
+  const usageStats = user.usageStats || {
     imagesGeneratedThisMonth: 0,
     imagesGeneratedToday: 0,
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <SettingsIcon className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold text-foreground">
-              {tSettings("title")}
-            </h1>
-          </div>
-          <p className="text-muted-foreground">{tSettings("description")}</p>
-        </div>
-
-        {/* Quick Navigation */}
-        <nav
-          aria-label="Settings sections"
-          className="sticky top-0 z-20 -mx-4 mb-6 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-        >
-          <div className="px-4 overflow-x-auto">
-            <ul className="flex gap-3 py-2 text-sm">
-              <li>
-                <a href="#section-notifications" className="px-3 py-1.5 rounded-full border hover:bg-muted whitespace-nowrap">
-                  {tSettings("notifications.title")}
-                </a>
-              </li>
-              <li>
-                <a href="#section-language" className="px-3 py-1.5 rounded-full border hover:bg-muted whitespace-nowrap">
-                  {tSettings("language.title")}
-                </a>
-              </li>
-              <li>
-                <a href="#section-usage" className="px-3 py-1.5 rounded-full border hover:bg-muted whitespace-nowrap">
-                  {tSettings("usage.title")}
-                </a>
-              </li>
-              <li>
-                <a href="#section-subscription" className="px-3 py-1.5 rounded-full border hover:bg-muted whitespace-nowrap">
-                  {tSettings("subscription.title")}
-                </a>
-              </li>
-              <li>
-                <a href="#section-security" className="px-3 py-1.5 rounded-full border hover:bg-muted whitespace-nowrap">
-                  {tSettings("security.title")}
-                </a>
-              </li>
-              <li>
-                <a href="#section-danger" className="px-3 py-1.5 rounded-full border hover:bg-muted text-destructive whitespace-nowrap">
-                  {tSettings("account.deleteAccount.title")}
-                </a>
-              </li>
-            </ul>
-          </div>
-        </nav>
-
-        <div className="space-y-8">
-          {/* Notifications Settings */}
-          <div id="section-notifications" className="scroll-mt-24">
-          <Card>
-            <CardHeader className="flex flex-row items-center pb-4">
-              <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-primary" />
-                <div>
-                  <h2 className="text-xl font-semibold">
-                    {tSettings("notifications.title")}
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    {tSettings("notifications.description")}
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-foreground">
-                    {tSettings("notifications.pscBalance.label")}
+  // Mobile View - Single section at a time
+  const MobileView = () => (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <AnimatePresence mode="wait">
+        {activeSection === "overview" ? (
+          <motion.div
+            key="overview"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="min-h-screen"
+          >
+            {/* Header */}
+            <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b">
+              <div className="px-4 py-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+                    <SettingsIcon className="h-5 w-5 text-white" />
                   </div>
-                  <select
-                    value={pscEmailPref}
-                    onChange={(e) => {
-                      const next = e.target.value as "intelligently" | "never";
-                      const prev = pscEmailPref;
-                      setPscEmailPref(next);
-                      updateEmailPreference("pscBalance", next, prev);
-                    }}
-                    disabled={isSavingEmailPrefs}
-                    aria-label={tSettings("notifications.pscBalance.label")}
-                    className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
-                  >
-                    <option value="intelligently">
-                      {tSettings("notifications.options.intelligently")}
-                    </option>
-                    <option value="never">
-                      {tSettings("notifications.options.never")}
-                    </option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-foreground">
-                    {tSettings("notifications.unread.label")}
-                  </div>
-                  <select
-                    value={unreadEmailPref}
-                    onChange={(e) => {
-                      const next = e.target.value as "intelligently" | "never";
-                      const prev = unreadEmailPref;
-                      setUnreadEmailPref(next);
-                      updateEmailPreference("unreadNotifications", next, prev);
-                    }}
-                    disabled={isSavingEmailPrefs}
-                    aria-label={tSettings("notifications.unread.label")}
-                    className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
-                  >
-                    <option value="intelligently">
-                      {tSettings("notifications.options.intelligently")}
-                    </option>
-                    <option value="never">
-                      {tSettings("notifications.options.never")}
-                    </option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Auto-save on change; no explicit save button */}
-            </CardContent>
-          </Card>
-          </div>
-          {/* Language Settings */}
-          <div id="section-language" className="scroll-mt-24">
-          <Card>
-            <CardHeader className="flex flex-row items-center pb-4">
-              <div className="flex items-center gap-3">
-                <Globe className="h-5 w-5 text-primary" />
-                <div>
-                  <h2 className="text-xl font-semibold">
-                    {tSettings("language.title")}
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    {tSettings("language.description")}
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4">
-                <div>
-                  <div className="text-sm font-medium text-foreground">
-                    {tSettings("language.current")}
-                  </div>
-                  <select
-                    id="language-select"
-                    value={isLanguageAutomatic ? "auto" : selectedLanguage}
-                    onChange={(e) => handleLanguageChange(e.target.value)}
-                    disabled={isChangingLanguage}
-                    aria-label={tSettings("language.current")}
-                    className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
-                  >
-                    <option value="auto">
-                      {tSettings("language.automatic")}
-                    </option>
-                    {languageOptions.map((lang) => (
-                      <option key={lang.code} value={lang.code}>
-                        {lang.nativeName} ({lang.name})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  <strong>{tSettings("language.current")}:</strong>{" "}
-                  {isChangingLanguage ? (
-                    <span className="inline-flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-3 w-3 border-b border-primary"></div>
-                      {tCommon("loading")}
-                    </span>
-                  ) : (
-                    languageOptions.find((l) => l.code === currentLocale)
-                      ?.nativeName || "English"
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          </div>
-
-          {/* Usage & Quotas */}
-          <div id="section-usage" className="scroll-mt-24">
-          <Card>
-            <CardHeader className="flex flex-row items-center pb-4">
-              <div className="flex items-center gap-3">
-                <BarChart3 className="h-5 w-5 text-primary" />
-                <div>
-                  <h2 className="text-xl font-semibold">
-                    {tSettings("usage.title")}
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    {tSettings("usage.description")}
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <span className="font-medium">
-                  {tSettings("subscription.currentPlan")}
-                </span>
-                <UserPlanBadge plan={user.planInfo.plan} />
-              </div>
-
-              <div className="grid gap-6 md:grid-cols-2">
-                {/* Daily Usage */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium">
-                      {tSettings("usage.images.daily")}
-                    </h3>
-                    <Badge variant="outline">
-                      {planLimits?.imagesPerDay === "unlimited"
-                        ? tSettings("usage.quotas.unlimited")
-                        : `${usageStats.imagesGeneratedToday} / ${
-                            planLimits?.imagesPerDay || 0
-                          }`}
-                    </Badge>
-                  </div>
-                  <UsageIndicator type="daily" />
-                  <p className="text-xs text-muted-foreground">
-                    {tSettings("usage.resetInfo.daily")}
-                  </p>
-                </div>
-
-                {/* Monthly Usage */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium">
-                      {tSettings("usage.images.monthly")}
-                    </h3>
-                    <Badge variant="outline">
-                      {planLimits?.imagesPerMonth === "unlimited"
-                        ? tSettings("usage.quotas.unlimited")
-                        : `${usageStats.imagesGeneratedThisMonth} / ${
-                            planLimits?.imagesPerMonth || 0
-                          }`}
-                    </Badge>
-                  </div>
-                  <UsageIndicator type="monthly" />
-                  <p className="text-xs text-muted-foreground">
-                    {tSettings("usage.resetInfo.billingCycle")}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          </div>
-
-          {/* Subscription Management */}
-          <div id="section-subscription" className="scroll-mt-24">
-          <Card>
-            <CardHeader className="flex flex-row items-center pb-4">
-              <div className="flex items-center gap-3">
-                <CreditCard className="h-5 w-5 text-primary" />
-                <div>
-                  <h2 className="text-xl font-semibold">
-                    {tSettings("subscription.title")}
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    {tSettings("subscription.description")}
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="font-medium">
-                  {tSettings(`subscription.plans.${currentPlan}`)}
-                </span>
-                <UserPlanBadge plan={user.planInfo.plan} />
-              </div>
-
-              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
-                {currentPlan === "free" && (
-                  <LocaleLink href="/pricing">
-                    <Button className="w-full sm:w-auto justify-center flex items-center gap-2">
-                      <span>{tSettings("subscription.upgrade")}</span>
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </LocaleLink>
-                )}
-
-                {currentPlan !== "free" && currentPlan !== "pro" && (
-                  <LocaleLink href="/pricing">
-                    <Button className="w-full sm:w-auto justify-center flex items-center gap-2">
-                      <span>
-                        {tSettings("subscription.actions.upgradeTo", {
-                          plan: "Pro",
-                        })}
-                      </span>
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </LocaleLink>
-                )}
-
-                {currentPlan !== "free" && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowCancelSubscription(true)}
-                    className="w-full sm:w-auto justify-center text-destructive hover:bg-destructive/10"
-                  >
-                    {tSettings("subscription.cancel")}
-                  </Button>
-                )}
-              </div>
-
-              {/* Cancellation Confirmation Modal */}
-              {showCancelSubscription && (
-                <div
-                  className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-                  role="dialog"
-                  aria-modal="true"
-                  aria-labelledby="cancel-subscription-title"
-                  aria-describedby="cancel-subscription-desc"
-                  onClick={(e) => {
-                    if (e.target === e.currentTarget && !isUpdating) {
-                      setShowCancelSubscription(false);
-                    }
-                  }}
-                >
-                  <div className="bg-card rounded-lg border max-w-md w-full p-4 sm:p-6 max-h-[85vh] overflow-y-auto shadow-xl">
-                    <div className="flex items-start justify-between gap-4">
-                      <h3 id="cancel-subscription-title" className="text-lg font-semibold mb-2">
-                      {tSettings("subscription.confirmCancel.title")}
-                      </h3>
-                      <button
-                        type="button"
-                        aria-label={tCommon("close")}
-                        onClick={() => !isUpdating && setShowCancelSubscription(false)}
-                        className="-mr-1 -mt-1 rounded p-1 hover:bg-muted"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    </div>
-                    <p className="text-muted-foreground mb-6" id="cancel-subscription-desc">
-                      {tSettings("subscription.confirmCancel.message")}
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <Button
-                        variant="destructive"
-                        onClick={handleCancelSubscription}
-                        disabled={isUpdating}
-                        className="w-full sm:w-auto justify-center"
-                        ref={confirmCancelRef}
-                      >
-                        {isUpdating
-                          ? tCommon("loading")
-                          : tSettings("subscription.confirmCancel.confirm")}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => setShowCancelSubscription(false)}
-                        disabled={isUpdating}
-                        className="w-full sm:w-auto justify-center"
-                      >
-                        {tSettings("subscription.confirmCancel.keep")}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          </div>
-
-          {/* Security Settings */}
-          <div id="section-security" className="scroll-mt-24">
-          <Card>
-            <CardHeader className="flex flex-row items-center pb-4">
-              <div className="flex items-center gap-3">
-                <Shield className="h-5 w-5 text-primary" />
-                <div>
-                  <h2 className="text-xl font-semibold">
-                    {tSettings("security.title")}
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    {tSettings("security.description")}
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {user.googleId ? (
-                // OAuth user - can't change password
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <h3 className="font-medium mb-2">
-                    {tSettings("security.unavailable.title")}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {tSettings("security.unavailable.message")}
-                  </p>
-                  <Button
-                    variant="outline"
-                    onClick={() =>
-                      window.open("https://myaccount.google.com", "_blank")
-                    }
-                    className="w-full sm:w-auto justify-center flex items-center gap-2"
-                  >
-                    <span>{tSettings("security.unavailable.action")}</span>
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                // Regular user - can change password
-                <form onSubmit={handlePasswordChange} className="space-y-4">
                   <div>
-                    <h3 className="font-medium mb-4">
-                      {tSettings("security.changePassword.title")}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      {tSettings("security.changePassword.description")}
+                    <h1 className="text-xl font-bold">{tSettings("title")}</h1>
+                    <p className="text-xs text-muted-foreground">
+                      {user.email}
                     </p>
                   </div>
+                </div>
+              </div>
+            </div>
 
-                  <div className="grid gap-4">
+            {/* Overview Cards */}
+            <div className="p-4 space-y-3">
+              {/* Plan Card */}
+              <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-card to-primary/5">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
                     <div>
-                      <div className="text-sm font-medium text-foreground mb-2">
-                        {tSettings("security.changePassword.currentPassword")}
+                      <p className="text-xs text-muted-foreground mb-1">
+                        Current Plan
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <UserPlanBadge plan={user.planInfo.plan} />
+                        {currentPlan !== "free" && (
+                          <Sparkles className="h-4 w-4 text-yellow-500" />
+                        )}
                       </div>
-                      <Input
-                        id="current-password"
-                        type="password"
-                        value={passwordData.currentPassword}
-                        onChange={(e) =>
-                          setPasswordData({
-                            ...passwordData,
-                            currentPassword: e.target.value,
-                          })
-                        }
-                        required
-                      />
                     </div>
-
-                    <div>
-                      <div className="text-sm font-medium text-foreground mb-2">
-                        {tSettings("security.changePassword.newPassword")}
-                      </div>
-                      <Input
-                        id="new-password"
-                        type="password"
-                        value={passwordData.newPassword}
-                        onChange={(e) =>
-                          setPasswordData({
-                            ...passwordData,
-                            newPassword: e.target.value,
-                          })
-                        }
-                        required
-                        minLength={8}
-                      />
-                    </div>
-
-                    <div>
-                      <div className="text-sm font-medium text-foreground mb-2">
-                        {tSettings("security.changePassword.confirmPassword")}
-                      </div>
-                      <Input
-                        id="confirm-password"
-                        type="password"
-                        value={passwordData.confirmPassword}
-                        onChange={(e) =>
-                          setPasswordData({
-                            ...passwordData,
-                            confirmPassword: e.target.value,
-                          })
-                        }
-                        required
-                        minLength={8}
-                      />
-                    </div>
+                    {currentPlan === "free" && (
+                      <LocaleLink href="/pricing">
+                        <Button size="sm" className="text-xs">
+                          Upgrade
+                        </Button>
+                      </LocaleLink>
+                    )}
                   </div>
 
-                  <div className="text-xs text-muted-foreground">
-                    {tSettings("security.changePassword.requirements")}
+                  {/* Quick Usage Stats */}
+                  <div className="grid grid-cols-2 gap-3 mt-4">
+                    <div className="bg-background/50 rounded-lg p-2">
+                      <p className="text-xs text-muted-foreground">Today</p>
+                      <p className="text-sm font-semibold">
+                        {usageStats.imagesGeneratedToday}
+                        {planLimits?.imagesPerDay !== "unlimited" &&
+                          `/${planLimits?.imagesPerDay}`}
+                      </p>
+                    </div>
+                    <div className="bg-background/50 rounded-lg p-2">
+                      <p className="text-xs text-muted-foreground">
+                        This Month
+                      </p>
+                      <p className="text-sm font-semibold">
+                        {usageStats.imagesGeneratedThisMonth}
+                        {planLimits?.imagesPerMonth !== "unlimited" &&
+                          `/${planLimits?.imagesPerMonth}`}
+                      </p>
+                    </div>
                   </div>
+                </CardContent>
+              </Card>
 
-                  <Button
-                    type="submit"
-                    disabled={
-                      isChangingPassword ||
-                      !passwordData.currentPassword ||
-                      !passwordData.newPassword ||
-                      !passwordData.confirmPassword
-                    }
-                    className="w-full sm:w-auto"
+              {/* Settings Menu */}
+              <div className="space-y-2">
+                {sections
+                  .filter((s) => s.id !== "overview")
+                  .map((section) => (
+                    <button
+                      key={section.id}
+                      onClick={() => setActiveSection(section.id)}
+                      className="w-full"
+                    >
+                      <Card
+                        className={`transition-all hover:shadow-md active:scale-[0.98] ${
+                          section.id === "danger"
+                            ? "border-destructive/20 hover:border-destructive/40"
+                            : ""
+                        }`}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`h-10 w-10 rounded-lg bg-gradient-to-br ${
+                                  section.id === "danger"
+                                    ? "from-destructive/20 to-destructive/10"
+                                    : "from-primary/10 to-primary/5"
+                                } flex items-center justify-center`}
+                              >
+                                <section.icon
+                                  className={`h-5 w-5 ${section.color}`}
+                                />
+                              </div>
+                              <div className="text-left">
+                                <h3 className="font-medium text-sm">
+                                  {section.title}
+                                </h3>
+                                {section.badge && (
+                                  <Badge
+                                    variant="outline"
+                                    className="mt-1 text-xs"
+                                  >
+                                    {section.badge}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </button>
+                  ))}
+              </div>
+
+              {/* Sign Out Button */}
+              <Button
+                variant="outline"
+                onClick={() => logoutMutation.mutate()}
+                className="w-full mt-6"
+              >
+                Sign Out
+              </Button>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key={activeSection}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="min-h-screen"
+          >
+            {/* Section Header */}
+            <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b">
+              <div className="px-4 py-4">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setActiveSection("overview")}
+                    className="p-2 -ml-2 hover:bg-muted rounded-lg transition-colors"
                   >
-                    {isChangingPassword
-                      ? tCommon("loading")
-                      : tSettings("security.changePassword.button")}
-                  </Button>
-                </form>
-              )}
-            </CardContent>
-          </Card>
+                    <ArrowLeft className="h-5 w-5" />
+                  </button>
+                  <div className="flex-1">
+                    <h2 className="text-lg font-semibold">
+                      {sections.find((s) => s.id === activeSection)?.title}
+                    </h2>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Section Content */}
+            <div className="p-4">
+              {activeSection === "notifications" && <NotificationsSection />}
+              {activeSection === "language" && <LanguageSection />}
+              {activeSection === "usage" && <UsageSection />}
+              {activeSection === "subscription" && <SubscriptionSection />}
+              {activeSection === "security" && <SecuritySection />}
+              {activeSection === "danger" && <DangerSection />}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+
+  // Desktop View - All sections visible with sidebar
+  const DesktopView = () => (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-12 gap-8">
+          {/* Sidebar */}
+          <div className="col-span-3">
+            <div className="sticky top-8">
+              {/* User Profile Card */}
+              <Card className="mb-6 overflow-hidden">
+                <div className="h-20 bg-gradient-to-br from-primary to-primary/60"></div>
+                <CardContent className="relative pt-0">
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2">
+                    <div className="h-20 w-20 rounded-full bg-card border-4 border-background flex items-center justify-center">
+                      <User className="h-10 w-10 text-muted-foreground" />
+                    </div>
+                  </div>
+                  <div className="text-center pt-12 pb-4">
+                    <h2 className="font-semibold text-lg">
+                      {user.username || "User"}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      {user.email}
+                    </p>
+                    <div className="mt-3">
+                      <UserPlanBadge plan={user.planInfo.plan} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Navigation */}
+              <Card>
+                <CardContent className="p-2">
+                  <nav className="space-y-1">
+                    {sections
+                      .filter((s) => s.id !== "overview")
+                      .map((section) => (
+                        <a
+                          key={section.id}
+                          href={`#${section.id}`}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-muted ${
+                            section.id === "danger"
+                              ? "hover:bg-destructive/10"
+                              : ""
+                          }`}
+                        >
+                          <section.icon
+                            className={`h-4 w-4 ${section.color}`}
+                          />
+                          <span className="text-sm font-medium">
+                            {section.title}
+                          </span>
+                          {section.badge && (
+                            <Badge
+                              variant="outline"
+                              className="ml-auto text-xs"
+                            >
+                              {section.badge}
+                            </Badge>
+                          )}
+                        </a>
+                      ))}
+                  </nav>
+                </CardContent>
+              </Card>
+
+              {/* Sign Out */}
+              <Button
+                variant="outline"
+                onClick={() => logoutMutation.mutate()}
+                className="w-full mt-4"
+              >
+                Sign Out
+              </Button>
+            </div>
           </div>
 
-          {/* Danger Zone - Account Deletion */}
-          <div id="section-danger" className="scroll-mt-24">
-          <Card className="border-destructive/20">
-            <CardHeader className="flex flex-row items-center pb-4">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="h-5 w-5 text-destructive" />
-                <div>
-                  <h2 className="text-xl font-semibold text-destructive">
-                    {tSettings("account.deleteAccount.title")}
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    {tSettings("account.deleteAccount.description")}
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-                <p className="text-sm text-destructive font-medium">
-                  {tSettings("account.deleteAccount.warning")}
-                </p>
-              </div>
+          {/* Main Content */}
+          <div className="col-span-9 space-y-6">
+            {/* Header */}
+            <div>
+              <h1 className="text-3xl font-bold mb-2">{tSettings("title")}</h1>
+              <p className="text-muted-foreground">
+                {tSettings("description")}
+              </p>
+            </div>
 
-              {!showDeleteConfirm ? (
-                <Button
-                  variant="destructive"
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="w-full sm:w-auto justify-center flex items-center gap-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span>{tSettings("account.deleteAccount.button")}</span>
-                </Button>
-              ) : (
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-sm font-medium text-foreground mb-2">
-                      {tSettings("account.deleteAccount.confirmation.type")}
-                    </div>
-                    <Input
-                      id="delete-confirmation"
-                      type="text"
-                      value={deleteConfirmation}
-                      onChange={(e) => setDeleteConfirmation(e.target.value)}
-                      placeholder={tSettings(
-                        "account.deleteAccount.confirmation.placeholder"
-                      )}
-                    />
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button
-                      variant="destructive"
-                      onClick={handleDeleteAccount}
-                      disabled={
-                        isDeletingAccount || deleteConfirmation !== "DELETE"
-                      }
-                      className="w-full sm:w-auto justify-center flex items-center gap-2"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span>
-                        {isDeletingAccount
-                          ? tCommon("loading")
-                          : tSettings(
-                              "account.deleteAccount.confirmation.confirm"
-                            )}
-                      </span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setShowDeleteConfirm(false);
-                        setDeleteConfirmation("");
-                      }}
-                      disabled={isDeletingAccount}
-                      className="w-full sm:w-auto"
-                    >
-                      {tSettings("account.deleteAccount.confirmation.cancel")}
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            {/* Sections */}
+            <div id="notifications" className="scroll-mt-8">
+              <NotificationsSection />
+            </div>
+            <div id="language" className="scroll-mt-8">
+              <LanguageSection />
+            </div>
+            <div id="usage" className="scroll-mt-8">
+              <UsageSection />
+            </div>
+            <div id="subscription" className="scroll-mt-8">
+              <SubscriptionSection />
+            </div>
+            <div id="security" className="scroll-mt-8">
+              <SecuritySection />
+            </div>
+            <div id="danger" className="scroll-mt-8">
+              <DangerSection />
+            </div>
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  // Section Components
+  const NotificationsSection = () => (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-500/10 flex items-center justify-center">
+            <Bell className="h-5 w-5 text-blue-500" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold">
+              {tSettings("notifications.title")}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {tSettings("notifications.description")}
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+            <div>
+              <p className="font-medium text-sm">
+                {tSettings("notifications.pscBalance.label")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Get notified about your balance
+              </p>
+            </div>
+            <select
+              value={pscEmailPref}
+              onChange={(e) => {
+                const next = e.target.value as "intelligently" | "never";
+                const prev = pscEmailPref;
+                setPscEmailPref(next);
+                updateEmailPreference("pscBalance", next, prev);
+              }}
+              disabled={isSavingEmailPrefs}
+              className="px-3 py-1.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="intelligently">
+                {tSettings("notifications.options.intelligently")}
+              </option>
+              <option value="never">
+                {tSettings("notifications.options.never")}
+              </option>
+            </select>
+          </div>
+
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+            <div>
+              <p className="font-medium text-sm">
+                {tSettings("notifications.unread.label")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Unread notifications reminders
+              </p>
+            </div>
+            <select
+              value={unreadEmailPref}
+              onChange={(e) => {
+                const next = e.target.value as "intelligently" | "never";
+                const prev = unreadEmailPref;
+                setUnreadEmailPref(next);
+                updateEmailPreference("unreadNotifications", next, prev);
+              }}
+              disabled={isSavingEmailPrefs}
+              className="px-3 py-1.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="intelligently">
+                {tSettings("notifications.options.intelligently")}
+              </option>
+              <option value="never">
+                {tSettings("notifications.options.never")}
+              </option>
+            </select>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const LanguageSection = () => (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/10 flex items-center justify-center">
+            <Globe className="h-5 w-5 text-green-500" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold">
+              {tSettings("language.title")}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {tSettings("language.description")}
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {/* Auto Option */}
+          <button
+            onClick={() => handleLanguageChange("auto")}
+            className={`w-full p-3 rounded-lg border transition-all ${
+              isLanguageAutomatic
+                ? "border-primary bg-primary/5"
+                : "border-border hover:bg-muted/50"
+            }`}
+            disabled={isChangingLanguage}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🌐</span>
+                <div className="text-left">
+                  <p className="font-medium text-sm">
+                    {tSettings("language.automatic")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Use browser language
+                  </p>
+                </div>
+              </div>
+              {isLanguageAutomatic && (
+                <Check className="h-5 w-5 text-primary" />
+              )}
+            </div>
+          </button>
+
+          {/* Language Options */}
+          {languageOptions.map((lang) => (
+            <button
+              key={lang.code}
+              onClick={() => handleLanguageChange(lang.code)}
+              className={`w-full p-3 rounded-lg border transition-all ${
+                !isLanguageAutomatic && selectedLanguage === lang.code
+                  ? "border-primary bg-primary/5"
+                  : "border-border hover:bg-muted/50"
+              }`}
+              disabled={isChangingLanguage}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{lang.flag}</span>
+                  <div className="text-left">
+                    <p className="font-medium text-sm">{lang.nativeName}</p>
+                    <p className="text-xs text-muted-foreground">{lang.name}</p>
+                  </div>
+                </div>
+                {!isLanguageAutomatic && selectedLanguage === lang.code && (
+                  <Check className="h-5 w-5 text-primary" />
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const UsageSection = () => (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-purple-500/10 flex items-center justify-center">
+            <BarChart3 className="h-5 w-5 text-purple-500" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold">
+              {tSettings("usage.title")}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {tSettings("usage.description")}
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Daily Usage Card */}
+          <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-medium">{tSettings("usage.images.daily")}</h4>
+              <Badge variant="outline" className="bg-background">
+                {planLimits?.imagesPerDay === "unlimited"
+                  ? "∞"
+                  : `${usageStats.imagesGeneratedToday}/${
+                      planLimits?.imagesPerDay || 0
+                    }`}
+              </Badge>
+            </div>
+            <UsageIndicator type="daily" />
+            <p className="text-xs text-muted-foreground mt-2">
+              {tSettings("usage.resetInfo.daily")}
+            </p>
+          </div>
+
+          {/* Monthly Usage Card */}
+          <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-medium">
+                {tSettings("usage.images.monthly")}
+              </h4>
+              <Badge variant="outline" className="bg-background">
+                {planLimits?.imagesPerMonth === "unlimited"
+                  ? "∞"
+                  : `${usageStats.imagesGeneratedThisMonth}/${
+                      planLimits?.imagesPerMonth || 0
+                    }`}
+              </Badge>
+            </div>
+            <UsageIndicator type="monthly" />
+            <p className="text-xs text-muted-foreground mt-2">
+              {tSettings("usage.resetInfo.billingCycle")}
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const SubscriptionSection = () => (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-yellow-500/20 to-yellow-500/10 flex items-center justify-center">
+            <CreditCard className="h-5 w-5 text-yellow-500" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold">
+              {tSettings("subscription.title")}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {tSettings("subscription.description")}
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium">Current Plan</span>
+            <UserPlanBadge plan={user.planInfo.plan} />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {currentPlan === "free"
+              ? "Upgrade to unlock more features"
+              : `Enjoy all ${currentPlan} features`}
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {currentPlan === "free" && (
+            <LocaleLink href="/pricing" className="block">
+              <Button className="w-full" size="lg">
+                <Sparkles className="h-4 w-4 mr-2" />
+                {tSettings("subscription.upgrade")}
+              </Button>
+            </LocaleLink>
+          )}
+
+          {currentPlan !== "free" && currentPlan !== "pro" && (
+            <LocaleLink href="/pricing" className="block">
+              <Button className="w-full" variant="outline">
+                {tSettings("subscription.actions.upgradeTo", { plan: "Pro" })}
+                <ExternalLink className="h-4 w-4 ml-2" />
+              </Button>
+            </LocaleLink>
+          )}
+
+          {currentPlan !== "free" && (
+            <Button
+              variant="outline"
+              onClick={() => setShowCancelSubscription(true)}
+              className="w-full text-destructive hover:bg-destructive/10"
+            >
+              {tSettings("subscription.cancel")}
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const SecuritySection = () => (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-500/20 to-indigo-500/10 flex items-center justify-center">
+            <Shield className="h-5 w-5 text-indigo-500" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold">
+              {tSettings("security.title")}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {tSettings("security.description")}
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {user.googleId ? (
+          <div className="p-4 rounded-lg bg-muted/50">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-8 w-8 rounded-full bg-background flex items-center justify-center">
+                <svg className="h-5 w-5" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-sm">
+                  {tSettings("security.unavailable.title")}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {tSettings("security.unavailable.message")}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() =>
+                window.open("https://myaccount.google.com", "_blank")
+              }
+              className="w-full"
+              size="sm"
+            >
+              {tSettings("security.unavailable.action")}
+              <ExternalLink className="h-3 w-3 ml-2" />
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={handlePasswordChange} className="space-y-4">
+            <div>
+              <label className="text-sm font-medium" htmlFor="current-password">
+                {tSettings("security.changePassword.currentPassword")}
+              </label>
+              <Input
+                id="current-password"
+                type="password"
+                value={passwordData.currentPassword}
+                onChange={(e) =>
+                  setPasswordData({
+                    ...passwordData,
+                    currentPassword: e.target.value,
+                  })
+                }
+                required
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium" htmlFor="new-password">
+                {tSettings("security.changePassword.newPassword")}
+              </label>
+              <Input
+                id="new-password"
+                type="password"
+                value={passwordData.newPassword}
+                onChange={(e) =>
+                  setPasswordData({
+                    ...passwordData,
+                    newPassword: e.target.value,
+                  })
+                }
+                required
+                minLength={8}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium" htmlFor="confirm-password">
+                {tSettings("security.changePassword.confirmPassword")}
+              </label>
+              <Input
+                id="confirm-password"
+                type="password"
+                value={passwordData.confirmPassword}
+                onChange={(e) =>
+                  setPasswordData({
+                    ...passwordData,
+                    confirmPassword: e.target.value,
+                  })
+                }
+                required
+                minLength={8}
+                className="mt-1"
+              />
+            </div>
+
+            <p className="text-xs text-muted-foreground p-2 bg-muted/50 rounded">
+              {tSettings("security.changePassword.requirements")}
+            </p>
+
+            <Button
+              type="submit"
+              disabled={
+                isChangingPassword ||
+                !passwordData.currentPassword ||
+                !passwordData.newPassword ||
+                !passwordData.confirmPassword
+              }
+              className="w-full"
+            >
+              {isChangingPassword ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/20 border-t-white mr-2" />
+                  {tCommon("loading")}
+                </>
+              ) : (
+                <>
+                  <Lock className="h-4 w-4 mr-2" />
+                  {tSettings("security.changePassword.button")}
+                </>
+              )}
+            </Button>
+          </form>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const DangerSection = () => (
+    <Card className="border-destructive/20">
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-destructive/20 to-destructive/10 flex items-center justify-center">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-destructive">
+              {tSettings("account.deleteAccount.title")}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {tSettings("account.deleteAccount.description")}
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 mb-4">
+          <p className="text-sm text-destructive font-medium">
+            ⚠️ {tSettings("account.deleteAccount.warning")}
+          </p>
+        </div>
+
+        {!showDeleteConfirm ? (
+          <Button
+            variant="destructive"
+            onClick={() => setShowDeleteConfirm(true)}
+            className="w-full"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            {tSettings("account.deleteAccount.button")}
+          </Button>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <label
+                className="text-sm font-medium"
+                htmlFor="delete-confirmation"
+              >
+                {tSettings("account.deleteAccount.confirmation.type")}
+              </label>
+              <Input
+                id="delete-confirmation"
+                type="text"
+                value={deleteConfirmation}
+                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                placeholder={tSettings(
+                  "account.deleteAccount.confirmation.placeholder"
+                )}
+                className="mt-1"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Type &quot;DELETE&quot; to confirm
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                variant="destructive"
+                onClick={handleDeleteAccount}
+                disabled={isDeletingAccount || deleteConfirmation !== "DELETE"}
+                className="flex-1"
+              >
+                {isDeletingAccount ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/20 border-t-white mr-2" />
+                    {tCommon("loading")}
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {tSettings("account.deleteAccount.confirmation.confirm")}
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteConfirmation("");
+                }}
+                disabled={isDeletingAccount}
+                className="flex-1"
+              >
+                {tSettings("account.deleteAccount.confirmation.cancel")}
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  // Main render
+  return (
+    <>
+      {isMobile ? <MobileView /> : <DesktopView />}
+
+      {/* Modals */}
+      <AnimatePresence>
+        {showCancelSubscription && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget && !isUpdating) {
+                setShowCancelSubscription(false);
+              }
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-card rounded-xl border max-w-md w-full p-6 shadow-2xl"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold">
+                    {tSettings("subscription.confirmCancel.title")}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {tSettings("subscription.confirmCancel.message")}
+                  </p>
+                </div>
+                <button
+                  onClick={() =>
+                    !isUpdating && setShowCancelSubscription(false)
+                  }
+                  className="p-1 hover:bg-muted rounded-lg transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <Button
+                  variant="destructive"
+                  onClick={handleCancelSubscription}
+                  disabled={isUpdating}
+                  className="flex-1"
+                  ref={confirmCancelRef}
+                >
+                  {isUpdating ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/20 border-t-white mr-2" />
+                      {tCommon("loading")}
+                    </>
+                  ) : (
+                    tSettings("subscription.confirmCancel.confirm")
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCancelSubscription(false)}
+                  disabled={isUpdating}
+                  className="flex-1"
+                >
+                  {tSettings("subscription.confirmCancel.keep")}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Alert Dialog */}
       <AlertDialog
@@ -1001,6 +1371,6 @@ export default function SettingsPage() {
         message={alertDialog.message}
         variant={alertDialog.variant}
       />
-    </div>
+    </>
   );
 }
