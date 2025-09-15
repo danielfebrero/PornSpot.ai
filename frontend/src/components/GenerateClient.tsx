@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Slider } from "@/components/ui/Slider";
 import { Switch } from "@/components/ui/Switch";
+import { Lightbox } from "@/components/ui/Lightbox";
 import {
   Select,
   SelectContent,
@@ -13,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/Select";
-import { Lightbox } from "@/components/ui/Lightbox";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { GradientTextarea } from "@/components/ui/GradientTextarea";
 import { MagicText, MagicTextHandle } from "@/components/ui/MagicText";
@@ -32,24 +32,19 @@ import {
   X,
   ChevronDown,
   ChevronUp,
-  ChevronRight,
   Settings2,
   Wand2,
   Layers,
   Eye,
   EyeOff,
-  Gauge,
-  Hash,
   SlidersHorizontal,
   AlertCircle,
   Check,
-  Info,
   Plus,
   Minus,
-  Menu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLocaleRouter } from "@/lib/navigation";
+// import { useLocaleRouter } from "@/lib/navigation";
 import { GenerationProgressCard } from "./ui/GenerationProgressCard";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { useWebSocket } from "@/contexts/WebSocketContext";
@@ -66,6 +61,10 @@ export function GenerateClient() {
   const loraListRef = useRef<HTMLDivElement>(null);
   const { fetchConnectionId, isConnected } = useWebSocket();
   const t = useTranslations("generate");
+  // Refs for mobile section scrolling
+  const sizeSectionRef = useRef<HTMLDivElement>(null);
+  const batchSectionRef = useRef<HTMLDivElement>(null);
+  const visibilitySectionRef = useRef<HTMLDivElement>(null);
 
   // Device detection state
   const [deviceType, setDeviceType] = useState<DeviceType>("desktop");
@@ -74,7 +73,7 @@ export function GenerateClient() {
   const [activeTab, setActiveTab] = useState<"generate" | "results">(
     "generate"
   );
-  const [showMobileSettings, setShowMobileSettings] = useState(false);
+  // const [showMobileSettings, setShowMobileSettings] = useState(false);
 
   // Image sizes with translations
   const IMAGE_SIZES = [
@@ -162,7 +161,7 @@ export function GenerateClient() {
     handleDeleteRecentMedia,
     toggleLora,
     updateLoraStrength,
-    handleLoraClickInAutoMode,
+    // handleLoraClickInAutoMode,
     queueStatus,
     generatedImages,
     error,
@@ -196,7 +195,7 @@ export function GenerateClient() {
     canUseSteps,
   } = useUserPermissions();
 
-  const router = useLocaleRouter();
+  // const router = useLocaleRouter();
 
   const { allowed, remaining } = checkGenerationLimits(settings.batchCount);
   const plan = getCurrentPlan();
@@ -336,7 +335,29 @@ export function GenerateClient() {
       setOptimizedPromptCache(optimizationStream);
       updateSettings("prompt", optimizationStream);
     }
-  }, [optimizationStream]);
+    // include necessary deps to satisfy hooks rules
+  }, [
+    optimizationStream,
+    settings.prompt,
+    setOptimizedPromptCache,
+    updateSettings,
+  ]);
+
+  // Auto-scroll opened parameter section into view on mobile/tablet
+  useEffect(() => {
+    if (deviceType === "desktop" || !expandedSection) return;
+    const map: Record<string, React.RefObject<HTMLDivElement>> = {
+      size: sizeSectionRef,
+      batch: batchSectionRef,
+      visibility: visibilitySectionRef,
+    };
+    const ref = map[expandedSection];
+    if (ref?.current) {
+      ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      // offset for sticky header
+      setTimeout(() => window.scrollBy({ top: -80, behavior: "smooth" }), 200);
+    }
+  }, [expandedSection, deviceType]);
 
   useEffect(() => {
     if (
@@ -451,7 +472,16 @@ export function GenerateClient() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            // preserve list scroll position when switching mode
+                            const pos = loraListRef.current?.scrollTop;
                             updateLoraStrength(lora.id, "auto");
+                            setTimeout(() => {
+                              if (
+                                loraListRef.current &&
+                                typeof pos === "number"
+                              )
+                                loraListRef.current.scrollTop = pos;
+                            }, 0);
                           }}
                           className={cn(
                             "px-2 py-0.5 text-xs rounded transition-colors",
@@ -465,7 +495,15 @@ export function GenerateClient() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            const pos = loraListRef.current?.scrollTop;
                             updateLoraStrength(lora.id, "manual");
+                            setTimeout(() => {
+                              if (
+                                loraListRef.current &&
+                                typeof pos === "number"
+                              )
+                                loraListRef.current.scrollTop = pos;
+                            }, 0);
                           }}
                           className={cn(
                             "px-2 py-0.5 text-xs rounded transition-colors",
@@ -483,9 +521,18 @@ export function GenerateClient() {
                       <div className="space-y-1">
                         <Slider
                           value={[strength.value]}
-                          onValueChange={(values) =>
-                            updateLoraStrength(lora.id, "manual", values[0])
-                          }
+                          onValueChange={(values) => {
+                            const pos = loraListRef.current?.scrollTop;
+                            updateLoraStrength(lora.id, "manual", values[0]);
+                            // restore scroll after re-render
+                            setTimeout(() => {
+                              if (
+                                loraListRef.current &&
+                                typeof pos === "number"
+                              )
+                                loraListRef.current.scrollTop = pos;
+                            }, 0);
+                          }}
                           min={0}
                           max={1.5}
                           step={0.05}
@@ -550,7 +597,10 @@ export function GenerateClient() {
                   {plan}
                 </Badge>
                 {remaining !== "unlimited" && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge
+                    variant="secondary"
+                    className="text-xs whitespace-nowrap leading-none px-2 py-1"
+                  >
                     {remaining} left
                   </Badge>
                 )}
@@ -816,6 +866,7 @@ export function GenerateClient() {
                 {/* Size Selection */}
                 {expandedSection === "size" && (
                   <motion.div
+                    ref={sizeSectionRef}
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
@@ -848,8 +899,9 @@ export function GenerateClient() {
                                 if (size.value !== "custom") {
                                   updateSettings("customWidth", size.width);
                                   updateSettings("customHeight", size.height);
+                                  // close panel for predefined sizes only
+                                  toggleSection("size");
                                 }
-                                toggleSection("size");
                               }}
                               disabled={
                                 !canUseCustomSizes() &&
@@ -932,6 +984,7 @@ export function GenerateClient() {
                 {/* Batch Selection */}
                 {expandedSection === "batch" && (
                   <motion.div
+                    ref={batchSectionRef}
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
@@ -981,6 +1034,7 @@ export function GenerateClient() {
                 {/* Visibility Selection */}
                 {expandedSection === "visibility" && (
                   <motion.div
+                    ref={visibilitySectionRef}
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
@@ -1309,7 +1363,7 @@ export function GenerateClient() {
         </AnimatePresence>
 
         {/* Fixed Generate Button - Higher z-index to stay above footer */}
-        <div className="fixed bottom-20 left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t z-50">
+        <div className="fixed bottom-[63px] left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t z-50">
           <Button
             onClick={
               isGenerating || isOptimizing
@@ -1970,136 +2024,143 @@ export function GenerateClient() {
 
         {/* Custom Size Modal for Desktop */}
         {settings.imageSize === "custom" && canUseCustomSizes() && (
-          <Card className="fixed bottom-6 right-6 w-80 shadow-2xl border-2 z-50">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-sm">Custom Dimensions</h4>
-                <button
-                  onClick={() => updateSettings("imageSize", "1024x1024")}
-                  className="p-1 hover:bg-muted rounded-lg transition-colors"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">
-                    Width
-                  </label>
-                  <div className="flex items-center gap-1">
+          <>
+            <div className="fixed inset-0 bg-black/40 z-40" />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <Card className="w-80 shadow-2xl border-2">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold text-sm">Custom Dimensions</h4>
                     <button
-                      onClick={() =>
-                        updateSettings(
-                          "customWidth",
-                          Math.max(512, settings.customWidth - 64)
-                        )
-                      }
-                      className="p-1 hover:bg-muted rounded"
+                      onClick={() => updateSettings("imageSize", "1024x1024")}
+                      className="p-1 hover:bg-muted rounded-lg transition-colors"
                     >
-                      <Minus className="h-3 w-3" />
-                    </button>
-                    <Input
-                      type="number"
-                      min="512"
-                      max="2048"
-                      step="64"
-                      value={settings.customWidth}
-                      onChange={(e) =>
-                        updateSettings(
-                          "customWidth",
-                          parseInt(e.target.value) || 1024
-                        )
-                      }
-                      className="h-9 text-center"
-                    />
-                    <button
-                      onClick={() =>
-                        updateSettings(
-                          "customWidth",
-                          Math.min(2048, settings.customWidth + 64)
-                        )
-                      }
-                      className="p-1 hover:bg-muted rounded"
-                    >
-                      <Plus className="h-3 w-3" />
+                      <X className="h-3 w-3" />
                     </button>
                   </div>
-                </div>
-                <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">
-                    Height
-                  </label>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() =>
-                        updateSettings(
-                          "customHeight",
-                          Math.max(512, settings.customHeight - 64)
-                        )
-                      }
-                      className="p-1 hover:bg-muted rounded"
-                    >
-                      <Minus className="h-3 w-3" />
-                    </button>
-                    <Input
-                      type="number"
-                      min="512"
-                      max="2048"
-                      step="64"
-                      value={settings.customHeight}
-                      onChange={(e) =>
-                        updateSettings(
-                          "customHeight",
-                          parseInt(e.target.value) || 1024
-                        )
-                      }
-                      className="h-9 text-center"
-                    />
-                    <button
-                      onClick={() =>
-                        updateSettings(
-                          "customHeight",
-                          Math.min(2048, settings.customHeight + 64)
-                        )
-                      }
-                      className="p-1 hover:bg-muted rounded"
-                    >
-                      <Plus className="h-3 w-3" />
-                    </button>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">
+                        Width
+                      </label>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() =>
+                            updateSettings(
+                              "customWidth",
+                              Math.max(512, settings.customWidth - 64)
+                            )
+                          }
+                          className="p-1 hover:bg-muted rounded"
+                        >
+                          <Minus className="h-3 w-3" />
+                        </button>
+                        <Input
+                          type="number"
+                          min="512"
+                          max="2048"
+                          step="64"
+                          value={settings.customWidth}
+                          onChange={(e) =>
+                            updateSettings(
+                              "customWidth",
+                              parseInt(e.target.value) || 1024
+                            )
+                          }
+                          className="h-9 text-center"
+                        />
+                        <button
+                          onClick={() =>
+                            updateSettings(
+                              "customWidth",
+                              Math.min(2048, settings.customWidth + 64)
+                            )
+                          }
+                          className="p-1 hover:bg-muted rounded"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">
+                        Height
+                      </label>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() =>
+                            updateSettings(
+                              "customHeight",
+                              Math.max(512, settings.customHeight - 64)
+                            )
+                          }
+                          className="p-1 hover:bg-muted rounded"
+                        >
+                          <Minus className="h-3 w-3" />
+                        </button>
+                        <Input
+                          type="number"
+                          min="512"
+                          max="2048"
+                          step="64"
+                          value={settings.customHeight}
+                          onChange={(e) =>
+                            updateSettings(
+                              "customHeight",
+                              parseInt(e.target.value) || 1024
+                            )
+                          }
+                          className="h-9 text-center"
+                        />
+                        <button
+                          onClick={() =>
+                            updateSettings(
+                              "customHeight",
+                              Math.min(2048, settings.customHeight + 64)
+                            )
+                          }
+                          className="p-1 hover:bg-muted rounded"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t">
-                <span className="text-xs text-muted-foreground">
-                  Aspect Ratio:{" "}
-                  {(settings.customWidth / settings.customHeight).toFixed(2)}
-                </span>
-                <Badge variant="outline" className="text-xs">
-                  {settings.customWidth}×{settings.customHeight}
-                </Badge>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { label: "Square", width: 1024, height: 1024 },
-                  { label: "16:9", width: 1792, height: 1024 },
-                  { label: "9:16", width: 1024, height: 1792 },
-                ].map((preset) => (
-                  <button
-                    key={preset.label}
-                    onClick={() => {
-                      updateSettings("customWidth", preset.width);
-                      updateSettings("customHeight", preset.height);
-                    }}
-                    className="px-2 py-1 text-xs bg-muted hover:bg-muted/80 rounded transition-colors"
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <span className="text-xs text-muted-foreground">
+                      Aspect Ratio:{" "}
+                      {(settings.customWidth / settings.customHeight).toFixed(
+                        2
+                      )}
+                    </span>
+                    <Badge variant="outline" className="text-xs">
+                      {settings.customWidth}×{settings.customHeight}
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { label: "Square", width: 1024, height: 1024 },
+                      { label: "16:9", width: 1792, height: 1024 },
+                      { label: "9:16", width: 1024, height: 1792 },
+                    ].map((preset) => (
+                      <button
+                        key={preset.label}
+                        onClick={() => {
+                          updateSettings("customWidth", preset.width);
+                          updateSettings("customHeight", preset.height);
+                        }}
+                        className="px-2 py-1 text-xs bg-muted hover:bg-muted/80 rounded transition-colors"
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </>
         )}
 
         {/* Lightbox */}
