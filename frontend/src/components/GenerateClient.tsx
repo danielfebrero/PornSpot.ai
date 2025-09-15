@@ -1364,6 +1364,66 @@ export function GenerateClient() {
                       />
                     ))}
                   </div>
+
+                  {/* Recent Generations - Mobile/Tablet */}
+                  {filteredAllGeneratedImages.length > 0 && (
+                    <Card className="mt-4">
+                      <CardHeader className="py-3">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-medium flex items-center gap-2 text-sm">
+                            <ImageIcon className="h-4 w-4" />
+                            {t("recentGenerations")}
+                          </h3>
+                          <Badge variant="outline" className="text-xs">
+                            {filteredAllGeneratedImages.length} {t("total")}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div
+                          className={cn(
+                            "grid gap-2",
+                            deviceType === "mobile"
+                              ? "grid-cols-4"
+                              : "grid-cols-6"
+                          )}
+                        >
+                          {filteredAllGeneratedImages
+                            .slice(0, 20)
+                            .map((image, index) => (
+                              <button
+                                key={index}
+                                onClick={() =>
+                                  openThumbnailLightbox(image.url || "")
+                                }
+                                className="group relative aspect-square rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-all hover:scale-105"
+                              >
+                                <img
+                                  src={composeMediaUrl(image.url)}
+                                  alt={`${t("previous")} ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="w-7 h-7 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                                      <Eye className="h-4 w-4 text-white" />
+                                    </div>
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                        </div>
+                        {filteredAllGeneratedImages.length > 20 && (
+                          <div className="mt-3 text-center">
+                            <p className="text-xs text-muted-foreground">
+                              +{filteredAllGeneratedImages.length - 20}{" "}
+                              {t("moreImagesInHistory")}
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               )}
             </motion.div>
@@ -1371,7 +1431,7 @@ export function GenerateClient() {
         </AnimatePresence>
 
         {/* Fixed Generate Button - Higher z-index to stay above footer */}
-        <div className="fixed bottom-[62px] left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t z-50">
+        <div className="fixed bottom-[61px] left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t z-50">
           <Button
             onClick={
               isGenerating || isOptimizing
