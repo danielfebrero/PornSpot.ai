@@ -231,7 +231,12 @@ export function GenerateClient() {
 
   const updateLoraSelectionMode = (mode: "auto" | "manual") => {
     if (mode === "manual" && !canUseLoras) return;
+    // Preserve window scroll to avoid jump while switching modes
+    const y = typeof window !== "undefined" ? window.scrollY : 0;
     updateSettings("loraSelectionMode", mode);
+    requestAnimationFrame(() => {
+      if (typeof window !== "undefined") window.scrollTo({ top: y });
+    });
   };
 
   const revertToOriginalPrompt = () => {
@@ -319,6 +324,7 @@ export function GenerateClient() {
   // Handle LoRA toggle without scrolling
   const handleToggleLora = (loraId: string) => {
     const scrollPosition = loraListRef.current?.scrollTop;
+    const y = typeof window !== "undefined" ? window.scrollY : 0;
     toggleLora(loraId);
 
     // Restore scroll position after state update
@@ -326,6 +332,7 @@ export function GenerateClient() {
       if (loraListRef.current && scrollPosition !== undefined) {
         loraListRef.current.scrollTop = scrollPosition;
       }
+      if (typeof window !== "undefined") window.scrollTo({ top: y });
     }, 0);
   };
 
@@ -354,8 +361,6 @@ export function GenerateClient() {
     const ref = map[expandedSection];
     if (ref?.current) {
       ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      // offset for sticky header
-      setTimeout(() => window.scrollBy({ top: -80, behavior: "smooth" }), 200);
     }
   }, [expandedSection, deviceType]);
 
@@ -474,6 +479,10 @@ export function GenerateClient() {
                             e.stopPropagation();
                             // preserve list scroll position when switching mode
                             const pos = loraListRef.current?.scrollTop;
+                            const y =
+                              typeof window !== "undefined"
+                                ? window.scrollY
+                                : 0;
                             updateLoraStrength(lora.id, "auto");
                             setTimeout(() => {
                               if (
@@ -481,6 +490,8 @@ export function GenerateClient() {
                                 typeof pos === "number"
                               )
                                 loraListRef.current.scrollTop = pos;
+                              if (typeof window !== "undefined")
+                                window.scrollTo({ top: y });
                             }, 0);
                           }}
                           className={cn(
@@ -496,6 +507,10 @@ export function GenerateClient() {
                           onClick={(e) => {
                             e.stopPropagation();
                             const pos = loraListRef.current?.scrollTop;
+                            const y =
+                              typeof window !== "undefined"
+                                ? window.scrollY
+                                : 0;
                             updateLoraStrength(lora.id, "manual");
                             setTimeout(() => {
                               if (
@@ -503,6 +518,8 @@ export function GenerateClient() {
                                 typeof pos === "number"
                               )
                                 loraListRef.current.scrollTop = pos;
+                              if (typeof window !== "undefined")
+                                window.scrollTo({ top: y });
                             }, 0);
                           }}
                           className={cn(
@@ -523,6 +540,10 @@ export function GenerateClient() {
                           value={[strength.value]}
                           onValueChange={(values) => {
                             const pos = loraListRef.current?.scrollTop;
+                            const y =
+                              typeof window !== "undefined"
+                                ? window.scrollY
+                                : 0;
                             updateLoraStrength(lora.id, "manual", values[0]);
                             // restore scroll after re-render
                             setTimeout(() => {
@@ -531,6 +552,8 @@ export function GenerateClient() {
                                 typeof pos === "number"
                               )
                                 loraListRef.current.scrollTop = pos;
+                              if (typeof window !== "undefined")
+                                window.scrollTo({ top: y });
                             }, 0);
                           }}
                           min={0}
@@ -563,7 +586,7 @@ export function GenerateClient() {
 
       {!canUseLoras && settings.loraSelectionMode === "manual" && (
         <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-          <p className="text-xs text-amber-700 dark:text-amber-400 text-center">
+          <p className="text-xs text-amber-700 dark:text-amber-300">
             Upgrade to Pro to use LoRA models
           </p>
         </div>
@@ -575,7 +598,6 @@ export function GenerateClient() {
   if (deviceType === "mobile" || deviceType === "tablet") {
     return (
       <div className="min-h-screen bg-background pb-32">
-        {/* Header */}
         <div className="sticky top-0 z-40 bg-card border-b">
           <div className="px-4 py-3">
             <div className="flex items-center justify-between">
@@ -870,7 +892,7 @@ export function GenerateClient() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
+                    className="overflow-hidden scroll-mt-24"
                   >
                     <Card>
                       <CardContent className="p-4 space-y-3">
@@ -988,7 +1010,7 @@ export function GenerateClient() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
+                    className="overflow-hidden scroll-mt-24"
                   >
                     <Card>
                       <CardContent className="p-4 space-y-3">
@@ -1038,7 +1060,7 @@ export function GenerateClient() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
+                    className="overflow-hidden scroll-mt-24"
                   >
                     <Card>
                       <CardContent className="p-4 space-y-3">
