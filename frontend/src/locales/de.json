@@ -1022,6 +1022,9 @@
     "settings": {
       "title": "Einstellungen",
       "description": "Verwalten Sie Ihre Kontoeinstellungen und Präferenzen",
+      "overview": {
+        "title": "Übersicht"
+      },
       "sections": {
         "language": "Sprache",
         "subscription": "Abonnement",

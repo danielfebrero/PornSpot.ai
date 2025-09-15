@@ -1095,6 +1095,9 @@
     "settings": {
       "title": "Settings",
       "description": "Manage your account preferences and settings",
+      "overview": {
+        "title": "Overview"
+      },
       "sections": {
         "language": "Language",
         "subscription": "Subscription",

@@ -1030,6 +1030,9 @@
     "settings": {
       "title": "Настройки",
       "description": "Управляйте настройками аккаунта и предпочтениями",
+      "overview": {
+        "title": "Обзор"
+      },
       "sections": {
         "language": "Язык",
         "subscription": "Подписка",

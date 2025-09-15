@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -30,6 +30,15 @@ import {
   Sparkles,
   RotateCcw,
   X,
+  ChevronDown,
+  ChevronUp,
+  Settings2,
+  Wand2,
+  Layers,
+  Eye,
+  EyeOff,
+  SlidersHorizontal,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocaleRouter } from "@/lib/navigation";
@@ -38,11 +47,22 @@ import { composeMediaUrl } from "@/lib/urlUtils";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import { useTranslations } from "next-intl";
 import { getLoraModels } from "@/utils/loraModels";
+import { motion, AnimatePresence } from "framer-motion";
+import { Badge } from "@/components/ui/Badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 
 export function GenerateClient() {
   const magicTextRef = useRef<MagicTextHandle>(null);
   const { fetchConnectionId, isConnected } = useWebSocket();
   const t = useTranslations("generate");
+
+  // Mobile state
+  const [isMobile, setIsMobile] = useState(false);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [activeTab, setActiveTab] = useState<"generate" | "results">(
+    "generate"
+  );
 
   // Image sizes with translations
   const IMAGE_SIZES = [
@@ -51,40 +71,52 @@ export function GenerateClient() {
       label: t("imageSizes.square"),
       width: 1024,
       height: 1024,
+      icon: "⬜",
+      ratio: "1:1",
     },
     {
       value: "1536x1024",
       label: t("imageSizes.landscape"),
       width: 1536,
       height: 1024,
+      icon: "🖼️",
+      ratio: "3:2",
     },
     {
       value: "1024x1536",
       label: t("imageSizes.portrait"),
       width: 1024,
       height: 1536,
+      icon: "📱",
+      ratio: "2:3",
     },
     {
       value: "1792x1024",
       label: t("imageSizes.wide"),
       width: 1792,
       height: 1024,
+      icon: "🎬",
+      ratio: "16:9",
     },
     {
       value: "1024x1792",
       label: t("imageSizes.tall"),
       width: 1024,
       height: 1792,
+      icon: "🗼",
+      ratio: "9:16",
     },
     {
       value: "custom",
       label: t("imageSizes.custom"),
       width: 1024,
       height: 1024,
+      icon: "⚙️",
+      ratio: "?",
     },
   ];
 
-  // LoRA models with translated descriptions only
+  // LoRA models with translated descriptions
   const LORA_MODELS = getLoraModels(t);
 
   // Hook for optimistic usage stats updates
@@ -119,7 +151,6 @@ export function GenerateClient() {
     toggleLora,
     updateLoraStrength,
     handleLoraClickInAutoMode,
-    // Generation state and methods (now in context)
     queueStatus,
     generatedImages,
     error,
@@ -139,7 +170,6 @@ export function GenerateClient() {
     stopGeneration,
   } = useGenerationContext();
 
-  // Use the new generation context with WebSocket support
   const {
     canGenerateImages,
     checkGenerationLimits,
@@ -163,29 +193,32 @@ export function GenerateClient() {
   const canUseLoras = canUseLoRAModels();
   const canUseNegativePrompts = canUseNegativePrompt();
 
-  // Filter out deleted images from the generated images
+  // Filter out deleted images
   const filteredGeneratedImages = generatedImages.filter(
     (image) => !deletedImageIds.has(image.id)
   );
-
-  // Filter out deleted images from all generated images
   const filteredAllGeneratedImages = allGeneratedImages.filter(
     (image) => !deletedImageIds.has(image.id)
   );
 
+  // Check if mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   const updateLoraSelectionMode = (mode: "auto" | "manual") => {
-    if (mode === "manual" && !canUseLoras) {
-      // Non-Pro users cannot use manual mode
-      return;
-    }
+    if (mode === "manual" && !canUseLoras) return;
     updateSettings("loraSelectionMode", mode);
   };
 
-  // Revert to original prompt before optimization
   const revertToOriginalPrompt = () => {
     if (originalPromptBeforeOptimization) {
       updateSettings("prompt", originalPromptBeforeOptimization);
-      // Clear the optimization cache since we're reverting
       setOptimizedPromptCache("");
       setOriginalPromptBeforeOptimization("");
     }
@@ -197,7 +230,6 @@ export function GenerateClient() {
     }
   };
 
-  // Open lightbox for thumbnail (from all generated images)
   const openThumbnailLightbox = (imageUrl: string) => {
     const index = filteredAllGeneratedImages.findIndex(
       (media) => media.url === imageUrl
@@ -208,18 +240,13 @@ export function GenerateClient() {
     }
   };
 
-  // Handle optimistic deletion of generated images
   const handleOptimisticDelete = (mediaId: string) => {
-    // Add the media ID to the deleted set for immediate UI update
     setDeletedImageIds((prev) => new Set(prev).add(mediaId));
-
-    // Also remove from allGeneratedImages state
     setAllGeneratedImages((prev) =>
       prev.filter((media) => media.id !== mediaId)
     );
   };
 
-  // Lightbox navigation handlers
   const handleLightboxNext = () => {
     setLightboxIndex(
       Math.min(lightboxIndex + 1, filteredAllGeneratedImages.length - 1)
@@ -233,18 +260,11 @@ export function GenerateClient() {
   const handleGenerate = async () => {
     if (!canGenerateImages() || !allowed || !settings.prompt.trim()) return;
 
-    // Optimistically decrement usage stats
     decrementUsageStats(settings.batchCount || 1);
-
-    // Show progress card immediately on click
     setShowProgressCard(true);
-
-    // Clear any previous results
     clearResults();
 
-    // Handle magic text animation for optimization
     if (settings.optimizePrompt && settings.prompt !== optimizedPromptCache) {
-      // Store the original prompt before optimization for potential reversion
       setOriginalPromptBeforeOptimization(settings.prompt);
       handleResetMagicText();
       setShowMagicText(true);
@@ -256,25 +276,29 @@ export function GenerateClient() {
     } else {
       await generateImages(settings);
     }
-    // Submit to generation queue - optimization will be handled by backend if enabled
+
+    // Switch to results tab on mobile after generation starts
+    if (isMobile) {
+      setActiveTab("results");
+    }
   };
 
   const handleStopGeneration = () => {
     stopGeneration();
   };
 
-  // Update prompt when optimized prompt is received from backend
+  const toggleSection = (section: string) => {
+    setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  // Update prompt when optimized
   useEffect(() => {
     if (optimizationStream !== null) {
-      // Cache the optimized prompt
       setOptimizedPromptCache(optimizationStream);
-
-      // Update the settings immediately if magic text is not showing
       updateSettings("prompt", optimizationStream);
     }
   }, [optimizationStream, setOptimizedPromptCache, updateSettings]);
 
-  // Handle optimization stream for real-time MagicText updates
   useEffect(() => {
     if (
       isOptimizing &&
@@ -287,10 +311,9 @@ export function GenerateClient() {
     }
   }, [optimizationStream, isOptimizing, showMagicText, optimizationToken]);
 
-  // Update allGeneratedImages when new images are generated and hide progress card
   useEffect(() => {
     if (generatedImages.length > 0) {
-      setShowProgressCard(false); // Hide progress card when images are received
+      setShowProgressCard(false);
     }
   }, [generatedImages, setShowProgressCard]);
 
@@ -299,65 +322,742 @@ export function GenerateClient() {
     fetchConnectionId();
   }, [fetchConnectionId, isConnected]);
 
-  return (
-    <div
-      className="min-h-screen bg-background"
-      onClick={() => showMagicText && !isOptimizing && setShowMagicText(false)}
-    >
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
-          {/* Hero Header */}
-          {!showProgressCard && filteredGeneratedImages.length === 0 && (
-            <div className="text-center space-y-6">
-              <div className="relative inline-block">
-                <div className="absolute -inset-1 bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full blur opacity-30 animate-pulse"></div>
-                <div className="relative w-20 h-20 bg-gradient-to-br from-primary to-purple-600 rounded-full flex items-center justify-center shadow-xl">
-                  <Zap className="h-10 w-10 text-white" />
+  // Mobile View
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        {/* Header */}
+        <div className="sticky top-0 z-40 bg-card border-b">
+          <div className="px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+                  <Wand2 className="h-4 w-4 text-white" />
                 </div>
+                <h1 className="text-lg font-bold">{t("aiImageGenerator")}</h1>
               </div>
-
-              <div className="space-y-4">
-                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  {t("aiImageGenerator")}
-                </h1>
-                <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                  {t("transformImagination")}
-                </p>
-              </div>
-
-              <div className="flex items-center justify-center gap-4 mt-6">
-                <div className="bg-card border border-border rounded-full px-4 py-2 shadow-sm">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={cn(
-                        "w-2 h-2 rounded-full",
-                        plan === "pro"
-                          ? "bg-green-500"
-                          : plan === "unlimited"
-                          ? "bg-blue-500"
-                          : "bg-amber-500"
-                      )}
-                    ></div>
-                    <span className="text-sm font-medium text-foreground capitalize">
-                      {plan} Plan
-                    </span>
-                  </div>
-                </div>
-
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-xs">
+                  {plan}
+                </Badge>
                 {remaining !== "unlimited" && (
-                  <div className="bg-muted/50 rounded-full px-4 py-2">
-                    <span className="text-sm text-muted-foreground">
-                      {remaining} {t("generationsRemaining")}
-                    </span>
-                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    {remaining} left
+                  </Badge>
                 )}
               </div>
             </div>
-          )}
+          </div>
 
-          {/* Generation Results / Loading / Queue Status */}
-          {(showProgressCard || filteredGeneratedImages.length > 0) && (
-            <div className="text-center space-y-6">
+          {/* Tabs */}
+          {(filteredGeneratedImages.length > 0 || showProgressCard) && (
+            <div className="flex border-t">
+              <button
+                onClick={() => setActiveTab("generate")}
+                className={cn(
+                  "flex-1 py-2 text-sm font-medium transition-colors relative",
+                  activeTab === "generate"
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                )}
+              >
+                Generate
+                {activeTab === "generate" && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab("results")}
+                className={cn(
+                  "flex-1 py-2 text-sm font-medium transition-colors relative",
+                  activeTab === "results"
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                )}
+              >
+                Results
+                {filteredGeneratedImages.length > 0 && (
+                  <Badge variant="secondary" className="ml-2 text-xs">
+                    {filteredGeneratedImages.length}
+                  </Badge>
+                )}
+                {activeTab === "results" && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <AnimatePresence mode="wait">
+          {activeTab === "generate" ? (
+            <motion.div
+              key="generate"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="px-4 py-4 space-y-4"
+            >
+              {/* Prompt Input Card */}
+              <Card>
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h2 className="font-semibold">{t("describeVision")}</h2>
+                    {settings.prompt && (
+                      <button
+                        onClick={() => {
+                          updateSettings("prompt", "");
+                          setOptimizedPromptCache("");
+                          setOriginalPromptBeforeOptimization("");
+                        }}
+                        className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                      >
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="relative">
+                    <Textarea
+                      placeholder={t("promptPlaceholder")}
+                      value={settings.prompt}
+                      onChange={(e) => {
+                        updateSettings("prompt", e.target.value);
+                        setOptimizedPromptCache("");
+                        setOriginalPromptBeforeOptimization("");
+                      }}
+                      className="min-h-[120px] text-base resize-none"
+                    />
+                    {showMagicText && (
+                      <MagicText
+                        originalText={
+                          originalPromptBeforeOptimization || settings.prompt
+                        }
+                        ref={magicTextRef}
+                      />
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">
+                      {t("descriptiveTip")}
+                    </span>
+                    <span
+                      className={cn(
+                        "font-medium",
+                        settings.prompt.length > 800
+                          ? "text-amber-500"
+                          : settings.prompt.length > 900
+                          ? "text-red-500"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      {settings.prompt.length}/2000
+                    </span>
+                  </div>
+
+                  {/* AI Optimize Toggle */}
+                  <div className="flex items-center justify-between p-3 bg-primary/5 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">
+                        {t("optimizePrompt")}
+                      </span>
+                    </div>
+                    <Switch
+                      checked={settings.optimizePrompt}
+                      onCheckedChange={(checked) =>
+                        updateSettings("optimizePrompt", checked)
+                      }
+                    />
+                  </div>
+
+                  {originalPromptBeforeOptimization &&
+                    settings.prompt !== originalPromptBeforeOptimization && (
+                      <button
+                        onClick={revertToOriginalPrompt}
+                        className="w-full p-2 text-xs text-primary bg-primary/10 rounded-lg flex items-center justify-center gap-1"
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                        {t("revertToOriginal")}
+                      </button>
+                    )}
+                </CardContent>
+              </Card>
+
+              {/* Quick Settings */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Image Size */}
+                <button
+                  onClick={() => toggleSection("size")}
+                  className="bg-card rounded-xl border p-3 text-left"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Grid3X3 className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          {t("imageSize")}
+                        </p>
+                        <p className="text-sm font-medium">
+                          {
+                            IMAGE_SIZES.find(
+                              (s) => s.value === settings.imageSize
+                            )?.label
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    {!canUseCustomSizes() && (
+                      <Crown className="h-3 w-3 text-amber-500" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Batch Count */}
+                <button
+                  onClick={() => toggleSection("batch")}
+                  className="bg-card rounded-xl border p-3 text-left"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Layers className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          {t("batchCount")}
+                        </p>
+                        <p className="text-sm font-medium">
+                          {settings.batchCount} {t("images")}
+                        </p>
+                      </div>
+                    </div>
+                    {!canUseBulk && (
+                      <Crown className="h-3 w-3 text-amber-500" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Visibility */}
+                <button
+                  onClick={() => toggleSection("visibility")}
+                  className="bg-card rounded-xl border p-3 text-left"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {settings.isPublic ? (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          {t("visibility")}
+                        </p>
+                        <p className="text-sm font-medium">
+                          {settings.isPublic ? t("public") : t("private")}
+                        </p>
+                      </div>
+                    </div>
+                    {!canCreatePrivateContent() && (
+                      <Crown className="h-3 w-3 text-amber-500" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Advanced Settings */}
+                <button
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  className="bg-card rounded-xl border p-3 text-left"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Settings2 className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          {t("advancedControls")}
+                        </p>
+                        <p className="text-sm font-medium">
+                          {showAdvanced ? t("shown") : t("hidden")}
+                        </p>
+                      </div>
+                    </div>
+                    {showAdvanced ? (
+                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </div>
+                </button>
+              </div>
+
+              {/* Expandable Sections */}
+              <AnimatePresence>
+                {/* Size Selection */}
+                {expandedSection === "size" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <Card>
+                      <CardContent className="p-4 space-y-3">
+                        <h3 className="font-medium flex items-center gap-2">
+                          <Grid3X3 className="h-4 w-4" />
+                          {t("imageSize")}
+                        </h3>
+                        <div className="grid grid-cols-2 gap-2">
+                          {IMAGE_SIZES.map((size) => (
+                            <button
+                              key={size.value}
+                              onClick={() => {
+                                if (
+                                  !canUseCustomSizes() &&
+                                  size.value !== "1024x1024"
+                                )
+                                  return;
+                                updateSettings("imageSize", size.value);
+                                if (size.value !== "custom") {
+                                  updateSettings("customWidth", size.width);
+                                  updateSettings("customHeight", size.height);
+                                }
+                                toggleSection("size");
+                              }}
+                              disabled={
+                                !canUseCustomSizes() &&
+                                size.value !== "1024x1024"
+                              }
+                              className={cn(
+                                "p-3 rounded-lg border text-left transition-all",
+                                settings.imageSize === size.value
+                                  ? "bg-primary text-primary-foreground border-primary"
+                                  : "bg-background border-border",
+                                !canUseCustomSizes() &&
+                                  size.value !== "1024x1024" &&
+                                  "opacity-50"
+                              )}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">{size.icon}</span>
+                                <div>
+                                  <p className="text-sm font-medium">
+                                    {size.label}
+                                  </p>
+                                  {size.value !== "custom" && (
+                                    <p className="text-xs opacity-80">
+                                      {size.ratio}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                        {settings.imageSize === "custom" &&
+                          canUseCustomSizes() && (
+                            <div className="grid grid-cols-2 gap-3 pt-2">
+                              <div>
+                                <label className="text-xs text-muted-foreground">
+                                  {t("width")}
+                                </label>
+                                <Input
+                                  type="number"
+                                  min="512"
+                                  max="2048"
+                                  step="64"
+                                  value={settings.customWidth}
+                                  onChange={(e) =>
+                                    updateSettings(
+                                      "customWidth",
+                                      parseInt(e.target.value) || 1024
+                                    )
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs text-muted-foreground">
+                                  {t("height")}
+                                </label>
+                                <Input
+                                  type="number"
+                                  min="512"
+                                  max="2048"
+                                  step="64"
+                                  value={settings.customHeight}
+                                  onChange={(e) =>
+                                    updateSettings(
+                                      "customHeight",
+                                      parseInt(e.target.value) || 1024
+                                    )
+                                  }
+                                />
+                              </div>
+                            </div>
+                          )}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )}
+
+                {/* Batch Selection */}
+                {expandedSection === "batch" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <Card>
+                      <CardContent className="p-4 space-y-3">
+                        <h3 className="font-medium flex items-center gap-2">
+                          <Layers className="h-4 w-4" />
+                          {t("batchCount")}
+                        </h3>
+                        <div className="grid grid-cols-4 gap-2">
+                          {[1, 2, 4, 8].map((count) => (
+                            <button
+                              key={count}
+                              onClick={() => {
+                                if (canUseBulk || count === 1) {
+                                  updateSettings("batchCount", count);
+                                  toggleSection("batch");
+                                }
+                              }}
+                              disabled={!canUseBulk && count > 1}
+                              className={cn(
+                                "py-3 rounded-lg border font-medium transition-all",
+                                settings.batchCount === count
+                                  ? "bg-primary text-primary-foreground border-primary"
+                                  : "bg-background border-border",
+                                !canUseBulk && count > 1 && "opacity-50"
+                              )}
+                            >
+                              {count}
+                            </button>
+                          ))}
+                        </div>
+                        {!canUseBulk && (
+                          <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                            <p className="text-xs text-amber-700 dark:text-amber-400">
+                              {t("upgradeForBulk")}
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )}
+
+                {/* Visibility Selection */}
+                {expandedSection === "visibility" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <Card>
+                      <CardContent className="p-4 space-y-3">
+                        <h3 className="font-medium flex items-center gap-2">
+                          <Lock className="h-4 w-4" />
+                          {t("visibility")}
+                        </h3>
+                        <div className="space-y-2">
+                          <button
+                            onClick={() => {
+                              updateSettings("isPublic", true);
+                              toggleSection("visibility");
+                            }}
+                            className={cn(
+                              "w-full p-3 rounded-lg border text-left transition-all",
+                              settings.isPublic
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-background border-border"
+                            )}
+                          >
+                            <div className="flex items-center gap-3">
+                              <Eye className="h-5 w-5" />
+                              <div>
+                                <p className="font-medium">{t("public")}</p>
+                                <p className="text-xs opacity-80">
+                                  {t("generatedImagesPublic")}
+                                </p>
+                              </div>
+                            </div>
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (canCreatePrivateContent()) {
+                                updateSettings("isPublic", false);
+                                toggleSection("visibility");
+                              }
+                            }}
+                            disabled={!canCreatePrivateContent()}
+                            className={cn(
+                              "w-full p-3 rounded-lg border text-left transition-all",
+                              !settings.isPublic
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-background border-border",
+                              !canCreatePrivateContent() && "opacity-50"
+                            )}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <EyeOff className="h-5 w-5" />
+                                <div>
+                                  <p className="font-medium">{t("private")}</p>
+                                  <p className="text-xs opacity-80">
+                                    {t("generatedImagesPrivate")}
+                                  </p>
+                                </div>
+                              </div>
+                              {!canCreatePrivateContent() && (
+                                <Crown className="h-3 w-3 text-amber-500" />
+                              )}
+                            </div>
+                          </button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Advanced Settings */}
+              <AnimatePresence>
+                {showAdvanced && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-3"
+                  >
+                    {/* LoRA Models */}
+                    <Card>
+                      <CardContent className="p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-medium flex items-center gap-2">
+                            <Wand2 className="h-4 w-4" />
+                            {t("loraModelsSection")}
+                          </h3>
+                          {!canUseLoras && (
+                            <Crown className="h-3 w-3 text-amber-500" />
+                          )}
+                        </div>
+
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => updateLoraSelectionMode("auto")}
+                            className={cn(
+                              "flex-1 py-2 px-3 text-sm rounded-lg border transition-all",
+                              settings.loraSelectionMode === "auto"
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-background border-border"
+                            )}
+                          >
+                            {t("automatic")}
+                          </button>
+                          <button
+                            onClick={() => updateLoraSelectionMode("manual")}
+                            disabled={!canUseLoras}
+                            className={cn(
+                              "flex-1 py-2 px-3 text-sm rounded-lg border transition-all",
+                              settings.loraSelectionMode === "manual"
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-background border-border",
+                              !canUseLoras && "opacity-50"
+                            )}
+                          >
+                            {t("manual")}
+                          </button>
+                        </div>
+
+                        {settings.loraSelectionMode === "manual" &&
+                          canUseLoras && (
+                            <div className="space-y-2">
+                              {LORA_MODELS.map((lora) => {
+                                const isSelected =
+                                  settings.selectedLoras.includes(lora.id);
+                                return (
+                                  <button
+                                    key={lora.id}
+                                    onClick={() => toggleLora(lora.id)}
+                                    className={cn(
+                                      "w-full p-3 rounded-lg border text-left transition-all",
+                                      isSelected
+                                        ? "bg-primary/10 border-primary"
+                                        : "bg-background border-border"
+                                    )}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <div>
+                                        <p className="text-sm font-medium">
+                                          {lora.name}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                          {lora.description}
+                                        </p>
+                                      </div>
+                                      {isSelected && (
+                                        <Check className="h-4 w-4 text-primary" />
+                                      )}
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Other Advanced Settings */}
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* CFG Scale */}
+                      <Card>
+                        <CardContent className="p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium">
+                              {t("cfgScale")}
+                            </span>
+                            {!canUseCfgScale() && (
+                              <Crown className="h-3 w-3 text-amber-500" />
+                            )}
+                          </div>
+                          <div
+                            className={cn(
+                              !canUseCfgScale() &&
+                                "opacity-50 pointer-events-none"
+                            )}
+                          >
+                            <Slider
+                              value={[settings.cfgScale || 1]}
+                              onValueChange={(value) =>
+                                canUseCfgScale() &&
+                                updateSettings("cfgScale", value[0].toFixed(1))
+                              }
+                              min={0.5}
+                              max={5}
+                              step={0.1}
+                            />
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {settings.cfgScale || 1}
+                          </span>
+                        </CardContent>
+                      </Card>
+
+                      {/* Steps */}
+                      <Card>
+                        <CardContent className="p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium">
+                              {t("steps")}
+                            </span>
+                            {!canUseSteps() && (
+                              <Crown className="h-3 w-3 text-amber-500" />
+                            )}
+                          </div>
+                          <div
+                            className={cn(
+                              !canUseSteps() && "opacity-50 pointer-events-none"
+                            )}
+                          >
+                            <Slider
+                              value={[settings.steps || 6]}
+                              onValueChange={(value) =>
+                                canUseSteps() &&
+                                updateSettings("steps", value[0])
+                              }
+                              min={3}
+                              max={20}
+                              step={1}
+                            />
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {settings.steps || 6}
+                          </span>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Negative Prompt */}
+                    <Card>
+                      <CardContent className="p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-sm font-medium flex items-center gap-2">
+                            <MinusCircle className="h-4 w-4" />
+                            {t("negativePrompt")}
+                          </h3>
+                          {!canUseNegativePrompts && (
+                            <Crown className="h-3 w-3 text-amber-500" />
+                          )}
+                        </div>
+                        <Textarea
+                          placeholder={t("negativePromptPlaceholder")}
+                          value={settings.negativePrompt}
+                          disabled={!canUseNegativePrompts}
+                          onChange={(e) =>
+                            canUseNegativePrompts &&
+                            updateSettings("negativePrompt", e.target.value)
+                          }
+                          className="min-h-[80px] text-sm resize-none"
+                        />
+                      </CardContent>
+                    </Card>
+
+                    {/* Reset Button */}
+                    <Button
+                      variant="outline"
+                      onClick={resetSettings}
+                      className="w-full"
+                      size="sm"
+                    >
+                      <RotateCcw className="h-4 w-4 mr-2" />
+                      {t("actions.resetParameters")}
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Recent Generations */}
+              {filteredAllGeneratedImages.length > 0 && (
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-medium mb-3">
+                      {t("recentGenerations")}
+                    </h3>
+                    <div className="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2">
+                      {filteredAllGeneratedImages
+                        .slice(0, 10)
+                        .map((image, index) => (
+                          <button
+                            key={index}
+                            onClick={() =>
+                              openThumbnailLightbox(image.url || "")
+                            }
+                            className="flex-shrink-0 relative w-16 h-16 rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-colors"
+                          >
+                            <img
+                              src={composeMediaUrl(image.url)}
+                              alt={`${t("previous")} ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </button>
+                        ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="results"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="px-4 py-4"
+            >
               {showProgressCard ? (
                 <GenerationProgressCard
                   queueStatus={queueStatus}
@@ -372,41 +1072,27 @@ export function GenerateClient() {
                   workflowNodes={workflowNodes}
                   currentNodeIndex={currentNodeIndex}
                 />
-              ) : filteredGeneratedImages.length === 1 ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-foreground">
-                      {t("generationComplete")}
-                    </span>
-                  </div>
-                  <div className="w-full max-w-md mx-auto">
-                    <ContentCard
-                      item={filteredGeneratedImages[0]}
-                      aspectRatio="square"
-                      canLike={true}
-                      canBookmark={true}
-                      canFullscreen={true}
-                      canAddToAlbum={true}
-                      canDownload={true}
-                      canDelete={true}
-                      mediaList={filteredGeneratedImages}
-                      currentIndex={0}
-                      onDelete={() =>
-                        handleOptimisticDelete(filteredGeneratedImages[0].id)
-                      }
-                    />
-                  </div>
-                </div>
               ) : (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-foreground">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
                       {filteredGeneratedImages.length} {t("imagesGenerated")}
                     </span>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                      <span className="text-xs text-muted-foreground">
+                        {t("generationComplete")}
+                      </span>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
+                  <div
+                    className={cn(
+                      "grid gap-3",
+                      filteredGeneratedImages.length === 1
+                        ? "grid-cols-1"
+                        : "grid-cols-2"
+                    )}
+                  >
                     {filteredGeneratedImages.map((image, index) => (
                       <ContentCard
                         key={index}
@@ -426,124 +1112,531 @@ export function GenerateClient() {
                   </div>
                 </div>
               )}
-            </div>
+            </motion.div>
           )}
+        </AnimatePresence>
 
-          {/* Main Prompt Input */}
-          <div className="bg-card border border-border rounded-2xl shadow-lg p-6 space-y-6">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-semibold text-foreground">
-                {t("describeVision")}
-              </h2>
-              <p className="text-muted-foreground">
-                {t("detailedDescriptionTip")}
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="relative">
-                <GradientTextarea
-                  placeholder={t("promptPlaceholder")}
-                  value={settings.prompt}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                    updateSettings("prompt", e.target.value);
-                    setOptimizedPromptCache("");
-                    setOriginalPromptBeforeOptimization("");
-                  }}
-                  className="w-full h-40 md:h-32 text-lg p-6 border-2 border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 resize-none transition-all"
-                />
-
-                {/* Magical overlay during optimization */}
-                {showMagicText && (
-                  <MagicText
-                    originalText={
-                      originalPromptBeforeOptimization || settings.prompt
-                    }
-                    ref={magicTextRef}
-                  />
-                )}
+        {/* Fixed Generate Button */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t">
+          <Button
+            onClick={
+              isGenerating || isOptimizing
+                ? handleStopGeneration
+                : handleGenerate
+            }
+            disabled={
+              (!allowed || !settings.prompt.trim()) &&
+              !isGenerating &&
+              !isOptimizing
+            }
+            className={cn(
+              "w-full h-14 text-base font-semibold rounded-xl shadow-lg",
+              isGenerating || isOptimizing
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-gradient-to-r from-primary to-purple-600"
+            )}
+          >
+            {isOptimizing ? (
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 animate-pulse" />
+                <span>{t("stopOptimization")}</span>
               </div>
-              <div className="flex justify-between items-center">
-                {settings.prompt.trim() ? (
-                  <button
-                    onClick={() => {
-                      updateSettings("prompt", "");
+            ) : isGenerating ? (
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>{t("stopGeneration")}</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Zap className="h-5 w-5" />
+                <span>
+                  {settings.batchCount > 1
+                    ? t("generateImages", { count: settings.batchCount })
+                    : t("generateSingle")}
+                </span>
+              </div>
+            )}
+          </Button>
+          {!allowed && (
+            <p className="text-xs text-destructive text-center mt-2">
+              {t("generationLimitReached")}
+            </p>
+          )}
+        </div>
+
+        {/* Lightbox */}
+        <Lightbox
+          media={filteredAllGeneratedImages}
+          currentIndex={lightboxIndex}
+          isOpen={lightboxOpen}
+          canDelete={true}
+          onDelete={handleDeleteRecentMedia}
+          onClose={() => setLightboxOpen(false)}
+          onNext={handleLightboxNext}
+          onPrevious={handleLightboxPrevious}
+          onGoToIndex={(index) => setLightboxIndex(index)}
+        />
+      </div>
+    );
+  }
+
+  // Desktop View - Redesigned
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="container mx-auto px-6 py-8 max-w-7xl">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              {t("aiImageGenerator")}
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              {t("transformImagination")}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge variant="outline" className="px-3 py-1">
+              <div className="flex items-center gap-2">
+                <div
+                  className={cn(
+                    "w-2 h-2 rounded-full",
+                    plan === "pro"
+                      ? "bg-green-500"
+                      : plan === "unlimited"
+                      ? "bg-blue-500"
+                      : "bg-amber-500"
+                  )}
+                />
+                {plan} Plan
+              </div>
+            </Badge>
+            {remaining !== "unlimited" && (
+              <Badge variant="secondary" className="px-3 py-1">
+                {remaining} {t("generationsRemaining")}
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        {/* Main Layout */}
+        <div className="grid grid-cols-12 gap-6">
+          {/* Left Column - Settings */}
+          <div className="col-span-4 space-y-6">
+            {/* Prompt Input */}
+            <Card className="border-2">
+              <CardHeader>
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Wand2 className="h-5 w-5 text-primary" />
+                  {t("describeVision")}
+                </h2>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="relative">
+                  <GradientTextarea
+                    placeholder={t("promptPlaceholder")}
+                    value={settings.prompt}
+                    onChange={(e) => {
+                      updateSettings("prompt", e.target.value);
                       setOptimizedPromptCache("");
                       setOriginalPromptBeforeOptimization("");
                     }}
-                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors group"
-                  >
-                    <X className="h-3 w-3 group-hover:text-destructive" />
-                    {t("deletePrompt")}
-                  </button>
-                ) : (
-                  <div className="text-xs text-muted-foreground">
-                    {t("descriptiveTip")}
-                  </div>
-                )}
-                <div
-                  className={cn(
-                    "text-xs font-medium",
-                    settings.prompt.length > 800
-                      ? "text-amber-600 dark:text-amber-400"
-                      : settings.prompt.length > 900
-                      ? "text-red-600 dark:text-red-400"
-                      : "text-muted-foreground"
+                    className="min-h-[150px] text-base"
+                  />
+                  {showMagicText && (
+                    <MagicText
+                      originalText={
+                        originalPromptBeforeOptimization || settings.prompt
+                      }
+                      ref={magicTextRef}
+                    />
                   )}
-                >
-                  {settings.prompt.length}/2000
                 </div>
-              </div>
 
-              {/* Optimize Prompt Toggle */}
-              <div className="flex items-center justify-between p-4 bg-muted/30 border border-border/50 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary to-purple-600 rounded-full flex items-center justify-center">
-                    <Sparkles className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-foreground">
-                      {t("optimizePrompt")}
-                    </h4>
-                  </div>
-                </div>
-                <Switch
-                  checked={settings.optimizePrompt}
-                  onCheckedChange={(checked) =>
-                    updateSettings("optimizePrompt", checked)
-                  }
-                  className="data-[state=checked]:bg-primary"
-                />
-              </div>
-
-              {/* Revert to Original Prompt Button */}
-              {originalPromptBeforeOptimization && (
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span>
-                      {settings.prompt === originalPromptBeforeOptimization
-                        ? t("viewingOriginalPrompt")
-                        : t("promptOptimized")}
-                    </span>
-                  </div>
-                  {settings.prompt !== originalPromptBeforeOptimization && (
-                    <div className="flex items-center gap-2">
-                      <RotateCcw className="h-3 w-3" />
+                    {settings.prompt && (
                       <button
-                        onClick={revertToOriginalPrompt}
-                        className="text-primary hover:text-primary/80 underline underline-offset-2 transition-colors"
+                        onClick={() => {
+                          updateSettings("prompt", "");
+                          setOptimizedPromptCache("");
+                          setOriginalPromptBeforeOptimization("");
+                        }}
+                        className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"
                       >
-                        {t("revertToOriginal")}
+                        <X className="h-3 w-3" />
+                        Clear
                       </button>
+                    )}
+                  </div>
+                  <span
+                    className={cn(
+                      "text-xs font-medium",
+                      settings.prompt.length > 800
+                        ? "text-amber-500"
+                        : settings.prompt.length > 900
+                        ? "text-red-500"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    {settings.prompt.length}/2000
+                  </span>
+                </div>
+
+                {/* AI Optimize */}
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary/10 to-purple-600/10 rounded-xl border">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+                      <Sparkles className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{t("optimizePrompt")}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Enhance with AI
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={settings.optimizePrompt}
+                    onCheckedChange={(checked) =>
+                      updateSettings("optimizePrompt", checked)
+                    }
+                  />
+                </div>
+
+                {originalPromptBeforeOptimization &&
+                  settings.prompt !== originalPromptBeforeOptimization && (
+                    <Button
+                      variant="outline"
+                      onClick={revertToOriginalPrompt}
+                      className="w-full"
+                      size="sm"
+                    >
+                      <RotateCcw className="h-4 w-4 mr-2" />
+                      {t("revertToOriginal")}
+                    </Button>
+                  )}
+              </CardContent>
+            </Card>
+
+            {/* Quick Settings */}
+            <Card>
+              <CardHeader>
+                <h3 className="font-semibold flex items-center gap-2">
+                  <Settings2 className="h-4 w-4" />
+                  Quick Settings
+                </h3>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Image Size */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    {t("imageSize")}
+                  </label>
+                  <div
+                    className={cn(
+                      !canUseCustomSizes() && "pointer-events-none opacity-50"
+                    )}
+                  >
+                    <Select
+                      value={settings.imageSize}
+                      disabled={!canUseCustomSizes()}
+                      onValueChange={(value) => {
+                        if (!canUseCustomSizes() && value !== "1024x1024")
+                          return;
+                        updateSettings("imageSize", value);
+                        const size = IMAGE_SIZES.find((s) => s.value === value);
+                        if (size && size.value !== "custom") {
+                          updateSettings("customWidth", size.width);
+                          updateSettings("customHeight", size.height);
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {IMAGE_SIZES.map((size) => (
+                          <SelectItem key={size.value} value={size.value}>
+                            <div className="flex items-center gap-2">
+                              <span>{size.icon}</span>
+                              <span>{size.label}</span>
+                              {size.value !== "custom" && (
+                                <span className="text-xs text-muted-foreground">
+                                  ({size.ratio})
+                                </span>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {!canUseCustomSizes() && (
+                    <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                      <Crown className="h-3 w-3" />
+                      Pro feature
+                    </p>
+                  )}
+                </div>
+
+                {/* Batch Count */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    {t("batchCount")}
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[1, 2, 4, 8].map((count) => (
+                      <Button
+                        key={count}
+                        variant={
+                          settings.batchCount === count ? "default" : "outline"
+                        }
+                        size="sm"
+                        onClick={() =>
+                          (canUseBulk || count === 1) &&
+                          updateSettings("batchCount", count)
+                        }
+                        disabled={
+                          (!canUseBulk && count > 1) ||
+                          !checkGenerationLimits(count).allowed
+                        }
+                      >
+                        {count}
+                      </Button>
+                    ))}
+                  </div>
+                  {!canUseBulk && (
+                    <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                      <Crown className="h-3 w-3" />
+                      Bulk generation is a Pro feature
+                    </p>
+                  )}
+                </div>
+
+                {/* Visibility */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    {t("visibility")}
+                  </label>
+                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      {settings.isPublic ? (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className="text-sm">
+                        {settings.isPublic ? t("public") : t("private")}
+                      </span>
+                    </div>
+                    <Switch
+                      checked={!settings.isPublic}
+                      onCheckedChange={(checked) =>
+                        canCreatePrivateContent() &&
+                        updateSettings("isPublic", !checked)
+                      }
+                      disabled={!canCreatePrivateContent()}
+                    />
+                  </div>
+                  {!canCreatePrivateContent() && (
+                    <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                      <Crown className="h-3 w-3" />
+                      Private content is a Pro feature
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Advanced Settings */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <SlidersHorizontal className="h-4 w-4" />
+                    Advanced Settings
+                  </h3>
+                  <Button variant="ghost" size="sm" onClick={resetSettings}>
+                    <RotateCcw className="h-3 w-3 mr-1" />
+                    Reset
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Parameters Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* CFG Scale */}
+                  <div>
+                    <label className="text-xs font-medium mb-1 block">
+                      CFG Scale
+                    </label>
+                    <div className="space-y-2">
+                      <div
+                        className={cn(
+                          !canUseCfgScale() && "opacity-50 pointer-events-none"
+                        )}
+                      >
+                        <Slider
+                          value={[settings.cfgScale || 1]}
+                          onValueChange={(value) =>
+                            canUseCfgScale() &&
+                            updateSettings("cfgScale", value[0].toFixed(1))
+                          }
+                          min={0.5}
+                          max={5}
+                          step={0.1}
+                        />
+                      </div>
+                      <div className="text-center text-xs text-muted-foreground">
+                        {settings.cfgScale || 1}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Steps */}
+                  <div>
+                    <label className="text-xs font-medium mb-1 block">
+                      Steps
+                    </label>
+                    <div className="space-y-2">
+                      <div
+                        className={cn(
+                          !canUseSteps() && "opacity-50 pointer-events-none"
+                        )}
+                      >
+                        <Slider
+                          value={[settings.steps || 6]}
+                          onValueChange={(value) =>
+                            canUseSteps() && updateSettings("steps", value[0])
+                          }
+                          min={3}
+                          max={20}
+                          step={1}
+                        />
+                      </div>
+                      <div className="text-center text-xs text-muted-foreground">
+                        {settings.steps || 6}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Seed */}
+                <div>
+                  <label className="text-xs font-medium mb-1 block">
+                    Seed (optional)
+                  </label>
+                  <Input
+                    type="number"
+                    value={settings.seed !== undefined ? settings.seed : ""}
+                    onChange={(e) =>
+                      canUseSeed() &&
+                      updateSettings("seed", parseInt(e.target.value) || 0)
+                    }
+                    disabled={!canUseSeed()}
+                    placeholder="Random seed"
+                  />
+                </div>
+
+                {/* Negative Prompt */}
+                <div>
+                  <label className="text-xs font-medium mb-1 block flex items-center gap-1">
+                    <MinusCircle className="h-3 w-3" />
+                    Negative Prompt
+                    {!canUseNegativePrompts && (
+                      <Crown className="h-3 w-3 text-amber-500" />
+                    )}
+                  </label>
+                  <Textarea
+                    placeholder={t("negativePromptPlaceholder")}
+                    value={settings.negativePrompt}
+                    disabled={!canUseNegativePrompts}
+                    onChange={(e) =>
+                      canUseNegativePrompts &&
+                      updateSettings("negativePrompt", e.target.value)
+                    }
+                    className="min-h-[80px] text-sm"
+                  />
+                </div>
+
+                {/* LoRA Models */}
+                <div>
+                  <label className="text-xs font-medium mb-2 block flex items-center gap-1">
+                    <Wand2 className="h-3 w-3" />
+                    LoRA Models
+                    {!canUseLoras && (
+                      <Crown className="h-3 w-3 text-amber-500" />
+                    )}
+                  </label>
+
+                  <div className="flex gap-2 mb-3">
+                    <button
+                      onClick={() => updateLoraSelectionMode("auto")}
+                      className={cn(
+                        "flex-1 py-1.5 px-3 text-xs rounded-lg border transition-all",
+                        settings.loraSelectionMode === "auto"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background border-border"
+                      )}
+                    >
+                      Auto
+                    </button>
+                    <button
+                      onClick={() => updateLoraSelectionMode("manual")}
+                      disabled={!canUseLoras}
+                      className={cn(
+                        "flex-1 py-1.5 px-3 text-xs rounded-lg border transition-all",
+                        settings.loraSelectionMode === "manual"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background border-border",
+                        !canUseLoras && "opacity-50"
+                      )}
+                    >
+                      Manual
+                    </button>
+                  </div>
+
+                  {settings.loraSelectionMode === "manual" && canUseLoras && (
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {LORA_MODELS.map((lora) => {
+                        const isSelected = settings.selectedLoras.includes(
+                          lora.id
+                        );
+                        return (
+                          <button
+                            key={lora.id}
+                            onClick={() => toggleLora(lora.id)}
+                            className={cn(
+                              "w-full p-2 rounded-lg border text-left transition-all text-xs",
+                              isSelected
+                                ? "bg-primary/10 border-primary"
+                                : "bg-background border-border"
+                            )}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-medium">{lora.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {lora.description}
+                                </p>
+                              </div>
+                              {isSelected && (
+                                <Check className="h-3 w-3 text-primary" />
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
-              )}
-            </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Generate Button */}
-          <div className="relative">
+          {/* Right Column - Results */}
+          <div className="col-span-8">
+            {/* Generate Button */}
             <Button
               onClick={
                 isGenerating || isOptimizing
@@ -556,922 +1649,239 @@ export function GenerateClient() {
                 !isOptimizing
               }
               className={cn(
-                "w-full h-16 text-lg font-semibold rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]",
+                "w-full h-16 text-lg font-semibold rounded-xl shadow-lg mb-6",
                 isGenerating || isOptimizing
-                  ? "bg-gradient-to-r from-red-500/80 to-red-600/80 hover:from-red-500/90 hover:to-red-600/90"
-                  : "bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+                  ? "bg-gradient-to-r from-red-500 to-red-600"
+                  : "bg-gradient-to-r from-primary to-purple-600"
               )}
-              size="lg"
             >
               {isOptimizing ? (
                 <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <Sparkles className="w-6 h-6 text-white animate-pulse" />
-                    <div className="absolute inset-0 bg-white/20 rounded-full animate-ping" />
-                  </div>
+                  <Sparkles className="h-6 w-6 animate-pulse" />
                   <span>{t("stopOptimization")}</span>
                 </div>
               ) : isGenerating ? (
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                   <span>{t("stopGeneration")}</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                    <Zap className="h-5 w-5" />
-                  </div>
+                  <Zap className="h-6 w-6" />
                   <span>
                     {settings.batchCount > 1
                       ? t("generateImages", { count: settings.batchCount })
-                      : t("generateSingle")}{" "}
-                    {settings.batchCount === 1 && t("image")}
+                      : t("generateSingle")}
                   </span>
                 </div>
               )}
             </Button>
 
-            {/* Status indicator */}
-            {!allowed && (
-              <div className="absolute inset-x-0 -bottom-8 flex justify-center">
-                <div className="bg-destructive/10 text-destructive text-sm px-3 py-1 rounded-full">
-                  {t("generationLimitReached")}
+            {/* Results Area */}
+            {showProgressCard ? (
+              <GenerationProgressCard
+                queueStatus={queueStatus}
+                progress={progress}
+                maxProgress={maxProgress}
+                currentMessage={currentMessage}
+                currentNode={currentNode}
+                nodeState={nodeState}
+                retryCount={retryCount}
+                isRetrying={isRetrying}
+                error={error}
+                workflowNodes={workflowNodes}
+                currentNodeIndex={currentNodeIndex}
+              />
+            ) : filteredGeneratedImages.length > 0 ? (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Generated Images</h3>
+                  <Badge variant="secondary">
+                    {filteredGeneratedImages.length} images
+                  </Badge>
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* Previously Generated Images */}
-          {filteredAllGeneratedImages.length > 0 && (
-            <div className="bg-card border border-border rounded-2xl shadow-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-foreground">
-                  {t("recentGenerations")}
-                </h3>
-                <div className="text-sm text-muted-foreground">
-                  {filteredAllGeneratedImages.length} {t("images")}
-                </div>
-              </div>
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                {filteredAllGeneratedImages.reverse().map((image, index) => (
-                  <div
-                    key={index}
-                    className="flex-shrink-0 group"
-                    onClick={() => openThumbnailLightbox(image.url || "")}
-                  >
-                    <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-border group-hover:border-primary transition-colors cursor-pointer shadow-md hover:shadow-lg">
-                      <img
-                        src={composeMediaUrl(image.url)}
-                        alt={`${t("previous")} ${index + 1}`}
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                        <div className="w-6 h-6 bg-white/0 group-hover:bg-white/20 rounded-full flex items-center justify-center transition-all">
-                          <ImageIcon className="h-3 w-3 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Advanced Features */}
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <div className="flex items-center justify-center gap-4">
-                <h2 className="text-2xl font-semibold text-foreground">
-                  {t("advancedControls")}
-                </h2>
-              </div>
-              <p className="text-muted-foreground">{t("fineTuneGeneration")}</p>
-
-              {/* Reset Parameters Button */}
-              <div className="flex justify-center md:justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={resetSettings}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  {t("actions.resetParameters")}
-                </Button>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Image Size */}
-              <div
-                className={cn(
-                  "bg-card border border-border rounded-2xl shadow-lg p-6 transition-all",
-                  !canUseCustomSizes() && "opacity-50"
-                )}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div
-                    className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center",
-                      canUseCustomSizes()
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    <Grid3X3 className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">
-                      {t("imageSize")}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t("chooseDimensions")}
-                    </p>
-                  </div>
-                  {!canUseCustomSizes() && (
-                    <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
-                      <Crown className="h-3 w-3" />
-                      <span className="text-xs font-medium">{t("pro")}</span>
-                    </div>
+                <div
+                  className={cn(
+                    "grid gap-4",
+                    filteredGeneratedImages.length === 1
+                      ? "grid-cols-1"
+                      : filteredGeneratedImages.length === 2
+                      ? "grid-cols-2"
+                      : "grid-cols-3"
                   )}
-                </div>
-
-                <Select
-                  value={settings.imageSize}
-                  disabled={!canUseCustomSizes()}
-                  onValueChange={(value: string) => {
-                    if (!canUseCustomSizes()) return;
-                    updateSettings("imageSize", value);
-                    const size = IMAGE_SIZES.find((s) => s.value === value);
-                    if (size) {
-                      updateSettings("customWidth", size.width);
-                      updateSettings("customHeight", size.height);
-                    }
-                  }}
                 >
-                  <SelectTrigger className="h-12 border-2">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {IMAGE_SIZES.map((size) => (
-                      <SelectItem key={size.value} value={size.value}>
-                        {size.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {settings.imageSize === "custom" && canUseCustomSizes() && (
-                  <div className="grid grid-cols-2 gap-3 mt-4">
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground mb-2 block">
-                        {t("width")}
-                      </label>
-                      <Input
-                        type="number"
-                        min="512"
-                        max="2048"
-                        step="64"
-                        value={settings.customWidth}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          updateSettings(
-                            "customWidth",
-                            parseInt(e.target.value) || 1024
-                          )
-                        }
-                        className="h-10 border-2"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground mb-2 block">
-                        {t("height")}
-                      </label>
-                      <Input
-                        type="number"
-                        min="512"
-                        max="2048"
-                        step="64"
-                        value={settings.customHeight}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          updateSettings(
-                            "customHeight",
-                            parseInt(e.target.value) || 1024
-                          )
-                        }
-                        className="h-10 border-2"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Batch Count */}
-              <div
-                className={cn(
-                  "bg-card border border-border rounded-2xl shadow-lg p-6 transition-all",
-                  !canUseBulk && "opacity-50"
-                )}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div
-                    className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center",
-                      canUseBulk
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    <Zap className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">
-                      {t("batchCount")}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t("generateMultiple")}
-                    </p>
-                  </div>
-                  {!canUseBulk && (
-                    <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
-                      <Crown className="h-3 w-3" />
-                      <span className="text-xs font-medium">{t("pro")}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-4 gap-2">
-                  {[1, 2, 4, 8].map((count) => (
-                    <Button
-                      key={count}
-                      variant={
-                        settings.batchCount === count ? "default" : "outline"
-                      }
-                      size="sm"
-                      onClick={() =>
-                        canUseBulk && updateSettings("batchCount", count)
-                      }
-                      disabled={
-                        !canUseBulk || !checkGenerationLimits(count).allowed
-                      }
-                      className="h-12 font-semibold"
-                    >
-                      {count}
-                    </Button>
+                  {filteredGeneratedImages.map((image, index) => (
+                    <ContentCard
+                      key={index}
+                      item={image}
+                      aspectRatio="square"
+                      canLike={true}
+                      canBookmark={true}
+                      canFullscreen={true}
+                      canAddToAlbum={true}
+                      canDownload={true}
+                      canDelete={true}
+                      mediaList={filteredGeneratedImages}
+                      currentIndex={index}
+                      onDelete={() => handleOptimisticDelete(image.id)}
+                    />
                   ))}
                 </div>
               </div>
+            ) : (
+              <Card className="border-dashed">
+                <CardContent className="py-20">
+                  <div className="text-center space-y-4">
+                    <div className="w-20 h-20 mx-auto bg-gradient-to-br from-primary/20 to-purple-600/20 rounded-full flex items-center justify-center">
+                      <ImageIcon className="h-10 w-10 text-primary/60" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold mb-2">
+                        No images generated yet
+                      </h3>
+                      <p className="text-muted-foreground text-sm max-w-md mx-auto">
+                        Enter a prompt and click generate to create amazing AI
+                        images
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-              {/* Visibility Toggle */}
-              <div
-                className={cn(
-                  "bg-card border border-border rounded-2xl shadow-lg p-6 transition-all",
-                  !canCreatePrivateContent() && "opacity-50"
-                )}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div
-                    className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center",
-                      canCreatePrivateContent()
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    <Lock className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">
-                      {t("visibility")}
+            {/* Recent Generations - Desktop */}
+            {filteredAllGeneratedImages.length > 0 && (
+              <Card className="mt-6">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4" />
+                      {t("recentGenerations")}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t("publicOrPrivateContent")}
-                    </p>
+                    <Badge variant="outline">
+                      {filteredAllGeneratedImages.length} total
+                    </Badge>
                   </div>
-                  {!canCreatePrivateContent() && (
-                    <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
-                      <Crown className="h-3 w-3" />
-                      <span className="text-xs font-medium">{t("pro")}</span>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-8 gap-2">
+                    {filteredAllGeneratedImages
+                      .slice(0, 16)
+                      .map((image, index) => (
+                        <button
+                          key={index}
+                          onClick={() => openThumbnailLightbox(image.url || "")}
+                          className="group relative aspect-square rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-all hover:scale-105"
+                        >
+                          <img
+                            src={composeMediaUrl(image.url)}
+                            alt={`${t("previous")} ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                                <Eye className="h-4 w-4 text-white" />
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                  </div>
+                  {filteredAllGeneratedImages.length > 16 && (
+                    <div className="mt-4 text-center">
+                      <p className="text-sm text-muted-foreground">
+                        +{filteredAllGeneratedImages.length - 16} more images in
+                        history
+                      </p>
                     </div>
                   )}
-                </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
-                        {settings.isPublic ? t("public") : t("private")}
-                      </span>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={!settings.isPublic} // Switch is for "private" state
-                    onCheckedChange={(checked) =>
-                      canCreatePrivateContent() &&
-                      updateSettings("isPublic", !checked)
-                    }
-                    disabled={!canCreatePrivateContent()}
-                  />
-                </div>
-
-                <p className="text-xs text-muted-foreground mt-3">
-                  {settings.isPublic
-                    ? t("generatedImagesPublic")
-                    : t("generatedImagesPrivate")}
-                </p>
+        {/* Custom Size Modal for Desktop */}
+        {settings.imageSize === "custom" && canUseCustomSizes() && (
+          <Card className="fixed bottom-6 right-6 w-80 shadow-2xl border-2 z-50">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-sm">Custom Dimensions</h4>
+                <button
+                  onClick={() => updateSettings("imageSize", "1024x1024")}
+                  className="p-1 hover:bg-muted rounded"
+                >
+                  <X className="h-3 w-3" />
+                </button>
               </div>
-            </div>
-
-            {/* Advanced Generation Parameters */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* CFG Scale */}
-              <div
-                className={cn(
-                  "bg-card border border-border rounded-2xl shadow-lg p-6 transition-all",
-                  !canUseCfgScale() && "opacity-50"
-                )}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div
-                    className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center",
-                      canUseCfgScale()
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    <Sparkles className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">
-                      {t("cfgScale")}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t("promptAdherence")}
-                    </p>
-                  </div>
-                  {!canUseCfgScale() && (
-                    <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
-                      <Crown className="h-3 w-3" />
-                      <span className="text-xs font-medium">{t("pro")}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-3">
-                  <div
-                    className={cn(
-                      !canUseCfgScale() && "pointer-events-none opacity-50"
-                    )}
-                  >
-                    <Slider
-                      value={[settings.cfgScale || 1]}
-                      onValueChange={(value) =>
-                        canUseCfgScale() &&
-                        updateSettings("cfgScale", value[0].toFixed(1))
-                      }
-                      min={0.5}
-                      max={5}
-                      step={0.1}
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>0.5</span>
-                    <span className="font-medium text-foreground">
-                      {settings.cfgScale || 1}
-                    </span>
-                    <span>5</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Steps */}
-              <div
-                className={cn(
-                  "bg-card border border-border rounded-2xl shadow-lg p-6 transition-all",
-                  !canUseSteps() && "opacity-50"
-                )}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div
-                    className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center",
-                      canUseSteps()
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    <RotateCcw className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">
-                      {t("steps")}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t("inferenceSteps")}
-                    </p>
-                  </div>
-                  {!canUseSteps() && (
-                    <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
-                      <Crown className="h-3 w-3" />
-                      <span className="text-xs font-medium">{t("pro")}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-3">
-                  <div
-                    className={cn(
-                      !canUseSteps() && "pointer-events-none opacity-50"
-                    )}
-                  >
-                    <Slider
-                      value={[settings.steps || 6]}
-                      onValueChange={(value) =>
-                        canUseSteps() && updateSettings("steps", value[0])
-                      }
-                      min={3}
-                      max={20}
-                      step={1}
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>3</span>
-                    <span className="font-medium text-foreground">
-                      {settings.steps || 6}
-                    </span>
-                    <span>20</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Seed */}
-              <div
-                className={cn(
-                  "bg-card border border-border rounded-2xl shadow-lg p-6 transition-all",
-                  !canUseSeed() && "opacity-50"
-                )}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div
-                    className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center",
-                      canUseSeed()
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    <Grid3X3 className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">
-                      {t("seed")}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t("reproducibility")}
-                    </p>
-                  </div>
-                  {!canUseSeed() && (
-                    <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
-                      <Crown className="h-3 w-3" />
-                      <span className="text-xs font-medium">{t("pro")}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-3">
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    Width
+                  </label>
                   <Input
                     type="number"
-                    value={settings.seed !== undefined ? settings.seed : 0}
+                    min="512"
+                    max="2048"
+                    step="64"
+                    value={settings.customWidth}
                     onChange={(e) =>
-                      canUseSeed() &&
-                      updateSettings("seed", parseInt(e.target.value) || 0)
+                      updateSettings(
+                        "customWidth",
+                        parseInt(e.target.value) || 1024
+                      )
                     }
-                    disabled={!canUseSeed()}
-                    placeholder={t("randomSeedPlaceholder")}
-                    min={0}
-                    className="w-full"
+                    className="h-9"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    {t("useRandomSeed")}
-                  </p>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    Height
+                  </label>
+                  <Input
+                    type="number"
+                    min="512"
+                    max="2048"
+                    step="64"
+                    value={settings.customHeight}
+                    onChange={(e) =>
+                      updateSettings(
+                        "customHeight",
+                        parseInt(e.target.value) || 1024
+                      )
+                    }
+                    className="h-9"
+                  />
                 </div>
               </div>
-            </div>
-
-            {/* LoRA Models */}
-            <div
-              className={cn(
-                "bg-card border border-border rounded-2xl shadow-lg p-6 transition-all",
-                !canUseLoras && "opacity-50"
-              )}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10 text-primary">
-                  <Crown className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-foreground">
-                    {t("loraModelsSection")}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {t("enhanceYourStyle")}
-                  </p>
-                </div>
-                {!canUseLoras && (
-                  <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
-                    <Crown className="h-3 w-3" />
-                    <span className="text-xs font-medium">{t("pro")}</span>
-                  </div>
-                )}
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-xs text-muted-foreground">
+                  Aspect Ratio:{" "}
+                  {(settings.customWidth / settings.customHeight).toFixed(2)}
+                </span>
+                <Badge variant="outline" className="text-xs">
+                  {settings.customWidth}×{settings.customHeight}
+                </Badge>
               </div>
+            </CardContent>
+          </Card>
+        )}
 
-              {/* Global LoRA Selection Mode Toggle */}
-              <div className="mb-6 p-4 bg-muted/30 border border-border/50 rounded-xl">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h4 className="text-sm font-medium text-foreground">
-                      {t("loraSelection")}
-                    </h4>
-                    <p className="text-xs text-muted-foreground">
-                      {settings.loraSelectionMode === "auto"
-                        ? t("automaticLoraDescription")
-                        : t("manuallySelectLora")}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => updateLoraSelectionMode("auto")}
-                    className={cn(
-                      "px-3 py-2 text-sm rounded-lg transition-colors font-medium",
-                      settings.loraSelectionMode === "auto"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-background text-muted-foreground hover:bg-background/80 border border-border"
-                    )}
-                  >
-                    {t("automatic")}
-                  </button>
-                  <button
-                    onClick={() => updateLoraSelectionMode("manual")}
-                    disabled={!canUseLoras}
-                    className={cn(
-                      "px-3 py-2 text-sm rounded-lg transition-colors font-medium",
-                      settings.loraSelectionMode === "manual"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-background text-muted-foreground hover:bg-background/80 border border-border",
-                      !canUseLoras &&
-                        "opacity-50 cursor-not-allowed hover:bg-background"
-                    )}
-                  >
-                    {t("manual")}
-                    {!canUseLoras && <Crown className="h-3 w-3 ml-1 inline" />}
-                  </button>
-                </div>
-              </div>
-
-              {settings.loraSelectionMode === "manual" ? (
-                <div className="grid gap-3">
-                  {LORA_MODELS.map((lora) => {
-                    const isSelected = settings.selectedLoras.includes(lora.id);
-                    const strengthSettings = settings.loraStrengths[lora.id];
-
-                    return (
-                      <div
-                        key={lora.id}
-                        className={cn(
-                          "border-2 rounded-xl transition-all",
-                          isSelected && canUseLoras
-                            ? "border-primary bg-primary/5"
-                            : "border-border hover:border-border/80",
-                          !canUseLoras && "opacity-50"
-                        )}
-                      >
-                        {/* LoRA Header - Clickable to toggle selection */}
-                        <div
-                          className="p-4 cursor-pointer transition-all"
-                          onClick={() => toggleLora(lora.id)}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="font-medium text-sm text-foreground">
-                                {lora.name}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {lora.description}
-                              </div>
-                            </div>
-                            <div className="ml-3 relative">
-                              {isSelected ? (
-                                <div
-                                  className={cn(
-                                    "w-5 h-5 bg-primary rounded-full flex items-center justify-center",
-                                    !canUseLoras && "opacity-50"
-                                  )}
-                                >
-                                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                                </div>
-                              ) : (
-                                <div
-                                  className={cn(
-                                    "w-5 h-5 border-2 border-border rounded-full",
-                                    !canUseLoras && "opacity-50"
-                                  )}
-                                ></div>
-                              )}
-                              {!canUseLoras && (
-                                <div className="absolute -top-1 -right-1 bg-card rounded-full p-0.5">
-                                  <Lock className="h-3 w-3 text-muted-foreground" />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Strength Controls - Show when selected, disable when no permissions */}
-                        {isSelected && strengthSettings && (
-                          <div className="px-4 pb-4 border-t border-border/30">
-                            <div className="pt-3 space-y-3">
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs font-medium text-foreground">
-                                  {t("strength")}
-                                </span>
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (canUseLoras) {
-                                        updateLoraStrength(lora.id, "auto");
-                                      }
-                                    }}
-                                    disabled={!canUseLoras}
-                                    className={cn(
-                                      "px-2 py-1 text-xs rounded-md transition-colors",
-                                      strengthSettings.mode === "auto"
-                                        ? "bg-primary text-primary-foreground"
-                                        : "bg-muted text-muted-foreground hover:bg-muted/80",
-                                      !canUseLoras &&
-                                        "opacity-50 cursor-not-allowed hover:bg-muted"
-                                    )}
-                                  >
-                                    Auto
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (canUseLoras) {
-                                        updateLoraStrength(lora.id, "manual");
-                                      }
-                                    }}
-                                    disabled={!canUseLoras}
-                                    className={cn(
-                                      "px-2 py-1 text-xs rounded-md transition-colors",
-                                      strengthSettings.mode === "manual"
-                                        ? "bg-primary text-primary-foreground"
-                                        : "bg-muted text-muted-foreground hover:bg-muted/80",
-                                      !canUseLoras &&
-                                        "opacity-50 cursor-not-allowed hover:bg-muted"
-                                    )}
-                                  >
-                                    Manual
-                                  </button>
-                                </div>
-                              </div>
-
-                              {strengthSettings.mode === "manual" && (
-                                <div className="space-y-2">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-xs text-muted-foreground">
-                                      {t("value")}:{" "}
-                                      {strengthSettings.value.toFixed(2)}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">
-                                      0.0 - 1.5
-                                    </span>
-                                  </div>
-                                  <div
-                                    className={cn(
-                                      !canUseLoras &&
-                                        "opacity-50 pointer-events-none"
-                                    )}
-                                  >
-                                    <Slider
-                                      value={[strengthSettings.value]}
-                                      onValueChange={(values) => {
-                                        if (canUseLoras) {
-                                          updateLoraStrength(
-                                            lora.id,
-                                            "manual",
-                                            values[0]
-                                          );
-                                        }
-                                      }}
-                                      min={0}
-                                      max={1.5}
-                                      step={0.05}
-                                      className="w-full"
-                                    />
-                                  </div>
-                                </div>
-                              )}
-
-                              {strengthSettings.mode === "auto" && (
-                                <div className="text-xs text-muted-foreground text-center py-1">
-                                  {t("strengthAutoDescriptionComplete")}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {/* Available LoRA Models Preview */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h5 className="text-sm font-medium text-foreground">
-                        {t("availableLoraModels")}
-                      </h5>
-                      {!canUseLoras && (
-                        <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
-                          <Crown className="h-3 w-3" />
-                          <span className="text-xs font-medium">
-                            {t("pro")}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    {canUseLoras && (
-                      <p className="text-xs text-muted-foreground mb-2">
-                        {t("loraClickTip")}
-                      </p>
-                    )}
-                    <div className="grid gap-2">
-                      {LORA_MODELS.map((lora) => (
-                        <div
-                          key={lora.id}
-                          className={cn(
-                            "p-3 border border-border rounded-lg transition-all",
-                            !canUseLoras
-                              ? "bg-muted/30 cursor-not-allowed"
-                              : "hover:border-primary/50 hover:bg-primary/5 cursor-pointer"
-                          )}
-                          onClick={() => handleLoraClickInAutoMode(lora.id)}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <div className="font-medium text-sm text-foreground">
-                                  {lora.name}
-                                </div>
-                                {!canUseLoras && (
-                                  <Lock className="h-3 w-3 text-muted-foreground" />
-                                )}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {lora.description}
-                              </div>
-                            </div>
-                            <div className="ml-3">
-                              <div
-                                className={cn(
-                                  "w-4 h-4 border-2 border-border rounded-full",
-                                  !canUseLoras && "opacity-50"
-                                )}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    {!canUseLoras && (
-                      <div className="text-center pt-3">
-                        <p className="text-xs text-muted-foreground mb-3">
-                          {t("upgradeToSelectLoraModels")}
-                        </p>
-                        <Button
-                          onClick={() => router.push("/pricing")}
-                          size="sm"
-                          className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
-                        >
-                          <Crown className="h-3 w-3 mr-1" />
-                          {t("upgradeToPro")}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {settings.loraSelectionMode === "manual" &&
-                settings.selectedLoras.length > 0 && (
-                  <div
-                    className={cn(
-                      "mt-4 p-3 bg-primary/5 border border-primary/20 rounded-xl space-y-2",
-                      !canUseLoras && "opacity-50"
-                    )}
-                  >
-                    <p className="text-xs text-primary font-medium text-center">
-                      {settings.selectedLoras.length} LoRA
-                      {settings.selectedLoras.length !== 1 ? "s" : ""}{" "}
-                      {t("selected")}
-                      {!canUseLoras && ` ${t("proFeature")}`}
-                    </p>
-                    <div className="grid gap-1">
-                      {settings.selectedLoras.map((loraId) => {
-                        const lora = LORA_MODELS.find((l) => l.id === loraId);
-                        const strength = settings.loraStrengths[loraId];
-                        if (!lora || !strength) return null;
-
-                        return (
-                          <div
-                            key={loraId}
-                            className="flex items-center justify-between text-xs"
-                          >
-                            <span className="text-primary/80">{lora.name}</span>
-                            <span className="text-primary/60">
-                              {strength.mode === "auto"
-                                ? t("auto")
-                                : `${strength.value.toFixed(2)}`}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-            </div>
-
-            {/* Negative Prompt */}
-            <div
-              className={cn(
-                "bg-card border border-border rounded-2xl shadow-lg p-6 transition-all",
-                !canUseNegativePrompts && "opacity-50"
-              )}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className={cn(
-                    "w-10 h-10 rounded-xl flex items-center justify-center",
-                    canUseNegativePrompts
-                      ? "bg-destructive/10 text-destructive"
-                      : "bg-muted text-muted-foreground"
-                  )}
-                >
-                  <MinusCircle className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-foreground">
-                    {t("negativePrompt")}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {t("whatToAvoid")}
-                  </p>
-                </div>
-                {!canUseNegativePrompts && (
-                  <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">
-                    <Crown className="h-3 w-3" />
-                    <span className="text-xs font-medium">{t("pro")}</span>
-                  </div>
-                )}
-              </div>
-
-              <Textarea
-                placeholder={t("negativePromptPlaceholder")}
-                value={settings.negativePrompt}
-                disabled={!canUseNegativePrompts}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                  if (!canUseNegativePrompts) return;
-                  updateSettings("negativePrompt", e.target.value);
-                }}
-                className={cn(
-                  "w-full h-24 text-base p-4 border-2 border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 resize-none transition-all bg-background",
-                  !canUseNegativePrompts && "cursor-not-allowed"
-                )}
-              />
-            </div>
-          </div>
-
-          {/* Lightbox */}
-          <Lightbox
-            media={filteredAllGeneratedImages}
-            currentIndex={lightboxIndex}
-            isOpen={lightboxOpen}
-            canDelete={true}
-            onDelete={handleDeleteRecentMedia}
-            onClose={() => setLightboxOpen(false)}
-            onNext={handleLightboxNext}
-            onPrevious={handleLightboxPrevious}
-            onGoToIndex={(index) => setLightboxIndex(index)}
-          />
-        </div>
+        {/* Lightbox */}
+        <Lightbox
+          media={filteredAllGeneratedImages}
+          currentIndex={lightboxIndex}
+          isOpen={lightboxOpen}
+          canDelete={true}
+          onDelete={handleDeleteRecentMedia}
+          onClose={() => setLightboxOpen(false)}
+          onNext={handleLightboxNext}
+          onPrevious={handleLightboxPrevious}
+          onGoToIndex={(index) => setLightboxIndex(index)}
+        />
       </div>
     </div>
   );

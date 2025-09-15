@@ -16,7 +16,6 @@ import LocaleLink from "@/components/ui/LocaleLink";
 import { useLocaleRouter } from "@/lib/navigation";
 import { locales } from "@/i18n";
 import {
-  Settings as SettingsIcon,
   Globe,
   CreditCard,
   Shield,
@@ -24,7 +23,6 @@ import {
   AlertTriangle,
   ExternalLink,
   Trash2,
-  X,
   Bell,
   Lock,
   User,

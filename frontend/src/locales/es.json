@@ -1022,6 +1022,9 @@
     "settings": {
       "title": "Configuración",
       "description": "Gestiona las preferencias y configuración de tu cuenta",
+      "overview": {
+        "title": "Resumen"
+      },
       "sections": {
         "language": "Idioma",
         "subscription": "Suscripción",

@@ -1094,6 +1094,9 @@
     "settings": {
       "title": "Paramètres",
       "description": "Gérez vos préférences de compte et paramètres",
+      "overview": {
+        "title": "Aperçu"
+      },
       "sections": {
         "language": "Langue",
         "subscription": "Abonnement",

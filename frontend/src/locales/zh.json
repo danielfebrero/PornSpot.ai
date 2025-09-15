@@ -1020,6 +1020,9 @@
     "settings": {
       "title": "设置",
       "description": "管理您的账户偏好和设置",
+      "overview": {
+        "title": "概览"
+      },
       "sections": {
         "language": "语言",
         "subscription": "订阅",
