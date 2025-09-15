@@ -194,6 +194,13 @@ export default function SettingsPage() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // On mobile, scroll to top when navigating into a section
+  useEffect(() => {
+    if (isMobile && activeSection !== "overview") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [isMobile, activeSection]);
+
   // Initialize language preference
   useEffect(() => {
     if (user?.preferredLanguage && user.preferredLanguage !== "") {
@@ -449,6 +456,274 @@ export default function SettingsPage() {
     imagesGeneratedThisMonth: 0,
     imagesGeneratedToday: 0,
   };
+
+  // Desktop View - All sections visible with sidebar
+  const DesktopView = () => (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-12 gap-8">
+          {/* Sidebar */}
+          <div className="col-span-3">
+            <div className="sticky top-8">
+              {/* User Profile Card */}
+              <Card className="mb-6 overflow-hidden">
+                <div className="h-20 bg-gradient-to-br from-primary to-primary/60"></div>
+                <CardContent className="relative pt-0">
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2">
+                    <div className="h-20 w-20 rounded-full bg-card border-4 border-background flex items-center justify-center">
+                      <Avatar user={user} size="medium" />
+                    </div>
+                  </div>
+                  <div className="text-center pt-12 pb-4">
+                    <h2 className="font-semibold text-lg">
+                      {user.username || "User"}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      {user.email}
+                    </p>
+                    <div className="mt-3">
+                      <UserPlanBadge plan={user.planInfo.plan} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Navigation */}
+              <Card>
+                <CardContent className="p-2">
+                  <nav className="space-y-1">
+                    {sections
+                      .filter((s) => s.id !== "overview")
+                      .map((section) => (
+                        <a
+                          key={section.id}
+                          href={`#${section.id}`}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-muted ${
+                            section.id === "danger"
+                              ? "hover:bg-destructive/10"
+                              : ""
+                          }`}
+                        >
+                          <section.icon
+                            className={`h-4 w-4 ${section.color}`}
+                          />
+                          <span className="text-sm font-medium">
+                            {section.title}
+                          </span>
+                          {section.badge && (
+                            <Badge
+                              variant="outline"
+                              className="ml-auto text-xs"
+                            >
+                              {section.badge}
+                            </Badge>
+                          )}
+                        </a>
+                      ))}
+                  </nav>
+                </CardContent>
+              </Card>
+
+              {/* Sign Out */}
+              <Button
+                variant="outline"
+                onClick={() => logoutMutation.mutate()}
+                className="w-full mt-4"
+              >
+                Sign Out
+              </Button>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="col-span-9 space-y-6">
+            {/* Header */}
+            <div>
+              <h1 className="text-3xl font-bold mb-2">{tSettings("title")}</h1>
+              <p className="text-muted-foreground">
+                {tSettings("description")}
+              </p>
+            </div>
+
+            {/* Sections */}
+            <div id="notifications" className="scroll-mt-8">
+              <NotificationsSection />
+            </div>
+            <div id="language" className="scroll-mt-8">
+              <LanguageSection />
+            </div>
+            <div id="usage" className="scroll-mt-8">
+              <UsageSection />
+            </div>
+            <div id="subscription" className="scroll-mt-8">
+              <SubscriptionSection />
+            </div>
+            <div id="security" className="scroll-mt-8">
+              <SecuritySection />
+            </div>
+            <div id="danger" className="scroll-mt-8">
+              <DangerSection />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Mobile View - Single section at a time
+  const MobileView = () => (
+    <div className="min-h-screen bg-background">
+      <AnimatePresence mode="wait">
+        {activeSection === "overview" ? (
+          <motion.div
+            key="overview"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="min-h-screen flex flex-col"
+          >
+            {/* Header */}
+            <div className="bg-card border-b">
+              <div className="px-4 py-5">
+                <div className="flex items-center gap-3">
+                  <Avatar user={user} size="medium" />
+                  <div className="flex-1">
+                    <h1 className="text-lg font-semibold">
+                      {user.username || "User"}
+                    </h1>
+                    <p className="text-sm text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                  <UserPlanBadge plan={user.planInfo.plan} />
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="px-4 py-3 bg-muted/30">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-card rounded-lg p-3 border">
+                  <p className="text-xs text-muted-foreground">
+                    Today&apos;s Usage
+                  </p>
+                  <p className="text-lg font-semibold">
+                    {usageStats.imagesGeneratedToday}
+                    <span className="text-sm text-muted-foreground font-normal">
+                      {planLimits?.imagesPerDay !== "unlimited" &&
+                        ` / ${planLimits?.imagesPerDay}`}
+                    </span>
+                  </p>
+                </div>
+                <div className="bg-card rounded-lg p-3 border">
+                  <p className="text-xs text-muted-foreground">Monthly Usage</p>
+                  <p className="text-lg font-semibold">
+                    {usageStats.imagesGeneratedThisMonth}
+                    <span className="text-sm text-muted-foreground font-normal">
+                      {planLimits?.imagesPerMonth !== "unlimited" &&
+                        ` / ${planLimits?.imagesPerMonth}`}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Settings List */}
+            <div className="flex-1 px-4 py-4 space-y-2">
+              {sections
+                .filter((s) => s.id !== "overview")
+                .map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => setActiveSection(section.id)}
+                    className="w-full text-left"
+                  >
+                    <div
+                      className={`flex items-center justify-between p-4 rounded-xl bg-card border transition-all active:scale-[0.98] ${
+                        section.id === "danger" ? "border-destructive/20" : ""
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`h-10 w-10 rounded-lg bg-gradient-to-br ${section.bgGradient} flex items-center justify-center`}
+                        >
+                          <section.icon
+                            className={`h-5 w-5 ${section.color}`}
+                          />
+                        </div>
+                        <div>
+                          <h3
+                            className={`font-medium ${
+                              section.id === "danger" ? "text-destructive" : ""
+                            }`}
+                          >
+                            {section.title}
+                          </h3>
+                          {section.badge && (
+                            <Badge variant="outline" className="mt-0.5 text-xs">
+                              {section.badge}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  </button>
+                ))}
+            </div>
+
+            {/* Footer Actions */}
+            <div className="px-4 pb-4">
+              <Button
+                variant="outline"
+                onClick={() => logoutMutation.mutate()}
+                className="w-full"
+              >
+                Sign Out
+              </Button>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key={activeSection}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="min-h-screen flex flex-col"
+          >
+            {/* Section Header */}
+            <div className="sticky top-0 z-40 bg-card border-b">
+              <div className="flex items-center px-2 py-3">
+                <button
+                  onClick={() => setActiveSection("overview")}
+                  className="p-2 hover:bg-muted rounded-lg transition-colors"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </button>
+                <h2 className="flex-1 text-center text-lg font-semibold pr-9">
+                  {sections.find((s) => s.id === activeSection)?.title}
+                </h2>
+              </div>
+            </div>
+
+            {/* Section Content */}
+            <div className="flex-1 overflow-y-auto">
+              {activeSection === "notifications" && (
+                <MobileNotificationsSection />
+              )}
+              {activeSection === "language" && <MobileLanguageSection />}
+              {activeSection === "usage" && <MobileUsageSection />}
+              {activeSection === "subscription" && (
+                <MobileSubscriptionSection />
+              )}
+              {activeSection === "security" && <MobileSecuritySection />}
+              {activeSection === "danger" && <MobileDangerSection />}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 
   // Section Components
   const NotificationsSection = () => (
@@ -981,274 +1256,6 @@ export default function SettingsPage() {
         )}
       </CardContent>
     </Card>
-  );
-
-  // Desktop View - All sections visible with sidebar
-  const DesktopView = () => (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-12 gap-8">
-          {/* Sidebar */}
-          <div className="col-span-3">
-            <div className="sticky top-8">
-              {/* User Profile Card */}
-              <Card className="mb-6 overflow-hidden">
-                <div className="h-20 bg-gradient-to-br from-primary to-primary/60"></div>
-                <CardContent className="relative pt-0">
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2">
-                    <div className="h-20 w-20 rounded-full bg-card border-4 border-background flex items-center justify-center">
-                      <Avatar user={user} size="medium" />
-                    </div>
-                  </div>
-                  <div className="text-center pt-12 pb-4">
-                    <h2 className="font-semibold text-lg">
-                      {user.username || "User"}
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      {user.email}
-                    </p>
-                    <div className="mt-3">
-                      <UserPlanBadge plan={user.planInfo.plan} />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Navigation */}
-              <Card>
-                <CardContent className="p-2">
-                  <nav className="space-y-1">
-                    {sections
-                      .filter((s) => s.id !== "overview")
-                      .map((section) => (
-                        <a
-                          key={section.id}
-                          href={`#${section.id}`}
-                          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-muted ${
-                            section.id === "danger"
-                              ? "hover:bg-destructive/10"
-                              : ""
-                          }`}
-                        >
-                          <section.icon
-                            className={`h-4 w-4 ${section.color}`}
-                          />
-                          <span className="text-sm font-medium">
-                            {section.title}
-                          </span>
-                          {section.badge && (
-                            <Badge
-                              variant="outline"
-                              className="ml-auto text-xs"
-                            >
-                              {section.badge}
-                            </Badge>
-                          )}
-                        </a>
-                      ))}
-                  </nav>
-                </CardContent>
-              </Card>
-
-              {/* Sign Out */}
-              <Button
-                variant="outline"
-                onClick={() => logoutMutation.mutate()}
-                className="w-full mt-4"
-              >
-                Sign Out
-              </Button>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="col-span-9 space-y-6">
-            {/* Header */}
-            <div>
-              <h1 className="text-3xl font-bold mb-2">{tSettings("title")}</h1>
-              <p className="text-muted-foreground">
-                {tSettings("description")}
-              </p>
-            </div>
-
-            {/* Sections */}
-            <div id="notifications" className="scroll-mt-8">
-              <NotificationsSection />
-            </div>
-            <div id="language" className="scroll-mt-8">
-              <LanguageSection />
-            </div>
-            <div id="usage" className="scroll-mt-8">
-              <UsageSection />
-            </div>
-            <div id="subscription" className="scroll-mt-8">
-              <SubscriptionSection />
-            </div>
-            <div id="security" className="scroll-mt-8">
-              <SecuritySection />
-            </div>
-            <div id="danger" className="scroll-mt-8">
-              <DangerSection />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Mobile View - Single section at a time
-  const MobileView = () => (
-    <div className="min-h-screen bg-background">
-      <AnimatePresence mode="wait">
-        {activeSection === "overview" ? (
-          <motion.div
-            key="overview"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            className="min-h-screen flex flex-col"
-          >
-            {/* Header */}
-            <div className="bg-card border-b">
-              <div className="px-4 py-5">
-                <div className="flex items-center gap-3">
-                  <Avatar user={user} size="medium" />
-                  <div className="flex-1">
-                    <h1 className="text-lg font-semibold">
-                      {user.username || "User"}
-                    </h1>
-                    <p className="text-sm text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                  <UserPlanBadge plan={user.planInfo.plan} />
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="px-4 py-3 bg-muted/30">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-card rounded-lg p-3 border">
-                  <p className="text-xs text-muted-foreground">
-                    Today&apos;s Usage
-                  </p>
-                  <p className="text-lg font-semibold">
-                    {usageStats.imagesGeneratedToday}
-                    <span className="text-sm text-muted-foreground font-normal">
-                      {planLimits?.imagesPerDay !== "unlimited" &&
-                        ` / ${planLimits?.imagesPerDay}`}
-                    </span>
-                  </p>
-                </div>
-                <div className="bg-card rounded-lg p-3 border">
-                  <p className="text-xs text-muted-foreground">Monthly Usage</p>
-                  <p className="text-lg font-semibold">
-                    {usageStats.imagesGeneratedThisMonth}
-                    <span className="text-sm text-muted-foreground font-normal">
-                      {planLimits?.imagesPerMonth !== "unlimited" &&
-                        ` / ${planLimits?.imagesPerMonth}`}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Settings List */}
-            <div className="flex-1 px-4 py-4 space-y-2">
-              {sections
-                .filter((s) => s.id !== "overview")
-                .map((section) => (
-                  <button
-                    key={section.id}
-                    onClick={() => setActiveSection(section.id)}
-                    className="w-full text-left"
-                  >
-                    <div
-                      className={`flex items-center justify-between p-4 rounded-xl bg-card border transition-all active:scale-[0.98] ${
-                        section.id === "danger" ? "border-destructive/20" : ""
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`h-10 w-10 rounded-lg bg-gradient-to-br ${section.bgGradient} flex items-center justify-center`}
-                        >
-                          <section.icon
-                            className={`h-5 w-5 ${section.color}`}
-                          />
-                        </div>
-                        <div>
-                          <h3
-                            className={`font-medium ${
-                              section.id === "danger" ? "text-destructive" : ""
-                            }`}
-                          >
-                            {section.title}
-                          </h3>
-                          {section.badge && (
-                            <Badge variant="outline" className="mt-0.5 text-xs">
-                              {section.badge}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                  </button>
-                ))}
-            </div>
-
-            {/* Footer Actions */}
-            <div className="px-4 pb-4">
-              <Button
-                variant="outline"
-                onClick={() => logoutMutation.mutate()}
-                className="w-full"
-              >
-                Sign Out
-              </Button>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key={activeSection}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="min-h-screen flex flex-col"
-          >
-            {/* Section Header */}
-            <div className="sticky top-0 z-40 bg-card border-b">
-              <div className="flex items-center px-2 py-3">
-                <button
-                  onClick={() => setActiveSection("overview")}
-                  className="p-2 hover:bg-muted rounded-lg transition-colors"
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </button>
-                <h2 className="flex-1 text-center text-lg font-semibold pr-9">
-                  {sections.find((s) => s.id === activeSection)?.title}
-                </h2>
-              </div>
-            </div>
-
-            {/* Section Content */}
-            <div className="flex-1 overflow-y-auto">
-              {activeSection === "notifications" && (
-                <MobileNotificationsSection />
-              )}
-              {activeSection === "language" && <MobileLanguageSection />}
-              {activeSection === "usage" && <MobileUsageSection />}
-              {activeSection === "subscription" && (
-                <MobileSubscriptionSection />
-              )}
-              {activeSection === "security" && <MobileSecuritySection />}
-              {activeSection === "danger" && <MobileDangerSection />}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
   );
 
   // Mobile Section Components
