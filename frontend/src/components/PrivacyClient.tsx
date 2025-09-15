@@ -26,7 +26,9 @@ export function PrivacyClient() {
     "childrenPrivacy",
     "internationalTransfers",
     "gdprCompliance",
+    "ukGdpr",
     "californiaCcpa",
+    "aiEthics",
     "thirdPartyLinks",
     "policyChanges",
     "contact",
@@ -100,7 +102,7 @@ export function PrivacyClient() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
-                  href="mailto:support@fabularius.ai"
+                  href="mailto:support@pornspot.ai"
                   className="inline-flex items-center justify-center px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                 >
                   {t("ui.contactSupport")}

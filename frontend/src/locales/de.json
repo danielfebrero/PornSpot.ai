@@ -1501,6 +1501,7 @@
     "thePrompt": "der Prompt",
     "upgradeToSelectLora": "Auf Pro upgraden, um LoRA manuell auszuwählen und zu konfigurieren",
     "upgradeToPro": "Auf Pro upgraden",
+    "upgradeForBulk": "Upgraden, um mehrere Bilder gleichzeitig zu generieren",
     "selected": "ausgewählt",
     "auto": "Auto",
     "randomSeedPlaceholder": "Seed eingeben (verwenden Sie 0 für zufällig)",
@@ -1820,7 +1821,7 @@
     },
     "informationWe": {
       "title": "Informationen, die wir sammeln",
-      "content": "Wir sammeln Informationen, die Sie uns direkt zur Verfügung stellen, wie z.B. wenn Sie ein Konto erstellen, Inhalte generieren oder uns kontaktieren. Dazu gehören Ihre E-Mail-Adresse, Benutzername, Abonnement-Informationen und Präferenzen für die Inhaltsgenerierung."
+      "content": "Wir sammeln Informationen direkt von Ihnen, wenn Sie sich registrieren oder unsere Generierungsformulare auf unseren Servern verwenden. Dazu gehören: E-Mail-Adresse, Benutzername, Abonnement-Informationen, Präferenzen für die Inhaltsgenerierung, KI-Prompts die Sie einreichen, und Zahlungsinformationen (sicher von Drittanbietern verarbeitet). Wir verwenden keine erweiterten Tracker über die wesentlichen Funktionen hinaus. Die Datensammlung erfolgt direkt auf unseren AWS-Servern, wenn Sie sich registrieren oder unsere Bildgenerierungsfunktionen nutzen."
     },
     "howWe": {
       "title": "Wie wir Ihre Informationen verwenden",
@@ -1828,19 +1829,19 @@
     },
     "informationSharing": {
       "title": "Informationsaustausch und -offenlegung",
-      "content": "Wir verkaufen, tauschen oder übertragen Ihre persönlichen Informationen nicht ohne Ihre Zustimmung an Dritte, außer wie in dieser Richtlinie beschrieben. Wir können Informationen mit Dienstleistern teilen, die uns beim Betrieb unserer Plattform unterstützen."
+      "content": "Wir verkaufen, tauschen oder teilen Ihre persönlichen Informationen nicht mit Dritten. Wir verwenden nur SendGrid für die E-Mail-Zustellung, das möglicherweise Protokolle der verwendeten E-Mail-Adressen aufbewahrt. Keine anderen Daten werden mit externen Parteien geteilt. Ihre generierten Inhalte, Prompts und persönlichen Informationen bleiben strikt vertraulich innerhalb unserer AWS-Infrastruktur."
     },
     "dataStorage": {
       "title": "Datenspeicherung und -sicherheit",
-      "content": "Wir implementieren angemessene technische und organisatorische Maßnahmen zum Schutz Ihrer persönlichen Informationen vor unbefugtem Zugriff, Veränderung, Offenlegung oder Zerstörung. Ihre Daten werden auf sicheren Servern mit branchenüblicher Verschlüsselung gespeichert."
+      "content": "Ihre Daten werden sicher auf AWS us-east-1 Servern gespeichert. Wir verwenden bcrypt-Verschlüsselung für Benutzerpasswörter (mindestens 12 Runden mit eindeutigem Salt) für Benutzer, die sich direkt registrieren. Benutzer, die sich über Google Login anmelden, teilen keine Passwörter mit uns. Alle sensiblen NSFW-Inhalte und Prompts werden sicher in unserer AWS-Infrastruktur gespeichert. Wir implementieren automatisierte KI-basierte Moderation (LLM-as-a-judge) und manuelle Inhaltsüberprüfung für alle Benutzer-Prompts und generierten Bilder."
     },
     "cookies": {
       "title": "Cookies und Tracking-Technologien",
-      "content": "Wir verwenden Cookies und ähnliche Tracking-Technologien, um Aktivitäten auf unserem Service zu verfolgen und bestimmte Informationen zu speichern. Sie können Ihren Browser anweisen, alle Cookies abzulehnen oder anzuzeigen, wann ein Cookie gesendet wird."
+      "content": "Wir verwenden zwei Arten von Cookies: (1) Wesentliche Cookies zur Aufrechterhaltung Ihrer bevorzugten Spracheinstellung für die ordnungsgemäße Anzeige von Inhalten, und (2) Analyse-Cookies über Google Analytics zur Verstehen von Website-Nutzungsmustern. Wir verwenden keine Werbe- oder Tracking-Cookies über diese wesentlichen Funktionen hinaus. Sie können Cookie-Präferenzen in Ihren Browser-Einstellungen verwalten, obwohl das Deaktivieren wesentlicher Cookies die Website-Funktionalität beeinträchtigen kann."
     },
     "dataRetention": {
       "title": "Datenaufbewahrung",
-      "content": "Wir bewahren Ihre persönlichen Informationen so lange auf, wie es notwendig ist, um Ihnen Dienste zu erbringen, unseren rechtlichen Verpflichtungen nachzukommen, Streitigkeiten zu lösen und unsere Vereinbarungen durchzusetzen. Sie können jederzeit die Löschung Ihres Kontos und Ihrer persönlichen Daten beantragen."
+      "content": "Wir bewahren Ihre Daten unbegrenzt auf, um Servicequalität und Kontinuität zu gewährleisten. Dies umfasst: Benutzer-Prompts (unbegrenzt aufbewahrt zur Verbesserung unserer Services), generierte Bilder und Alben (aufbewahrt zur Erhaltung Ihrer Bibliothek), Nutzungsstatistiken (für interne Analysen) und Kontoinformationen (zur Bereitstellung kontinuierlicher Services). Daten werden aufbewahrt, um zu garantieren, dass Ihre Bilderbibliothek und Prompts niemals verloren gehen. Sie können die Kontolöschung durch Kontaktaufnahme mit support@pornspot.ai beantragen, obwohl dies zum dauerhaften Verlust aller generierten Inhalte führt."
     },
     "yourRights": {
       "title": "Ihre Datenschutzrechte",
@@ -1852,7 +1853,7 @@
     },
     "internationalTransfers": {
       "title": "Internationale Datenübertragungen",
-      "content": "Ihre Informationen können in andere Länder als Ihrem eigenen übertragen und verarbeitet werden. Wir stellen sicher, dass solche Übertragungen in Übereinstimmung mit den geltenden Datenschutzgesetzen und mit angemessenen Schutzmaßnahmen durchgeführt werden."
+      "content": "Wir sind ein französisches Unternehmen, das alle Daten direkt auf AWS us-east-1 Servern in den Vereinigten Staaten speichert. Ihre Daten verlassen nicht die US-Infrastruktur. Es gibt keine zusätzlichen internationalen Übertragungen über das anfängliche Hosting in AWS US-Regionen hinaus. Diese Anordnung gewährleistet konsistente Datenschutzstandards unter AWS-Sicherheitsprotokollen."
     },
     "gdprCompliance": {
       "title": "DSGVO-Konformität",
@@ -1872,7 +1873,15 @@
     },
     "contact": {
       "title": "Kontaktieren Sie uns",
-      "content": "Wenn Sie Fragen zu dieser Datenschutzrichtlinie haben, kontaktieren Sie uns bitte über unsere Support-Kanäle, per E-Mail oder über die auf unserer Website angegebenen Kontaktinformationen."
+      "content": "Wenn Sie Fragen zu dieser Datenschutzrichtlinie, DSGVO-Anfragen oder Datenschutzbedenken haben, kontaktieren Sie uns bitte unter support@pornspot.ai oder über unsere Support-Kanäle. Für Beschwerden und DSGVO-Anfragen senden Sie uns direkt eine E-Mail an support@pornspot.ai."
+    },
+    "aiEthics": {
+      "title": "KI und Ethik",
+      "content": "In Übereinstimmung mit aufkommenden Standards (UNESCO, AI Act, ISO/IEC 42001): Transparenz - Wir dokumentieren KI-Prozesse, die Ihre Daten betreffen, auf Anfrage verfügbar. Nicht-Diskriminierung - Unsere Algorithmen werden geprüft, um Voreingenommenheit zu minimieren (z.B. Geschlechts- oder kulturelle Voreingenommenheit bei der Inhaltsgenerierung). Sensible Inhalte - NSFW-Prompts und -Bilder werden isoliert und niemals ohne ausdrückliche Zustimmung wiederverwendet. Datenschutz - Wir trainieren keine KI-Modelle mit Benutzerdaten."
+    },
+    "ukGdpr": {
+      "title": "UK DSGVO-Konformität",
+      "content": "Für UK-Einwohner halten wir uns an die britische Umsetzung der DSGVO (Data Protection Act 2018). Sie haben das Recht auf Zugang, Berichtigung, Löschung, Beschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch gegen die Verarbeitung Ihrer personenbezogenen Daten. Sie können auch jederzeit Ihre Einwilligung widerrufen. Um diese Rechte auszuüben oder eine Beschwerde einzureichen, kontaktieren Sie uns unter support@pornspot.ai oder reichen Sie eine Beschwerde beim UK Information Commissioner's Office (ICO) ein."
     },
     "ui": {
       "tableOfContents": "Inhaltsverzeichnis",

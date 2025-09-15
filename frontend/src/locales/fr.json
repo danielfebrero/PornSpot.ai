@@ -1549,6 +1549,7 @@
     "thePrompt": "le prompt",
     "upgradeToSelectLora": "Passez à Pro pour sélectionner et configurer manuellement les LoRA",
     "upgradeToPro": "Passer à Pro",
+    "upgradeForBulk": "Passez à une version supérieure pour générer plusieurs images à la fois",
     "selected": "sélectionné",
     "auto": "Auto",
     "randomSeedPlaceholder": "Entrez la graine (utilisez 0 pour aléatoire)",
@@ -1868,7 +1869,7 @@
     },
     "informationWe": {
       "title": "Informations que nous collectons",
-      "content": "Nous collectons les informations que vous nous fournissez directement, par exemple lorsque vous créez un compte, générez du contenu ou nous contactez. Cela inclut votre adresse e-mail, nom d'utilisateur, informations d'abonnement et préférences de génération de contenu."
+      "content": "Nous collectons les informations directement de vous lorsque vous vous inscrivez ou utilisez nos formulaires de génération sur nos serveurs. Cela inclut : adresse e-mail, nom d'utilisateur, informations d'abonnement, préférences de génération de contenu, prompts IA que vous soumettez, et informations de paiement (traitées de manière sécurisée par des fournisseurs tiers). Nous n'utilisons pas de trackers avancés au-delà des fonctionnalités essentielles. La collecte de données s'effectue directement sur nos serveurs AWS lorsque vous vous inscrivez ou utilisez nos fonctionnalités de génération d'images."
     },
     "howWe": {
       "title": "Comment nous utilisons vos informations",
@@ -1876,19 +1877,19 @@
     },
     "informationSharing": {
       "title": "Partage et divulgation d'informations",
-      "content": "Nous ne vendons, n'échangeons ni ne transférons vos informations personnelles à des tiers sans votre consentement, sauf comme décrit dans cette politique. Nous pouvons partager des informations avec des fournisseurs de services qui nous aident à exploiter notre plateforme."
+      "content": "Nous ne vendons, n'échangeons ni ne partageons vos informations personnelles avec des tiers. Nous utilisons uniquement SendGrid pour la livraison d'e-mails, qui peut conserver des journaux des adresses e-mail utilisées. Aucune autre donnée n'est partagée avec des parties externes. Votre contenu généré, vos prompts et vos informations personnelles restent strictement confidentiels au sein de notre infrastructure AWS."
     },
     "dataStorage": {
       "title": "Stockage et sécurité des données",
-      "content": "Nous mettons en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos informations personnelles contre l'accès non autorisé, l'altération, la divulgation ou la destruction. Vos données sont stockées sur des serveurs sécurisés avec un chiffrement standard de l'industrie."
+      "content": "Vos données sont stockées de manière sécurisée sur les serveurs AWS us-east-1. Nous utilisons le chiffrement bcrypt pour les mots de passe utilisateur (minimum 12 rounds avec sel unique) pour les utilisateurs qui s'inscrivent directement. Les utilisateurs qui se connectent via Google Login ne partagent pas de mots de passe avec nous. Tout le contenu NSFW sensible et les prompts sont stockés de manière sécurisée au sein de notre infrastructure AWS. Nous mettons en œuvre une modération automatisée basée sur l'IA (LLM-as-a-judge) et une révision manuelle du contenu pour tous les prompts utilisateur et les images générées."
     },
     "cookies": {
       "title": "Cookies et technologies de suivi",
-      "content": "Nous utilisons des cookies et des technologies de suivi similaires pour suivre l'activité sur notre service et conserver certaines informations. Vous pouvez configurer votre navigateur pour refuser tous les cookies ou indiquer quand un cookie est envoyé."
+      "content": "Nous utilisons deux types de cookies : (1) Cookies essentiels pour maintenir votre paramètre de langue préférée afin d'afficher le contenu de manière appropriée, et (2) Cookies analytiques via Google Analytics pour comprendre les modèles d'utilisation du site web. Nous n'utilisons pas de cookies publicitaires ou de suivi au-delà de ces fonctions essentielles. Vous pouvez gérer les préférences de cookies dans les paramètres de votre navigateur, bien que la désactivation des cookies essentiels puisse affecter les fonctionnalités du site."
     },
     "dataRetention": {
       "title": "Conservation des données",
-      "content": "Nous conservons vos informations personnelles aussi longtemps que nécessaire pour vous fournir des services, respecter nos obligations légales, résoudre les litiges et faire respecter nos accords. Vous pouvez demander la suppression de votre compte et de vos données personnelles à tout moment."
+      "content": "Nous conservons vos données indéfiniment pour garantir la qualité et la continuité du service. Cela inclut : les prompts utilisateur (conservés indéfiniment pour améliorer nos services), les images générées et les albums (préservés pour maintenir votre bibliothèque), les statistiques d'utilisation (pour l'analyse interne), et les informations de compte (pour fournir un service continu). Les données sont conservées pour garantir que votre bibliothèque d'images et vos prompts ne soient jamais perdus. Vous pouvez demander la suppression de votre compte en contactant support@pornspot.ai, bien que cela entraîne la perte permanente de tout le contenu généré."
     },
     "yourRights": {
       "title": "Vos droits de confidentialité",
@@ -1900,7 +1901,7 @@
     },
     "internationalTransfers": {
       "title": "Transferts internationaux de données",
-      "content": "Vos informations peuvent être transférées et traitées dans des pays autres que le vôtre. Nous nous assurons que ces transferts sont effectués conformément aux lois applicables sur la protection des données et avec des garanties appropriées en place."
+      "content": "Nous sommes une société française qui stocke toutes les données directement sur les serveurs AWS us-east-1 aux États-Unis. Vos données ne quittent pas l'infrastructure des États-Unis. Il n'y a pas de transferts internationaux supplémentaires au-delà de l'hébergement initial dans les régions AWS américaines. Cet arrangement garantit des normes de protection des données cohérentes sous les protocoles de sécurité AWS."
     },
     "gdprCompliance": {
       "title": "Conformité RGPD",
@@ -1920,7 +1921,15 @@
     },
     "contact": {
       "title": "Nous contacter",
-      "content": "Si vous avez des questions sur cette Politique de confidentialité, veuillez nous contacter via nos canaux de support, par e-mail, ou aux informations de contact fournies sur notre site web."
+      "content": "Si vous avez des questions sur cette Politique de confidentialité, des demandes RGPD, ou des préoccupations concernant la protection des données, veuillez nous contacter à support@pornspot.ai ou via nos canaux de support. Pour les plaintes et les demandes de type RGPD, envoyez-nous un e-mail directement à support@pornspot.ai."
+    },
+    "aiEthics": {
+      "title": "IA et Éthique",
+      "content": "Conformément aux standards émergents (UNESCO, AI Act, ISO/IEC 42001) : Transparence - Nous documentons les processus IA affectant vos données, accessibles sur demande. Non-discrimination - Nos algorithmes sont audités pour minimiser les biais (ex. : biais de genre ou culturels dans la génération de contenu). Contenu sensible - Les prompts et images NSFW sont isolés et ne sont jamais réutilisés sans consentement explicite. Protection des données - Nous n'entraînons pas les modèles d'IA avec les données des utilisateurs."
+    },
+    "ukGdpr": {
+      "title": "Conformité RGPD Royaume-Uni",
+      "content": "Pour les résidents du Royaume-Uni, nous nous conformons à l'implémentation britannique du RGPD (Data Protection Act 2018). Vous avez le droit d'accéder, rectifier, effacer, restreindre le traitement, la portabilité des données, et vous opposer au traitement de vos données personnelles. Vous pouvez également retirer votre consentement à tout moment. Pour exercer ces droits ou déposer une plainte, contactez-nous à support@pornspot.ai ou déposez une plainte auprès du Bureau du Commissaire à l'Information du Royaume-Uni (ICO)."
     },
     "ui": {
       "tableOfContents": "Table des matières",
