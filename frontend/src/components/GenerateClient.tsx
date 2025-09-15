@@ -231,12 +231,7 @@ export function GenerateClient() {
 
   const updateLoraSelectionMode = (mode: "auto" | "manual") => {
     if (mode === "manual" && !canUseLoras) return;
-    // Preserve window scroll to avoid jump while switching modes
-    const y = typeof window !== "undefined" ? window.scrollY : 0;
     updateSettings("loraSelectionMode", mode);
-    requestAnimationFrame(() => {
-      if (typeof window !== "undefined") window.scrollTo({ top: y });
-    });
   };
 
   const revertToOriginalPrompt = () => {
@@ -324,15 +319,13 @@ export function GenerateClient() {
   // Handle LoRA toggle without scrolling
   const handleToggleLora = (loraId: string) => {
     const scrollPosition = loraListRef.current?.scrollTop;
-    const y = typeof window !== "undefined" ? window.scrollY : 0;
     toggleLora(loraId);
 
-    // Restore scroll position after state update
+    // Restore list scroll position after state update (desktop only has inner scroll)
     setTimeout(() => {
       if (loraListRef.current && scrollPosition !== undefined) {
         loraListRef.current.scrollTop = scrollPosition;
       }
-      if (typeof window !== "undefined") window.scrollTo({ top: y });
     }, 0);
   };
 
@@ -433,7 +426,11 @@ export function GenerateClient() {
       {settings.loraSelectionMode === "manual" && canUseLoras && (
         <div
           ref={loraListRef}
-          className={cn("space-y-2", compact && "max-h-60 overflow-y-auto")}
+          className={cn(
+            "space-y-2",
+            // Keep compact styling but avoid inner scrolling on mobile/tablet to prevent glitches
+            compact && deviceType === "desktop" && "max-h-60 overflow-y-auto"
+          )}
         >
           {LORA_MODELS.map((lora) => {
             const isSelected = settings.selectedLoras.includes(lora.id);
@@ -479,10 +476,6 @@ export function GenerateClient() {
                             e.stopPropagation();
                             // preserve list scroll position when switching mode
                             const pos = loraListRef.current?.scrollTop;
-                            const y =
-                              typeof window !== "undefined"
-                                ? window.scrollY
-                                : 0;
                             updateLoraStrength(lora.id, "auto");
                             setTimeout(() => {
                               if (
@@ -490,8 +483,6 @@ export function GenerateClient() {
                                 typeof pos === "number"
                               )
                                 loraListRef.current.scrollTop = pos;
-                              if (typeof window !== "undefined")
-                                window.scrollTo({ top: y });
                             }, 0);
                           }}
                           className={cn(
@@ -507,10 +498,6 @@ export function GenerateClient() {
                           onClick={(e) => {
                             e.stopPropagation();
                             const pos = loraListRef.current?.scrollTop;
-                            const y =
-                              typeof window !== "undefined"
-                                ? window.scrollY
-                                : 0;
                             updateLoraStrength(lora.id, "manual");
                             setTimeout(() => {
                               if (
@@ -518,8 +505,6 @@ export function GenerateClient() {
                                 typeof pos === "number"
                               )
                                 loraListRef.current.scrollTop = pos;
-                              if (typeof window !== "undefined")
-                                window.scrollTo({ top: y });
                             }, 0);
                           }}
                           className={cn(
@@ -540,10 +525,6 @@ export function GenerateClient() {
                           value={[strength.value]}
                           onValueChange={(values) => {
                             const pos = loraListRef.current?.scrollTop;
-                            const y =
-                              typeof window !== "undefined"
-                                ? window.scrollY
-                                : 0;
                             updateLoraStrength(lora.id, "manual", values[0]);
                             // restore scroll after re-render
                             setTimeout(() => {
@@ -552,8 +533,6 @@ export function GenerateClient() {
                                 typeof pos === "number"
                               )
                                 loraListRef.current.scrollTop = pos;
-                              if (typeof window !== "undefined")
-                                window.scrollTo({ top: y });
                             }, 0);
                           }}
                           min={0}
@@ -597,7 +576,12 @@ export function GenerateClient() {
   // Mobile and Tablet View
   if (deviceType === "mobile" || deviceType === "tablet") {
     return (
-      <div className="min-h-screen bg-background pb-32">
+      <div
+        className="min-h-screen bg-background pb-32"
+        onClick={() =>
+          showMagicText && !isOptimizing && setShowMagicText(false)
+        }
+      >
         <div className="sticky top-0 z-40 bg-card border-b">
           <div className="px-4 py-3">
             <div className="flex items-center justify-between">
@@ -1450,7 +1434,10 @@ export function GenerateClient() {
 
   // Desktop View
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div
+      className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5"
+      onClick={() => showMagicText && !isOptimizing && setShowMagicText(false)}
+    >
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -2049,7 +2036,7 @@ export function GenerateClient() {
           <>
             <div className="fixed inset-0 bg-black/40 z-40" />
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <Card className="w-80 shadow-2xl border-2">
+              <Card className="w-80 shadow-2xl border-2 no-spin-desktop">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <h4 className="font-semibold text-sm">Custom Dimensions</h4>

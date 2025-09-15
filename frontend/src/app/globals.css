@@ -181,6 +181,19 @@
   }
 }
 
+/* Desktop-only: hide number input spin buttons within scoped containers */
+@media (min-width: 1280px) {
+  .no-spin-desktop input[type="number"]::-webkit-inner-spin-button,
+  .no-spin-desktop input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .no-spin-desktop input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
