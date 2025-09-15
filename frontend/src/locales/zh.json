@@ -1492,7 +1492,9 @@
     "automaticLoraDescription": "我们将自动为您的图像选择最佳的LoRA模型和设置",
     "manuallySelectLora": "手动选择和配置LoRA模型",
     "automatic": "自动",
-    "manual": "手动"
+    "manual": "手动",
+    "hidden": "隐藏",
+    "shown": "显示"
   },
   "pricing": {
     "metaTitle": "价格 - {siteName} | AI生成色情内容计划",

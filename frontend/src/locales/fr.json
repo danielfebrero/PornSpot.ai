@@ -1535,7 +1535,9 @@
     "negativePromptPlaceholder": "flou, basse qualité, déformé, mauvaise anatomie...",
     "upgradeToSelectLoraModels": "Passez à Pro pour sélectionner et configurer manuellement les forces des modèles LoRA",
     "strengthAutoDescriptionComplete": "La force sera définie automatiquement basée sur le prompt",
-    "promptAdherence": "Adhérence au prompt"
+    "promptAdherence": "Adhérence au prompt",
+    "hidden": "Caché",
+    "shown": "Affiché"
   },
   "pricing": {
     "metaTitle": "Tarifs - {siteName} | Plans pour du Porno Généré par IA",

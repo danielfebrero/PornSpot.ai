@@ -63,6 +63,7 @@ type DeviceType = "mobile" | "tablet" | "desktop";
 
 export function GenerateClient() {
   const magicTextRef = useRef<MagicTextHandle>(null);
+  const loraListRef = useRef<HTMLDivElement>(null);
   const { fetchConnectionId, isConnected } = useWebSocket();
   const t = useTranslations("generate");
 
@@ -235,10 +236,17 @@ export function GenerateClient() {
   };
 
   const revertToOriginalPrompt = () => {
-    if (originalPromptBeforeOptimization) {
+    if (
+      originalPromptBeforeOptimization &&
+      originalPromptBeforeOptimization !== settings.prompt
+    ) {
       updateSettings("prompt", originalPromptBeforeOptimization);
       setOptimizedPromptCache("");
       setOriginalPromptBeforeOptimization("");
+      setShowMagicText(false);
+      if (magicTextRef.current) {
+        magicTextRef.current.reset();
+      }
     }
   };
 
@@ -309,13 +317,26 @@ export function GenerateClient() {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
+  // Handle LoRA toggle without scrolling
+  const handleToggleLora = (loraId: string) => {
+    const scrollPosition = loraListRef.current?.scrollTop;
+    toggleLora(loraId);
+
+    // Restore scroll position after state update
+    setTimeout(() => {
+      if (loraListRef.current && scrollPosition !== undefined) {
+        loraListRef.current.scrollTop = scrollPosition;
+      }
+    }, 0);
+  };
+
   // Update prompt when optimized
   useEffect(() => {
-    if (optimizationStream !== null) {
+    if (optimizationStream !== null && optimizationStream !== settings.prompt) {
       setOptimizedPromptCache(optimizationStream);
       updateSettings("prompt", optimizationStream);
     }
-  }, [optimizationStream, setOptimizedPromptCache, updateSettings]);
+  }, [optimizationStream]);
 
   useEffect(() => {
     if (
@@ -384,10 +405,13 @@ export function GenerateClient() {
       </div>
 
       {settings.loraSelectionMode === "manual" && canUseLoras && (
-        <div className={cn("space-y-2", compact && "max-h-60 overflow-y-auto")}>
+        <div
+          ref={loraListRef}
+          className={cn("space-y-2", compact && "max-h-60 overflow-y-auto")}
+        >
           {LORA_MODELS.map((lora) => {
             const isSelected = settings.selectedLoras.includes(lora.id);
-            const strength = settings.loraStrengths[lora.id];
+            const strength = settings.loraStrengths?.[lora.id];
 
             return (
               <div
@@ -400,7 +424,7 @@ export function GenerateClient() {
                 )}
               >
                 <button
-                  onClick={() => toggleLora(lora.id)}
+                  onClick={() => handleToggleLora(lora.id)}
                   className="w-full p-3 text-left"
                 >
                   <div className="flex items-center justify-between">
@@ -411,9 +435,9 @@ export function GenerateClient() {
                       </p>
                     </div>
                     {isSelected ? (
-                      <Check className="h-4 w-4 text-primary ml-2" />
+                      <Check className="h-4 w-4 text-primary ml-2 flex-shrink-0" />
                     ) : (
-                      <div className="w-4 h-4 border-2 border-border rounded ml-2" />
+                      <div className="w-4 h-4 border-2 border-border rounded ml-2 flex-shrink-0" />
                     )}
                   </div>
                 </button>
@@ -425,7 +449,10 @@ export function GenerateClient() {
                       <span className="text-xs font-medium">Strength</span>
                       <div className="flex gap-1">
                         <button
-                          onClick={() => updateLoraStrength(lora.id, "auto")}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateLoraStrength(lora.id, "auto");
+                          }}
                           className={cn(
                             "px-2 py-0.5 text-xs rounded transition-colors",
                             strength.mode === "auto"
@@ -436,7 +463,10 @@ export function GenerateClient() {
                           Auto
                         </button>
                         <button
-                          onClick={() => updateLoraStrength(lora.id, "manual")}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateLoraStrength(lora.id, "manual");
+                          }}
                           className={cn(
                             "px-2 py-0.5 text-xs rounded transition-colors",
                             strength.mode === "manual"
@@ -497,7 +527,7 @@ export function GenerateClient() {
   // Mobile and Tablet View
   if (deviceType === "mobile" || deviceType === "tablet") {
     return (
-      <div className="min-h-screen bg-background pb-20">
+      <div className="min-h-screen bg-background pb-32">
         {/* Header */}
         <div className="sticky top-0 z-40 bg-card border-b">
           <div className="px-4 py-3">
@@ -523,14 +553,6 @@ export function GenerateClient() {
                   <Badge variant="secondary" className="text-xs">
                     {remaining} left
                   </Badge>
-                )}
-                {deviceType === "tablet" && (
-                  <button
-                    onClick={() => setShowMobileSettings(!showMobileSettings)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
-                  >
-                    <Menu className="h-5 w-5" />
-                  </button>
                 )}
               </div>
             </div>
@@ -585,7 +607,7 @@ export function GenerateClient() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               className={cn(
-                "space-y-4",
+                "space-y-4 pb-20",
                 deviceType === "mobile" ? "px-4 py-4" : "px-6 py-6"
               )}
             >
@@ -593,7 +615,9 @@ export function GenerateClient() {
               <Card>
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h2 className="font-semibold">{t("describeVision")}</h2>
+                    <h2 className="font-semibold text-sm">
+                      {t("describeVision")}
+                    </h2>
                     {settings.prompt && (
                       <button
                         onClick={() => {
@@ -614,14 +638,16 @@ export function GenerateClient() {
                       value={settings.prompt}
                       onChange={(e) => {
                         updateSettings("prompt", e.target.value);
-                        setOptimizedPromptCache("");
-                        setOriginalPromptBeforeOptimization("");
+                        if (e.target.value !== optimizedPromptCache) {
+                          setOptimizedPromptCache("");
+                          setOriginalPromptBeforeOptimization("");
+                        }
                       }}
                       className={cn(
                         "resize-none",
                         deviceType === "mobile"
-                          ? "min-h-[120px] text-base"
-                          : "min-h-[140px] text-lg"
+                          ? "min-h-[100px] text-sm"
+                          : "min-h-[120px] text-base"
                       )}
                     />
                     {showMagicText && (
@@ -635,12 +661,12 @@ export function GenerateClient() {
                   </div>
 
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">
+                    <span className="text-muted-foreground hidden sm:block">
                       {t("descriptiveTip")}
                     </span>
                     <span
                       className={cn(
-                        "font-medium",
+                        "font-medium ml-auto",
                         settings.prompt.length > 800
                           ? "text-amber-500"
                           : settings.prompt.length > 900
@@ -681,114 +707,105 @@ export function GenerateClient() {
                 </CardContent>
               </Card>
 
-              {/* Quick Settings Grid */}
+              {/* Quick Settings Grid - Adjusted for mobile */}
               <div
                 className={cn(
-                  "grid gap-3",
+                  "grid gap-2",
                   deviceType === "mobile" ? "grid-cols-2" : "grid-cols-3"
                 )}
               >
                 {/* Image Size */}
                 <button
                   onClick={() => toggleSection("size")}
-                  className="bg-card rounded-xl border p-3 text-left"
+                  className="bg-card rounded-lg border p-2.5 text-left flex flex-col"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Grid3X3 className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          {t("imageSize")}
-                        </p>
-                        <p className="text-sm font-medium truncate">
-                          {
-                            IMAGE_SIZES.find(
-                              (s) => s.value === settings.imageSize
-                            )?.label
-                          }
-                        </p>
-                      </div>
-                    </div>
+                  <div className="flex items-start justify-between mb-1">
+                    <Grid3X3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                     {!canUseCustomSizes() && (
-                      <Crown className="h-3 w-3 text-amber-500" />
+                      <Crown className="h-3 w-3 text-amber-500 flex-shrink-0" />
                     )}
                   </div>
+                  <p className="text-[10px] text-muted-foreground mb-0.5">
+                    {t("imageSize")}
+                  </p>
+                  <p className="text-xs font-medium truncate">
+                    {
+                      IMAGE_SIZES.find((s) => s.value === settings.imageSize)
+                        ?.label
+                    }
+                  </p>
                 </button>
 
                 {/* Batch Count */}
                 <button
                   onClick={() => toggleSection("batch")}
-                  className="bg-card rounded-xl border p-3 text-left"
+                  className="bg-card rounded-lg border p-2.5 text-left flex flex-col"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Layers className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          {t("batchCount")}
-                        </p>
-                        <p className="text-sm font-medium">
-                          {settings.batchCount} {t("images")}
-                        </p>
-                      </div>
-                    </div>
+                  <div className="flex items-start justify-between mb-1">
+                    <Layers className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                     {!canUseBulk && (
-                      <Crown className="h-3 w-3 text-amber-500" />
+                      <Crown className="h-3 w-3 text-amber-500 flex-shrink-0" />
                     )}
                   </div>
+                  <p className="text-[10px] text-muted-foreground mb-0.5">
+                    {t("batchCount")}
+                  </p>
+                  <p className="text-xs font-medium">
+                    {settings.batchCount} {t("images")}
+                  </p>
                 </button>
 
                 {/* Visibility */}
                 <button
                   onClick={() => toggleSection("visibility")}
-                  className="bg-card rounded-xl border p-3 text-left"
+                  className="bg-card rounded-lg border p-2.5 text-left flex flex-col"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {settings.isPublic ? (
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <EyeOff className="h-4 w-4 text-muted-foreground" />
-                      )}
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          {t("visibility")}
-                        </p>
-                        <p className="text-sm font-medium">
-                          {settings.isPublic ? t("public") : t("private")}
-                        </p>
-                      </div>
-                    </div>
+                  <div className="flex items-start justify-between mb-1">
+                    {settings.isPublic ? (
+                      <Eye className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    ) : (
+                      <EyeOff className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    )}
                     {!canCreatePrivateContent() && (
-                      <Crown className="h-3 w-3 text-amber-500" />
+                      <Crown className="h-3 w-3 text-amber-500 flex-shrink-0" />
                     )}
                   </div>
+                  <p className="text-[10px] text-muted-foreground mb-0.5">
+                    {t("visibility")}
+                  </p>
+                  <p className="text-xs font-medium">
+                    {settings.isPublic ? t("public") : t("private")}
+                  </p>
                 </button>
 
                 {/* Advanced Settings */}
                 <button
                   onClick={() => setShowAdvanced(!showAdvanced)}
                   className={cn(
-                    "bg-card rounded-xl border p-3 text-left",
-                    deviceType === "tablet" ? "col-span-3" : ""
+                    "bg-card rounded-lg border p-2.5 text-left flex flex-col",
+                    deviceType === "tablet"
+                      ? "col-span-3"
+                      : deviceType === "mobile"
+                      ? "col-span-2"
+                      : ""
                   )}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Settings2 className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Settings2 className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-[10px] text-muted-foreground">
                           {t("advancedControls")}
                         </p>
-                        <p className="text-sm font-medium">
-                          {showAdvanced ? t("shown") : t("hidden")}
-                        </p>
                       </div>
+                      <p className="text-xs font-medium">
+                        {showAdvanced ? t("shown") : t("hidden")}
+                      </p>
                     </div>
                     {showAdvanced ? (
-                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                      <ChevronUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                     ) : (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                     )}
                   </div>
                 </button>
@@ -806,7 +823,7 @@ export function GenerateClient() {
                   >
                     <Card>
                       <CardContent className="p-4 space-y-3">
-                        <h3 className="font-medium flex items-center gap-2">
+                        <h3 className="font-medium flex items-center gap-2 text-sm">
                           <Grid3X3 className="h-4 w-4" />
                           {t("imageSize")}
                         </h3>
@@ -839,7 +856,7 @@ export function GenerateClient() {
                                 size.value !== "1024x1024"
                               }
                               className={cn(
-                                "p-3 rounded-lg border text-left transition-all",
+                                "p-2.5 rounded-lg border text-left transition-all",
                                 settings.imageSize === size.value
                                   ? "bg-primary text-primary-foreground border-primary"
                                   : "bg-background border-border",
@@ -849,13 +866,13 @@ export function GenerateClient() {
                               )}
                             >
                               <div className="flex items-center gap-2">
-                                <span className="text-lg">{size.icon}</span>
+                                <span className="text-base">{size.icon}</span>
                                 <div>
-                                  <p className="text-sm font-medium">
+                                  <p className="text-xs font-medium">
                                     {size.label}
                                   </p>
                                   {size.value !== "custom" && (
-                                    <p className="text-xs opacity-80">
+                                    <p className="text-[10px] opacity-80">
                                       {size.ratio}
                                     </p>
                                   )}
@@ -883,6 +900,7 @@ export function GenerateClient() {
                                       parseInt(e.target.value) || 1024
                                     )
                                   }
+                                  className="h-8 text-xs"
                                 />
                               </div>
                               <div>
@@ -901,6 +919,7 @@ export function GenerateClient() {
                                       parseInt(e.target.value) || 1024
                                     )
                                   }
+                                  className="h-8 text-xs"
                                 />
                               </div>
                             </div>
@@ -920,7 +939,7 @@ export function GenerateClient() {
                   >
                     <Card>
                       <CardContent className="p-4 space-y-3">
-                        <h3 className="font-medium flex items-center gap-2">
+                        <h3 className="font-medium flex items-center gap-2 text-sm">
                           <Layers className="h-4 w-4" />
                           {t("batchCount")}
                         </h3>
@@ -936,7 +955,7 @@ export function GenerateClient() {
                               }}
                               disabled={!canUseBulk && count > 1}
                               className={cn(
-                                "py-3 rounded-lg border font-medium transition-all",
+                                "py-2.5 rounded-lg border font-medium transition-all text-sm",
                                 settings.batchCount === count
                                   ? "bg-primary text-primary-foreground border-primary"
                                   : "bg-background border-border",
@@ -948,8 +967,8 @@ export function GenerateClient() {
                           ))}
                         </div>
                         {!canUseBulk && (
-                          <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                            <p className="text-xs text-amber-700 dark:text-amber-400">
+                          <div className="p-2.5 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                            <p className="text-[10px] text-amber-700 dark:text-amber-400">
                               {t("upgradeForBulk")}
                             </p>
                           </div>
@@ -969,7 +988,7 @@ export function GenerateClient() {
                   >
                     <Card>
                       <CardContent className="p-4 space-y-3">
-                        <h3 className="font-medium flex items-center gap-2">
+                        <h3 className="font-medium flex items-center gap-2 text-sm">
                           <Lock className="h-4 w-4" />
                           {t("visibility")}
                         </h3>
@@ -980,17 +999,19 @@ export function GenerateClient() {
                               toggleSection("visibility");
                             }}
                             className={cn(
-                              "w-full p-3 rounded-lg border text-left transition-all",
+                              "w-full p-2.5 rounded-lg border text-left transition-all",
                               settings.isPublic
                                 ? "bg-primary text-primary-foreground border-primary"
                                 : "bg-background border-border"
                             )}
                           >
                             <div className="flex items-center gap-3">
-                              <Eye className="h-5 w-5" />
+                              <Eye className="h-4 w-4" />
                               <div>
-                                <p className="font-medium">{t("public")}</p>
-                                <p className="text-xs opacity-80">
+                                <p className="font-medium text-sm">
+                                  {t("public")}
+                                </p>
+                                <p className="text-[10px] opacity-80">
                                   {t("generatedImagesPublic")}
                                 </p>
                               </div>
@@ -1005,7 +1026,7 @@ export function GenerateClient() {
                             }}
                             disabled={!canCreatePrivateContent()}
                             className={cn(
-                              "w-full p-3 rounded-lg border text-left transition-all",
+                              "w-full p-2.5 rounded-lg border text-left transition-all",
                               !settings.isPublic
                                 ? "bg-primary text-primary-foreground border-primary"
                                 : "bg-background border-border",
@@ -1014,10 +1035,12 @@ export function GenerateClient() {
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
-                                <EyeOff className="h-5 w-5" />
+                                <EyeOff className="h-4 w-4" />
                                 <div>
-                                  <p className="font-medium">{t("private")}</p>
-                                  <p className="text-xs opacity-80">
+                                  <p className="font-medium text-sm">
+                                    {t("private")}
+                                  </p>
+                                  <p className="text-[10px] opacity-80">
                                     {t("generatedImagesPrivate")}
                                   </p>
                                 </div>
@@ -1053,15 +1076,15 @@ export function GenerateClient() {
                     {/* Other Advanced Settings */}
                     <div
                       className={cn(
-                        "grid gap-3",
+                        "grid gap-2",
                         deviceType === "mobile" ? "grid-cols-2" : "grid-cols-3"
                       )}
                     >
                       {/* CFG Scale */}
                       <Card>
-                        <CardContent className="p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium">
+                        <CardContent className="p-2.5">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[10px] font-medium">
                               {t("cfgScale")}
                             </span>
                             {!canUseCfgScale() && (
@@ -1077,12 +1100,9 @@ export function GenerateClient() {
                             min={0.5}
                             max={5}
                             step={0.1}
-                            className={cn(
-                              !canUseCfgScale() &&
-                                "opacity-50 pointer-events-none"
-                            )}
+                            className="mb-1"
                           />
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-[10px] text-muted-foreground">
                             {settings.cfgScale || 1}
                           </span>
                         </CardContent>
@@ -1090,9 +1110,9 @@ export function GenerateClient() {
 
                       {/* Steps */}
                       <Card>
-                        <CardContent className="p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium">
+                        <CardContent className="p-2.5">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[10px] font-medium">
                               {t("steps")}
                             </span>
                             {!canUseSteps() && (
@@ -1107,11 +1127,9 @@ export function GenerateClient() {
                             min={3}
                             max={20}
                             step={1}
-                            className={cn(
-                              !canUseSteps() && "opacity-50 pointer-events-none"
-                            )}
+                            className="mb-1"
                           />
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-[10px] text-muted-foreground">
                             {settings.steps || 6}
                           </span>
                         </CardContent>
@@ -1121,9 +1139,9 @@ export function GenerateClient() {
                       <Card
                         className={deviceType === "tablet" ? "" : "col-span-2"}
                       >
-                        <CardContent className="p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium">
+                        <CardContent className="p-2.5">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[10px] font-medium">
                               {t("seed")}
                             </span>
                             {!canUseSeed() && (
@@ -1144,7 +1162,7 @@ export function GenerateClient() {
                             }
                             disabled={!canUseSeed()}
                             placeholder="Random"
-                            className="h-8 text-xs"
+                            className="h-7 text-[10px]"
                           />
                         </CardContent>
                       </Card>
@@ -1152,10 +1170,10 @@ export function GenerateClient() {
 
                     {/* Negative Prompt */}
                     <Card>
-                      <CardContent className="p-4 space-y-2">
+                      <CardContent className="p-3 space-y-2">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-medium flex items-center gap-2">
-                            <MinusCircle className="h-4 w-4" />
+                          <h3 className="text-sm font-medium flex items-center gap-1.5">
+                            <MinusCircle className="h-3.5 w-3.5" />
                             {t("negativePrompt")}
                           </h3>
                           {!canUseNegativePrompts && (
@@ -1170,7 +1188,7 @@ export function GenerateClient() {
                             canUseNegativePrompts &&
                             updateSettings("negativePrompt", e.target.value)
                           }
-                          className="min-h-[80px] text-sm resize-none"
+                          className="min-h-[60px] text-xs resize-none"
                         />
                       </CardContent>
                     </Card>
@@ -1179,10 +1197,10 @@ export function GenerateClient() {
                     <Button
                       variant="outline"
                       onClick={resetSettings}
-                      className="w-full"
+                      className="w-full h-9"
                       size="sm"
                     >
-                      <RotateCcw className="h-4 w-4 mr-2" />
+                      <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
                       {t("actions.resetParameters")}
                     </Button>
                   </motion.div>
@@ -1192,8 +1210,8 @@ export function GenerateClient() {
               {/* Recent Generations */}
               {filteredAllGeneratedImages.length > 0 && (
                 <Card>
-                  <CardContent className="p-4">
-                    <h3 className="font-medium mb-3">
+                  <CardContent className="p-3">
+                    <h3 className="font-medium mb-2.5 text-sm">
                       {t("recentGenerations")}
                     </h3>
                     <div className="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2">
@@ -1205,7 +1223,7 @@ export function GenerateClient() {
                             onClick={() =>
                               openThumbnailLightbox(image.url || "")
                             }
-                            className="flex-shrink-0 relative w-16 h-16 rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-colors"
+                            className="flex-shrink-0 relative w-14 h-14 rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-colors"
                           >
                             <img
                               src={composeMediaUrl(image.url)}
@@ -1226,6 +1244,7 @@ export function GenerateClient() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               className={cn(
+                "pb-20",
                 deviceType === "mobile" ? "px-4 py-4" : "px-6 py-6"
               )}
             >
@@ -1289,8 +1308,8 @@ export function GenerateClient() {
           )}
         </AnimatePresence>
 
-        {/* Fixed Generate Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t">
+        {/* Fixed Generate Button - Higher z-index to stay above footer */}
+        <div className="fixed bottom-20 left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t z-50">
           <Button
             onClick={
               isGenerating || isOptimizing
@@ -1303,7 +1322,7 @@ export function GenerateClient() {
               !isOptimizing
             }
             className={cn(
-              "w-full h-14 text-base font-semibold rounded-xl shadow-lg",
+              "w-full h-12 text-sm font-semibold rounded-xl shadow-lg",
               isGenerating || isOptimizing
                 ? "bg-red-500 hover:bg-red-600"
                 : "bg-gradient-to-r from-primary to-purple-600"
@@ -1311,17 +1330,17 @@ export function GenerateClient() {
           >
             {isOptimizing ? (
               <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 animate-pulse" />
+                <Sparkles className="h-4 w-4 animate-pulse" />
                 <span>{t("stopOptimization")}</span>
               </div>
             ) : isGenerating ? (
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 <span>{t("stopGeneration")}</span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5" />
+                <Zap className="h-4 w-4" />
                 <span>
                   {settings.batchCount > 1
                     ? t("generateImages", { count: settings.batchCount })
@@ -1331,7 +1350,7 @@ export function GenerateClient() {
             )}
           </Button>
           {!allowed && (
-            <p className="text-xs text-destructive text-center mt-2">
+            <p className="text-[10px] text-destructive text-center mt-1.5">
               {t("generationLimitReached")}
             </p>
           )}
@@ -1410,8 +1429,10 @@ export function GenerateClient() {
                     value={settings.prompt}
                     onChange={(e) => {
                       updateSettings("prompt", e.target.value);
-                      setOptimizedPromptCache("");
-                      setOriginalPromptBeforeOptimization("");
+                      if (e.target.value !== optimizedPromptCache) {
+                        setOptimizedPromptCache("");
+                        setOriginalPromptBeforeOptimization("");
+                      }
                     }}
                     className="min-h-[150px] text-base"
                   />
@@ -1654,7 +1675,7 @@ export function GenerateClient() {
                         max={5}
                         step={0.1}
                         className={cn(
-                          !canUseCfgScale() && "opacity-50 pointer-events-none"
+                          !canUseCfgScale() && "pointer-events-none opacity-50"
                         )}
                       />
                       <div className="text-center text-xs text-muted-foreground">
@@ -1678,7 +1699,7 @@ export function GenerateClient() {
                         max={20}
                         step={1}
                         className={cn(
-                          !canUseSteps() && "opacity-50 pointer-events-none"
+                          !canUseSteps() && "pointer-events-none opacity-50"
                         )}
                       />
                       <div className="text-center text-xs text-muted-foreground">

@@ -1487,7 +1487,9 @@
     "negativePromptPlaceholder": "unscharf, niedrige Qualität, verzerrt, schlechte Anatomie...",
     "upgradeToSelectLoraModels": "Auf Pro upgraden, um LoRA-Modelle manuell auszuwählen und deren Stärken zu konfigurieren",
     "strengthAutoDescriptionComplete": "Die Stärke wird automatisch basierend auf dem Prompt gesetzt",
-    "promptAdherence": "Prompt-Befolgung"
+    "promptAdherence": "Prompt-Befolgung",
+    "hidden": "Versteckt",
+    "shown": "Angezeigt"
   },
   "pricing": {
     "metaTitle": "Preise - {siteName} | Pläne für KI-Generierte Pornos",

@@ -1536,7 +1536,9 @@
     "negativePromptPlaceholder": "blurry, low quality, distorted, bad anatomy...",
     "upgradeToSelectLoraModels": "Upgrade to Pro to manually select and configure LoRA models strengths",
     "strengthAutoDescriptionComplete": "Strength will be set automatically based on the prompt",
-    "promptAdherence": "Prompt adherence"
+    "promptAdherence": "Prompt adherence",
+    "hidden": "Hidden",
+    "shown": "Shown"
   },
   "pricing": {
     "metaTitle": "Pricing - {siteName} | Plans for AI Generated Porn",
