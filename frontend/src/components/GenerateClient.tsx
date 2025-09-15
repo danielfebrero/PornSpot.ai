@@ -614,8 +614,10 @@ export function GenerateClient() {
             </div>
           </div>
 
-          {/* Tabs */}
-          {(filteredGeneratedImages.length > 0 || showProgressCard) && (
+          {/* Tabs - keep visible on results to allow navigating back */}
+          {(filteredGeneratedImages.length > 0 ||
+            showProgressCard ||
+            activeTab === "results") && (
             <div className="flex border-t">
               <button
                 onClick={() => setActiveTab("generate")}
