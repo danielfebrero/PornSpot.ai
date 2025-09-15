@@ -433,7 +433,7 @@ export class PSCPayoutService {
         amount: calculation.amount,
         fromUserId: "TREASURE", // Treasure-to-user transaction
         toUserId: event.creatorId,
-        description: `Reward for ${event.eventType} on ${event.targetType} ${event.targetId}`,
+        description: `Reward for ${event.eventType}`,
         metadata: {
           eventType: event.eventType,
           targetType: event.targetType,

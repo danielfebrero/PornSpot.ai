@@ -716,8 +716,13 @@ export default function PornSpotCoinPage() {
                           <User className="h-3 w-3 text-green-600" />
                         )}
                       </div>
-                      <div>
-                        <div className="text-sm font-medium">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium overflow-hidden" style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          wordBreak: 'break-word'
+                        }}>
                           {tx.description}
                         </div>
                         <div className="text-xs text-muted-foreground">
