@@ -66,7 +66,7 @@ export async function handler(
 
     for (const user of users) {
       processedUsers += 1;
-      const balancePSC = user.pscBalance || 0;
+      const balancePSC = parseFloat((user.pscBalance || 0).toFixed(3));
 
       // Respect user email preferences: skip if user opted out
       if (user.emailPreferences?.pscBalance === "never") {
