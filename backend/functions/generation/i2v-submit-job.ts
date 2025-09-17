@@ -122,13 +122,17 @@ const handleSubmitI2VJob = async (
     seedNumber = -1;
   }
 
+  // Determine output size from source media metadata (fallback to top-level width/height, then defaults)
+  const srcWidth = (media.metadata as any)?.width ?? media.width ?? 1024;
+  const srcHeight = (media.metadata as any)?.height ?? media.height ?? 1536;
+
   const runInput = {
     prompt,
     image: sourceImageUrl,
     num_inference_steps: inferenceSteps,
     guidance: cfgScale,
     negative_prompt: negativePrompt || "",
-    size: "1024*1536", // Default size; can be adjusted later if needed
+    size: `${srcWidth}*${srcHeight}`,
     duration: videoLength,
     flow_shift: flowShift,
     seed: seedNumber,

@@ -168,6 +168,51 @@ export class DynamoDBService {
     );
   }
 
+  static async getI2VJob(jobId: string): Promise<I2VJobEntity | null> {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `I2VJOB#${jobId}`,
+          SK: "METADATA",
+        },
+      })
+    );
+    return (result.Item as I2VJobEntity) || null;
+  }
+
+  static async updateI2VJob(
+    jobId: string,
+    updates: Partial<I2VJobEntity>
+  ): Promise<void> {
+    const updateExpression: string[] = [];
+    const expressionAttributeNames: Record<string, string> = {};
+    const expressionAttributeValues: Record<string, any> = {};
+
+    Object.entries(updates).forEach(([key, value]) => {
+      if (key !== "PK" && key !== "SK" && value !== undefined) {
+        updateExpression.push(`#${key} = :${key}`);
+        expressionAttributeNames[`#${key}`] = key;
+        expressionAttributeValues[`:${key}`] = value;
+      }
+    });
+
+    if (updateExpression.length === 0) return;
+
+    await docClient.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `I2VJOB#${jobId}`,
+          SK: "METADATA",
+        },
+        UpdateExpression: `SET ${updateExpression.join(", ")}`,
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues,
+      })
+    );
+  }
+
   // Helper method to convert MediaEntity to Media
   static convertMediaEntityToMedia(entity: MediaEntity): Media {
     const media: Media = {

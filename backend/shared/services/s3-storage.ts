@@ -21,6 +21,7 @@ export interface UploadImageResult {
   key: string;
   url: string;
   publicUrl: string;
+  size?: number; // bytes
 }
 
 export class S3StorageService {
@@ -254,5 +255,59 @@ export class S3StorageService {
       (this.cloudFrontDomain !== undefined &&
         url.includes(this.cloudFrontDomain))
     );
+  }
+
+  /**
+   * Download a remote file (e.g., Runpod result) and upload it to S3 under a predictable I2V path
+   * Returns S3 key and URLs.
+   */
+  async saveI2VResultFromUrl(
+    jobId: string,
+    fileUrl: string,
+    contentType: string = "video/mp4"
+  ): Promise<UploadImageResult> {
+    const key = `generated/i2v/${jobId}.mp4`;
+    try {
+      const res = await fetch(fileUrl);
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Download failed ${res.status}: ${txt}`);
+      }
+      const arrayBuf = await res.arrayBuffer();
+      const buffer = Buffer.from(arrayBuf);
+      const size = buffer.byteLength;
+
+      const putCommand = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+        Body: buffer,
+        ContentType: contentType,
+        CacheControl: "public, max-age=31536000",
+        Metadata: {
+          uploadedAt: new Date().toISOString(),
+          source: "runpod",
+          jobId,
+        },
+      });
+
+      await this.s3Client.send(putCommand);
+
+      const s3Url = `https://${this.bucketName}.s3.amazonaws.com/${key}`;
+      const publicUrl = this.cloudFrontDomain
+        ? `https://${this.cloudFrontDomain}/${key}`
+        : s3Url;
+
+      console.log(`✅ I2V result saved to S3: ${key}`);
+
+      return {
+        key,
+        url: s3Url,
+        publicUrl,
+        size,
+      };
+    } catch (error) {
+      console.error("❌ Failed to save I2V result to S3:", error);
+      throw error;
+    }
   }
 }

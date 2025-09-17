@@ -431,9 +431,12 @@ export interface I2VJobEntity extends BaseEntity {
   status: "IN_QUEUE" | "IN_PROGRESS" | "COMPLETED" | "FAILED" | string; // store Runpod-like statuses
   submittedAt: string; // ISO
   updatedAt: string; // ISO
+  completedAt?: string; // ISO
+
   // Resolved fields
   sourceImageUrl: string; // Full CDN URL used
   runpodModel: string; // e.g., wan-2-2-i2v-720
   delayTime?: number;
   executionTime?: number;
+  resultMediaId?: string; // Created Media ID for result video
 }

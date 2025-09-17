@@ -3189,6 +3189,50 @@ Resources:
                 - ssm:GetParameter
               Resource:
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/runpod-api-key"
+
+  # Image-to-Video Poll Job Function
+  I2VPollJobFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-generate-i2v-poll-job-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/generation/i2v-poll-job.handler"]
+      Events:
+        GetI2VPoll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generate/i2v/poll
+            Method: GET
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsI2VPoll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generate/i2v/poll
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/runpod-api-key"
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+              Resource:
+                - !Sub "${MediaBucket.Arn}/*"
+
   # ============================================================================
   # Analytics Functions - Admin Analytics System
   # ============================================================================
