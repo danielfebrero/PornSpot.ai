@@ -3161,6 +3161,9 @@ Resources:
       ImageUri: !Ref ImageUri
       ImageConfig:
         Command: ["functions/generation/i2v-submit-job.handler"]
+      Environment:
+        Variables:
+          I2V_POLL_QUEUE_URL: !Ref I2VPollQueue
       Events:
         PostI2VSubmit:
           Type: Api
@@ -3189,6 +3192,11 @@ Resources:
                 - ssm:GetParameter
               Resource:
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/runpod-api-key"
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource:
+                - !GetAtt I2VPollQueue.Arn
 
   # Image-to-Video Poll Job Function
   I2VPollJobFunction:
@@ -3198,7 +3206,10 @@ Resources:
       PackageType: Image
       ImageUri: !Ref ImageUri
       ImageConfig:
-        Command: ["functions/generation/i2v-poll-job.handler"]
+  Command: ["functions/generation/i2v-poll-job.handler"]
+      Environment:
+        Variables:
+          I2V_POLL_QUEUE_URL: !Ref I2VPollQueue
       Events:
         GetI2VPoll:
           Type: Api
@@ -3216,6 +3227,15 @@ Resources:
             Method: OPTIONS
             Auth:
               Authorizer: NONE
+        I2VPollSQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt I2VPollQueue.Arn
+            BatchSize: 5
+            Enabled: true
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+          # Handled by unified handler that detects SQS vs API events
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
@@ -3232,6 +3252,23 @@ Resources:
                 - s3:PutObject
               Resource:
                 - !Sub "${MediaBucket.Arn}/*"
+            - Effect: Allow
+              Action:
+                - sqs:ReceiveMessage
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:SendMessage
+              Resource:
+                - !GetAtt I2VPollQueue.Arn
+
+  # SQS queue for delayed I2V polling
+  I2VPollQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${Environment}-i2v-poll-queue"
+      VisibilityTimeout: 60
+      MessageRetentionPeriod: 1209600 # 14 days
+      DelaySeconds: 0
 
   # ============================================================================
   # Analytics Functions - Admin Analytics System

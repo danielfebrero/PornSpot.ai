@@ -1,11 +1,17 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult,
+  SQSEvent,
+  SQSRecord,
+} from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ParameterStoreService } from "@shared/utils/parameters";
 import { S3StorageService } from "@shared/services/s3-storage";
 import { createMediaEntity } from "@shared/utils/media-entity";
-import { I2VJobEntity, Media } from "@shared/shared-types";
+import { I2VJobEntity } from "@shared/shared-types";
+import { SQS } from "aws-sdk";
 
 const RUNPOD_MODEL = "wan-2-2-i2v-720"; // must match submit-job
 
@@ -16,111 +22,125 @@ const handlePollI2VJob = async (
   if (event.httpMethod !== "GET") {
     return ResponseUtil.methodNotAllowed(event, "Only GET method allowed");
   }
-
   const jobId = event.queryStringParameters?.["jobId"];
   if (!jobId) {
     return ResponseUtil.badRequest(event, "jobId is required in query");
   }
-
-  // Get job and verify ownership
   const job = await DynamoDBService.getI2VJob(jobId);
-  if (!job) {
-    return ResponseUtil.notFound(event, "Job not found");
-  }
-  if (job.userId !== auth.userId) {
+  if (!job) return ResponseUtil.notFound(event, "Job not found");
+  if (job.userId !== auth.userId)
     return ResponseUtil.forbidden(event, "Not allowed to access this job");
-  }
 
-  // If already completed and possibly processed, return final media if available
+  // Fast path: already finalized with media
   if (job.status === "COMPLETED" && job.resultMediaId) {
     const mediaEntity = await DynamoDBService.findMediaById(job.resultMediaId);
     if (mediaEntity) {
-      const media: Media =
-        DynamoDBService.convertMediaEntityToMedia(mediaEntity);
       return ResponseUtil.success(event, {
         status: "COMPLETED",
-        media,
+        media: DynamoDBService.convertMediaEntityToMedia(mediaEntity),
       });
     }
   }
 
-  // Fetch status from Runpod
+  // Reuse shared polling logic (single poll only for GET)
+  try {
+    const res = await pollOnce(jobId);
+    if (!res.completed) {
+      return ResponseUtil.success(event, {
+        status: res.status,
+        delayTime: job.delayTime ?? null,
+      });
+    }
+    if (!res.resultUrl) {
+      console.error("Completed job missing output URL");
+      return ResponseUtil.internalError(event, "Missing output result URL");
+    }
+    await finalizeCompletedJob(job, res.resultUrl);
+    const mediaEntity = await DynamoDBService.findMediaById(jobId);
+    if (!mediaEntity) {
+      return ResponseUtil.internalError(
+        event,
+        "Result media not found post finalize"
+      );
+    }
+    return ResponseUtil.success(event, {
+      status: "COMPLETED",
+      media: DynamoDBService.convertMediaEntityToMedia(mediaEntity),
+    });
+  } catch (err) {
+    console.error("Error during GET poll:", err);
+    return ResponseUtil.internalError(event, "Failed to poll job status");
+  }
+};
+
+// Unified Lambda entrypoint: handles both API Gateway GET and SQS events
+export const handler = async (
+  event: APIGatewayProxyEvent | SQSEvent,
+  _context: any
+): Promise<any> => {
+  if ((event as APIGatewayProxyEvent).httpMethod) {
+    // Preserve current behavior: single poll when invoked via GET
+    const wrapped = LambdaHandlerUtil.withAuth(handlePollI2VJob, {
+      validateQueryParams: ["jobId"],
+    });
+    return wrapped(event as APIGatewayProxyEvent);
+  }
+  if ((event as SQSEvent).Records) {
+    await handleSqsEvent(event as SQSEvent);
+    // SQS handler can return void
+    return {};
+  }
+  console.warn("Unsupported event type for i2v-poll-job");
+  return { statusCode: 400, body: "Unsupported event" };
+};
+
+// Backoff sequence 3/6/9/6/3/6/9... repeated
+const BACKOFF = [3, 6, 9, 6, 3, 6, 9];
+
+async function pollOnce(jobId: string): Promise<{
+  status: string;
+  completed: boolean;
+  resultUrl?: string;
+}> {
   const runpodApiKey = await ParameterStoreService.getRunpodApiKey();
   const statusUrl = `https://api.runpod.ai/v2/${RUNPOD_MODEL}/status/${encodeURIComponent(
     jobId
   )}`;
-
   const rpRes = await fetch(statusUrl, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${runpodApiKey}`,
     },
   });
-
   if (!rpRes.ok) {
     const txt = await rpRes.text().catch(() => "");
-    console.error("Runpod status error:", rpRes.status, txt);
-    return ResponseUtil.internalError(event, "Failed to fetch job status");
+    throw new Error(`Runpod status error: ${rpRes.status} ${txt}`);
   }
-
-  const rpJson = (await rpRes.json()) as
-    | {
-        delayTime?: number;
-        id: string;
-        status: string;
-        workerId?: string;
-      }
-    | {
-        delayTime?: number;
-        executionTime?: number;
-        id: string;
-        output: { cost?: number; result: string };
-        status: "COMPLETED";
-        workerId?: string;
-      };
-
+  const rpJson = (await rpRes.json()) as any;
   const now = new Date().toISOString();
-
-  // Update job with current status/delay/executionTime
   const baseUpdates: Partial<I2VJobEntity> = {
-    status: (rpJson as any).status,
+    status: rpJson.status,
     updatedAt: now,
-    GSI3PK: `I2VJOB_STATUS#${(rpJson as any).status}`,
+    GSI3PK: `I2VJOB_STATUS#${rpJson.status}`,
   } as any;
-  if ("delayTime" in rpJson && rpJson.delayTime !== undefined) {
+  if (rpJson.delayTime !== undefined)
     (baseUpdates as any).delayTime = rpJson.delayTime;
-  }
-  if (
-    "executionTime" in rpJson &&
-    (rpJson as any).executionTime !== undefined
-  ) {
-    (baseUpdates as any).executionTime = (rpJson as any).executionTime;
-  }
+  if (rpJson.executionTime !== undefined)
+    (baseUpdates as any).executionTime = rpJson.executionTime;
   await DynamoDBService.updateI2VJob(jobId, baseUpdates);
-
-  // If still in progress
-  if ((rpJson as any).status !== "COMPLETED") {
-    return ResponseUtil.success(event, {
-      status: (rpJson as any).status,
-      delayTime: (rpJson as any).delayTime ?? null,
-    });
+  if (rpJson.status !== "COMPLETED") {
+    return { status: rpJson.status, completed: false };
   }
+  const outputUrl = rpJson.output?.result;
+  return { status: "COMPLETED", completed: true, resultUrl: outputUrl };
+}
 
-  // Completed: download video, save to S3, create Media, update job
-  const outputUrl = (rpJson as any).output?.result;
-  if (!outputUrl) {
-    console.error("Completed job missing output URL");
-    return ResponseUtil.internalError(event, "Missing output result URL");
-  }
-
-  // Save to S3
+async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
   const s3 = S3StorageService.getInstance();
+  const jobId = job.jobId;
   const saved = await s3.saveI2VResultFromUrl(jobId, outputUrl, "video/mp4");
-
-  // Create MediaEntity for result
-  const mediaId = jobId; // reuse jobId for media id to keep linkage simple
+  const mediaId = jobId;
   const relativeUrl = `/${saved.key}`;
-  // Fetch source media to propagate dimensions into metadata
   const sourceMedia = await DynamoDBService.getMedia(job.mediaId);
   const metaWidth = (sourceMedia?.metadata as any)?.width ?? sourceMedia?.width;
   const metaHeight =
@@ -148,10 +168,7 @@ const handlePollI2VJob = async (
       model: job.runpodModel,
     } as any,
   });
-
   await DynamoDBService.createMedia(mediaEntity);
-
-  // Update job with resultMediaId
   await DynamoDBService.updateI2VJob(jobId, {
     updatedAt: new Date().toISOString(),
     status: "COMPLETED",
@@ -159,14 +176,53 @@ const handlePollI2VJob = async (
     resultMediaId: mediaId,
     GSI3PK: `I2VJOB_STATUS#COMPLETED`,
   } as any);
+}
 
-  const media: Media = DynamoDBService.convertMediaEntityToMedia(mediaEntity);
-  return ResponseUtil.success(event, {
-    status: "COMPLETED",
-    media,
-  });
+const handleSqsEvent = async (event: SQSEvent) => {
+  const sqs = new SQS();
+  const queueUrl = process.env["I2V_POLL_QUEUE_URL"];
+  for (const record of event.Records as SQSRecord[]) {
+    try {
+      const body = JSON.parse(record.body) as {
+        jobId: string;
+        delayIdx?: number;
+      };
+      const { jobId } = body;
+      const delayIdx = typeof body.delayIdx === "number" ? body.delayIdx : 0;
+      const job = await DynamoDBService.getI2VJob(jobId);
+      if (!job) {
+        console.warn("I2V job not found for SQS message", jobId);
+        continue;
+      }
+      if (job.status === "COMPLETED" && job.resultMediaId) {
+        continue; // nothing to do
+      }
+      const res = await pollOnce(jobId);
+      if (!res.completed) {
+        // Not done, schedule next backoff
+        if (!queueUrl) {
+          console.warn("I2V_POLL_QUEUE_URL not set; cannot re-enqueue");
+          continue;
+        }
+        const nextIdx = (delayIdx + 1) % BACKOFF.length;
+        const delaySeconds = BACKOFF[nextIdx];
+        await sqs
+          .sendMessage({
+            QueueUrl: queueUrl,
+            DelaySeconds: delaySeconds,
+            MessageBody: JSON.stringify({ jobId, delayIdx: nextIdx }),
+          })
+          .promise();
+        continue;
+      }
+      // Completed: finalize (idempotent-ish)
+      if (!res.resultUrl) {
+        console.error("COMPLETED job missing resultUrl", jobId);
+        continue;
+      }
+      await finalizeCompletedJob(job, res.resultUrl);
+    } catch (err) {
+      console.error("Error processing I2V SQS record:", err);
+    }
+  }
 };
-
-export const handler = LambdaHandlerUtil.withAuth(handlePollI2VJob, {
-  validateQueryParams: ["jobId"],
-});

@@ -9,6 +9,7 @@ import {
   I2VSubmitJobRequest,
   I2VSettings,
 } from "@shared/shared-types";
+import { SQS } from "aws-sdk";
 
 const RUNPOD_MODEL = "wan-2-2-i2v-720";
 
@@ -216,8 +217,41 @@ const handleSubmitI2VJob = async (
   };
 
   await DynamoDBService.createI2VJob(jobEntity);
+  // Estimate execution time (seconds) using provided reference points
+  // Heuristic: ~30s per video second at 1024x1024, mildly adjusted by size and settings
+  const area = outWidth * outHeight;
+  const baseArea = 1024 * 1024;
+  const areaRatio = Math.max(0.5, Math.min(2.0, area / baseArea));
+  // Mild negative exponent to reflect small size effect seen in samples
+  const sizeFactor = Math.pow(areaRatio, -0.1);
+  const stepsCfgFactor =
+    1 + 0.002 * (inferenceSteps - 30) + 0.003 * (cfgScale - 5);
+  const perSec = 30; // baseline seconds per output second
+  const estimatedSeconds = Math.max(
+    30,
+    Math.round(perSec * videoLength * sizeFactor * stepsCfgFactor)
+  );
 
-  return ResponseUtil.created(event, { jobId });
+  // Send SQS delayed message to trigger polling around completion time
+  try {
+    const queueUrl = process.env["I2V_POLL_QUEUE_URL"];
+    if (!queueUrl) {
+      console.warn("I2V_POLL_QUEUE_URL not set; skipping delayed poll enqueue");
+    } else {
+      const sqs = new SQS();
+      await sqs
+        .sendMessage({
+          QueueUrl: queueUrl,
+          DelaySeconds: Math.max(0, Math.min(900, estimatedSeconds)),
+          MessageBody: JSON.stringify({ jobId, delayIdx: 0 }),
+        })
+        .promise();
+    }
+  } catch (err) {
+    console.error("Failed to enqueue delayed poll message:", err);
+  }
+
+  return ResponseUtil.created(event, { jobId, estimatedSeconds });
 };
 
 export const handler = LambdaHandlerUtil.withAuth(handleSubmitI2VJob, {
