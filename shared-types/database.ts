@@ -229,6 +229,9 @@ export interface UserEntity extends BaseEntity {
 
   // email notification preferences
   emailPreferences?: EmailPreferences; // per-user email notification preferences
+
+  // video generation
+  i2vCreditsSeconds?: number; // image-to-video generation credits in seconds
 }
 
 // User Session Entity
@@ -394,4 +397,41 @@ export interface FollowEntity extends BaseEntity {
   followerId: string; // User who is following
   followedId: string; // User being followed
   createdAt: string; // When the follow relationship was created
+}
+
+// I2V Job Entity - track image-to-video job submissions to Runpod
+export interface I2VJobEntity extends BaseEntity {
+  PK: string; // I2VJOB#{jobId}
+  SK: string; // METADATA
+  // Global Secondary Indexes for flexible querying
+  GSI1PK: string; // I2VJOB_BY_USER#{userId}
+  GSI1SK: string; // {createdAt}#{jobId}
+  GSI2PK: string; // I2VJOB_BY_MEDIA#{mediaId}
+  GSI2SK: string; // {createdAt}#{jobId}
+  GSI3PK: string; // I2VJOB_STATUS#{status}
+  GSI3SK: string; // {createdAt}#{jobId}
+  EntityType: "I2VJob";
+  // Core identifiers
+  jobId: string; // Runpod job ID
+  userId: string; // Submitting user
+  mediaId: string; // Source image media ID
+  // Request parameters snapshot
+  request: {
+    videoLength: 5 | 8 | 10 | 15 | 20 | 25 | 30;
+    prompt: string;
+    negativePrompt: string;
+    seed: string;
+    flowShift: number; // 1-10
+    inferenceSteps: number; // 20-40
+    cfgScale: number; // 1-10
+    optimizePrompt: boolean;
+    isPublic?: boolean;
+  };
+  // Submission and status
+  status: "IN_QUEUE" | "IN_PROGRESS" | "COMPLETED" | "FAILED" | string; // store Runpod-like statuses
+  submittedAt: string; // ISO
+  updatedAt: string; // ISO
+  // Resolved fields
+  sourceImageUrl: string; // Full CDN URL used
+  runpodModel: string; // e.g., wan-2-2-i2v-720
 }

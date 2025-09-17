@@ -3151,6 +3151,44 @@ Resources:
               Resource:
                 - !GetAtt MediaTable.Arn
                 - !Sub "${MediaTable.Arn}/index/*"
+
+  # Image-to-Video Submit Job Function
+  I2VSubmitJobFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-generate-i2v-submit-job-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/generation/i2v-submit-job.handler"]
+      Events:
+        PostI2VSubmit:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generate/i2v/submit
+            Method: POST
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsI2VSubmit:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generate/i2v/submit
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/runpod-api-key"
   # ============================================================================
   # Analytics Functions - Admin Analytics System
   # ============================================================================

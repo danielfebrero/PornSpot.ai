@@ -42,6 +42,7 @@ import {
   PSCSystemConfig,
   UserViewCounterEntity,
   RateSnapshotEntity,
+  I2VJobEntity,
 } from "@shared/shared-types";
 import {
   UserEntity,
@@ -154,6 +155,17 @@ export class DynamoDBService {
     }
 
     return album;
+  }
+
+  // I2V Job operations
+  static async createI2VJob(job: I2VJobEntity): Promise<void> {
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: job,
+        ConditionExpression: "attribute_not_exists(PK)",
+      })
+    );
   }
 
   // Helper method to convert MediaEntity to Media

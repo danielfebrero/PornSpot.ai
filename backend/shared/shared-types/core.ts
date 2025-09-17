@@ -60,6 +60,7 @@ export type EntityType =
   | "MetricsCache"
   | "GenerationSettings"
   | "Follow"
+  | "I2VJob"
   | "UserViewCounter";
 
 export type CreatorType = "user" | "admin";

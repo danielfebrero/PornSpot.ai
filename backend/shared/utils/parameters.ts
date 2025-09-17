@@ -228,6 +228,26 @@ export class ParameterStoreService {
   }
 
   /**
+   * Get the Runpod API Key from Parameter Store or environment variable
+   */
+  static async getRunpodApiKey(): Promise<string> {
+    if (isLocal) {
+      const key = process.env["RUNPOD_API_KEY"];
+      if (!key) {
+        throw new Error(
+          "RUNPOD_API_KEY not found in environment variables (local dev)"
+        );
+      }
+      console.log("Using local RUNPOD_API_KEY from environment variable");
+      return key;
+    }
+
+    const environment = process.env["ENVIRONMENT"] || "dev";
+    // Path expected: /pornspot-ai/{env}/runpod-api-key
+    return await this.getParameter(`/${environment}/runpod-api-key`, true);
+  }
+
+  /**
    * Get the JWT Encryption Key from Parameter Store or environment variable
    */
   static async getJwtEncryptionKey(): Promise<string> {
