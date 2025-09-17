@@ -126,13 +126,22 @@ const handleSubmitI2VJob = async (
   const srcWidth = (media.metadata as any)?.width ?? media.width ?? 1024;
   const srcHeight = (media.metadata as any)?.height ?? media.height ?? 1536;
 
+  // Cap dimensions to a maximum of 1792x1792 while preserving aspect ratio.
+  // Never upscale: if both dimensions are already <= 1792, keep as-is.
+  const MAX_DIM = 1792;
+  const widthNum = Math.max(1, Math.floor(Number(srcWidth)));
+  const heightNum = Math.max(1, Math.floor(Number(srcHeight)));
+  const scale = Math.min(MAX_DIM / widthNum, MAX_DIM / heightNum, 1);
+  const outWidth = Math.max(1, Math.floor(widthNum * scale));
+  const outHeight = Math.max(1, Math.floor(heightNum * scale));
+
   const runInput = {
     prompt,
     image: sourceImageUrl,
     num_inference_steps: inferenceSteps,
     guidance: cfgScale,
     negative_prompt: negativePrompt || "",
-    size: `${srcWidth}*${srcHeight}`,
+    size: `${outWidth}*${outHeight}`,
     duration: videoLength,
     flow_shift: flowShift,
     seed: seedNumber,
