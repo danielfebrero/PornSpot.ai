@@ -35,6 +35,7 @@ import {
   MoreVertical,
   Folder,
   Check,
+  Video,
 } from "lucide-react";
 import ResponsivePicture from "@/components/ui/ResponsivePicture";
 import { composeThumbnailUrls } from "@/lib/urlUtils";
@@ -56,6 +57,7 @@ interface ContentCardProps {
   canRemoveFromAlbum?: boolean;
   canDownload?: boolean;
   canDelete?: boolean;
+  canI2V?: boolean;
 
   // Show counts
   showLikeCount?: boolean;
@@ -135,6 +137,7 @@ export function ContentCard({
   canRemoveFromAlbum = false,
   canDownload = false,
   canDelete = false,
+  canI2V = false,
   showCounts = true,
   showTags = true,
   disableHoverEffects = false,
@@ -439,6 +442,12 @@ export function ContentCard({
       }
     }
   }, [onDownload, isMedia, media]);
+
+  const handleI2V = useCallback(() => {
+    if (isMedia && media) {
+      router.push(`/i2v?mediaId=${media.id}`);
+    }
+  }, [isMedia, media, router]);
 
   const handleConfirmDelete = async () => {
     if (onDelete) {
@@ -814,6 +823,20 @@ export function ContentCard({
                       aria-label="View fullscreen"
                     >
                       <Maximize2 className="h-4 w-4 sm:h-4 sm:w-4" />
+                    </button>
+                  </Tooltip>
+                )}
+                {canI2V && isMedia && media && !isVideoMedia && (
+                  <Tooltip content="Convert to video" side="left">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleI2V();
+                      }}
+                      className="p-2.5 sm:p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white transition-all shadow-lg hover:shadow-xl hover:scale-110 ring-2 ring-white/20"
+                      aria-label="Convert to video"
+                    >
+                      <Video className="h-4 w-4 sm:h-4 sm:w-4" />
                     </button>
                   </Tooltip>
                 )}

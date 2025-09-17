@@ -153,3 +153,5 @@
 [ ] The PornSpotCoin page on mobile is ugly.
 
 [ ] On mobile, I cannot edit lora strength in generate page.
+
+[ ] The user PornSpotCoin Transactions page loads ALL transactions instead of paginating.

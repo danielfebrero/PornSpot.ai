@@ -72,3 +72,19 @@ export interface WorkflowFinalParams {
   seed?: number;
   isPublic?: boolean;
 }
+
+export interface I2VSettings {
+  videoLength: 5 | 8 | 10 | 15 | 20 | 25 | 30;
+  prompt: string;
+  negativePrompt: string;
+  seed: string;
+  flowShift: number; // Range 1 to 10
+  inferenceSteps: number; // Range 20 to 40
+  cfgScale: number; // Range 1 to 10
+  optimizePrompt: boolean;
+}
+
+export interface I2VRequest extends I2VSettings {
+  isPublic?: boolean;
+  mediaId: string;
+}
