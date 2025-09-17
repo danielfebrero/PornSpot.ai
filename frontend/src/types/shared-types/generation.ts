@@ -84,7 +84,11 @@ export interface I2VSettings {
   optimizePrompt: boolean;
 }
 
-export interface I2VRequest extends I2VSettings {
+export interface I2VSubmitJobRequest extends I2VSettings {
   isPublic?: boolean;
   mediaId: string;
+}
+
+export interface I2VPollJobRequest {
+  jobId: string;
 }

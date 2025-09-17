@@ -4,7 +4,11 @@ import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ValidationUtil } from "@shared/utils/validation";
 import { ParameterStoreService } from "@shared/utils/parameters";
-import { I2VJobEntity, I2VRequest, I2VSettings } from "@shared/shared-types";
+import {
+  I2VJobEntity,
+  I2VSubmitJobRequest,
+  I2VSettings,
+} from "@shared/shared-types";
 
 const RUNPOD_MODEL = "wan-2-2-i2v-720";
 
@@ -24,7 +28,7 @@ const handleSubmitI2VJob = async (
     );
   }
 
-  let body: I2VRequest;
+  let body: I2VSubmitJobRequest;
   try {
     body = JSON.parse(event.body);
   } catch {

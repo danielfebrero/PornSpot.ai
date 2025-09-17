@@ -434,4 +434,6 @@ export interface I2VJobEntity extends BaseEntity {
   // Resolved fields
   sourceImageUrl: string; // Full CDN URL used
   runpodModel: string; // e.g., wan-2-2-i2v-720
+  delayTime?: number;
+  executionTime?: number;
 }
