@@ -14,6 +14,7 @@ import { GenerationProvider } from "@/contexts/GenerationContext";
 import { ScrollRestorationProvider } from "@/contexts/ScrollRestorationContext";
 
 import { Header } from "@/components/Header";
+import { AgeGateWrapper } from "@/components/age-gate/AgeGateWrapper";
 import { PermissionsWrapper } from "@/components/PermissionsWrapper";
 import { MainContentWrapper } from "@/components/MainContentWrapper";
 import { NavigationLoadingOverlay } from "@/components/ui/NavigationLoadingOverlay";
@@ -131,42 +132,44 @@ export default async function LocaleLayout({
                           <GenerationProvider>
                             <NavigationLoadingProvider>
                               <LanguageRedirect />
-                              <div className="min-h-screen bg-background flex flex-col">
-                                <SectionErrorBoundary context="Header">
-                                  <Header />
-                                </SectionErrorBoundary>
-                                <SectionErrorBoundary context="Main Content">
-                                  <MainContentWrapper>
-                                    {children}
-                                  </MainContentWrapper>
-                                </SectionErrorBoundary>
-                                <SectionErrorBoundary context="Footer">
-                                  <footer className="border-t border-border mt-16 pb-[55px] lg:pb-0 text-sm">
-                                    <div className="container mx-auto py-4">
-                                      <div className="text-center">
-                                        <p className="text-muted-foreground">
-                                          &copy; 2025 PornSpot.ai. All rights
-                                          reserved.{" "}
-                                          <LocaleLink
-                                            href="/terms"
-                                            className="text-muted-foreground hover:text-foreground transition-colors"
-                                          >
-                                            {t("terms")}
-                                          </LocaleLink>
-                                          .{" "}
-                                          <LocaleLink
-                                            href="/our-friends"
-                                            className="text-muted-foreground hover:text-foreground transition-colors"
-                                          >
-                                            {t("ourFriends")}
-                                          </LocaleLink>
-                                          .
-                                        </p>
+                              <AgeGateWrapper>
+                                <div className="min-h-screen bg-background flex flex-col">
+                                  <SectionErrorBoundary context="Header">
+                                    <Header />
+                                  </SectionErrorBoundary>
+                                  <SectionErrorBoundary context="Main Content">
+                                    <MainContentWrapper>
+                                      {children}
+                                    </MainContentWrapper>
+                                  </SectionErrorBoundary>
+                                  <SectionErrorBoundary context="Footer">
+                                    <footer className="border-t border-border mt-16 pb-[55px] lg:pb-0 text-sm">
+                                      <div className="container mx-auto py-4">
+                                        <div className="text-center">
+                                          <p className="text-muted-foreground">
+                                            &copy; 2025 PornSpot.ai. All rights
+                                            reserved.{" "}
+                                            <LocaleLink
+                                              href="/terms"
+                                              className="text-muted-foreground hover:text-foreground transition-colors"
+                                            >
+                                              {t("terms")}
+                                            </LocaleLink>
+                                            .{" "}
+                                            <LocaleLink
+                                              href="/our-friends"
+                                              className="text-muted-foreground hover:text-foreground transition-colors"
+                                            >
+                                              {t("ourFriends")}
+                                            </LocaleLink>
+                                            .
+                                          </p>
+                                        </div>
                                       </div>
-                                    </div>
-                                  </footer>
-                                </SectionErrorBoundary>
-                              </div>
+                                    </footer>
+                                  </SectionErrorBoundary>
+                                </div>
+                              </AgeGateWrapper>
                               <NavigationLoadingOverlay />
                               <MobileNavigationWrapper />
                             </NavigationLoadingProvider>

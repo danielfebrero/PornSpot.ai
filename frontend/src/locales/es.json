@@ -2127,5 +2127,19 @@
       }
     },
     "additionalInfo": "Estas son plataformas que recomendamos y en las que confiamos. Algunos enlaces pueden contener códigos de afiliación que ayudan a mantener nuestra plataforma."
+  },
+  "ageGate": {
+    "modal": {
+      "title": "Verificación de Edad",
+      "description": "Este sitio web contiene contenido para adultos. Debe tener al menos 18 años (o la mayoría de edad en su jurisdicción) para ingresar. Al hacer clic en Continuar confirma que tiene 18+.",
+      "continueButton": "Tengo 18+ Continuar",
+      "denyButton": "Soy menor de 18",
+      "disclaimer": "Al continuar también acepta nuestros Términos y reconoce este aviso. Su confirmación se almacena en una cookie durante 1 año."
+    },
+    "kidView": {
+      "title": "¡Vuelve más tarde!",
+      "description": "Este contenido es solo para adultos. Por favor regresa cuando tengas la edad suficiente.",
+      "backButton": "Volver"
+    }
   }
 }

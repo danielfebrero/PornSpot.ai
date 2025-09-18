@@ -2176,5 +2176,19 @@
       }
     },
     "additionalInfo": "These are platforms we recommend and trust. Some links may contain affiliate codes that help support our platform."
+  },
+  "ageGate": {
+    "modal": {
+      "title": "Age Verification",
+      "description": "This website contains adult content. You must be at least 18 years old (or the age of majority in your jurisdiction) to enter. By clicking Continue you confirm you are 18+.",
+      "continueButton": "I am 18+ Continue",
+      "denyButton": "I am under 18",
+      "disclaimer": "By continuing you also agree to our Terms and acknowledge this notice. Your confirmation is stored in a cookie for 1 year."
+    },
+    "kidView": {
+      "title": "Come Back Later!",
+      "description": "This content is for adults only. Please come back when you are old enough.",
+      "backButton": "Go Back"
+    }
   }
 }

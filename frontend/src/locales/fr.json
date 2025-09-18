@@ -2175,5 +2175,19 @@
       }
     },
     "additionalInfo": "Ces plateformes sont celles que nous recommandons et en qui nous avons confiance. Certains liens peuvent contenir des codes d'affiliation qui aident à soutenir notre plateforme."
+  },
+  "ageGate": {
+    "modal": {
+      "title": "Vérification d'âge",
+      "description": "Ce site contient du contenu pour adultes. Vous devez avoir au moins 18 ans (ou l'âge de majorité dans votre juridiction) pour entrer. En cliquant sur Continuer, vous confirmez que vous avez 18 ans ou plus.",
+      "continueButton": "J'ai 18+ Continuer",
+      "denyButton": "J'ai moins de 18 ans",
+      "disclaimer": "En continuant, vous acceptez également nos Conditions d'utilisation et reconnaissez cet avis. Votre confirmation est stockée dans un cookie pendant 1 an."
+    },
+    "kidView": {
+      "title": "Revenez plus tard !",
+      "description": "Ce contenu est réservé aux adultes. Veuillez revenir quand vous serez assez âgé.",
+      "backButton": "Retour"
+    }
   }
 }
