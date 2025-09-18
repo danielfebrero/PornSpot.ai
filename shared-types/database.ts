@@ -233,7 +233,8 @@ export interface UserEntity extends BaseEntity {
   emailPreferences?: EmailPreferences; // per-user email notification preferences
 
   // video generation
-  i2vCreditsSeconds?: number; // image-to-video generation credits in seconds
+  i2vCreditsSecondsPurchased?: number; // image-to-video generation credits in seconds
+  i2vCreditsSecondsFromPlan?: number; // credits granted by subscription plan
 }
 
 // User Session Entity

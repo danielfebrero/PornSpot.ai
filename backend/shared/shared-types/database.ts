@@ -173,8 +173,8 @@ export interface UserEntity extends BaseEntity {
   GSI2SK?: string; // {googleId}
   GSI3PK: string; // USER_USERNAME
   GSI3SK: string; // {username}
-  GSI4PK?: string; // USER_PLAN (for querying users by plan + expiry)
-  GSI4SK?: string; // {plan}#{planEndDate || '9999-12-31T00:00:00.000Z'} (planEndDate fallback far future for non-expiring)
+  GSI4PK?: string; // USER_PLAN#{plan} (partition per plan for efficient querying)
+  GSI4SK?: string; // {planEndDate || '9999-12-31T00:00:00.000Z'}#{userId} (date sorts; suffix ensures uniqueness)
   EntityType: "User";
   userId: string;
   email: string;
@@ -233,7 +233,8 @@ export interface UserEntity extends BaseEntity {
   emailPreferences?: EmailPreferences; // per-user email notification preferences
 
   // video generation
-  i2vCreditsSeconds?: number; // image-to-video generation credits in seconds
+  i2vCreditsSecondsPurchased?: number; // image-to-video generation credits in seconds
+  i2vCreditsSecondsFromPlan?: number; // credits granted by subscription plan
 }
 
 // User Session Entity

@@ -93,6 +93,13 @@ const docClient = DynamoDBDocumentClient.from(client, {
 const TABLE_NAME = process.env["DYNAMODB_TABLE"]!;
 console.log("📋 Table name from env:", TABLE_NAME);
 
+/**
+ * Helper function to get the number of days in a specific month
+ */
+function getDaysInMonth(year: number, month: number): number {
+  return new Date(year, month + 1, 0).getDate();
+}
+
 export class DynamoDBService {
   // Helper method to convert AlbumEntity to Album
   static async convertAlbumEntityToAlbum(entity: AlbumEntity): Promise<Album> {
@@ -5056,5 +5063,97 @@ export class DynamoDBService {
     }
 
     console.log(`Deleted ${deleteRequests.length} old rate snapshots`);
+  }
+
+  /**
+   * Get Pro users whose monthly renewal date is today
+   * Renewal date is based on the day of the month from planStartDate
+   * Handles month-end edge cases (e.g., Jan 31 -> Feb 28/29)
+   */
+  static async getProUsersWithRenewalToday(todayISO: string): Promise<
+    Array<{
+      userId: string;
+      email: string;
+      planStartDate: string;
+      planEndDate: string;
+    }>
+  > {
+    const today = new Date(todayISO);
+    const todayDay = today.getDate();
+
+    console.log(
+      `🔍 Querying Pro users with renewal date on day ${todayDay} of the month`
+    );
+
+    // Get all active Pro users first
+    const activeUsers: Array<{
+      userId: string;
+      email: string;
+      planStartDate: string;
+      planEndDate: string;
+    }> = [];
+    let lastEvaluatedKey: any = undefined;
+
+    do {
+      const queryParams: any = {
+        TableName: TABLE_NAME,
+        IndexName: "GSI4",
+        KeyConditionExpression: "GSI4PK = :planPK AND GSI4SK > :nowKey",
+        ExpressionAttributeValues: {
+          ":planPK": "USER_PLAN#pro",
+          ":nowKey": todayISO, // Users with planEndDate > now are active
+        },
+        ProjectionExpression: "userId, email, planStartDate, planEndDate",
+      };
+
+      if (lastEvaluatedKey) {
+        queryParams.ExclusiveStartKey = lastEvaluatedKey;
+      }
+
+      const result = await docClient.send(new QueryCommand(queryParams));
+
+      if (result.Items && result.Items.length > 0) {
+        const users = result.Items.map((item: any) => ({
+          userId: item.userId,
+          email: item.email || `user-${item.userId}`,
+          planStartDate: item.planStartDate,
+          planEndDate: item.planEndDate,
+        })).filter((user) => user.planStartDate); // Only users with planStartDate
+
+        activeUsers.push(...users);
+        console.log(`📄 Found ${users.length} active Pro users in this page`);
+      }
+
+      lastEvaluatedKey = result.LastEvaluatedKey;
+    } while (lastEvaluatedKey);
+
+    // Filter users whose renewal date is today
+    const usersWithRenewalToday = activeUsers.filter((user) => {
+      if (!user.planStartDate) return false;
+
+      const planStartDate = new Date(user.planStartDate);
+      const startDay = planStartDate.getDate();
+
+      // Handle month-end edge cases
+      const renewalDay = Math.min(
+        startDay,
+        getDaysInMonth(today.getFullYear(), today.getMonth())
+      );
+
+      const isRenewalDay = renewalDay === todayDay;
+
+      if (isRenewalDay) {
+        console.log(
+          `📅 User ${user.userId} has renewal today: planStart=${user.planStartDate} (day ${startDay}), today=${todayISO} (day ${todayDay})`
+        );
+      }
+
+      return isRenewalDay;
+    });
+
+    console.log(
+      `✅ Found ${usersWithRenewalToday.length} Pro users with renewal today out of ${activeUsers.length} total active Pro users`
+    );
+    return usersWithRenewalToday;
   }
 }
