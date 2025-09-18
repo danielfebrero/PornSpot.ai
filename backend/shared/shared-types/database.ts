@@ -173,6 +173,8 @@ export interface UserEntity extends BaseEntity {
   GSI2SK?: string; // {googleId}
   GSI3PK: string; // USER_USERNAME
   GSI3SK: string; // {username}
+  GSI4PK?: string; // USER_PLAN (for querying users by plan + expiry)
+  GSI4SK?: string; // {plan}#{planEndDate || '9999-12-31T00:00:00.000Z'} (planEndDate fallback far future for non-expiring)
   EntityType: "User";
   userId: string;
   email: string;

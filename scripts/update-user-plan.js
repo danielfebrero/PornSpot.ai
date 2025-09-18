@@ -68,6 +68,16 @@ function validateDate(dateString) {
   return !isNaN(date.getTime()) && dateString === date.toISOString();
 }
 
+// Helper function to build GSI4 values for user plan indexing
+function buildGsi4(plan, planEndDate, userId) {
+  const FAR_FUTURE = '9999-12-31T00:00:00.000Z';
+  const safeEnd = planEndDate && planEndDate.length >= 10 ? planEndDate : FAR_FUTURE;
+  return {
+    GSI4PK: `USER_PLAN#${plan}`,
+    GSI4SK: `${safeEnd}#${userId}`
+  };
+}
+
 // Parse command line arguments
 function parseArguments() {
   const args = process.argv.slice(2);
@@ -162,6 +172,14 @@ async function updateUserPlan(environment, email, plan, options = {}) {
       expressionAttributeValues[":planEndDate"] = options.end_date;
     }
 
+    // Build and update GSI4 fields for plan indexing
+    const gsi4 = buildGsi4(plan, options.end_date, user.userId);
+    updateExpressions.push("#GSI4PK = :gsi4pk, #GSI4SK = :gsi4sk");
+    expressionAttributeNames["#GSI4PK"] = "GSI4PK";
+    expressionAttributeNames["#GSI4SK"] = "GSI4SK";
+    expressionAttributeValues[":gsi4pk"] = gsi4.GSI4PK;
+    expressionAttributeValues[":gsi4sk"] = gsi4.GSI4SK;
+
     // Perform the update
     console.log(`📝 Updating user plan...`);
     await docClient.send(
@@ -180,6 +198,8 @@ async function updateUserPlan(environment, email, plan, options = {}) {
     console.log(`✅ User plan updated successfully!`);
     console.log(`   User: ${email} (${user.userId})`);
     console.log(`   Plan: ${plan}`);
+    console.log(`   GSI4PK: ${gsi4.GSI4PK}`);
+    console.log(`   GSI4SK: ${gsi4.GSI4SK}`);
     if (options.status) console.log(`   Status: ${options.status}`);
     if (options.subscription_id)
       console.log(`   Subscription ID: ${options.subscription_id}`);

@@ -55,6 +55,8 @@ export class UserUtil {
       GSI1SK: email.toLowerCase(),
       GSI3PK: "USER_USERNAME",
       GSI3SK: username.toLowerCase(),
+      GSI4PK: `USER_PLAN#free`,
+      GSI4SK: `9999-12-31T00:00:00.000Z#${userId}`, // No plan end date yet
       EntityType: "User",
       userId,
       email: email.toLowerCase(),
