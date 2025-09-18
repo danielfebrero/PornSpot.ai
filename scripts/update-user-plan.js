@@ -70,11 +70,12 @@ function validateDate(dateString) {
 
 // Helper function to build GSI4 values for user plan indexing
 function buildGsi4(plan, planEndDate, userId) {
-  const FAR_FUTURE = '9999-12-31T00:00:00.000Z';
-  const safeEnd = planEndDate && planEndDate.length >= 10 ? planEndDate : FAR_FUTURE;
+  const FAR_FUTURE = "9999-12-31T00:00:00.000Z";
+  const safeEnd =
+    planEndDate && planEndDate.length >= 10 ? planEndDate : FAR_FUTURE;
   return {
     GSI4PK: `USER_PLAN#${plan}`,
-    GSI4SK: `${safeEnd}#${userId}`
+    GSI4SK: `${safeEnd}#${userId}`,
   };
 }
 
