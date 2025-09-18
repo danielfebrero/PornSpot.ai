@@ -94,7 +94,10 @@
     "selectMany": "Выбрать несколько",
     "confirmDeleteTitle": "Удалить выбранные?",
     "confirmDeleteMessage": "Вы уверены, что хотите удалить {count, plural, =1 {# выбранный элемент} =2 {# выбранных элемента} =3 {# выбранных элемента} =4 {# выбранных элемента} other {# выбранных элементов}}? Это действие нельзя отменить.",
-    "pornspotcoin": "PornSpotCoin"
+    "pornspotcoin": "PornSpotCoin",
+    "likes": "Лайки",
+    "bookmarks": "Закладки",
+    "albums": "Альбомы"
   },
   "profile": {
     "username": "Имя пользователя",
@@ -2182,6 +2185,76 @@
       "title": "Возвращайтесь позже!",
       "description": "Этот контент предназначен только для взрослых. Пожалуйста, вернитесь, когда станете достаточно взрослыми.",
       "backButton": "Назад"
+    }
+  },
+  "i2v": {
+    "meta": {
+      "title": "Изображение в Видео - PornSpot.ai",
+      "description": "Превратите свои статичные изображения в динамичные видео с помощью нашей передовой ИИ-технологии. Конвертируйте фотографии в высококачественные анимированные видео с настраиваемыми параметрами, эффектами движения и профессиональными возможностями генерации видео."
+    },
+    "creditsDisplay": {
+      "availableCredits": "Доступные кредиты",
+      "useCreditsToGenerate": "Используйте кредиты для создания видео",
+      "buyCredits": "Купить кредиты"
+    },
+    "pageContent": {
+      "errors": {
+        "noMediaId": "ID медиа не предоставлен",
+        "failedToLoadMedia": "Не удалось загрузить медиа",
+        "videoToVideoNotSupported": "Конверсия видео в видео не поддерживается",
+        "mediaNotFound": "Медиа не найдено"
+      },
+      "titles": {
+        "convertToVideo": "Конвертировать в видео",
+        "convertImageToVideo": "Конвертировать изображение в видео",
+        "sourceImage": "Исходное изображение",
+        "generatedVideo": "Сгенерированное видео",
+        "generatingVideo": "Генерация видео",
+        "generateVideo": "Сгенерировать видео",
+        "error": "Ошибка"
+      },
+      "descriptions": {
+        "transformYourImage": "Преобразуйте ваше изображение",
+        "transformImageToVideo": "Превратите ваше изображение в анимированное видео"
+      },
+      "actions": {
+        "back": "Назад",
+        "goBack": "Вернуться",
+        "generating": "Генерация...",
+        "generateVideoWithDuration": "Сгенерировать видео ({duration}с)"
+      },
+      "status": {
+        "processing": "Обработка...",
+        "loadingMedia": "Загрузка медиа...",
+        "remainingTime": "~{seconds}с осталось (приблизительно)"
+      },
+      "credits": {
+        "creditsNeeded": "Необходимо кредитов:",
+        "availableCredits": "Доступно кредитов:",
+        "insufficientCredits": "Вам нужно еще {needed} секунд для генерации этого видео."
+      }
+    },
+    "settings": {
+      "title": "Настройки генерации видео",
+      "videoLength": "Длительность видео",
+      "durations": {
+        "fiveSeconds": "5 секунд",
+        "eightSeconds": "8 секунд",
+        "tenSeconds": "10 секунд",
+        "fifteenSeconds": "15 секунд"
+      },
+      "advanced": {
+        "title": "Расширенные настройки",
+        "prompt": "Промпт (Необязательно)",
+        "promptPlaceholder": "Опишите движение или стиль видео...",
+        "negativePrompt": "Негативный промпт (Необязательно)",
+        "negativePromptPlaceholder": "Что следует избегать в видео...",
+        "seed": "Сид (Необязательно)",
+        "seedPlaceholder": "Случайный сид для воспроизводимости",
+        "flowShift": "Сдвиг потока:",
+        "inferenceSteps": "Шаги вывода:",
+        "cfgScale": "Масштаб CFG:"
+      }
     }
   }
 }

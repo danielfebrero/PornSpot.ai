@@ -94,7 +94,10 @@
     "selectMany": "Sélectionner plusieurs",
     "confirmDeleteTitle": "Supprimer la sélection ?",
     "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {count, plural, =1 {# élément sélectionné} other {# éléments sélectionnés}} ? Cette action ne peut pas être annulée.",
-    "pornspotcoin": "PornSpotCoin"
+    "pornspotcoin": "PornSpotCoin",
+    "likes": "J'aime",
+    "bookmarks": "Favoris",
+    "albums": "Albums"
   },
   "profile": {
     "username": "Nom d'utilisateur",
@@ -2215,6 +2218,76 @@
       "title": "Revenez plus tard !",
       "description": "Ce contenu est réservé aux adultes. Veuillez revenir quand vous serez assez âgé.",
       "backButton": "Retour"
+    }
+  },
+  "i2v": {
+    "meta": {
+      "title": "Image vers Vidéo - PornSpot.ai",
+      "description": "Transformez vos images statiques en vidéos dynamiques avec notre technologie IA avancée. Convertissez des photos en vidéos animées de haute qualité avec des paramètres personnalisables, des effets de mouvement et des capacités de génération vidéo professionnelles."
+    },
+    "creditsDisplay": {
+      "availableCredits": "Crédits disponibles",
+      "useCreditsToGenerate": "Utilisez les crédits pour générer des vidéos",
+      "buyCredits": "Acheter des crédits"
+    },
+    "pageContent": {
+      "errors": {
+        "noMediaId": "Aucun ID de média fourni",
+        "failedToLoadMedia": "Échec du chargement du média",
+        "videoToVideoNotSupported": "La conversion vidéo vers vidéo n'est pas prise en charge",
+        "mediaNotFound": "Média introuvable"
+      },
+      "titles": {
+        "convertToVideo": "Convertir en vidéo",
+        "convertImageToVideo": "Convertir l'image en vidéo",
+        "sourceImage": "Image source",
+        "generatedVideo": "Vidéo générée",
+        "generatingVideo": "Génération de la vidéo",
+        "generateVideo": "Générer une vidéo",
+        "error": "Erreur"
+      },
+      "descriptions": {
+        "transformYourImage": "Transformez votre image",
+        "transformImageToVideo": "Transformez votre image en vidéo animée"
+      },
+      "actions": {
+        "back": "Retour",
+        "goBack": "Retourner",
+        "generating": "Génération...",
+        "generateVideoWithDuration": "Générer une vidéo ({duration}s)"
+      },
+      "status": {
+        "processing": "Traitement...",
+        "loadingMedia": "Chargement du média...",
+        "remainingTime": "~{seconds}s restantes (estimé)"
+      },
+      "credits": {
+        "creditsNeeded": "Crédits nécessaires :",
+        "availableCredits": "Crédits disponibles :",
+        "insufficientCredits": "Vous avez besoin de {needed} secondes de plus pour générer cette vidéo."
+      }
+    },
+    "settings": {
+      "title": "Paramètres de génération vidéo",
+      "videoLength": "Durée de la vidéo",
+      "durations": {
+        "fiveSeconds": "5 secondes",
+        "eightSeconds": "8 secondes",
+        "tenSeconds": "10 secondes",
+        "fifteenSeconds": "15 secondes"
+      },
+      "advanced": {
+        "title": "Paramètres avancés",
+        "prompt": "Prompt (Optionnel)",
+        "promptPlaceholder": "Décrivez le mouvement ou le style de la vidéo...",
+        "negativePrompt": "Prompt négatif (Optionnel)",
+        "negativePromptPlaceholder": "Ce qu'il faut éviter dans la vidéo...",
+        "seed": "Graine (Optionnel)",
+        "seedPlaceholder": "Graine aléatoire pour la reproductibilité",
+        "flowShift": "Décalage de flux :",
+        "inferenceSteps": "Étapes d'inférence :",
+        "cfgScale": "Échelle CFG :"
+      }
     }
   }
 }

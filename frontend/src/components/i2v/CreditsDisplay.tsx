@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Coins, ShoppingCart } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface CreditsDisplayProps {
   availableCredits: number;
@@ -11,6 +12,8 @@ export function CreditsDisplay({
   availableCredits,
   onBuyCredits,
 }: CreditsDisplayProps) {
+  const t = useTranslations("i2v.creditsDisplay");
+
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between">
@@ -20,13 +23,13 @@ export function CreditsDisplay({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-foreground">
-              Available Credits
+              {t("availableCredits")}
             </h3>
             <p className="text-2xl font-bold text-foreground">
               {availableCredits}s
             </p>
             <p className="text-sm text-muted-foreground">
-              Use credits to generate videos
+              {t("useCreditsToGenerate")}
             </p>
           </div>
         </div>
@@ -36,7 +39,7 @@ export function CreditsDisplay({
           size="lg"
         >
           <ShoppingCart className="h-4 w-4" />
-          Buy Credits
+          {t("buyCredits")}
         </Button>
       </div>
     </Card>

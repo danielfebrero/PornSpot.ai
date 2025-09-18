@@ -94,7 +94,10 @@
     "selectMany": "选择多个",
     "confirmDeleteTitle": "删除所选项？",
     "confirmDeleteMessage": "您确定要删除{count, plural, other {# 个选中的项目}}吗？此操作无法撤销。",
-    "pornspotcoin": "PornSpotCoin"
+    "pornspotcoin": "PornSpotCoin",
+    "likes": "点赞",
+    "bookmarks": "书签",
+    "albums": "专辑"
   },
   "profile": {
     "username": "用户名",
@@ -2172,6 +2175,76 @@
       "title": "请稍后再来！",
       "description": "此内容仅供成人观看。请在您足够大的时候再回来。",
       "backButton": "返回"
+    }
+  },
+  "i2v": {
+    "meta": {
+      "title": "图片转视频 - PornSpot.ai",
+      "description": "使用我们先进的AI技术将静态图片转换为动态视频。将照片转换为高质量的动画视频，具有可自定义的设置、运动效果和专业的视频生成功能。"
+    },
+    "creditsDisplay": {
+      "availableCredits": "可用积分",
+      "useCreditsToGenerate": "使用积分生成视频",
+      "buyCredits": "购买积分"
+    },
+    "pageContent": {
+      "errors": {
+        "noMediaId": "未提供媒体ID",
+        "failedToLoadMedia": "加载媒体失败",
+        "videoToVideoNotSupported": "不支持视频转视频转换",
+        "mediaNotFound": "媒体未找到"
+      },
+      "titles": {
+        "convertToVideo": "转换为视频",
+        "convertImageToVideo": "图片转视频",
+        "sourceImage": "源图片",
+        "generatedVideo": "生成的视频",
+        "generatingVideo": "正在生成视频",
+        "generateVideo": "生成视频",
+        "error": "错误"
+      },
+      "descriptions": {
+        "transformYourImage": "转换您的图片",
+        "transformImageToVideo": "将您的图片转换为动画视频"
+      },
+      "actions": {
+        "back": "返回",
+        "goBack": "返回",
+        "generating": "生成中...",
+        "generateVideoWithDuration": "生成视频 ({duration}秒)"
+      },
+      "status": {
+        "processing": "处理中...",
+        "loadingMedia": "加载媒体中...",
+        "remainingTime": "~{seconds}秒剩余（预计）"
+      },
+      "credits": {
+        "creditsNeeded": "所需积分：",
+        "availableCredits": "可用积分：",
+        "insufficientCredits": "您还需要{needed}秒来生成此视频。"
+      }
+    },
+    "settings": {
+      "title": "视频生成设置",
+      "videoLength": "视频长度",
+      "durations": {
+        "fiveSeconds": "5秒",
+        "eightSeconds": "8秒",
+        "tenSeconds": "10秒",
+        "fifteenSeconds": "15秒"
+      },
+      "advanced": {
+        "title": "高级设置",
+        "prompt": "提示词（可选）",
+        "promptPlaceholder": "描述视频动作或风格...",
+        "negativePrompt": "负面提示词（可选）",
+        "negativePromptPlaceholder": "视频中要避免的内容...",
+        "seed": "种子（可选）",
+        "seedPlaceholder": "用于重现性的随机种子",
+        "flowShift": "流量偏移：",
+        "inferenceSteps": "推理步骤：",
+        "cfgScale": "CFG比例："
+      }
     }
   }
 }

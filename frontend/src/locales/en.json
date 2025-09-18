@@ -94,7 +94,10 @@
     "selectMany": "Select many",
     "confirmDeleteTitle": "Delete selected?",
     "confirmDeleteMessage": "Are you sure you want to delete {count, plural, =1 {# selected item} other {# selected items}}? This action cannot be undone.",
-    "pornspotcoin": "PornSpotCoin"
+    "pornspotcoin": "PornSpotCoin",
+    "likes": "Likes",
+    "bookmarks": "Bookmarks",
+    "albums": "Albums"
   },
   "profile": {
     "username": "Username",
@@ -2216,6 +2219,76 @@
       "title": "Come Back Later!",
       "description": "This content is for adults only. Please come back when you are old enough.",
       "backButton": "Go Back"
+    }
+  },
+  "i2v": {
+    "meta": {
+      "title": "Image to Video - PornSpot.ai",
+      "description": "Transform your static images into dynamic videos with our advanced AI technology. Convert photos to high-quality animated videos with customizable settings, motion effects, and professional video generation capabilities."
+    },
+    "creditsDisplay": {
+      "availableCredits": "Available Credits",
+      "useCreditsToGenerate": "Use credits to generate videos",
+      "buyCredits": "Buy Credits"
+    },
+    "pageContent": {
+      "errors": {
+        "noMediaId": "No media ID provided",
+        "failedToLoadMedia": "Failed to load media",
+        "videoToVideoNotSupported": "Video-to-video conversion is not supported",
+        "mediaNotFound": "Media not found"
+      },
+      "titles": {
+        "convertToVideo": "Convert to Video",
+        "convertImageToVideo": "Convert Image to Video",
+        "sourceImage": "Source Image",
+        "generatedVideo": "Generated Video",
+        "generatingVideo": "Generating Video",
+        "generateVideo": "Generate Video",
+        "error": "Error"
+      },
+      "descriptions": {
+        "transformYourImage": "Transform your image",
+        "transformImageToVideo": "Transform your image into an animated video"
+      },
+      "actions": {
+        "back": "Back",
+        "goBack": "Go Back",
+        "generating": "Generating...",
+        "generateVideoWithDuration": "Generate Video ({duration}s)"
+      },
+      "status": {
+        "processing": "Processing...",
+        "loadingMedia": "Loading media...",
+        "remainingTime": "~{seconds}s remaining (estimated)"
+      },
+      "credits": {
+        "creditsNeeded": "Credits needed:",
+        "availableCredits": "Available credits:",
+        "insufficientCredits": "You need {needed} more seconds to generate this video."
+      }
+    },
+    "settings": {
+      "title": "Video Generation Settings",
+      "videoLength": "Video Length",
+      "durations": {
+        "fiveSeconds": "5 seconds",
+        "eightSeconds": "8 seconds",
+        "tenSeconds": "10 seconds",
+        "fifteenSeconds": "15 seconds"
+      },
+      "advanced": {
+        "title": "Advanced Settings",
+        "prompt": "Prompt (Optional)",
+        "promptPlaceholder": "Describe the video motion or style...",
+        "negativePrompt": "Negative Prompt (Optional)",
+        "negativePromptPlaceholder": "What to avoid in the video...",
+        "seed": "Seed (Optional)",
+        "seedPlaceholder": "Random seed for reproducibility",
+        "flowShift": "Flow Shift:",
+        "inferenceSteps": "Inference Steps:",
+        "cfgScale": "CFG Scale:"
+      }
     }
   }
 }

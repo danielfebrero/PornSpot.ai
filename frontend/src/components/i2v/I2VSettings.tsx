@@ -7,6 +7,7 @@ import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { Settings, ChevronDown, ChevronRight } from "lucide-react";
 import { I2VSettings } from "@/types";
+import { useTranslations } from "next-intl";
 
 interface I2VSettingsProps {
   settings: I2VSettings;
@@ -18,6 +19,7 @@ export function I2VSettingsComponent({
   onSettingsChange,
 }: I2VSettingsProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const t = useTranslations("i2v.settings");
 
   const updateSetting = <K extends keyof I2VSettings>(
     key: K,
@@ -35,16 +37,14 @@ export function I2VSettingsComponent({
         <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
           <Settings className="h-5 w-5 text-white" />
         </div>
-        <h3 className="text-lg font-semibold text-foreground">
-          Video Generation Settings
-        </h3>
+        <h3 className="text-lg font-semibold text-foreground">{t("title")}</h3>
       </div>
 
       <div className="space-y-6">
         {/* Basic Settings */}
         <div>
           <Label htmlFor="videoLength" className="text-sm font-medium">
-            Video Length
+            {t("videoLength")}
           </Label>
           <Select
             value={settings.videoLength.toString()}
@@ -52,10 +52,10 @@ export function I2VSettingsComponent({
               updateSetting("videoLength", parseInt(value) as 5 | 8 | 10 | 15)
             }
           >
-            <option value="5">5 seconds</option>
-            <option value="8">8 seconds</option>
-            <option value="10">10 seconds</option>
-            <option value="15">15 seconds</option>
+            <option value="5">{t("durations.fiveSeconds")}</option>
+            <option value="8">{t("durations.eightSeconds")}</option>
+            <option value="10">{t("durations.tenSeconds")}</option>
+            <option value="15">{t("durations.fifteenSeconds")}</option>
           </Select>
         </div>
 
@@ -71,7 +71,7 @@ export function I2VSettingsComponent({
             ) : (
               <ChevronRight className="h-4 w-4" />
             )}
-            Advanced Settings
+            {t("advanced.title")}
           </Button>
         </div>
 
@@ -81,13 +81,13 @@ export function I2VSettingsComponent({
             {/* Prompt */}
             <div>
               <Label htmlFor="prompt" className="text-sm font-medium">
-                Prompt (Optional)
+                {t("advanced.prompt")}
               </Label>
               <Textarea
                 id="prompt"
                 value={settings.prompt}
                 onChange={(e) => updateSetting("prompt", e.target.value)}
-                placeholder="Describe the video motion or style..."
+                placeholder={t("advanced.promptPlaceholder")}
                 className="mt-1"
                 rows={3}
               />
@@ -96,7 +96,7 @@ export function I2VSettingsComponent({
             {/* Negative Prompt */}
             <div>
               <Label htmlFor="negativePrompt" className="text-sm font-medium">
-                Negative Prompt (Optional)
+                {t("advanced.negativePrompt")}
               </Label>
               <Textarea
                 id="negativePrompt"
@@ -104,7 +104,7 @@ export function I2VSettingsComponent({
                 onChange={(e) =>
                   updateSetting("negativePrompt", e.target.value)
                 }
-                placeholder="What to avoid in the video..."
+                placeholder={t("advanced.negativePromptPlaceholder")}
                 className="mt-1"
                 rows={2}
               />
@@ -113,14 +113,14 @@ export function I2VSettingsComponent({
             {/* Seed */}
             <div>
               <Label htmlFor="seed" className="text-sm font-medium">
-                Seed (Optional)
+                {t("advanced.seed")}
               </Label>
               <Input
                 id="seed"
                 type="text"
                 value={settings.seed}
                 onChange={(e) => updateSetting("seed", e.target.value)}
-                placeholder="Random seed for reproducibility"
+                placeholder={t("advanced.seedPlaceholder")}
                 className="mt-1"
               />
             </div>
@@ -128,7 +128,7 @@ export function I2VSettingsComponent({
             {/* Flow Shift */}
             <div>
               <Label htmlFor="flowShift" className="text-sm font-medium">
-                Flow Shift: {settings.flowShift}
+                {t("advanced.flowShift")} {settings.flowShift}
               </Label>
               <input
                 id="flowShift"
@@ -151,7 +151,7 @@ export function I2VSettingsComponent({
             {/* Inference Steps */}
             <div>
               <Label htmlFor="inferenceSteps" className="text-sm font-medium">
-                Inference Steps: {settings.inferenceSteps}
+                {t("advanced.inferenceSteps")} {settings.inferenceSteps}
               </Label>
               <input
                 id="inferenceSteps"
@@ -174,7 +174,7 @@ export function I2VSettingsComponent({
             {/* CFG Scale */}
             <div>
               <Label htmlFor="cfgScale" className="text-sm font-medium">
-                CFG Scale: {settings.cfgScale}
+                {t("advanced.cfgScale")} {settings.cfgScale}
               </Label>
               <input
                 id="cfgScale"

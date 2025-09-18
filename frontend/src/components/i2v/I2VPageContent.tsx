@@ -15,12 +15,14 @@ import { isVideo } from "@/lib/utils";
 import { I2VSettings, Media } from "@/types";
 import { generateApi } from "@/lib/api/generate";
 import { usePollI2VJob } from "@/hooks/queries/useGenerationQuery";
+import { useTranslations } from "next-intl";
 
 export function I2VPageContent() {
   const searchParams = useSearchParams();
   const router = useLocaleRouter();
   const { user } = useUserContext();
   const { redirectToLogin } = useAuthRedirect();
+  const t = useTranslations("i2v.pageContent");
 
   const mediaId = searchParams.get("mediaId");
 
@@ -93,16 +95,16 @@ export function I2VPageContent() {
   // Check for errors or invalid media type
   const error = useMemo(() => {
     if (!mediaId) {
-      return "No media ID provided";
+      return t("errors.noMediaId");
     }
     if (queryError) {
-      return "Failed to load media";
+      return t("errors.failedToLoadMedia");
     }
     if (media && isVideo(media)) {
-      return "Video-to-video conversion is not supported";
+      return t("errors.videoToVideoNotSupported");
     }
     return null;
-  }, [mediaId, queryError, media]);
+  }, [mediaId, queryError, media, t]);
 
   const handleBuyCredits = () => {
     // Navigate to pricing or credits purchase page
@@ -180,10 +182,10 @@ export function I2VPageContent() {
               </div>
               <div className="flex-1 min-w-0">
                 <h1 className="text-lg font-bold text-foreground truncate">
-                  Convert to Video
+                  {t("titles.convertToVideo")}
                 </h1>
                 <p className="text-sm text-muted-foreground truncate">
-                  Transform your image
+                  {t("descriptions.transformYourImage")}
                 </p>
               </div>
             </div>
@@ -195,7 +197,7 @@ export function I2VPageContent() {
         {/* Source Image */}
         <div>
           <h2 className="text-base font-semibold text-foreground mb-3">
-            Source Image
+            {t("titles.sourceImage")}
           </h2>
           <div className="aspect-square rounded-lg overflow-hidden bg-muted">
             <ContentCard
@@ -221,7 +223,7 @@ export function I2VPageContent() {
         {generatedMedia ? (
           <div>
             <h2 className="text-base font-semibold text-foreground mb-3 mt-6">
-              Generated Video
+              {t("titles.generatedVideo")}
             </h2>
             <div className="rounded-lg overflow-hidden bg-muted aspect-video">
               <ContentCard
@@ -245,13 +247,13 @@ export function I2VPageContent() {
         ) : isGenerating && generationMeta ? (
           <div>
             <h2 className="text-base font-semibold text-foreground mb-3 mt-6">
-              Generating Video
+              {t("titles.generatingVideo")}
             </h2>
             <div className="rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-border p-4 aspect-video flex flex-col justify-between">
               <div className="flex items-center gap-3">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500" />
                 <p className="text-sm text-muted-foreground flex-1 truncate">
-                  Processing... {Math.round(progressPct * 100)}%
+                  {t("status.processing")} {Math.round(progressPct * 100)}%
                 </p>
               </div>
               <div className="mt-4">
@@ -263,7 +265,7 @@ export function I2VPageContent() {
                 </div>
                 {remainingSeconds !== null && remainingSeconds > 0 && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    ~{remainingSeconds}s remaining (estimated)
+                    {t("status.remainingTime", { seconds: remainingSeconds })}
                   </p>
                 )}
               </div>
@@ -290,20 +292,24 @@ export function I2VPageContent() {
               <Play className="h-4 w-4 text-white" />
             </div>
             <h3 className="text-base font-semibold text-foreground">
-              Generate Video
+              {t("titles.generateVideo")}
             </h3>
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Credits needed:</span>
+              <span className="text-muted-foreground">
+                {t("credits.creditsNeeded")}
+              </span>
               <span className="font-medium text-foreground">
                 {creditsNeeded}s
               </span>
             </div>
 
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Available credits:</span>
+              <span className="text-muted-foreground">
+                {t("credits.availableCredits")}
+              </span>
               <span
                 className={`font-medium ${
                   availableCredits >= creditsNeeded
@@ -318,8 +324,9 @@ export function I2VPageContent() {
             {availableCredits < creditsNeeded && (
               <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-sm text-yellow-800">
-                  You need {creditsNeeded - availableCredits} more seconds to
-                  generate this video.
+                  {t("credits.insufficientCredits", {
+                    needed: creditsNeeded - availableCredits,
+                  })}
                 </p>
               </div>
             )}
@@ -333,12 +340,14 @@ export function I2VPageContent() {
               {isGenerating ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Generating...
+                  {t("actions.generating")}
                 </>
               ) : (
                 <>
                   <Play className="h-4 w-4 mr-2" />
-                  Generate Video ({creditsNeeded}s)
+                  {t("actions.generateVideoWithDuration", {
+                    duration: creditsNeeded,
+                  })}
                 </>
               )}
             </Button>
@@ -360,7 +369,7 @@ export function I2VPageContent() {
           className="flex items-center gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back
+          {t("actions.back")}
         </Button>
         <div className="flex items-center gap-3">
           <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
@@ -368,10 +377,10 @@ export function I2VPageContent() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">
-              Convert Image to Video
+              {t("titles.convertImageToVideo")}
             </h1>
             <p className="text-muted-foreground">
-              Transform your image into an animated video
+              {t("descriptions.transformImageToVideo")}
             </p>
           </div>
         </div>
@@ -382,7 +391,7 @@ export function I2VPageContent() {
         <div className="space-y-6">
           <div>
             <h2 className="text-lg font-semibold text-foreground mb-4">
-              Source Image
+              {t("titles.sourceImage")}
             </h2>
             <div className="aspect-square rounded-lg overflow-hidden bg-muted">
               <ContentCard
@@ -407,7 +416,7 @@ export function I2VPageContent() {
           {generatedMedia ? (
             <div>
               <h2 className="text-lg font-semibold text-foreground mb-4 mt-2">
-                Generated Video
+                {t("titles.generatedVideo")}
               </h2>
               <div className="rounded-lg overflow-hidden bg-muted aspect-video">
                 <ContentCard
@@ -431,13 +440,13 @@ export function I2VPageContent() {
           ) : isGenerating && generationMeta ? (
             <div>
               <h2 className="text-lg font-semibold text-foreground mb-4 mt-2">
-                Generating Video
+                {t("titles.generatingVideo")}
               </h2>
               <div className="rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-border p-6 aspect-video flex flex-col justify-between">
                 <div className="flex items-center gap-3">
                   <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-purple-500" />
                   <p className="text-sm text-muted-foreground flex-1">
-                    Processing... {Math.round(progressPct * 100)}%
+                    {t("status.processing")} {Math.round(progressPct * 100)}%
                   </p>
                 </div>
                 <div className="mt-6">
@@ -449,7 +458,7 @@ export function I2VPageContent() {
                   </div>
                   {remainingSeconds !== null && remainingSeconds > 0 && (
                     <p className="text-xs text-muted-foreground mt-3">
-                      ~{remainingSeconds}s remaining (estimated)
+                      {t("status.remainingTime", { seconds: remainingSeconds })}
                     </p>
                   )}
                 </div>
@@ -479,13 +488,15 @@ export function I2VPageContent() {
                 <Play className="h-5 w-5 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-foreground">
-                Generate Video
+                {t("titles.generateVideo")}
               </h3>
             </div>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Credits needed:</span>
+                <span className="text-muted-foreground">
+                  {t("credits.creditsNeeded")}
+                </span>
                 <span className="font-medium text-foreground">
                   {creditsNeeded}s
                 </span>
@@ -493,7 +504,7 @@ export function I2VPageContent() {
 
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">
-                  Available credits:
+                  {t("credits.availableCredits")}
                 </span>
                 <span
                   className={`font-medium ${
@@ -509,8 +520,9 @@ export function I2VPageContent() {
               {availableCredits < creditsNeeded && (
                 <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-sm text-yellow-800">
-                    You need {creditsNeeded - availableCredits} more seconds to
-                    generate this video.
+                    {t("credits.insufficientCredits", {
+                      needed: creditsNeeded - availableCredits,
+                    })}
                   </p>
                 </div>
               )}
@@ -524,12 +536,14 @@ export function I2VPageContent() {
                 {isGenerating ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Generating...
+                    {t("actions.generating")}
                   </>
                 ) : (
                   <>
                     <Play className="h-4 w-4 mr-2" />
-                    Generate Video ({creditsNeeded}s)
+                    {t("actions.generateVideoWithDuration", {
+                      duration: creditsNeeded,
+                    })}
                   </>
                 )}
               </Button>
@@ -545,7 +559,7 @@ export function I2VPageContent() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading media...</p>
+          <p className="text-muted-foreground">{t("status.loadingMedia")}</p>
         </div>
       </div>
     );
@@ -555,13 +569,15 @@ export function I2VPageContent() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Error</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">
+            {t("titles.error")}
+          </h1>
           <p className="text-muted-foreground mb-6">
-            {error || "Media not found"}
+            {error || t("errors.mediaNotFound")}
           </p>
           <Button onClick={() => router.back()} variant="outline">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Go Back
+            {t("actions.goBack")}
           </Button>
         </div>
       </div>

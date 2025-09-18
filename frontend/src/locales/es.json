@@ -94,7 +94,10 @@
     "selectMany": "Seleccionar varios",
     "confirmDeleteTitle": "¿Eliminar seleccionados?",
     "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar {count, plural, =1 {# elemento seleccionado} other {# elementos seleccionados}}? Esta acción no se puede deshacer.",
-    "pornspotcoin": "PornSpotCoin"
+    "pornspotcoin": "PornSpotCoin",
+    "likes": "Me gusta",
+    "bookmarks": "Marcadores",
+    "albums": "Álbumes"
   },
   "profile": {
     "username": "Nombre de usuario",
@@ -2167,6 +2170,76 @@
       "title": "¡Vuelve más tarde!",
       "description": "Este contenido es solo para adultos. Por favor regresa cuando tengas la edad suficiente.",
       "backButton": "Volver"
+    }
+  },
+  "i2v": {
+    "meta": {
+      "title": "Imagen a Video - PornSpot.ai",
+      "description": "Transforma tus imágenes estáticas en videos dinámicos con nuestra tecnología de IA avanzada. Convierte fotos en videos animados de alta calidad con configuraciones personalizables, efectos de movimiento y capacidades de generación de video profesionales."
+    },
+    "creditsDisplay": {
+      "availableCredits": "Créditos disponibles",
+      "useCreditsToGenerate": "Usa créditos para generar videos",
+      "buyCredits": "Comprar créditos"
+    },
+    "pageContent": {
+      "errors": {
+        "noMediaId": "No se proporcionó ID de media",
+        "failedToLoadMedia": "Error al cargar el media",
+        "videoToVideoNotSupported": "La conversión de video a video no está soportada",
+        "mediaNotFound": "Media no encontrado"
+      },
+      "titles": {
+        "convertToVideo": "Convertir a video",
+        "convertImageToVideo": "Convertir imagen a video",
+        "sourceImage": "Imagen fuente",
+        "generatedVideo": "Video generado",
+        "generatingVideo": "Generando video",
+        "generateVideo": "Generar video",
+        "error": "Error"
+      },
+      "descriptions": {
+        "transformYourImage": "Transforma tu imagen",
+        "transformImageToVideo": "Convierte tu imagen en un video animado"
+      },
+      "actions": {
+        "back": "Atrás",
+        "goBack": "Volver",
+        "generating": "Generando...",
+        "generateVideoWithDuration": "Generar video ({duration}s)"
+      },
+      "status": {
+        "processing": "Procesando...",
+        "loadingMedia": "Cargando media...",
+        "remainingTime": "~{seconds}s restantes (estimado)"
+      },
+      "credits": {
+        "creditsNeeded": "Créditos necesarios:",
+        "availableCredits": "Créditos disponibles:",
+        "insufficientCredits": "Necesitas {needed} segundos más para generar este video."
+      }
+    },
+    "settings": {
+      "title": "Configuración de generación de video",
+      "videoLength": "Duración del video",
+      "durations": {
+        "fiveSeconds": "5 segundos",
+        "eightSeconds": "8 segundos",
+        "tenSeconds": "10 segundos",
+        "fifteenSeconds": "15 segundos"
+      },
+      "advanced": {
+        "title": "Configuración avanzada",
+        "prompt": "Prompt (Opcional)",
+        "promptPlaceholder": "Describe el movimiento o estilo del video...",
+        "negativePrompt": "Prompt negativo (Opcional)",
+        "negativePromptPlaceholder": "Qué evitar en el video...",
+        "seed": "Semilla (Opcional)",
+        "seedPlaceholder": "Semilla aleatoria para reproducibilidad",
+        "flowShift": "Cambio de flujo:",
+        "inferenceSteps": "Pasos de inferencia:",
+        "cfgScale": "Escala CFG:"
+      }
     }
   }
 }
