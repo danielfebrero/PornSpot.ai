@@ -212,6 +212,17 @@ const UserVideosPage: React.FC = () => {
     }
   }, [medias, prefetch]);
 
+  // Temporary gate: Only admins can access this page content until Oct 1st
+  if (user && user.role !== "admin") {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center text-center px-4">
+        <h1 className="text-2xl font-bold text-foreground">
+          {t("comingSoon")}
+        </h1>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-6">
