@@ -3206,7 +3206,7 @@ Resources:
       PackageType: Image
       ImageUri: !Ref ImageUri
       ImageConfig:
-  Command: ["functions/generation/i2v-poll-job.handler"]
+        Command: ["functions/generation/i2v-poll-job.handler"]
       Environment:
         Variables:
           I2V_POLL_QUEUE_URL: !Ref I2VPollQueue
