@@ -89,14 +89,16 @@ const handleSubmitI2VJob = async (
     return ResponseUtil.unauthorized(event, "User not found");
   }
 
-  const availableCredits =
-    (userEntity.i2vCreditsSecondsPurchased ?? 0) +
-    (userEntity.i2vCreditsSecondsFromPlan ?? 0);
-  if (availableCredits < videoLength) {
-    return ResponseUtil.forbidden(
-      event,
-      `Not enough I2V credits. Required: ${videoLength}s, Available: ${availableCredits}s`
-    );
+  if (userEntity.role !== "admin") {
+    const availableCredits =
+      (userEntity.i2vCreditsSecondsPurchased ?? 0) +
+      (userEntity.i2vCreditsSecondsFromPlan ?? 0);
+    if (availableCredits < videoLength) {
+      return ResponseUtil.forbidden(
+        event,
+        `Not enough I2V credits. Required: ${videoLength}s, Available: ${availableCredits}s`
+      );
+    }
   }
 
   // Build full CDN URL (prepend as required)
@@ -177,23 +179,25 @@ const handleSubmitI2VJob = async (
   const now = new Date().toISOString();
 
   // Decrement user's credits by requested duration
-  const creditsToUpdate =
-    videoLength > userEntity.i2vCreditsSecondsPurchased!
-      ? {
-          i2vCreditsSecondsPurchased: 0,
-          i2vCreditsSecondsFromPlan:
-            (userEntity.i2vCreditsSecondsFromPlan ?? 0) -
-            (videoLength - (userEntity.i2vCreditsSecondsPurchased ?? 0)),
-        }
-      : {
-          i2vCreditsSecondsPurchased:
-            (userEntity.i2vCreditsSecondsPurchased ?? 0) - videoLength,
-        };
-  try {
-    await DynamoDBService.updateUser(auth.userId, creditsToUpdate);
-  } catch (err) {
-    console.error("Failed to decrement I2V credits:", err);
-    return ResponseUtil.internalError(event, "Failed to update credits");
+  if (userEntity.role !== "admin") {
+    const creditsToUpdate =
+      videoLength > userEntity.i2vCreditsSecondsPurchased!
+        ? {
+            i2vCreditsSecondsPurchased: 0,
+            i2vCreditsSecondsFromPlan:
+              (userEntity.i2vCreditsSecondsFromPlan ?? 0) -
+              (videoLength - (userEntity.i2vCreditsSecondsPurchased ?? 0)),
+          }
+        : {
+            i2vCreditsSecondsPurchased:
+              (userEntity.i2vCreditsSecondsPurchased ?? 0) - videoLength,
+          };
+    try {
+      await DynamoDBService.updateUser(auth.userId, creditsToUpdate);
+    } catch (err) {
+      console.error("Failed to decrement I2V credits:", err);
+      return ResponseUtil.internalError(event, "Failed to update credits");
+    }
   }
 
   // Estimate execution time (seconds) using provided reference points
