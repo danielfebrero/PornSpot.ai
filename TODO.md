@@ -148,4 +148,10 @@
 
 [x] Send email when they accumulate PornSpotCoin.
 
-[ ] Improve setting page on mobile.
+[x] Improve setting page on mobile.
+
+[ ] If content media or album is private, I should not be able to access it via direct link if not the owner.
+
+[ ] If content media or albums is private but I liked it or bookmarked it before when it was public, I should not be able to access it via direct link if not the owner and it should disappear from my likes and bookmarks list.
+
+[ ] Grant 10 images to new users on signup.
