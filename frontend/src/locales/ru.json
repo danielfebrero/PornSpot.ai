@@ -285,6 +285,8 @@
   },
   "navigation": {
     "medias": "Медиа",
+    "images": "Изображения",
+    "videos": "Видео",
     "bookmarks": "Закладки",
     "likes": "Нравится",
     "albums": "Альбомы",
@@ -816,6 +818,28 @@
         "title": "Мои изображения - {siteName}",
         "description": "Просматривайте и управляйте своими изображениями, созданными ИИ"
       }
+    },
+    "videosPage": {
+      "meta": {
+        "title": "Мои видео - {siteName}",
+        "description": "Просматривайте и управляйте своими видео, созданными ИИ. Загружайте, организуйте и делитесь творческим контентом."
+      },
+      "videos": "Видео",
+      "personalVideoGallery": "Ваша персональная видеогалерея",
+      "videosCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {видео} one {видео} few {видео} other {видео}}",
+      "generate": "Генерировать",
+      "generateMedia": "Сгенерировать видео",
+      "selectMany": "Выбрать несколько",
+      "noVideosYet": "Пока нет видео",
+      "startCreatingVideos": "Начните создавать видео с помощью ИИ, чтобы увидеть их здесь!",
+      "loadingMoreVideos": "Загрузка дополнительных видео...",
+      "noMoreVideosToLoad": "Больше видео для загрузки нет",
+      "confirmDeleteTitle": "Удалить видео",
+      "confirmDeleteMessage": "Вы уверены, что хотите удалить {count, plural, =1 {# выбранное видео} few {# выбранных видео} other {# выбранных видео}}? Это действие нельзя отменить.",
+      "delete": "Удалить",
+      "cancel": "Отмена",
+      "album": "Альбом",
+      "download": "Скачать"
     },
     "dashboard": {
       "welcome": "Добро пожаловать обратно",

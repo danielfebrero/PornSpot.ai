@@ -285,6 +285,8 @@
   },
   "navigation": {
     "medias": "Médias",
+    "images": "Images",
+    "videos": "Vidéos",
     "bookmarks": "Favoris",
     "likes": "J'aime",
     "albums": "Albums",
@@ -847,6 +849,28 @@
       "noMoreImagesToLoad": "Plus d'images à charger",
       "confirmDeleteTitle": "Supprimer l'Image",
       "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {count, plural, =1 {# image sélectionnée} other {# images sélectionnées}} ? Cette action ne peut pas être annulée.",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "album": "Album",
+      "download": "Télécharger"
+    },
+    "videosPage": {
+      "meta": {
+        "title": "Mes Vidéos - {siteName}",
+        "description": "Visualisez et gérez votre galerie personnelle de vidéos générées par IA. Téléchargez, organisez et partagez votre contenu créatif."
+      },
+      "videos": "Vidéos",
+      "personalVideoGallery": "Votre galerie vidéo personnelle",
+      "videosCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {vidéos} =1 {vidéo} other {vidéos}}",
+      "generate": "Générer",
+      "generateMedia": "Générer une vidéo",
+      "selectMany": "Sélection multiple",
+      "noVideosYet": "Aucune vidéo pour le moment",
+      "startCreatingVideos": "Commencez à créer des vidéos IA pour les voir ici !",
+      "loadingMoreVideos": "Chargement de plus de vidéos...",
+      "noMoreVideosToLoad": "Plus de vidéos à charger",
+      "confirmDeleteTitle": "Supprimer la vidéo",
+      "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {count, plural, =1 {# vidéo sélectionnée} other {# vidéos sélectionnées}} ? Cette action est irréversible.",
       "delete": "Supprimer",
       "cancel": "Annuler",
       "album": "Album",

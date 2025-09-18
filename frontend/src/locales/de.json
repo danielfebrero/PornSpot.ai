@@ -285,6 +285,8 @@
   },
   "navigation": {
     "medias": "Medien",
+    "images": "Bilder",
+    "videos": "Videos",
     "bookmarks": "Lesezeichen",
     "likes": "Gefällt mir",
     "albums": "Alben",
@@ -809,6 +811,28 @@
       "noMoreImagesToLoad": "Keine weiteren Bilder zu laden",
       "confirmDeleteTitle": "Bild löschen",
       "confirmDeleteMessage": "Sind Sie sicher, dass Sie {count, plural, =1 {# ausgewähltes Bild} other {# ausgewählte Bilder}} löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "delete": "Löschen",
+      "cancel": "Abbrechen",
+      "album": "Album",
+      "download": "Herunterladen"
+    },
+    "videosPage": {
+      "meta": {
+        "title": "Meine Videos - {siteName}",
+        "description": "Zeige und verwalte deine persönliche KI-generierte Videogalerie. Lade hoch, organisiere und teile deine kreativen Inhalte."
+      },
+      "videos": "Videos",
+      "personalVideoGallery": "Deine persönliche Videogalerie",
+      "videosCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {Videos} =1 {Video} other {Videos}}",
+      "generate": "Generieren",
+      "generateMedia": "Video generieren",
+      "selectMany": "Mehrere auswählen",
+      "noVideosYet": "Noch keine Videos",
+      "startCreatingVideos": "Beginne mit der Erstellung von KI-Videos, um sie hier zu sehen!",
+      "loadingMoreVideos": "Lade mehr Videos...",
+      "noMoreVideosToLoad": "Keine weiteren Videos zu laden",
+      "confirmDeleteTitle": "Video löschen",
+      "confirmDeleteMessage": "Möchtest du wirklich {count, plural, =1 {# ausgewähltes Video} other {# ausgewählte Videos}} löschen? Dies kann nicht rückgängig gemacht werden.",
       "delete": "Löschen",
       "cancel": "Abbrechen",
       "album": "Album",

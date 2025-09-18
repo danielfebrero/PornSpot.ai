@@ -285,6 +285,8 @@
   },
   "navigation": {
     "medias": "Medios",
+    "images": "Imágenes",
+    "videos": "Videos",
     "bookmarks": "Marcadores",
     "likes": "Me gusta",
     "albums": "Álbumes",
@@ -809,6 +811,28 @@
       "noMoreImagesToLoad": "No hay más imágenes para cargar",
       "confirmDeleteTitle": "Eliminar Imagen",
       "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar {count, plural, =1 {# imagen seleccionada} other {# imágenes seleccionadas}}? Esta acción no se puede deshacer.",
+      "delete": "Eliminar",
+      "cancel": "Cancelar",
+      "album": "Álbum",
+      "download": "Descargar"
+    },
+    "videosPage": {
+      "meta": {
+        "title": "Mis Videos - {siteName}",
+        "description": "Mira y gestiona tu galería personal de videos generados por IA. Sube, organiza y comparte tu contenido creativo."
+      },
+      "videos": "Videos",
+      "personalVideoGallery": "Tu galería personal de videos",
+      "videosCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {videos} =1 {video} other {videos}}",
+      "generate": "Generar",
+      "generateMedia": "Generar Video",
+      "selectMany": "Seleccionar varios",
+      "noVideosYet": "Aún no hay videos",
+      "startCreatingVideos": "¡Empieza a crear videos generados por IA para verlos aquí!",
+      "loadingMoreVideos": "Cargando más videos...",
+      "noMoreVideosToLoad": "No hay más videos para cargar",
+      "confirmDeleteTitle": "Eliminar Video",
+      "confirmDeleteMessage": "¿Seguro que quieres eliminar {count, plural, =1 {# video seleccionado} other {# videos seleccionados}}? Esta acción no se puede deshacer.",
       "delete": "Eliminar",
       "cancel": "Cancelar",
       "album": "Álbum",

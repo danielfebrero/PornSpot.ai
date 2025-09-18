@@ -285,6 +285,8 @@
   },
   "navigation": {
     "medias": "Medias",
+    "images": "Images",
+    "videos": "Videos",
     "bookmarks": "Bookmarks",
     "likes": "Likes",
     "albums": "Albums",
@@ -847,6 +849,28 @@
       "noMoreImagesToLoad": "No more images to load",
       "confirmDeleteTitle": "Delete Image",
       "confirmDeleteMessage": "Are you sure you want to delete {count, plural, =1 {# selected image} other {# selected images}}? This action cannot be undone.",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "album": "Album",
+      "download": "Download"
+    },
+    "videosPage": {
+      "meta": {
+        "title": "My Videos - {siteName}",
+        "description": "View and manage your personal AI-generated video gallery. Upload, organize, and share your creative video content."
+      },
+      "videos": "Videos",
+      "personalVideoGallery": "Your personal video gallery",
+      "videosCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {videos} =1 {video} other {videos}}",
+      "generate": "Generate",
+      "generateMedia": "Generate Video",
+      "selectMany": "Select many",
+      "noVideosYet": "No videos yet",
+      "startCreatingVideos": "Start creating AI-generated videos to see them here!",
+      "loadingMoreVideos": "Loading more videos...",
+      "noMoreVideosToLoad": "No more videos to load",
+      "confirmDeleteTitle": "Delete Video",
+      "confirmDeleteMessage": "Are you sure you want to delete {count, plural, =1 {# selected video} other {# selected videos}}? This action cannot be undone.",
       "delete": "Delete",
       "cancel": "Cancel",
       "album": "Album",

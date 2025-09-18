@@ -105,14 +105,24 @@ export function Header() {
                   <span>{tNav("pornspotcoin")}</span>
                 </LocaleLink>
                 <LocaleLink
-                  href="/user/medias"
+                  href="/user/videos"
                   className={`flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ${
-                    isActivePath(pathname, "/user/medias")
+                    isActivePath(pathname, "/user/videos")
                       ? "border-b-2 border-foreground"
                       : ""
                   }`}
                 >
-                  <span>{tNav("medias")}</span>
+                  <span>{tNav("videos")}</span>
+                </LocaleLink>
+                <LocaleLink
+                  href="/user/images"
+                  className={`flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ${
+                    isActivePath(pathname, "/user/images")
+                      ? "border-b-2 border-foreground"
+                      : ""
+                  }`}
+                >
+                  <span>{tNav("images")}</span>
                 </LocaleLink>
                 <LocaleLink
                   href="/user/bookmarks"

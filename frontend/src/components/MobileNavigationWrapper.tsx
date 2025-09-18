@@ -3,15 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { MobileNavigation } from "@/components/ui/MobileNavigation";
-import {
-  Compass,
-  Zap,
-  Heart,
-  Bookmark,
-  Image,
-  FolderOpen,
-  Coins,
-} from "lucide-react";
+import { Compass, Zap, Image, Coins, Video } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 
 export function MobileNavigationWrapper() {
@@ -58,24 +50,14 @@ export function MobileNavigationWrapper() {
           icon: Coins,
         },
         {
-          href: "/user/likes",
-          label: tNav("likes"),
-          icon: Heart,
+          href: "/user/videos",
+          label: tNav("videos"),
+          icon: Video,
         },
         {
-          href: "/user/bookmarks",
-          label: tNav("bookmarks"),
-          icon: Bookmark,
-        },
-        {
-          href: "/user/medias",
-          label: tNav("medias"),
+          href: "/user/images",
+          label: tNav("images"),
           icon: Image,
-        },
-        {
-          href: "/user/albums",
-          label: tNav("albums"),
-          icon: FolderOpen,
         },
       ]
     : [];

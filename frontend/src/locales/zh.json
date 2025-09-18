@@ -285,6 +285,8 @@
   },
   "navigation": {
     "medias": "媒体",
+    "images": "图片",
+    "videos": "视频",
     "bookmarks": "收藏",
     "likes": "点赞",
     "albums": "相册",
@@ -815,6 +817,28 @@
         "title": "我的图片 - {siteName}",
         "description": "查看和管理您的AI生成图片"
       }
+    },
+    "videosPage": {
+      "meta": {
+        "title": "我的视频 - {siteName}",
+        "description": "查看和管理您的AI生成视频。上传、组织并分享您的创意内容。"
+      },
+      "videos": "视频",
+      "personalVideoGallery": "您的个人视频库",
+      "videosCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, other {个视频}}",
+      "generate": "生成",
+      "generateMedia": "生成视频",
+      "selectMany": "选择多个",
+      "noVideosYet": "还没有视频",
+      "startCreatingVideos": "开始创建AI生成的视频，在这里查看！",
+      "loadingMoreVideos": "加载更多视频...",
+      "noMoreVideosToLoad": "没有更多视频可加载",
+      "confirmDeleteTitle": "删除视频",
+      "confirmDeleteMessage": "您确定要删除{count, plural, other {#个选中的视频}}吗？此操作无法撤销。",
+      "delete": "删除",
+      "cancel": "取消",
+      "album": "相册",
+      "download": "下载"
     },
     "albums": {
       "myAlbums": "我的相册",
