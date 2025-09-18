@@ -1,4 +1,9 @@
-import { GenerationResponse, GenerationSettings } from "@/types";
+import {
+  GenerationResponse,
+  GenerationSettings,
+  I2VSubmitJobRequest,
+  Media,
+} from "@/types";
 import { ApiUtil } from "../api-util";
 
 export interface UsageStatsResponse {
@@ -28,42 +33,58 @@ export const generateApi = {
     request: GenerationSettings
   ): Promise<GenerationResponse> => {
     // Use custom config to disable credentials for this public endpoint
-    const response = await ApiUtil.request<GenerationResponse>(
+    const response = await ApiUtil.post<GenerationResponse>(
       "/generation/generate",
-      {
-        method: "POST",
-        body: request,
-        credentials: "include", // No credentials needed for public view count endpoint
-      }
+      request,
+      { credentials: "include" }
     );
-
     return ApiUtil.extractData(response);
   },
 
   // Get usage statistics
   getUsageStats: async (): Promise<UsageStatsResponse> => {
-    const response = await ApiUtil.request<UsageStatsResponse>(
+    const response = await ApiUtil.get<UsageStatsResponse>(
       "/generation/usage-stats",
       {
-        method: "GET",
         credentials: "include",
       }
     );
-
     return ApiUtil.extractData(response);
   },
 
   // Get user generation settings
   getUserSettings: async (): Promise<UserGenerationSettingsResponse | null> => {
-    const response =
-      await ApiUtil.request<UserGenerationSettingsResponse | null>(
-        "/user/generation/settings",
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
+    const response = await ApiUtil.get<UserGenerationSettingsResponse | null>(
+      "/user/generation/settings",
+      { credentials: "include" }
+    );
+    return ApiUtil.extractData(response);
+  },
 
+  // Submit Image-to-Video job
+  submitI2VJob: async (
+    request: I2VSubmitJobRequest
+  ): Promise<{ jobId: string; estimatedSeconds: number }> => {
+    const response = await ApiUtil.post<{
+      jobId: string;
+      estimatedSeconds: number;
+    }>("/generate/i2v/submit", request, { credentials: "include" });
+    return ApiUtil.extractData(response);
+  },
+
+  // Poll Image-to-Video job status
+  pollI2VJob: async (
+    jobId: string
+  ): Promise<
+    | { status: string; delayTime?: number | null; executionTime?: number }
+    | { status: "COMPLETED"; media: Media }
+  > => {
+    const response = await ApiUtil.get<
+      | { status: string; delayTime?: number | null; executionTime?: number }
+      | { status: "COMPLETED"; media: Media }
+    >(`/generate/i2v/poll?jobId=${encodeURIComponent(jobId)}` as any, {
+      credentials: "include",
+    });
     return ApiUtil.extractData(response);
   },
 };

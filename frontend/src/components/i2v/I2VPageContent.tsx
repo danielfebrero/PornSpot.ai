@@ -12,7 +12,8 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useMediaById } from "@/hooks/queries/useMediaQuery";
 import { Video, ArrowLeft, Play } from "lucide-react";
 import { isVideo } from "@/lib/utils";
-import { I2VSettings } from "@/types";
+import { I2VSettings, Media } from "@/types";
+import { generateApi } from "@/lib/api/generate";
 
 export function I2VPageContent() {
   const searchParams = useSearchParams();
@@ -33,6 +34,27 @@ export function I2VPageContent() {
   } = useMediaById(mediaId || "", !!mediaId);
 
   const [isGenerating, setIsGenerating] = useState(false);
+  // Holds the generated video media once job completes
+  const [generatedMedia, setGeneratedMedia] = useState<Media | null>(null);
+  // Generation progress tracking
+  const [generationMeta, setGenerationMeta] = useState<{
+    eta: number; // estimated total seconds
+    start: number; // ms timestamp
+  } | null>(null);
+  const [progressPct, setProgressPct] = useState(0); // 0..1
+  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
+
+  // Interval to update progress based on ETA
+  useEffect(() => {
+    if (!generationMeta) return;
+    const id = setInterval(() => {
+      const elapsed = (Date.now() - generationMeta.start) / 1000;
+      const pct = Math.min(0.99, elapsed / generationMeta.eta); // cap at 99% until completion
+      setProgressPct(pct);
+      setRemainingSeconds(Math.max(0, Math.ceil(generationMeta.eta - elapsed)));
+    }, 500);
+    return () => clearInterval(id);
+  }, [generationMeta]);
 
   // Mock credits - in real app this would come from user context or API
   const [availableCredits] = useState(120); // 120 seconds available
@@ -85,21 +107,56 @@ export function I2VPageContent() {
   };
 
   const handleGenerate = async () => {
-    if (!media || availableCredits < settings.videoLength) {
+    if (!media || availableCredits < settings.videoLength || isGenerating) {
       return;
     }
 
     setIsGenerating(true);
     try {
-      // Placeholder - actual generation logic would go here
-      console.log("Generating video with settings:", settings);
-      console.log("For media:", media.id);
+      // Submit job
+      const submitResp = await generateApi.submitI2VJob({
+        ...settings,
+        mediaId: media.id,
+        isPublic: true, // default for now
+      });
 
-      // Simulate generation delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const { jobId, estimatedSeconds } = submitResp;
+      console.log("I2V job submitted", jobId, "ETA(s)", estimatedSeconds);
 
-      // In real implementation, this would call the generation API
-      alert("Video generation started! You will be notified when it's ready.");
+      // Initialize progress tracking
+      setGenerationMeta({ eta: estimatedSeconds, start: Date.now() });
+      setProgressPct(0);
+      setRemainingSeconds(estimatedSeconds);
+
+      // Wait for the estimated time before polling (non-blocking UI could be enhanced later)
+      await new Promise((r) => setTimeout(r, estimatedSeconds * 1000));
+
+      let completedMedia: Media | null = null;
+      let attempts = 0;
+      const maxAttempts = 60; // 5 minutes of polling
+      while (attempts < maxAttempts) {
+        attempts++;
+        try {
+          const pollResp = await generateApi.pollI2VJob(jobId);
+          if (
+            (pollResp as any).status === "COMPLETED" &&
+            (pollResp as any).media
+          ) {
+            completedMedia = (pollResp as any).media as Media;
+            break;
+          }
+        } catch (e) {
+          console.warn("Poll failed", e);
+        }
+        await new Promise((r) => setTimeout(r, 5000));
+      }
+
+      if (completedMedia) {
+        setGeneratedMedia(completedMedia);
+        setProgressPct(1);
+        setGenerationMeta(null); // stop interval updates
+        setRemainingSeconds(0);
+      }
     } catch (err) {
       console.error("Generation failed:", err);
       alert("Failed to start video generation. Please try again.");
@@ -169,6 +226,60 @@ export function I2VPageContent() {
             />
           </div>
         </div>
+
+        {/* Generated output or placeholder */}
+        {generatedMedia ? (
+          <div>
+            <h2 className="text-base font-semibold text-foreground mb-3 mt-6">
+              Generated Video
+            </h2>
+            <div className="rounded-lg overflow-hidden bg-muted aspect-video">
+              <ContentCard
+                item={generatedMedia}
+                canLike={true}
+                canBookmark={true}
+                canFullscreen={true}
+                canAddToAlbum={true}
+                canRemoveFromAlbum={false}
+                canDownload={true}
+                canDelete={false}
+                canI2V={false}
+                showCounts={true}
+                showTags={true}
+                disableHoverEffects={false}
+                useAllAvailableSpace={true}
+                aspectRatio="auto"
+              />
+            </div>
+          </div>
+        ) : isGenerating && generationMeta ? (
+          <div>
+            <h2 className="text-base font-semibold text-foreground mb-3 mt-6">
+              Generating Video
+            </h2>
+            <div className="rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-border p-4 aspect-video flex flex-col justify-between">
+              <div className="flex items-center gap-3">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500" />
+                <p className="text-sm text-muted-foreground flex-1 truncate">
+                  Processing... {Math.round(progressPct * 100)}%
+                </p>
+              </div>
+              <div className="mt-4">
+                <div className="w-full h-2 rounded bg-muted overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all"
+                    style={{ width: `${Math.round(progressPct * 100)}%` }}
+                  />
+                </div>
+                {remainingSeconds !== null && remainingSeconds > 0 && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    ~{remainingSeconds}s remaining (estimated)
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {/* Credits Section */}
         <CreditsDisplay
@@ -302,6 +413,59 @@ export function I2VPageContent() {
               />
             </div>
           </div>
+
+          {generatedMedia ? (
+            <div>
+              <h2 className="text-lg font-semibold text-foreground mb-4 mt-2">
+                Generated Video
+              </h2>
+              <div className="rounded-lg overflow-hidden bg-muted aspect-video">
+                <ContentCard
+                  item={generatedMedia}
+                  canLike={true}
+                  canBookmark={true}
+                  canFullscreen={true}
+                  canAddToAlbum={true}
+                  canRemoveFromAlbum={false}
+                  canDownload={true}
+                  canDelete={false}
+                  canI2V={false}
+                  showCounts={true}
+                  showTags={true}
+                  disableHoverEffects={false}
+                  useAllAvailableSpace={true}
+                  aspectRatio="auto"
+                />
+              </div>
+            </div>
+          ) : isGenerating && generationMeta ? (
+            <div>
+              <h2 className="text-lg font-semibold text-foreground mb-4 mt-2">
+                Generating Video
+              </h2>
+              <div className="rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-border p-6 aspect-video flex flex-col justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-purple-500" />
+                  <p className="text-sm text-muted-foreground flex-1">
+                    Processing... {Math.round(progressPct * 100)}%
+                  </p>
+                </div>
+                <div className="mt-6">
+                  <div className="w-full h-3 rounded bg-muted overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all"
+                      style={{ width: `${Math.round(progressPct * 100)}%` }}
+                    />
+                  </div>
+                  {remainingSeconds !== null && remainingSeconds > 0 && (
+                    <p className="text-xs text-muted-foreground mt-3">
+                      ~{remainingSeconds}s remaining (estimated)
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           {/* Credits Section */}
           <CreditsDisplay

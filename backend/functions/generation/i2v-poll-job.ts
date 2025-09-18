@@ -42,6 +42,17 @@ const handlePollI2VJob = async (
     }
   }
 
+  if (job.executionTime) {
+    console.log(
+      `Job ${jobId} has executionTime ${job.executionTime}s but not downloaded yet.`
+    );
+    return ResponseUtil.success(event, {
+      status: job.status,
+      delayTime: job.delayTime ?? null,
+      executionTime: job.executionTime,
+    });
+  }
+
   // Reuse shared polling logic (single poll only for GET)
   try {
     const res = await pollOnce(jobId);
