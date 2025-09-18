@@ -205,6 +205,10 @@ export class PlanUtil {
 
       profileInsights: userEntity.profileInsights,
       followerCount: userEntity.followerCount || 0,
+
+      // i2v credits
+      i2vCreditsSecondsPurchased: userEntity.i2vCreditsSecondsPurchased,
+      i2vCreditsSecondsFromPlan: userEntity.i2vCreditsSecondsFromPlan,
     };
   }
 
