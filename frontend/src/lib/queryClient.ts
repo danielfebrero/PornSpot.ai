@@ -235,6 +235,8 @@ export const queryKeys = {
   generation: {
     all: () => ["generation"] as const,
     usageStats: () => ["generation", "usage-stats"] as const,
+    incompleteI2VJobs: () => ["generation", "i2v", "incomplete-jobs"] as const,
+    i2vJob: (jobId: string) => ["generation", "i2v", "job", jobId] as const,
   },
 
   // Discover

@@ -3261,6 +3261,43 @@ Resources:
               Resource:
                 - !GetAtt I2VPollQueue.Arn
 
+  # Image-to-Video Get Incomplete Jobs Function
+  I2VGetIncompleteJobsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-generate-i2v-get-incomplete-jobs-v1"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/generation/i2v-get-incomplete-jobs.handler"]
+      Events:
+        GetI2VIncompleteJobs:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generate/i2v/incomplete
+            Method: GET
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsI2VIncompleteJobs:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generate/i2v/incomplete
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+              Resource:
+                - !GetAtt MediaTable.Arn
+                - !Sub "${MediaTable.Arn}/index/*"
+
   # SQS queue for delayed I2V polling
   I2VPollQueue:
     Type: AWS::SQS::Queue

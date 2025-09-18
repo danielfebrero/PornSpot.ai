@@ -14,6 +14,7 @@ import { Video, ArrowLeft, Play } from "lucide-react";
 import { isVideo } from "@/lib/utils";
 import { I2VSettings, Media } from "@/types";
 import { generateApi } from "@/lib/api/generate";
+import { usePollI2VJob } from "@/hooks/queries/useGenerationQuery";
 
 export function I2VPageContent() {
   const searchParams = useSearchParams();
@@ -34,6 +35,8 @@ export function I2VPageContent() {
   } = useMediaById(mediaId || "", !!mediaId);
 
   const [isGenerating, setIsGenerating] = useState(false);
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [pollingEnabled, setPollingEnabled] = useState(false);
   // Holds the generated video media once job completes
   const [generatedMedia, setGeneratedMedia] = useState<Media | null>(null);
   // Generation progress tracking
@@ -107,63 +110,50 @@ export function I2VPageContent() {
   };
 
   const handleGenerate = async () => {
-    if (!media || availableCredits < settings.videoLength || isGenerating) {
+    if (!media || availableCredits < settings.videoLength || isGenerating)
       return;
-    }
-
     setIsGenerating(true);
     try {
-      // Submit job
       const submitResp = await generateApi.submitI2VJob({
         ...settings,
         mediaId: media.id,
-        isPublic: true, // default for now
+        isPublic: true,
       });
-
       const { jobId, estimatedSeconds } = submitResp;
-      console.log("I2V job submitted", jobId, "ETA(s)", estimatedSeconds);
-
-      // Initialize progress tracking
+      setCurrentJobId(jobId);
       setGenerationMeta({ eta: estimatedSeconds, start: Date.now() });
       setProgressPct(0);
       setRemainingSeconds(estimatedSeconds);
-
-      // Wait for the estimated time before polling (non-blocking UI could be enhanced later)
-      await new Promise((r) => setTimeout(r, estimatedSeconds * 1000));
-
-      let completedMedia: Media | null = null;
-      let attempts = 0;
-      const maxAttempts = 60; // 5 minutes of polling
-      while (attempts < maxAttempts) {
-        attempts++;
-        try {
-          const pollResp = await generateApi.pollI2VJob(jobId);
-          if (
-            (pollResp as any).status === "COMPLETED" &&
-            (pollResp as any).media
-          ) {
-            completedMedia = (pollResp as any).media as Media;
-            break;
-          }
-        } catch (e) {
-          console.warn("Poll failed", e);
-        }
-        await new Promise((r) => setTimeout(r, 5000));
-      }
-
-      if (completedMedia) {
-        setGeneratedMedia(completedMedia);
-        setProgressPct(1);
-        setGenerationMeta(null); // stop interval updates
-        setRemainingSeconds(0);
-      }
+      // Enable polling after ETA (schedule timer)
+      setPollingEnabled(false);
+      window.setTimeout(() => {
+        setPollingEnabled(true);
+      }, estimatedSeconds * 1000);
     } catch (err) {
       console.error("Generation failed:", err);
       alert("Failed to start video generation. Please try again.");
-    } finally {
       setIsGenerating(false);
     }
   };
+
+  // Use poll hook once enabled
+  const { data: pollData } = usePollI2VJob(
+    currentJobId || undefined,
+    pollingEnabled
+  );
+
+  // React to poll completion
+  useEffect(() => {
+    if (!pollData) return;
+    if ((pollData as any).status === "COMPLETED" && (pollData as any).media) {
+      setGeneratedMedia((pollData as any).media as Media);
+      setProgressPct(1);
+      setGenerationMeta(null);
+      setRemainingSeconds(0);
+      setIsGenerating(false);
+      setPollingEnabled(false);
+    }
+  }, [pollData]);
 
   const canGenerate =
     media && availableCredits >= settings.videoLength && !isGenerating;

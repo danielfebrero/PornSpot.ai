@@ -87,4 +87,26 @@ export const generateApi = {
     });
     return ApiUtil.extractData(response);
   },
+
+  // Get incomplete I2V jobs for current user
+  getIncompleteI2VJobs: async (): Promise<
+    {
+      jobId: string;
+      submittedAt?: string;
+      estimatedSeconds?: number;
+      estimatedCompletionTimeAt?: string;
+      media: Media | null;
+    }[]
+  > => {
+    const response = await ApiUtil.get<
+      {
+        jobId: string;
+        submittedAt?: string;
+        estimatedSeconds?: number;
+        estimatedCompletionTimeAt?: string;
+        media: Media | null;
+      }[]
+    >("/generate/i2v/incomplete", { credentials: "include" });
+    return ApiUtil.extractData(response);
+  },
 };

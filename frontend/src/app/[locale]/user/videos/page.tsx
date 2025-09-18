@@ -35,6 +35,12 @@ import { Media, UnifiedMediaResponse } from "@/types";
 import { useUserContext } from "@/contexts/UserContext";
 import { useDevice } from "@/contexts/DeviceContext";
 import { isMediaOwner } from "@/lib/userUtils";
+import {
+  useGetIncompleteI2VJobs,
+  usePollI2VJob,
+} from "@/hooks/queries/useGenerationQuery";
+import ResponsivePicture from "@/components/ui/ResponsivePicture";
+import { composeMediaUrl, composeThumbnailUrls } from "@/lib/urlUtils";
 
 const UserVideosPage: React.FC = () => {
   const t = useTranslations("user.videosPage");
@@ -65,6 +71,7 @@ const UserVideosPage: React.FC = () => {
     isFetchingNextPage,
   } = useUserMedia({ type: "video" });
   const { prefetch } = usePrefetchInteractionStatus();
+  const { data: incompleteJobs } = useGetIncompleteI2VJobs();
 
   const handleConfirmTitleEdit = useCallback(
     async (newTitle: string) => {
@@ -248,6 +255,78 @@ const UserVideosPage: React.FC = () => {
       </div>
     );
   }
+
+  // Child component to leverage hooks per job
+  const I2VJobProgressCard: React.FC<{ job: any }> = ({ job }) => {
+    const [enablePoll, setEnablePoll] = useState(false);
+
+    useEffect(() => {
+      if (!job.estimatedCompletionTimeAt) return;
+      const est = Date.parse(job.estimatedCompletionTimeAt);
+      const delay = Math.max(0, est - Date.now());
+      if (delay === 0) setEnablePoll(true);
+      else {
+        const to = setTimeout(() => setEnablePoll(true), delay);
+        return () => clearTimeout(to);
+      }
+    }, [job.estimatedCompletionTimeAt]);
+
+    usePollI2VJob(job.jobId, enablePoll);
+
+    const submitted = job.submittedAt ? Date.parse(job.submittedAt) : 0;
+    const estSeconds = job.estimatedSeconds || 0;
+    const elapsed = estSeconds ? (Date.now() - submitted) / 1000 : 0;
+    let pct = estSeconds ? elapsed / estSeconds : 0;
+    if (pct > 0.99) pct = 0.99;
+    const pctDisplay = Math.floor(pct * 100);
+    const media = job.media;
+
+    return (
+      <div className="relative overflow-hidden rounded-xl border border-admin-primary/20 bg-card/80 backdrop-blur-sm shadow-lg group">
+        {media?.thumbnailUrl || media?.url ? (
+          <div className="aspect-video w-full overflow-hidden">
+            <ResponsivePicture
+              thumbnailUrls={composeThumbnailUrls(media.thumbnailUrls)}
+              fallbackUrl={composeMediaUrl(media.thumbnailUrl || media.url)}
+              alt={media.originalFilename || media.filename || "processing"}
+              className="w-full h-full object-cover opacity-60 group-hover:opacity-70 transition-opacity"
+              loading="lazy"
+            />
+          </div>
+        ) : (
+          <div className="aspect-video w-full flex items-center justify-center bg-muted/40">
+            <Loader2 className="h-8 w-8 animate-spin text-admin-accent" />
+          </div>
+        )}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <Loader2 className="h-10 w-10 animate-spin text-admin-accent mb-2" />
+          <div className="w-3/4 h-2 rounded-full bg-muted/40 overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-admin-accent to-admin-primary transition-all"
+              style={{ width: `${pctDisplay}%` }}
+            />
+          </div>
+          <span className="mt-2 text-xs font-medium text-foreground/90">
+            {pctDisplay}%
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  const renderIncompleteJobs = () => {
+    if (!incompleteJobs || incompleteJobs.length === 0) return null;
+    return (
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold text-foreground">In Progress</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {incompleteJobs.map((job) => (
+            <I2VJobProgressCard key={job.jobId} job={job} />
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -490,6 +569,7 @@ const UserVideosPage: React.FC = () => {
         )}
       </div>
 
+      {renderIncompleteJobs()}
       {medias.length > 0 ? (
         <VirtualizedGrid
           items={medias}

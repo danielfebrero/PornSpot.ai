@@ -5,6 +5,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { generateApi, UsageStatsResponse } from "@/lib/api/generate";
 import { queryKeys } from "@/lib/queryClient";
+import { useEffect } from "react";
+import { queryClient } from "@/lib/queryClient";
+import { Media } from "@/types";
 
 /**
  * Hook to get current usage statistics
@@ -61,4 +64,60 @@ export function useDecrementUsageStats() {
       }
     );
   };
+}
+
+export function useGetIncompleteI2VJobs() {
+  return useQuery({
+    queryKey: queryKeys.generation.incompleteI2VJobs(),
+    queryFn: generateApi.getIncompleteI2VJobs,
+    refetchInterval: 30_000, // periodic refresh safety
+    staleTime: 5_000,
+  });
+}
+
+// Internal helper to inject media into existing infinite queries (user media of type video)
+function addMediaToUserVideoQueries(newMedia: Media) {
+  queryClient.setQueriesData({ queryKey: ["media", "user"] }, (old: any) => {
+    if (!old?.pages) return old;
+    // Avoid duplicates
+    const already = old.pages.some((p: any) =>
+      p.media?.some((m: any) => m.id === newMedia.id)
+    );
+    if (already) return old;
+    // Insert into first page
+    const first = old.pages[0];
+    const updatedFirst = {
+      ...first,
+      media: [newMedia, ...(first.media || [])],
+    };
+    return { ...old, pages: [updatedFirst, ...old.pages.slice(1)] };
+  });
+}
+
+export function usePollI2VJob(jobId: string | undefined, enable: boolean) {
+  return useQuery({
+    queryKey: jobId
+      ? queryKeys.generation.i2vJob(jobId)
+      : ["generation", "i2v", "job", "disabled"],
+    queryFn: async () => {
+      if (!jobId) return null as any;
+      const resp = await generateApi.pollI2VJob(jobId);
+      // Optimistic cache modifications if completed
+      if (resp && (resp as any).status === "COMPLETED" && (resp as any).media) {
+        const media = (resp as any).media as Media;
+        addMediaToUserVideoQueries(media);
+        // Remove from incomplete jobs list
+        queryClient.setQueryData(
+          queryKeys.generation.incompleteI2VJobs(),
+          (old: any) => {
+            if (!Array.isArray(old)) return old;
+            return old.filter((j: any) => j.jobId !== jobId);
+          }
+        );
+      }
+      return resp;
+    },
+    enabled: !!jobId && enable,
+    refetchInterval: 5_000,
+  });
 }

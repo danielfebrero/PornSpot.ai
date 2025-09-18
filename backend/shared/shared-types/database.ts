@@ -413,6 +413,8 @@ export interface I2VJobEntity extends BaseEntity {
   GSI2SK: string; // {createdAt}#{jobId}
   GSI3PK: string; // I2VJOB_STATUS#{status}
   GSI3SK: string; // {createdAt}#{jobId}
+  GSI4PK: string; // I2VJOB_STATUS_USER#{userId}#{status}
+  GSI4SK: string; // {createdAt}#{jobId}
   EntityType: "I2VJob";
   // Core identifiers
   jobId: string; // Runpod job ID
@@ -435,6 +437,8 @@ export interface I2VJobEntity extends BaseEntity {
   submittedAt: string; // ISO
   updatedAt: string; // ISO
   completedAt?: string; // ISO
+  estimatedCompletionTimeAt?: string; // ISO
+  estimatedSeconds?: number; // estimated time to complete in seconds
 
   // Resolved fields
   sourceImageUrl: string; // Full CDN URL used

@@ -196,6 +196,21 @@ const handleSubmitI2VJob = async (
     return ResponseUtil.internalError(event, "Failed to update credits");
   }
 
+  // Estimate execution time (seconds) using provided reference points
+  // Heuristic: ~30s per video second at 1024x1024, mildly adjusted by size and settings
+  const area = outWidth * outHeight;
+  const baseArea = 1024 * 1024;
+  const areaRatio = Math.max(0.5, Math.min(2.0, area / baseArea));
+  // Mild negative exponent to reflect small size effect seen in samples
+  const sizeFactor = Math.pow(areaRatio, -0.1);
+  const stepsCfgFactor =
+    1 + 0.002 * (inferenceSteps - 30) + 0.003 * (cfgScale - 5);
+  const perSec = 30; // baseline seconds per output second
+  const estimatedSeconds = Math.max(
+    30,
+    Math.round(perSec * videoLength * sizeFactor * stepsCfgFactor)
+  );
+
   // Persist job entity
   const jobEntity: I2VJobEntity = {
     PK: `I2VJOB#${jobId}`,
@@ -206,6 +221,8 @@ const handleSubmitI2VJob = async (
     GSI2SK: `${now}#${jobId}`,
     GSI3PK: `I2VJOB_STATUS#${status}`,
     GSI3SK: `${now}#${jobId}`,
+    GSI4PK: `I2VJOB_STATUS_USER#${auth.userId}#${status}`,
+    GSI4SK: `${now}#${jobId}`,
     EntityType: "I2VJob",
     jobId,
     userId: auth.userId,
@@ -224,25 +241,15 @@ const handleSubmitI2VJob = async (
     status,
     submittedAt: now,
     updatedAt: now,
+    estimatedCompletionTimeAt: new Date(
+      Date.now() + estimatedSeconds * 1000
+    ).toISOString(),
+    estimatedSeconds,
     sourceImageUrl,
     runpodModel: RUNPOD_MODEL,
   };
 
   await DynamoDBService.createI2VJob(jobEntity);
-  // Estimate execution time (seconds) using provided reference points
-  // Heuristic: ~30s per video second at 1024x1024, mildly adjusted by size and settings
-  const area = outWidth * outHeight;
-  const baseArea = 1024 * 1024;
-  const areaRatio = Math.max(0.5, Math.min(2.0, area / baseArea));
-  // Mild negative exponent to reflect small size effect seen in samples
-  const sizeFactor = Math.pow(areaRatio, -0.1);
-  const stepsCfgFactor =
-    1 + 0.002 * (inferenceSteps - 30) + 0.003 * (cfgScale - 5);
-  const perSec = 30; // baseline seconds per output second
-  const estimatedSeconds = Math.max(
-    30,
-    Math.round(perSec * videoLength * sizeFactor * stepsCfgFactor)
-  );
 
   // Send SQS delayed message to trigger polling around completion time
   try {
