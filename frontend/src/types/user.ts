@@ -127,6 +127,8 @@ export interface UserContextType {
   clearError: () => void;
   clearUser: () => void;
   refetch: () => Promise<void>;
+  // i2v credits
+  spendI2VSeconds?: (seconds: number) => boolean; // deduct credits locally (plan first then purchased)
 }
 
 // Frontend-specific error types

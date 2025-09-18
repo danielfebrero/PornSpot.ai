@@ -65,6 +65,38 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, []); // Only run once on mount
 
   // Simplified context value - authentication logic moved to TanStack Query hooks
+  const spendI2VSeconds = useCallback(
+    (seconds: number): boolean => {
+      if (!user || seconds <= 0) return false;
+      const plan = user.i2vCreditsSecondsFromPlan || 0;
+      const purchased = user.i2vCreditsSecondsPurchased || 0;
+      const total = plan + purchased;
+      if (total < seconds) return false;
+
+      let remainingToDeduct = seconds;
+      let newPlan = plan;
+      let newPurchased = purchased;
+      if (newPlan > 0) {
+        const fromPlan = Math.min(newPlan, remainingToDeduct);
+        newPlan -= fromPlan;
+        remainingToDeduct -= fromPlan;
+      }
+      if (remainingToDeduct > 0 && newPurchased > 0) {
+        const fromPurchased = Math.min(newPurchased, remainingToDeduct);
+        newPurchased -= fromPurchased;
+        remainingToDeduct -= fromPurchased;
+      }
+      // Update local user state optimistically
+      setUser({
+        ...user,
+        i2vCreditsSecondsFromPlan: newPlan,
+        i2vCreditsSecondsPurchased: newPurchased,
+      });
+      return true;
+    },
+    [user]
+  );
+
   const contextValue: UserContextType = {
     user,
     loading: loading || initializing,
@@ -93,6 +125,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     clearError: () => {}, // No-op since error handling moved to mutations
     clearUser, // Add clearUser method
     refetch,
+    // i2v credits utilities (extension)
+    spendI2VSeconds,
   };
 
   return (

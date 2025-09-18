@@ -20,7 +20,7 @@ import { useTranslations } from "next-intl";
 export function I2VPageContent() {
   const searchParams = useSearchParams();
   const router = useLocaleRouter();
-  const { user } = useUserContext();
+  const { user, spendI2VSeconds } = useUserContext();
   const { redirectToLogin } = useAuthRedirect();
   const t = useTranslations("i2v.pageContent");
 
@@ -61,8 +61,13 @@ export function I2VPageContent() {
     return () => clearInterval(id);
   }, [generationMeta]);
 
-  // Mock credits - in real app this would come from user context or API
-  const [availableCredits] = useState(120); // 120 seconds available
+  // Available credits derived from user context
+  const availableCredits = useMemo(() => {
+    if (!user) return 0;
+    const purchased = user.i2vCreditsSecondsPurchased || 0;
+    const fromPlan = user.i2vCreditsSecondsFromPlan || 0;
+    return purchased + fromPlan;
+  }, [user]);
 
   const [settings, setSettings] = useState<I2VSettings>({
     videoLength: 5,
@@ -114,6 +119,11 @@ export function I2VPageContent() {
   const handleGenerate = async () => {
     if (!media || availableCredits < settings.videoLength || isGenerating)
       return;
+    // Deduct credits immediately (optimistic)
+    if (spendI2VSeconds) {
+      const ok = spendI2VSeconds(settings.videoLength);
+      if (!ok) return; // insufficient credits race
+    }
     setIsGenerating(true);
     try {
       const submitResp = await generateApi.submitI2VJob({

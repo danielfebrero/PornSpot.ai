@@ -65,6 +65,9 @@ export interface User {
   emailPreferences?: EmailPreferences;
   profileInsights?: UserProfileInsights;
   followerCount: number;
+  // Image-to-video generation credits (in seconds)
+  i2vCreditsSecondsPurchased?: number; // credits user purchased
+  i2vCreditsSecondsFromPlan?: number; // credits granted by current plan
 }
 
 export interface PublicUserProfile {

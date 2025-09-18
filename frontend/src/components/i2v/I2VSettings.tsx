@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
-import { Select } from "@/components/ui/Select";
+// Removed Select for video length; replaced by range slider
 import { Textarea } from "@/components/ui/Textarea";
 import { Settings, ChevronDown, ChevronRight } from "lucide-react";
 import { I2VSettings } from "@/types";
@@ -43,20 +43,33 @@ export function I2VSettingsComponent({
       <div className="space-y-6">
         {/* Basic Settings */}
         <div>
-          <Label htmlFor="videoLength" className="text-sm font-medium">
-            {t("videoLength")}
-          </Label>
-          <Select
-            value={settings.videoLength.toString()}
-            onValueChange={(value) =>
-              updateSetting("videoLength", parseInt(value) as 5 | 8 | 10 | 15)
-            }
+          <Label
+            htmlFor="videoLength"
+            className="text-sm font-medium flex justify-between"
           >
-            <option value="5">{t("durations.fiveSeconds")}</option>
-            <option value="8">{t("durations.eightSeconds")}</option>
-            <option value="10">{t("durations.tenSeconds")}</option>
-            <option value="15">{t("durations.fifteenSeconds")}</option>
-          </Select>
+            <span>{t("videoLength")}</span>
+            <span className="font-semibold">{settings.videoLength}s</span>
+          </Label>
+          <input
+            id="videoLength"
+            type="range"
+            min={5}
+            max={30}
+            step={5}
+            value={settings.videoLength}
+            onChange={(e) =>
+              updateSetting(
+                "videoLength",
+                parseInt(e.target.value) as 5 | 10 | 15 | 20 | 25 | 30
+              )
+            }
+            className="mt-2 w-full accent-primary"
+          />
+          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+            {[5, 10, 15, 20, 25, 30].map((v) => (
+              <span key={v}>{v}s</span>
+            ))}
+          </div>
         </div>
 
         {/* Advanced Settings Toggle */}
@@ -77,7 +90,7 @@ export function I2VSettingsComponent({
 
         {/* Advanced Settings */}
         {showAdvanced && (
-          <div className="space-y-4 pl-6 border-l-2 border-border">
+          <div className="space-y-4">
             {/* Prompt */}
             <div>
               <Label htmlFor="prompt" className="text-sm font-medium">
