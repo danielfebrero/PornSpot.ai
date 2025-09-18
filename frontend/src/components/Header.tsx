@@ -124,36 +124,6 @@ export function Header() {
                 >
                   <span>{tNav("images")}</span>
                 </LocaleLink>
-                <LocaleLink
-                  href="/user/bookmarks"
-                  className={`flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ${
-                    isActivePath(pathname, "/user/bookmarks")
-                      ? "border-b-2 border-foreground"
-                      : ""
-                  }`}
-                >
-                  <span>{tNav("bookmarks")}</span>
-                </LocaleLink>
-                <LocaleLink
-                  href="/user/likes"
-                  className={`flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ${
-                    isActivePath(pathname, "/user/likes")
-                      ? "border-b-2 border-foreground"
-                      : ""
-                  }`}
-                >
-                  <span>{tNav("likes")}</span>
-                </LocaleLink>
-                <LocaleLink
-                  href="/user/albums"
-                  className={`flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ${
-                    isActivePath(pathname, "/user/albums")
-                      ? "border-b-2 border-foreground"
-                      : ""
-                  }`}
-                >
-                  <span>{tNav("albums")}</span>
-                </LocaleLink>
               </>
             )}
           </nav>
