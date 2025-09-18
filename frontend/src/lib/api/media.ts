@@ -4,6 +4,7 @@ import { ApiUtil, PaginationParams } from "../api-util";
 // Types for media API parameters
 interface GetUserMediaParams extends PaginationParams {
   username?: string;
+  type?: "image" | "video";
 }
 
 // Media API Functions

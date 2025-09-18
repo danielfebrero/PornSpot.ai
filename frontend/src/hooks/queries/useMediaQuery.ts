@@ -17,6 +17,7 @@ interface MediaQueryParams {
   limit?: number;
   cursor?: string;
   username?: string;
+  type?: "image" | "video";
 }
 
 interface AlbumMediaQueryParams {
@@ -30,15 +31,16 @@ type MediaResponse = UnifiedMediaResponse;
 
 // Hook for fetching user's media with infinite scroll support
 export function useUserMedia(params: MediaQueryParams = {}) {
-  const { limit = 20, username } = params;
+  const { limit = 20, username, type } = params;
 
   return useInfiniteQuery({
-    queryKey: ["media", "user", { limit, username }],
+    queryKey: ["media", "user", { limit, username, type }],
     queryFn: async ({ pageParam }) => {
       return await mediaApi.getUserMedia({
         limit,
         cursor: pageParam,
         username,
+        type,
       });
     },
     initialPageParam: undefined,

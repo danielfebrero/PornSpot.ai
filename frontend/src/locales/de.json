@@ -792,25 +792,27 @@
     }
   },
   "user": {
-    "medias": {
+    "imagesPage": {
       "meta": {
-        "title": "Meine Medien - {siteName}",
-        "description": "Betrachten und verwalten Sie Ihre persönliche KI-generierte Mediengalerie. Laden Sie hoch, organisieren und teilen Sie Ihre kreativen Inhalte."
+        "title": "Meine Bilder - {siteName}",
+        "description": "Betrachten und verwalten Sie Ihre persönliche KI-generierte Bildergalerie. Laden Sie hoch, organisieren und teilen Sie Ihre kreativen Inhalte."
       },
-      "medias": "Medien",
-      "personalMediaGallery": "Ihre persönliche Mediengalerie",
-      "mediasCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {Medien} one {Medium} other {Medien}}",
+      "images": "Bilder",
+      "personalMediaGallery": "Ihre persönliche Bildergalerie",
+      "imagesCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {Bilder} one {Bild} other {Bilder}}",
       "generate": "Generieren",
-      "generateMedia": "Medien generieren",
+      "generateMedia": "Bild generieren",
       "selectMany": "Mehrere auswählen",
-      "noMediaYet": "Noch keine Medien",
-      "startCreatingMedia": "Beginnen Sie mit der Erstellung von KI-generierten Medien, um sie hier zu sehen!",
-      "loadingMoreMedia": "Laden weiterer Medien...",
-      "noMoreMediaToLoad": "Keine weiteren Medien zu laden",
-      "confirmDeleteTitle": "Medien Löschen",
-      "confirmDeleteMessage": "Sind Sie sicher, dass Sie {count, plural, =1 {# ausgewähltes Medienelement} other {# ausgewählte Medienelemente}} löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "noImagesYet": "Noch keine Bilder",
+      "startCreatingImages": "Beginnen Sie mit der Erstellung von KI-generierten Bildern, um sie hier zu sehen!",
+      "loadingMoreImages": "Laden weiterer Bilder...",
+      "noMoreImagesToLoad": "Keine weiteren Bilder zu laden",
+      "confirmDeleteTitle": "Bild löschen",
+      "confirmDeleteMessage": "Sind Sie sicher, dass Sie {count, plural, =1 {# ausgewähltes Bild} other {# ausgewählte Bilder}} löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
       "delete": "Löschen",
-      "cancel": "Abbrechen"
+      "cancel": "Abbrechen",
+      "album": "Album",
+      "download": "Herunterladen"
     },
     "albums": {
       "meta": {

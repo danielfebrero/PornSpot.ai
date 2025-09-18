@@ -157,3 +157,5 @@
 [ ] Grant 10 images to new users on signup.
 
 [ ] Divide PSC distribution in 6\*4h instead of 24h.
+
+[ ] In admin, after delete on select many, stay in select many mode.

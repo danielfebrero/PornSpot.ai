@@ -1026,7 +1026,8 @@ export class DynamoDBService {
     userId: string,
     limit: number = 50,
     lastEvaluatedKey?: Record<string, any>,
-    publicOnly: boolean = false
+    publicOnly: boolean = false,
+    mimeTypePrefix?: string
   ): Promise<{
     media: MediaEntity[];
     nextKey?: Record<string, any>;
@@ -1045,6 +1046,12 @@ export class DynamoDBService {
         Limit: limit,
         ScanIndexForward: false, // newest first
       };
+
+      if (mimeTypePrefix) {
+        queryParams.FilterExpression = "begins_with(#mt, :mimePrefix)";
+        queryParams.ExpressionAttributeNames = { "#mt": "mimeType" };
+        queryParams.ExpressionAttributeValues[":mimePrefix"] = mimeTypePrefix;
+      }
 
       if (lastEvaluatedKey) {
         queryParams.ExclusiveStartKey = lastEvaluatedKey;
@@ -1071,6 +1078,12 @@ export class DynamoDBService {
         Limit: limit,
         ScanIndexForward: false, // newest first
       };
+
+      if (mimeTypePrefix) {
+        queryParams.FilterExpression = "begins_with(#mt, :mimePrefix)";
+        queryParams.ExpressionAttributeNames = { "#mt": "mimeType" };
+        queryParams.ExpressionAttributeValues[":mimePrefix"] = mimeTypePrefix;
+      }
 
       if (lastEvaluatedKey) {
         queryParams.ExclusiveStartKey = lastEvaluatedKey;
@@ -2551,7 +2564,8 @@ export class DynamoDBService {
         userId,
         1000,
         undefined,
-        false
+        false,
+        undefined
       ); // Get up to 1000 media items, include private
       for (const mediaEntity of userMediaResult.media) {
         const viewCount = mediaEntity.viewCount || 0;

@@ -35,7 +35,7 @@ import { isMediaOwner } from "@/lib/userUtils";
 import { Globe, Lock, Edit } from "lucide-react";
 
 const UserMediasPage: React.FC = () => {
-  const t = useTranslations("user.medias");
+  const t = useTranslations("user.imagesPage");
 
   // Set document title and meta description
   useDocumentHeadAndMeta(t("meta.title"), t("meta.description"));
@@ -349,7 +349,7 @@ const UserMediasPage: React.FC = () => {
                         : ""
                     }`}
                   >
-                    Album
+                    {t("album")}
                   </span>
                 </button>
                 <button
@@ -383,7 +383,7 @@ const UserMediasPage: React.FC = () => {
                         : ""
                     }`}
                   >
-                    Download
+                    {t("download")}
                   </span>
                 </button>
                 <button
@@ -406,7 +406,7 @@ const UserMediasPage: React.FC = () => {
                         : ""
                     }`}
                   >
-                    Delete
+                    {t("delete")}
                   </span>
                 </button>
               </div>
@@ -429,7 +429,7 @@ const UserMediasPage: React.FC = () => {
                     </div>
                     <div>
                       <h1 className="text-2xl font-bold text-foreground">
-                        {t("medias")}
+                        {t("images")}
                       </h1>
                       <p className="text-sm text-muted-foreground">
                         {t("personalMediaGallery")}
@@ -439,7 +439,7 @@ const UserMediasPage: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
-                    {t("mediasCount", {
+                    {t("imagesCount", {
                       count: totalCount,
                       hasNextPage: hasNextPage ? 1 : 0,
                     })}
@@ -487,14 +487,14 @@ const UserMediasPage: React.FC = () => {
                   </div>
                   <div>
                     <h1 className="text-3xl font-bold text-foreground">
-                      {t("medias")}
+                      {t("images")}
                     </h1>
                     <p className="text-muted-foreground">
                       {t("personalMediaGallery")}
                     </p>
                   </div>
                   <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
-                    {t("mediasCount", {
+                    {t("imagesCount", {
                       count: totalCount,
                       hasNextPage: hasNextPage ? 1 : 0,
                     })}
@@ -599,8 +599,8 @@ const UserMediasPage: React.FC = () => {
               icon: (
                 <ImageIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               ),
-              title: t("noMediaYet"),
-              description: t("startCreatingMedia"),
+              title: t("noImagesYet"),
+              description: t("startCreatingImages"),
               action: (
                 <LocaleLink href="/generate">
                   <Button className="flex items-center space-x-2">
@@ -611,18 +611,18 @@ const UserMediasPage: React.FC = () => {
               ),
             }}
             loadingState={{
-              loadingText: t("loadingMoreMedia"),
-              noMoreText: t("noMoreMediaToLoad"),
+              loadingText: t("loadingMoreImages"),
+              noMoreText: t("noMoreImagesToLoad"),
             }}
           />
         ) : (
           <div className="bg-card/80 backdrop-blur-sm rounded-xl shadow-lg border border-admin-primary/10 p-12 text-center">
             <ImageIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">
-              {t("noMediaYet")}
+              {t("noImagesYet")}
             </h3>
             <p className="text-muted-foreground mb-6">
-              {t("startCreatingMedia")}
+              {t("startCreatingImages")}
             </p>
             <div className="flex justify-center space-x-4">
               <LocaleLink href="/generate">

@@ -792,25 +792,27 @@
     }
   },
   "user": {
-    "medias": {
+    "imagesPage": {
       "meta": {
-        "title": "Mis Medios - {siteName}",
-        "description": "Ve y gestiona tu galería personal de medios generados por IA. Sube, organiza y comparte tu contenido creativo."
+        "title": "Mis Imágenes - {siteName}",
+        "description": "Ve y gestiona tu galería personal de imágenes generadas por IA. Sube, organiza y comparte tu contenido creativo."
       },
-      "medias": "Medios",
-      "personalMediaGallery": "Tu galería de medios personal",
-      "mediasCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {medios} =1 {medio} other {medios}}",
+      "images": "Imágenes",
+      "personalMediaGallery": "Tu galería de imágenes personal",
+      "imagesCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {imágenes} =1 {imagen} other {imágenes}}",
       "generate": "Generar",
-      "generateMedia": "Generar medios",
+      "generateMedia": "Generar Imagen",
       "selectMany": "Seleccionar varios",
-      "noMediaYet": "Aún no hay medios",
-      "startCreatingMedia": "¡Comienza a crear contenido generado por IA para verlo aquí!",
-      "loadingMoreMedia": "Cargando más medios...",
-      "noMoreMediaToLoad": "No hay más medios para cargar",
-      "confirmDeleteTitle": "Eliminar Medios",
-      "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar {count, plural, =1 {# elemento de medios seleccionado} other {# elementos de medios seleccionados}}? Esta acción no se puede deshacer.",
+      "noImagesYet": "Aún no hay imágenes",
+      "startCreatingImages": "¡Comienza a crear imágenes generadas por IA para verlas aquí!",
+      "loadingMoreImages": "Cargando más imágenes...",
+      "noMoreImagesToLoad": "No hay más imágenes para cargar",
+      "confirmDeleteTitle": "Eliminar Imagen",
+      "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar {count, plural, =1 {# imagen seleccionada} other {# imágenes seleccionadas}}? Esta acción no se puede deshacer.",
       "delete": "Eliminar",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "album": "Álbum",
+      "download": "Descargar"
     },
     "albums": {
       "meta": {

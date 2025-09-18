@@ -830,25 +830,27 @@
     }
   },
   "user": {
-    "medias": {
+    "imagesPage": {
       "meta": {
-        "title": "My Media - {siteName}",
-        "description": "View and manage your personal AI-generated media gallery. Upload, organize, and share your creative content."
+        "title": "My Images - {siteName}",
+        "description": "View and manage your personal AI-generated image gallery. Upload, organize, and share your creative content."
       },
-      "medias": "Medias",
-      "personalMediaGallery": "Your personal media gallery",
-      "mediasCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {medias} =1 {media} other {medias}}",
+      "images": "Images",
+      "personalMediaGallery": "Your personal image gallery",
+      "imagesCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {images} =1 {image} other {images}}",
       "generate": "Generate",
-      "generateMedia": "Generate Media",
+      "generateMedia": "Generate Image",
       "selectMany": "Select many",
-      "noMediaYet": "No media yet",
-      "startCreatingMedia": "Start creating AI-generated media to see them here!",
-      "loadingMoreMedia": "Loading more media...",
-      "noMoreMediaToLoad": "No more media to load",
-      "confirmDeleteTitle": "Delete Media",
-      "confirmDeleteMessage": "Are you sure you want to delete {count, plural, =1 {# selected media item} other {# selected media items}}? This action cannot be undone.",
+      "noImagesYet": "No images yet",
+      "startCreatingImages": "Start creating AI-generated images to see them here!",
+      "loadingMoreImages": "Loading more images...",
+      "noMoreImagesToLoad": "No more images to load",
+      "confirmDeleteTitle": "Delete Image",
+      "confirmDeleteMessage": "Are you sure you want to delete {count, plural, =1 {# selected image} other {# selected images}}? This action cannot be undone.",
       "delete": "Delete",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "album": "Album",
+      "download": "Download"
     },
     "albums": {
       "meta": {

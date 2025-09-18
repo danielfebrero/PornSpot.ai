@@ -795,23 +795,25 @@
     }
   },
   "user": {
-    "medias": {
-      "medias": "Медиа",
-      "personalMediaGallery": "Ваша персональная медиагалерея",
-      "mediasCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {медиа} one {медиа} few {медиа} other {медиа}}",
+    "imagesPage": {
+      "images": "Изображения",
+      "personalMediaGallery": "Ваша персональная галерея изображений",
+      "imagesCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {изображений} one {изображение} few {изображения} other {изображений}}",
       "generate": "Генерировать",
-      "generateMedia": "Генерировать медиа",
+      "generateMedia": "Сгенерировать изображение",
       "selectMany": "Выбрать несколько",
-      "noMediaYet": "Пока нет медиа",
-      "startCreatingMedia": "Начните создавать контент с помощью ИИ, чтобы увидеть его здесь!",
-      "loadingMoreMedia": "Загрузка дополнительных медиа...",
-      "noMoreMediaToLoad": "Больше медиа для загрузки нет",
-      "confirmDeleteTitle": "Удалить Медиа",
-      "confirmDeleteMessage": "Вы уверены, что хотите удалить {count, plural, =1 {# выбранный элемент медиа} few {# выбранных элемента медиа} other {# выбранных элементов медиа}}? Это действие нельзя отменить.",
+      "noImagesYet": "Пока нет изображений",
+      "startCreatingImages": "Начните создавать изображения с помощью ИИ, чтобы увидеть их здесь!",
+      "loadingMoreImages": "Загрузка дополнительных изображений...",
+      "noMoreImagesToLoad": "Больше изображений для загрузки нет",
+      "confirmDeleteTitle": "Удалить изображение",
+      "confirmDeleteMessage": "Вы уверены, что хотите удалить {count, plural, =1 {# выбранное изображение} few {# выбранных изображения} other {# выбранных изображений}}? Это действие нельзя отменить.",
       "delete": "Удалить",
       "cancel": "Отмена",
+      "album": "Альбом",
+      "download": "Скачать",
       "meta": {
-        "title": "Мои медиа - {siteName}",
+        "title": "Мои изображения - {siteName}",
         "description": "Просматривайте и управляйте своими изображениями, созданными ИИ"
       }
     },

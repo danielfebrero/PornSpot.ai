@@ -794,24 +794,26 @@
     }
   },
   "user": {
-    "medias": {
-      "medias": "媒体",
-      "personalMediaGallery": "您的个人媒体画廊",
-      "mediasCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {个媒体} other {个媒体}}",
+    "imagesPage": {
+      "images": "图片",
+      "personalMediaGallery": "您的个人图片库",
+      "imagesCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, other {张图片}}",
       "generate": "生成",
-      "generateMedia": "生成媒体",
+      "generateMedia": "生成图片",
       "selectMany": "选择多个",
-      "noMediaYet": "还没有媒体",
-      "startCreatingMedia": "开始创建AI生成的媒体，在这里查看！",
-      "loadingMoreMedia": "加载更多媒体...",
-      "noMoreMediaToLoad": "没有更多媒体可加载",
-      "confirmDeleteTitle": "删除媒体",
-      "confirmDeleteMessage": "您确定要删除{count, plural, other {#个选中的媒体项目}}吗？此操作无法撤销。",
+      "noImagesYet": "还没有图片",
+      "startCreatingImages": "开始创建AI生成的图片，在这里查看！",
+      "loadingMoreImages": "加载更多图片...",
+      "noMoreImagesToLoad": "没有更多图片可加载",
+      "confirmDeleteTitle": "删除图片",
+      "confirmDeleteMessage": "您确定要删除{count, plural, other {#张选中的图片}}吗？此操作无法撤销。",
       "delete": "删除",
       "cancel": "取消",
+      "album": "相册",
+      "download": "下载",
       "meta": {
-        "title": "我的媒体 - {siteName}",
-        "description": "查看和管理您的AI生成图像"
+        "title": "我的图片 - {siteName}",
+        "description": "查看和管理您的AI生成图片"
       }
     },
     "albums": {

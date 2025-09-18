@@ -830,25 +830,27 @@
     }
   },
   "user": {
-    "medias": {
+    "imagesPage": {
       "meta": {
-        "title": "Mes Médias - {siteName}",
-        "description": "Visualisez et gérez votre galerie de médias IA personnelle. Téléchargez, organisez et partagez votre contenu créatif."
+        "title": "Mes Images - {siteName}",
+        "description": "Visualisez et gérez votre galerie d'images IA personnelle. Téléchargez, organisez et partagez votre contenu créatif."
       },
-      "medias": "Médias",
-      "personalMediaGallery": "Votre galerie de médias personnelle",
-      "mediasCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {médias} one {média} other {médias}}",
+      "images": "Images",
+      "personalMediaGallery": "Votre galerie d'images personnelle",
+      "imagesCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {images} one {image} other {images}}",
       "generate": "Générer",
-      "generateMedia": "Générer des médias",
+      "generateMedia": "Générer une Image",
       "selectMany": "Sélectionner plusieurs",
-      "noMediaYet": "Pas encore de médias",
-      "startCreatingMedia": "Commencez à créer du contenu IA pour les voir ici !",
-      "loadingMoreMedia": "Chargement de plus de médias...",
-      "noMoreMediaToLoad": "Plus de médias à charger",
-      "confirmDeleteTitle": "Supprimer les Médias",
-      "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {count, plural, =1 {# élément média sélectionné} other {# éléments médias sélectionnés}} ? Cette action ne peut pas être annulée.",
+      "noImagesYet": "Pas encore d'images",
+      "startCreatingImages": "Commencez à créer des images IA pour les voir ici !",
+      "loadingMoreImages": "Chargement de plus d'images...",
+      "noMoreImagesToLoad": "Plus d'images à charger",
+      "confirmDeleteTitle": "Supprimer l'Image",
+      "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {count, plural, =1 {# image sélectionnée} other {# images sélectionnées}} ? Cette action ne peut pas être annulée.",
       "delete": "Supprimer",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "album": "Album",
+      "download": "Télécharger"
     },
     "albums": {
       "meta": {
