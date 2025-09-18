@@ -151,3 +151,5 @@
 [ ] Sort by popularity takes too long, revise GSI.
 
 [ ] The PornSpotCoin page on mobile is ugly.
+
+[ ] On mobile, I cannot edit lora strength in generate page.
