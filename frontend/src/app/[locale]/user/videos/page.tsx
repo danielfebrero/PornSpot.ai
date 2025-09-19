@@ -609,7 +609,7 @@ const UserVideosPage: React.FC = () => {
             {t("noVideosYet")}
           </h3>
           <p className="text-muted-foreground mb-6">
-            {t("startCreatingVideos")}
+            {t("startCreatingVideos")}{" "}
             {t.rich("convertHintDesktop", {
               btn: () => (
                 <button
