@@ -220,7 +220,9 @@ const UserLikesPage: React.FC = () => {
             .filter((like) => like.targetType === "media")
             .map((like) => like.target)
             .filter(
-              (item): item is Media => Boolean(item) && item?.type === "media"
+              (item): item is Media =>
+                Boolean(item) &&
+                (item?.type === "image" || item?.type === "video")
             )}
           emptyState={{
             icon: (

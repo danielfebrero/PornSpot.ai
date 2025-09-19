@@ -186,7 +186,8 @@ const UserBookmarksPage: React.FC = () => {
             showTags: false,
           }}
           mediaList={allBookmarkItems.filter(
-            (item): item is Media => item.type === "media"
+            (item): item is Media =>
+              item.type === "image" || item.type === "video"
           )}
           emptyState={{
             icon: (
