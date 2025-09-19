@@ -842,9 +842,9 @@
       "cancel": "取消",
       "album": "相册",
       "download": "下载",
-      "comingSoon": "10月1日即将推出",
-      "convertHintMobile": "要将图片转换为视频，请在任何图片上点击此按钮 {btn}。",
-      "convertHintDesktop": "要将图片转换为视频，请在任何图片上单击此按钮 {btn}。"
+      "comingSoon": "Coming in a few days for Pro and on Oct 1st for all users",
+      "convertHintMobile": "要将图片转换为视频，请在任何图片上点击此按钮 <btn></btn>。",
+      "convertHintDesktop": "要将图片转换为视频，请在任何图片上单击此按钮 <btn></btn>。"
     },
     "albums": {
       "myAlbums": "我的相册",

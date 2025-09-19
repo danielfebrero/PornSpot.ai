@@ -878,9 +878,9 @@
       "cancel": "Cancel",
       "album": "Album",
       "download": "Download",
-      "comingSoon": "Coming on Oct 1st",
-      "convertHintMobile": "To convert an image to video, tap this {btn} button on any image.",
-      "convertHintDesktop": "To convert an image to video, click this {btn} button on any image."
+      "comingSoon": "Coming in a few days for Pro and on Oct 1st for all users",
+      "convertHintMobile": "To convert an image to video, tap this <btn></btn> button on any image.",
+      "convertHintDesktop": "To convert an image to video, click this <btn></btn> button on any image."
     },
     "albums": {
       "meta": {
