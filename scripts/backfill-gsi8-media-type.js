@@ -195,7 +195,9 @@ async function main() {
         }
 
         console.log(
-          `📝 ${isDryRun ? "Would update" : "Updating"} media ${mediaId}: ${updates.join(", ")}`
+          `📝 ${
+            isDryRun ? "Would update" : "Updating"
+          } media ${mediaId}: ${updates.join(", ")}`
         );
 
         if (!isDryRun) {
