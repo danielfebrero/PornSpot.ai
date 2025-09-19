@@ -191,6 +191,27 @@ export function ContentCard({
 
   const isVideoMedia = isMedia && media ? isVideo(media) : false;
 
+  // Memoize composed thumbnail URLs to avoid new object references on each render
+  const composedMediaThumbnails = useMemo(
+    () =>
+      isMedia && media ? composeThumbnailUrls(media.thumbnailUrls) : undefined,
+    [isMedia, media]
+  );
+
+  const composedAlbumThumbnails = useMemo(
+    () =>
+      !isMedia && album ? composeThumbnailUrls(album.thumbnailUrls) : undefined,
+    [isMedia, album]
+  );
+
+  const composedAlbumContentPreview = useMemo(() => {
+    if (!album?.contentPreview) return undefined;
+    const mapped = album.contentPreview
+      .map((t) => composeThumbnailUrls(t))
+      .filter(Boolean) as ThumbnailUrls[] | undefined;
+    return mapped && mapped.length > 0 ? mapped : undefined;
+  }, [album?.contentPreview]);
+
   // Simple mobile actions timeout management
   useEffect(() => {
     if (!isMobileInterface || !showMobileActions) return;
@@ -704,9 +725,7 @@ export function ContentCard({
             ) : (
               <ResponsivePicture
                 thumbnailUrls={
-                  preferredThumbnailSize
-                    ? undefined
-                    : composeThumbnailUrls(media.thumbnailUrls)
+                  preferredThumbnailSize ? undefined : composedMediaThumbnails
                 }
                 fallbackUrl={composeMediaUrl(
                   preferredThumbnailSize
@@ -995,9 +1014,7 @@ export function ContentCard({
             ) : (
               <ResponsivePicture
                 thumbnailUrls={
-                  preferredThumbnailSize
-                    ? undefined
-                    : composeThumbnailUrls(album.thumbnailUrls)
+                  preferredThumbnailSize ? undefined : composedAlbumThumbnails
                 }
                 fallbackUrl={composeMediaUrl(
                   preferredThumbnailSize
@@ -1019,11 +1036,7 @@ export function ContentCard({
                 )}
                 loading="lazy"
                 // Carousel props
-                contentPreview={
-                  album.contentPreview?.map(
-                    composeThumbnailUrls
-                  ) as ThumbnailUrls[]
-                }
+                contentPreview={composedAlbumContentPreview}
                 enableCarousel={!!album.contentPreview}
                 isHovered={isHovered || isDropdownHovered}
                 showMobileActions={showMobileActions}

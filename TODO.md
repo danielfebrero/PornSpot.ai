@@ -159,3 +159,5 @@
 [ ] Divide PSC distribution in 6\*4h instead of 24h.
 
 [ ] In admin, after delete on select many, stay in select many mode.
+
+[ ] Possibility to optimize i2v prompt.

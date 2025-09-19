@@ -12,9 +12,8 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useMediaById } from "@/hooks/queries/useMediaQuery";
 import { Video, ArrowLeft, Play } from "lucide-react";
 import { isVideo } from "@/lib/utils";
-import { I2VSettings, Media } from "@/types";
+import { I2VSettings } from "@/types";
 import { generateApi } from "@/lib/api/generate";
-import { usePollI2VJob } from "@/hooks/queries/useGenerationQuery";
 import { useTranslations } from "next-intl";
 
 export function I2VPageContent() {
@@ -37,29 +36,8 @@ export function I2VPageContent() {
   } = useMediaById(mediaId || "", !!mediaId);
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
-  const [pollingEnabled, setPollingEnabled] = useState(false);
-  // Holds the generated video media once job completes
-  const [generatedMedia, setGeneratedMedia] = useState<Media | null>(null);
-  // Generation progress tracking
-  const [generationMeta, setGenerationMeta] = useState<{
-    eta: number; // estimated total seconds
-    start: number; // ms timestamp
-  } | null>(null);
-  const [progressPct, setProgressPct] = useState(0); // 0..1
-  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
 
-  // Interval to update progress based on ETA
-  useEffect(() => {
-    if (!generationMeta) return;
-    const id = setInterval(() => {
-      const elapsed = (Date.now() - generationMeta.start) / 1000;
-      const pct = Math.min(0.99, elapsed / generationMeta.eta); // cap at 99% until completion
-      setProgressPct(pct);
-      setRemainingSeconds(Math.max(0, Math.ceil(generationMeta.eta - elapsed)));
-    }, 500);
-    return () => clearInterval(id);
-  }, [generationMeta]);
+  // No progress tracking needed; we redirect after job submission
 
   // Available credits derived from user context
   const availableCredits = useMemo(() => {
@@ -131,41 +109,16 @@ export function I2VPageContent() {
         mediaId: media.id,
         isPublic: true,
       });
-      const { jobId, estimatedSeconds } = submitResp;
-      setCurrentJobId(jobId);
-      setGenerationMeta({ eta: estimatedSeconds, start: Date.now() });
-      setProgressPct(0);
-      setRemainingSeconds(estimatedSeconds);
-      // Enable polling after ETA (schedule timer)
-      setPollingEnabled(false);
-      window.setTimeout(() => {
-        setPollingEnabled(true);
-      }, estimatedSeconds * 1000);
+      // On successful job start, redirect to videos page
+      if (submitResp) {
+        router.push("/user/videos");
+      }
     } catch (err) {
       console.error("Generation failed:", err);
       alert("Failed to start video generation. Please try again.");
       setIsGenerating(false);
     }
   };
-
-  // Use poll hook once enabled
-  const { data: pollData } = usePollI2VJob(
-    currentJobId || undefined,
-    pollingEnabled
-  );
-
-  // React to poll completion
-  useEffect(() => {
-    if (!pollData) return;
-    if ((pollData as any).status === "COMPLETED" && (pollData as any).media) {
-      setGeneratedMedia((pollData as any).media as Media);
-      setProgressPct(1);
-      setGenerationMeta(null);
-      setRemainingSeconds(0);
-      setIsGenerating(false);
-      setPollingEnabled(false);
-    }
-  }, [pollData]);
 
   const canGenerate =
     media && availableCredits >= settings.videoLength && !isGenerating;
@@ -229,59 +182,7 @@ export function I2VPageContent() {
           </div>
         </div>
 
-        {/* Generated output or placeholder */}
-        {generatedMedia ? (
-          <div>
-            <h2 className="text-base font-semibold text-foreground mb-3 mt-6">
-              {t("titles.generatedVideo")}
-            </h2>
-            <div className="rounded-lg overflow-hidden bg-muted aspect-video">
-              <ContentCard
-                item={generatedMedia}
-                canLike={true}
-                canBookmark={true}
-                canFullscreen={true}
-                canAddToAlbum={true}
-                canRemoveFromAlbum={false}
-                canDownload={true}
-                canDelete={false}
-                canI2V={false}
-                showCounts={true}
-                showTags={true}
-                disableHoverEffects={false}
-                useAllAvailableSpace={true}
-                aspectRatio="auto"
-              />
-            </div>
-          </div>
-        ) : isGenerating && generationMeta ? (
-          <div>
-            <h2 className="text-base font-semibold text-foreground mb-3 mt-6">
-              {t("titles.generatingVideo")}
-            </h2>
-            <div className="rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-border p-4 aspect-video flex flex-col justify-between">
-              <div className="flex items-center gap-3">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500" />
-                <p className="text-sm text-muted-foreground flex-1 truncate">
-                  {t("status.processing")} {Math.round(progressPct * 100)}%
-                </p>
-              </div>
-              <div className="mt-4">
-                <div className="w-full h-2 rounded bg-muted overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all"
-                    style={{ width: `${Math.round(progressPct * 100)}%` }}
-                  />
-                </div>
-                {remainingSeconds !== null && remainingSeconds > 0 && (
-                  <p className="text-xs text-muted-foreground mt-2">
-                    {t("status.remainingTime", { seconds: remainingSeconds })}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : null}
+        {/* Progress card removed per simplification */}
 
         {/* Credits Section */}
         <CreditsDisplay
@@ -423,58 +324,7 @@ export function I2VPageContent() {
             </div>
           </div>
 
-          {generatedMedia ? (
-            <div>
-              <h2 className="text-lg font-semibold text-foreground mb-4 mt-2">
-                {t("titles.generatedVideo")}
-              </h2>
-              <div className="rounded-lg overflow-hidden bg-muted aspect-video">
-                <ContentCard
-                  item={generatedMedia}
-                  canLike={true}
-                  canBookmark={true}
-                  canFullscreen={true}
-                  canAddToAlbum={true}
-                  canRemoveFromAlbum={false}
-                  canDownload={true}
-                  canDelete={false}
-                  canI2V={false}
-                  showCounts={true}
-                  showTags={true}
-                  disableHoverEffects={false}
-                  useAllAvailableSpace={true}
-                  aspectRatio="auto"
-                />
-              </div>
-            </div>
-          ) : isGenerating && generationMeta ? (
-            <div>
-              <h2 className="text-lg font-semibold text-foreground mb-4 mt-2">
-                {t("titles.generatingVideo")}
-              </h2>
-              <div className="rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-border p-6 aspect-video flex flex-col justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-purple-500" />
-                  <p className="text-sm text-muted-foreground flex-1">
-                    {t("status.processing")} {Math.round(progressPct * 100)}%
-                  </p>
-                </div>
-                <div className="mt-6">
-                  <div className="w-full h-3 rounded bg-muted overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all"
-                      style={{ width: `${Math.round(progressPct * 100)}%` }}
-                    />
-                  </div>
-                  {remainingSeconds !== null && remainingSeconds > 0 && (
-                    <p className="text-xs text-muted-foreground mt-3">
-                      {t("status.remainingTime", { seconds: remainingSeconds })}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : null}
+          {/* Progress and generated preview removed per simplification */}
 
           {/* Credits Section */}
           <CreditsDisplay

@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ThumbnailUrls } from "../../types/index";
 import { useContainerDimensions } from "../../hooks/useContainerDimensions";
 import { composeMediaUrl } from "../../lib/urlUtils";
-import { is } from "zod/v4/locales";
-import { clear } from "console";
 
 interface ResponsivePictureProps {
   thumbnailUrls?: ThumbnailUrls;
@@ -382,8 +380,6 @@ export const ResponsivePicture: React.FC<ResponsivePictureProps> = ({
       className="w-full h-full"
     >
       <img
-        width={dimensions.width}
-        height={dimensions.height}
         src={defaultSrc}
         alt={alt}
         className={className}
