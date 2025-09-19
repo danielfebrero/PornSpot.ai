@@ -71,7 +71,9 @@ const UserMediasPage: React.FC = () => {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useUserMedia();
+  } = useUserMedia({
+    type: "image",
+  });
 
   // Hook for bulk prefetching interaction status
   const { prefetch } = usePrefetchInteractionStatus();
