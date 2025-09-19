@@ -45,6 +45,8 @@ export interface CreateMediaEntityOptions {
   // Optional thumbnail URLs (usually set by process-upload worker)
   thumbnailUrl?: string;
   thumbnailUrls?: import("@shared").ThumbnailUrls;
+
+  type: "image" | "video";
 }
 
 /**
@@ -91,6 +93,9 @@ export function createMediaEntity(
     GSI7PK: "CONTENT",
     GSI7SK: `${now}`,
 
+    GSI8PK: "MEDIA_BY_TYPE_AND_CREATOR",
+    GSI8SK: `${options.type}#${options.userId}#${now}#${options.mediaId}`,
+
     // Entity metadata
     EntityType: "Media" as const,
     id: options.mediaId,
@@ -101,6 +106,7 @@ export function createMediaEntity(
     mimeType: options.mimeType,
     size: options.size,
     url: options.url,
+    type: options.type,
 
     // Optional dimensions
     ...(options.width !== undefined && { width: options.width }),

@@ -12,15 +12,12 @@
  * - Returns upload details or success message.
  */
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { v4 as uuidv4 } from "uuid";
 import { DynamoDBService } from "@shared/utils/dynamodb";
-import { S3Service } from "@shared/utils/s3";
 import { ResponseUtil } from "@shared/utils/response";
 import { UploadMediaRequest, AddMediaToAlbumRequest } from "@shared";
 import { RevalidationService } from "@shared/utils/revalidation";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
-import { createMediaEntity } from "@shared/utils/media-entity";
 
 const handleAddMedia = async (
   event: APIGatewayProxyEvent,
@@ -159,78 +156,11 @@ const handleAddMedia = async (
         mediaId,
       });
     }
+
+    return ResponseUtil.badRequest(event, "Invalid request parameters");
+  } else {
+    return ResponseUtil.badRequest(event, "mediaId or mediaIds is required");
   }
-
-  // Upload operation: Create new media and add to album
-  const uploadRequest = request as UploadMediaRequest;
-
-  // Validate upload request using shared validation
-  const filename = ValidationUtil.validateRequiredString(
-    uploadRequest.filename,
-    "filename"
-  );
-  const mimeType = ValidationUtil.validateRequiredString(
-    uploadRequest.mimeType,
-    "mimeType"
-  );
-
-  // Album was already verified above, so we can proceed directly
-  // Generate presigned upload URL
-  const { uploadUrl, key } = await S3Service.generateMediaPresignedUploadUrl(
-    albumId,
-    filename,
-    mimeType
-  );
-
-  const mediaId = uuidv4();
-
-  // Create media record using shared utility
-  const mediaEntity = createMediaEntity({
-    mediaId,
-    userId,
-    filename: key,
-    originalFilename: filename,
-    mimeType: mimeType,
-    size: uploadRequest.size || 0,
-    url: S3Service.getRelativePath(key),
-    // Optional properties use defaults:
-    // - status defaults to "pending" (updated to 'uploaded' after successful upload)
-    // - createdByType defaults to "user"
-    // - interaction counts default to 0
-    // - thumbnails will be set by process-upload worker
-  });
-  console.log("Generated media relative path:", S3Service.getRelativePath(key));
-
-  // Create the media entity
-  await DynamoDBService.createMedia(mediaEntity);
-
-  // Increment user's totalGeneratedMedias metric
-  try {
-    await DynamoDBService.incrementUserProfileMetric(
-      userId,
-      "totalGeneratedMedias"
-    );
-    console.log(`📈 Incremented totalGeneratedMedias for user: ${userId}`);
-  } catch (error) {
-    console.warn(
-      `⚠️ Failed to increment totalGeneratedMedias for user ${userId}:`,
-      error
-    );
-  }
-
-  // Link media to album using new many-to-many relationship
-  await DynamoDBService.addMediaToAlbum(albumId, mediaId, userId);
-
-  const response = {
-    mediaId,
-    uploadUrl,
-    key,
-    expiresIn: 3600, // 1 hour
-  };
-
-  await RevalidationService.revalidateAlbum(albumId);
-
-  return ResponseUtil.success(event, response);
 };
 
 export const handler = LambdaHandlerUtil.withAuth(handleAddMedia, {

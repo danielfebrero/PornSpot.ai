@@ -358,6 +358,7 @@ async function createMediaEntitiesFirst(
       url: relativeUrl, // Use relative URL from S3 key
       metadata: generationMetadata,
       isPublic: queueEntry.parameters.isPublic,
+      type: "image",
       // Thumbnails will be set by process-upload worker
       // Status defaults to "pending" and will be updated by process-upload worker
       // Interaction counts default to 0

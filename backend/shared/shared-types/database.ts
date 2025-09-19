@@ -81,6 +81,8 @@ export interface MediaEntity extends BaseEntity {
   GSI6SK: number; // 0
   GSI7PK: string; // CONTENT
   GSI7SK: string; // {createdAt}
+  GSI8PK?: string; // MEDIA_BY_TYPE_AND_CREATOR
+  GSI8SK?: string; // {type}#{createdBy}#{createdAt}#{mediaId}
   EntityType: "Media";
   id: string;
   filename: string;
@@ -101,6 +103,7 @@ export interface MediaEntity extends BaseEntity {
   viewCount?: number;
   commentCount?: number;
   metadata?: Metadata;
+  type: "image" | "video";
   // User tracking fields
   createdBy?: string; // userId or adminId who uploaded this media
   createdByType?: CreatorType; // type of creator

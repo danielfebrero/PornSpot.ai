@@ -85,6 +85,10 @@ Resources:
           AttributeType: N
         - AttributeName: GSI7PK
           AttributeType: S
+        - AttributeName: GSI8PK
+          AttributeType: S
+        - AttributeName: GSI8SK
+          AttributeType: S
         - AttributeName: GSI7SK
           AttributeType: S
         - AttributeName: isPublic
@@ -150,6 +154,14 @@ Resources:
             - AttributeName: GSI7PK
               KeyType: HASH
             - AttributeName: GSI7SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI8
+          KeySchema:
+            - AttributeName: GSI8PK
+              KeyType: HASH
+            - AttributeName: GSI8SK
               KeyType: RANGE
           Projection:
             ProjectionType: ALL

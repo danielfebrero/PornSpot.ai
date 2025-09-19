@@ -1027,7 +1027,7 @@ export class DynamoDBService {
     limit: number = 50,
     lastEvaluatedKey?: Record<string, any>,
     publicOnly: boolean = false,
-    mimeTypePrefix?: string
+    type?: "image" | "video"
   ): Promise<{
     media: MediaEntity[];
     nextKey?: Record<string, any>;
@@ -1047,10 +1047,11 @@ export class DynamoDBService {
         ScanIndexForward: false, // newest first
       };
 
-      if (mimeTypePrefix) {
-        queryParams.FilterExpression = "begins_with(#mt, :mimePrefix)";
-        queryParams.ExpressionAttributeNames = { "#mt": "mimeType" };
-        queryParams.ExpressionAttributeValues[":mimePrefix"] = mimeTypePrefix;
+      // If type filter requested, add a filter on the entity's type field
+      if (type) {
+        queryParams.FilterExpression = "#t = :type";
+        queryParams.ExpressionAttributeNames = { "#t": "type" };
+        queryParams.ExpressionAttributeValues[":type"] = type;
       }
 
       if (lastEvaluatedKey) {
@@ -1064,8 +1065,34 @@ export class DynamoDBService {
         ...(result.LastEvaluatedKey && { nextKey: result.LastEvaluatedKey }),
       };
     } else {
-      // For all media (public + private), we need to query both GSI3 partitions
-      // For simplicity, we'll use GSI1 which contains all media by creator
+      // When including private media as well, prefer GSI8 if a type filter is provided
+      if (type) {
+        const queryParams: any = {
+          TableName: TABLE_NAME,
+          IndexName: "GSI8",
+          KeyConditionExpression:
+            "GSI8PK = :gsi8pk AND begins_with(GSI8SK, :gsi8sk)",
+          ExpressionAttributeValues: {
+            ":gsi8pk": "MEDIA_BY_TYPE_AND_CREATOR",
+            ":gsi8sk": `${type}#${userId}#`,
+          },
+          Limit: limit,
+          ScanIndexForward: false, // newest first
+        };
+
+        if (lastEvaluatedKey) {
+          queryParams.ExclusiveStartKey = lastEvaluatedKey;
+        }
+
+        const result = await docClient.send(new QueryCommand(queryParams));
+
+        return {
+          media: (result.Items as MediaEntity[]) || [],
+          ...(result.LastEvaluatedKey && { nextKey: result.LastEvaluatedKey }),
+        };
+      }
+
+      // Otherwise, use GSI1 which contains all media by creator
       const queryParams: any = {
         TableName: TABLE_NAME,
         IndexName: "GSI1",
@@ -1078,12 +1105,6 @@ export class DynamoDBService {
         Limit: limit,
         ScanIndexForward: false, // newest first
       };
-
-      if (mimeTypePrefix) {
-        queryParams.FilterExpression = "begins_with(#mt, :mimePrefix)";
-        queryParams.ExpressionAttributeNames = { "#mt": "mimeType" };
-        queryParams.ExpressionAttributeValues[":mimePrefix"] = mimeTypePrefix;
-      }
 
       if (lastEvaluatedKey) {
         queryParams.ExclusiveStartKey = lastEvaluatedKey;

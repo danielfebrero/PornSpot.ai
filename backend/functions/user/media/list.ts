@@ -79,10 +79,10 @@ const handleListUserMedia = async (
   );
 
   // Optional type filtering (image|video)
-  const typeParam = event.queryStringParameters?.["type"];
-  let mimeTypePrefix: string | undefined;
-  if (typeParam === "image") mimeTypePrefix = "image/";
-  else if (typeParam === "video") mimeTypePrefix = "video/";
+  const typeParam = event.queryStringParameters?.["type"] as
+    | "image"
+    | "video"
+    | undefined;
 
   // Get user's media (current user or target user)
   const { media, nextKey } = await DynamoDBService.getUserMedia(
@@ -90,7 +90,7 @@ const handleListUserMedia = async (
     limit,
     lastEvaluatedKey,
     publicOnly,
-    mimeTypePrefix
+    typeParam
   );
 
   // Convert MediaEntity to Media using shared helper

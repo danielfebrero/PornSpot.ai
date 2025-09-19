@@ -161,3 +161,5 @@
 [ ] In admin, after delete on select many, stay in select many mode.
 
 [ ] Possibility to optimize i2v prompt.
+
+[ ] Reconvert videos after i2v to ensure broad compatibility across navigators.

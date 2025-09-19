@@ -167,6 +167,7 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
     isPublic: job.request?.isPublic !== undefined ? job.request.isPublic : true,
     status: "uploaded",
     createdByType: "user",
+    type: "video",
     metadata: {
       isGenerated: true,
       generationId: jobId,
