@@ -225,7 +225,7 @@ export class DynamoDBService {
     const media: Media = {
       id: entity.id,
       filename: entity.filename,
-      type: "media",
+      type: entity.type,
       originalFilename: entity.originalFilename,
       mimeType: entity.mimeType,
       createdAt: entity.createdAt,

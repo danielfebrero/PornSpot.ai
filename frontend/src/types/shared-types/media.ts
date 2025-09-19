@@ -15,7 +15,7 @@ export interface Media {
   id: string;
   filename: string;
   originalFilename: string;
-  type: "media";
+  type: "image" | "video";
   mimeType: string;
   size?: number;
   width?: number;
