@@ -170,4 +170,4 @@
 
 [ ] Remove "related images" from media page if media is video.
 
-[ ] Generating a media should increment generated medias count.
+[x] Generating a media should increment generated medias count.

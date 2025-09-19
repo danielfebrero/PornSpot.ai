@@ -67,6 +67,11 @@ const handlePollI2VJob = async (
       return ResponseUtil.internalError(event, "Missing output result URL");
     }
     await finalizeCompletedJob(job, res.resultUrl);
+    await DynamoDBService.incrementUserProfileMetric(
+      auth.userId,
+      "totalGeneratedMedias",
+      1
+    );
     const mediaEntity = await DynamoDBService.findMediaById(jobId);
     if (!mediaEntity) {
       return ResponseUtil.internalError(

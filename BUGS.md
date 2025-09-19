@@ -160,9 +160,7 @@
 
 [ ] Videos page, when 1 video, load more videos in loop.
 
-[ ] On mobile, on I2V page, on click generate, it should show Progress card optimistically and auto scroll to it.
-
-[ ] On mobile, on I2V page, the source image blink when video is generating.
+[ ] On mobile, on I2V page, the source image blink when I change settings.
 
 [ ] On video page, when video is pass from incomplete to complete status, it disappear optimistically but do not reappear as ContentCard video.
 
