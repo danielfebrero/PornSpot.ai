@@ -113,7 +113,7 @@ export function useToggleLike() {
       albumId,
       isCurrentlyLiked,
     }: {
-      targetType: "album" | "media" | "comment";
+      targetType: "album" | "image" | "video" | "comment";
       targetId: string;
       albumId?: string;
       isCurrentlyLiked: boolean;
@@ -125,8 +125,8 @@ export function useToggleLike() {
         targetId,
       };
 
-      // Add albumId for media interactions only if provided
-      if (targetType === "media" && albumId) {
+      // Add albumId for image/video interactions only if provided
+      if ((targetType === "image" || targetType === "video") && albumId) {
         request.albumId = albumId;
       }
 
@@ -312,13 +312,16 @@ export function useToggleLike() {
         // Find the parent target (album/media) from allTargets
         const parentTarget = allTargets.find(
           (target) =>
-            target.targetType === "album" || target.targetType === "media"
+            target.targetType === "album" ||
+            target.targetType === "image" ||
+            target.targetType === "video"
         );
 
         if (
           parentTarget &&
           (parentTarget.targetType === "album" ||
-            parentTarget.targetType === "media")
+            parentTarget.targetType === "image" ||
+            parentTarget.targetType === "video")
         ) {
           queryClient.setQueryData(
             queryKeys.comments.byTarget(
@@ -398,13 +401,16 @@ export function useToggleLike() {
           if (context.targetType === "comment" && context.allTargets) {
             const parentTarget = context.allTargets.find(
               (target) =>
-                target.targetType === "album" || target.targetType === "media"
+                target.targetType === "album" ||
+                target.targetType === "image" ||
+                target.targetType === "video"
             );
 
             if (
               parentTarget &&
               (parentTarget.targetType === "album" ||
-                parentTarget.targetType === "media")
+                parentTarget.targetType === "image" ||
+                parentTarget.targetType === "video")
             ) {
               queryClient.setQueryData(
                 queryKeys.comments.byTarget(
@@ -496,7 +502,7 @@ export function useToggleBookmark() {
       albumId,
       isCurrentlyBookmarked,
     }: {
-      targetType: "album" | "media";
+      targetType: "album" | "image" | "video";
       targetId: string;
       albumId?: string;
       isCurrentlyBookmarked: boolean;
@@ -507,8 +513,8 @@ export function useToggleBookmark() {
         targetId,
       };
 
-      // Add albumId for media interactions only if provided
-      if (targetType === "media" && albumId) {
+      // Add albumId for image/video interactions only if provided
+      if ((targetType === "image" || targetType === "video") && albumId) {
         request.albumId = albumId;
       }
 

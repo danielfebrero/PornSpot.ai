@@ -73,7 +73,7 @@ const UserLikesPage: React.FC = () => {
   useEffect(() => {
     if (likes.length > 0) {
       const targets = likes.map((like: UserInteraction) => ({
-        targetType: like.targetType as "album" | "media",
+        targetType: like.targetType as "album" | "image" | "video",
         targetId: like.targetId,
       }));
       prefetch(targets).catch((error) => {
@@ -217,7 +217,10 @@ const UserLikesPage: React.FC = () => {
             showCounts: true,
           }}
           mediaList={likes
-            .filter((like) => like.targetType === "media")
+            .filter(
+              (like) =>
+                like.targetType === "image" || like.targetType === "video"
+            )
             .map((like) => like.target)
             .filter(
               (item): item is Media =>

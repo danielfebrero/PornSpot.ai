@@ -54,7 +54,7 @@ export function useViewCountsFromCache(targets: ViewCountTarget[]) {
 
 // Hook for fetching view count for a single target
 export function useViewCount(
-  targetType: "album" | "media",
+  targetType: "album" | "image" | "video",
   targetId: string,
   options: { enabled?: boolean } = {}
 ) {
@@ -147,7 +147,7 @@ export function useBulkViewCounts(
 export function useTrackView() {
   return useMutation({
     mutationFn: async (request: {
-      targetType: "album" | "media" | "profile";
+      targetType: "album" | "image" | "video" | "profile";
       targetId: string;
     }) => {
       return await interactionApi.trackView(request);
@@ -160,7 +160,7 @@ export function useTrackView() {
 
       // Cancel outgoing refetches for view count queries
       const targets = [
-        { targetType: targetType as "album" | "media", targetId },
+        { targetType: targetType as "album" | "image" | "video", targetId },
       ];
       await queryClient.cancelQueries({
         queryKey: queryKeys.content.viewCounts(targets),
@@ -245,7 +245,11 @@ export function useTrackView() {
       );
 
       // Also update view count in detail pages and lists
-      updateViewCountInCaches(targetType as "album" | "media", targetId, 1);
+      updateViewCountInCaches(
+        targetType as "album" | "image" | "video",
+        targetId,
+        1
+      );
 
       return { targetType, targetId, previousData };
     },
@@ -257,7 +261,7 @@ export function useTrackView() {
       if (context && variables.targetType !== "profile") {
         const targets = [
           {
-            targetType: variables.targetType as "album" | "media",
+            targetType: variables.targetType as "album" | "image" | "video",
             targetId: context.targetId,
           },
         ];
@@ -270,7 +274,7 @@ export function useTrackView() {
         } else {
           // Fallback: decrement the optimistic increment
           updateViewCountInCaches(
-            variables.targetType as "album" | "media",
+            variables.targetType as "album" | "image" | "video",
             context.targetId,
             -1
           );
@@ -299,11 +303,11 @@ export function useTrackView() {
 
 // Helper function to update view counts in various caches
 function updateViewCountInCaches(
-  targetType: "album" | "media",
+  targetType: "album" | "image" | "video",
   targetId: string,
   increment: number
 ) {
-  // Update in album/media detail pages
+  // Update in album/image/video detail pages
   const detailQueryKey =
     targetType === "album"
       ? queryKeys.albums.detail(targetId)

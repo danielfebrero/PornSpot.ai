@@ -65,9 +65,9 @@ export type EntityType =
 
 export type CreatorType = "user" | "admin";
 
-export type TargetType = "album" | "media" | "comment";
+export type TargetType = "album" | "image" | "video" | "comment";
 
-export type CommentTargetType = "album" | "media";
+export type CommentTargetType = "album" | "image" | "video";
 
 export type InteractionType = "like" | "bookmark";
 
@@ -103,12 +103,12 @@ export interface Metadata {
 
 // View count types for content analytics
 export interface ViewCountTarget {
-  targetType: "album" | "media";
+  targetType: "album" | "image" | "video";
   targetId: string;
 }
 
 export interface ViewCountItem {
-  targetType: "album" | "media";
+  targetType: "album" | "image" | "video";
   targetId: string;
   viewCount: number;
 }
@@ -119,6 +119,6 @@ export interface ViewCountResponse {
 
 // View tracking types (includes profile views)
 export interface ViewTrackingRequest {
-  targetType: "album" | "media" | "profile";
+  targetType: "album" | "image" | "video" | "profile";
   targetId: string;
 }

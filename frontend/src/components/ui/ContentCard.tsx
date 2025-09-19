@@ -185,7 +185,7 @@ export function ContentCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const dropdownButtonRef = useRef<HTMLButtonElement>(null);
 
-  const isMedia = item.type === "media";
+  const isMedia = item.type === "image" || item.type === "video";
   const media = isMedia ? (item as Media) : null;
   const album = !isMedia ? (item as Album) : null;
 

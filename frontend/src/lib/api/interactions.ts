@@ -92,12 +92,12 @@ export const interactionApi = {
   // Get user interaction status for multiple targets (optimized replacement for getCounts)
   getInteractionStatus: async (
     targets: Array<{
-      targetType: "album" | "media" | "comment";
+      targetType: "album" | "image" | "video" | "comment";
       targetId: string;
     }>
   ): Promise<{
     statuses: Array<{
-      targetType: "album" | "media" | "comment";
+      targetType: "album" | "image" | "video" | "comment";
       targetId: string;
       userLiked: boolean;
       userBookmarked: boolean;
@@ -107,7 +107,7 @@ export const interactionApi = {
   }> => {
     const response = await ApiUtil.post<{
       statuses: Array<{
-        targetType: "album" | "media" | "comment";
+        targetType: "album" | "image" | "video" | "comment";
         targetId: string;
         userLiked: boolean;
         userBookmarked: boolean;

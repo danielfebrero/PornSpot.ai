@@ -103,12 +103,12 @@ export interface Metadata {
 
 // View count types for content analytics
 export interface ViewCountTarget {
-  targetType: "album" | "media";
+  targetType: "album" | "image" | "video";
   targetId: string;
 }
 
 export interface ViewCountItem {
-  targetType: "album" | "media";
+  targetType: "album" | "image" | "video";
   targetId: string;
   viewCount: number;
 }
@@ -119,6 +119,6 @@ export interface ViewCountResponse {
 
 // View tracking types (includes profile views)
 export interface ViewTrackingRequest {
-  targetType: "album" | "media" | "profile";
+  targetType: "album" | "image" | "video" | "profile";
   targetId: string;
 }

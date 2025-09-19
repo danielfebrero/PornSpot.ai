@@ -13,10 +13,10 @@ import type { UserInteraction } from "@/types/shared-types";
 
 // Frontend-specific interaction request (with albumId and action for frontend usage)
 export interface InteractionRequest {
-  targetType: "album" | "media" | "comment";
+  targetType: "album" | "image" | "video" | "comment";
   targetId: string;
   action: "add" | "remove";
-  albumId?: string; // Required for media interactions
+  albumId?: string; // Required for image/video interactions
 }
 
 // Comment type with target enrichment for frontend display

@@ -57,7 +57,7 @@ const UserBookmarksPage: React.FC = () => {
   useEffect(() => {
     if (bookmarks.length > 0) {
       const targets = bookmarks.map((bookmark: UserInteraction) => ({
-        targetType: bookmark.targetType as "album" | "media",
+        targetType: bookmark.targetType as "album" | "image" | "video",
         targetId: bookmark.targetId,
       }));
       prefetch(targets).catch((error) => {

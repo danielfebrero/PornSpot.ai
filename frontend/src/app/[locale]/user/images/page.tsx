@@ -266,7 +266,7 @@ const UserMediasPage: React.FC = () => {
   useEffect(() => {
     if (medias.length > 0) {
       const targets = medias.map((media) => ({
-        targetType: "media" as const,
+        targetType: media.type,
         targetId: media.id,
       }));
       prefetch(targets).catch((error) => {

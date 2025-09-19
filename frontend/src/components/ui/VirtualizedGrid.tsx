@@ -342,13 +342,19 @@ export function VirtualizedGrid<T extends GridItem>({
             >
               <ContentCard
                 item={item}
-                aspectRatio={dynamicType === "media" ? "auto" : "square"}
+                aspectRatio={
+                  dynamicType === "image" || dynamicType === "video"
+                    ? "auto"
+                    : "square"
+                }
                 {...restProps}
                 customActions={resolvedCustomActions}
                 mediaList={
-                  dynamicType === "media"
+                  dynamicType === "image" || dynamicType === "video"
                     ? mediaList ||
-                      (items.filter((item) => item.type === "media") as Media[])
+                      (items.filter(
+                        (item) => item.type === "image" || item.type === "video"
+                      ) as Media[])
                     : undefined
                 }
                 currentIndex={row.startIndex}
@@ -390,10 +396,11 @@ export function VirtualizedGrid<T extends GridItem>({
                   {...restProps}
                   customActions={resolvedCustomActions}
                   mediaList={
-                    dynamicType === "media"
+                    dynamicType === "image" || dynamicType === "video"
                       ? mediaList ||
                         (items.filter(
-                          (item) => item.type === "media"
+                          (item) =>
+                            item.type === "image" || item.type === "video"
                         ) as Media[])
                       : undefined
                   }

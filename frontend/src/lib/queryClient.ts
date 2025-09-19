@@ -100,7 +100,7 @@ export const queryKeys = {
       }) => ["user", "interactions", "comments", params] as const,
       status: (
         targets: Array<{
-          targetType: "album" | "media" | "comment";
+          targetType: "album" | "image" | "video" | "comment";
           targetId: string;
         }>
       ) => ["user", "interactions", "status", targets] as const,
@@ -174,7 +174,7 @@ export const queryKeys = {
     all: () => ["content"] as const,
     viewCounts: (
       targets: Array<{
-        targetType: "album" | "media";
+        targetType: "album" | "image" | "video";
         targetId: string;
       }>
     ) => ["content", "viewCounts", targets] as const,
@@ -227,7 +227,7 @@ export const queryKeys = {
   // Comments
   comments: {
     all: () => ["comments"] as const,
-    byTarget: (targetType: "album" | "media", targetId: string) =>
+    byTarget: (targetType: "album" | "image" | "video", targetId: string) =>
       ["comments", targetType, targetId] as const,
   },
 
@@ -306,7 +306,7 @@ export const invalidateQueries = {
     }),
 
   // Invalidate comments for a target
-  comments: (targetType: "album" | "media", targetId: string) =>
+  comments: (targetType: "album" | "image" | "video", targetId: string) =>
     queryClient.invalidateQueries({
       queryKey: queryKeys.comments.byTarget(targetType, targetId),
     }),
@@ -324,7 +324,7 @@ export const invalidateQueries = {
 export const updateCache = {
   // Update user interaction status optimistically
   userInteractionStatus: (
-    targetType: "album" | "media" | "comment",
+    targetType: "album" | "image" | "video" | "comment",
     targetId: string,
     updates: { userLiked?: boolean; userBookmarked?: boolean }
   ) => {
@@ -410,7 +410,7 @@ export const updateCache = {
 
   // Update interaction counts optimistically (for detail pages and album lists)
   interactionCounts: (
-    targetType: "album" | "media" | "comment",
+    targetType: "album" | "image" | "video" | "comment",
     targetId: string,
     type: "like" | "bookmark",
     increment: number
