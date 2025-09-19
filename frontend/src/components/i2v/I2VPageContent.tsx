@@ -15,6 +15,7 @@ import { isVideo } from "@/lib/utils";
 import { I2VSettings } from "@/types";
 import { generateApi } from "@/lib/api/generate";
 import { useTranslations } from "next-intl";
+import { usePermissions } from "@/contexts/PermissionsContext";
 
 export function I2VPageContent() {
   const searchParams = useSearchParams();
@@ -22,6 +23,7 @@ export function I2VPageContent() {
   const { user, spendI2VSeconds } = useUserContext();
   const { redirectToLogin } = useAuthRedirect();
   const t = useTranslations("i2v.pageContent");
+  const { canCreatePrivateContent } = usePermissions();
 
   const mediaId = searchParams.get("mediaId");
 
@@ -56,6 +58,7 @@ export function I2VPageContent() {
     inferenceSteps: 30,
     cfgScale: 5.0,
     optimizePrompt: true,
+    isPublic: true,
   });
 
   // Mobile detection
@@ -107,7 +110,8 @@ export function I2VPageContent() {
       const submitResp = await generateApi.submitI2VJob({
         ...settings,
         mediaId: media.id,
-        isPublic: true,
+        // Private output is reserved for Pro plans only
+        isPublic: canCreatePrivateContent() ? settings.isPublic : true,
       });
       // On successful job start, redirect to videos page
       if (submitResp) {

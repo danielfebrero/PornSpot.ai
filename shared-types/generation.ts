@@ -82,10 +82,10 @@ export interface I2VSettings {
   inferenceSteps: number; // Range 20 to 40
   cfgScale: number; // Range 1 to 10
   optimizePrompt: boolean;
+  isPublic: boolean;
 }
 
 export interface I2VSubmitJobRequest extends I2VSettings {
-  isPublic?: boolean;
   mediaId: string;
 }
 

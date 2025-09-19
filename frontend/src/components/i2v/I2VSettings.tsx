@@ -6,13 +6,22 @@ import { Slider } from "@/components/ui/Slider";
 import { Label } from "@/components/ui/Label";
 // Removed Select for video length; replaced by range slider
 import { Textarea } from "@/components/ui/Textarea";
-import { Settings, ChevronDown, ChevronRight } from "lucide-react";
+import {
+  Settings,
+  ChevronDown,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  Crown,
+} from "lucide-react";
 import { I2VSettings } from "@/types";
 import { useTranslations } from "next-intl";
+import { Switch } from "@/components/ui/Switch";
+import { usePermissions } from "@/contexts/PermissionsContext";
 
 interface I2VSettingsProps {
   settings: I2VSettings;
-  onSettingsChange: (newSettings: I2VSettings) => void;
+  onSettingsChange: (settings: I2VSettings) => void;
 }
 
 export function I2VSettingsComponent({
@@ -21,6 +30,8 @@ export function I2VSettingsComponent({
 }: I2VSettingsProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const t = useTranslations("i2v.settings");
+  const { canCreatePrivateContent } = usePermissions();
+  const canMakePrivate = canCreatePrivateContent();
 
   const updateSetting = <K extends keyof I2VSettings>(
     key: K,
@@ -87,6 +98,41 @@ export function I2VSettingsComponent({
         {/* Advanced Settings */}
         {showAdvanced && (
           <div className="space-y-4">
+            {/* Visibility */}
+            <div>
+              <Label htmlFor="visibility" className="text-sm font-medium">
+                Visibility
+              </Label>
+              <div className="mt-2 flex items-center justify-between rounded-lg border bg-card p-3">
+                <div className="flex items-center gap-2">
+                  {settings.isPublic ? (
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  )}
+                  <span className="text-sm">
+                    {settings.isPublic ? "Public" : "Private"}
+                  </span>
+                  {!canMakePrivate && !settings.isPublic && (
+                    <Crown className="h-3 w-3 text-amber-500" />
+                  )}
+                </div>
+                <Switch
+                  checked={!settings.isPublic}
+                  onCheckedChange={(checked) =>
+                    onSettingsChange({ ...settings, isPublic: !checked })
+                  }
+                  // Disable ability to set private when plan doesn't allow it
+                  disabled={!canMakePrivate}
+                />
+              </div>
+              {!canMakePrivate && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Private videos are a Pro feature
+                </p>
+              )}
+            </div>
+
             {/* Prompt */}
             <div>
               <Label htmlFor="prompt" className="text-sm font-medium">
