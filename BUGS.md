@@ -155,3 +155,15 @@
 [ ] On mobile, I cannot drag lora strength in generate page.
 
 [ ] The user PornSpotCoin Transactions page loads ALL transactions instead of paginating.
+
+[ ] On videos page, incomplete video progression do not progress, I have to re render the page to see updated progress.
+
+[ ] Videos page, when 1 video, load more videos in loop.
+
+[ ] On mobile, on I2V page, on click generate, it should show Progress card optimistically and auto scroll to it.
+
+[ ] On mobile, on I2V page, the source image blink when video is generating.
+
+[ ] On video page, when video is pass from incomplete to complete status, it disappear optimistically but do not reappear as ContentCard video.
+
+[ ] On images page, the video appear but shouldn't.
