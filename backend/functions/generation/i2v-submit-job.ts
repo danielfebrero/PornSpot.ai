@@ -41,7 +41,7 @@ const handleSubmitI2VJob = async (
     body.mediaId,
     "mediaId"
   );
-  const prompt = ValidationUtil.validateRequiredString(body.prompt, "prompt");
+  const prompt = body.prompt ?? "";
   const negativePrompt = body.negativePrompt ?? "";
   const videoLength = body.videoLength as I2VSettings["videoLength"];
   const flowShift = body.flowShift;
@@ -99,6 +99,9 @@ const handleSubmitI2VJob = async (
     );
   }
 
+  const finalPrompt =
+    prompt.trim() === "" ? media.metadata?.["prompt"] : prompt;
+
   // Build full CDN URL (prepend as required)
   const sourceImageUrl = media.url.startsWith("http")
     ? media.url
@@ -139,7 +142,7 @@ const handleSubmitI2VJob = async (
   const outHeight = Math.max(1, Math.floor(heightNum * scale));
 
   const runInput = {
-    prompt,
+    prompt: finalPrompt,
     image: sourceImageUrl,
     num_inference_steps: inferenceSteps,
     guidance: cfgScale,
