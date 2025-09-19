@@ -520,39 +520,23 @@ export function GenerateClient() {
                     </div>
 
                     {strength.mode === "manual" && (
-                      <div
-                        className={cn(
-                          "space-y-1",
-                          // Give slider more breathing room and a bigger touch target on mobile/tablet
-                          deviceType !== "desktop" && "pt-2"
-                        )}
-                      >
+                      <div className={cn("space-y-1")}>
                         <div className={cn("min-h-11 flex items-center")}>
                           <Slider
                             aria-label={`LoRA strength: ${lora.name}`}
                             value={[strength.value]}
                             onValueChange={(values) => {
-                              const pos = loraListRef.current?.scrollTop;
                               updateLoraStrength(lora.id, "manual", values[0]);
-                              // restore scroll after re-render
-                              setTimeout(() => {
-                                if (
-                                  loraListRef.current &&
-                                  typeof pos === "number"
-                                )
-                                  loraListRef.current.scrollTop = pos;
-                              }, 0);
                             }}
                             min={0}
                             max={1.5}
                             step={0.05}
-                            // Increase clickable area and prefer horizontal pan on touch devices
                             className={cn("w-full")}
                           />
                         </div>
                         <div
                           className={cn(
-                            "flex justify-between text-muted-foreground"
+                            "flex justify-between text-xs text-muted-foreground"
                           )}
                         >
                           <span>0.0</span>
