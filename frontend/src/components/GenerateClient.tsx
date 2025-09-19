@@ -527,13 +527,7 @@ export function GenerateClient() {
                           deviceType !== "desktop" && "pt-2"
                         )}
                       >
-                        <div
-                          className={cn(
-                            // Ensure a minimum height for comfortable touch interaction (≈44px)
-                            "min-h-11 flex items-center",
-                            deviceType !== "desktop" ? "px-1" : ""
-                          )}
-                        >
+                        <div className={cn("min-h-11 flex items-center")}>
                           <Slider
                             aria-label={`LoRA strength: ${lora.name}`}
                             value={[strength.value]}
@@ -553,16 +547,12 @@ export function GenerateClient() {
                             max={1.5}
                             step={0.05}
                             // Increase clickable area and prefer horizontal pan on touch devices
-                            className={cn(
-                              "w-full",
-                              deviceType !== "desktop" && "h-10 touch-pan-x"
-                            )}
+                            className={cn("w-full")}
                           />
                         </div>
                         <div
                           className={cn(
-                            "flex justify-between text-muted-foreground",
-                            deviceType !== "desktop" ? "text-sm" : "text-xs"
+                            "flex justify-between text-muted-foreground"
                           )}
                         >
                           <span>0.0</span>
