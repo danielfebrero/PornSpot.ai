@@ -533,12 +533,6 @@ export function GenerateClient() {
                             "min-h-11 flex items-center",
                             deviceType !== "desktop" ? "px-1" : ""
                           )}
-                          onTouchStart={(e: React.TouchEvent<HTMLDivElement>) =>
-                            e.stopPropagation()
-                          }
-                          onTouchMove={(e: React.TouchEvent<HTMLDivElement>) =>
-                            e.stopPropagation()
-                          }
                         >
                           <Slider
                             aria-label={`LoRA strength: ${lora.name}`}
