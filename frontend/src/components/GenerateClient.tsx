@@ -520,27 +520,57 @@ export function GenerateClient() {
                     </div>
 
                     {strength.mode === "manual" && (
-                      <div className="space-y-1">
-                        <Slider
-                          value={[strength.value]}
-                          onValueChange={(values) => {
-                            const pos = loraListRef.current?.scrollTop;
-                            updateLoraStrength(lora.id, "manual", values[0]);
-                            // restore scroll after re-render
-                            setTimeout(() => {
-                              if (
-                                loraListRef.current &&
-                                typeof pos === "number"
-                              )
-                                loraListRef.current.scrollTop = pos;
-                            }, 0);
-                          }}
-                          min={0}
-                          max={1.5}
-                          step={0.05}
-                          className="w-full"
-                        />
-                        <div className="flex justify-between text-xs text-muted-foreground">
+                      <div
+                        className={cn(
+                          "space-y-1",
+                          // Give slider more breathing room and a bigger touch target on mobile/tablet
+                          deviceType !== "desktop" && "pt-2"
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            // Ensure a minimum height for comfortable touch interaction (≈44px)
+                            "min-h-11 flex items-center",
+                            deviceType !== "desktop" ? "px-1" : ""
+                          )}
+                          onTouchStart={(e: React.TouchEvent<HTMLDivElement>) =>
+                            e.stopPropagation()
+                          }
+                          onTouchMove={(e: React.TouchEvent<HTMLDivElement>) =>
+                            e.stopPropagation()
+                          }
+                        >
+                          <Slider
+                            aria-label={`LoRA strength: ${lora.name}`}
+                            value={[strength.value]}
+                            onValueChange={(values) => {
+                              const pos = loraListRef.current?.scrollTop;
+                              updateLoraStrength(lora.id, "manual", values[0]);
+                              // restore scroll after re-render
+                              setTimeout(() => {
+                                if (
+                                  loraListRef.current &&
+                                  typeof pos === "number"
+                                )
+                                  loraListRef.current.scrollTop = pos;
+                              }, 0);
+                            }}
+                            min={0}
+                            max={1.5}
+                            step={0.05}
+                            // Increase clickable area and prefer horizontal pan on touch devices
+                            className={cn(
+                              "w-full",
+                              deviceType !== "desktop" && "h-10 touch-pan-x"
+                            )}
+                          />
+                        </div>
+                        <div
+                          className={cn(
+                            "flex justify-between text-muted-foreground",
+                            deviceType !== "desktop" ? "text-sm" : "text-xs"
+                          )}
+                        >
                           <span>0.0</span>
                           <span className="font-medium">
                             {strength.value.toFixed(2)}

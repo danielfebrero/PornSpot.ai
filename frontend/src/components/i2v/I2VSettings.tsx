@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { Slider } from "@/components/ui/Slider";
 import { Label } from "@/components/ui/Label";
 // Removed Select for video length; replaced by range slider
 import { Textarea } from "@/components/ui/Textarea";
@@ -50,20 +51,15 @@ export function I2VSettingsComponent({
             <span>{t("videoLength")}</span>
             <span className="font-semibold">{settings.videoLength}s</span>
           </Label>
-          <input
-            id="videoLength"
-            type="range"
+          <Slider
+            value={[settings.videoLength]}
+            onValueChange={(v) =>
+              updateSetting("videoLength", v[0] as 5 | 10 | 15 | 20 | 25 | 30)
+            }
             min={5}
             max={30}
             step={5}
-            value={settings.videoLength}
-            onChange={(e) =>
-              updateSetting(
-                "videoLength",
-                parseInt(e.target.value) as 5 | 10 | 15 | 20 | 25 | 30
-              )
-            }
-            className="mt-2 w-full accent-primary"
+            className="mt-2 w-full"
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
             {[5, 10, 15, 20, 25, 30].map((v) => (
@@ -143,17 +139,13 @@ export function I2VSettingsComponent({
               <Label htmlFor="flowShift" className="text-sm font-medium">
                 {t("advanced.flowShift")} {settings.flowShift}
               </Label>
-              <input
-                id="flowShift"
-                type="range"
-                min="1"
-                max="10"
-                step="0.1"
-                value={settings.flowShift}
-                onChange={(e) =>
-                  updateSetting("flowShift", parseFloat(e.target.value))
-                }
-                className="mt-1 w-full accent-primary"
+              <Slider
+                value={[settings.flowShift]}
+                onValueChange={(v) => updateSetting("flowShift", v[0])}
+                min={1}
+                max={10}
+                step={0.1}
+                className="mt-1 w-full"
               />
               <div className="flex justify-between text-xs text-muted-foreground mt-1">
                 <span>1</span>
@@ -166,17 +158,13 @@ export function I2VSettingsComponent({
               <Label htmlFor="inferenceSteps" className="text-sm font-medium">
                 {t("advanced.inferenceSteps")} {settings.inferenceSteps}
               </Label>
-              <input
-                id="inferenceSteps"
-                type="range"
-                min="20"
-                max="40"
-                step="1"
-                value={settings.inferenceSteps}
-                onChange={(e) =>
-                  updateSetting("inferenceSteps", parseInt(e.target.value))
-                }
-                className="mt-1 w-full accent-primary"
+              <Slider
+                value={[settings.inferenceSteps]}
+                onValueChange={(v) => updateSetting("inferenceSteps", v[0])}
+                min={20}
+                max={40}
+                step={1}
+                className="mt-1 w-full"
               />
               <div className="flex justify-between text-xs text-muted-foreground mt-1">
                 <span>20</span>
@@ -189,17 +177,13 @@ export function I2VSettingsComponent({
               <Label htmlFor="cfgScale" className="text-sm font-medium">
                 {t("advanced.cfgScale")} {settings.cfgScale}
               </Label>
-              <input
-                id="cfgScale"
-                type="range"
-                min="1"
-                max="10"
-                step="0.1"
-                value={settings.cfgScale}
-                onChange={(e) =>
-                  updateSetting("cfgScale", parseFloat(e.target.value))
-                }
-                className="mt-1 w-full accent-primary"
+              <Slider
+                value={[settings.cfgScale]}
+                onValueChange={(v) => updateSetting("cfgScale", v[0])}
+                min={1}
+                max={10}
+                step={0.1}
+                className="mt-1 w-full"
               />
               <div className="flex justify-between text-xs text-muted-foreground mt-1">
                 <span>1</span>
