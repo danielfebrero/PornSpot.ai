@@ -100,7 +100,7 @@ const handleSubmitI2VJob = async (
   }
 
   const finalPrompt =
-    prompt.trim() === "" ? media.metadata?.["prompt"] : prompt;
+    prompt.trim() === "" ? (media.metadata?.["prompt"] as string) : prompt;
 
   // Build full CDN URL (prepend as required)
   const sourceImageUrl = media.url.startsWith("http")
@@ -232,7 +232,7 @@ const handleSubmitI2VJob = async (
     mediaId,
     request: {
       videoLength,
-      prompt,
+      prompt: finalPrompt,
       negativePrompt,
       seed: String(body.seed),
       flowShift,
@@ -240,6 +240,8 @@ const handleSubmitI2VJob = async (
       cfgScale,
       optimizePrompt,
       isPublic,
+      width: outWidth,
+      height: outHeight,
     },
     status,
     submittedAt: now,

@@ -161,9 +161,14 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
   const mediaId = jobId;
   const relativeUrl = `/${saved.key}`;
   const sourceMedia = await DynamoDBService.getMedia(job.mediaId);
-  const metaWidth = (sourceMedia?.metadata as any)?.width ?? sourceMedia?.width;
+  const metaWidth =
+    job.request?.width ??
+    (sourceMedia?.metadata as any)?.width ??
+    sourceMedia?.width;
   const metaHeight =
-    (sourceMedia?.metadata as any)?.height ?? sourceMedia?.height;
+    job.request?.height ??
+    (sourceMedia?.metadata as any)?.height ??
+    sourceMedia?.height;
 
   const metadata = createGenerationMetadata({
     prompt: job.request?.prompt,

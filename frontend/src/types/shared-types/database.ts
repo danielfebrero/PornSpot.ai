@@ -434,6 +434,8 @@ export interface I2VJobEntity extends BaseEntity {
     cfgScale: number; // 1-10
     optimizePrompt: boolean;
     isPublic?: boolean;
+    width: number;
+    height: number;
   };
   // Submission and status
   status: "IN_QUEUE" | "IN_PROGRESS" | "COMPLETED" | "FAILED" | string; // store Runpod-like statuses
