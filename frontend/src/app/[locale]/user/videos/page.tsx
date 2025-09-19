@@ -444,21 +444,6 @@ const UserVideosPage: React.FC = () => {
                     <p className="text-sm text-muted-foreground">
                       {t("personalVideoGallery")}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                      {t.rich("convertHintMobile", {
-                        btn: () => (
-                          <button
-                            type="button"
-                            disabled
-                            className="p-2.5 sm:p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white transition-all shadow-lg hover:shadow-xl hover:scale-110 ring-2 ring-white/20 pointer-events-none"
-                            aria-label="Convert to video"
-                            aria-hidden="true"
-                          >
-                            <VideoIcon className="h-4 w-4 sm:h-4 sm:w-4" />
-                          </button>
-                        ),
-                      })}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -508,21 +493,6 @@ const UserVideosPage: React.FC = () => {
                   </h1>
                   <p className="text-muted-foreground">
                     {t("personalVideoGallery")}
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
-                    {t.rich("convertHintDesktop", {
-                      btn: () => (
-                        <button
-                          type="button"
-                          disabled
-                          className="p-2.5 sm:p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white transition-all shadow-lg hover:shadow-xl hover:scale-110 ring-2 ring-white/20 pointer-events-none"
-                          aria-label="Convert to video"
-                          aria-hidden="true"
-                        >
-                          <VideoIcon className="h-4 w-4 sm:h-4 sm:w-4" />
-                        </button>
-                      ),
-                    })}
                   </p>
                 </div>
                 <span className="bg-admin-accent/20 text-admin-accent text-sm font-semibold px-3 py-1.5 rounded-full">
@@ -626,14 +596,6 @@ const UserVideosPage: React.FC = () => {
             ),
             title: t("noVideosYet"),
             description: t("startCreatingVideos"),
-            action: (
-              <LocaleLink href="/generate">
-                <Button className="flex items-center space-x-2">
-                  <Plus className="h-4 w-4" />
-                  <span>{t("generateMedia")}</span>
-                </Button>
-              </LocaleLink>
-            ),
           }}
           loadingState={{
             loadingText: t("loadingMoreVideos"),
@@ -648,15 +610,20 @@ const UserVideosPage: React.FC = () => {
           </h3>
           <p className="text-muted-foreground mb-6">
             {t("startCreatingVideos")}
+            {t.rich("convertHintDesktop", {
+              btn: () => (
+                <button
+                  type="button"
+                  disabled
+                  className="p-2.5 sm:p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white transition-all shadow-lg hover:shadow-xl hover:scale-110 ring-2 ring-white/20 pointer-events-none"
+                  aria-label="Convert to video"
+                  aria-hidden="true"
+                >
+                  <VideoIcon className="h-4 w-4 sm:h-4 sm:w-4" />
+                </button>
+              ),
+            })}
           </p>
-          <div className="flex justify-center space-x-4">
-            <LocaleLink href="/generate">
-              <Button className="flex items-center space-x-2">
-                <Plus className="h-4 w-4" />
-                <span>{t("generateMedia")}</span>
-              </Button>
-            </LocaleLink>
-          </div>
         </div>
       )}
 
