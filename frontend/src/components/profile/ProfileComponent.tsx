@@ -1222,7 +1222,8 @@ export default function ProfileComponent({
                         <LocaleLink
                           key={comment.id}
                           href={
-                            comment.targetType === "media"
+                            comment.targetType === "image" ||
+                            comment.targetType === "video"
                               ? `/media/${comment.targetId}`
                               : `/albums/${comment.targetId}`
                           }

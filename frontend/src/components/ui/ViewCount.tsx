@@ -4,7 +4,7 @@ import { useViewCountsFromCache } from "@/hooks/queries/useViewCountsQuery";
 import { useEffect, useState } from "react";
 
 interface ViewCountProps {
-  targetType: "album" | "media";
+  targetType: "album" | "image" | "video";
   targetId: string;
   fallbackCount?: number;
   className?: string;

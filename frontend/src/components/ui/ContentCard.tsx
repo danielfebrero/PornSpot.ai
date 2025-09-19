@@ -947,7 +947,7 @@ export function ContentCard({
                         )}
                       >
                         <BookmarkButton
-                          targetType="media"
+                          targetType={media.type}
                           targetId={media.id}
                           size="sm"
                           className="text-white hover:text-blue-400 transition-colors duration-200"
@@ -970,7 +970,7 @@ export function ContentCard({
                         )}
                       >
                         <LikeButton
-                          targetType="media"
+                          targetType={media.type}
                           targetId={media.id}
                           size="sm"
                           className="text-white hover:text-red-400 transition-colors duration-200"
@@ -992,7 +992,7 @@ export function ContentCard({
                         />
                       </svg>
                       <ViewCount
-                        targetType="media"
+                        targetType={media.type}
                         targetId={media.id}
                         fallbackCount={media.viewCount ?? 0}
                       />

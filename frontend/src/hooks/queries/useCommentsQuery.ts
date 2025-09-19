@@ -40,9 +40,9 @@ export function useCommentsQuery(params: CommentsQueryParams) {
   });
 }
 
-// Hook for fetching target-specific comments (album/media comments)
+// Hook for fetching target-specific comments (album/image/video comments)
 export function useTargetComments(
-  targetType: "album" | "media",
+  targetType: "album" | "image" | "video",
   targetId: string,
   params: { limit?: number; enabled?: boolean } = {}
 ) {

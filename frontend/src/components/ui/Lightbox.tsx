@@ -432,7 +432,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
       {currentMedia && (
         <ViewTracker
           key={currentMedia.id}
-          targetType="media"
+          targetType={currentMedia.type}
           targetId={currentMedia.id}
         />
       )}

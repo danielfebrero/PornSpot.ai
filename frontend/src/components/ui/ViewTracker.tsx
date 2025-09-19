@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useTrackView } from "@/hooks/queries/useViewCountsQuery";
 
 interface ViewTrackerProps {
-  targetType: "album" | "media" | "profile";
+  targetType: "album" | "image" | "video" | "profile";
   targetId: string;
 }
 

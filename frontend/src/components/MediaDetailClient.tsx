@@ -223,7 +223,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
     // Track view and then enable view count fetching
     trackViewMutation.mutate(
       {
-        targetType: "media",
+        targetType: localMedia.type,
         targetId: localMedia.id,
       },
       {
@@ -233,12 +233,14 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
         },
       }
     );
-  }, [localMedia.id, trackViewMutation]);
+  }, [localMedia.id, localMedia.type, trackViewMutation]);
 
   // Bulk prefetch view counts for the media and albums
   const viewCountTargets = useMemo(() => {
-    const targets: Array<{ targetType: "album" | "media"; targetId: string }> =
-      [{ targetType: "media", targetId: localMedia.id }];
+    const targets: Array<{
+      targetType: "album" | "image" | "video";
+      targetId: string;
+    }> = [{ targetType: localMedia.type, targetId: localMedia.id }];
 
     // Add albums to view count targets if they exist
     if (localMedia.albums && localMedia.albums.length > 0) {
@@ -250,7 +252,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
     }
 
     return targets;
-  }, [localMedia.id, localMedia.albums]);
+  }, [localMedia.type, localMedia.id, localMedia.albums]);
 
   // Prefetch view counts in the background - but only after view tracking is done
   useBulkViewCounts(viewCountTargets, {
@@ -259,13 +261,15 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
 
   // Prefetch interaction status for media and related albums
   useEffect(() => {
-    const targets: Array<{ targetType: "album" | "media"; targetId: string }> =
-      [
-        {
-          targetType: "media" as const,
-          targetId: localMedia.id,
-        },
-      ];
+    const targets: Array<{
+      targetType: "album" | "image" | "video";
+      targetId: string;
+    }> = [
+      {
+        targetType: localMedia.type,
+        targetId: localMedia.id,
+      },
+    ];
 
     // Add albums to prefetch targets if they exist
     if (localMedia.albums && localMedia.albums.length > 0) {
@@ -607,7 +611,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
               defaultOpen
             >
               <Comments
-                targetType="media"
+                targetType={localMedia.type}
                 targetId={localMedia.id}
                 initialComments={localMedia.comments}
                 currentUserId={user?.userId}

@@ -15,7 +15,7 @@ import { useTemporaryTooltip } from "@/hooks/useTemporaryTooltip";
 import { useEffect } from "react";
 
 interface BookmarkButtonProps {
-  targetType: "album" | "media";
+  targetType: "album" | "image" | "video";
   targetId: string;
   albumId?: string; // Required for media interactions
   showCount?: boolean;

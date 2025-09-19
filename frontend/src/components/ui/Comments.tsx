@@ -20,7 +20,7 @@ import {
 } from "@/hooks/queries/useCommentsQuery";
 
 interface CommentsProps {
-  targetType: "album" | "media";
+  targetType: "album" | "image" | "video";
   targetId: string;
   initialComments?: Comment[]; // Comments already loaded from Media/Album object
   currentUserId?: string;

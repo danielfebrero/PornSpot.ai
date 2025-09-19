@@ -49,7 +49,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({
   const allMediaTargets = useMemo(
     () =>
       allMedia.map((mediaItem) => ({
-        targetType: "media" as const,
+        targetType: mediaItem.type,
         targetId: mediaItem.id,
       })),
     [allMedia]
@@ -57,12 +57,14 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({
 
   // Bulk prefetch view counts for the album and all media
   const viewCountTargets = useMemo(() => {
-    const targets: Array<{ targetType: "album" | "media"; targetId: string }> =
-      [{ targetType: "album", targetId: albumId }];
+    const targets: Array<{
+      targetType: "album" | "image" | "video";
+      targetId: string;
+    }> = [{ targetType: "album", targetId: albumId }];
 
     // Add media targets
     allMedia.forEach((media) => {
-      targets.push({ targetType: "media", targetId: media.id });
+      targets.push({ targetType: media.type, targetId: media.id });
     });
 
     return targets;

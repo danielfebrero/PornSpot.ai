@@ -61,7 +61,7 @@ export default function UserMediaPage() {
   useEffect(() => {
     if (media.length > 0) {
       const targets = media.map((mediaItem) => ({
-        targetType: "media" as const,
+        targetType: mediaItem.type,
         targetId: mediaItem.id,
       }));
       prefetch(targets);

@@ -61,7 +61,7 @@ export default function UserLikesPage() {
   useEffect(() => {
     if (likes.length > 0) {
       const targets = likes.map((like: UserInteraction) => ({
-        targetType: like.targetType as "album" | "media",
+        targetType: like.targetType as "album" | "image" | "video",
         targetId: like.targetId,
       }));
       prefetch(targets).catch((error) => {
@@ -84,7 +84,9 @@ export default function UserLikesPage() {
 
   // Get media items for lightbox (only media type likes)
   const mediaItems = likes
-    .filter((like) => like.targetType === "media")
+    .filter(
+      (like) => like.targetType === "image" || like.targetType === "video"
+    )
     .map((like) => like.target as Media)
     .filter(Boolean);
 

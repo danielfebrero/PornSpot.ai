@@ -120,7 +120,7 @@ export const interactionApi = {
 
   // Comment operations
   getComments: async (
-    targetType: "album" | "media",
+    targetType: "album" | "image" | "video",
     targetId: string,
     limit: number = 20,
     cursor?: string
