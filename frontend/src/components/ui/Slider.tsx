@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 interface SliderProps {
   value: number[];
-  onValueChange: (value: number[]) => void;
+  onValueChange: (_value: number[]) => void;
   min?: number;
   max?: number;
   step?: number;
@@ -23,48 +23,66 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
     const currentValue = value[0] || min;
     const percentage = ((currentValue - min) / (max - min)) * 100;
 
-    const handleMouseDown = (e: React.MouseEvent) => {
-      setIsDragging(true);
-      updateValue(e);
-    };
+    const updateValueFromClientX = React.useCallback(
+      (clientX: number) => {
+        if (!sliderRef.current) return;
 
-    const handleMouseMove = React.useCallback(
-      (e: MouseEvent) => {
-        if (!isDragging) return;
-        updateValue(e);
+        const rect = sliderRef.current.getBoundingClientRect();
+        const x = clientX - rect.left;
+        const width = rect.width;
+        const percentage = Math.max(0, Math.min(100, (x / width) * 100));
+
+        const rawValue = min + (percentage / 100) * (max - min);
+        const steppedValue = Math.round(rawValue / step) * step;
+        const clampedValue = Math.max(min, Math.min(max, steppedValue));
+
+        onValueChange([clampedValue]);
       },
-      [isDragging]
+      [min, max, step, onValueChange]
     );
 
-    const handleMouseUp = React.useCallback(() => {
+    const handlePointerDown = (e: React.PointerEvent) => {
+      // Ensure we control the gesture and receive subsequent events
+      try {
+        (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+      } catch (_) {
+        // ignore if not supported
+      }
+      setIsDragging(true);
+      updateValueFromClientX(e.clientX);
+      e.preventDefault();
+    };
+
+    const handlePointerMove = React.useCallback(
+      (e: PointerEvent) => {
+        if (!isDragging) return;
+        updateValueFromClientX(e.clientX);
+      },
+      [isDragging, updateValueFromClientX]
+    );
+
+    const handlePointerUp = React.useCallback(() => {
+      setIsDragging(false);
+    }, []);
+    const handlePointerCancel = React.useCallback(() => {
       setIsDragging(false);
     }, []);
 
-    const updateValue = (e: MouseEvent | React.MouseEvent) => {
-      if (!sliderRef.current) return;
-
-      const rect = sliderRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const width = rect.width;
-      const percentage = Math.max(0, Math.min(100, (x / width) * 100));
-
-      const rawValue = min + (percentage / 100) * (max - min);
-      const steppedValue = Math.round(rawValue / step) * step;
-      const clampedValue = Math.max(min, Math.min(max, steppedValue));
-
-      onValueChange([clampedValue]);
-    };
-
     React.useEffect(() => {
       if (isDragging) {
-        document.addEventListener("mousemove", handleMouseMove);
-        document.addEventListener("mouseup", handleMouseUp);
+        // Use pointer events so it works on both mouse and touch
+        window.addEventListener("pointermove", handlePointerMove);
+        window.addEventListener("pointerup", handlePointerUp, { once: true });
+        window.addEventListener("pointercancel", handlePointerCancel, {
+          once: true,
+        });
         return () => {
-          document.removeEventListener("mousemove", handleMouseMove);
-          document.removeEventListener("mouseup", handleMouseUp);
+          window.removeEventListener("pointermove", handlePointerMove);
+          window.removeEventListener("pointerup", handlePointerUp);
+          window.removeEventListener("pointercancel", handlePointerCancel);
         };
       }
-    }, [isDragging, handleMouseMove, handleMouseUp]);
+    }, [isDragging, handlePointerMove, handlePointerUp, handlePointerCancel]);
 
     return (
       <div
@@ -77,8 +95,8 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
       >
         <div
           ref={sliderRef}
-          className="relative h-2 w-full grow overflow-hidden rounded-full bg-gray-200 cursor-pointer"
-          onMouseDown={handleMouseDown}
+          className="relative h-2 w-full grow overflow-hidden rounded-full bg-gray-200 cursor-pointer touch-none"
+          onPointerDown={handlePointerDown}
         >
           <div
             className="absolute h-full bg-blue-600 rounded-full"
@@ -88,7 +106,7 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
         <div
           className="absolute block h-5 w-5 rounded-full border-2 border-blue-600 bg-white shadow-sm cursor-pointer hover:shadow-md transition-shadow"
           style={{ left: `calc(${percentage}% - 10px)` }}
-          onMouseDown={handleMouseDown}
+          onPointerDown={handlePointerDown}
         />
       </div>
     );
