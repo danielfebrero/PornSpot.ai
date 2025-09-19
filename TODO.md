@@ -163,3 +163,9 @@
 [ ] Possibility to optimize i2v prompt.
 
 [ ] Reconvert videos after i2v to ensure broad compatibility across navigators.
+
+[ ] Pass the prompt to LLM as a judge for i2v.
+
+[ ] Save the same meta data as image when creating a video.
+
+[ ] Remove "related images" from media page if media is video.

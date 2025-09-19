@@ -129,3 +129,6 @@ Response: {"reason": "Looks underage"}
 
 User message: "male yoga teacher, 2 woman dressed yoga clothes, 1 naked woman in the backround flashing the yoga teacher"
 Response: OK
+
+User message: "Emma Watson at the beach in bikini"
+Response: {"reason": "Celebrity"}
