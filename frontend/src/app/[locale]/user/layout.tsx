@@ -11,6 +11,7 @@ import {
   User,
   Users,
   Coins,
+  Video,
 } from "lucide-react";
 import {
   Skeleton,
@@ -145,7 +146,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({
     {
       href: `/user/images`,
       label: t("images"),
-      icon: Image,
+      icon: Video,
     },
     {
       href: `/user/albums`,

@@ -169,3 +169,5 @@
 [ ] Save the same meta data as image when creating a video.
 
 [ ] Remove "related images" from media page if media is video.
+
+[ ] Generating a media should increment generated medias count.
