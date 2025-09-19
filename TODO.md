@@ -166,8 +166,10 @@
 
 [ ] Pass the prompt to LLM as a judge for i2v.
 
-[ ] Save the same meta data as image when creating a video.
+[x] Save the same meta data as image when creating a video.
 
-[ ] Remove "related images" from media page if media is video.
+[x] Remove "related images" from media page if media is video.
 
 [x] Generating a media should increment generated medias count.
+
+[ ] Add isPublic option on i2v page.

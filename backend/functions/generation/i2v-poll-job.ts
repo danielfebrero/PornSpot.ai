@@ -9,7 +9,10 @@ import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ParameterStoreService } from "@shared/utils/parameters";
 import { S3StorageService } from "@shared/services/s3-storage";
-import { createMediaEntity } from "@shared/utils/media-entity";
+import {
+  createGenerationMetadata,
+  createMediaEntity,
+} from "@shared/utils/media-entity";
 import { I2VJobEntity } from "@shared/shared-types";
 import { SQS } from "aws-sdk";
 
@@ -161,6 +164,19 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
   const metaWidth = (sourceMedia?.metadata as any)?.width ?? sourceMedia?.width;
   const metaHeight =
     (sourceMedia?.metadata as any)?.height ?? sourceMedia?.height;
+
+  const metadata = createGenerationMetadata({
+    prompt: job.request?.prompt,
+    negativePrompt: job.request?.negativePrompt,
+    width: metaWidth,
+    height: metaHeight,
+    generationId: jobId,
+    batchCount: 1,
+    cfgScale: job.request?.cfgScale,
+    steps: job.request?.inferenceSteps,
+    seed: Number(job.request?.seed),
+  });
+
   const mediaEntity = createMediaEntity({
     mediaId,
     userId: job.userId,
@@ -173,17 +189,7 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
     status: "uploaded",
     createdByType: "user",
     type: "video",
-    metadata: {
-      isGenerated: true,
-      generationId: jobId,
-      prompt: job.request?.prompt,
-      negativePrompt: job.request?.negativePrompt,
-      duration: job.request?.videoLength,
-      width: typeof metaWidth === "number" ? metaWidth : undefined,
-      height: typeof metaHeight === "number" ? metaHeight : undefined,
-      source: "i2v",
-      model: job.runpodModel,
-    } as any,
+    metadata: metadata,
   });
   await DynamoDBService.createMedia(mediaEntity);
   await DynamoDBService.updateI2VJob(jobId, {

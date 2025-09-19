@@ -67,7 +67,7 @@ if (fs.existsSync(envPath)) {
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const {
   DynamoDBDocumentClient,
-  ScanCommand,
+  QueryCommand,
   UpdateCommand,
 } = require("@aws-sdk/lib-dynamodb");
 
@@ -115,20 +115,24 @@ async function main() {
   let skipped = 0;
   let errors = 0;
   let lastEvaluatedKey = undefined;
+  const CONCURRENCY = parseInt(
+    process.env.GSI8_BACKFILL_CONCURRENCY || "20",
+    10
+  );
 
   do {
     let scanResult;
     try {
+      // Use GSI4 to iterate media chronologically: GSI4PK = "MEDIA", GSI4SK = "{createdAt}#{mediaId}"
       scanResult = await docClient.send(
-        new ScanCommand({
+        new QueryCommand({
           TableName: TABLE_NAME,
-          FilterExpression: "begins_with(PK, :media) AND SK = :sk",
-          ExpressionAttributeValues: {
-            ":media": "MEDIA#",
-            ":sk": "METADATA",
-          },
+          IndexName: "GSI4",
+          KeyConditionExpression: "GSI4PK = :pk",
+          ExpressionAttributeValues: { ":pk": "MEDIA" },
           ExclusiveStartKey: lastEvaluatedKey,
-          Limit: 50,
+          Limit: 200,
+          ScanIndexForward: true, // oldest → newest; order doesn't matter for backfill
         })
       );
     } catch (err) {
@@ -137,7 +141,8 @@ async function main() {
     }
 
     const items = scanResult.Items || [];
-    for (const item of items) {
+    // Process updates in parallel with a safe concurrency cap
+    const processItem = async (item) => {
       try {
         const mediaId = item.id || (item.PK || "").split("#")[1] || "";
         const createdBy = item.createdBy;
@@ -149,7 +154,7 @@ async function main() {
             `⚠️  Skipping media missing required fields (id:${mediaId}, createdBy:${createdBy}, createdAt:${createdAt})`
           );
           skipped++;
-          continue;
+          return;
         }
 
         const derivedType = deriveTypeFromMime(mimeType);
@@ -158,7 +163,7 @@ async function main() {
             `⚠️  Skipping media ${mediaId} - cannot derive type from mimeType: ${mimeType}`
           );
           skipped++;
-          continue;
+          return;
         }
 
         const needsType = item.type !== derivedType;
@@ -173,7 +178,7 @@ async function main() {
 
         if (!needsType && !needsGsi8Pk && !needsGsi8Sk) {
           skipped++;
-          continue;
+          return;
         }
 
         const updates = [];
@@ -220,6 +225,11 @@ async function main() {
         console.error(`❌ Error processing media ${item.id}:`, err);
         errors++;
       }
+    };
+
+    for (let i = 0; i < items.length; i += CONCURRENCY) {
+      const slice = items.slice(i, i + CONCURRENCY);
+      await Promise.all(slice.map((it) => processItem(it)));
     }
 
     lastEvaluatedKey = scanResult.LastEvaluatedKey;

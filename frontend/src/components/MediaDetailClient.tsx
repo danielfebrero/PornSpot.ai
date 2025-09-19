@@ -113,7 +113,7 @@ const useMediaMetadata = (media: Media) => {
         { mode: "auto" | "manual"; value: number }
       >,
       bulkSiblings: metadata.bulkSiblings || [],
-      imageSize:
+      dimensions:
         media.width && media.height ? `${media.width} × ${media.height}` : null,
       cfgScale: metadata.cfgScale || 4.5,
       steps: metadata.steps || 30,
@@ -437,11 +437,11 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
               defaultOpen
             >
               <div className="space-y-3">
-                {metadata.imageSize && (
+                {metadata.dimensions && (
                   <InfoPill
                     icon={<Eye className="w-4 h-4" />}
                     label="Dimensions"
-                    value={metadata.imageSize}
+                    value={metadata.dimensions}
                   />
                 )}
                 <InfoPill
