@@ -104,7 +104,7 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
           />
         </div>
         <div
-          className="absolute block h-5 w-5 rounded-full border-2 border-blue-600 bg-white shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          className="absolute block h-5 w-5 rounded-full border-2 border-blue-600 bg-white shadow-sm cursor-pointer hover:shadow-md transition-shadow touch-none"
           style={{ left: `calc(${percentage}% - 10px)` }}
           onPointerDown={handlePointerDown}
         />
