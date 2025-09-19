@@ -840,7 +840,9 @@
       "cancel": "Cancelar",
       "album": "Álbum",
       "download": "Descargar",
-      "comingSoon": "Próximamente el 1 de octubre"
+      "comingSoon": "Próximamente el 1 de octubre",
+      "convertHintMobile": "Para convertir una imagen en video, toca este botón <btn/> en cualquier imagen.",
+      "convertHintDesktop": "Para convertir una imagen en video, haz clic en este botón <btn/> en cualquier imagen."
     },
     "albums": {
       "meta": {
