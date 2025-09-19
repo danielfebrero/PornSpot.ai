@@ -611,7 +611,7 @@ const UserVideosPage: React.FC = () => {
           <p className="text-muted-foreground mb-6">
             {t("startCreatingVideos")}
             {t.rich("convertHintDesktop", {
-              btn: (chunks) => (
+              btn: () => (
                 <button
                   type="button"
                   disabled
