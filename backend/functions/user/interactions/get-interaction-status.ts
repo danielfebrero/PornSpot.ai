@@ -23,7 +23,7 @@ const handleGetInteractionStatus = async (
 
   // Parse request body for bulk status check
   let targets: Array<{
-    targetType: "album" | "media" | "comment";
+    targetType: "album" | "image" | "video" | "comment" | "media";
     targetId: string;
   }> = [];
 
@@ -52,7 +52,7 @@ const handleGetInteractionStatus = async (
     try {
       ValidationUtil.validateEnum(
         target.targetType,
-        ["album", "media", "comment"] as const,
+        ["album", "image", "video", "comment", "media"] as const,
         "targetType"
       );
       ValidationUtil.validateRequiredString(target.targetId, "targetId");
@@ -66,7 +66,11 @@ const handleGetInteractionStatus = async (
 
   // Separate comment targets from album/media targets
   const albumMediaTargets = targets.filter(
-    (t) => t.targetType === "album" || t.targetType === "media"
+    (t) =>
+      t.targetType === "album" ||
+      t.targetType === "image" ||
+      t.targetType === "video" ||
+      t.targetType === "media"
   );
   const commentTargets = targets.filter((t) => t.targetType === "comment");
 
