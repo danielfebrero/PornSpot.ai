@@ -77,7 +77,10 @@ const handleGetViewCount = async (
         if (target.targetType === "album") {
           const album = await DynamoDBService.getAlbum(target.targetId);
           viewCount = album?.viewCount || 0;
-        } else if (target.targetType === "media") {
+        } else if (
+          target.targetType === "image" ||
+          target.targetType === "video"
+        ) {
           const media = await DynamoDBService.getMedia(target.targetId);
           viewCount = media?.viewCount || 0;
         }

@@ -100,7 +100,7 @@ const handleGetInteractionStatus = async (
     // Get interaction counts for the target
     promises.push(
       DynamoDBService.getInteractionCounts(
-        target.targetType as "album" | "media",
+        target.targetType as "album" | "image" | "video",
         target.targetId
       )
     );

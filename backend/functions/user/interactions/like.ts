@@ -118,7 +118,7 @@ const handleLikeInteraction = async (
     await DynamoDBService.createUserInteraction(
       userId,
       "like",
-      targetType as "media" | "album" | "comment",
+      targetType as "image" | "video" | "album" | "comment",
       targetId
     );
 
@@ -213,19 +213,22 @@ const handleLikeInteraction = async (
     // PSC Payout Integration for likes (immediate payout)
     if (targetCreatorId && userId !== targetCreatorId) {
       try {
-        let pscTargetType: "album" | "media" | "profile";
+        let pscTargetType: "album" | "image" | "video" | "profile";
         let pscTargetId: string;
         const pscMetadata: any = {};
 
         if (targetType === "comment") {
           // For comments, we need to get the parent content (album/media) for PSC
           if (comment?.targetType && comment?.targetId) {
-            pscTargetType = comment.targetType as "album" | "media";
+            pscTargetType = comment.targetType as "album" | "image" | "video";
             pscTargetId = comment.targetId;
             pscMetadata.commentId = targetId;
             if (comment.targetType === "album") {
               pscMetadata.albumId = comment.targetId;
-            } else if (comment.targetType === "media") {
+            } else if (
+              comment.targetType === "image" ||
+              comment.targetType === "video"
+            ) {
               pscMetadata.mediaId = comment.targetId;
             }
           } else {
@@ -236,7 +239,7 @@ const handleLikeInteraction = async (
           }
         } else {
           // For albums and media, use directly
-          pscTargetType = targetType as "album" | "media";
+          pscTargetType = targetType as "album" | "image" | "video";
           pscTargetId = targetId;
           if (targetType === "album") {
             pscMetadata.albumId = targetId;

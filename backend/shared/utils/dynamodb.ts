@@ -2173,7 +2173,7 @@ export class DynamoDBService {
   static async createUserInteraction(
     userId: string,
     interactionType: "like" | "bookmark",
-    targetType: "media" | "album" | "comment",
+    targetType: "image" | "video" | "album" | "comment",
     targetId: string
   ): Promise<void> {
     const now = new Date().toISOString();
@@ -2310,7 +2310,7 @@ export class DynamoDBService {
   }
 
   static async getInteractionCounts(
-    _targetType: "album" | "media",
+    _targetType: "album" | "image" | "video",
     targetId: string
   ): Promise<{
     likeCount: number;
@@ -3023,7 +3023,7 @@ export class DynamoDBService {
   }
 
   static async getCommentsForTarget(
-    targetType: "album" | "media",
+    targetType: "album" | "image" | "video",
     targetId: string,
     limit: number = 20,
     lastEvaluatedKey?: Record<string, any>

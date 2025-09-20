@@ -167,7 +167,7 @@ async function createComment(
       try {
         const payoutEvent = PSCIntegrationService.createPayoutEvent(
           "comment",
-          targetType as "album" | "media",
+          targetType as "album" | "image" | "video",
           targetId,
           userId,
           targetCreatorId,
@@ -283,7 +283,10 @@ async function updateComment(
   });
 
   // Trigger page revalidation for the target
-  if (existingComment.targetType === "media") {
+  if (
+    existingComment.targetType === "image" ||
+    existingComment.targetType === "video"
+  ) {
     await RevalidationService.revalidateMedia(existingComment.targetId);
   } else {
     await RevalidationService.revalidateAlbum(existingComment.targetId);
@@ -346,7 +349,10 @@ async function deleteComment(
   }
 
   // Trigger page revalidation for the target
-  if (existingComment.targetType === "media") {
+  if (
+    existingComment.targetType === "image" ||
+    existingComment.targetType === "video"
+  ) {
     await RevalidationService.revalidateMedia(existingComment.targetId);
   } else {
     await RevalidationService.revalidateAlbum(existingComment.targetId);

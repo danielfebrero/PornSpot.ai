@@ -57,7 +57,11 @@ const handleGetBookmarks = async (
             ),
           };
         }
-      } else if (interaction.targetType === "media") {
+      } else if (
+        interaction.targetType === "image" ||
+        interaction.targetType === "video" ||
+        interaction.targetType === "media"
+      ) {
         // For media, get the media details directly
         targetDetails = await DynamoDBService.getMedia(interaction.targetId);
       }

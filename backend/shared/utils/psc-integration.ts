@@ -110,7 +110,10 @@ export class PSCIntegrationService {
   }> {
     try {
       // For views on media, we need special handling with the 10-view counter
-      if (event.eventType === "view" && event.targetType === "media") {
+      if (
+        event.eventType === "view" &&
+        (event.targetType === "image" || event.targetType === "video")
+      ) {
         return await PSCIntegrationService.processMediaViewPayout(
           event,
           requiresAuth
@@ -275,7 +278,7 @@ export class PSCIntegrationService {
    */
   static createPayoutEvent(
     eventType: "view" | "like" | "comment" | "bookmark" | "profile_view",
-    targetType: "album" | "media" | "profile",
+    targetType: "album" | "image" | "video" | "profile",
     targetId: string,
     userId: string | null,
     creatorId: string,

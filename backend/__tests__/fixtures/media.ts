@@ -48,12 +48,13 @@ export const mockMediaEntity: MediaEntity = {
     aperture: "f/2.8",
     shutterSpeed: "1/125",
   },
+  type: "image",
 };
 
 export const mockMedia: Media = {
   id: mockMediaId,
   filename: mockS3Key,
-  type: "media",
+  type: "image",
   originalFilename: "test-image.jpg",
   mimeType: "image/jpeg",
   size: 1024000,
@@ -98,11 +99,12 @@ export const mockMediaEntityMinimal: MediaEntity = {
   url: `https://test.cloudfront.net/${mockS3Key}`,
   createdAt: mockTimestamp,
   updatedAt: mockTimestamp,
+  type: "image",
 };
 
 export const mockMediaMinimal: Media = {
   id: mockMediaId,
-  type: "media",
+  type: "image",
   filename: mockS3Key,
   originalFilename: "simple.jpg",
   mimeType: "image/jpeg",

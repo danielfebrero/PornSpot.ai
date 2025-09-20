@@ -50,7 +50,7 @@ const handleGetMediaById = async (
   // Fetch comments for this media
   try {
     const commentsResult = await DynamoDBService.getCommentsForTarget(
-      "media",
+      mediaEntity.type,
       mediaId,
       20
     );

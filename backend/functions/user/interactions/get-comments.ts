@@ -85,7 +85,7 @@ const handleGetComments = async (
 
   // Get comments for the target
   const result = await DynamoDBService.getCommentsForTarget(
-    validatedTargetType as "album" | "media",
+    validatedTargetType as "album" | "image" | "video",
     validatedTargetId,
     limit,
     lastEvaluatedKey
@@ -178,7 +178,11 @@ async function getUserComments(
               await DynamoDBService.getContentPreviewForAlbum(comment.targetId);
           }
         }
-      } else if (comment.targetType === "media") {
+      } else if (
+        comment.targetType === "image" ||
+        comment.targetType === "video" ||
+        comment.targetType === "media"
+      ) {
         // For media, get the media details directly
         const media = await DynamoDBService.getMedia(comment.targetId);
         if (media) {

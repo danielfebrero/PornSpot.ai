@@ -158,7 +158,7 @@
 
 [ ] On videos page, incomplete video progression do not progress, I have to re render the page to see updated progress.
 
-[ ] Videos page, when 1 video, load more videos in loop.
+[x] Videos page, when 1 video, load more videos in loop.
 
 [ ] On mobile, on I2V page, the source image blink when I change settings.
 

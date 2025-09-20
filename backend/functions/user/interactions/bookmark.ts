@@ -82,7 +82,7 @@ const handleBookmarkInteraction = async (
     await DynamoDBService.createUserInteraction(
       userId,
       "bookmark",
-      targetType as "media" | "album",
+      targetType as "image" | "video" | "album",
       targetId
     );
 
@@ -158,13 +158,16 @@ const handleBookmarkInteraction = async (
         try {
           const payoutEvent = PSCIntegrationService.createPayoutEvent(
             "bookmark",
-            targetType as "album" | "media",
+            targetType as "album" | "image" | "video",
             targetId,
             userId,
             targetCreatorId,
             {
               albumId: targetType === "album" ? targetId : undefined,
-              mediaId: targetType === "media" ? targetId : undefined,
+              mediaId:
+                targetType === "image" || targetType === "video"
+                  ? targetId
+                  : undefined,
             }
           );
 

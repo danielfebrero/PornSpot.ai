@@ -92,7 +92,7 @@ const handleView = async (
         );
       }
     }
-  } else if (targetType === "media") {
+  } else if (targetType === "image" || targetType === "video") {
     // For media, verify it exists - no album context needed in new schema
     media = await DynamoDBService.getMedia(targetId);
     if (!media) {
@@ -154,7 +154,7 @@ const handleView = async (
       try {
         const payoutEvent = PSCIntegrationService.createPayoutEvent(
           targetType === "profile" ? "profile_view" : "view",
-          targetType as "album" | "media" | "profile",
+          targetType as "album" | "image" | "video" | "profile",
           targetId,
           auth.userId,
           creatorId,
