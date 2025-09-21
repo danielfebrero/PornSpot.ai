@@ -175,7 +175,7 @@ export default function ProfileComponent({
       const likeTargets = recentLikes
         .filter((item) => item && item.targetType && item.targetId)
         .map((item) => ({
-          targetType: item.targetType as "album" | "media",
+          targetType: item.targetType as "album" | "image" | "video",
           targetId: item.targetId,
         }));
 
@@ -189,7 +189,7 @@ export default function ProfileComponent({
       const mediaTargets = recentMedia
         .filter((item) => item && item.id)
         .map((item) => ({
-          targetType: "media",
+          targetType: item.type,
           targetId: item.id,
         }));
 

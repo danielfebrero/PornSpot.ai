@@ -54,7 +54,7 @@ async function createComment(
     "content"
   );
 
-  if (!["album", "media"].includes(targetType)) {
+  if (!["album", "image", "video"].includes(targetType)) {
     return ResponseUtil.badRequest(
       event,
       "targetType must be 'album' or 'media'"
@@ -133,7 +133,10 @@ async function createComment(
   let targetCreatorId: string | undefined;
   if (targetType === "album" && album?.createdBy) {
     targetCreatorId = album.createdBy;
-  } else if (targetType === "media" && media?.createdBy) {
+  } else if (
+    (targetType === "image" || targetType === "video") &&
+    media?.createdBy
+  ) {
     targetCreatorId = media.createdBy;
   }
 
@@ -152,7 +155,7 @@ async function createComment(
         targetCreatorId,
         userId,
         "comment",
-        targetType as "album" | "media",
+        targetType as "album" | "image" | "video",
         targetId
       );
       console.log(
@@ -173,7 +176,10 @@ async function createComment(
           targetCreatorId,
           {
             albumId: targetType === "album" ? targetId : undefined,
-            mediaId: targetType === "media" ? targetId : undefined,
+            mediaId:
+              targetType === "image" || targetType === "video"
+                ? targetId
+                : undefined,
             commentId: commentId,
           }
         );
@@ -196,7 +202,7 @@ async function createComment(
   }
 
   // Trigger page revalidation for the target
-  if (targetType === "media") {
+  if (targetType === "image" || targetType === "video") {
     await RevalidationService.revalidateMedia(targetId);
   } else {
     await RevalidationService.revalidateAlbum(targetId);

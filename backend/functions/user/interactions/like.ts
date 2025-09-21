@@ -52,7 +52,7 @@ const handleLikeInteraction = async (
   const action = ValidationUtil.validateRequiredString(body.action, "action");
 
   // Validate target type
-  if (!["album", "media", "comment"].includes(targetType)) {
+  if (!["album", "image", "video", "comment"].includes(targetType)) {
     return ResponseUtil.badRequest(
       event,
       "targetType must be 'album', 'media', or 'comment'"
@@ -79,7 +79,7 @@ const handleLikeInteraction = async (
     if (!album) {
       return ResponseUtil.notFound(event, "Album not found");
     }
-  } else if (targetType === "media") {
+  } else if (targetType === "image" || targetType === "video") {
     // For media, verify it exists - no albumId needed in new schema
     const media = await DynamoDBService.getMedia(targetId);
     if (!media) {
@@ -148,7 +148,7 @@ const handleLikeInteraction = async (
           );
         }
       }
-    } else if (targetType === "media") {
+    } else if (targetType === "image" || targetType === "video") {
       await CounterUtil.incrementMediaLikeCount(targetId, 1);
 
       // Get media creator and increment their totalLikesReceived metric
@@ -313,7 +313,7 @@ const handleLikeInteraction = async (
           );
         }
       }
-    } else if (targetType === "media") {
+    } else if (targetType === "image" || targetType === "video") {
       await CounterUtil.incrementMediaLikeCount(targetId, -1);
 
       // Get media creator and decrement their totalLikesReceived metric

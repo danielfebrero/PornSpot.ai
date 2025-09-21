@@ -47,10 +47,10 @@ const handleGetComments = async (
     "targetId"
   );
 
-  if (!["album", "media"].includes(validatedTargetType)) {
+  if (!["album", "image", "video"].includes(validatedTargetType)) {
     return ResponseUtil.badRequest(
       event,
-      "targetType must be 'album' or 'media'"
+      "targetType must be 'album' or 'image' or 'video'"
     );
   }
 

@@ -78,6 +78,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
       case "album":
         contentHref = `/albums/${targetId}`;
         break;
+      case "image":
+      case "video":
       case "media":
         contentHref = `/media/${targetId}`;
         break;

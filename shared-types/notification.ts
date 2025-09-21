@@ -10,7 +10,13 @@
  */
 
 export type NotificationType = "like" | "comment" | "bookmark" | "follow";
-export type NotificationTargetType = "album" | "media" | "comment" | "user";
+export type NotificationTargetType =
+  | "album"
+  | "image"
+  | "video"
+  | "comment"
+  | "media"
+  | "user";
 export type NotificationStatus = "unread" | "read";
 
 export interface NotificationItem {
@@ -50,7 +56,7 @@ export interface NotificationWithDetails extends NotificationItem {
   sourceUsername?: string; // Username of the user who triggered the notification
 
   // For comment notifications: information about what the comment is on
-  commentTargetType?: "album" | "media"; // Only present when targetType is "comment"
+  commentTargetType?: "album" | "image" | "video"; // Only present when targetType is "comment"
   commentTargetId?: string; // Only present when targetType is "comment"
 }
 

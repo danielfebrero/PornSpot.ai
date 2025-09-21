@@ -53,7 +53,7 @@ const handleView = async (
     "targetId"
   );
 
-  if (!["album", "media", "profile"].includes(targetType)) {
+  if (!["album", "image", "video", "profile"].includes(targetType)) {
     return ResponseUtil.badRequest(
       event,
       "targetType must be 'album', 'media', or 'profile'"
@@ -143,7 +143,10 @@ const handleView = async (
     // Determine creator ID for payout based on target type
     if (targetType === "album" && album?.createdBy) {
       creatorId = album.createdBy;
-    } else if (targetType === "media" && media?.createdBy) {
+    } else if (
+      (targetType === "image" || targetType === "video") &&
+      media?.createdBy
+    ) {
       creatorId = media.createdBy;
     } else if (targetType === "profile" && profileUser?.userId) {
       creatorId = profileUser.userId;
@@ -160,7 +163,10 @@ const handleView = async (
           creatorId,
           {
             albumId: targetType === "album" ? targetId : undefined,
-            mediaId: targetType === "media" ? targetId : undefined,
+            mediaId:
+              targetType === "image" || targetType === "video"
+                ? targetId
+                : undefined,
             profileId:
               targetType === "profile" ? profileUser?.userId : undefined,
           }

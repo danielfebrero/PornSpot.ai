@@ -52,7 +52,7 @@ const handleGetViewCount = async (
       ValidationUtil.validateRequiredString(target.targetId, "targetId");
       ValidationUtil.validateEnum(
         target.targetType,
-        ["album", "media"] as const,
+        ["album", "image", "video"] as const,
         "targetType"
       );
     } catch (error) {

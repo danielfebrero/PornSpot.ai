@@ -267,9 +267,16 @@ export class CounterUtil {
    */
   static async incrementMultipleCounters(
     operations: Array<{
-      entityType: "album" | "media" | "comment";
+      entityType: "album" | "media" | "comment" | "image" | "video";
       entityId: string;
-      counterType: "like" | "bookmark" | "view" | "comment" | "media";
+      counterType:
+        | "like"
+        | "bookmark"
+        | "view"
+        | "comment"
+        | "media"
+        | "image"
+        | "video";
       increment: number;
     }>
   ): Promise<void> {
@@ -289,10 +296,14 @@ export class CounterUtil {
             case "comment":
               return this.incrementAlbumCommentCount(op.entityId, op.increment);
             case "media":
+            case "video":
+            case "image":
               return this.incrementAlbumMediaCount(op.entityId, op.increment);
           }
           break;
         case "media":
+        case "image":
+        case "video":
           switch (op.counterType) {
             case "like":
               return this.incrementMediaLikeCount(op.entityId, op.increment);

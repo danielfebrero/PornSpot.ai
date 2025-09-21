@@ -3645,7 +3645,7 @@ export class DynamoDBService {
     targetUserId: string,
     sourceUserId: string,
     notificationType: "like" | "comment" | "bookmark" | "follow",
-    targetType: "album" | "media" | "comment" | "user",
+    targetType: "album" | "image" | "video" | "comment" | "user",
     targetId: string
   ): Promise<void> {
     // Don't create notification if user is interacting with their own content
@@ -3947,7 +3947,7 @@ export class DynamoDBService {
       string,
       {
         title?: string;
-        commentTargetType?: "album" | "media";
+        commentTargetType?: "album" | "image" | "video";
         commentTargetId?: string;
       }
     >
@@ -3956,7 +3956,7 @@ export class DynamoDBService {
       string,
       {
         title?: string;
-        commentTargetType?: "album" | "media";
+        commentTargetType?: "album" | "image" | "video";
         commentTargetId?: string;
       }
     >();
@@ -3970,7 +3970,7 @@ export class DynamoDBService {
         .map((target) => {
           if (target.type === "album") {
             return { PK: `ALBUM#${target.id}`, SK: "METADATA" };
-          } else if (target.type === "media") {
+          } else if (target.type === "image" || target.type === "video") {
             return { PK: `MEDIA#${target.id}`, SK: "METADATA" };
           } else if (target.type === "comment") {
             return { PK: `COMMENT#${target.id}`, SK: "METADATA" };
@@ -3996,7 +3996,7 @@ export class DynamoDBService {
       items.forEach((item: any) => {
         let targetId: string | undefined;
         let title: string | undefined;
-        let commentTargetType: "album" | "media" | undefined;
+        let commentTargetType: "album" | "image" | "video" | undefined;
         let commentTargetId: string | undefined;
 
         if (item.EntityType === "Album") {
@@ -4011,7 +4011,7 @@ export class DynamoDBService {
             item.content?.substring(0, 50) +
             (item.content?.length > 50 ? "..." : "");
           // Add comment target information
-          commentTargetType = item.targetType as "album" | "media";
+          commentTargetType = item.targetType as "album" | "image" | "video";
           commentTargetId = item.targetId;
         }
 

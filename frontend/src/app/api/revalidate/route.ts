@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (type === "media") {
+    if (type === "media" || type === "image" || type === "video") {
       // Revalidate specific media across all locales
       const mediaId = request.nextUrl.searchParams.get("mediaId");
       if (!mediaId) {

@@ -29,7 +29,7 @@ const handleBookmarkInteraction = async (
   const action = ValidationUtil.validateRequiredString(body.action, "action");
 
   // Validate target type
-  if (!["album", "media"].includes(targetType)) {
+  if (!["album", "image", "video"].includes(targetType)) {
     return ResponseUtil.badRequest(
       event,
       "targetType must be 'album' or 'media'"
@@ -143,7 +143,7 @@ const handleBookmarkInteraction = async (
           targetCreatorId,
           userId,
           "bookmark",
-          targetType as "album" | "media",
+          targetType as "album" | "image" | "video",
           targetId
         );
         console.log(

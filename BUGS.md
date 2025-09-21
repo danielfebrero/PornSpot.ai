@@ -167,3 +167,5 @@
 [x] On images page, the video appear but shouldn't.
 
 [ ] On mobile, I can follow myself by going on my profile from a {username} link.
+
+[ ] My likes and bookmarks are not showing as Like/bookmark in term of interaction status.
