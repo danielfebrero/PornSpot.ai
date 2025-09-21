@@ -259,6 +259,14 @@ const UserVideosPage: React.FC = () => {
   // Child component to leverage hooks per job
   const I2VJobProgressCard: React.FC<{ job: any }> = ({ job }) => {
     const [enablePoll, setEnablePoll] = useState(false);
+    // Ticking state to re-render and advance progress smoothly without reload
+    const [now, setNow] = useState<number>(() => Date.now());
+
+    useEffect(() => {
+      // Update every second while this card is mounted
+      const interval = setInterval(() => setNow(Date.now()), 1000);
+      return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
       if (!job.estimatedCompletionTimeAt) return;
@@ -275,7 +283,7 @@ const UserVideosPage: React.FC = () => {
 
     const submitted = job.submittedAt ? Date.parse(job.submittedAt) : 0;
     const estSeconds = job.estimatedSeconds || 0;
-    const elapsed = estSeconds ? (Date.now() - submitted) / 1000 : 0;
+    const elapsed = estSeconds ? (now - submitted) / 1000 : 0;
     let pct = estSeconds ? elapsed / estSeconds : 0;
     if (pct > 0.99) pct = 0.99;
     const pctDisplay = Math.floor(pct * 100);
