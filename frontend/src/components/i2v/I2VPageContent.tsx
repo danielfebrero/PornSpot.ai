@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
 import { useLocaleRouter } from "@/lib/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -33,7 +33,7 @@ import { useTranslations } from "next-intl";
 import { usePermissions } from "@/contexts/PermissionsContext";
 
 export function I2VPageContent() {
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
   const router = useLocaleRouter();
   const { user, spendI2VSeconds } = useUserContext();
   const { redirectToLogin } = useAuthRedirect();
@@ -42,7 +42,8 @@ export function I2VPageContent() {
   const { canCreatePrivateContent } = usePermissions();
   const canMakePrivate = canCreatePrivateContent();
 
-  const mediaId = searchParams.get("mediaId");
+  // const mediaId = searchParams.get("mediaId");
+  const mediaId = "1e466574-c087-46db-bbc3-4236d09265f9_1";
 
   // Mobile detection
   const [isMobile, setIsMobile] = useState(false);
@@ -55,10 +56,11 @@ export function I2VPageContent() {
   } = useMediaById(mediaId || "", !!mediaId);
 
   const [isGenerating, setIsGenerating] = useState(false);
-  // Control advanced section open state from parent to avoid auto-hide on rerenders
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
 
-  // No progress tracking needed; we redirect after job submission
+  useEffect(() => {
+    console.log({ media, mediaId });
+  }, [media, mediaId]);
 
   // Available credits derived from user context
   const availableCredits = useMemo(() => {
@@ -394,22 +396,24 @@ export function I2VPageContent() {
             {t("titles.sourceImage")}
           </h2>
           <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-            <ContentCard
-              item={media!}
-              canLike={false}
-              canBookmark={false}
-              canFullscreen={true}
-              canAddToAlbum={false}
-              canRemoveFromAlbum={false}
-              canDownload={false}
-              canDelete={false}
-              canI2V={false}
-              showCounts={false}
-              showTags={false}
-              disableHoverEffects={true}
-              useAllAvailableSpace={true}
-              aspectRatio="auto"
-            />
+            {media && (
+              <ContentCard
+                item={media}
+                canLike={false}
+                canBookmark={false}
+                canFullscreen={true}
+                canAddToAlbum={false}
+                canRemoveFromAlbum={false}
+                canDownload={false}
+                canDelete={false}
+                canI2V={false}
+                showCounts={false}
+                showTags={false}
+                disableHoverEffects={true}
+                useAllAvailableSpace={true}
+                aspectRatio="auto"
+              />
+            )}
           </div>
         </div>
 
@@ -533,26 +537,26 @@ export function I2VPageContent() {
               {t("titles.sourceImage")}
             </h2>
             <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-              <ContentCard
-                item={media!}
-                canLike={false}
-                canBookmark={false}
-                canFullscreen={true}
-                canAddToAlbum={false}
-                canRemoveFromAlbum={false}
-                canDownload={false}
-                canDelete={false}
-                canI2V={false}
-                showCounts={false}
-                showTags={false}
-                disableHoverEffects={true}
-                useAllAvailableSpace={true}
-                aspectRatio="auto"
-              />
+              {media && (
+                <ContentCard
+                  item={media}
+                  canLike={false}
+                  canBookmark={false}
+                  canFullscreen={true}
+                  canAddToAlbum={false}
+                  canRemoveFromAlbum={false}
+                  canDownload={false}
+                  canDelete={false}
+                  canI2V={false}
+                  showCounts={false}
+                  showTags={false}
+                  disableHoverEffects={true}
+                  useAllAvailableSpace={true}
+                  aspectRatio="auto"
+                />
+              )}
             </div>
           </div>
-
-          {/* Progress and generated preview removed per simplification */}
 
           {/* Credits Section */}
           <CreditsDisplay
