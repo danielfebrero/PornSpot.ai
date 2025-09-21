@@ -35,7 +35,7 @@ import { usePermissions } from "@/contexts/PermissionsContext";
 export function I2VPageContent() {
   const searchParams = useSearchParams();
   const router = useLocaleRouter();
-  const { user, spendI2VSeconds } = useUserContext();
+  const { user, spendI2VSeconds, loading: userLoading } = useUserContext();
   const { redirectToLogin } = useAuthRedirect();
   const t = useTranslations("i2v.pageContent");
   const ts = useTranslations("i2v.settings");
@@ -318,7 +318,7 @@ export function I2VPageContent() {
 
   // Check authentication
   useEffect(() => {
-    if (!user && !loading) {
+    if (!user && !loading && !userLoading) {
       redirectToLogin();
     }
   }, [user, loading, redirectToLogin]);
@@ -406,134 +406,166 @@ export function I2VPageContent() {
     []
   );
 
-  // Mobile View Component
-  const MobileView = () => (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-card border-b sticky top-0 z-10">
-        <div className="px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => router.back()}
-              variant="ghost"
-              size="sm"
-              className="p-2"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex items-center gap-3 flex-1">
-              <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
-                <Video className="h-5 w-5 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-lg font-bold text-foreground truncate">
-                  {t("titles.convertToVideo")}
-                </h1>
-                <p className="text-sm text-muted-foreground truncate">
-                  {t("descriptions.transformYourImage")}
-                </p>
-              </div>
-            </div>
-          </div>
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">{t("status.loadingMedia")}</p>
         </div>
       </div>
+    );
+  }
 
-      <div className="p-4 space-y-6">
-        {/* Source Image */}
-        <div>
-          <h2 className="text-base font-semibold text-foreground mb-3">
-            {t("titles.sourceImage")}
-          </h2>
-          <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-            {media && <ContentCard item={media} {...contentCardProps} />}
-          </div>
+  // Error state
+  if (error || !media) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-4">
+            {t("titles.error")}
+          </h1>
+          <p className="text-muted-foreground mb-6">
+            {error || t("errors.mediaNotFound")}
+          </p>
+          <Button onClick={() => router.back()} variant="outline">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {t("actions.goBack")}
+          </Button>
         </div>
+      </div>
+    );
+  }
 
-        {/* Progress card removed per simplification */}
-
-        {/* Credits Section */}
-        <CreditsDisplay
-          availableCredits={availableCredits}
-          onBuyCredits={handleBuyCredits}
-        />
-
-        {/* Settings */}
-        {renderSettings}
-
-        {/* Generation Section */}
-        <div className="bg-gradient-to-br from-primary/5 to-purple-500/5 rounded-lg p-4 border">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg">
-              <Play className="h-4 w-4 text-white" />
-            </div>
-            <h3 className="text-base font-semibold text-foreground">
-              {t("titles.generateVideo")}
-            </h3>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                {t("credits.creditsNeeded")}
-              </span>
-              <span className="font-medium text-foreground">
-                {creditsNeeded}s
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                {t("credits.availableCredits")}
-              </span>
-              <span
-                className={`font-medium ${
-                  availableCredits >= creditsNeeded
-                    ? "text-green-600"
-                    : "text-red-600"
-                }`}
+  // Mobile View - Early Return
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <div className="bg-card border-b sticky top-0 z-10">
+          <div className="px-4 py-4">
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => router.back()}
+                variant="ghost"
+                size="sm"
+                className="p-2"
               >
-                {availableCredits}s
-              </span>
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div className="flex items-center gap-3 flex-1">
+                <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
+                  <Video className="h-5 w-5 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-lg font-bold text-foreground truncate">
+                    {t("titles.convertToVideo")}
+                  </h1>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {t("descriptions.transformYourImage")}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-6">
+          {/* Source Image */}
+          <div>
+            <h2 className="text-base font-semibold text-foreground mb-3">
+              {t("titles.sourceImage")}
+            </h2>
+            <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+              {media && <ContentCard item={media} {...contentCardProps} />}
+            </div>
+          </div>
+
+          {/* Credits Section */}
+          <CreditsDisplay
+            availableCredits={availableCredits}
+            onBuyCredits={handleBuyCredits}
+          />
+
+          {/* Settings */}
+          {renderSettings}
+
+          {/* Generation Section */}
+          <div className="bg-gradient-to-br from-primary/5 to-purple-500/5 rounded-lg p-4 border">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg">
+                <Play className="h-4 w-4 text-white" />
+              </div>
+              <h3 className="text-base font-semibold text-foreground">
+                {t("titles.generateVideo")}
+              </h3>
             </div>
 
-            {availableCredits < creditsNeeded && (
-              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm text-yellow-800">
-                  {t("credits.insufficientCredits", {
-                    needed: creditsNeeded - availableCredits,
-                  })}
-                </p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  {t("credits.creditsNeeded")}
+                </span>
+                <span className="font-medium text-foreground">
+                  {creditsNeeded}s
+                </span>
               </div>
-            )}
 
-            <Button
-              onClick={handleGenerate}
-              disabled={!canGenerate}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-400 disabled:to-gray-500"
-              size="lg"
-            >
-              {isGenerating ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  {t("actions.generating")}
-                </>
-              ) : (
-                <>
-                  <Play className="h-4 w-4 mr-2" />
-                  {t("actions.generateVideoWithDuration", {
-                    duration: creditsNeeded,
-                  })}
-                </>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  {t("credits.availableCredits")}
+                </span>
+                <span
+                  className={`font-medium ${
+                    availableCredits >= creditsNeeded
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {availableCredits}s
+                </span>
+              </div>
+
+              {availableCredits < creditsNeeded && (
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-800">
+                    {t("credits.insufficientCredits", {
+                      needed: creditsNeeded - availableCredits,
+                    })}
+                  </p>
+                </div>
               )}
-            </Button>
+
+              <Button
+                onClick={handleGenerate}
+                disabled={!canGenerate}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-400 disabled:to-gray-500"
+                size="lg"
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    {t("actions.generating")}
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-4 w-4 mr-2" />
+                    {t("actions.generateVideoWithDuration", {
+                      duration: creditsNeeded,
+                    })}
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 
-  // Desktop View Component
-  const DesktopView = () => (
+  // Desktop View - Default Return
+  return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
@@ -657,37 +689,4 @@ export function I2VPageContent() {
       </div>
     </div>
   );
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">{t("status.loadingMedia")}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !media) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">
-            {t("titles.error")}
-          </h1>
-          <p className="text-muted-foreground mb-6">
-            {error || t("errors.mediaNotFound")}
-          </p>
-          <Button onClick={() => router.back()} variant="outline">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t("actions.goBack")}
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Main component return with mobile/desktop conditional rendering
-  return isMobile ? <MobileView /> : <DesktopView />;
 }

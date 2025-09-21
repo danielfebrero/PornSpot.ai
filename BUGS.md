@@ -168,4 +168,6 @@
 
 [ ] On mobile, I can follow myself by going on my profile from a {username} link.
 
-[ ] My likes and bookmarks are not showing as Like/bookmark in term of interaction status.
+[x] My likes and bookmarks are not showing as Like/bookmark in term of interaction status.
+
+[ ] View counter is not up to date in albums.

@@ -18,7 +18,6 @@ import {
   Edit,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import LocaleLink from "@/components/ui/LocaleLink";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import { EditTitleDialog } from "@/components/ui/EditTitleDialog";
 import { ShareDropdown } from "@/components/ui/ShareDropdown";
