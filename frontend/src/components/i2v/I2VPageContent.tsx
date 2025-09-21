@@ -31,11 +31,17 @@ import { I2VSettings } from "@/types";
 import { generateApi } from "@/lib/api/generate";
 import { useTranslations } from "next-intl";
 import { usePermissions } from "@/contexts/PermissionsContext";
+import { ApiUtil } from "@/lib/api-util";
 
 export function I2VPageContent() {
   const searchParams = useSearchParams();
   const router = useLocaleRouter();
-  const { user, spendI2VSeconds, loading: userLoading } = useUserContext();
+  const {
+    user,
+    spendI2VSeconds,
+    loading: userLoading,
+    refetch,
+  } = useUserContext();
   const { redirectToLogin } = useAuthRedirect();
   const t = useTranslations("i2v.pageContent");
   const ts = useTranslations("i2v.settings");
@@ -56,6 +62,7 @@ export function I2VPageContent() {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     console.log({ media, mediaId });
@@ -321,7 +328,7 @@ export function I2VPageContent() {
     if (!user && !loading && !userLoading) {
       redirectToLogin();
     }
-  }, [user, loading, redirectToLogin]);
+  }, [user, loading, userLoading, redirectToLogin]);
 
   // Check for errors or invalid media type
   const error = useMemo(() => {
@@ -345,6 +352,7 @@ export function I2VPageContent() {
   const handleGenerate = useCallback(async () => {
     if (!media || availableCredits < settings.videoLength || isGenerating)
       return;
+    setSubmitError(null);
     // Deduct credits immediately (optimistic)
     if (spendI2VSeconds) {
       const ok = spendI2VSeconds(settings.videoLength);
@@ -364,7 +372,10 @@ export function I2VPageContent() {
       }
     } catch (err) {
       console.error("Generation failed:", err);
-      alert("Failed to start video generation. Please try again.");
+      const message = ApiUtil.handleApiError(err);
+      setSubmitError(message);
+      // Refresh user to restore credits after failed submission (e.g., moderation)
+      await refetch();
       setIsGenerating(false);
     }
   }, [
@@ -375,6 +386,7 @@ export function I2VPageContent() {
     spendI2VSeconds,
     canCreatePrivateContent,
     router,
+    refetch,
   ]);
 
   const canGenerate = useMemo(
@@ -537,6 +549,14 @@ export function I2VPageContent() {
                 </div>
               )}
 
+              {submitError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-800 whitespace-pre-line">
+                    {submitError}
+                  </p>
+                </div>
+              )}
+
               <Button
                 onClick={handleGenerate}
                 disabled={!canGenerate}
@@ -659,6 +679,14 @@ export function I2VPageContent() {
                     {t("credits.insufficientCredits", {
                       needed: creditsNeeded - availableCredits,
                     })}
+                  </p>
+                </div>
+              )}
+
+              {submitError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-800 whitespace-pre-line">
+                    {submitError}
                   </p>
                 </div>
               )}

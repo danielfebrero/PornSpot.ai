@@ -10,8 +10,37 @@ import {
   I2VSettings,
 } from "@shared/shared-types";
 import { SQS } from "aws-sdk";
+import { OpenRouterService } from "@shared/services/openrouter-chat";
 
 const RUNPOD_MODEL = "wan-2-2-i2v-720";
+
+// Perform prompt moderation using the same template and logic as in generate.ts
+async function moderatePrompt(
+  prompt: string
+): Promise<{ success: true } | { success: false; reason: string }> {
+  try {
+    const openRouter = OpenRouterService.getInstance();
+    const res = await openRouter.chatCompletion({
+      instructionTemplate: "prompt-moderation",
+      userMessage: (prompt || "").trim(),
+      model: "mistralai/mistral-medium-3.1",
+      parameters: { temperature: 0.1, max_tokens: 256 },
+    });
+
+    const content = (res.content || "").trim();
+    if (content === "OK") {
+      return { success: true };
+    }
+
+    // Try to extract a JSON { reason: "..." } like generate.ts does
+    const jsonMatch = content.match(/\{[^}]*"reason"\s*:\s*"([^"]+)"[^}]*\}/);
+    const reason = jsonMatch?.[1] || "Content violates platform rules";
+    return { success: false, reason };
+  } catch (error) {
+    console.error("❌ Moderation check failed:", error);
+    return { success: false, reason: "Moderation check failed" };
+  }
+}
 
 const handleSubmitI2VJob = async (
   event: APIGatewayProxyEvent,
@@ -101,6 +130,15 @@ const handleSubmitI2VJob = async (
 
   const finalPrompt =
     prompt.trim() === "" ? (media.metadata?.["prompt"] as string) : prompt;
+
+  // Prompt moderation check (must return a clear reason to the client on failure)
+  const moderation = await moderatePrompt(finalPrompt || "");
+  if (!moderation.success) {
+    return ResponseUtil.badRequest(
+      event,
+      moderation.reason || "Content violates platform rules"
+    );
+  }
 
   // Build full CDN URL (prepend as required)
   const sourceImageUrl = media.url.startsWith("http")
