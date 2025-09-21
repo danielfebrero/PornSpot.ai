@@ -849,7 +849,7 @@ export function ContentCard({
                   isMedia &&
                   media &&
                   !isVideoMedia &&
-                  user?.role === "admin" && (
+                  user?.planInfo.plan === "pro" && (
                     <Tooltip content="Convert to video" side="left">
                       <button
                         onClick={(e) => {

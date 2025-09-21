@@ -64,10 +64,6 @@ export function I2VPageContent() {
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  useEffect(() => {
-    console.log({ media, mediaId });
-  }, [media, mediaId]);
-
   // Available credits derived from user context
   const availableCredits = useMemo(() => {
     if (!user) return 0;
