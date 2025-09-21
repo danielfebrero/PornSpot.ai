@@ -18,36 +18,23 @@ export function MobileNavigationWrapper() {
     return null;
   }
 
-  // Base navigation items for all users (logged in or not)
-  const baseNavigationItems = [
-    {
-      href: "/",
-      label: t("discover"),
-      icon: Compass,
-      exactPath: true,
-    },
-    {
-      href: "/generate",
-      label: t("generate"),
-      icon: Zap,
-    },
-  ];
-
-  if (!user) {
-    baseNavigationItems.push({
-      href: "/pornspotcoin",
-      label: tNav("pornspotcoin"),
-      icon: Coins,
-    });
-  }
-
-  // Additional navigation items for logged-in users
-  const userNavigationItems = user
+  const navigationItems = user
     ? [
+        {
+          href: "/",
+          label: t("discover"),
+          icon: Compass,
+          exactPath: true,
+        },
         {
           href: "/user/pornspotcoin",
           label: tNav("pornspotcoin"),
           icon: Coins,
+        },
+        {
+          href: "/generate",
+          label: t("generate"),
+          icon: Zap,
         },
         {
           href: "/user/videos",
@@ -60,9 +47,24 @@ export function MobileNavigationWrapper() {
           icon: Image,
         },
       ]
-    : [];
-
-  const navigationItems = [...baseNavigationItems, ...userNavigationItems];
+    : [
+        {
+          href: "/",
+          label: t("discover"),
+          icon: Compass,
+          exactPath: true,
+        },
+        {
+          href: "/generate",
+          label: t("generate"),
+          icon: Zap,
+        },
+        {
+          href: "/pornspotcoin",
+          label: tNav("pornspotcoin"),
+          icon: Coins,
+        },
+      ];
 
   return <MobileNavigation navigationItems={navigationItems} />;
 }
