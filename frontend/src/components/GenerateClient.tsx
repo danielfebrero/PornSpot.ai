@@ -1849,7 +1849,7 @@ export function GenerateClient() {
           </div>
 
           {/* Right Column - Results */}
-          <div className="col-span-6">
+          <div className="col-span-8">
             {/* Generate Button */}
             <Button
               onClick={

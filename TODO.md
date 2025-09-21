@@ -138,7 +138,7 @@
 
 [ ] Auto reset generation param of users when their plan end.
 
-[ ] Redesign Generate page for mobile.
+[x] Redesign Generate page for mobile.
 
 [x] Integrate "select many" in admin page.
 
@@ -164,7 +164,7 @@
 
 [ ] Reconvert videos after i2v to ensure broad compatibility across navigators.
 
-[ ] Pass the prompt to LLM as a judge for i2v.
+[x] Pass the prompt to LLM as a judge for i2v.
 
 [x] Save the same meta data as image when creating a video.
 
