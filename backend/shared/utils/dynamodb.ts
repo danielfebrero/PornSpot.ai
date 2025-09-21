@@ -343,6 +343,12 @@ export class DynamoDBService {
     const expressionAttributeNames: Record<string, string> = {};
     const expressionAttributeValues: Record<string, any> = {};
 
+    // Check if isPublic is being updated - need to update corresponding GSI keys
+    if (updates.isPublic !== undefined) {
+      // Update GSI5SK to match the new isPublic value
+      updates.GSI5SK = updates.isPublic;
+    }
+
     Object.entries(updates).forEach(([key, value]) => {
       if (key !== "PK" && key !== "SK" && value !== undefined) {
         updateExpression.push(`#${key} = :${key}`);
@@ -992,6 +998,17 @@ export class DynamoDBService {
     const updateExpressions: string[] = [];
     const expressionAttributeValues: Record<string, any> = {};
     const expressionAttributeNames: Record<string, string> = {};
+
+    // Check if isPublic is being updated - need to update corresponding GSI keys
+    if (updates.isPublic !== undefined) {
+      // Update GSI3PK to match the new isPublic value
+      // GSI3PK format: MEDIA_BY_USER_{isPublic}
+      updates.GSI3PK = `MEDIA_BY_USER_${updates.isPublic}`;
+
+      // Update GSI5SK to match the new isPublic value
+      // GSI5SK format: {isPublic}
+      updates.GSI5SK = updates.isPublic;
+    }
 
     // Build dynamic update expression
     Object.entries(updates).forEach(([key, value]) => {
