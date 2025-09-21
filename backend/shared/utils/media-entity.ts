@@ -168,6 +168,7 @@ export function createGenerationMetadata(options: {
   cfgScale: number;
   steps: number;
   seed: number;
+  originalMediaId?: string;
 }): Metadata {
   return {
     prompt: options.prompt.trim(),
@@ -195,5 +196,8 @@ export function createGenerationMetadata(options: {
     cfgScale: options.cfgScale,
     steps: options.steps,
     seed: options.seed,
+    ...(options.originalMediaId && {
+      originalMediaId: options.originalMediaId,
+    }),
   };
 }

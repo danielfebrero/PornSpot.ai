@@ -171,3 +171,5 @@
 [x] My likes and bookmarks are not showing as Like/bookmark in term of interaction status.
 
 [ ] View counter is not up to date in albums.
+
+[ ] "Other controls" meta data on media page of video is not accurate.

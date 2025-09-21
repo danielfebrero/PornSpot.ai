@@ -180,6 +180,7 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
     cfgScale: job.request?.cfgScale,
     steps: job.request?.inferenceSteps,
     seed: Number(job.request?.seed),
+    originalMediaId: job.mediaId,
   });
 
   const mediaEntity = createMediaEntity({
@@ -195,6 +196,8 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
     createdByType: "user",
     type: "video",
     metadata: metadata,
+    thumbnailUrl: sourceMedia?.thumbnailUrl,
+    thumbnailUrls: sourceMedia?.thumbnailUrls,
   });
   await DynamoDBService.createMedia(mediaEntity);
   await DynamoDBService.updateI2VJob(jobId, {
