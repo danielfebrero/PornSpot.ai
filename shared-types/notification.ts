@@ -15,7 +15,6 @@ export type NotificationTargetType =
   | "image"
   | "video"
   | "comment"
-  | "media"
   | "user";
 export type NotificationStatus = "unread" | "read";
 

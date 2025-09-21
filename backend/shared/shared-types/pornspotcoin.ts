@@ -34,7 +34,7 @@ export type TransactionStatus =
 // Payout event types for reward calculations
 export interface PayoutEvent {
   eventType: "view" | "like" | "comment" | "bookmark" | "profile_view";
-  targetType: "album" | "image" | "video" | "profile";
+  targetType: "album" | "image" | "video" | "profile" | "media";
   targetId: string;
   userId: string; // User who performed the action
   creatorId: string; // User who receives the reward

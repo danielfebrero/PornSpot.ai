@@ -59,8 +59,7 @@ const handleGetBookmarks = async (
         }
       } else if (
         interaction.targetType === "image" ||
-        interaction.targetType === "video" ||
-        interaction.targetType === "media"
+        interaction.targetType === "video"
       ) {
         // For media, get the media details directly
         targetDetails = await DynamoDBService.getMedia(interaction.targetId);

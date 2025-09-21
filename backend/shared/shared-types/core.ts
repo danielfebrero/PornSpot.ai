@@ -65,7 +65,7 @@ export type EntityType =
 
 export type CreatorType = "user" | "admin";
 
-export type TargetType = "album" | "image" | "video" | "comment" | "media";
+export type TargetType = "album" | "image" | "video" | "comment";
 
 export type CommentTargetType = "album" | "image" | "video";
 

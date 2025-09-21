@@ -55,7 +55,7 @@ export interface InteractionCountsResponse {
   success: boolean;
   data?: {
     targetId: string;
-    targetType: "album" | "image" | "video";
+    targetType: "album" | "image" | "video" | "media";
     likeCount: number;
     bookmarkCount: number;
     userLiked: boolean;

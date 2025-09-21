@@ -80,7 +80,6 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         break;
       case "image":
       case "video":
-      case "media":
         contentHref = `/media/${targetId}`;
         break;
       case "comment":
@@ -92,6 +91,9 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         } else {
           contentHref = "/";
         }
+        break;
+      default:
+        contentHref = `/media/${targetId}`;
         break;
     }
 
