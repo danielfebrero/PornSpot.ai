@@ -1245,7 +1245,8 @@
       "types": {
         "album": "相册",
         "media": "媒体",
-        "comment": "评论"
+        "comment": "评论",
+        "video": "视频"
       },
       "unknownUser": "未知用户",
       "error": {

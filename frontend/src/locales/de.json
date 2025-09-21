@@ -1243,7 +1243,8 @@
       "types": {
         "album": "Album",
         "media": "Medium",
-        "comment": "Kommentar"
+        "comment": "Kommentar",
+        "video": "Video"
       },
       "unknownUser": "Unbekannter Benutzer",
       "error": {

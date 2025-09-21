@@ -1108,7 +1108,8 @@
       "types": {
         "album": "album",
         "media": "media",
-        "comment": "comment"
+        "comment": "comment",
+        "video": "video"
       },
       "unknownUser": "Unknown user",
       "error": {
