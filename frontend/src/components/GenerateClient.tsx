@@ -1508,7 +1508,7 @@ export function GenerateClient() {
         {/* Main Layout */}
         <div className="grid grid-cols-12 gap-6">
           {/* Left Column - Settings */}
-          <div className="col-span-5 space-y-6">
+          <div className="col-span-4 space-y-6">
             {/* Prompt Input */}
             <Card className="border-2">
               <CardHeader>
@@ -1849,7 +1849,7 @@ export function GenerateClient() {
           </div>
 
           {/* Right Column - Results */}
-          <div className="col-span-7">
+          <div className="col-span-6">
             {/* Generate Button */}
             <Button
               onClick={
