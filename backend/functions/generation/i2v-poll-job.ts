@@ -186,7 +186,7 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
     mediaId,
     userId: job.userId,
     filename: saved.key,
-    originalFilename: `${jobId}.mp4`,
+    originalFilename: sourceMedia?.originalFilename || "Video",
     mimeType: "video/mp4",
     url: relativeUrl,
     size: saved.size,

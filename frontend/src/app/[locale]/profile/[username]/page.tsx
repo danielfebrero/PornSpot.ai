@@ -61,7 +61,7 @@ export default function PublicProfilePage() {
       {profileUser && <ViewTracker targetType="profile" targetId={username} />}
       <ProfileComponent
         user={profileUser || null}
-        isOwner={false}
+        isOwner={currentUser?.userId === profileUser?.userId}
         loading={loading}
       />
     </>

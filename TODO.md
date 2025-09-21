@@ -172,4 +172,4 @@
 
 [x] Generating a media should increment generated medias count.
 
-[ ] Add isPublic option on i2v page.
+[x] Add isPublic option on i2v page.

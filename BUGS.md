@@ -156,17 +156,17 @@
 
 [ ] The user PornSpotCoin Transactions page loads ALL transactions instead of paginating.
 
-[ ] On videos page, incomplete video progression do not progress, I have to re render the page to see updated progress.
+[x] On videos page, incomplete video progression do not progress, I have to re render the page to see updated progress.
 
 [x] Videos page, when 1 video, load more videos in loop.
 
-[ ] On mobile, on I2V page, the source image blink when I change settings.
+[x] On mobile, on I2V page, the source image blink when I change settings.
 
-[ ] On video page, when video is pass from incomplete to complete status, it disappear optimistically but do not reappear as ContentCard video.
+[x] On video page, when video is pass from incomplete to complete status, it disappear optimistically but do not reappear as ContentCard video.
 
 [x] On images page, the video appear but shouldn't.
 
-[ ] On mobile, I can follow myself by going on my profile from a {username} link.
+[x] On mobile, I can follow myself by going on my profile from a {username} link.
 
 [x] My likes and bookmarks are not showing as Like/bookmark in term of interaction status.
 

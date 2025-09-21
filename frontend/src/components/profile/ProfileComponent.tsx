@@ -469,7 +469,6 @@ export default function ProfileComponent({
   };
 
   const displayName = currentUser?.username ?? "Anonymous";
-  const initials = displayName.slice(0, 2).toUpperCase();
 
   // Create a user object for the Avatar component with preview support
   const avatarUser = {
