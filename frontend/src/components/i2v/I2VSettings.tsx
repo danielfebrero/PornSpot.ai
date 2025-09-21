@@ -22,13 +22,16 @@ import { usePermissions } from "@/contexts/PermissionsContext";
 interface I2VSettingsProps {
   settings: I2VSettings;
   onSettingsChange: (settings: I2VSettings) => void;
+  showAdvanced?: boolean;
+  onToggleAdvanced?: () => void;
 }
 
 export function I2VSettingsComponent({
   settings,
   onSettingsChange,
+  showAdvanced,
+  onToggleAdvanced,
 }: I2VSettingsProps) {
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const t = useTranslations("i2v.settings");
   const { canCreatePrivateContent } = usePermissions();
   const canMakePrivate = canCreatePrivateContent();
@@ -83,7 +86,7 @@ export function I2VSettingsComponent({
         <div>
           <Button
             variant="ghost"
-            onClick={() => setShowAdvanced(!showAdvanced)}
+            onClick={onToggleAdvanced}
             className="flex items-center gap-2 p-0 h-auto font-medium text-foreground hover:text-primary"
           >
             {showAdvanced ? (

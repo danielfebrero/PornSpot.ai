@@ -38,6 +38,8 @@ export function I2VPageContent() {
   } = useMediaById(mediaId || "", !!mediaId);
 
   const [isGenerating, setIsGenerating] = useState(false);
+  // Control advanced section open state from parent to avoid auto-hide on rerenders
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
 
   // No progress tracking needed; we redirect after job submission
 
@@ -198,6 +200,8 @@ export function I2VPageContent() {
         <I2VSettingsComponent
           settings={settings}
           onSettingsChange={setSettings}
+          showAdvanced={showAdvancedSettings}
+          onToggleAdvanced={() => setShowAdvancedSettings((s) => !s)}
         />
 
         {/* Generation Section */}
@@ -343,6 +347,8 @@ export function I2VPageContent() {
           <I2VSettingsComponent
             settings={settings}
             onSettingsChange={setSettings}
+            showAdvanced={showAdvancedSettings}
+            onToggleAdvanced={() => setShowAdvancedSettings((s) => !s)}
           />
 
           {/* Generation Section */}
