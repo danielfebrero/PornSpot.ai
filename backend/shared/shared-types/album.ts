@@ -49,6 +49,7 @@ export interface UpdateAlbumRequest {
   tags?: string[];
   isPublic?: boolean;
   coverImageUrl?: string;
+  coverImageMediaId?: string;
 }
 
 export interface BulkDeleteAlbumsRequest {

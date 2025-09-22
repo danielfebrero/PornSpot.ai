@@ -37,15 +37,7 @@ interface EditAlbumDialogProps {
   album: Album | null;
   open: boolean;
   onClose: () => void;
-  onSave: (
-    albumId: string,
-    data: {
-      title?: string;
-      tags?: string[];
-      isPublic?: boolean;
-      coverImageUrl?: string;
-    }
-  ) => void;
+  onSave: any;
   loading?: boolean;
 }
 
@@ -84,6 +76,7 @@ export function EditAlbumDialog({
   const [tags, setTags] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(false);
   const [coverImageUrl, setCoverImageUrl] = useState("");
+  const [coverImageMediaId, setCoverImageMediaId] = useState("");
   const [saving, setSaving] = useState(false);
 
   // Media selection state
@@ -147,11 +140,13 @@ export function EditAlbumDialog({
       // If user can't make content private, force album to be public
       setIsPublic(canMakePrivate ? album.isPublic || false : true);
       setCoverImageUrl(album.coverImageUrl || "");
+      setCoverImageMediaId((album as any).coverImageMediaId || "");
     } else {
       setTitle("");
       setTags([]);
       setIsPublic(true); // Default to public
       setCoverImageUrl("");
+      setCoverImageMediaId("");
       setUserMedia([]);
       setInitiallySelectedMediaIds(new Set());
     }
@@ -273,7 +268,7 @@ export function EditAlbumDialog({
         title: title.trim(),
         tags,
         isPublic,
-        coverImageUrl: coverImageUrl.trim() || undefined,
+        coverImageMediaId: coverImageMediaId || undefined,
       });
       // Note: Don't call onClose() here as the parent component
       // handles closing the dialog immediately for better UX
@@ -340,7 +335,13 @@ export function EditAlbumDialog({
               <CoverImageSelector
                 albumId={album.id}
                 currentCoverUrl={coverImageUrl}
-                onCoverSelect={({ url }) => setCoverImageUrl(url)}
+                onCoverSelect={(mediaId) => {
+                  setCoverImageMediaId(mediaId);
+                  if (!mediaId) {
+                    setCoverImageUrl("");
+                    return;
+                  }
+                }}
                 disabled={saving || loading}
               />
             )}

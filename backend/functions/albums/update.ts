@@ -3,7 +3,7 @@
  * @description Updates album metadata, including title, tags, visibility, and cover image with thumbnail regeneration.
  * @auth Requires authentication via LambdaHandlerUtil.withAuth (includes role check).
  * @pathParams {string} albumId - ID of the album to update.
- * @body UpdateAlbumRequest: { title?: string, tags?: string[], isPublic?: boolean, coverImageUrl?: string }
+ * @body UpdateAlbumRequest: { title?: string, tags?: string[], isPublic?: boolean, coverImageMediaId?: string }
  * @notes
  * - Lazy-loads heavy dependencies after OPTIONS.
  * - Verifies ownership or admin role.
@@ -27,7 +27,6 @@ const handleUpdateAlbum = async (
 ): Promise<APIGatewayProxyResult> => {
   // Import heavy dependencies only when needed (after OPTIONS check)
   const { DynamoDBService } = await import("@shared/utils/dynamodb");
-  const { CoverThumbnailUtil } = await import("@shared/utils/cover-thumbnail");
 
   const { userId, userRole = "user" } = auth;
 
@@ -85,28 +84,29 @@ const handleUpdateAlbum = async (
     updates.isPublic = request.isPublic.toString();
   }
 
-  if (request.coverImageUrl !== undefined) {
-    updates.coverImageUrl = request.coverImageUrl;
-
-    // Generate thumbnails when cover image is updated
-    if (request.coverImageUrl) {
-      const thumbnailUrls =
-        await CoverThumbnailUtil.processCoverImageThumbnails(
-          request.coverImageUrl,
-          albumId
-        );
-
-      if (thumbnailUrls) {
-        // Add thumbnailUrls to the updates
-        updates.thumbnailUrls = thumbnailUrls;
-      } else {
-        console.warn(
-          `Failed to generate thumbnails for album ${albumId}, continuing without them`
+  // Handle cover image update by media ID (aligns with create handler)
+  if (request.coverImageMediaId !== undefined) {
+    // If empty string provided, clear cover image fields
+    if (!request.coverImageMediaId) {
+      updates.coverImageMediaId = undefined;
+      updates.coverImageUrl = undefined;
+      updates.thumbnailUrls = undefined;
+    } else {
+      const coverImageMediaId = ValidationUtil.validateRequiredString(
+        request.coverImageMediaId,
+        "coverImageMediaId"
+      );
+      const media = await DynamoDBService.getMedia(coverImageMediaId);
+      if (!media) {
+        return ResponseUtil.badRequest(
+          event,
+          `Media item ${coverImageMediaId} not found`
         );
       }
-    } else {
-      // If coverImageUrl is being cleared, also clear thumbnailUrls
-      updates.thumbnailUrls = undefined;
+
+      updates.coverImageMediaId = coverImageMediaId;
+      updates.coverImageUrl = media.thumbnailUrl;
+      updates.thumbnailUrls = media.thumbnailUrls;
     }
   }
 

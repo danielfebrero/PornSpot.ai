@@ -13,7 +13,9 @@ import {
 interface CoverImageSelectorProps {
   albumId: string;
   currentCoverUrl?: string;
-  onCoverSelect: (imageData: { url: string }) => void;
+  // Return media id instead of URL
+  // eslint-disable-next-line no-unused-vars
+  onCoverSelect: (id: string) => void;
   disabled?: boolean;
 }
 
@@ -39,9 +41,9 @@ export function CoverImageSelector({
   const selectedCoverUrl = currentCoverUrl || "";
 
   const handleImageSelect = useCallback(
-    (imageData: { url: string }) => {
-      onCoverSelect(imageData);
-      if (imageData.url) {
+    (mediaId: string) => {
+      onCoverSelect(mediaId);
+      if (mediaId) {
         setIsOpen(false);
       }
     },
@@ -128,7 +130,7 @@ export function CoverImageSelector({
                         ? "border-primary shadow-md"
                         : "border-border hover:border-muted-foreground"
                     }`}
-                    onClick={() => handleImageSelect({ url: imageUrl })}
+                    onClick={() => handleImageSelect(image.id)}
                   >
                     <ResponsivePicture
                       thumbnailUrls={composeThumbnailUrls(
@@ -177,7 +179,7 @@ export function CoverImageSelector({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => handleImageSelect({ url: "" })}
+                  onClick={() => handleImageSelect("")}
                   size="sm"
                   className="text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
                 >

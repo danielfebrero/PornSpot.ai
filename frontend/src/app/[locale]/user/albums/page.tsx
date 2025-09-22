@@ -105,7 +105,7 @@ const UserAlbumsPage: React.FC = () => {
         title?: string;
         tags?: string[];
         isPublic?: boolean;
-        coverImageUrl?: string;
+        coverImageMediaId?: string;
       }
     ) => {
       // Close dialog immediately for better UX
