@@ -341,6 +341,10 @@ export function EditAlbumDialog({
                     setCoverImageUrl("");
                     return;
                   }
+                  const found =
+                    flatAlbumMedia.find((m: Media) => m.id === mediaId) ||
+                    flatUserMedia.find((m: Media) => m.id === mediaId);
+                  setCoverImageUrl(found?.thumbnailUrl || "");
                 }}
                 disabled={saving || loading}
               />
