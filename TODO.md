@@ -173,3 +173,5 @@
 [x] Generating a media should increment generated medias count.
 
 [x] Add isPublic option on i2v page.
+
+[ ] On create album or select cover image, take it from the media entity instead of creating a new one.
