@@ -141,12 +141,12 @@ const UserLayout: React.FC<UserLayoutProps> = ({
     {
       href: `/user/videos`,
       label: t("videos"),
-      icon: Image,
+      icon: Video,
     },
     {
       href: `/user/images`,
       label: t("images"),
-      icon: Video,
+      icon: Image,
     },
     {
       href: `/user/albums`,

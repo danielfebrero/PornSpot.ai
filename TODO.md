@@ -174,4 +174,6 @@
 
 [x] Add isPublic option on i2v page.
 
-[ ] On create album or select cover image, take it from the media entity instead of creating a new one.
+[x] On create album or select cover image, take it from the media entity instead of creating a new one.
+
+[ ] Changing album cover image should update the cover optimistically in the client.
