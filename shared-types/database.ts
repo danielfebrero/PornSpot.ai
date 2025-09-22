@@ -50,6 +50,7 @@ export interface AlbumEntity extends BaseEntity {
   tags?: string[];
   coverImageUrl?: string;
   thumbnailUrls?: ThumbnailUrls;
+  coverImageMediaId?: string; // Media ID of the cover image
   createdAt: string;
   updatedAt: string;
   mediaCount: number;

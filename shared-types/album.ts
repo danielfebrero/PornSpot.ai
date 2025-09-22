@@ -16,6 +16,7 @@ export interface Album {
   type: "album";
   tags?: string[];
   coverImageUrl?: string;
+  coverImageMediaId?: string;
   thumbnailUrls?: ThumbnailUrls;
   createdAt: string;
   updatedAt: string;

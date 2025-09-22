@@ -21,7 +21,6 @@ import { ResponseUtil } from "@shared/utils/response";
 import { RevalidationService } from "@shared/utils/revalidation";
 import { CreateAlbumRequest, AlbumEntity } from "@shared";
 import { PlanUtil } from "@shared/utils/plan";
-import { CoverThumbnailUtil } from "@shared/utils/cover-thumbnail";
 import { getPlanPermissions } from "@shared/utils/permissions";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
@@ -64,17 +63,7 @@ const handleCreateAlbum = async (
     : undefined;
 
   // Validate cover image ID if provided and generate thumbnails
-  let coverImageUrl: string | undefined;
   let coverImageId: string | undefined;
-  let thumbnailUrls:
-    | {
-        cover?: string;
-        small?: string;
-        medium?: string;
-        large?: string;
-        xlarge?: string;
-      }
-    | undefined;
 
   if (
     request.coverImageId ||
@@ -91,16 +80,11 @@ const handleCreateAlbum = async (
         "coverImageId"
       );
     }
-
-    const coverMedia = await DynamoDBService.getMedia(coverImageId);
-    if (!coverMedia) {
-      return ResponseUtil.badRequest(
-        event,
-        `Cover image ${coverImageId} not found`
-      );
-    }
-    coverImageUrl = coverMedia.url;
+  } else {
+    coverImageId = request.mediaIds?.[0];
   }
+
+  const coverMedia = await DynamoDBService.getMedia(coverImageId!);
 
   const albumId = uuidv4();
   const now = new Date().toISOString();
@@ -131,23 +115,6 @@ const handleCreateAlbum = async (
     }
   }
 
-  // Generate thumbnails if cover image is set, before creating the album
-  if (coverImageUrl) {
-    const generatedThumbnails =
-      await CoverThumbnailUtil.processCoverImageThumbnails(
-        coverImageUrl,
-        albumId
-      );
-
-    if (generatedThumbnails) {
-      thumbnailUrls = generatedThumbnails;
-    } else {
-      console.warn(
-        `Failed to generate thumbnails for album ${albumId}, continuing without them`
-      );
-    }
-  }
-
   const albumEntity: AlbumEntity = {
     PK: `ALBUM#${albumId}`,
     SK: "METADATA",
@@ -173,9 +140,10 @@ const handleCreateAlbum = async (
     bookmarkCount: 0,
     viewCount: 0,
     createdBy: userId,
+    coverImageMediaId: coverImageId,
     createdByType: userRole === "admin" ? "admin" : "user",
-    ...(coverImageUrl && { coverImageUrl }),
-    ...(thumbnailUrls && { thumbnailUrls }),
+    coverImageUrl: coverMedia?.thumbnailUrl,
+    thumbnailUrls: coverMedia?.thumbnailUrls,
   };
 
   await DynamoDBService.createAlbum(albumEntity);
