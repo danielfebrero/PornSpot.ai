@@ -3494,6 +3494,7 @@ Resources:
   # Monthly Analytics Aggregation Function
   AnalyticsAggregateMonthlyFunction:
     Type: AWS::Serverless::Function
+    Condition: IsProd
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-analytics-aggregate-monthly-v2"
       PackageType: Image
@@ -3527,6 +3528,7 @@ Resources:
   # Daily Unread Notifications Email Digest
   UnreadNotificationsDigestFunction:
     Type: AWS::Serverless::Function
+    Condition: IsProd
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-unread-notifications-digest"
       PackageType: Image
@@ -3565,6 +3567,7 @@ Resources:
   # Daily PSC Balance Email Digest
   PscBalanceDigestFunction:
     Type: AWS::Serverless::Function
+    Condition: IsProd
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-psc-balance-digest"
       PackageType: Image
@@ -3618,7 +3621,6 @@ Resources:
             Schedule: "cron(1 1 * * ? *)" # Every day at 01:01 UTC
             Name: !Sub "${Environment}-pornspot-grant-i2v-credits-daily"
             Description: "Grant i2v credits to Pro users on their monthly renewal date daily at 01:01 UTC"
-            Enabled: !If [IsProd, true, false]
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable

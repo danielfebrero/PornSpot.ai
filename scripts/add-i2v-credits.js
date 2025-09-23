@@ -88,8 +88,8 @@ function validateEmail(email) {
 }
 
 function validateUsername(username) {
-  // Basic username rules (mirror typical constraints): alphanumeric + underscores, 3-30 chars
-  return /^[a-zA-Z0-9_]{3,30}$/.test(username);
+  // Basic username rules (mirror typical constraints): alphanumeric + underscores or hyphens, 3-30 chars
+  return /^[a-zA-Z0-9_-]{3,30}$/.test(username);
 }
 
 function displayUsage() {

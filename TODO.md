@@ -162,7 +162,7 @@
 
 [ ] Possibility to optimize i2v prompt.
 
-[ ] Reconvert videos after i2v to ensure broad compatibility across navigators.
+[x] Reconvert videos after i2v to ensure broad compatibility across navigators.
 
 [x] Pass the prompt to LLM as a judge for i2v.
 
