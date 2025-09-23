@@ -274,7 +274,7 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
           >
             <video
               ref={videoRef}
-              src={composeMediaUrl(media.url)}
+              src={composeMediaUrl(media.optimizedVideoUrl || media.url)}
               className={cn("w-full h-auto object-contain", imageClassName)}
               controls
               autoPlay
