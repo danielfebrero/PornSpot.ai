@@ -297,6 +297,10 @@ export class DynamoDBService {
       media.createdByType = entity.createdByType;
     }
 
+    if (entity.optimizedVideoUrl !== undefined) {
+      media.optimizedVideoUrl = entity.optimizedVideoUrl;
+    }
+
     return media;
   }
 

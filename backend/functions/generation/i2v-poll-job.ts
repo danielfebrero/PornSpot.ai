@@ -157,9 +157,16 @@ async function pollOnce(jobId: string): Promise<{
 async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
   const s3 = S3StorageService.getInstance();
   const jobId = job.jobId;
-  const saved = await s3.saveI2VResultFromUrl(jobId, outputUrl, "video/mp4");
+  const savedPair = await s3.saveI2VResultFromUrl(
+    jobId,
+    outputUrl,
+    "video/mp4"
+  );
   const mediaId = jobId;
-  const relativeUrl = `/${saved.key}`;
+  const relativeUrl = `/${savedPair.mp4.key}`;
+  const optimizedWebmRelative = savedPair.webm
+    ? `/${savedPair.webm.key}`
+    : undefined;
   const sourceMedia = await DynamoDBService.getMedia(job.mediaId);
   const metaWidth =
     job.request?.width ??
@@ -186,11 +193,11 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
   const mediaEntity = createMediaEntity({
     mediaId,
     userId: job.userId,
-    filename: saved.key,
+    filename: savedPair.mp4.key,
     originalFilename: sourceMedia?.originalFilename || "Video",
     mimeType: "video/mp4",
     url: relativeUrl,
-    size: saved.size,
+    size: savedPair.mp4.size,
     isPublic: job.request?.isPublic !== undefined ? job.request.isPublic : true,
     status: "uploaded",
     createdByType: "user",
@@ -198,6 +205,7 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
     metadata: metadata,
     thumbnailUrl: sourceMedia?.thumbnailUrl,
     thumbnailUrls: sourceMedia?.thumbnailUrls,
+    optimizedVideoUrl: optimizedWebmRelative,
   });
   await DynamoDBService.createMedia(mediaEntity);
   await DynamoDBService.updateI2VJob(jobId, {

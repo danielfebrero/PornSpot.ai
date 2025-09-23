@@ -711,8 +711,8 @@ export function ContentCard({
           <div className="relative w-full h-full">
             {isVideoMedia ? (
               <video
-                src={composeMediaUrl(media.url)}
-                poster={composeMediaUrl(media.thumbnailUrl)}
+                src={composeMediaUrl(media.optimizedVideoUrl || media.url)}
+                poster={composeMediaUrl(media.thumbnailUrls?.xlarge)}
                 className={cn(
                   "w-full h-full",
                   useAllAvailableSpace ? "object-contain" : "object-cover",

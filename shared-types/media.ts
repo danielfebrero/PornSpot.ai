@@ -39,6 +39,7 @@ export interface Media {
   albums?: import("./album").Album[];
   comments?: import("./comment").Comment[];
   popularity: number;
+  optimizedVideoUrl?: string; // for videos, URL of the optimized version
 }
 
 export interface MediaWithSiblings extends Media {

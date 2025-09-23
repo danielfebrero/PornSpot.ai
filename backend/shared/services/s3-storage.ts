@@ -15,6 +15,21 @@ import {
   PutObjectCommand,
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
+import { promises as fs } from "fs";
+import { tmpdir } from "os";
+import { join as pathJoin } from "path";
+import { spawn } from "child_process";
+// Use require for ffmpeg-static to avoid type dependency; optional at runtime
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const ffmpegPath: string | null = (() => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const p = require("ffmpeg-static");
+    return p || null;
+  } catch (_err) {
+    return null;
+  }
+})();
 import { v4 as uuidv4 } from "uuid";
 
 export interface UploadImageResult {
@@ -22,6 +37,11 @@ export interface UploadImageResult {
   url: string;
   publicUrl: string;
   size?: number; // bytes
+}
+
+export interface UploadVideoPairResult {
+  mp4: UploadImageResult;
+  webm?: UploadImageResult; // optional if conversion fails
 }
 
 export class S3StorageService {
@@ -265,8 +285,13 @@ export class S3StorageService {
     jobId: string,
     fileUrl: string,
     contentType: string = "video/mp4"
-  ): Promise<UploadImageResult> {
-    const key = `generated/i2v/${jobId}.mp4`;
+  ): Promise<UploadVideoPairResult> {
+    const mp4Key = `generated/i2v/${jobId}.mp4`;
+    const webmKey = `generated/i2v/${jobId}.webm`;
+    const tmpMp4 = pathJoin(tmpdir(), `${jobId}.mp4`);
+    const tmpWebm = pathJoin(tmpdir(), `${jobId}.webm`);
+    let mp4Size: number | undefined;
+    let webmBuffer: Buffer | undefined;
     try {
       const res = await fetch(fileUrl);
       if (!res.ok) {
@@ -274,40 +299,129 @@ export class S3StorageService {
         throw new Error(`Download failed ${res.status}: ${txt}`);
       }
       const arrayBuf = await res.arrayBuffer();
-      const buffer = Buffer.from(arrayBuf);
-      const size = buffer.byteLength;
+      const mp4Buffer = Buffer.from(arrayBuf);
+      mp4Size = mp4Buffer.byteLength;
 
-      const putCommand = new PutObjectCommand({
-        Bucket: this.bucketName,
-        Key: key,
-        Body: buffer,
-        ContentType: contentType,
-        CacheControl: "public, max-age=31536000",
-        Metadata: {
-          uploadedAt: new Date().toISOString(),
-          source: "runpod",
-          jobId,
-        },
-      });
+      // Persist source MP4 to /tmp for conversion
+      await fs.writeFile(tmpMp4, mp4Buffer);
 
-      await this.s3Client.send(putCommand);
+      // Attempt MP4 -> WebM conversion using ffmpeg-static if available
+      if (ffmpegPath) {
+        await new Promise<void>((resolve, reject) => {
+          const args = [
+            "-y",
+            "-i",
+            tmpMp4,
+            // VP9 settings: good quality at reasonable size; no audio to simplify
+            "-c:v",
+            "libvpx-vp9",
+            "-b:v",
+            "0",
+            "-crf",
+            "33",
+            "-row-mt",
+            "1",
+            "-deadline",
+            "good",
+            "-cpu-used",
+            "4",
+            "-an",
+            tmpWebm,
+          ];
+          const cp = spawn(ffmpegPath as string, args);
+          let stderr = "";
+          cp.stderr.on("data", (d) => (stderr += d.toString()));
+          cp.on("error", reject);
+          cp.on("close", (code) => {
+            if (code === 0) return resolve();
+            console.warn(`ffmpeg exited with code ${code}: ${stderr}`);
+            reject(new Error(`ffmpeg code ${code}`));
+          });
+        })
+          .then(async () => {
+            webmBuffer = await fs.readFile(tmpWebm);
+          })
+          .catch((err) => {
+            console.warn(
+              "WebM conversion failed; proceeding with MP4 only",
+              err
+            );
+          });
+      } else {
+        console.warn("ffmpeg-static not available; skipping WebM conversion");
+      }
 
-      const s3Url = `https://${this.bucketName}.s3.amazonaws.com/${key}`;
-      const publicUrl = this.cloudFrontDomain
-        ? `https://${this.cloudFrontDomain}/${key}`
-        : s3Url;
+      // Upload MP4
+      await this.s3Client.send(
+        new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: mp4Key,
+          Body: await fs.readFile(tmpMp4),
+          ContentType: contentType,
+          CacheControl: "public, max-age=31536000",
+          Metadata: {
+            uploadedAt: new Date().toISOString(),
+            source: "runpod",
+            jobId,
+            format: "mp4",
+          },
+        })
+      );
 
-      console.log(`✅ I2V result saved to S3: ${key}`);
+      // Upload WebM (if converted)
+      let webmResult: UploadImageResult | undefined;
+      if (webmBuffer) {
+        await this.s3Client.send(
+          new PutObjectCommand({
+            Bucket: this.bucketName,
+            Key: webmKey,
+            Body: webmBuffer,
+            ContentType: "video/webm",
+            CacheControl: "public, max-age=31536000",
+            Metadata: {
+              uploadedAt: new Date().toISOString(),
+              source: "runpod",
+              jobId,
+              format: "webm",
+            },
+          })
+        );
+        const webmS3Url = `https://${this.bucketName}.s3.amazonaws.com/${webmKey}`;
+        const webmPublicUrl = this.cloudFrontDomain
+          ? `https://${this.cloudFrontDomain}/${webmKey}`
+          : webmS3Url;
+        webmResult = {
+          key: webmKey,
+          url: webmS3Url,
+          publicUrl: webmPublicUrl,
+          size: webmBuffer.byteLength,
+        };
+        console.log(`✅ I2V WebM saved to S3: ${webmKey}`);
+      }
+
+      const mp4S3Url = `https://${this.bucketName}.s3.amazonaws.com/${mp4Key}`;
+      const mp4PublicUrl = this.cloudFrontDomain
+        ? `https://${this.cloudFrontDomain}/${mp4Key}`
+        : mp4S3Url;
+
+      console.log(`✅ I2V MP4 saved to S3: ${mp4Key}`);
 
       return {
-        key,
-        url: s3Url,
-        publicUrl,
-        size,
+        mp4: {
+          key: mp4Key,
+          url: mp4S3Url,
+          publicUrl: mp4PublicUrl,
+          size: mp4Size,
+        },
+        webm: webmResult,
       };
     } catch (error) {
       console.error("❌ Failed to save I2V result to S3:", error);
       throw error;
+    } finally {
+      // Cleanup tmp files (ignore errors)
+      await fs.unlink(tmpMp4).catch(() => undefined);
+      await fs.unlink(tmpWebm).catch(() => undefined);
     }
   }
 }

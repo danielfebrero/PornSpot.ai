@@ -40,7 +40,9 @@ export function getMediaDisplayUrl(media: Media): string {
  * Check if a media item is a video based on its MIME type
  */
 export function isVideo(media: Media): boolean {
-  return media?.mimeType?.startsWith("video/") || false;
+  return (
+    media?.mimeType?.startsWith("video/") || media?.type === "video" || false
+  );
 }
 
 /**

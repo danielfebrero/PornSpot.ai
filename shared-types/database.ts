@@ -105,6 +105,7 @@ export interface MediaEntity extends BaseEntity {
   commentCount?: number;
   metadata?: Metadata;
   type: "image" | "video";
+  optimizedVideoUrl?: string; // for videos, URL of the optimized version
   // User tracking fields
   createdBy?: string; // userId or adminId who uploaded this media
   createdByType?: CreatorType; // type of creator

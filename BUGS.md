@@ -162,7 +162,7 @@
 
 [x] On mobile, on I2V page, the source image blink when I change settings.
 
-[x] On video page, when video is pass from incomplete to complete status, it disappear optimistically but do not reappear as ContentCard video.
+[ ] On video page, when video is pass from incomplete to complete status, it disappear optimistically but do not reappear as ContentCard video.
 
 [x] On images page, the video appear but shouldn't.
 
@@ -170,6 +170,6 @@
 
 [x] My likes and bookmarks are not showing as Like/bookmark in term of interaction status.
 
-[ ] View counter is not up to date in albums.
+[ ] View counter and interaction status is not up to date in albums.
 
 [ ] "Other controls" meta data on media page of video is not accurate.

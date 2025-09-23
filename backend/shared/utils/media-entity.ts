@@ -47,6 +47,8 @@ export interface CreateMediaEntityOptions {
   thumbnailUrls?: import("@shared").ThumbnailUrls;
 
   type: "image" | "video";
+
+  optimizedVideoUrl?: string; // for videos, URL of the optimized version
 }
 
 /**
@@ -141,6 +143,11 @@ export function createMediaEntity(
 
     // Optional metadata
     ...(options.metadata && { metadata: options.metadata }),
+
+    // Optimized video URL for videos
+    ...(options.optimizedVideoUrl && {
+      optimizedVideoUrl: options.optimizedVideoUrl,
+    }),
   };
 
   return mediaEntity;
