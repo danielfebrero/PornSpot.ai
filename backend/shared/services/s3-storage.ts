@@ -306,25 +306,50 @@ export class S3StorageService {
       await fs.writeFile(tmpMp4, mp4Buffer);
 
       // Attempt MP4 -> WebM conversion using ffmpeg-static if available
-      if (ffmpegPath) {
+      // Use Lambda-friendly defaults and allow opt-out via env or low memory
+      const lambdaMemMb = Number(
+        process.env["AWS_LAMBDA_FUNCTION_MEMORY_SIZE"] || "0"
+      );
+      const disableWebmEnv = (
+        process.env["I2V_DISABLE_WEBM"] || ""
+      ).toLowerCase();
+      const disableWebm =
+        disableWebmEnv === "1" ||
+        disableWebmEnv === "true" ||
+        (lambdaMemMb > 0 && lambdaMemMb < 1024);
+
+      if (ffmpegPath && !disableWebm) {
         await new Promise<void>((resolve, reject) => {
+          // Prefer faster, lower-CPU settings to avoid Lambda OOM/timeouts
+          // Tunables via env (optional): I2V_WEBM_CRF, I2V_WEBM_THREADS
+          const crf = process.env["I2V_WEBM_CRF"] || "36"; // higher=faster/smaller CPU
+          const threads = process.env["I2V_WEBM_THREADS"] || "2";
+
           const args = [
+            "-hide_banner",
+            "-loglevel",
+            "warning",
             "-y",
             "-i",
             tmpMp4,
-            // VP9 settings: good quality at reasonable size; no audio to simplify
+            // VP9 realtime: prioritize speed; ensure 4:2:0 for broad compatibility
             "-c:v",
             "libvpx-vp9",
             "-b:v",
             "0",
             "-crf",
-            "33",
+            crf,
             "-row-mt",
             "1",
             "-deadline",
-            "good",
+            "realtime",
             "-cpu-used",
-            "4",
+            "8",
+            "-pix_fmt",
+            "yuv420p",
+            "-threads",
+            threads,
+            // no audio
             "-an",
             tmpWebm,
           ];
@@ -332,10 +357,12 @@ export class S3StorageService {
           let stderr = "";
           cp.stderr.on("data", (d) => (stderr += d.toString()));
           cp.on("error", reject);
-          cp.on("close", (code) => {
+          cp.on("close", (code, signal) => {
             if (code === 0) return resolve();
-            console.warn(`ffmpeg exited with code ${code}: ${stderr}`);
-            reject(new Error(`ffmpeg code ${code}`));
+            console.warn(
+              `ffmpeg exited with code ${code} signal ${signal}: ${stderr}`
+            );
+            reject(new Error(`ffmpeg code ${code ?? "null"} signal ${signal}`));
           });
         })
           .then(async () => {
@@ -347,8 +374,14 @@ export class S3StorageService {
               err
             );
           });
-      } else {
+      } else if (!ffmpegPath) {
         console.warn("ffmpeg-static not available; skipping WebM conversion");
+      } else {
+        console.warn(
+          `Skipping WebM conversion (disabled=${
+            disableWebmEnv || disableWebm
+          } memory=${lambdaMemMb}MB)`
+        );
       }
 
       // Upload MP4

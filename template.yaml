@@ -3218,6 +3218,7 @@ Resources:
       FunctionName: !Sub "${Environment}-pornspot-generate-i2v-poll-job-v2"
       PackageType: Image
       ImageUri: !Ref ImageUri
+      MemorySize: 1024
       ImageConfig:
         Command: ["functions/generation/i2v-poll-job.handler"]
       Environment:
