@@ -3219,6 +3219,7 @@ Resources:
       PackageType: Image
       ImageUri: !Ref ImageUri
       MemorySize: 1024
+      Timeout: 900
       ImageConfig:
         Command: ["functions/generation/i2v-poll-job.handler"]
       Environment:
