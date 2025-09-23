@@ -177,3 +177,9 @@
 [x] On create album or select cover image, take it from the media entity instead of creating a new one.
 
 [ ] Changing album cover image should update the cover optimistically in the client.
+
+[ ] Prevent recursive loop in poll job by auto stopping after x minutes.
+
+[ ] Add TTL to I2V jobs in case they fail so they do not show indefinitely on Videos page.
+
+[ ] Auto recredit seconds on failed videos generation.
