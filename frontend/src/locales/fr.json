@@ -1615,6 +1615,7 @@
     "month": "mois",
     "saveVsMonthly": "Économisez {percentage}% vs mensuel",
     "pay": "Payer",
+    "processing": "Traitement...",
     "plans": {
       "free": "Gratuit",
       "starter": "Débutant",

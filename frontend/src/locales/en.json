@@ -1616,6 +1616,7 @@
     "month": "month",
     "saveVsMonthly": "Save {percentage}% vs monthly",
     "pay": "Pay",
+    "processing": "Processing...",
     "plans": {
       "free": "Free",
       "starter": "Starter",

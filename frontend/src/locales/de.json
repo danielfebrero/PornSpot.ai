@@ -1567,6 +1567,7 @@
     "month": "Monat",
     "saveVsMonthly": "Sparen Sie {percentage}% vs monatlich",
     "pay": "Bezahlen",
+    "processing": "Wird verarbeitet...",
     "plans": {
       "free": "Kostenlos",
       "starter": "Starter",

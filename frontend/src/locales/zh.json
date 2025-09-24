@@ -1572,6 +1572,7 @@
     "month": "月",
     "saveVsMonthly": "比按月节省{percentage}%",
     "pay": "支付",
+    "processing": "处理中...",
     "plans": {
       "free": "免费",
       "starter": "入门版",

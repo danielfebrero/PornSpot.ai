@@ -1567,6 +1567,7 @@
     "month": "mes",
     "saveVsMonthly": "Ahorra {percentage}% vs mensual",
     "pay": "Pagar",
+    "processing": "Procesando...",
     "plans": {
       "free": "Gratis",
       "starter": "Principiante",
