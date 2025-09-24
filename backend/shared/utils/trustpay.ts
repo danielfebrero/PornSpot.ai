@@ -3,6 +3,7 @@ import { ParameterStoreService } from "./parameters";
 
 export const getPaymentData = async (order: OrderEntity) => {
   const environment = (process.env["ENVIRONMENT"] || "dev") as "prod";
+  const projectId = await ParameterStoreService.getTrustpayProjectId();
   const notificationUrls = {
     dev: "https://dev.api.pornspot.ai/trustpay/notification",
     stage: "https://stage.api.pornspot.ai/trustpay/notification",
@@ -11,7 +12,7 @@ export const getPaymentData = async (order: OrderEntity) => {
   const data = {
     PaymentMethod: "Card",
     MerchantIdentification: {
-      ProjectId: "trustpay_project_id",
+      ProjectId: projectId,
     },
     PaymentInformation: {
       Amount: {

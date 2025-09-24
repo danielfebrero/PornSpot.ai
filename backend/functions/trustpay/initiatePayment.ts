@@ -100,6 +100,8 @@ const handleInitiatePayment = async (
       return ResponseUtil.error(event, "Invalid payment response", 502);
     }
 
+    console.log({ data });
+
     const gatewayUrl: string | undefined = data?.GatewayUrl;
 
     return ResponseUtil.success(event, {

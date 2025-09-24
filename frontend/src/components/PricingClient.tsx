@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { Check, Star, Zap, Crown } from "lucide-react";
+import { Check, Star, Zap, Crown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { trustpayApi } from "@/lib/api";
@@ -89,6 +89,8 @@ interface PricingPlan {
 export function PricingClient() {
   const [isYearly, setIsYearly] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  // Track which plan/interval is currently processing a payment
+  const [processingItem, setProcessingItem] = useState<string | null>(null);
   const t = useTranslations("pricing");
   const tCommon = useTranslations("common");
   const { user } = useUserContext();
@@ -107,23 +109,33 @@ export function PricingClient() {
       return;
     }
 
-    const { gateway_url } = await trustpayApi.initiatePayment(item);
-    if (!gateway_url) {
-      console.error("Trustpay gateway URL is not available");
-      return;
-    }
+    // Disable all pay buttons and show loader for the clicked one
+    setProcessingItem(item);
+    try {
+      const { gateway_url } = await trustpayApi.initiatePayment(item);
+      if (!gateway_url) {
+        console.error("Trustpay gateway URL is not available");
+        return;
+      }
 
-    const trustpayIframe = document.getElementById(
-      "TrustPayFrame"
-    ) as HTMLIFrameElement;
-    if (trustpayIframe) {
-      trustpayIframe.src = gateway_url;
-    } else {
-      console.error("TrustPay iframe not found");
-      return;
-    }
+      const trustpayIframe = document.getElementById(
+        "TrustPayFrame"
+      ) as HTMLIFrameElement;
+      if (trustpayIframe) {
+        trustpayIframe.src = gateway_url;
+      } else {
+        console.error("TrustPay iframe not found");
+        return;
+      }
 
-    window.openPopup();
+      // Open popup (user interaction already occurred on click)
+      window.openPopup();
+    } catch (err) {
+      console.error("Error initiating TrustPay payment:", err);
+    } finally {
+      // Re-enable buttons regardless of success/failure
+      setProcessingItem(null);
+    }
   };
 
   // Dynamic plans data using translations
@@ -317,6 +329,7 @@ export function PricingClient() {
                     variant={plan.popular ? "default" : "outline"}
                     size="lg"
                     className="w-full"
+                    disabled={Boolean(processingItem)}
                     onClick={() => {
                       const item = isYearly
                         ? `${plan.id}-yearly`
@@ -325,11 +338,25 @@ export function PricingClient() {
                     }}
                   >
                     <div className="flex items-center justify-center gap-3 w-full">
-                      <span className="font-semibold">{t("pay")}</span>
-                      <div className="flex items-center gap-2">
-                        <MastercardLogo className="h-6 w-auto" />
-                        <VisaLogo className="h-6 w-auto" />
-                      </div>
+                      {processingItem ===
+                      (isYearly
+                        ? `${plan.id}-yearly`
+                        : `${plan.id}-monthly`) ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          <span className="font-semibold">
+                            {t("processing")}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="font-semibold">{t("pay")}</span>
+                          <div className="flex items-center gap-2">
+                            <MastercardLogo className="h-6 w-auto" />
+                            <VisaLogo className="h-6 w-auto" />
+                          </div>
+                        </>
+                      )}
                     </div>
                   </Button>
 
