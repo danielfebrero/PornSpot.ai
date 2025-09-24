@@ -313,21 +313,21 @@ export class ParameterStoreService {
   /**
    * Get the Trustpay API Key from Parameter Store or environment variable
    */
-  static async getTrustpayApiKey(): Promise<string> {
+  static async getTrustpaySecretKey(): Promise<string> {
     // In local development, use environment variable directly
     if (isLocal) {
-      const key = process.env["TRUSTPAY_API_KEY"];
+      const key = process.env["TRUSTPAY_SECRET_KEY"];
       if (!key) {
         throw new Error(
-          "TRUSTPAY_API_KEY environment variable is required in local development"
+          "TRUSTPAY_SECRET_KEY environment variable is required in local development"
         );
       }
-      console.log("Using local TRUSTPAY_API_KEY from environment variable");
+      console.log("Using local TRUSTPAY_SECRET_KEY from environment variable");
       return key;
     }
 
     // In production, use Parameter Store
     const environment = process.env["ENVIRONMENT"] || "dev";
-    return await this.getParameter(`/${environment}/trustpay-api-key`, true);
+    return await this.getParameter(`/${environment}/trustpay-secret-key`, true);
   }
 }

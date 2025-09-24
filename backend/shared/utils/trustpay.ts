@@ -45,7 +45,7 @@ export const getOauthToken = async (): Promise<string> => {
   try {
     [projectId, secretKey] = await Promise.all([
       ParameterStoreService.getTrustpayProjectId(),
-      ParameterStoreService.getTrustpayApiKey(),
+      ParameterStoreService.getTrustpaySecretKey(),
     ]);
   } catch (err) {
     console.error(
