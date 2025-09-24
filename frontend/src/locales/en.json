@@ -1109,7 +1109,8 @@
         "album": "album",
         "media": "media",
         "comment": "comment",
-        "video": "video"
+        "video": "video",
+        "image": "image"
       },
       "unknownUser": "Unknown user",
       "error": {

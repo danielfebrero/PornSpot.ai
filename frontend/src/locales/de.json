@@ -1244,7 +1244,8 @@
         "album": "Album",
         "media": "Medium",
         "comment": "Kommentar",
-        "video": "Video"
+        "video": "Video",
+        "image": "Bild"
       },
       "unknownUser": "Unbekannter Benutzer",
       "error": {

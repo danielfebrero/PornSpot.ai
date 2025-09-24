@@ -1246,7 +1246,8 @@
         "album": "相册",
         "media": "媒体",
         "comment": "评论",
-        "video": "视频"
+        "video": "视频",
+        "image": "图片"
       },
       "unknownUser": "未知用户",
       "error": {
