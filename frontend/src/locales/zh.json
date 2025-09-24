@@ -97,7 +97,8 @@
     "pornspotcoin": "PornSpotCoin",
     "likes": "点赞",
     "bookmarks": "书签",
-    "albums": "专辑"
+    "albums": "专辑",
+    "signIn": "登录"
   },
   "profile": {
     "username": "用户名",
@@ -1672,7 +1673,7 @@
       "button": "开始您的旅程"
     },
     "loginRequiredTitle": "需要登录",
-    "loginRequiredMessage": "您必须登录才能购买套餐。请登录或创建账户。"
+    "loginRequiredMessage": "您必须登录才能购买套餐或视频积分。请登录或创建账户。"
   },
   "usage": {
     "thisMonth": "本月",

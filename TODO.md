@@ -183,3 +183,7 @@
 [ ] Add TTL to I2V jobs in case they fail so they do not show indefinitely on Videos page.
 
 [ ] Auto recredit seconds on failed videos generation.
+
+[ ] Implement ReturnTo when logging in or registering.
+
+[ ] Improve pricing page cards design, complete plan features and FAQ.

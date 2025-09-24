@@ -97,7 +97,8 @@
     "pornspotcoin": "PornSpotCoin",
     "likes": "J'aime",
     "bookmarks": "Favoris",
-    "albums": "Albums"
+    "albums": "Albums",
+    "signIn": "Se connecter"
   },
   "profile": {
     "username": "Nom d'utilisateur",
@@ -1715,7 +1716,7 @@
       "button": "Commencez votre voyage"
     },
     "loginRequiredTitle": "Connexion requise",
-    "loginRequiredMessage": "Vous devez être connecté pour acheter un plan. Veuillez vous connecter ou créer un compte."
+    "loginRequiredMessage": "Vous devez être connecté pour acheter un plan ou des crédits vidéo. Veuillez vous connecter ou créer un compte."
   },
   "usage": {
     "thisMonth": "ce mois",

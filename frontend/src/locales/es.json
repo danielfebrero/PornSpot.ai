@@ -97,7 +97,8 @@
     "pornspotcoin": "PornSpotCoin",
     "likes": "Me gusta",
     "bookmarks": "Marcadores",
-    "albums": "Álbumes"
+    "albums": "Álbumes",
+    "signIn": "Iniciar sesión"
   },
   "profile": {
     "username": "Nombre de usuario",
@@ -1667,7 +1668,7 @@
       "button": "Comienza tu viaje"
     },
     "loginRequiredTitle": "Inicio de sesión requerido",
-    "loginRequiredMessage": "Debes iniciar sesión para comprar un plan. Por favor, inicia sesión o crea una cuenta."
+    "loginRequiredMessage": "Debes iniciar sesión para comprar un plan o créditos de video. Por favor, inicia sesión o crea una cuenta."
   },
   "usage": {
     "thisMonth": "este mes",
