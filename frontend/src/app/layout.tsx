@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { defaultLocale } from "@/i18n";
 import { AppErrorBoundary } from "@/components/ErrorBoundaries";
 import "./globals.css";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -28,8 +29,17 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
+        <Script
+          src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+          strategy="beforeInteractive"
+        />
+        <Script
+          src="https://mapi.trustpay.eu/mapi5/Scripts/TrustPay/popup.js"
+          strategy="beforeInteractive"
+        />
         <GoogleAnalytics gaId="G-PYFTNPNT0E" />
         <AppErrorBoundary context="Root Application">
+          <iframe id="TrustPayFrame" title="TrustPay payment frame"></iframe>
           {children}
         </AppErrorBoundary>
       </body>

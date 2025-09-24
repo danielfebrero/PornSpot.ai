@@ -173,6 +173,14 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+        - IndexName: entityType-createdAt-index
+          KeySchema:
+            - AttributeName: entityType
+              KeyType: HASH
+            - AttributeName: createdAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
       PointInTimeRecoverySpecification:
@@ -2680,6 +2688,45 @@ Resources:
               Resource:
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/frontend-url"
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/sendgrid-api-key"
+
+  # TrustPay - Initiate Payment
+  TrustpayInitiatePaymentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-trustpay-initiate-payment-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/trustpay/initiatePayment.handler"]
+      Events:
+        PostInitiatePayment:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /trustpay/initiatePayment
+            Method: POST
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsInitiatePayment:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /trustpay/initiatePayment
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/trustpay-project-id"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/trustpay-api-key"
 
   UserOAuthGoogleFunction:
     Type: AWS::Serverless::Function

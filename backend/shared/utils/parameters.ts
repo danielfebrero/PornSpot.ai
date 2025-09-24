@@ -288,4 +288,46 @@ export class ParameterStoreService {
     const environment = process.env["ENVIRONMENT"] || "dev";
     return await this.getParameter(`/${environment}/jwt-secret`, true);
   }
+
+  /**
+   * Get the Trustpay Project ID from Parameter Store or environment variable
+   */
+  static async getTrustpayProjectId(): Promise<string> {
+    // In local development, use environment variable directly
+    if (isLocal) {
+      const id = process.env["TRUSTPAY_PROJECT_ID"];
+      if (!id) {
+        throw new Error(
+          "TRUSTPAY_PROJECT_ID environment variable is required in local development"
+        );
+      }
+      console.log("Using local TRUSTPAY_PROJECT_ID from environment variable");
+      return id;
+    }
+
+    // In production, use Parameter Store
+    const environment = process.env["ENVIRONMENT"] || "dev";
+    return await this.getParameter(`/${environment}/trustpay-project-id`, true);
+  }
+
+  /**
+   * Get the Trustpay API Key from Parameter Store or environment variable
+   */
+  static async getTrustpayApiKey(): Promise<string> {
+    // In local development, use environment variable directly
+    if (isLocal) {
+      const key = process.env["TRUSTPAY_API_KEY"];
+      if (!key) {
+        throw new Error(
+          "TRUSTPAY_API_KEY environment variable is required in local development"
+        );
+      }
+      console.log("Using local TRUSTPAY_API_KEY from environment variable");
+      return key;
+    }
+
+    // In production, use Parameter Store
+    const environment = process.env["ENVIRONMENT"] || "dev";
+    return await this.getParameter(`/${environment}/trustpay-api-key`, true);
+  }
 }

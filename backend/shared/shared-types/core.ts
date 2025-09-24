@@ -61,6 +61,7 @@ export type EntityType =
   | "GenerationSettings"
   | "Follow"
   | "I2VJob"
+  | "Order"
   | "UserViewCounter";
 
 export type CreatorType = "user" | "admin";

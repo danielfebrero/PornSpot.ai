@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Check, Star, Zap, Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { trustpayApi } from "@/lib/api";
 
 // Payment provider logos
 const MastercardLogo = ({ className }: { className?: string }) => (
@@ -85,6 +86,26 @@ interface PricingPlan {
 export function PricingClient() {
   const [isYearly, setIsYearly] = useState(false);
   const t = useTranslations("pricing");
+
+  const handleTrustpayPopup = async (item: string) => {
+    const { gateway_url } = await trustpayApi.initiatePayment(item);
+    if (!gateway_url) {
+      console.error("Trustpay gateway URL is not available");
+      return;
+    }
+
+    const trustpayIframe = document.getElementById(
+      "TrustPayFrame"
+    ) as HTMLIFrameElement;
+    if (trustpayIframe) {
+      trustpayIframe.src = gateway_url;
+    } else {
+      console.error("TrustPay iframe not found");
+      return;
+    }
+
+    window.openPopup();
+  };
 
   // Dynamic plans data using translations
   const plans: PricingPlan[] = [
@@ -277,6 +298,12 @@ export function PricingClient() {
                     variant={plan.popular ? "default" : "outline"}
                     size="lg"
                     className="w-full"
+                    onClick={() => {
+                      const item = isYearly
+                        ? `${plan.id}-yearly`
+                        : `${plan.id}-monthly`;
+                      handleTrustpayPopup(item);
+                    }}
                   >
                     <div className="flex items-center justify-center gap-3 w-full">
                       <span className="font-semibold">{t("pay")}</span>

@@ -454,3 +454,27 @@ export interface I2VJobEntity extends BaseEntity {
   executionTime?: number;
   resultMediaId?: string; // Created Media ID for result video
 }
+
+export interface OrderEntity extends BaseEntity {
+  PK: string; // ORDER#{orderId}
+  SK: string; // METADATA
+  GSI1PK: string; // ORDERS_BY_USER#{userId}
+  GSI1SK: string; // {createdAt}#{orderId}
+  GSI2PK: string; // ORDERS_BY_STATUS#{status}
+  GSI2SK: string; // {createdAt}#{orderId}
+  GSI3PK: string; // ORDER_BY_ITEM#{item}
+  GSI3SK: string; // {createdAt}#{orderId}
+  EntityType: "Order";
+  orderId: string;
+  userId: string;
+  item: string; // e.g., "starter-monthly", "pro-yearly"
+  amount: string; // 10.00
+  currency: string; // e.g., "USD"
+  status: "initiated" | "completed" | "cancelled" | "failed";
+  paymentProvider: "trustpay" | string;
+  paymentRequestId?: string; // e.g., TrustPay request ID
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
+  metadata?: Metadata; // Flexible JSON for any extra data
+}

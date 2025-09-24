@@ -43,6 +43,7 @@ import {
   UserViewCounterEntity,
   RateSnapshotEntity,
   I2VJobEntity,
+  OrderEntity,
 } from "@shared/shared-types";
 import {
   UserEntity,
@@ -5211,5 +5212,17 @@ export class DynamoDBService {
       `✅ Found ${usersWithRenewalToday.length} Pro users with renewal today out of ${activeUsers.length} total active Pro users`
     );
     return usersWithRenewalToday;
+  }
+
+  // ===== TRUSTPAY Methods =====
+
+  static async insertOrder(order: OrderEntity): Promise<void> {
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: order,
+        ConditionExpression: "attribute_not_exists(PK)", // Prevent overwriting existing orders
+      })
+    );
   }
 }

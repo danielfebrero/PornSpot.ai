@@ -11,6 +11,7 @@ export { pscApi } from "./psc";
 export { mediaApi } from "./media";
 export { contentApi } from "./content";
 export { discoverApi } from "./discover";
+export { trustpayApi } from "./trustpay";
 
 // Export with fallback or non-null assertion
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.pornspot.ai";
