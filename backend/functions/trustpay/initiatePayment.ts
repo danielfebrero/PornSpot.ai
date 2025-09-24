@@ -23,7 +23,7 @@ const handleInitiatePayment = async (
     return ResponseUtil.unauthorized(event, "User not authenticated");
   }
 
-  const orderId = v4();
+  const orderId = v4().replace(/-/g, "");
   const now = new Date().toISOString();
   const status: OrderEntity["status"] = "initiated";
 
@@ -58,6 +58,8 @@ const handleInitiatePayment = async (
   const paymentData = await getPaymentData(order);
   // Send payment request to TrustPay and return GatewayUrl for redirection
   const oauthToken = await getOauthToken();
+
+  console.log({ paymentData });
 
   // Endpoint based on TrustPay Acceptance API
   const paymentUrl = "https://aapi.trustpay.eu/api/Payments/Payment";

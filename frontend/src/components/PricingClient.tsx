@@ -112,8 +112,8 @@ export function PricingClient() {
     // Disable all pay buttons and show loader for the clicked one
     setProcessingItem(item);
     try {
-      const { gateway_url } = await trustpayApi.initiatePayment(item);
-      if (!gateway_url) {
+      const { gatewayUrl } = await trustpayApi.initiatePayment(item);
+      if (!gatewayUrl) {
         console.error("Trustpay gateway URL is not available");
         return;
       }
@@ -122,7 +122,7 @@ export function PricingClient() {
         "TrustPayFrame"
       ) as HTMLIFrameElement;
       if (trustpayIframe) {
-        trustpayIframe.src = gateway_url;
+        trustpayIframe.src = gatewayUrl;
       } else {
         console.error("TrustPay iframe not found");
         return;
