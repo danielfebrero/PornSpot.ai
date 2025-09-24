@@ -1665,7 +1665,9 @@
       "title": "Bereit zum Erstellen?",
       "subtitle": "Schließen Sie sich Tausenden von Kreativen an, die bereits PornSpot.ai nutzen, um ihre Vorstellungen zum Leben zu erwecken.",
       "button": "Starten Sie Ihre Reise"
-    }
+    },
+    "loginRequiredTitle": "Anmeldung erforderlich",
+    "loginRequiredMessage": "Sie müssen angemeldet sein, um einen Plan zu kaufen. Bitte melden Sie sich an oder erstellen Sie ein Konto."
   },
   "usage": {
     "thisMonth": "diesen Monat",

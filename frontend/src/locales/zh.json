@@ -1670,7 +1670,9 @@
       "title": "准备开始创作了吗？",
       "subtitle": "加入已经在使用PornSpot.ai将想象变为现实的数千名创作者。",
       "button": "开始您的旅程"
-    }
+    },
+    "loginRequiredTitle": "需要登录",
+    "loginRequiredMessage": "您必须登录才能购买套餐。请登录或创建账户。"
   },
   "usage": {
     "thisMonth": "本月",

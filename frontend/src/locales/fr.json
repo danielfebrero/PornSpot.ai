@@ -1713,7 +1713,9 @@
       "title": "Prêt à commencer à créer ?",
       "subtitle": "Rejoignez des milliers de créateurs qui utilisent déjà PornSpot.ai pour donner vie à leur imagination.",
       "button": "Commencez votre voyage"
-    }
+    },
+    "loginRequiredTitle": "Connexion requise",
+    "loginRequiredMessage": "Vous devez être connecté pour acheter un plan. Veuillez vous connecter ou créer un compte."
   },
   "usage": {
     "thisMonth": "ce mois",

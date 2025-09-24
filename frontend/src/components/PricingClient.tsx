@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Check, Star, Zap, Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { trustpayApi } from "@/lib/api";
+import { useUserContext } from "@/contexts/UserContext";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { useLocaleRouter } from "@/lib/navigation";
 
 // Payment provider logos
 const MastercardLogo = ({ className }: { className?: string }) => (
@@ -85,9 +88,25 @@ interface PricingPlan {
 
 export function PricingClient() {
   const [isYearly, setIsYearly] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const t = useTranslations("pricing");
+  const tCommon = useTranslations("common");
+  const { user } = useUserContext();
+  const { redirectToLogin } = useAuthRedirect();
+  const router = useLocaleRouter();
+
+  const currentPathWithQuery = useMemo(() => {
+    if (typeof window === "undefined") return "/pricing";
+    return window.location.pathname + window.location.search;
+  }, []);
 
   const handleTrustpayPopup = async (item: string) => {
+    // Require authentication before initiating payment
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
     const { gateway_url } = await trustpayApi.initiatePayment(item);
     if (!gateway_url) {
       console.error("Trustpay gateway URL is not available");
@@ -424,6 +443,89 @@ export function PricingClient() {
           </div>
         </div>
       </div>
+
+      {/* Auth Required Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+              onClick={() => setShowAuthModal(false)}
+            />
+            <div className="relative w-full max-w-md transform overflow-hidden rounded-xl bg-card border border-border p-6 shadow-2xl transition-all">
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-yellow-100 border border-yellow-200">
+                  <svg
+                    className="w-6 h-6 text-yellow-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold leading-6 text-foreground">
+                    {t("loginRequiredTitle", {
+                      fallback: "Login required",
+                    } as any) || "Login required"}
+                  </h3>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("loginRequiredMessage", {
+                    fallback:
+                      "You must be logged in to purchase a plan. Please sign in or create an account.",
+                  } as any) ||
+                    "You must be logged in to purchase a plan. Please sign in or create an account."}
+                </p>
+              </div>
+
+              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Button
+                  onClick={() => {
+                    setShowAuthModal(false);
+                    redirectToLogin(currentPathWithQuery);
+                  }}
+                  className="w-full"
+                >
+                  {tCommon("signIn", { fallback: "Sign In" } as any) ||
+                    "Sign In"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowAuthModal(false);
+                    const returnTo = encodeURIComponent(currentPathWithQuery);
+                    router.push(`/auth/register?returnTo=${returnTo}`);
+                  }}
+                  className="w-full"
+                >
+                  {tCommon("register", { fallback: "Register" } as any) ||
+                    "Register"}
+                </Button>
+              </div>
+
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setShowAuthModal(false)}
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  {tCommon("cancel", { fallback: "Cancel" } as any) || "Cancel"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

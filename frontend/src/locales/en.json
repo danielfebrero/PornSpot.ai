@@ -1714,7 +1714,9 @@
       "title": "Ready to Start Creating?",
       "subtitle": "Join thousands of creators who are already using PornSpot.ai to bring their imagination to life.",
       "button": "Start Your Journey"
-    }
+    },
+    "loginRequiredTitle": "Login Required",
+    "loginRequiredMessage": "You must be logged in to purchase a plan. Please sign in or create an account."
   },
   "usage": {
     "thisMonth": "this month",

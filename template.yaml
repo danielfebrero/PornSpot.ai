@@ -85,15 +85,17 @@ Resources:
           AttributeType: N
         - AttributeName: GSI7PK
           AttributeType: S
+        - AttributeName: GSI7SK
+          AttributeType: S
         - AttributeName: GSI8PK
           AttributeType: S
         - AttributeName: GSI8SK
           AttributeType: S
-        - AttributeName: GSI7SK
-          AttributeType: S
         - AttributeName: isPublic
           AttributeType: S
         - AttributeName: createdAt
+          AttributeType: S
+        - AttributeName: entityType
           AttributeType: S
       KeySchema:
         - AttributeName: PK
