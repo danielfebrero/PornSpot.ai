@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
-import { orderItems } from "@shared/utils/order-items";
+import { resolveOrderItem } from "@shared/utils/order-items";
 import { ResponseUtil } from "@shared/utils/response";
 import { v4 } from "uuid";
 import { DynamoDBService } from "@shared/utils/dynamodb";
@@ -13,7 +13,7 @@ const handleInitiatePayment = async (
 ): Promise<APIGatewayProxyResult> => {
   const { userId } = auth;
   const request: { item: string } = LambdaHandlerUtil.parseJsonBody(event);
-  const orderItem = orderItems.find((item) => item.id === request.item);
+  const orderItem = resolveOrderItem(request.item);
 
   if (!orderItem) {
     return ResponseUtil.badRequest(event, "Invalid item");
@@ -46,6 +46,7 @@ const handleInitiatePayment = async (
     paymentProvider: "finby",
     createdAt: now,
     updatedAt: now,
+    ...(orderItem.metadata ? { metadata: orderItem.metadata } : {}),
   };
 
   await DynamoDBService.insertOrder(order);
