@@ -330,4 +330,90 @@ export class ParameterStoreService {
     const environment = process.env["ENVIRONMENT"] || "dev";
     return await this.getParameter(`/${environment}/trustpay-secret-key`, true);
   }
+
+  /**
+   * Get the Finby Account ID from Parameter Store or environment variable
+   */
+  static async getFinbyAccountId(): Promise<string> {
+    if (isLocal) {
+      const id = process.env["FINBY_ACCOUNT_ID"];
+      if (!id) {
+        throw new Error(
+          "FINBY_ACCOUNT_ID environment variable is required in local development"
+        );
+      }
+      console.log("Using local FINBY_ACCOUNT_ID from environment variable");
+      return id;
+    }
+
+    const environment = process.env["ENVIRONMENT"] || "dev";
+    return await this.getParameter(`/${environment}/finby-account-id`, false);
+  }
+
+  /**
+   * Get the Finby Secret Key from Parameter Store or environment variable
+   */
+  static async getFinbySecretKey(): Promise<string> {
+    if (isLocal) {
+      const key = process.env["FINBY_SECRET_KEY"];
+      if (!key) {
+        throw new Error(
+          "FINBY_SECRET_KEY environment variable is required in local development"
+        );
+      }
+      console.log("Using local FINBY_SECRET_KEY from environment variable");
+      return key;
+    }
+
+    const environment = process.env["ENVIRONMENT"] || "dev";
+    return await this.getParameter(`/${environment}/finby-secret-key`, true);
+  }
+
+  /**
+   * Get the Finby payment type from Parameter Store or environment variable
+   */
+  static async getFinbyPaymentType(): Promise<number> {
+    const defaultPaymentType = 3;
+
+    if (isLocal) {
+      const type = process.env["FINBY_PAYMENT_TYPE"];
+      if (!type) {
+        console.log(
+          `FINBY_PAYMENT_TYPE environment variable not set. Using default ${defaultPaymentType}.`
+        );
+        return defaultPaymentType;
+      }
+
+      const parsed = Number.parseInt(type, 10);
+      if (Number.isNaN(parsed)) {
+        throw new Error(
+          `FINBY_PAYMENT_TYPE environment variable must be a valid number. Received: ${type}`
+        );
+      }
+      return parsed;
+    }
+
+    const environment = process.env["ENVIRONMENT"] || "dev";
+
+    try {
+      const parameter = await this.getParameter(
+        `/${environment}/finby-payment-type`,
+        false
+      );
+      const parsed = Number.parseInt(parameter, 10);
+      if (Number.isNaN(parsed)) {
+        console.warn(
+          `[Finby] Payment type parameter is not a valid number (${parameter}). Falling back to default ${defaultPaymentType}.`
+        );
+        return defaultPaymentType;
+      }
+      return parsed;
+    } catch (error) {
+      console.warn(
+        `[Finby] Payment type parameter missing or failed to load. Falling back to default ${defaultPaymentType}.`,
+        error
+      );
+      return defaultPaymentType;
+    }
+  }
 }

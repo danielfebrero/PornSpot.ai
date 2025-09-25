@@ -34,12 +34,12 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
         <Script
-          src="https://mapi.trustpay.eu/mapi5/Scripts/TrustPay/popup.js"
+          src="https://mapi.finby.eu/mapi5/Scripts/finby/popup.js"
           strategy="beforeInteractive"
         />
         <GoogleAnalytics gaId="G-PYFTNPNT0E" />
         <AppErrorBoundary context="Root Application">
-          <iframe id="TrustPayFrame" title="TrustPay payment frame"></iframe>
+          <iframe id="TrustPayFrame" title="Finby payment frame"></iframe>
           {children}
         </AppErrorBoundary>
       </body>

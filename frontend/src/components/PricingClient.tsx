@@ -6,10 +6,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Check, Star, Zap, Crown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { trustpayApi } from "@/lib/api";
 import { useUserContext } from "@/contexts/UserContext";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useLocaleRouter } from "@/lib/navigation";
+import { finbyApi } from "@/lib/api/finby";
 
 // Payment provider logos
 const MastercardLogo = ({ className }: { className?: string }) => (
@@ -112,9 +112,9 @@ export function PricingClient() {
     // Disable all pay buttons and show loader for the clicked one
     setProcessingItem(item);
     try {
-      const { gatewayUrl } = await trustpayApi.initiatePayment(item);
+      const { gatewayUrl } = await finbyApi.initiatePayment(item);
       if (!gatewayUrl) {
-        console.error("Trustpay gateway URL is not available");
+        console.error("Finby gateway URL is not available");
         return;
       }
 

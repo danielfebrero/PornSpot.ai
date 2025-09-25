@@ -2730,6 +2730,46 @@ Resources:
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/trustpay-project-id"
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/trustpay-secret-key"
 
+  # Finby - Initiate Payment
+  FinbyInitiatePaymentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-finby-initiate-payment-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/finby/initiatePayment.handler"]
+      Events:
+        PostInitiatePayment:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /finby/initiatePayment
+            Method: POST
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsInitiatePayment:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /finby/initiatePayment
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/finby-account-id"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/finby-secret-key"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/finby-payment-type"
+
   UserOAuthGoogleFunction:
     Type: AWS::Serverless::Function
     Properties:
