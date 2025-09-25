@@ -2747,6 +2747,25 @@ curl -b admin-cookies.txt \
 - `GET /admin/stats` - System statistics
 - `POST /admin/login` - Admin authentication
 
+## Payments & Subscriptions
+
+### Finby
+
+Finby powers credit purchases and subscription upgrades. The integration exposes two endpoints:
+
+- **POST `/finby/initiatePayment`** – Authenticated users request a Finby checkout by passing the desired `item` (see `@shared/utils/order-items` for the catalog). An `Order` entity is created with status `initiated`, and the response returns the Finby gateway URL signed with the account secret.
+- **GET `/finby/result`** (alias: `/result`) – Finby calls this callback after processing a payment. The request includes query parameters such as `AccountId`, `Amount`, `Currency`, `ResultCode`, `Reference`, and `Signature`, plus optional fields (`Type`, `CounterAccount`, `CounterAccountName`, `OrderId`, `PaymentId`, `PaymentRequestId`, `RefuseReason`, `CardId`).
+
+`Reference` maps to the internal `orderId`. The backend verifies the signature by concatenating the available parameters in the order specified by Finby (`AccountId/Amount/Currency/Type/ResultCode/CounterAccount/CounterAccountName/OrderId/PaymentId/Reference/RefuseReason`) and comparing the HMAC-SHA256 hash against `Signature`. Requests with an unexpected `AccountId` or invalid signature return `401`.
+
+On success (`ResultCode === "0"`):
+
+1. The `Order` is updated to `completed`, storing `paymentRequestId` and Finby metadata while refreshing the status GSI keys.
+2. If the purchased item is **video credits**, `i2vCreditsSecondsPurchased` is incremented for the user.
+3. Otherwise, the user’s subscription is activated with a new `plan`, `subscriptionStatus`, `planStartDate`, `planEndDate`, and corresponding `USER_PLAN` GSI keys.
+
+Failed callbacks (`ResultCode !== "0"`) mark the order as `failed` without altering user data. All responses follow the standard `{ success, data }` / `{ success: false, error }` JSON contract and attach the platform CORS headers to satisfy Finby’s browser-based redirects.
+
 ### Best Practices
 
 1. **Always handle the response wrapper** - Check `success` field before accessing `data`

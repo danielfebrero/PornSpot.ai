@@ -6,6 +6,27 @@ const DEFAULT_FINBY_BASE_URL =
   process.env["FINBY_BASE_URL"] || "https://amapi.finby.eu/mapi5/Card/PayPopup";
 const DEFAULT_PAYMENT_TYPE = 3;
 
+const NOTIFICATION_SIGNATURE_FIELDS = [
+  "AccountId",
+  "Amount",
+  "Currency",
+  "Type",
+  "ResultCode",
+  "CounterAccount",
+  "CounterAccountName",
+  "OrderId",
+  "PaymentId",
+  "Reference",
+  "RefuseReason",
+] as const;
+
+type NotificationSignatureField =
+  (typeof NOTIFICATION_SIGNATURE_FIELDS)[number];
+
+export type FinbyNotificationSignatureParams = Partial<
+  Record<NotificationSignatureField, string | undefined>
+>;
+
 export interface FinbyGatewayOptions {
   /**
    * Explicit reference to use for the transaction. Defaults to orderId.
@@ -118,4 +139,40 @@ export const getFinbySignaturePayload = async (
   const signature = generateSignature(secretKey, payload);
 
   return { payload, signature, paymentType };
+};
+
+const buildNotificationSignaturePayload = (
+  params: FinbyNotificationSignatureParams
+): string => {
+  const parts: string[] = [];
+
+  for (const field of NOTIFICATION_SIGNATURE_FIELDS) {
+    const value = params[field];
+    if (value !== undefined && value !== null && value !== "") {
+      parts.push(String(value));
+    }
+  }
+
+  return parts.join("/");
+};
+
+export const generateFinbyNotificationSignature = (
+  secretKey: string,
+  params: FinbyNotificationSignatureParams
+): string => {
+  const payload = buildNotificationSignaturePayload(params);
+  return generateSignature(secretKey, payload);
+};
+
+export const verifyFinbyNotificationSignature = (
+  secretKey: string,
+  params: FinbyNotificationSignatureParams,
+  providedSignature: string
+): boolean => {
+  if (!providedSignature) {
+    return false;
+  }
+
+  const calculated = generateFinbyNotificationSignature(secretKey, params);
+  return calculated === providedSignature.toUpperCase();
 };

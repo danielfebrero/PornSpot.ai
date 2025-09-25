@@ -2770,6 +2770,60 @@ Resources:
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/finby-secret-key"
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/finby-payment-type"
 
+  FinbyNotificationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-finby-notification-v1"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/finby/notification.handler"]
+      Events:
+        GetFinbyNotification:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /finby/notification
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        OptionsFinbyNotification:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /finby/notification
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+        GetFinbyNotificationRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /notification
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        OptionsFinbyNotificationRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /notification
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/finby-account-id"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/finby-secret-key"
+
   UserOAuthGoogleFunction:
     Type: AWS::Serverless::Function
     Properties:

@@ -5216,6 +5216,76 @@ export class DynamoDBService {
 
   // ===== TRUSTPAY Methods =====
 
+  static async getOrder(orderId: string): Promise<OrderEntity | null> {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `ORDER#${orderId}`,
+          SK: "METADATA",
+        },
+      })
+    );
+
+    return (result.Item as OrderEntity) || null;
+  }
+
+  static async updateOrder(
+    orderId: string,
+    updates: Partial<OrderEntity>
+  ): Promise<void> {
+    const setExpressions: string[] = [];
+    const removeExpressions: string[] = [];
+    const expressionAttributeNames: Record<string, string> = {};
+    const expressionAttributeValues: Record<string, any> = {};
+
+    Object.entries(updates).forEach(([key, value]) => {
+      if (key === "PK" || key === "SK" || value === undefined) {
+        return;
+      }
+
+      const attributeKey = `#${key}`;
+      expressionAttributeNames[attributeKey] = key;
+
+      if (value === null) {
+        removeExpressions.push(attributeKey);
+        return;
+      }
+
+      setExpressions.push(`${attributeKey} = :${key}`);
+      expressionAttributeValues[`:${key}`] = value;
+    });
+
+    if (setExpressions.length === 0 && removeExpressions.length === 0) {
+      return;
+    }
+
+    const updateExpressionParts: string[] = [];
+    if (setExpressions.length > 0) {
+      updateExpressionParts.push(`SET ${setExpressions.join(", ")}`);
+    }
+
+    if (removeExpressions.length > 0) {
+      updateExpressionParts.push(`REMOVE ${removeExpressions.join(", ")}`);
+    }
+
+    await docClient.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `ORDER#${orderId}`,
+          SK: "METADATA",
+        },
+        UpdateExpression: updateExpressionParts.join(" "),
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues:
+          Object.keys(expressionAttributeValues).length > 0
+            ? expressionAttributeValues
+            : undefined,
+      })
+    );
+  }
+
   static async insertOrder(order: OrderEntity): Promise<void> {
     await docClient.send(
       new PutCommand({
