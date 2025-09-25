@@ -1571,6 +1571,14 @@
     "year": "年",
     "month": "月",
     "saveVsMonthly": "比按月节省{percentage}%",
+    "toggleBilling": "切换月/年付费",
+    "videoCredits": {
+      "badge": "灵活付费",
+      "title": "视频积分",
+      "description": "适合临时使用。只为您使用的内容付费，无需订阅。",
+      "sliderLabel": "{seconds}秒",
+      "payButton": "支付{amount}"
+    },
     "pay": "支付",
     "processing": "处理中...",
     "plans": {

@@ -1566,6 +1566,19 @@
     "year": "año",
     "month": "mes",
     "saveVsMonthly": "Ahorra {percentage}% vs mensual",
+    "toggleBilling": "Cambiar intervalo de facturación",
+    "videoCredits": {
+      "badge": "Créditos de Video",
+      "title": "Añade créditos de video extra cuando los necesites",
+      "description": "Estos son segundos que compras para generar videos. Ajusta el control deslizante para elegir la cantidad exacta que necesitas.",
+      "sliderLabel": "Seleccionar segundos",
+      "selectedSeconds": "{seconds} segundos",
+      "priceBreakdown": "El precio es {price} cada {step} segundos",
+      "total": "Total {amount}",
+      "payButton": "Pagar {amount}",
+      "sliderAriaLabel": "Control deslizante de créditos de video",
+      "helper": "Usa estos créditos para generar videos premium de IA en cualquier momento."
+    },
     "pay": "Pagar",
     "processing": "Procesando...",
     "plans": {

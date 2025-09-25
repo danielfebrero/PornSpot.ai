@@ -1615,6 +1615,19 @@
     "year": "year",
     "month": "month",
     "saveVsMonthly": "Save {percentage}% vs monthly",
+    "toggleBilling": "Toggle billing interval",
+    "videoCredits": {
+      "badge": "Video Credits",
+      "title": "Add extra video credits whenever you need",
+      "description": "Those are seconds you buy to generate videos. Adjust the slider to pick the exact amount you need.",
+      "sliderLabel": "Select seconds",
+      "selectedSeconds": "{seconds} seconds",
+      "priceBreakdown": "Price is {price} every {step} seconds",
+      "total": "Total {amount}",
+      "payButton": "Pay {amount}",
+      "sliderAriaLabel": "Video credits slider",
+      "helper": "Use these credits to generate premium AI videos anytime."
+    },
     "pay": "Pay",
     "processing": "Processing...",
     "plans": {

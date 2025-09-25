@@ -1566,6 +1566,19 @@
     "year": "Jahr",
     "month": "Monat",
     "saveVsMonthly": "Sparen Sie {percentage}% vs monatlich",
+    "toggleBilling": "Abrechnungsintervall umschalten",
+    "videoCredits": {
+      "badge": "Video-Credits",
+      "title": "Fügen Sie zusätzliche Video-Credits hinzu, wann immer Sie möchten",
+      "description": "Das sind Sekunden, die Sie kaufen, um Videos zu generieren. Verstellen Sie den Schieberegler, um die exakte Menge auszuwählen, die Sie benötigen.",
+      "sliderLabel": "Sekunden auswählen",
+      "selectedSeconds": "{seconds} Sekunden",
+      "priceBreakdown": "Preis ist {price} alle {step} Sekunden",
+      "total": "Gesamt {amount}",
+      "payButton": "Bezahlen {amount}",
+      "sliderAriaLabel": "Video-Credits-Schieberegler",
+      "helper": "Verwenden Sie diese Credits, um jederzeit Premium-KI-Videos zu generieren."
+    },
     "pay": "Bezahlen",
     "processing": "Wird verarbeitet...",
     "plans": {

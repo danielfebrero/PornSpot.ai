@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { Check, Star, Zap, Crown, Loader2 } from "lucide-react";
+import { Slider } from "@/components/ui/Slider";
+import { Check, Star, Zap, Crown, Loader2, Clapperboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { useUserContext } from "@/contexts/UserContext";
@@ -86,16 +87,67 @@ interface PricingPlan {
   badge?: string;
 }
 
+const VIDEO_SECONDS_MIN = 5;
+const VIDEO_SECONDS_MAX = 500;
+const VIDEO_SECONDS_STEP = 5;
+const VIDEO_SECONDS_DEFAULT = 50;
+const VIDEO_PRICE_PER_STEP = 0.69;
+
 export function PricingClient() {
   const [isYearly, setIsYearly] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   // Track which plan/interval is currently processing a payment
   const [processingItem, setProcessingItem] = useState<string | null>(null);
+  const [videoSeconds, setVideoSeconds] = useState(VIDEO_SECONDS_DEFAULT);
   const t = useTranslations("pricing");
   const tCommon = useTranslations("common");
   const { user } = useUserContext();
   const { redirectToLogin } = useAuthRedirect();
   const router = useLocaleRouter();
+
+  const currencyFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
+    []
+  );
+
+  const videoPrice = useMemo(() => {
+    const total = (videoSeconds / VIDEO_SECONDS_STEP) * VIDEO_PRICE_PER_STEP;
+    return Number(total.toFixed(2));
+  }, [videoSeconds]);
+
+  const videoCreditsItemId = useMemo(
+    () => `video-credits-${videoSeconds}`,
+    [videoSeconds]
+  );
+
+  const pricePerStep = useMemo(
+    () => currencyFormatter.format(VIDEO_PRICE_PER_STEP),
+    [currencyFormatter]
+  );
+
+  const formattedVideoPrice = useMemo(
+    () => currencyFormatter.format(videoPrice),
+    [currencyFormatter, videoPrice]
+  );
+
+  const handleVideoSliderChange = (value: number[]) => {
+    const rawValue = value[0] ?? VIDEO_SECONDS_MIN;
+    const clampedValue = Math.min(
+      VIDEO_SECONDS_MAX,
+      Math.max(VIDEO_SECONDS_MIN, rawValue)
+    );
+    setVideoSeconds(clampedValue);
+  };
+
+  const handleVideoCreditsPurchase = () => {
+    handleTrustpayPopup(videoCreditsItemId);
+  };
 
   const currentPathWithQuery = useMemo(() => {
     if (typeof window === "undefined") return "/pricing";
@@ -211,170 +263,291 @@ export function PricingClient() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-            {t("title")}
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            {t("subtitle")}
-          </p>
+      <div className="container mx-auto px-4 py-12 sm:py-16 lg:py-24">
+        <div className="mx-auto flex max-w-5xl flex-col gap-12 lg:gap-16">
+          <section className="flex flex-col gap-6 rounded-3xl border border-primary/15 bg-primary/5 p-6 shadow-lg shadow-primary/10 sm:p-8">
+            <div className="inline-flex items-center gap-2 text-primary">
+              <Clapperboard className="h-5 w-5" />
+              <span className="text-sm font-semibold uppercase tracking-widest">
+                {t("videoCredits.badge", { fallback: "Video Credits" } as any)}
+              </span>
+            </div>
+            <div className="flex flex-col gap-3">
+              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
+                {t("videoCredits.title", {
+                  fallback: "Add extra video credits whenever you need",
+                } as any)}
+              </h2>
+              <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
+                {t("videoCredits.description", {
+                  fallback:
+                    "Those are seconds you buy to generate videos. Adjust the slider to pick the exact amount you need.",
+                } as any)}
+              </p>
+            </div>
 
-          {/* Billing Toggle */}
-          <div className="flex items-center justify-center gap-4 mb-12">
-            <span
-              className={cn(
-                "text-sm font-medium transition-colors",
-                !isYearly ? "text-foreground" : "text-muted-foreground"
-              )}
-            >
-              {t("monthly")}
-            </span>
-            <button
-              onClick={() => setIsYearly(!isYearly)}
-              className={cn(
-                "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                isYearly ? "bg-primary" : "bg-muted"
-              )}
-            >
-              <span
-                className={cn(
-                  "inline-block h-4 w-4 transform rounded-full bg-background transition-transform",
-                  isYearly ? "translate-x-6" : "translate-x-1"
-                )}
-              />
-            </button>
-            <span
-              className={cn(
-                "text-sm font-medium transition-colors",
-                isYearly ? "text-foreground" : "text-muted-foreground"
-              )}
-            >
-              {t("yearly")}
-            </span>
-            {isYearly && (
-              <div className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100 px-2 py-1 rounded-full text-xs font-medium ml-2">
-                {t("saveUpTo")}
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
+              <div className="flex-1 space-y-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {t("videoCredits.sliderLabel", {
+                        fallback: "Select seconds",
+                      } as any)}
+                    </p>
+                    <p className="text-3xl font-bold text-foreground sm:text-4xl">
+                      {t("videoCredits.selectedSeconds", {
+                        seconds: videoSeconds,
+                        fallback: `${videoSeconds} seconds`,
+                      } as any)}
+                    </p>
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      {t("videoCredits.priceBreakdown", {
+                        price: pricePerStep,
+                        step: VIDEO_SECONDS_STEP,
+                        fallback: `Price is ${pricePerStep} every ${VIDEO_SECONDS_STEP} seconds`,
+                      } as any)}
+                    </p>
+                    <p className="text-lg font-semibold text-foreground sm:text-xl">
+                      {t("videoCredits.total", {
+                        amount: formattedVideoPrice,
+                        fallback: formattedVideoPrice,
+                      } as any)}
+                    </p>
+                  </div>
+                </div>
+                <Slider
+                  value={[videoSeconds]}
+                  onValueChange={handleVideoSliderChange}
+                  min={VIDEO_SECONDS_MIN}
+                  max={VIDEO_SECONDS_MAX}
+                  step={VIDEO_SECONDS_STEP}
+                  aria-label={t("videoCredits.sliderAriaLabel", {
+                    fallback: "Video credits slider",
+                  } as any)}
+                />
               </div>
-            )}
-          </div>
+              <div className="sm:w-48">
+                <Button
+                  size="lg"
+                  className="w-full"
+                  disabled={Boolean(processingItem)}
+                  onClick={handleVideoCreditsPurchase}
+                >
+                  <div className="flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap sm:gap-3">
+                    {processingItem?.startsWith("video-credits") ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span className="font-semibold whitespace-nowrap">
+                          {t("processing")}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-semibold whitespace-nowrap">
+                          {t("videoCredits.payButton", {
+                            amount: formattedVideoPrice,
+                            fallback: `Pay ${formattedVideoPrice}`,
+                          } as any)}
+                        </span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <MastercardLogo className="h-6 w-auto" />
+                          <VisaLogo className="h-6 w-auto" />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </Button>
+                <p className="mt-3 text-center text-xs text-muted-foreground">
+                  {t("videoCredits.helper", {
+                    fallback:
+                      "Use these credits to generate premium AI videos anytime.",
+                  } as any)}
+                </p>
+              </div>
+            </div>
+          </section>
 
-          {/* Pricing Cards */}
-          <div
-            id="pricing-plans"
-            className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto"
-          >
-            {plans.map((plan) => (
-              <Card
-                key={plan.id}
-                className={cn(
-                  "relative transition-all duration-300 hover:shadow-lg hover:scale-105",
-                  plan.popular
-                    ? "border-primary shadow-lg ring-2 ring-primary/20"
-                    : "border-border"
+          <div className="border-t border-border/60" />
+
+          <section className="flex flex-col items-center gap-6 text-center">
+            <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              {t("title")}
+            </h1>
+            <p className="max-w-2xl text-base text-muted-foreground sm:text-lg">
+              {t("subtitle")}
+            </p>
+          </section>
+
+          <section className="flex w-full flex-col items-center">
+            <div className="flex w-full max-w-md flex-col items-center gap-3 rounded-3xl border border-border/70 bg-card/80 p-4 shadow-sm backdrop-blur">
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <span
+                    className={cn(
+                      "text-sm font-medium transition-colors",
+                      !isYearly ? "text-foreground" : "text-muted-foreground"
+                    )}
+                  >
+                    {t("monthly")}
+                  </span>
+                  <button
+                    onClick={() => setIsYearly(!isYearly)}
+                    className={cn(
+                      "relative inline-flex h-6 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                      isYearly ? "bg-primary" : "bg-muted"
+                    )}
+                    aria-label={t("toggleBilling", {
+                      fallback: "Toggle billing interval",
+                    } as any)}
+                  >
+                    <span
+                      className={cn(
+                        "inline-block h-4 w-4 transform rounded-full bg-background transition-transform",
+                        isYearly ? "translate-x-6" : "translate-x-1"
+                      )}
+                    />
+                  </button>
+                  <span
+                    className={cn(
+                      "text-sm font-medium transition-colors",
+                      isYearly ? "text-foreground" : "text-muted-foreground"
+                    )}
+                  >
+                    {t("yearly")}
+                  </span>
+                </div>
+                {isYearly && (
+                  <div className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800 dark:bg-green-800/40 dark:text-green-100">
+                    {t("saveUpTo")}
+                  </div>
                 )}
-              >
-                {plan.badge && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-3xl border border-border/70 bg-card/60 p-4 sm:p-6">
+            <div
+              id="pricing-plans"
+              className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3"
+            >
+              {plans.map((plan) => (
+                <Card
+                  key={plan.id}
+                  className={cn(
+                    "relative flex h-full flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl",
+                    plan.popular
+                      ? "border-primary/80 shadow-lg ring-2 ring-primary/20"
+                      : "border-border"
+                  )}
+                >
+                  {plan.badge && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform">
+                      <div
+                        className={cn(
+                          "px-3 py-1 rounded-full text-xs font-medium text-white",
+                          plan.popular ? "bg-primary" : "bg-foreground"
+                        )}
+                      >
+                        {plan.badge}
+                      </div>
+                    </div>
+                  )}
+
+                  <CardHeader className="flex flex-col items-center gap-4 pb-6 pt-10 text-center">
                     <div
                       className={cn(
-                        "px-3 py-1 rounded-full text-xs font-medium text-white",
-                        plan.popular ? "bg-primary" : "bg-foreground"
+                        "flex h-12 w-12 items-center justify-center rounded-xl",
+                        plan.popular
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
                       )}
                     >
-                      {plan.badge}
+                      {plan.icon}
                     </div>
-                  </div>
-                )}
-
-                <CardHeader className="text-center pb-8 pt-8">
-                  <div
-                    className={cn(
-                      "w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4",
-                      plan.popular
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {plan.icon}
-                  </div>
-                  <h3 className="text-2xl font-bold text-foreground mb-2">
-                    {plan.name}
-                  </h3>
-                  <p className="text-muted-foreground mb-6">
-                    {plan.description}
-                  </p>
-
-                  <div className="space-y-2">
-                    <div className="flex items-baseline justify-center">
-                      <span className="text-4xl font-bold text-foreground">
-                        ${getPrice(plan)}
-                      </span>
-                      <span className="text-muted-foreground ml-1">
-                        /{isYearly ? t("year") : t("month")}
-                      </span>
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-bold text-foreground">
+                        {plan.name}
+                      </h3>
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        {plan.description}
+                      </p>
                     </div>
-                    {isYearly && (
-                      <div className="text-sm text-muted-foreground">
-                        {t("saveVsMonthly", {
-                          percentage: getDiscountPercentage(plan),
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </CardHeader>
 
-                <CardContent className="space-y-4">
-                  <Button
-                    variant={plan.popular ? "default" : "outline"}
-                    size="lg"
-                    className="w-full"
-                    disabled={Boolean(processingItem)}
-                    onClick={() => {
-                      const item = isYearly
-                        ? `${plan.id}-yearly`
-                        : `${plan.id}-monthly`;
-                      handleTrustpayPopup(item);
-                    }}
-                  >
-                    <div className="flex items-center justify-center gap-3 w-full">
-                      {processingItem ===
-                      (isYearly
-                        ? `${plan.id}-yearly`
-                        : `${plan.id}-monthly`) ? (
-                        <>
-                          <Loader2 className="h-5 w-5 animate-spin" />
-                          <span className="font-semibold">
-                            {t("processing")}
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="font-semibold">{t("pay")}</span>
-                          <div className="flex items-center gap-2">
-                            <MastercardLogo className="h-6 w-auto" />
-                            <VisaLogo className="h-6 w-auto" />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </Button>
-
-                  <div className="space-y-3">
-                    {plan.features.map((feature, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-foreground">
-                          {feature}
+                    <div className="space-y-2">
+                      <div className="flex items-baseline justify-center gap-1">
+                        <span className="text-4xl font-bold text-foreground">
+                          ${getPrice(plan)}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          /{isYearly ? t("year") : t("month")}
                         </span>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                      {isYearly && (
+                        <div className="text-sm font-medium text-primary">
+                          {t("saveVsMonthly", {
+                            percentage: getDiscountPercentage(plan),
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="flex flex-1 flex-col gap-5 pb-8">
+                    <Button
+                      variant={plan.popular ? "default" : "outline"}
+                      size="lg"
+                      className="w-full"
+                      disabled={Boolean(processingItem)}
+                      onClick={() => {
+                        const item = isYearly
+                          ? `${plan.id}-yearly`
+                          : `${plan.id}-monthly`;
+                        handleTrustpayPopup(item);
+                      }}
+                    >
+                      <div className="flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap sm:gap-3">
+                        {processingItem ===
+                        (isYearly
+                          ? `${plan.id}-yearly`
+                          : `${plan.id}-monthly`) ? (
+                          <>
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                            <span className="font-semibold whitespace-nowrap">
+                              {t("processing")}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-semibold whitespace-nowrap">
+                              {t("pay")}
+                            </span>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <MastercardLogo className="h-6 w-auto" />
+                              <VisaLogo className="h-6 w-auto" />
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </Button>
+
+                    <div className="space-y-3">
+                      {plan.features.map((feature, index) => (
+                        <div key={index} className="flex items-center gap-3">
+                          <Check className="h-5 w-5 flex-shrink-0 text-green-500" />
+                          <span className="text-sm leading-relaxed text-foreground">
+                            {feature}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
         </div>
 
         {/* FAQ Section */}
