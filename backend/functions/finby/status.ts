@@ -3,11 +3,7 @@ import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import type { OrderEntity } from "@shared/shared-types";
-
-interface FinbyStatusRequest {
-  status?: string;
-  reference?: string;
-}
+import type { FinbyStatusRequest } from "@shared/shared-types";
 
 type OrderStatus = OrderEntity["status"];
 

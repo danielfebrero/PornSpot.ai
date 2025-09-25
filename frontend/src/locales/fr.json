@@ -2311,5 +2311,61 @@
         "cfgScale": "Échelle CFG :"
       }
     }
+  },
+  "paymentStatus": {
+    "processing": {
+      "success": {
+        "title": "Traitement de votre achat...",
+        "description": "Veuillez patienter pendant que nous confirmons votre paiement. Cela ne prend généralement que quelques instants."
+      },
+      "cancel": {
+        "title": "Traitement de votre annulation...",
+        "description": "Nous vérifions que votre commande a bien été annulée."
+      },
+      "error": {
+        "title": "Traitement du statut de paiement...",
+        "description": "Nous revérifions le statut de votre achat pour nous assurer que tout est clair."
+      },
+      "default": {
+        "title": "Vérification du statut de paiement...",
+        "description": "Nous vérifions les dernières informations concernant votre commande."
+      }
+    },
+    "completed": {
+      "success": {
+        "title": "Merci pour votre achat.",
+        "description": "Votre paiement est confirmé et vos avantages sont désormais disponibles.",
+        "actionLabel": "Accéder à votre compte"
+      },
+      "cancel": {
+        "title": "Votre commande a bien été annulée.",
+        "description": "Aucun débit n'a été effectué et votre compte reste inchangé.",
+        "actionLabel": "Voir les offres"
+      },
+      "error": {
+        "title": "Nous n'avons pas pu traiter votre achat.",
+        "description": "Vous pouvez réessayer depuis la page tarifs ou nous contacter si le problème persiste.",
+        "actionLabel": "Réessayer"
+      },
+      "default": {
+        "title": "Statut de paiement mis à jour.",
+        "description": "Vous pouvez retourner en toute sécurité à la page tarifs.",
+        "actionLabel": "Retourner aux tarifs"
+      }
+    },
+    "missingReference": {
+      "title": "Référence de paiement manquante.",
+      "description": "Veuillez retourner sur la page tarifs et relancer l'achat.",
+      "actionLabel": "Retourner aux tarifs"
+    },
+    "errors": {
+      "genericTitle": "Nous n'avons pas pu vérifier votre paiement.",
+      "genericDescription": "Veuillez actualiser la page ou revenir à la page tarifs pour recommencer. Contactez le support si le problème persiste.",
+      "invalidStatus": "Statut de paiement invalide reçu.",
+      "missingReference": "Aucune référence de paiement n'a été fournie. Veuillez contacter le support si cela se reproduit."
+    },
+    "actions": {
+      "backToPricing": "Retourner aux tarifs"
+    }
   }
 }

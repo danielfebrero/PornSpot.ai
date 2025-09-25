@@ -20,6 +20,7 @@ export * from "./discover";
 export * from "./notification";
 export * from "./analytics";
 export * from "./pornspotcoin";
+export * from "./finby";
 
 // Database entities
 export * from "./database";

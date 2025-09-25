@@ -2263,5 +2263,61 @@
         "cfgScale": "Escala CFG:"
       }
     }
+  },
+  "paymentStatus": {
+    "processing": {
+      "success": {
+        "title": "Procesando tu compra...",
+        "description": "Solo es cuestión de segundos mientras confirmamos tu pago. Normalmente tardamos muy poco."
+      },
+      "cancel": {
+        "title": "Procesando tu cancelación...",
+        "description": "Estamos confirmando que tu pedido se haya cancelado correctamente."
+      },
+      "error": {
+        "title": "Procesando el estado del pago...",
+        "description": "Estamos revisando nuevamente el estado de tu compra para asegurarnos de que todo esté claro."
+      },
+      "default": {
+        "title": "Comprobando el estado del pago...",
+        "description": "Estamos verificando la información más reciente de tu pedido."
+      }
+    },
+    "completed": {
+      "success": {
+        "title": "Gracias por tu compra.",
+        "description": "Tu pago se ha confirmado y tus beneficios ya están disponibles.",
+        "actionLabel": "Explorar tu cuenta"
+      },
+      "cancel": {
+        "title": "Tu pedido se canceló correctamente.",
+        "description": "No se realizó ningún cargo y tu cuenta sigue igual.",
+        "actionLabel": "Ver planes"
+      },
+      "error": {
+        "title": "No hemos podido procesar tu compra.",
+        "description": "Puedes intentarlo de nuevo desde la página de precios o contactarnos si el problema persiste.",
+        "actionLabel": "Intentar de nuevo"
+      },
+      "default": {
+        "title": "Estado de pago actualizado.",
+        "description": "Puedes volver con seguridad a la página de precios.",
+        "actionLabel": "Volver a precios"
+      }
+    },
+    "missingReference": {
+      "title": "Falta la referencia de pago.",
+      "description": "Vuelve a la página de precios e inicia la compra nuevamente.",
+      "actionLabel": "Volver a precios"
+    },
+    "errors": {
+      "genericTitle": "No pudimos verificar tu pago.",
+      "genericDescription": "Actualiza la página o regresa a la página de precios para empezar otra vez. Contacta al soporte si el problema continúa.",
+      "invalidStatus": "Se recibió un estado de pago no válido.",
+      "missingReference": "No se proporcionó una referencia de pago. Contacta al soporte si vuelve a ocurrir."
+    },
+    "actions": {
+      "backToPricing": "Volver a precios"
+    }
   }
 }

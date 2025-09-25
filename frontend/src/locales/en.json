@@ -2312,5 +2312,61 @@
         "cfgScale": "CFG Scale:"
       }
     }
+  },
+  "paymentStatus": {
+    "processing": {
+      "success": {
+        "title": "Processing your purchase...",
+        "description": "Hang tight while we confirm your payment. This usually only takes a few moments."
+      },
+      "cancel": {
+        "title": "Processing your cancellation...",
+        "description": "We're confirming that your order has been cancelled correctly."
+      },
+      "error": {
+        "title": "Processing payment status...",
+        "description": "We're double-checking the status of your purchase to make sure everything is clear."
+      },
+      "default": {
+        "title": "Checking payment status...",
+        "description": "We're verifying the latest information about your order."
+      }
+    },
+    "completed": {
+      "success": {
+        "title": "Thank you for your purchase.",
+        "description": "Your payment is confirmed and your benefits are now available.",
+        "actionLabel": "Explore your account"
+      },
+      "cancel": {
+        "title": "Your order has been successfully cancelled.",
+        "description": "No charges were made and your account remains unchanged.",
+        "actionLabel": "Browse plans"
+      },
+      "error": {
+        "title": "We have not been able to process your purchase.",
+        "description": "You can try again from the pricing page or reach out if you keep seeing this message.",
+        "actionLabel": "Try again"
+      },
+      "default": {
+        "title": "Payment status updated.",
+        "description": "You can safely return to the pricing page.",
+        "actionLabel": "Back to pricing"
+      }
+    },
+    "missingReference": {
+      "title": "Payment reference missing.",
+      "description": "Please return to the pricing page and initiate the purchase again.",
+      "actionLabel": "Return to pricing"
+    },
+    "errors": {
+      "genericTitle": "We couldn't verify your payment.",
+      "genericDescription": "Please refresh the page or return to the pricing page to start again. Contact support if the issue persists.",
+      "invalidStatus": "Invalid payment status received.",
+      "missingReference": "A payment reference was not provided. Please contact support if this keeps happening."
+    },
+    "actions": {
+      "backToPricing": "Back to pricing"
+    }
   }
 }

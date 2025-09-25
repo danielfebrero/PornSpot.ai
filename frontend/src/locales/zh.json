@@ -2263,5 +2263,61 @@
         "cfgScale": "CFG比例："
       }
     }
+  },
+  "paymentStatus": {
+    "processing": {
+      "success": {
+        "title": "正在处理您的购买...",
+        "description": "请稍等，我们正在确认您的付款，通常只需要几秒钟。"
+      },
+      "cancel": {
+        "title": "正在处理您的取消...",
+        "description": "我们正在确认您的订单已成功取消。"
+      },
+      "error": {
+        "title": "正在处理付款状态...",
+        "description": "我们再次检查您的购买状态，以确保一切正常。"
+      },
+      "default": {
+        "title": "正在检查付款状态...",
+        "description": "我们正在核对您订单的最新信息。"
+      }
+    },
+    "completed": {
+      "success": {
+        "title": "感谢您的购买。",
+        "description": "您的付款已确认，权益已立即生效。",
+        "actionLabel": "前往账户"
+      },
+      "cancel": {
+        "title": "您的订单已成功取消。",
+        "description": "不会扣款，您的账户保持不变。",
+        "actionLabel": "查看方案"
+      },
+      "error": {
+        "title": "我们未能处理您的购买。",
+        "description": "您可以在价格页面重新尝试，若问题持续请联系我们。",
+        "actionLabel": "重新尝试"
+      },
+      "default": {
+        "title": "付款状态已更新。",
+        "description": "您可以安心地返回价格页面。",
+        "actionLabel": "返回价格页"
+      }
+    },
+    "missingReference": {
+      "title": "缺少付款参考。",
+      "description": "请返回价格页面重新发起购买。",
+      "actionLabel": "返回价格页"
+    },
+    "errors": {
+      "genericTitle": "我们无法验证您的付款。",
+      "genericDescription": "请刷新页面或返回价格页面重新开始。如问题仍在，请联系支持。",
+      "invalidStatus": "收到无效的付款状态。",
+      "missingReference": "未提供付款参考。如再次出现，请联系支持。"
+    },
+    "actions": {
+      "backToPricing": "返回价格页"
+    }
   }
 }

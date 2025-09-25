@@ -2263,5 +2263,61 @@
         "cfgScale": "CFG-Skala:"
       }
     }
+  },
+  "paymentStatus": {
+    "processing": {
+      "success": {
+        "title": "Wir bearbeiten deinen Kauf...",
+        "description": "Bitte einen Moment Geduld, wir bestätigen gerade deine Zahlung. Das dauert normalerweise nur wenige Augenblicke."
+      },
+      "cancel": {
+        "title": "Wir bearbeiten deine Stornierung...",
+        "description": "Wir prüfen, dass deine Bestellung ordnungsgemäß storniert wurde."
+      },
+      "error": {
+        "title": "Zahlungsstatus wird verarbeitet...",
+        "description": "Wir überprüfen den Status deines Kaufs noch einmal, um sicherzugehen, dass alles in Ordnung ist."
+      },
+      "default": {
+        "title": "Zahlungsstatus wird überprüft...",
+        "description": "Wir verifizieren die neuesten Informationen zu deiner Bestellung."
+      }
+    },
+    "completed": {
+      "success": {
+        "title": "Danke für deinen Kauf.",
+        "description": "Deine Zahlung wurde bestätigt und deine Vorteile stehen jetzt bereit.",
+        "actionLabel": "Zu deinem Konto"
+      },
+      "cancel": {
+        "title": "Deine Bestellung wurde erfolgreich storniert.",
+        "description": "Es wurden keine Gebühren erhoben und dein Konto bleibt unverändert.",
+        "actionLabel": "Tarife ansehen"
+      },
+      "error": {
+        "title": "Wir konnten deinen Kauf nicht verarbeiten.",
+        "description": "Du kannst es auf der Tarifseite erneut versuchen oder uns kontaktieren, wenn das Problem bestehen bleibt.",
+        "actionLabel": "Erneut versuchen"
+      },
+      "default": {
+        "title": "Zahlungsstatus aktualisiert.",
+        "description": "Du kannst sicher zur Tarifseite zurückkehren.",
+        "actionLabel": "Zur Tarifseite"
+      }
+    },
+    "missingReference": {
+      "title": "Zahlungsreferenz fehlt.",
+      "description": "Bitte kehre zur Tarifseite zurück und starte den Kauf erneut.",
+      "actionLabel": "Zur Tarifseite zurückkehren"
+    },
+    "errors": {
+      "genericTitle": "Wir konnten deine Zahlung nicht bestätigen.",
+      "genericDescription": "Bitte aktualisiere die Seite oder gehe zurück zur Tarifseite, um erneut zu starten. Kontaktiere den Support, falls das Problem weiterhin besteht.",
+      "invalidStatus": "Ungültiger Zahlungsstatus empfangen.",
+      "missingReference": "Es wurde keine Zahlungsreferenz übermittelt. Bitte kontaktiere den Support, wenn das weiterhin passiert."
+    },
+    "actions": {
+      "backToPricing": "Zur Tarifseite"
+    }
   }
 }
