@@ -2773,7 +2773,7 @@ Resources:
   FinbyNotificationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-finby-notification-v1"
+      FunctionName: !Sub "${Environment}-pornspot-finby-notification-v2"
       PackageType: Image
       ImageUri: !Ref ImageUri
       ImageConfig:
@@ -2795,22 +2795,6 @@ Resources:
             Method: OPTIONS
             Auth:
               Authorizer: NONE
-        GetFinbyNotificationRoot:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /notification
-            Method: GET
-            Auth:
-              Authorizer: NONE
-        OptionsFinbyNotificationRoot:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /notification
-            Method: OPTIONS
-            Auth:
-              Authorizer: NONE
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
@@ -2823,6 +2807,38 @@ Resources:
               Resource:
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/finby-account-id"
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/finby-secret-key"
+
+  # Finby - Status Callback
+  FinbyStatusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-finby-status-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/finby/status.handler"]
+      Events:
+        PostFinbyStatus:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /finby/status
+            Method: POST
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsFinbyStatus:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /finby/status
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
 
   UserOAuthGoogleFunction:
     Type: AWS::Serverless::Function

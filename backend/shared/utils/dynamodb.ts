@@ -5230,6 +5230,31 @@ export class DynamoDBService {
     return (result.Item as OrderEntity) || null;
   }
 
+  static async findLatestOrderByStatusForUser(
+    userId: string,
+    status: OrderEntity["status"]
+  ): Promise<OrderEntity | null> {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "GSI1",
+        KeyConditionExpression: "GSI1PK = :gsi1pk",
+        ExpressionAttributeValues: {
+          ":gsi1pk": `ORDERS_BY_USER#${userId}`,
+          ":status": status,
+        },
+        ExpressionAttributeNames: {
+          "#status": "status",
+        },
+        FilterExpression: "#status = :status",
+        ScanIndexForward: false,
+        Limit: 1,
+      })
+    );
+
+    return (result.Items?.[0] as OrderEntity) || null;
+  }
+
   static async updateOrder(
     orderId: string,
     updates: Partial<OrderEntity>
