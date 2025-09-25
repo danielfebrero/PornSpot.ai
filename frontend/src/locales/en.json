@@ -1649,7 +1649,8 @@
           "Turn on and off LoRA models",
           "Custom CFG scale control",
           "Custom inference steps",
-          "Choose your own seed"
+          "Choose your own seed",
+          "100 seconds of video to generate each month"
         ]
       }
     },
@@ -1696,7 +1697,7 @@
         },
         "proFeatures": {
           "question": "What advanced features does the Pro plan offer?",
-          "answer": "Pro users get access to negative prompts for better image control, LoRA model customization, bulk generation, private content creation, and custom image sizes - all the tools you need for professional-grade content."
+          "answer": "Pro users unlock unlimited image generation, private content creation, negative prompts for better control, bulk image generation, custom image sizes, LoRA model toggles, custom CFG scale control, custom inference steps, the ability to choose your own seed, and 100 seconds of video to generate each month."
         },
         "contentAfterCancel": {
           "question": "What happens to my content if I cancel?",

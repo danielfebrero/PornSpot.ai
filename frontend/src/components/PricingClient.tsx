@@ -172,6 +172,7 @@ export function PricingClient() {
       badge: t("planDetails.pro.badge"),
       features: [
         t("planDetails.pro.features.0"),
+        t("planDetails.pro.features.9"),
         t("planDetails.pro.features.1"),
         t("planDetails.pro.features.2"),
         t("planDetails.pro.features.3"),

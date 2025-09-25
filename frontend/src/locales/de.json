@@ -1600,7 +1600,8 @@
           "LoRA-Modelle ein- und ausschalten",
           "Benutzerdefinierte CFG-Skalenkontrolle",
           "Benutzerdefinierte Inferenzschritte",
-          "Wählen Sie Ihren eigenen Seed"
+          "Wählen Sie Ihren eigenen Seed",
+          "100 Sekunden Video zum Generieren jeden Monat"
         ]
       }
     },
@@ -1647,7 +1648,7 @@
         },
         "proFeatures": {
           "question": "Welche erweiterten Funktionen bietet der Pro-Plan?",
-          "answer": "Pro-Benutzer erhalten Zugang zu negativen Prompts für bessere Bildkontrolle, LoRA-Modell-Anpassung, Bulk-Generierung, private Inhaltserstellung und benutzerdefinierte Bildgrößen - alle Tools, die Sie für professionelle Inhalte benötigen."
+          "answer": "Pro-Benutzer erhalten unbegrenzte Bildgenerierung, private Inhaltserstellung, negative Prompts für bessere Kontrolle, Massenbildgenerierung, benutzerdefinierte Bildgrößen, das Ein- und Ausschalten von LoRA-Modellen, eine benutzerdefinierte CFG-Skalensteuerung, benutzerdefinierte Inferenzschritte, die Möglichkeit, ihren eigenen Seed zu wählen, sowie 100 Sekunden Video zur Generierung jeden Monat."
         },
         "contentAfterCancel": {
           "question": "Was passiert mit meinen Inhalten, wenn ich kündige?",
