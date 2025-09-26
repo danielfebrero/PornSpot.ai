@@ -102,11 +102,19 @@ export function usePollI2VJob(jobId: string | undefined, enable: boolean) {
     queryFn: async () => {
       if (!jobId) return null as any;
       const resp = await generateApi.pollI2VJob(jobId);
+      const status = resp ? (resp as any).status : undefined;
+
       // Optimistic cache modifications if completed
-      if (resp && (resp as any).status === "COMPLETED" && (resp as any).media) {
+      if (resp && status === "COMPLETED" && (resp as any).media) {
         const media = (resp as any).media as Media;
         addMediaToUserVideoQueries(media);
-        // Remove from incomplete jobs list
+      }
+
+      if (
+        status === "COMPLETED" ||
+        status === "FAILED" ||
+        status === "CANCELLED"
+      ) {
         queryClient.setQueryData(
           queryKeys.generation.incompleteI2VJobs(),
           (old: any) => {

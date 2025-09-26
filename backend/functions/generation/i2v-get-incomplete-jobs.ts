@@ -54,7 +54,12 @@ const handleGetIncompleteI2VJobs = async (
       const items = await queryJobsForStatus(auth.userId, status);
       // Filter out any that became COMPLETED due to eventual consistency
       items.forEach((j) => {
-        if (j.status !== "COMPLETED") all.push(j);
+        if (
+          j.status !== "COMPLETED" &&
+          j.status !== "FAILED" &&
+          j.status !== "CANCELLED"
+        )
+          all.push(j);
       });
     }
 

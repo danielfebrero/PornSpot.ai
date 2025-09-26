@@ -234,6 +234,75 @@ export class DynamoDBService {
     );
   }
 
+  static async refundI2VJobCredits(
+    job: I2VJobEntity,
+    seconds: number
+  ): Promise<boolean> {
+    if (!Number.isFinite(seconds) || seconds <= 0) {
+      return false;
+    }
+
+    if (job.refundedAt) {
+      return false;
+    }
+
+    const now = new Date().toISOString();
+
+    try {
+      await docClient.send(
+        new TransactWriteCommand({
+          TransactItems: [
+            {
+              Update: {
+                TableName: TABLE_NAME,
+                Key: {
+                  PK: `I2VJOB#${job.jobId}`,
+                  SK: "METADATA",
+                },
+                UpdateExpression:
+                  "SET refundedAt = :refundedAt, refundedSeconds = :seconds",
+                ConditionExpression: "attribute_not_exists(refundedAt)",
+                ExpressionAttributeValues: {
+                  ":refundedAt": now,
+                  ":seconds": seconds,
+                },
+              },
+            },
+            {
+              Update: {
+                TableName: TABLE_NAME,
+                Key: {
+                  PK: `USER#${job.userId}`,
+                  SK: "METADATA",
+                },
+                UpdateExpression:
+                  "SET #purchased = if_not_exists(#purchased, :zero) + :seconds",
+                ExpressionAttributeNames: {
+                  "#purchased": "i2vCreditsSecondsPurchased",
+                },
+                ExpressionAttributeValues: {
+                  ":seconds": seconds,
+                  ":zero": 0,
+                },
+              },
+            },
+          ],
+        })
+      );
+      return true;
+    } catch (error: any) {
+      if (error?.name === "ConditionalCheckFailedException") {
+        return false;
+      }
+      console.error("Failed to refund I2V job credits", {
+        jobId: job.jobId,
+        userId: job.userId,
+        error,
+      });
+      throw error;
+    }
+  }
+
   // Helper method to convert MediaEntity to Media
   static convertMediaEntityToMedia(entity: MediaEntity): Media {
     const media: Media = {

@@ -34,6 +34,10 @@ const handlePollI2VJob = async (
   if (job.userId !== auth.userId)
     return ResponseUtil.forbidden(event, "Not allowed to access this job");
 
+  if (job.status === "FAILED") {
+    await refundCreditsForFailedJob(job);
+  }
+
   // Fast path: already finalized with media
   if (job.status === "COMPLETED" && job.resultMediaId) {
     const mediaEntity = await DynamoDBService.findMediaById(job.resultMediaId);
@@ -60,6 +64,9 @@ const handlePollI2VJob = async (
   try {
     const res = await pollOnce(jobId);
     if (!res.completed) {
+      if (res.status === "FAILED") {
+        await refundCreditsForFailedJob({ ...job, status: "FAILED" });
+      }
       return ResponseUtil.success(event, {
         status: res.status,
         delayTime: job.delayTime ?? null,
@@ -233,11 +240,35 @@ const handleSqsEvent = async (event: SQSEvent) => {
         console.warn("I2V job not found for SQS message", jobId);
         continue;
       }
+      if (job.status === "FAILED") {
+        await refundCreditsForFailedJob(job);
+        console.log(
+          "I2V job failed; refund processed or already handled",
+          jobId
+        );
+        continue;
+      }
+      if (job.status === "CANCELLED") {
+        console.log("I2V job in terminal state; skipping", jobId, job.status);
+        continue;
+      }
       if (job.status === "COMPLETED" && job.resultMediaId) {
         continue; // nothing to do
       }
       const res = await pollOnce(jobId);
       if (!res.completed) {
+        if (res.status === "FAILED") {
+          await refundCreditsForFailedJob({ ...job, status: "FAILED" });
+          console.log("I2V job failed during polling; refund processed", jobId);
+          continue;
+        }
+        if (res.status === "CANCELLED") {
+          console.log(
+            "I2V job cancelled during polling; skipping re-enqueue",
+            jobId
+          );
+          continue;
+        }
         // Not done, schedule next backoff
         if (!queueUrl) {
           console.warn("I2V_POLL_QUEUE_URL not set; cannot re-enqueue");
@@ -265,3 +296,30 @@ const handleSqsEvent = async (event: SQSEvent) => {
     }
   }
 };
+
+async function refundCreditsForFailedJob(job: I2VJobEntity): Promise<void> {
+  if (job.status !== "FAILED") {
+    return;
+  }
+
+  const videoLength = Number(job.request?.videoLength ?? 0);
+  if (!Number.isFinite(videoLength) || videoLength <= 0) {
+    return;
+  }
+
+  try {
+    const refunded = await DynamoDBService.refundI2VJobCredits(
+      job,
+      videoLength
+    );
+    if (!refunded) {
+      console.log("Refund already processed for I2V job", job.jobId);
+    }
+  } catch (error) {
+    console.error("Failed to refund credits for I2V job", {
+      jobId: job.jobId,
+      userId: job.userId,
+      error,
+    });
+  }
+}

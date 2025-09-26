@@ -453,6 +453,8 @@ export interface I2VJobEntity extends BaseEntity {
   delayTime?: number;
   executionTime?: number;
   resultMediaId?: string; // Created Media ID for result video
+  refundedAt?: string; // When credits were refunded for a failed job
+  refundedSeconds?: number; // Number of seconds refunded to the user
 }
 
 export interface OrderEntity extends BaseEntity {
