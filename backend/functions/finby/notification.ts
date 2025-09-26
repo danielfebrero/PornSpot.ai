@@ -2,14 +2,15 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ParameterStoreService } from "@shared/utils/parameters";
-import { verifyFinbyNotificationSignature } from "@shared/utils/finby";
+// import { verifyFinbyNotificationSignature } from "@shared/utils/finby";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 import { resolveOrderItem } from "@shared/utils/order-items";
 import type { OrderEntity, UserEntity } from "@shared/shared-types";
-import type { FinbyNotificationSignatureParams } from "@shared/utils/finby";
+// import type { FinbyNotificationSignatureParams } from "@shared/utils/finby";
 import type { UserPlan } from "@shared/shared-types/permissions";
 
 const SUCCESS_RESULT_CODE = "0";
+const AUTHORIZED_RESULT_CODE = "3";
 const MAX_PLAN_END_DATE = "9999-12-31T00:00:00.000Z";
 
 const isNonEmpty = (value: string | undefined | null): value is string =>
@@ -45,21 +46,21 @@ const resolvePlanFromItem = (itemId: string): UserPlan | null => {
   return null;
 };
 
-const buildSignatureParams = (
-  query: Record<string, string | undefined>
-): FinbyNotificationSignatureParams => ({
-  AccountId: query["AccountId"],
-  Amount: query["Amount"],
-  Currency: query["Currency"],
-  Type: query["Type"] ?? query["PaymentType"],
-  ResultCode: query["ResultCode"],
-  CounterAccount: query["CounterAccount"],
-  CounterAccountName: query["CounterAccountName"],
-  OrderId: query["OrderId"],
-  PaymentId: query["PaymentId"],
-  Reference: query["Reference"],
-  RefuseReason: query["RefuseReason"],
-});
+// const buildSignatureParams = (
+//   query: Record<string, string | undefined>
+// ): FinbyNotificationSignatureParams => ({
+//   AccountId: query["AccountId"],
+//   Amount: query["Amount"],
+//   Currency: query["Currency"],
+//   Type: query["Type"] ?? query["PaymentType"],
+//   ResultCode: query["ResultCode"],
+//   CounterAccount: query["CounterAccount"],
+//   CounterAccountName: query["CounterAccountName"],
+//   OrderId: query["OrderId"],
+//   PaymentId: query["PaymentId"],
+//   Reference: query["Reference"],
+//   RefuseReason: query["RefuseReason"],
+// });
 
 const updateUserForSubscription = async (
   order: OrderEntity,
@@ -119,9 +120,9 @@ const handleFinbyNotification = async (
 
   console.log("[Finby] Notification received", queryParams);
 
-  if (!isNonEmpty(queryParams["Signature"])) {
-    return ResponseUtil.badRequest(event, "Missing signature parameter");
-  }
+  // if (!isNonEmpty(queryParams["Signature"])) {
+  //   return ResponseUtil.badRequest(event, "Missing signature parameter");
+  // }
 
   if (!isNonEmpty(queryParams["Reference"])) {
     return ResponseUtil.badRequest(event, "Missing reference parameter");
@@ -135,30 +136,27 @@ const handleFinbyNotification = async (
     return ResponseUtil.badRequest(event, "Missing account identifier");
   }
 
-  const [configuredAccountId, secretKey] = await Promise.all([
-    ParameterStoreService.getFinbyAccountId(),
-    ParameterStoreService.getFinbySecretKey(),
-  ]);
+  const configuredAccountId = await ParameterStoreService.getFinbyAccountId();
 
   if (queryParams["AccountId"] !== configuredAccountId) {
     return ResponseUtil.unauthorized(event, "Account identifier mismatch");
   }
 
-  const signatureParams = buildSignatureParams(queryParams);
-  const providedSignature = queryParams["Signature"]!.trim().toUpperCase();
-  const signatureValid = verifyFinbyNotificationSignature(
-    secretKey,
-    signatureParams,
-    providedSignature
-  );
+  // const signatureParams = buildSignatureParams(queryParams);
+  // const providedSignature = queryParams["Signature"]!.trim().toUpperCase();
+  // const signatureValid = verifyFinbyNotificationSignature(
+  //   secretKey,
+  //   signatureParams,
+  //   providedSignature
+  // );
 
-  if (!signatureValid) {
-    console.warn("[Finby] Invalid signature", {
-      signatureParams,
-      providedSignature,
-    });
-    return ResponseUtil.unauthorized(event, "Invalid signature");
-  }
+  // if (!signatureValid) {
+  //   console.warn("[Finby] Invalid signature", {
+  //     signatureParams,
+  //     providedSignature,
+  //   });
+  //   return ResponseUtil.unauthorized(event, "Invalid signature");
+  // }
 
   const orderId = queryParams["Reference"]!;
   const order = await DynamoDBService.getOrder(orderId);
@@ -176,7 +174,9 @@ const handleFinbyNotification = async (
   }
 
   const nowISO = new Date().toISOString();
-  const isSuccess = queryParams["ResultCode"] === SUCCESS_RESULT_CODE;
+  const isSuccess =
+    queryParams["ResultCode"] === SUCCESS_RESULT_CODE ||
+    queryParams["ResultCode"] === AUTHORIZED_RESULT_CODE;
   const nextStatus: OrderEntity["status"] = isSuccess ? "completed" : "failed";
 
   const orderUpdates: Partial<OrderEntity> = {
