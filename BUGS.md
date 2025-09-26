@@ -162,8 +162,6 @@
 
 [x] On mobile, on I2V page, the source image blink when I change settings.
 
-[ ] On video page, when video is pass from incomplete to complete status, it disappear optimistically but do not reappear as ContentCard video.
-
 [x] On images page, the video appear but shouldn't.
 
 [x] On mobile, I can follow myself by going on my profile from a {username} link.
