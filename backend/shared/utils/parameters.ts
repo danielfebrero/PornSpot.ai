@@ -368,4 +368,28 @@ export class ParameterStoreService {
     const environment = process.env["ENVIRONMENT"] || "dev";
     return await this.getParameter(`/${environment}/finby-secret-key`, true);
   }
+
+  /**
+   * Get the Finby Notification URL from Parameter Store or environment variable
+   */
+  static async getFinbyNotificationUrl(): Promise<string> {
+    if (isLocal) {
+      const url = process.env["FINBY_NOTIFICATION_URL"];
+      if (!url) {
+        throw new Error(
+          "FINBY_NOTIFICATION_URL environment variable is required in local development"
+        );
+      }
+      console.log(
+        "Using local FINBY_NOTIFICATION_URL from environment variable"
+      );
+      return url;
+    }
+
+    const environment = process.env["ENVIRONMENT"] || "dev";
+    return await this.getParameter(
+      `/${environment}/finby-notification-url`,
+      false
+    );
+  }
 }
