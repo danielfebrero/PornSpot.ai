@@ -135,8 +135,6 @@ export class PlanUtil {
    */
   static async getUserUsageStats(user: UserEntity): Promise<UserUsageStats> {
     const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
     const today = now.toISOString().split("T")[0]!; // YYYY-MM-DD format
 
     // Check if monthly count needs to be reset
@@ -145,12 +143,8 @@ export class PlanUtil {
       ? new Date(user.lastGenerationAt)
       : null;
 
-    if (lastGeneration) {
-      const lastMonth = lastGeneration.getMonth();
-      const lastYear = lastGeneration.getFullYear();
-      if (lastMonth !== currentMonth || lastYear !== currentYear) {
-        monthlyCount = 0; // Reset for new month
-      }
+    if (PlanUtil.shouldResetMonthlyCount(user, lastGeneration, now)) {
+      monthlyCount = 0; // Reset for new billing cycle
     }
 
     // Check if daily count needs to be reset
@@ -227,8 +221,6 @@ export class PlanUtil {
       }
 
       const now = new Date();
-      const currentMonth = now.getMonth();
-      const currentYear = now.getFullYear();
       const today = now.toISOString().split("T")[0]; // YYYY-MM-DD format
 
       // Check if we need to reset monthly count (new month)
@@ -237,12 +229,8 @@ export class PlanUtil {
         ? new Date(user.lastGenerationAt)
         : null;
 
-      if (lastGeneration) {
-        const lastMonth = lastGeneration.getMonth();
-        const lastYear = lastGeneration.getFullYear();
-        if (lastMonth !== currentMonth || lastYear !== currentYear) {
-          monthlyCount = 0; // Reset for new month
-        }
+      if (PlanUtil.shouldResetMonthlyCount(user, lastGeneration, now)) {
+        monthlyCount = 0; // Reset for new billing cycle
       }
 
       // Check if we need to reset daily count (new day)
@@ -271,5 +259,90 @@ export class PlanUtil {
     } catch (error) {
       console.error(`Failed to update usage stats for user ${userId}:`, error);
     }
+  }
+
+  private static shouldResetMonthlyCount(
+    user: UserEntity,
+    lastGeneration: Date | null,
+    referenceDate: Date
+  ): boolean {
+    if (!lastGeneration) {
+      return false;
+    }
+
+    const hasPaidPlan = user.plan && user.plan !== "free";
+    if (hasPaidPlan && user.planStartDate) {
+      const planStartDate = new Date(user.planStartDate);
+      if (!Number.isNaN(planStartDate.getTime())) {
+        const cycleStart = PlanUtil.calculatePlanCycleStart(
+          planStartDate,
+          referenceDate
+        );
+        if (lastGeneration < cycleStart) {
+          return true;
+        }
+      }
+    }
+
+    return (
+      lastGeneration.getMonth() !== referenceDate.getMonth() ||
+      lastGeneration.getFullYear() !== referenceDate.getFullYear()
+    );
+  }
+
+  private static calculatePlanCycleStart(
+    planStartDate: Date,
+    referenceDate: Date
+  ): Date {
+    const startTimestamp = planStartDate.getTime();
+    if (Number.isNaN(startTimestamp)) {
+      return planStartDate;
+    }
+
+    if (referenceDate <= planStartDate) {
+      return planStartDate;
+    }
+
+    const totalMonths =
+      (referenceDate.getUTCFullYear() - planStartDate.getUTCFullYear()) * 12 +
+      (referenceDate.getUTCMonth() - planStartDate.getUTCMonth());
+
+    let cycleStart = PlanUtil.addMonthsPreservingDay(
+      planStartDate,
+      totalMonths
+    );
+
+    if (cycleStart > referenceDate) {
+      cycleStart = PlanUtil.addMonthsPreservingDay(
+        planStartDate,
+        totalMonths - 1
+      );
+    }
+
+    return cycleStart <= planStartDate ? planStartDate : cycleStart;
+  }
+
+  private static addMonthsPreservingDay(date: Date, months: number): Date {
+    const year = date.getUTCFullYear();
+    const monthIndex = date.getUTCMonth() + months;
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const seconds = date.getUTCSeconds();
+    const milliseconds = date.getUTCMilliseconds();
+
+    const target = new Date(
+      Date.UTC(year, monthIndex, 1, hours, minutes, seconds, milliseconds)
+    );
+    const daysInTargetMonth = PlanUtil.getDaysInUTCMonth(
+      target.getUTCFullYear(),
+      target.getUTCMonth()
+    );
+    const clampedDay = Math.min(date.getUTCDate(), daysInTargetMonth);
+    target.setUTCDate(clampedDay);
+    return target;
+  }
+
+  private static getDaysInUTCMonth(year: number, monthIndex: number): number {
+    return new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
   }
 }
