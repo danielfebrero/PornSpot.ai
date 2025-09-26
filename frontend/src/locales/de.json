@@ -1604,7 +1604,7 @@
       "starter": {
         "name": "Starter",
         "description": "Perfekt für Gelegenheitsnutzer, die KI-generierten Inhalt erkunden",
-        "features": ["300 Bilder pro Monat"]
+        "features": ["200 Bilder pro Monat"]
       },
       "unlimited": {
         "name": "Unbegrenzt",

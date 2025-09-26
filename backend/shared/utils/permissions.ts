@@ -88,8 +88,8 @@ function loadPermissionsConfig(): PermissionsConfig {
           canUseSteps: false,
         },
         starter: {
-          imagesPerMonth: 300,
-          imagesPerDay: 20,
+          imagesPerMonth: 200,
+          imagesPerDay: 200,
           canUseNegativePrompt: false,
           canUseBulkGeneration: false,
           canUseLoRAModels: false,

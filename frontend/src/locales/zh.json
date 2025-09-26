@@ -1605,7 +1605,7 @@
       "starter": {
         "name": "入门版",
         "description": "非常适合探索AI生成内容的普通用户",
-        "features": ["每月300张图片"]
+        "features": ["每月200张图片"]
       },
       "unlimited": {
         "name": "无限版",

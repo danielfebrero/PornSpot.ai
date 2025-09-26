@@ -1605,7 +1605,7 @@
       "starter": {
         "name": "Principiante",
         "description": "Perfecto para usuarios ocasionales que exploran contenido generado por IA",
-        "features": ["300 imágenes por mes"]
+        "features": ["200 imágenes por mes"]
       },
       "unlimited": {
         "name": "Ilimitado",

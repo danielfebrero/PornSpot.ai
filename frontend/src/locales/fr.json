@@ -1652,7 +1652,7 @@
       "starter": {
         "name": "Débutant",
         "description": "Parfait pour les utilisateurs occasionnels explorant le contenu généré par IA",
-        "features": ["300 images par mois"]
+        "features": ["200 images par mois"]
       },
       "unlimited": {
         "name": "Illimité",

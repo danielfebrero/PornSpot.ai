@@ -15,7 +15,7 @@ export const orderItems: OrderItem[] = [
   {
     id: "starter-monthly",
     name: "Starter Monthly",
-    amount: 10,
+    amount: 9,
     currency: "USD",
     renewalFrequency: "monthly",
     finbyPaymentType: 3,
@@ -23,7 +23,7 @@ export const orderItems: OrderItem[] = [
   {
     id: "starter-yearly",
     name: "Starter Yearly",
-    amount: 100,
+    amount: 90,
     currency: "USD",
     renewalFrequency: "yearly",
     finbyPaymentType: 3,

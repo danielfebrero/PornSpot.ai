@@ -1653,7 +1653,7 @@
       "starter": {
         "name": "Starter",
         "description": "Perfect for casual users exploring AI-generated content",
-        "features": ["300 images per month"]
+        "features": ["200 images per month"]
       },
       "unlimited": {
         "name": "Unlimited",

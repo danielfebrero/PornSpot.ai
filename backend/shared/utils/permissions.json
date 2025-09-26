@@ -35,8 +35,8 @@
       "canUseSteps": false
     },
     "starter": {
-      "imagesPerMonth": 300,
-      "imagesPerDay": 20,
+      "imagesPerMonth": 200,
+      "imagesPerDay": 200,
       "canGenerateImages": true,
       "canUseNegativePrompt": false,
       "canUseBulkGeneration": false,
