@@ -87,7 +87,7 @@ interface PricingPlan {
   badge?: string;
 }
 
-const VIDEO_SECONDS_MIN = 5;
+const VIDEO_SECONDS_MIN = 50;
 const VIDEO_SECONDS_MAX = 500;
 const VIDEO_SECONDS_STEP = 5;
 const VIDEO_SECONDS_DEFAULT = 50;
