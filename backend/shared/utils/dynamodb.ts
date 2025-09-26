@@ -94,6 +94,19 @@ const docClient = DynamoDBDocumentClient.from(client, {
 const TABLE_NAME = process.env["DYNAMODB_TABLE"]!;
 console.log("📋 Table name from env:", TABLE_NAME);
 
+export type UserPlanRenewalCandidate = Pick<
+  UserEntity,
+  | "userId"
+  | "email"
+  | "plan"
+  | "planStartDate"
+  | "planEndDate"
+  | "subscriptionStatus"
+  | "subscriptionId"
+> & {
+  planEndDate: string;
+};
+
 /**
  * Helper function to get the number of days in a specific month
  */
@@ -1719,19 +1732,40 @@ export class DynamoDBService {
     userId: string,
     updates: Partial<UserEntity>
   ): Promise<void> {
-    const updateExpression: string[] = [];
+    const setExpressions: string[] = [];
+    const removeExpressions: string[] = [];
     const expressionAttributeNames: Record<string, string> = {};
     const expressionAttributeValues: Record<string, any> = {};
 
     Object.entries(updates).forEach(([key, value]) => {
-      if (key !== "PK" && key !== "SK" && value !== undefined) {
-        updateExpression.push(`#${key} = :${key}`);
-        expressionAttributeNames[`#${key}`] = key;
-        expressionAttributeValues[`:${key}`] = value;
+      if (key === "PK" || key === "SK" || value === undefined) {
+        return;
       }
+
+      const attributeKey = `#${key}`;
+      expressionAttributeNames[attributeKey] = key;
+
+      if (value === null) {
+        removeExpressions.push(attributeKey);
+        return;
+      }
+
+      setExpressions.push(`${attributeKey} = :${key}`);
+      expressionAttributeValues[`:${key}`] = value;
     });
 
-    if (updateExpression.length === 0) return;
+    if (setExpressions.length === 0 && removeExpressions.length === 0) {
+      return;
+    }
+
+    const updateExpressionParts: string[] = [];
+    if (setExpressions.length > 0) {
+      updateExpressionParts.push(`SET ${setExpressions.join(", ")}`);
+    }
+
+    if (removeExpressions.length > 0) {
+      updateExpressionParts.push(`REMOVE ${removeExpressions.join(", ")}`);
+    }
 
     await docClient.send(
       new UpdateCommand({
@@ -1740,9 +1774,12 @@ export class DynamoDBService {
           PK: `USER#${userId}`,
           SK: "METADATA",
         },
-        UpdateExpression: `SET ${updateExpression.join(", ")}`,
+        UpdateExpression: updateExpressionParts.join(" "),
         ExpressionAttributeNames: expressionAttributeNames,
-        ExpressionAttributeValues: expressionAttributeValues,
+        ExpressionAttributeValues:
+          Object.keys(expressionAttributeValues).length > 0
+            ? expressionAttributeValues
+            : undefined,
       })
     );
   }
@@ -5212,6 +5249,89 @@ export class DynamoDBService {
       `✅ Found ${usersWithRenewalToday.length} Pro users with renewal today out of ${activeUsers.length} total active Pro users`
     );
     return usersWithRenewalToday;
+  }
+
+  static async getUsersWithPlanEndingOnDate(
+    targetDateISO: string
+  ): Promise<UserPlanRenewalCandidate[]> {
+    const date = new Date(targetDateISO);
+
+    if (Number.isNaN(date.getTime())) {
+      throw new Error(
+        `[DynamoDB] Invalid date received for plan ending query: ${targetDateISO}`
+      );
+    }
+
+    const datePrefix = date.toISOString().split("T")[0]!;
+    const paidPlans: Array<UserEntity["plan"]> = [
+      "starter",
+      "unlimited",
+      "pro",
+    ];
+    const candidates: UserPlanRenewalCandidate[] = [];
+
+    for (const plan of paidPlans) {
+      let lastEvaluatedKey: QueryCommandInput["ExclusiveStartKey"] | undefined;
+
+      do {
+        const queryParams: QueryCommandInput = {
+          TableName: TABLE_NAME,
+          IndexName: "GSI4",
+          KeyConditionExpression:
+            "GSI4PK = :planPK AND begins_with(GSI4SK, :datePrefix)",
+          ExpressionAttributeValues: {
+            ":planPK": `USER_PLAN#${plan}`,
+            ":datePrefix": datePrefix,
+          },
+          ProjectionExpression:
+            "userId, email, #plan, planStartDate, planEndDate, #subscriptionStatus, subscriptionId",
+          ExpressionAttributeNames: {
+            "#plan": "plan",
+            "#subscriptionStatus": "subscriptionStatus",
+          },
+        };
+
+        if (lastEvaluatedKey) {
+          queryParams.ExclusiveStartKey = lastEvaluatedKey;
+        }
+
+        const result = await docClient.send(new QueryCommand(queryParams));
+
+        if (result.Items?.length) {
+          for (const item of result.Items) {
+            const planEndDate = item["planEndDate"] as string | undefined;
+
+            if (!planEndDate) {
+              continue;
+            }
+
+            const userId = item["userId"] as string;
+            const emailValue =
+              (item["email"] as string | undefined) ?? `user-${userId}`;
+
+            candidates.push({
+              userId,
+              email: emailValue,
+              plan: (item["plan"] ?? plan) as UserEntity["plan"],
+              planStartDate: item["planStartDate"] as string | undefined,
+              planEndDate,
+              subscriptionStatus: item["subscriptionStatus"] as
+                | UserEntity["subscriptionStatus"]
+                | undefined,
+              subscriptionId: item["subscriptionId"] as string | undefined,
+            });
+          }
+        }
+
+        lastEvaluatedKey = result.LastEvaluatedKey;
+      } while (lastEvaluatedKey);
+    }
+
+    console.log(
+      `[DynamoDB] Found ${candidates.length} user(s) with plan ending on ${datePrefix}`
+    );
+
+    return candidates;
   }
 
   // ===== TRUSTPAY Methods =====

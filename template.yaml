@@ -3796,6 +3796,53 @@ Resources:
                 - !GetAtt MediaTable.Arn
                 - !Sub "${MediaTable.Arn}/index/*"
 
+  # Daily subscription renewals and cancellations handler
+  SubscriptionsRenewalAndCancellationsFunction:
+    Type: AWS::Serverless::Function
+    Condition: IsProd
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-subscriptions-renewal-and-cancellations"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command:
+          [
+            "functions/scheduled-jobs/subscriptions-renewal-and-cancellations.handler",
+          ]
+      MemorySize: 512
+      Timeout: 900
+      Events:
+        Daily:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(1 0 * * ? *)" # Every day at 00:01 UTC
+            Name: !Sub "${Environment}-pornspot-subscriptions-renewal-daily"
+            Description: "Renews paid subscriptions and downgrades cancellations at 00:01 UTC"
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+              Resource:
+                - !Sub "${MediaTable.Arn}/index/*"
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+              Resource:
+                - !GetAtt MediaTable.Arn
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/finby-account-id"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/finby-secret-key"
+
 Outputs:
   ApiGatewayUrl:
     Description: API Gateway endpoint URL

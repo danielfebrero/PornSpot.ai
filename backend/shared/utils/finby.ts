@@ -179,3 +179,140 @@ export const verifyFinbyNotificationSignature = (
   const calculated = generateFinbyNotificationSignature(secretKey, params);
   return calculated === providedSignature.toUpperCase();
 };
+
+export interface FinbyRecurringChargeOptions {
+  paymentRequestId: string;
+  amount?: string | number;
+  currency?: string;
+  reference?: string;
+  paymentType?: number;
+  baseUrl?: string;
+  extraParams?: Record<string, string | number | boolean | undefined>;
+  timeoutMs?: number;
+}
+
+export interface FinbyRecurringChargeResponse {
+  status: number;
+  resultCode?: string;
+  acquirerResponseId?: string;
+  rawBody: string;
+}
+
+const parseFinbyResponseBody = (body: string): any => {
+  if (!body) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(body);
+  } catch (err) {
+    try {
+      const normalized = body.replace(/'/g, '"');
+      return JSON.parse(normalized);
+    } catch {
+      return null;
+    }
+  }
+};
+
+export const chargeFinbyRecurringPayment = async (
+  order: OrderEntity,
+  options: FinbyRecurringChargeOptions
+): Promise<FinbyRecurringChargeResponse> => {
+  if (!options.paymentRequestId) {
+    throw new Error(
+      "[Finby] Missing payment request identifier for recurring charge"
+    );
+  }
+
+  const [accountId, secretKey] = await Promise.all([
+    ParameterStoreService.getFinbyAccountId(),
+    ParameterStoreService.getFinbySecretKey(),
+  ]);
+
+  if (!accountId || !secretKey) {
+    throw new Error("[Finby] Missing account credentials for recurring charge");
+  }
+
+  const amount = formatAmount(options.amount ?? order.amount);
+  const currency = options.currency ?? order.currency;
+  const reference = options.reference ?? order.orderId;
+  const paymentType = options.paymentType ?? 4;
+  const paymentRequestId = options.paymentRequestId;
+
+  const basePayloadParts = [
+    accountId,
+    amount,
+    currency,
+    reference,
+    paymentType.toString(),
+  ];
+
+  const signaturePayload = [...basePayloadParts, paymentRequestId].join("/");
+  const signature = generateSignature(secretKey, signaturePayload);
+
+  const params = new URLSearchParams({
+    AccountId: accountId,
+    Amount: amount,
+    Currency: currency,
+    Reference: reference,
+    Signature: signature,
+    PaymentType: paymentType.toString(),
+    PaymentRequestId: paymentRequestId,
+  });
+
+  if (options.extraParams) {
+    for (const [key, value] of Object.entries(options.extraParams)) {
+      if (value === undefined || value === null) continue;
+      params.append(key, String(value));
+    }
+  }
+
+  const baseUrl = options.baseUrl || DEFAULT_FINBY_BASE_URL;
+  const requestUrl = `${baseUrl}?${params.toString()}`;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    options.timeoutMs ?? 15_000
+  );
+
+  try {
+    const response = await fetch(requestUrl, {
+      method: "GET",
+      signal: controller.signal,
+    });
+
+    const rawBody = await response.text();
+    const parsed = parseFinbyResponseBody(rawBody);
+
+    if (!response.ok) {
+      throw new Error(
+        `[Finby] Recurring charge request failed with status ${
+          response.status
+        }: ${rawBody.slice(0, 200)}`
+      );
+    }
+
+    const resultCode = parsed?.ResultCode ?? parsed?.resultCode;
+    const acquirerResponseId =
+      parsed?.AcquirerResponseId ?? parsed?.acquirerResponseId;
+
+    return {
+      status: response.status,
+      resultCode: resultCode != null ? String(resultCode) : undefined,
+      acquirerResponseId: acquirerResponseId
+        ? String(acquirerResponseId)
+        : undefined,
+      rawBody,
+    };
+  } catch (error) {
+    if ((error as Error)?.name === "AbortError") {
+      throw new Error("[Finby] Recurring charge request timed out");
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+};
