@@ -1593,6 +1593,7 @@
     },
     "pay": "支付",
     "processing": "处理中...",
+    "currentPlanMessage": "这是您当前的有效套餐。",
     "plans": {
       "free": "免费",
       "starter": "入门版",

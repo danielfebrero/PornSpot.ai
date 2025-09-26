@@ -1593,6 +1593,7 @@
     },
     "pay": "Pagar",
     "processing": "Procesando...",
+    "currentPlanMessage": "Este es tu plan actual activo.",
     "plans": {
       "free": "Gratis",
       "starter": "Principiante",

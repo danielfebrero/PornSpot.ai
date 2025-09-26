@@ -433,119 +433,128 @@ export function PricingClient() {
               id="pricing-plans"
               className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3"
             >
-              {plans.map((plan) => (
-                <Card
-                  key={plan.id}
-                  className={cn(
-                    "relative flex h-full flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl",
-                    plan.popular
-                      ? "border-primary/80 shadow-lg ring-2 ring-primary/20"
-                      : "border-border"
-                  )}
-                >
-                  {plan.badge && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform">
+              {plans.map((plan) => {
+                const planItem = isYearly
+                  ? `${plan.id}-yearly`
+                  : `${plan.id}-monthly`;
+                const isProcessing = processingItem === planItem;
+                const isCurrentPlanActive =
+                  user?.planInfo?.plan === plan.id && user?.planInfo?.isActive;
+
+                return (
+                  <Card
+                    key={plan.id}
+                    className={cn(
+                      "relative flex h-full flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl",
+                      plan.popular
+                        ? "border-primary/80 shadow-lg ring-2 ring-primary/20"
+                        : "border-border"
+                    )}
+                  >
+                    {plan.badge && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform">
+                        <div
+                          className={cn(
+                            "px-3 py-1 rounded-full text-xs font-medium text-white",
+                            plan.popular ? "bg-primary" : "bg-foreground"
+                          )}
+                        >
+                          {plan.badge}
+                        </div>
+                      </div>
+                    )}
+
+                    <CardHeader className="flex flex-col items-center gap-4 pb-6 pt-10 text-center">
                       <div
                         className={cn(
-                          "px-3 py-1 rounded-full text-xs font-medium text-white",
-                          plan.popular ? "bg-primary" : "bg-foreground"
+                          "flex h-12 w-12 items-center justify-center rounded-xl",
+                          plan.popular
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
                         )}
                       >
-                        {plan.badge}
+                        {plan.icon}
                       </div>
-                    </div>
-                  )}
-
-                  <CardHeader className="flex flex-col items-center gap-4 pb-6 pt-10 text-center">
-                    <div
-                      className={cn(
-                        "flex h-12 w-12 items-center justify-center rounded-xl",
-                        plan.popular
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground"
-                      )}
-                    >
-                      {plan.icon}
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="text-2xl font-bold text-foreground">
-                        {plan.name}
-                      </h3>
-                      <p className="text-sm leading-relaxed text-muted-foreground">
-                        {plan.description}
-                      </p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-4xl font-bold text-foreground">
-                          ${getPrice(plan)}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          /{isYearly ? t("year") : t("month")}
-                        </span>
+                      <div className="space-y-2">
+                        <h3 className="text-2xl font-bold text-foreground">
+                          {plan.name}
+                        </h3>
+                        <p className="text-sm leading-relaxed text-muted-foreground">
+                          {plan.description}
+                        </p>
                       </div>
-                      {isYearly && (
-                        <div className="text-sm font-medium text-primary">
-                          {t("saveVsMonthly", {
-                            percentage: getDiscountPercentage(plan),
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </CardHeader>
 
-                  <CardContent className="flex flex-1 flex-col gap-5 pb-8">
-                    <Button
-                      variant={plan.popular ? "default" : "outline"}
-                      size="lg"
-                      className="w-full"
-                      disabled={Boolean(processingItem)}
-                      onClick={() => {
-                        const item = isYearly
-                          ? `${plan.id}-yearly`
-                          : `${plan.id}-monthly`;
-                        handleTrustpayPopup(item);
-                      }}
-                    >
-                      <div className="flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap sm:gap-3">
-                        {processingItem ===
-                        (isYearly
-                          ? `${plan.id}-yearly`
-                          : `${plan.id}-monthly`) ? (
-                          <>
-                            <Loader2 className="h-5 w-5 animate-spin" />
-                            <span className="font-semibold whitespace-nowrap">
-                              {t("processing")}
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="font-semibold whitespace-nowrap">
-                              {t("pay")}
-                            </span>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <MastercardLogo className="h-6 w-auto" />
-                              <VisaLogo className="h-6 w-auto" />
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </Button>
-
-                    <div className="space-y-3">
-                      {plan.features.map((feature, index) => (
-                        <div key={index} className="flex items-center gap-3">
-                          <Check className="h-5 w-5 flex-shrink-0 text-green-500" />
-                          <span className="text-sm leading-relaxed text-foreground">
-                            {feature}
+                      <div className="space-y-2">
+                        <div className="flex items-baseline justify-center gap-1">
+                          <span className="text-4xl font-bold text-foreground">
+                            ${getPrice(plan)}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            /{isYearly ? t("year") : t("month")}
                           </span>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                        {isYearly && (
+                          <div className="text-sm font-medium text-primary">
+                            {t("saveVsMonthly", {
+                              percentage: getDiscountPercentage(plan),
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="flex flex-1 flex-col gap-5 pb-8">
+                      {isCurrentPlanActive ? (
+                        <div className="w-full rounded-lg border border-border/70 bg-muted/40 px-4 py-3 text-sm font-medium text-muted-foreground text-center">
+                          {t("currentPlanMessage", {
+                            fallback: "This is your current active plan.",
+                          } as any)}
+                        </div>
+                      ) : (
+                        <Button
+                          variant={plan.popular ? "default" : "outline"}
+                          size="lg"
+                          className="w-full"
+                          disabled={Boolean(processingItem)}
+                          onClick={() => handleTrustpayPopup(planItem)}
+                        >
+                          <div className="flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap sm:gap-3">
+                            {isProcessing ? (
+                              <>
+                                <Loader2 className="h-5 w-5 animate-spin" />
+                                <span className="font-semibold whitespace-nowrap">
+                                  {t("processing")}
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="font-semibold whitespace-nowrap">
+                                  {t("pay")}
+                                </span>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <MastercardLogo className="h-6 w-auto" />
+                                  <VisaLogo className="h-6 w-auto" />
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </Button>
+                      )}
+
+                      <div className="space-y-3">
+                        {plan.features.map((feature, index) => (
+                          <div key={index} className="flex items-center gap-3">
+                            <Check className="h-5 w-5 flex-shrink-0 text-green-500" />
+                            <span className="text-sm leading-relaxed text-foreground">
+                              {feature}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </section>
         </div>

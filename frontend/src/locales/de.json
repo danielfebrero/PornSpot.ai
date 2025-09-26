@@ -1592,6 +1592,7 @@
     },
     "pay": "Bezahlen",
     "processing": "Wird verarbeitet...",
+    "currentPlanMessage": "Dies ist dein derzeit aktiver Plan.",
     "plans": {
       "free": "Kostenlos",
       "starter": "Starter",

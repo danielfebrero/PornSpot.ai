@@ -460,7 +460,7 @@ export default function SettingsPage() {
     );
   }
 
-  const currentPlan = userPermissions.getCurrentPlan();
+  const currentPlan = user.planInfo.plan || "anonymous";
   const planLimits = userPermissions.getPlanLimits();
   const usageStats = user.usageStats || {
     imagesGeneratedThisMonth: 0,

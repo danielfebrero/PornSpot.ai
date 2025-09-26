@@ -1641,6 +1641,7 @@
     },
     "pay": "Pay",
     "processing": "Processing...",
+    "currentPlanMessage": "This is your current active plan.",
     "plans": {
       "free": "Free",
       "starter": "Starter",

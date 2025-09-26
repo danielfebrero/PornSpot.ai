@@ -1640,6 +1640,7 @@
     },
     "pay": "Payer",
     "processing": "Traitement...",
+    "currentPlanMessage": "Ceci est votre plan actif actuel.",
     "plans": {
       "free": "Gratuit",
       "starter": "Débutant",
