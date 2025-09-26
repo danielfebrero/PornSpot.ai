@@ -107,7 +107,7 @@ function PaymentStatusContent({ status }: { status: NormalizedStatus }) {
   const t = useTranslations("paymentStatus");
   const searchParams = useSearchParams();
   const reference = useMemo(
-    () => searchParams.get("reference"),
+    () => searchParams.get("Reference"),
     [searchParams]
   );
   const [viewState, setViewState] = useState<ViewState>(
