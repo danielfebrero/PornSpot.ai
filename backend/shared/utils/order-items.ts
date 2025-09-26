@@ -64,9 +64,20 @@ export const orderItems: OrderItem[] = [
 
 const VIDEO_CREDITS_PREFIX = "video-credits-";
 const VIDEO_CREDITS_SECONDS_STEP = 5;
-const VIDEO_CREDITS_PRICE_PER_STEP = 0.69;
 const VIDEO_CREDITS_MIN_SECONDS = 5;
 const VIDEO_CREDITS_MAX_SECONDS = 500;
+
+const getVideoCreditsPricePerStep = (seconds: number): number => {
+  if (seconds <= 95) {
+    return 0.89;
+  }
+
+  if (seconds < 500) {
+    return 0.79;
+  }
+
+  return 0.69;
+};
 
 const isValidVideoCreditsSeconds = (seconds: number): boolean => {
   if (!Number.isFinite(seconds)) {
@@ -99,8 +110,9 @@ export const resolveOrderItem = (itemId: string): ResolvedOrderItem | null => {
     return null;
   }
 
+  const pricePerStep = getVideoCreditsPricePerStep(seconds);
   const units = seconds / VIDEO_CREDITS_SECONDS_STEP;
-  const rawAmount = units * VIDEO_CREDITS_PRICE_PER_STEP;
+  const rawAmount = units * pricePerStep;
   const amount = Number(rawAmount.toFixed(2));
 
   return {
@@ -112,7 +124,7 @@ export const resolveOrderItem = (itemId: string): ResolvedOrderItem | null => {
       type: "video-credits",
       seconds,
       unitSeconds: VIDEO_CREDITS_SECONDS_STEP,
-      unitPrice: Number(VIDEO_CREDITS_PRICE_PER_STEP.toFixed(2)),
+      unitPrice: Number(pricePerStep.toFixed(2)),
     },
     finbyPaymentType: 0,
   };

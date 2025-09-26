@@ -91,7 +91,17 @@ const VIDEO_SECONDS_MIN = 30;
 const VIDEO_SECONDS_MAX = 500;
 const VIDEO_SECONDS_STEP = 5;
 const VIDEO_SECONDS_DEFAULT = 50;
-const VIDEO_PRICE_PER_STEP = 0.69;
+const getPricePerStep = (seconds: number): number => {
+  if (seconds <= 95) {
+    return 0.89;
+  }
+
+  if (seconds < 500) {
+    return 0.79;
+  }
+
+  return 0.69;
+};
 
 export function PricingClient() {
   const [isYearly, setIsYearly] = useState(false);
@@ -116,19 +126,24 @@ export function PricingClient() {
     []
   );
 
+  const pricePerStep = useMemo(
+    () => getPricePerStep(videoSeconds),
+    [videoSeconds]
+  );
+
   const videoPrice = useMemo(() => {
-    const total = (videoSeconds / VIDEO_SECONDS_STEP) * VIDEO_PRICE_PER_STEP;
+    const total = (videoSeconds / VIDEO_SECONDS_STEP) * pricePerStep;
     return Number(total.toFixed(2));
-  }, [videoSeconds]);
+  }, [pricePerStep, videoSeconds]);
 
   const videoCreditsItemId = useMemo(
     () => `video-credits-${videoSeconds}`,
     [videoSeconds]
   );
 
-  const pricePerStep = useMemo(
-    () => currencyFormatter.format(VIDEO_PRICE_PER_STEP),
-    [currencyFormatter]
+  const formattedPricePerStep = useMemo(
+    () => currencyFormatter.format(pricePerStep),
+    [currencyFormatter, pricePerStep]
   );
 
   const formattedVideoPrice = useMemo(
@@ -305,9 +320,9 @@ export function PricingClient() {
                   <div className="text-left sm:text-right">
                     <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                       {t("videoCredits.priceBreakdown", {
-                        price: pricePerStep,
+                        price: formattedPricePerStep,
                         step: VIDEO_SECONDS_STEP,
-                        fallback: `Price is ${pricePerStep} every ${VIDEO_SECONDS_STEP} seconds`,
+                        fallback: `Price is ${formattedPricePerStep} every ${VIDEO_SECONDS_STEP} seconds`,
                       } as any)}
                     </p>
                     <p className="text-lg font-semibold text-foreground sm:text-xl">
