@@ -1182,6 +1182,12 @@
           "reactivate": "Reactivate Subscription",
           "manageBilling": "Manage Billing"
         },
+        "statusMessages": {
+          "activeWithDate": "Your plan renews on {date}.",
+          "active": "Your plan is active.",
+          "canceledWithDate": "Subscription canceled. You can keep using your benefits until {date}.",
+          "canceled": "Subscription canceled. You can keep using your benefits until the end of this billing cycle."
+        },
         "confirmCancel": {
           "title": "Cancel Subscription",
           "message": "Are you sure you want to cancel your subscription? You'll lose access to premium features at the end of your billing period.",

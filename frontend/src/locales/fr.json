@@ -606,6 +606,12 @@
     "createAlbum": "Créer un album",
     "users": "Utilisateurs",
     "settings": "Paramètres",
+    "statusMessages": {
+      "activeWithDate": "Votre abonnement sera renouvelé le {date}.",
+      "active": "Votre abonnement est actif.",
+      "canceledWithDate": "Abonnement annulé. Vous conservez l'accès jusqu'au {date}.",
+      "canceled": "Abonnement annulé. Vous conservez l'accès jusqu'à la fin de ce cycle de facturation."
+    },
     "dashboard": {
       "totalAlbums": "Total albums",
       "totalMedia": "Total médias",

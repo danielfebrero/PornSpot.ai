@@ -606,6 +606,12 @@
     "createAlbum": "创建相册",
     "users": "用户",
     "settings": "设置",
+    "statusMessages": {
+      "activeWithDate": "您的方案将于 {date} 自动续费。",
+      "active": "您的方案当前有效。",
+      "canceledWithDate": "订阅已取消。您仍可在 {date} 之前继续使用权益。",
+      "canceled": "订阅已取消。您可以在本结算周期结束前继续使用权益。"
+    },
     "dashboard": {
       "totalAlbums": "总相册数",
       "totalMedia": "总媒体数",

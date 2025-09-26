@@ -606,6 +606,12 @@
     "createAlbum": "Crear álbum",
     "users": "Usuarios",
     "settings": "Configuración",
+    "statusMessages": {
+      "activeWithDate": "Tu plan se renovará el {date}.",
+      "active": "Tu plan está activo.",
+      "canceledWithDate": "Suscripción cancelada. Puedes seguir disfrutando de los beneficios hasta el {date}.",
+      "canceled": "Suscripción cancelada. Puedes seguir disfrutando de los beneficios hasta el final de este ciclo de facturación."
+    },
     "dashboard": {
       "totalAlbums": "Total de álbumes",
       "totalMedia": "Total de medios",

@@ -605,6 +605,12 @@
     "createAlbum": "Album erstellen",
     "users": "Benutzer",
     "settings": "Einstellungen",
+    "statusMessages": {
+      "activeWithDate": "Dein Plan verlängert sich am {date}.",
+      "active": "Dein Plan ist aktiv.",
+      "canceledWithDate": "Abonnement gekündigt. Du kannst die Vorteile noch bis zum {date} nutzen.",
+      "canceled": "Abonnement gekündigt. Du kannst die Vorteile bis zum Ende dieses Abrechnungszeitraums nutzen."
+    },
     "dashboard": {
       "totalAlbums": "Gesamte Alben",
       "totalMedia": "Gesamte Medien",

@@ -86,6 +86,13 @@ export default function SettingsPage() {
     () => new Intl.NumberFormat(currentLocale),
     [currentLocale]
   );
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(currentLocale, {
+        dateStyle: "long",
+      }),
+    [currentLocale]
+  );
 
   // Mobile navigation state
   const [activeSection, setActiveSection] = useState<SectionId>("overview");
@@ -471,6 +478,38 @@ export default function SettingsPage() {
     videoCreditsPlanSeconds + videoCreditsPurchasedSeconds;
   const formatSeconds = (seconds: number) =>
     `${numberFormatter.format(Math.max(seconds, 0))}s`;
+
+  const planInfo = user.planInfo;
+  const parsedPlanEndDate = planInfo?.planEndDate
+    ? new Date(planInfo.planEndDate)
+    : null;
+  const planEndDate =
+    parsedPlanEndDate && !Number.isNaN(parsedPlanEndDate.getTime())
+      ? parsedPlanEndDate
+      : null;
+  const formattedPlanEndDate = planEndDate
+    ? dateFormatter.format(planEndDate)
+    : null;
+  const hasPaidPlan = currentPlan !== "free";
+  const planStatusMessage =
+    hasPaidPlan && planInfo
+      ? planInfo.isActive
+        ? formattedPlanEndDate
+          ? tSettings("subscription.statusMessages.activeWithDate", {
+              date: formattedPlanEndDate,
+            })
+          : tSettings("subscription.statusMessages.active")
+        : formattedPlanEndDate
+        ? tSettings("subscription.statusMessages.canceledWithDate", {
+            date: formattedPlanEndDate,
+          })
+        : tSettings("subscription.statusMessages.canceled")
+      : null;
+  const planCardMessage =
+    planStatusMessage ??
+    (currentPlan === "free"
+      ? "Upgrade to unlock more features"
+      : `Enjoy all ${currentPlan} features`);
 
   // Desktop View - All sections visible with sidebar
   const DesktopView = () => (
@@ -1020,11 +1059,7 @@ export default function SettingsPage() {
             <span className="text-sm font-medium">Current Plan</span>
             <UserPlanBadge plan={user.planInfo.plan} />
           </div>
-          <p className="text-xs text-muted-foreground">
-            {currentPlan === "free"
-              ? "Upgrade to unlock more features"
-              : `Enjoy all ${currentPlan} features`}
-          </p>
+          <p className="text-xs text-muted-foreground">{planCardMessage}</p>
         </div>
 
         <div className="space-y-3">
@@ -1598,6 +1633,9 @@ export default function SettingsPage() {
             <span className="text-sm font-medium">Current Plan</span>
             <UserPlanBadge plan={user.planInfo.plan} />
           </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            {planCardMessage}
+          </p>
         </div>
       </div>
 
