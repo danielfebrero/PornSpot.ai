@@ -117,6 +117,8 @@ const handleFinbyNotification = async (
     string | undefined
   >;
 
+  console.log("[Finby] Notification received", queryParams);
+
   if (!isNonEmpty(queryParams["Signature"])) {
     return ResponseUtil.badRequest(event, "Missing signature parameter");
   }
