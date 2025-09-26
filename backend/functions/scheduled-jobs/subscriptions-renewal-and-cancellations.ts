@@ -67,6 +67,15 @@ const resetUserToFree = async (
     subscriptionStatus: null,
     subscriptionId: null,
   } as any);
+
+  try {
+    await DynamoDBService.deleteGenerationSettings(user.userId);
+  } catch (error) {
+    console.error(
+      `[Subscriptions] Failed to delete generation settings for user ${user.userId}:`,
+      error
+    );
+  }
 };
 
 const markSubscriptionExpired = async (
@@ -86,6 +95,15 @@ const markSubscriptionExpired = async (
     subscriptionStatus: "expired",
     subscriptionId: null,
   } as any);
+
+  try {
+    await DynamoDBService.deleteGenerationSettings(user.userId);
+  } catch (error) {
+    console.error(
+      `[Subscriptions] Failed to delete generation settings for user ${user.userId}:`,
+      error
+    );
+  }
 };
 
 const createRecurringOrder = async (

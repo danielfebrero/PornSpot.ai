@@ -4256,6 +4256,18 @@ export class DynamoDBService {
     return (result.Item as GenerationSettingsEntity) || null;
   }
 
+  static async deleteGenerationSettings(userId: string): Promise<void> {
+    await docClient.send(
+      new DeleteCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `GEN_SETTINGS#${userId}`,
+          SK: "METADATA",
+        },
+      })
+    );
+  }
+
   // Follow relationship operations
   static async createFollowRelationship(
     followerId: string,
@@ -5227,6 +5239,8 @@ export class DynamoDBService {
 
       const planStartDate = new Date(user.planStartDate);
       const startDay = planStartDate.getDate();
+      const isSameCalendarDate =
+        user.planStartDate.split("T")[0] === todayISO.split("T")[0];
 
       // Handle month-end edge cases
       const renewalDay = Math.min(
@@ -5234,7 +5248,7 @@ export class DynamoDBService {
         getDaysInMonth(today.getFullYear(), today.getMonth())
       );
 
-      const isRenewalDay = renewalDay === todayDay;
+      const isRenewalDay = renewalDay === todayDay && !isSameCalendarDate;
 
       if (isRenewalDay) {
         console.log(

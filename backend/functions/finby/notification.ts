@@ -78,7 +78,7 @@ const updateUserForSubscription = async (
 
   const indexDate = planEndDate ?? MAX_PLAN_END_DATE;
 
-  await DynamoDBService.updateUser(order.userId, {
+  const userUpdates: Partial<UserEntity> = {
     subscriptionId: order.orderId,
     subscriptionStatus: "active",
     planStartDate: nowISO,
@@ -86,7 +86,13 @@ const updateUserForSubscription = async (
     plan,
     GSI4PK: `USER_PLAN#${plan}`,
     GSI4SK: `${indexDate}#${order.userId}`,
-  });
+  };
+
+  if (plan === "pro") {
+    userUpdates.i2vCreditsSecondsFromPlan = 100;
+  }
+
+  await DynamoDBService.updateUser(order.userId, userUpdates);
 };
 
 const updateUserForVideoCredits = async (
