@@ -217,8 +217,6 @@ const handlePSCSpend = async (
     subscriptionStatus: "active",
   };
 
-  userUpdates.subscriptionId = null as any;
-
   if (planConfig.isLifetime) {
     userUpdates.planEndDate = null as any;
   } else {
