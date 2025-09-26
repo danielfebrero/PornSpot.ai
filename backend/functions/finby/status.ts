@@ -103,11 +103,14 @@ const handleFinbyStatus = async (
     return ResponseUtil.unauthorized(event, "Order does not belong to user");
   }
 
-  if (order?.item.startsWith("video-credits-")) {
-    return ResponseUtil.success(event, { completed: true });
-  }
-
   if (status === "success") {
+    if (order?.item.startsWith("video-credits-")) {
+      if (order.status === "completed") {
+        return ResponseUtil.success(event, { completed: true });
+      } else {
+        return ResponseUtil.success(event, { completed: false });
+      }
+    }
     const completed = userEntity.subscriptionId === reference;
     return ResponseUtil.success(event, { completed });
   }
