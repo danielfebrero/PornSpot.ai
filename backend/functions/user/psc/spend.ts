@@ -22,12 +22,15 @@ import type { UserEntity, UserPlan } from "@shared/shared-types";
 
 const MAX_PLAN_END_DATE = "9999-12-31T00:00:00.000Z";
 
-const PLAN_CONFIG: Record<"starter" | "unlimited" | "pro" | "lifetime", {
-  plan: UserPlan;
-  cost: number;
-  durationMonths?: number;
-  isLifetime?: boolean;
-}> = {
+const PLAN_CONFIG: Record<
+  "starter" | "unlimited" | "pro" | "lifetime",
+  {
+    plan: UserPlan;
+    cost: number;
+    durationMonths?: number;
+    isLifetime?: boolean;
+  }
+> = {
   starter: {
     plan: "starter",
     cost: 9,
@@ -89,7 +92,9 @@ const handlePSCSpend = async (
   const planConfig = PLAN_CONFIG[planKey];
 
   if (!planConfig) {
-    console.warn("Attempted PSC spend with unknown plan", { plan: payload.plan });
+    console.warn("Attempted PSC spend with unknown plan", {
+      plan: payload.plan,
+    });
     return ResponseUtil.badRequest(event, "Invalid plan selected");
   }
 
@@ -109,11 +114,17 @@ const handlePSCSpend = async (
   const userEntity = await DynamoDBService.getUserById(auth.userId);
 
   if (!userEntity) {
-    console.error("PSC spend attempted by missing user", { userId: auth.userId });
+    console.error("PSC spend attempted by missing user", {
+      userId: auth.userId,
+    });
     return ResponseUtil.unauthorized(event, "User not found");
   }
 
-  if (userEntity.plan === "pro" && !userEntity.planEndDate && planKey === "lifetime") {
+  if (
+    userEntity.plan === "pro" &&
+    !userEntity.planEndDate &&
+    planKey === "lifetime"
+  ) {
     return ResponseUtil.badRequest(event, "Lifetime plan already active");
   }
 
@@ -187,7 +198,8 @@ const handlePSCSpend = async (
   );
 
   if (!transactionResult.success) {
-    const message = transactionResult.error || "Failed to record PSC transaction";
+    const message =
+      transactionResult.error || "Failed to record PSC transaction";
     console.error("PSC spend transaction failed", {
       userId: auth.userId,
       plan: planKey,
