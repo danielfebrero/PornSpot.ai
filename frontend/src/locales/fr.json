@@ -336,7 +336,6 @@
     "confirmPassword": "Confirmer le mot de passe",
     "username": "Nom d'utilisateur",
     "rememberMe": "Se souvenir de moi",
-    "createAccount": "Créer un compte",
     "loginToAccount": "Se connecter au compte",
     "welcomeBack": "Bon retour ! Veuillez entrer vos informations.",
     "signInToAccount": "Connectez-vous à votre compte",
@@ -1251,6 +1250,12 @@
           "daily": "Le quota quotidien se remet à zéro à minuit",
           "monthly": "Le quota mensuel se remet à zéro le {date}",
           "billingCycle": "Basé sur votre cycle de facturation"
+        },
+        "video": {
+          "title": "Crédits de génération vidéo",
+          "description": "Surveillez vos crédits image-vers-vidéo en secondes",
+          "purchased": "Crédits achetés",
+          "plan": "Crédits du forfait"
         }
       },
       "notifications": {

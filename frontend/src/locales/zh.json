@@ -1175,6 +1175,12 @@
           "daily": "每日配额在午夜重置",
           "monthly": "每月配额在{date}重置",
           "billingCycle": "基于您的计费周期"
+        },
+        "video": {
+          "title": "视频生成积分",
+          "description": "以秒为单位查看图生视频积分",
+          "purchased": "已购积分",
+          "plan": "套餐积分"
         }
       },
       "notifications": {

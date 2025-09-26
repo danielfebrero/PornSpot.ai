@@ -336,7 +336,6 @@
     "confirmPassword": "Passwort bestätigen",
     "username": "Benutzername",
     "rememberMe": "Angemeldet bleiben",
-    "createAccount": "Konto erstellen",
     "loginToAccount": "Bei Konto anmelden",
     "welcomeBack": "Willkommen zurück! Bitte geben Sie Ihre Daten ein.",
     "signInToAccount": "Melden Sie sich bei Ihrem Konto an",
@@ -1177,6 +1176,12 @@
           "daily": "Tägliches Kontingent wird um Mitternacht zurückgesetzt",
           "monthly": "Monatliches Kontingent wird am {date} zurückgesetzt",
           "billingCycle": "Basierend auf Ihrem Abrechnungszyklus"
+        },
+        "video": {
+          "title": "Video-Generierungs-Credits",
+          "description": "Verfolge deine Bild-zu-Video-Credits in Sekunden",
+          "purchased": "Gekaufte Credits",
+          "plan": "Plan-Credits"
         }
       },
       "notifications": {

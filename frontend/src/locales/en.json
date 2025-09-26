@@ -16,7 +16,6 @@
     "delete": "Delete",
     "edit": "Edit",
     "back": "Back",
-    "next": "Next",
     "previous": "Previous",
     "search": "Search",
     "filter": "Filter",
@@ -1252,6 +1251,12 @@
           "daily": "Daily quota resets at midnight",
           "monthly": "Monthly quota resets on {date}",
           "billingCycle": "Based on your billing cycle"
+        },
+        "video": {
+          "title": "Video Generation Credits",
+          "description": "Track your image-to-video credits in seconds",
+          "purchased": "Purchased credits",
+          "plan": "Plan credits"
         }
       },
       "notifications": {

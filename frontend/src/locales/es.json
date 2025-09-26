@@ -1177,6 +1177,12 @@
           "daily": "La cuota diaria se reinicia a medianoche",
           "monthly": "La cuota mensual se reinicia el {date}",
           "billingCycle": "Basado en tu ciclo de facturación"
+        },
+        "video": {
+          "title": "Créditos de generación de video",
+          "description": "Controla tus créditos de imagen a video en segundos",
+          "purchased": "Créditos comprados",
+          "plan": "Créditos del plan"
         }
       },
       "notifications": {

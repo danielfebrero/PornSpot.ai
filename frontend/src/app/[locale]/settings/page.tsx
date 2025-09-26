@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useLogout } from "@/hooks/queries/useUserQuery";
@@ -31,6 +31,7 @@ import {
   Check,
   ArrowLeft,
   ChevronDown,
+  Video,
 } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 import { AlertDialog } from "@/components/ui/AlertDialog";
@@ -81,6 +82,10 @@ export default function SettingsPage() {
   const params = useParams();
   const router = useLocaleRouter();
   const currentLocale = params.locale as string;
+  const numberFormatter = useMemo(
+    () => new Intl.NumberFormat(currentLocale),
+    [currentLocale]
+  );
 
   // Mobile navigation state
   const [activeSection, setActiveSection] = useState<SectionId>("overview");
@@ -454,6 +459,18 @@ export default function SettingsPage() {
     imagesGeneratedThisMonth: 0,
     imagesGeneratedToday: 0,
   };
+  const videoCreditsPlanSeconds = Math.max(
+    user.i2vCreditsSecondsFromPlan ?? 0,
+    0
+  );
+  const videoCreditsPurchasedSeconds = Math.max(
+    user.i2vCreditsSecondsPurchased ?? 0,
+    0
+  );
+  const totalVideoCreditsSeconds =
+    videoCreditsPlanSeconds + videoCreditsPurchasedSeconds;
+  const formatSeconds = (seconds: number) =>
+    `${numberFormatter.format(Math.max(seconds, 0))}s`;
 
   // Desktop View - All sections visible with sidebar
   const DesktopView = () => (
@@ -939,6 +956,42 @@ export default function SettingsPage() {
               {tSettings("usage.resetInfo.billingCycle")}
             </p>
           </div>
+
+          {/* Video Credits Card */}
+          <div className="p-4 rounded-lg bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Video className="h-4 w-4 text-emerald-600" />
+                <h4 className="font-medium">
+                  {tSettings("usage.video.title")}
+                </h4>
+              </div>
+              <Badge variant="outline" className="bg-background">
+                {formatSeconds(totalVideoCreditsSeconds)}
+              </Badge>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">
+                  {tSettings("usage.video.plan")}
+                </span>
+                <span className="font-medium">
+                  {formatSeconds(videoCreditsPlanSeconds)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">
+                  {tSettings("usage.video.purchased")}
+                </span>
+                <span className="font-medium">
+                  {formatSeconds(videoCreditsPurchasedSeconds)}
+                </span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {tSettings("usage.video.description")}
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -1260,6 +1313,39 @@ export default function SettingsPage() {
   const MobileNotificationsSection = () => (
     <div className="p-4 space-y-4">
       <div className="bg-card rounded-xl border p-4">
+        {/* Video Credits */}
+        <div className="bg-card rounded-xl border p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Video className="h-4 w-4 text-emerald-600" />
+              <h4 className="font-medium">{tSettings("usage.video.title")}</h4>
+            </div>
+            <Badge variant="outline">
+              {formatSeconds(totalVideoCreditsSeconds)}
+            </Badge>
+          </div>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">
+                {tSettings("usage.video.plan")}
+              </span>
+              <span className="font-medium">
+                {formatSeconds(videoCreditsPlanSeconds)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">
+                {tSettings("usage.video.purchased")}
+              </span>
+              <span className="font-medium">
+                {formatSeconds(videoCreditsPurchasedSeconds)}
+              </span>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            {tSettings("usage.video.description")}
+          </p>
+        </div>
         <div className="flex items-center gap-3 mb-3">
           <Bell className="h-5 w-5 text-blue-500" />
           <h3 className="font-medium">{tSettings("notifications.title")}</h3>
@@ -1456,6 +1542,40 @@ export default function SettingsPage() {
           <UsageIndicator type="monthly" />
           <p className="text-xs text-muted-foreground mt-3">
             {tSettings("usage.resetInfo.billingCycle")}
+          </p>
+        </div>
+
+        {/* Video Credits */}
+        <div className="bg-card rounded-xl border p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Video className="h-4 w-4 text-emerald-600" />
+              <h4 className="font-medium">{tSettings("usage.video.title")}</h4>
+            </div>
+            <Badge variant="outline">
+              {formatSeconds(totalVideoCreditsSeconds)}
+            </Badge>
+          </div>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">
+                {tSettings("usage.video.plan")}
+              </span>
+              <span className="font-medium">
+                {formatSeconds(videoCreditsPlanSeconds)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">
+                {tSettings("usage.video.purchased")}
+              </span>
+              <span className="font-medium">
+                {formatSeconds(videoCreditsPurchasedSeconds)}
+              </span>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            {tSettings("usage.video.description")}
           </p>
         </div>
       </div>
