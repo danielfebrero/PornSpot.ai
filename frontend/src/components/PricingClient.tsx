@@ -90,7 +90,7 @@ interface PricingPlan {
 const VIDEO_SECONDS_MIN = 30;
 const VIDEO_SECONDS_MAX = 500;
 const VIDEO_SECONDS_STEP = 5;
-const VIDEO_SECONDS_DEFAULT = 50;
+const VIDEO_SECONDS_DEFAULT = 500;
 const getPricePerStep = (seconds: number): number => {
   if (seconds <= 95) {
     return 0.89;
