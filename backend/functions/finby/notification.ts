@@ -125,20 +125,27 @@ const handleFinbyNotification = async (
   // }
 
   if (!isNonEmpty(queryParams["Reference"])) {
+    console.log("[Finby] Missing reference parameter");
     return ResponseUtil.badRequest(event, "Missing reference parameter");
   }
 
   if (!isNonEmpty(queryParams["ResultCode"])) {
+    console.log("[Finby] Missing result code parameter");
     return ResponseUtil.badRequest(event, "Missing result code parameter");
   }
 
   if (!isNonEmpty(queryParams["AccountId"])) {
+    console.log("[Finby] Missing account identifier");
     return ResponseUtil.badRequest(event, "Missing account identifier");
   }
 
   const configuredAccountId = await ParameterStoreService.getFinbyAccountId();
 
   if (queryParams["AccountId"] !== configuredAccountId) {
+    console.log("[Finby] Account identifier mismatch", {
+      received: queryParams["AccountId"],
+      expected: configuredAccountId,
+    });
     return ResponseUtil.unauthorized(event, "Account identifier mismatch");
   }
 
@@ -166,7 +173,9 @@ const handleFinbyNotification = async (
     return ResponseUtil.notFound(event, "Order not found");
   }
 
-  if (order.status === "completed") {
+  console.log("[Finby] Processing order", { order });
+
+  if (order.status !== "initiated") {
     return ResponseUtil.success(event, {
       message: "Order already processed",
       orderId,
@@ -200,6 +209,8 @@ const handleFinbyNotification = async (
       paymentId: queryParams["PaymentId"],
     };
   }
+
+  console.log("[Finby] Updating order", { orderId, orderUpdates });
 
   await DynamoDBService.updateOrder(orderId, orderUpdates);
 
@@ -242,6 +253,7 @@ const handleFinbyNotification = async (
       return ResponseUtil.internalError(event, "Invalid video credit amount");
     }
 
+    console.log("[Finby] Adding video credits to user", { orderId, seconds });
     await updateUserForVideoCredits(order, user, seconds);
 
     return ResponseUtil.success(event, {

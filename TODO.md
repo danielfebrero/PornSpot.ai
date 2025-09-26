@@ -187,3 +187,5 @@
 [ ] Implement ReturnTo when logging in or registering.
 
 [ ] Improve pricing page cards design, complete plan features and FAQ.
+
+[ ] In renewal plan scheduled lambda, clean user plans of users that have cancelled.
