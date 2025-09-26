@@ -85,7 +85,7 @@ const getCompletedCopy = (
     actionLabel: t(`${key}.actionLabel`),
     actionHref:
       status === "success"
-        ? "/profile"
+        ? "/user/profile"
         : status === "cancel"
         ? "/pricing"
         : status === "error"
