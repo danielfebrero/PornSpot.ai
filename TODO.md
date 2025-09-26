@@ -64,7 +64,7 @@
 
 [ ] Button to cancel generation pending job (for if the pipeline fail and do not update queue entry status, such as missing websocket message).
 
-[ ] Implement payments.
+[x] Implement payments.
 
 [x] Implement Discover page algorithm that mix recent/popular contents and albums.
 

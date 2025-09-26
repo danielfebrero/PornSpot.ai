@@ -282,6 +282,12 @@ export function GenerateClient() {
     setLightboxIndex(Math.max(lightboxIndex - 1, 0));
   };
 
+  const handleResetAllSettings = () => {
+    resetSettings();
+    setExpandedSection(null);
+    setShowAdvanced(false);
+  };
+
   const handleGenerate = async () => {
     if (!canGenerateImages() || !allowed || !settings.prompt.trim()) return;
 
@@ -867,6 +873,16 @@ export function GenerateClient() {
                 </button>
               </div>
 
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResetAllSettings}
+                className="w-full h-9 flex items-center justify-center gap-2"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                {t("actions.resetParameters")}
+              </Button>
+
               {/* Expandable Sections */}
               <AnimatePresence>
                 {/* Size Selection */}
@@ -1256,7 +1272,7 @@ export function GenerateClient() {
                     {/* Reset Button */}
                     <Button
                       variant="outline"
-                      onClick={resetSettings}
+                      onClick={handleResetAllSettings}
                       className="w-full h-9"
                       size="sm"
                     >
@@ -1610,10 +1626,20 @@ export function GenerateClient() {
             {/* Quick Settings */}
             <Card>
               <CardHeader>
-                <h3 className="font-semibold flex items-center gap-2">
-                  <Settings2 className="h-4 w-4" />
-                  {t("quickSettings")}
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <Settings2 className="h-4 w-4" />
+                    {t("quickSettings")}
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleResetAllSettings}
+                  >
+                    <RotateCcw className="h-3 w-3 mr-1" />
+                    {t("reset")}
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Image Size */}
@@ -1745,7 +1771,11 @@ export function GenerateClient() {
                     <SlidersHorizontal className="h-4 w-4" />
                     {t("advancedSettings")}
                   </h3>
-                  <Button variant="ghost" size="sm" onClick={resetSettings}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleResetAllSettings}
+                  >
                     <RotateCcw className="h-3 w-3 mr-1" />
                     {t("reset")}
                   </Button>
