@@ -52,7 +52,9 @@ const handleInitiatePayment = async (
   await DynamoDBService.insertOrder(order);
 
   try {
-    const gatewayUrl = await getFinbyGatewayUrl(order);
+    const gatewayUrl = await getFinbyGatewayUrl(order, {
+      paymentType: orderItem.finbyPaymentType,
+    });
 
     return ResponseUtil.success(event, {
       orderId,

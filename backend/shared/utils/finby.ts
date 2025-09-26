@@ -64,15 +64,13 @@ const generateSignature = (secretKey: string, payload: string): string =>
     .toUpperCase();
 
 const getPaymentType = async (override?: number): Promise<number> => {
+  if (process.env["ENVIRONMENT"] !== "prod") {
+    const testEnvOverride = 0;
+    return testEnvOverride;
+  }
   if (typeof override === "number" && !Number.isNaN(override)) {
     console.log(`[Finby] Using overridden payment type: ${override}`);
     return override;
-  }
-
-  const configuredType = await ParameterStoreService.getFinbyPaymentType();
-  if (configuredType) {
-    console.log(`[Finby] Using configured payment type: ${configuredType}`);
-    return configuredType;
   }
 
   console.log(`[Finby] Using default payment type: ${DEFAULT_PAYMENT_TYPE}`);

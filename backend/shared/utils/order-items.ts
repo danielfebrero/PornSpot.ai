@@ -4,6 +4,7 @@ export type OrderItem = {
   amount: number;
   currency: string;
   renewalFrequency?: "monthly" | "yearly";
+  finbyPaymentType?: number;
 };
 
 export type ResolvedOrderItem = OrderItem & {
@@ -17,6 +18,7 @@ export const orderItems: OrderItem[] = [
     amount: 10,
     currency: "USD",
     renewalFrequency: "monthly",
+    finbyPaymentType: 3,
   },
   {
     id: "starter-yearly",
@@ -24,6 +26,7 @@ export const orderItems: OrderItem[] = [
     amount: 100,
     currency: "USD",
     renewalFrequency: "yearly",
+    finbyPaymentType: 3,
   },
   {
     id: "unlimited-monthly",
@@ -31,6 +34,7 @@ export const orderItems: OrderItem[] = [
     amount: 20,
     currency: "USD",
     renewalFrequency: "monthly",
+    finbyPaymentType: 3,
   },
   {
     id: "unlimited-yearly",
@@ -38,6 +42,7 @@ export const orderItems: OrderItem[] = [
     amount: 200,
     currency: "USD",
     renewalFrequency: "yearly",
+    finbyPaymentType: 3,
   },
   {
     id: "pro-monthly",
@@ -45,6 +50,7 @@ export const orderItems: OrderItem[] = [
     amount: 30,
     currency: "USD",
     renewalFrequency: "monthly",
+    finbyPaymentType: 3,
   },
   {
     id: "pro-yearly",
@@ -52,6 +58,7 @@ export const orderItems: OrderItem[] = [
     amount: 300,
     currency: "USD",
     renewalFrequency: "yearly",
+    finbyPaymentType: 3,
   },
 ];
 
@@ -107,5 +114,6 @@ export const resolveOrderItem = (itemId: string): ResolvedOrderItem | null => {
       unitSeconds: VIDEO_CREDITS_SECONDS_STEP,
       unitPrice: Number(VIDEO_CREDITS_PRICE_PER_STEP.toFixed(2)),
     },
+    finbyPaymentType: 0,
   };
 };
