@@ -16,6 +16,22 @@
     "delete": "删除",
     "edit": "编辑",
     "back": "返回",
+    "purchase": {
+      "currentPlan": "当前套餐",
+      "autoRenewSuffix": "系统已启用自动续费。",
+      "titles": {
+        "extend": "续订 {plan} 套餐？",
+        "upgrade": "升级到 {plan} 套餐？",
+        "downgrade": "切换到 {plan} 套餐？",
+        "activate": "激活 {plan} 套餐？"
+      },
+      "messages": {
+        "extend": "你正在以 {cost} PSC 续订 {plan} 套餐。{autoRenewSuffix}当前权益将无缝延续。",
+        "upgrade": "你正在从 {currentPlan} 切换为 {plan}，费用为 {cost} PSC。{autoRenewSuffix}新套餐会立即生效。",
+        "downgrade": "你正在从 {currentPlan} 变更为 {plan}，费用为 {cost} PSC。{autoRenewSuffix}当前套餐将立即结束。",
+        "activate": "你正在以 {cost} PSC 激活 {plan} 套餐。{autoRenewSuffix}会员权益会立即开启。"
+      }
+    },
     "next": "下一个",
     "previous": "上一个",
     "search": "搜索",

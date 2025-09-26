@@ -2158,6 +2158,22 @@
         "lifetime": "Lifetime"
       }
     },
+    "purchase": {
+      "currentPlan": "Current plan",
+      "autoRenewSuffix": " Auto-renew is currently enabled.",
+      "titles": {
+        "extend": "Renew your {plan} plan?",
+        "upgrade": "Upgrade to the {plan} plan?",
+        "downgrade": "Switch to the {plan} plan?",
+        "activate": "Activate the {plan} plan?"
+      },
+      "messages": {
+        "extend": "You're renewing your {plan} plan for {cost} PSC.{autoRenewSuffix} Your current benefits will continue without interruption.",
+        "upgrade": "You're upgrading from {currentPlan} to {plan} for {cost} PSC.{autoRenewSuffix} The new plan activates immediately.",
+        "downgrade": "You're switching from {currentPlan} to {plan} for {cost} PSC.{autoRenewSuffix} Your current plan will end right away.",
+        "activate": "You're activating the {plan} plan for {cost} PSC.{autoRenewSuffix} Your membership starts immediately."
+      }
+    },
     "insights": {
       "title": "Weekly Performance Insights",
       "weeklyPayoutGrowth": "Weekly Payout Growth",

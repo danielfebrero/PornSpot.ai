@@ -1358,6 +1358,35 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
 
+  UserPSCSpendFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-user-psc-spend-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/user/psc/spend.handler"]
+      Events:
+        PostSpend:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/psc/spend
+            Method: POST
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsSpend:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /user/psc/spend
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaTable
+
   AdminLogoutFunction:
     Type: AWS::Serverless::Function
     Properties:

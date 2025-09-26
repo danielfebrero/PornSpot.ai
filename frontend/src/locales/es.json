@@ -16,6 +16,22 @@
     "delete": "Eliminar",
     "edit": "Editar",
     "back": "Atrás",
+    "purchase": {
+      "currentPlan": "Plan actual",
+      "autoRenewSuffix": " La renovación automática está activada.",
+      "titles": {
+        "extend": "¿Renovar tu plan {plan}?",
+        "upgrade": "¿Actualizar al plan {plan}?",
+        "downgrade": "¿Cambiar al plan {plan}?",
+        "activate": "¿Activar el plan {plan}?"
+      },
+      "messages": {
+        "extend": "Estás renovando tu plan {plan} por {cost} PSC.{autoRenewSuffix} Tus beneficios actuales continuarán sin interrupciones.",
+        "upgrade": "Estás pasando de {currentPlan} a {plan} por {cost} PSC.{autoRenewSuffix} El nuevo plan se activa de inmediato.",
+        "downgrade": "Estás cambiando de {currentPlan} a {plan} por {cost} PSC.{autoRenewSuffix} Tu plan actual finalizará ahora mismo.",
+        "activate": "Estás activando el plan {plan} por {cost} PSC.{autoRenewSuffix} Tu membresía comienza de inmediato."
+      }
+    },
     "next": "Siguiente",
     "previous": "Anterior",
     "search": "Buscar",

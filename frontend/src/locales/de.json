@@ -2109,6 +2109,22 @@
         "lifetime": "Lebenslang"
       }
     },
+    "purchase": {
+      "currentPlan": "Aktueller Plan",
+      "autoRenewSuffix": " Die automatische Verlängerung ist derzeit aktiviert.",
+      "titles": {
+        "extend": "Deinen {plan}-Plan verlängern?",
+        "upgrade": "Zum {plan}-Plan upgraden?",
+        "downgrade": "Zum {plan}-Plan wechseln?",
+        "activate": "Den {plan}-Plan aktivieren?"
+      },
+      "messages": {
+        "extend": "Du verlängerst deinen {plan}-Plan für {cost} PSC.{autoRenewSuffix} Deine aktuellen Vorteile laufen ohne Unterbrechung weiter.",
+        "upgrade": "Du wechselst von {currentPlan} zu {plan} für {cost} PSC.{autoRenewSuffix} Der neue Plan wird sofort aktiviert.",
+        "downgrade": "Du wechselst von {currentPlan} zu {plan} für {cost} PSC.{autoRenewSuffix} Dein aktueller Plan endet sofort.",
+        "activate": "Du aktivierst den {plan}-Plan für {cost} PSC.{autoRenewSuffix} Dein Zugang startet sofort."
+      }
+    },
     "insights": {
       "title": "Wöchentliche Leistungseinblicke",
       "weeklyPayoutGrowth": "Wöchentliches Auszahlungswachstum",

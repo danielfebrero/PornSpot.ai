@@ -10,6 +10,7 @@
  */
 
 import { PaginationMeta } from "./core";
+import type { UserPlan } from "./permissions";
 
 // Transaction types
 export type TransactionType =
@@ -179,6 +180,18 @@ export interface PSCTransactionRequest {
 export interface PSCTransactionResponse {
   transaction?: TransactionEntity;
   balance?: number;
+}
+
+export interface PSCSpendRequest {
+  plan: UserPlan | "lifetime";
+  pscAmount: number;
+  metadata?: Record<string, unknown>;
+}
+
+export interface PSCSpendResponse {
+  balance?: PSCBalance;
+  transaction?: TransactionEntity;
+  orderId?: string;
 }
 
 export interface PSCBalanceResponse {

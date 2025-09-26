@@ -16,6 +16,22 @@
     "delete": "Удалить",
     "edit": "Редактировать",
     "back": "Назад",
+    "purchase": {
+      "currentPlan": "Текущий тариф",
+      "autoRenewSuffix": " Автопродление сейчас включено.",
+      "titles": {
+        "extend": "Продлить тариф {plan}?",
+        "upgrade": "Перейти на тариф {plan}?",
+        "downgrade": "Сменить на тариф {plan}?",
+        "activate": "Активировать тариф {plan}?"
+      },
+      "messages": {
+        "extend": "Вы продлеваете тариф {plan} за {cost} PSC.{autoRenewSuffix} Текущие привилегии сохранятся без перерыва.",
+        "upgrade": "Вы переходите с {currentPlan} на {plan} за {cost} PSC.{autoRenewSuffix} Новый тариф активируется немедленно.",
+        "downgrade": "Вы переходите с {currentPlan} на {plan} за {cost} PSC.{autoRenewSuffix} Текущий тариф завершится прямо сейчас.",
+        "activate": "Вы активируете тариф {plan} за {cost} PSC.{autoRenewSuffix} Подписка начнётся сразу."
+      }
+    },
     "next": "Далее",
     "previous": "Предыдущий",
     "search": "Поиск",

@@ -16,6 +16,22 @@
     "delete": "Supprimer",
     "edit": "Modifier",
     "back": "Retour",
+    "purchase": {
+      "currentPlan": "Forfait actuel",
+      "autoRenewSuffix": " Le renouvellement automatique est activé.",
+      "titles": {
+        "extend": "Renouveler le forfait {plan} ?",
+        "upgrade": "Passer au forfait {plan} ?",
+        "downgrade": "Basculer vers le forfait {plan} ?",
+        "activate": "Activer le forfait {plan} ?"
+      },
+      "messages": {
+        "extend": "Vous renouvelez votre forfait {plan} pour {cost} PSC.{autoRenewSuffix} Vos avantages actuels se poursuivront sans interruption.",
+        "upgrade": "Vous passez de {currentPlan} à {plan} pour {cost} PSC.{autoRenewSuffix} Le nouveau forfait s'active immédiatement.",
+        "downgrade": "Vous passez de {currentPlan} à {plan} pour {cost} PSC.{autoRenewSuffix} Votre forfait actuel se terminera immédiatement.",
+        "activate": "Vous activez le forfait {plan} pour {cost} PSC.{autoRenewSuffix} Votre abonnement commence immédiatement."
+      }
+    },
     "next": "Suivant",
     "previous": "Précédent",
     "search": "Rechercher",

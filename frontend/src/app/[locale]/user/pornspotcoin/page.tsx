@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useDocumentHeadAndMeta } from "@/hooks/useDocumentHeadAndMeta";
 import {
   Coins,
@@ -34,6 +35,15 @@ import { Button } from "@/components/ui/Button";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { usePSCDashboard, usePSCStats } from "@/hooks/queries/usePSCQuery";
 import { useTranslations } from "next-intl";
+import { useUserContext } from "@/contexts/UserContext";
+import { useLocaleRouter } from "@/lib/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { pscApi } from "@/lib/api";
+import { ApiUtil } from "@/lib/api-util";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { pscQueryUtils } from "@/hooks/queries/usePSCQuery";
+import type { UserPlan } from "@/types/shared-types/permissions";
+import type { PSCSpendRequest } from "@/types/shared-types/pornspotcoin";
 
 // Register Chart.js components
 ChartJS.register(
@@ -46,6 +56,58 @@ ChartJS.register(
   Legend,
   Filler
 );
+
+type PlanKey = "starter" | "unlimited" | "pro" | "lifetime";
+type PurchaseScenario = "extend" | "upgrade" | "downgrade" | "activate";
+
+const PLAN_ORDER: Record<UserPlan | PlanKey, number> = {
+  anonymous: 0,
+  free: 0,
+  starter: 1,
+  unlimited: 2,
+  pro: 3,
+  lifetime: 4,
+};
+
+const EXCHANGE_RATES: Record<PlanKey, { duration: string; cost: number }> = {
+  starter: { duration: "1 month", cost: 9 },
+  unlimited: { duration: "1 month", cost: 18 },
+  pro: { duration: "1 month", cost: 27 },
+  lifetime: { duration: "Lifetime", cost: 1000 },
+};
+
+interface PurchaseModalState {
+  plan: PlanKey;
+  scenario: PurchaseScenario;
+  cost: number;
+  autoRenew: boolean;
+}
+
+const determineScenario = (
+  current: UserPlan,
+  target: PlanKey
+): PurchaseScenario => {
+  if (current !== "free" && current !== "anonymous" && current === target) {
+    return "extend";
+  }
+
+  if (current === "free" || current === "anonymous") {
+    return "activate";
+  }
+
+  const currentOrder = PLAN_ORDER[current];
+  const targetOrder = PLAN_ORDER[target];
+
+  if (targetOrder > currentOrder) {
+    return "upgrade";
+  }
+
+  if (targetOrder < currentOrder) {
+    return "downgrade";
+  }
+
+  return "activate";
+};
 
 // Generate mock data for 24x7 (168 points) over one week
 // function generateMockWeeklyData() {
@@ -121,6 +183,40 @@ ChartJS.register(
 export default function PornSpotCoinPage() {
   // Initialize translations
   const t = useTranslations("pornspotcoin");
+  const { user, refetch } = useUserContext();
+  const router = useLocaleRouter();
+  const [modalState, setModalState] = useState<PurchaseModalState | null>(null);
+
+  const spendMutation = useMutation({
+    mutationFn: (payload: PSCSpendRequest) => pscApi.spend(payload),
+  });
+
+  const currentPlan = (user?.planInfo?.plan ?? "free") as UserPlan;
+  const autoRenew = Boolean(user?.planInfo?.subscriptionId);
+
+  const modalCopy = useMemo(() => {
+    if (!modalState) return null;
+
+    const planLabel = t(`exchange.plans.${modalState.plan}`);
+    const currentPlanLabel = t(`exchange.plans.${currentPlan}`);
+    const autoRenewSuffix = modalState.autoRenew
+      ? t("purchase.autoRenewSuffix")
+      : "";
+
+    const title = t(`purchase.titles.${modalState.scenario}`, {
+      plan: planLabel,
+      currentPlan: currentPlanLabel,
+    });
+
+    const message = t(`purchase.messages.${modalState.scenario}`, {
+      plan: planLabel,
+      currentPlan: currentPlanLabel,
+      cost: modalState.cost,
+      autoRenewSuffix,
+    });
+
+    return { title, message };
+  }, [modalState, t, currentPlan]);
 
   // Set document title and meta description
   useDocumentHeadAndMeta(t("meta.title"), t("meta.description"));
@@ -196,6 +292,78 @@ export default function PornSpotCoinPage() {
   //   const weeklyTotalViews = weeklyStats?.stats.totalViews || 0;
   const weeklyPayoutGrowth = weeklyStats?.stats.payoutGrowth || 0;
 
+  const handleOpenPurchaseModal = (planKey: PlanKey) => {
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
+
+    const planDetails = EXCHANGE_RATES[planKey];
+
+    if (balance.balance < planDetails.cost) {
+      return;
+    }
+
+    const scenario = determineScenario(currentPlan, planKey);
+
+    setModalState({
+      plan: planKey,
+      scenario,
+      cost: planDetails.cost,
+      autoRenew,
+    });
+  };
+
+  const handleCloseModal = () => {
+    if (spendMutation.isPending) {
+      return;
+    }
+    setModalState(null);
+  };
+
+  const handleConfirmPurchase = async () => {
+    if (!modalState || !user) {
+      return;
+    }
+
+    const payload: PSCSpendRequest = {
+      plan: modalState.plan,
+      pscAmount: modalState.cost,
+      metadata: {
+        scenario: modalState.scenario,
+        previousPlan: currentPlan,
+      },
+    };
+
+    spendMutation.reset();
+
+    try {
+      await spendMutation.mutateAsync(payload);
+      await Promise.all([
+        pscQueryUtils.invalidateBalance(),
+        pscQueryUtils.invalidateDashboard(),
+      ]);
+      await refetch();
+
+      setModalState(null);
+
+      const successParams = new URLSearchParams({
+        source: "psc",
+        reference: `psc-${Date.now()}`,
+      });
+      router.push(`/payment/success?${successParams.toString()}`);
+    } catch (error) {
+      const message = ApiUtil.handleApiError(error);
+      setModalState(null);
+
+      const errorParams = new URLSearchParams({
+        source: "psc",
+        message,
+      });
+      router.push(`/payment/error?${errorParams.toString()}`);
+    }
+  };
+
   // Calculate daily stats from available data
   const todayEarned = recentTransactions
     .filter((tx) => {
@@ -222,14 +390,6 @@ export default function PornSpotCoinPage() {
       : todayEarned > 0
       ? 100
       : 0;
-
-  // Mock exchange rates (these could be fetched from a separate API)
-  const exchangeRates = {
-    starter: { duration: "1 month", cost: 9 },
-    unlimited: { duration: "1 month", cost: 18 },
-    pro: { duration: "1 month", cost: 27 },
-    lifetime: { duration: "Lifetime", cost: 1000 },
-  };
 
   // For weekly stats, we'll use mock data for the chart until we have historical data
   //   const weeklyPayoutRates = generateMockWeeklyData();
@@ -571,11 +731,18 @@ export default function PornSpotCoinPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {Object.entries(exchangeRates).map(([plan, details]) => {
+              {(
+                Object.entries(EXCHANGE_RATES) as [
+                  PlanKey,
+                  { duration: string; cost: number }
+                ][]
+              ).map(([planKey, details]) => {
                 const canAfford = balance.balance >= details.cost;
+                const isCurrentPlan = currentPlan === planKey;
+
                 return (
                   <div
-                    key={plan}
+                    key={planKey}
                     className={`p-4 border rounded-lg transition-colors ${
                       canAfford
                         ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
@@ -585,30 +752,41 @@ export default function PornSpotCoinPage() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <h4 className="font-semibold capitalize">
-                          {t(`exchange.plans.${plan}`)}
+                          {t(`exchange.plans.${planKey}`)}
                         </h4>
-                        {canAfford && (
-                          <Badge
-                            variant="outline"
-                            className="text-green-600 border-green-600"
-                          >
-                            {t("exchange.affordable")}
-                          </Badge>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {isCurrentPlan && (
+                            <Badge
+                              variant="outline"
+                              className="text-blue-600 border-blue-600"
+                            >
+                              {t("purchase.currentPlan")}
+                            </Badge>
+                          )}
+                          {canAfford && (
+                            <Badge
+                              variant="outline"
+                              className="text-green-600 border-green-600"
+                            >
+                              {t("exchange.affordable")}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                       <div className="text-2xl font-bold text-yellow-600">
                         {details.cost} PSC
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {plan === "lifetime"
+                        {planKey === "lifetime"
                           ? t("exchange.duration.lifetime")
                           : t("exchange.duration.month")}
                       </div>
                       <Button
                         size="sm"
                         variant={canAfford ? "default" : "outline"}
-                        disabled={!canAfford}
+                        disabled={!canAfford || spendMutation.isPending}
                         className="w-full"
+                        onClick={() => handleOpenPurchaseModal(planKey)}
                       >
                         {canAfford
                           ? t("exchange.purchase")
@@ -748,6 +926,17 @@ export default function PornSpotCoinPage() {
           </Card>
         </div>
       </div>
+      {modalState && modalCopy && (
+        <ConfirmDialog
+          isOpen={Boolean(modalState)}
+          onClose={handleCloseModal}
+          onConfirm={handleConfirmPurchase}
+          title={modalCopy.title}
+          message={modalCopy.message}
+          confirmText={t("exchange.purchase")}
+          loading={spendMutation.isPending}
+        />
+      )}
     </>
   );
 }

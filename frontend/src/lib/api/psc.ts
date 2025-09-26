@@ -8,6 +8,8 @@ import {
   PSCStatsResponse,
   TransactionEntity,
   PSCRateSnapshotsResponse,
+  PSCSpendRequest,
+  PSCSpendResponse,
 } from "@/types/shared-types/pornspotcoin";
 
 // PSC User API - endpoints for regular users to interact with PornSpotCoin
@@ -113,6 +115,18 @@ export const pscApi = {
         period: "snapshots",
         interval,
       }
+    );
+    const data = ApiUtil.extractData(response);
+    return data;
+  },
+
+  /**
+   * Spend PSC to purchase or extend a subscription plan
+   */
+  spend: async (payload: PSCSpendRequest): Promise<PSCSpendResponse> => {
+    const response = await ApiUtil.post<PSCSpendResponse>(
+      "/user/psc/spend",
+      payload
     );
     const data = ApiUtil.extractData(response);
     return data;

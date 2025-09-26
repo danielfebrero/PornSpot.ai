@@ -189,3 +189,5 @@
 [x] Improve pricing page cards design, complete plan features and FAQ.
 
 [x] In renewal plan scheduled lambda, clean user plans of users that have cancelled.
+
+[ ] Add and auto select loras when a user does I2V based on the prompt.
