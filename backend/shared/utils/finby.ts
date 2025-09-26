@@ -92,7 +92,7 @@ export const getFinbyGatewayUrl = async (
 
   const baseUrl = options.baseUrl || DEFAULT_FINBY_BASE_URL;
   const paymentType = await getPaymentType(options.paymentType);
-  const notificationUrl = await ParameterStoreService.getFinbyNotificationUrl();
+  // const notificationUrl = await ParameterStoreService.getFinbyNotificationUrl();
   const amount = formatAmount(order.amount);
   const currency = order.currency;
   const reference = options.reference || order.orderId;
@@ -107,7 +107,7 @@ export const getFinbyGatewayUrl = async (
     Reference: reference,
     Signature: signature,
     PaymentType: paymentType.toString(),
-    NotificationUrl: notificationUrl,
+    // NotificationUrl: notificationUrl,
   });
 
   if (options.extraParams) {
