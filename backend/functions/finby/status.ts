@@ -97,6 +97,16 @@ const handleFinbyStatus = async (
     return ResponseUtil.unauthorized(event, "User not found");
   }
 
+  const order = await DynamoDBService.getOrder(reference);
+
+  if (order && order.userId !== auth.userId) {
+    return ResponseUtil.unauthorized(event, "Order does not belong to user");
+  }
+
+  if (order?.item.startsWith("video-credits-")) {
+    return ResponseUtil.success(event, { completed: true });
+  }
+
   if (status === "success") {
     const completed = userEntity.subscriptionId === reference;
     return ResponseUtil.success(event, { completed });
