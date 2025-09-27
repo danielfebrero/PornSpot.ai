@@ -103,9 +103,13 @@ const getPricePerStep = (seconds: number): number => {
   return 0.69;
 };
 
+const PRODUCTION_SITE_URL = "https://www.pornspot.ai";
+const TRUSTPAY_RELEASE_TIMESTAMP = Date.UTC(2025, 9, 1, 0, 0, 0);
+
 export function PricingClient() {
   const [isYearly, setIsYearly] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showComingSoonModal, setShowComingSoonModal] = useState(false);
   // Track which plan/interval is currently processing a payment
   const [processingItem, setProcessingItem] = useState<string | null>(null);
   const [videoSeconds, setVideoSeconds] = useState(VIDEO_SECONDS_DEFAULT);
@@ -170,6 +174,16 @@ export function PricingClient() {
   }, []);
 
   const handleTrustpayPopup = async (item: string) => {
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
+    const isComingSoonLocked =
+      siteUrl === PRODUCTION_SITE_URL &&
+      Date.now() < TRUSTPAY_RELEASE_TIMESTAMP;
+
+    if (isComingSoonLocked) {
+      setShowComingSoonModal(true);
+      return;
+    }
+
     // Require authentication before initiating payment
     if (!user) {
       setShowAuthModal(true);
@@ -746,6 +760,58 @@ export function PricingClient() {
                 >
                   {tCommon("cancel", { fallback: "Cancel" } as any) || "Cancel"}
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Coming Soon Modal */}
+      {showComingSoonModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+              onClick={() => setShowComingSoonModal(false)}
+            />
+            <div className="relative w-full max-w-md transform overflow-hidden rounded-xl bg-card border border-border p-6 shadow-2xl transition-all">
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-primary/10 border border-primary/30">
+                  <Crown className="w-6 h-6 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold leading-6 text-foreground">
+                    {t("comingSoon.title", {
+                      fallback: "New payments launch October 1st",
+                    } as any) || "New payments launch October 1st"}
+                  </h3>
+                </div>
+              </div>
+
+              <div className="mt-4 space-y-3">
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("comingSoon.message", {
+                    fallback:
+                      "We're putting the finishing touches on our upgraded checkout. Please check back on October 1st to complete your purchase.",
+                  } as any) ||
+                    "We're putting the finishing touches on our upgraded checkout. Please check back on October 1st to complete your purchase."}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {t("comingSoon.note", {
+                    fallback:
+                      "Thanks for your patience while we finalize this feature.",
+                  } as any) ||
+                    "Thanks for your patience while we finalize this feature."}
+                </p>
+              </div>
+
+              <div className="mt-8 flex justify-center">
+                <Button
+                  onClick={() => setShowComingSoonModal(false)}
+                  className="px-6"
+                >
+                  {tCommon("close", { fallback: "Close" } as any) || "Close"}
+                </Button>
               </div>
             </div>
           </div>

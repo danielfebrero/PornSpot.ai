@@ -1712,7 +1712,12 @@
       "button": "Comienza tu viaje"
     },
     "loginRequiredTitle": "Inicio de sesión requerido",
-    "loginRequiredMessage": "Debes iniciar sesión para comprar un plan o créditos de video. Por favor, inicia sesión o crea una cuenta."
+    "loginRequiredMessage": "Debes iniciar sesión para comprar un plan o créditos de video. Por favor, inicia sesión o crea una cuenta.",
+    "comingSoon": {
+      "title": "Nuevos pagos lanzamiento 1 de octubre",
+      "message": "Estamos dando los toques finales a nuestro sistema de pago mejorado. Por favor, vuelve el 1 de octubre para completar tu compra.",
+      "note": "Gracias por tu paciencia mientras finalizamos esta funcionalidad."
+    }
   },
   "usage": {
     "thisMonth": "este mes",

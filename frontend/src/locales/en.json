@@ -1744,7 +1744,12 @@
       "button": "Start Your Journey"
     },
     "loginRequiredTitle": "Login Required",
-    "loginRequiredMessage": "You must be logged in to purchase a plan or video credits. Please sign in or create an account."
+    "loginRequiredMessage": "You must be logged in to purchase a plan or video credits. Please sign in or create an account.",
+    "comingSoon": {
+      "title": "New payments launch October 1st",
+      "message": "We're putting the finishing touches on our upgraded checkout. Please check back on October 1st to complete your purchase.",
+      "note": "Thanks for your patience while we finalize this feature."
+    }
   },
   "usage": {
     "thisMonth": "this month",

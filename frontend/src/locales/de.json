@@ -1695,7 +1695,12 @@
       "button": "Starten Sie Ihre Reise"
     },
     "loginRequiredTitle": "Anmeldung erforderlich",
-    "loginRequiredMessage": "Sie müssen angemeldet sein, um einen Plan oder Video-Credits zu kaufen. Bitte melden Sie sich an oder erstellen Sie ein Konto."
+    "loginRequiredMessage": "Sie müssen angemeldet sein, um einen Plan oder Video-Credits zu kaufen. Bitte melden Sie sich an oder erstellen Sie ein Konto.",
+    "comingSoon": {
+      "title": "Neue Zahlungen starten am 1. Oktober",
+      "message": "Wir setzen die letzten Schliffe an unserem verbesserten Checkout. Bitte schauen Sie am 1. Oktober zurück, um Ihren Kauf abzuschließen.",
+      "note": "Vielen Dank für Ihre Geduld, während wir diese Funktion fertigstellen."
+    }
   },
   "usage": {
     "thisMonth": "diesen Monat",

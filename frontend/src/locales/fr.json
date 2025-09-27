@@ -1759,7 +1759,12 @@
       "button": "Commencez votre voyage"
     },
     "loginRequiredTitle": "Connexion requise",
-    "loginRequiredMessage": "Vous devez être connecté pour acheter un plan ou des crédits vidéo. Veuillez vous connecter ou créer un compte."
+    "loginRequiredMessage": "Vous devez être connecté pour acheter un plan ou des crédits vidéo. Veuillez vous connecter ou créer un compte.",
+    "comingSoon": {
+      "title": "Nouveaux paiements le 1er octobre",
+      "message": "Nous finalisons notre système de paiement amélioré. Veuillez revenir le 1er octobre pour finaliser votre achat.",
+      "note": "Merci de votre patience pendant que nous finalisons cette fonctionnalité."
+    }
   },
   "usage": {
     "thisMonth": "ce mois",
