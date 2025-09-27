@@ -2289,7 +2289,9 @@
         "seedPlaceholder": "Semilla aleatoria para reproducibilidad",
         "flowShift": "Cambio de flujo:",
         "inferenceSteps": "Pasos de inferencia:",
-        "cfgScale": "Escala CFG:"
+        "cfgScale": "Escala CFG:",
+        "optimizePrompt": "Optimización de prompt con IA",
+        "optimizePromptHint": "Mejora tu prompt automáticamente para lograr mejor movimiento y detalles."
       }
     }
   },

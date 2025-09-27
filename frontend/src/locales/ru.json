@@ -2299,7 +2299,9 @@
         "seedPlaceholder": "Случайный сид для воспроизводимости",
         "flowShift": "Сдвиг потока:",
         "inferenceSteps": "Шаги вывода:",
-        "cfgScale": "Масштаб CFG:"
+        "cfgScale": "Масштаб CFG:",
+        "optimizePrompt": "AI-оптимизация промпта",
+        "optimizePromptHint": "Автоматически улучшайте промпт для лучшего движения и детализации."
       }
     }
   },

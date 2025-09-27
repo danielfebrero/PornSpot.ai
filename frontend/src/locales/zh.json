@@ -2289,7 +2289,9 @@
         "seedPlaceholder": "用于重现性的随机种子",
         "flowShift": "流量偏移：",
         "inferenceSteps": "推理步骤：",
-        "cfgScale": "CFG比例："
+        "cfgScale": "CFG比例：",
+        "optimizePrompt": "AI 提示词优化",
+        "optimizePromptHint": "自动优化您的提示词，以获得更好的运动效果和细节。"
       }
     }
   },

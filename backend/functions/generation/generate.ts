@@ -53,6 +53,7 @@ import {
   ComfyUIErrorType,
   ComfyUIRetryHandler,
 } from "@shared/services/comfyui-error-handler";
+import { PromptProcessingService } from "@shared/services/prompt-processing";
 
 // ====================================
 // Performance Monitoring
@@ -305,30 +306,22 @@ class AIService {
     const timer = new PerformanceTimer("Moderation");
 
     try {
-      const content = await this.chatCompletion(
-        "prompt-moderation",
-        prompt,
-        CONFIG.AI_PARAMS.temperature.moderation,
-        CONFIG.AI_PARAMS.maxTokens.moderation
+      const moderationResult = await PromptProcessingService.moderatePrompt(
+        prompt
       );
 
-      if (content !== "OK") {
-        const jsonMatch = content.match(
-          /\{[^}]*"reason"\s*:\s*"([^"]+)"[^}]*\}/
-        );
-        const reason = jsonMatch?.[1] || "Content violates platform rules";
-
-        console.log("❌ Prompt rejected by moderation:", reason);
-
-        // Signal other parallel operations to stop
+      if (!moderationResult.success) {
         if (controller) {
           controller.stop();
         }
 
-        return { success: false, error: reason, shouldStop: true };
+        return {
+          success: false,
+          error: moderationResult.reason,
+          shouldStop: true,
+        };
       }
 
-      console.log("✅ Prompt passed moderation check");
       return { success: true };
     } catch (error) {
       console.error("❌ Moderation check failed:", error);

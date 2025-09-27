@@ -20,6 +20,8 @@ import type {
   ChatCompletionRequest,
   ChatCompletionResponse,
   OpenRouterMessage,
+  OpenRouterMessageContent,
+  OpenRouterMessagePart,
 } from "@shared/shared-types";
 
 export class OpenRouterService {
@@ -138,6 +140,25 @@ export class OpenRouterService {
     return processedContent;
   }
 
+  private normalizeUserContent(
+    content: OpenRouterMessageContent
+  ): OpenRouterMessageContent {
+    if (typeof content === "string") {
+      return content.trim();
+    }
+
+    return content.map((part: OpenRouterMessagePart) => {
+      if (part.type === "text") {
+        return {
+          ...part,
+          text: part.text?.trim() ?? "",
+        };
+      }
+
+      return part;
+    });
+  }
+
   /**
    * Make a chat completion request to OpenRouter
    */
@@ -160,6 +181,23 @@ export class OpenRouterService {
       request.variables
     );
 
+    const rawUserContent: OpenRouterMessageContent | undefined =
+      request.userContent ??
+      (typeof request.userMessage === "string"
+        ? request.userMessage
+        : undefined);
+
+    if (
+      rawUserContent === undefined ||
+      (typeof rawUserContent === "string" &&
+        rawUserContent.trim().length === 0) ||
+      (Array.isArray(rawUserContent) && rawUserContent.length === 0)
+    ) {
+      throw new Error("User message or content is required");
+    }
+
+    const userContent = this.normalizeUserContent(rawUserContent);
+
     // Build messages array
     const messages: OpenRouterMessage[] = [
       {
@@ -168,7 +206,7 @@ export class OpenRouterService {
       },
       {
         role: "user",
-        content: request.userMessage,
+        content: userContent,
       },
     ];
 
@@ -261,7 +299,7 @@ export class OpenRouterService {
       },
       {
         role: "user",
-        content: request.userMessage,
+        content: request.userMessage!,
       },
     ];
 

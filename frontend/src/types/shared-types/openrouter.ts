@@ -8,9 +8,25 @@
  * - OpenRouterMessage for messages.
  * - ProviderOptions for model selection.
  */
+export type OpenRouterMessagePart =
+  | {
+      type: "text";
+      text: string;
+    }
+  | {
+      type: "image_url";
+      image_url: {
+        url: string;
+      };
+    };
+
+export type OpenRouterMessageContent =
+  | string
+  | Array<OpenRouterMessagePart>;
+
 export interface OpenRouterMessage {
   role: "system" | "user" | "assistant";
-  content: string;
+  content: OpenRouterMessageContent;
 }
 
 export interface OpenRouterChatRequest {
@@ -76,7 +92,8 @@ export interface InstructionTemplate {
 
 export interface ChatCompletionRequest {
   instructionTemplate: string;
-  userMessage: string;
+  userMessage?: string;
+  userContent?: OpenRouterMessageContent;
   model?: string;
   parameters?: Partial<OpenRouterChatRequest>;
   variables?: Record<string, string>;

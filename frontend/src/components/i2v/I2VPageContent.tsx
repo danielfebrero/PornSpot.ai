@@ -25,6 +25,7 @@ import {
   Eye,
   EyeOff,
   Crown,
+  Sparkles,
 } from "lucide-react";
 import { isVideo } from "@/lib/utils";
 import { I2VSettings } from "@/types";
@@ -204,6 +205,25 @@ export function I2VPageContent() {
                   className="mt-1"
                   rows={3}
                 />
+              </div>
+
+              {/* Prompt Optimization */}
+              <div>
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  {ts("advanced.optimizePrompt")}
+                </Label>
+                <div className="mt-2 flex items-center justify-between rounded-lg border bg-card p-3">
+                  <p className="text-sm text-muted-foreground mr-4">
+                    {ts("advanced.optimizePromptHint")}
+                  </p>
+                  <Switch
+                    checked={settings.optimizePrompt}
+                    onCheckedChange={(checked) =>
+                      updateSetting("optimizePrompt", checked)
+                    }
+                  />
+                </div>
               </div>
 
               {/* Negative Prompt */}

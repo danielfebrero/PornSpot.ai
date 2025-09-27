@@ -10,37 +10,9 @@ import {
   I2VSettings,
 } from "@shared/shared-types";
 import { SQS } from "aws-sdk";
-import { OpenRouterService } from "@shared/services/openrouter-chat";
+import { PromptProcessingService } from "@shared/services/prompt-processing";
 
 const RUNPOD_MODEL = "wan-2-2-i2v-720";
-
-// Perform prompt moderation using the same template and logic as in generate.ts
-async function moderatePrompt(
-  prompt: string
-): Promise<{ success: true } | { success: false; reason: string }> {
-  try {
-    const openRouter = OpenRouterService.getInstance();
-    const res = await openRouter.chatCompletion({
-      instructionTemplate: "prompt-moderation",
-      userMessage: (prompt || "").trim(),
-      model: "mistralai/mistral-medium-3.1",
-      parameters: { temperature: 0.1, max_tokens: 256 },
-    });
-
-    const content = (res.content || "").trim();
-    if (content === "OK") {
-      return { success: true };
-    }
-
-    // Try to extract a JSON { reason: "..." } like generate.ts does
-    const jsonMatch = content.match(/\{[^}]*"reason"\s*:\s*"([^"]+)"[^}]*\}/);
-    const reason = jsonMatch?.[1] || "Content violates platform rules";
-    return { success: false, reason };
-  } catch (error) {
-    console.error("❌ Moderation check failed:", error);
-    return { success: false, reason: "Moderation check failed" };
-  }
-}
 
 const handleSubmitI2VJob = async (
   event: APIGatewayProxyEvent,
@@ -130,9 +102,29 @@ const handleSubmitI2VJob = async (
 
   const finalPrompt =
     prompt.trim() === "" ? (media.metadata?.["prompt"] as string) : prompt;
+  const trimmedFinalPrompt = (finalPrompt || "").trim();
+  const promptBase = trimmedFinalPrompt || finalPrompt || "";
 
-  // Prompt moderation check (must return a clear reason to the client on failure)
-  const moderation = await moderatePrompt(finalPrompt || "");
+  // Build full CDN URL (prepend as required)
+  const sourceImageUrl = media.url.startsWith("http")
+    ? media.url
+    : `https://cdn.pornspot.ai${media.url}`;
+
+  const moderationPromise = PromptProcessingService.moderatePrompt(
+    trimmedFinalPrompt
+  );
+  const optimizationPromise = optimizePrompt
+    ? PromptProcessingService.optimizeI2VPrompt({
+        prompt: promptBase,
+        imageUrl: sourceImageUrl,
+      })
+    : Promise.resolve(null);
+
+  const [moderation, optimizationResult] = await Promise.all([
+    moderationPromise,
+    optimizationPromise,
+  ]);
+
   if (!moderation.success) {
     return ResponseUtil.badRequest(
       event,
@@ -140,13 +132,21 @@ const handleSubmitI2VJob = async (
     );
   }
 
-  // Build full CDN URL (prepend as required)
-  const sourceImageUrl = media.url.startsWith("http")
-    ? media.url
-    : `https://cdn.pornspot.ai${media.url}`;
-
   // Fetch Runpod API key
   const runpodApiKey = await ParameterStoreService.getRunpodApiKey();
+
+  let promptForRunpod = promptBase;
+  if (optimizePrompt && optimizationResult) {
+    if (optimizationResult.success) {
+      promptForRunpod = optimizationResult.prompt;
+      console.log("✅ I2V prompt optimized successfully");
+    } else {
+      console.warn(
+        "⚠️ Prompt optimization failed, falling back to original prompt:",
+        optimizationResult.error
+      );
+    }
+  }
 
   // Prepare Runpod payload
   // Seed rules: -1 for auto/random, otherwise clamp to [0, Number.MAX_SAFE_INTEGER]
@@ -180,7 +180,7 @@ const handleSubmitI2VJob = async (
   const outHeight = Math.max(1, Math.floor(heightNum * scale));
 
   const runInput = {
-    prompt: finalPrompt,
+    prompt: promptForRunpod,
     image: sourceImageUrl,
     num_inference_steps: inferenceSteps,
     guidance: cfgScale,
@@ -189,7 +189,7 @@ const handleSubmitI2VJob = async (
     duration: videoLength,
     flow_shift: flowShift,
     seed: seedNumber,
-    enable_prompt_optimization: optimizePrompt,
+    enable_prompt_optimization: !optimizePrompt,
     enable_safety_checker: false,
   };
 
@@ -270,7 +270,7 @@ const handleSubmitI2VJob = async (
     mediaId,
     request: {
       videoLength,
-      prompt: finalPrompt,
+      prompt: promptForRunpod,
       negativePrompt,
       seed: String(body.seed),
       flowShift,

@@ -2288,7 +2288,9 @@
         "seedPlaceholder": "Zufälliger Seed für Reproduzierbarkeit",
         "flowShift": "Flow-Shift:",
         "inferenceSteps": "Inferenz-Schritte:",
-        "cfgScale": "CFG-Skala:"
+        "cfgScale": "CFG-Skala:",
+        "optimizePrompt": "KI-Prompt-Optimierung",
+        "optimizePromptHint": "Verbessern Sie Ihren Prompt automatisch für bessere Bewegung und Details."
       }
     }
   },

@@ -2336,7 +2336,9 @@
         "seedPlaceholder": "Graine aléatoire pour la reproductibilité",
         "flowShift": "Décalage de flux :",
         "inferenceSteps": "Étapes d'inférence :",
-        "cfgScale": "Échelle CFG :"
+        "cfgScale": "Échelle CFG :",
+        "optimizePrompt": "Optimisation du prompt par IA",
+        "optimizePromptHint": "Améliorez automatiquement votre prompt pour un meilleur mouvement et plus de détails."
       }
     }
   },
