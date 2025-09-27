@@ -110,9 +110,8 @@ const handleSubmitI2VJob = async (
     ? media.url
     : `https://cdn.pornspot.ai${media.url}`;
 
-  const moderationPromise = PromptProcessingService.moderatePrompt(
-    trimmedFinalPrompt
-  );
+  const moderationPromise =
+    PromptProcessingService.moderatePrompt(trimmedFinalPrompt);
   const optimizationPromise = optimizePrompt
     ? PromptProcessingService.optimizeI2VPrompt({
         prompt: promptBase,
