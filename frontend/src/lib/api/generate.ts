@@ -161,4 +161,15 @@ export const generateApi = {
     }>("/generate/i2v/retry", { jobId }, { credentials: "include" });
     return ApiUtil.extractData(response);
   },
+
+  // Clear an I2V job (remove from queue/history)
+  clearI2VJob: async (
+    jobId: string
+  ): Promise<{ jobId: string; status?: string }> => {
+    const response = await ApiUtil.delete<{ jobId: string; status?: string }>(
+      "/generate/i2v/job",
+      { jobId }
+    );
+    return ApiUtil.extractData(response);
+  },
 };

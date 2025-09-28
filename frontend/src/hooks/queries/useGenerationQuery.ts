@@ -188,3 +188,72 @@ export function useRetryI2VJob() {
     },
   });
 }
+
+export function useClearI2VJob() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    Awaited<ReturnType<typeof generateApi.clearI2VJob>>,
+    unknown,
+    string,
+    {
+      previousIncomplete?: IncompleteI2VJob[];
+      previousFailed?: FailedI2VJob[];
+    }
+  >({
+    mutationFn: (jobId: string) => generateApi.clearI2VJob(jobId),
+    onMutate: async (jobId: string) => {
+      await Promise.all([
+        queryClient.cancelQueries({
+          queryKey: queryKeys.generation.incompleteI2VJobs(),
+        }),
+        queryClient.cancelQueries({
+          queryKey: queryKeys.generation.failedI2VJobs(),
+        }),
+      ]);
+
+      const previousIncomplete = queryClient.getQueryData<IncompleteI2VJob[]>(
+        queryKeys.generation.incompleteI2VJobs()
+      );
+      const previousFailed = queryClient.getQueryData<FailedI2VJob[]>(
+        queryKeys.generation.failedI2VJobs()
+      );
+
+      queryClient.setQueryData<IncompleteI2VJob[] | undefined>(
+        queryKeys.generation.incompleteI2VJobs(),
+        (old) => old?.filter((job) => job.jobId !== jobId)
+      );
+
+      queryClient.setQueryData<FailedI2VJob[] | undefined>(
+        queryKeys.generation.failedI2VJobs(),
+        (old) => old?.filter((job) => job.jobId !== jobId)
+      );
+
+      return { previousIncomplete, previousFailed };
+    },
+    onError: (_error, jobId, context) => {
+      if (context?.previousIncomplete) {
+        queryClient.setQueryData(
+          queryKeys.generation.incompleteI2VJobs(),
+          context.previousIncomplete
+        );
+      }
+      if (context?.previousFailed) {
+        queryClient.setQueryData(
+          queryKeys.generation.failedI2VJobs(),
+          context.previousFailed
+        );
+      }
+
+      console.error("Failed to clear I2V job", jobId, _error);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.generation.incompleteI2VJobs(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.generation.failedI2VJobs(),
+      });
+    },
+  });
+}

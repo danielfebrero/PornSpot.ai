@@ -1389,6 +1389,37 @@ Resources:
 
   AdminLogoutFunction:
     Type: AWS::Serverless::Function
+  I2VClearJobFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-generate-i2v-clear-job-v1"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/generation/i2v-clear-job.handler"]
+      Events:
+        DeleteI2VJob:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generate/i2v/job
+            Method: DELETE
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsI2VJob:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generate/i2v/job
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-admin-logout-v2"
       PackageType: Image

@@ -17,7 +17,6 @@ import {
   Lock,
   Edit,
   AlertTriangle,
-  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -41,7 +40,7 @@ import {
   useGetIncompleteI2VJobs,
   useGetFailedI2VJobs,
   usePollI2VJob,
-  useRetryI2VJob,
+  useClearI2VJob,
 } from "@/hooks/queries/useGenerationQuery";
 import ResponsivePicture from "@/components/ui/ResponsivePicture";
 import { composeMediaUrl, composeThumbnailUrls } from "@/lib/urlUtils";
@@ -63,7 +62,7 @@ const UserVideosPage: React.FC = () => {
   const [mobileExpandedAction, setMobileExpandedAction] = useState<
     string | null
   >(null);
-  const [retryingJobId, setRetryingJobId] = useState<string | null>(null);
+  const [clearingJobId, setClearingJobId] = useState<string | null>(null);
   const MAX_BULK_SELECTION = 50;
   const { user } = useUserContext();
   const { isMobile } = useDevice();
@@ -83,7 +82,7 @@ const UserVideosPage: React.FC = () => {
   const { data: incompleteJobs } = useGetIncompleteI2VJobs();
   const { data: failedJobs, isFetching: isFetchingFailed } =
     useGetFailedI2VJobs();
-  const retryI2VJob = useRetryI2VJob();
+  const clearI2VJob = useClearI2VJob();
 
   const handleConfirmTitleEdit = useCallback(
     async (newTitle: string) => {
@@ -212,19 +211,19 @@ const UserVideosPage: React.FC = () => {
     }
   }, [selectedMedias, bulkDeleteMedia]);
 
-  const handleRetryJob = useCallback(
+  const handleClearJob = useCallback(
     async (jobId: string) => {
       if (!jobId) return;
-      setRetryingJobId(jobId);
+      setClearingJobId(jobId);
       try {
-        await retryI2VJob.mutateAsync(jobId);
+        await clearI2VJob.mutateAsync(jobId);
       } catch (error) {
-        console.error("Failed to retry I2V job:", error, { jobId });
+        console.error("Failed to clear I2V job:", error, { jobId });
       } finally {
-        setRetryingJobId((current) => (current === jobId ? null : current));
+        setClearingJobId((current) => (current === jobId ? null : current));
       }
     },
-    [retryI2VJob]
+    [clearI2VJob]
   );
 
   const loadMore = () => {
@@ -501,10 +500,10 @@ const UserVideosPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {failedJobs.map((job) => {
             const media = (job.media as Media | null) || null;
-            const isRetrying =
-              retryingJobId === job.jobId && retryI2VJob.isPending;
-            const retryDisabled =
-              Boolean(job.retryJobId) || retryI2VJob.isPending;
+            const isClearing =
+              clearingJobId === job.jobId && clearI2VJob.isPending;
+            const clearDisabled =
+              clearI2VJob.isPending && clearingJobId !== job.jobId;
             const failedDate =
               job.failedAt && !Number.isNaN(Date.parse(job.failedAt))
                 ? new Date(job.failedAt)
@@ -553,30 +552,20 @@ const UserVideosPage: React.FC = () => {
                     {t("failedCardDescription")}
                   </p>
                   <div className="flex items-center justify-between">
-                    {job.retryJobId ? (
-                      <Badge
-                        variant="outline"
-                        className="gap-1 text-muted-foreground"
-                      >
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                        {t("retrySubmitted")}
-                      </Badge>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => handleRetryJob(job.jobId)}
-                        disabled={retryDisabled || isRetrying}
-                      >
-                        {isRetrying ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <RotateCcw className="h-4 w-4" />
-                        )}
-                        {isRetrying ? t("retryingButton") : t("retryButton")}
-                      </Button>
-                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 text-destructive border-destructive/40 hover:bg-destructive/10"
+                      onClick={() => handleClearJob(job.jobId)}
+                      disabled={isClearing || clearDisabled}
+                    >
+                      {isClearing ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                      {isClearing ? t("clearingButton") : t("clearButton")}
+                    </Button>
                   </div>
                 </div>
               </div>

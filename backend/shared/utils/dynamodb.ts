@@ -260,6 +260,19 @@ export class DynamoDBService {
     );
   }
 
+  static async deleteI2VJob(jobId: string): Promise<void> {
+    await docClient.send(
+      new DeleteCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `I2VJOB#${jobId}`,
+          SK: "METADATA",
+        },
+        ConditionExpression: "attribute_exists(PK)",
+      })
+    );
+  }
+
   static async refundI2VJobCredits(
     job: I2VJobEntity,
     seconds: number
