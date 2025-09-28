@@ -18,7 +18,7 @@ describe("PromptProcessingService.selectI2VLoras", () => {
   it("should extract LoRAs and trigger words from a JSON code block", async () => {
     mockChatCompletion.mockResolvedValue({
       content:
-        "Here you go!```json\n{\n  \"loras\": [\"anime-style\"],\n  \"trigger_words\": [\"dreamy light\"]\n}\n```",
+        'Here you go!```json\n{\n  "loras": ["anime-style"],\n  "trigger_words": ["dreamy light"]\n}\n```',
     });
 
     const result = await PromptProcessingService.selectI2VLoras("test prompt");
@@ -30,7 +30,7 @@ describe("PromptProcessingService.selectI2VLoras", () => {
   it("should fallback to structured JSON within text when no code block is provided", async () => {
     mockChatCompletion.mockResolvedValue({
       content:
-        "I recommend using the following configuration: { \"loras\": [\"style-one\"], \"trigger_words\": [\"magic\"] } Enjoy!",
+        'I recommend using the following configuration: { "loras": ["style-one"], "trigger_words": ["magic"] } Enjoy!',
     });
 
     const result = await PromptProcessingService.selectI2VLoras("test prompt");

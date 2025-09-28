@@ -156,10 +156,13 @@ export class PromptProcessingService {
             parsed = JSON.parse(normalized);
             break;
           } catch (candidateParseError) {
-            console.warn("Failed to parse candidate JSON for i2v lora response", {
-              candidate: normalized,
-              candidateParseError,
-            });
+            console.warn(
+              "Failed to parse candidate JSON for i2v lora response",
+              {
+                candidate: normalized,
+                candidateParseError,
+              }
+            );
           }
         }
 
