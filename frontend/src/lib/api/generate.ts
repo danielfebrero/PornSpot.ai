@@ -109,4 +109,56 @@ export const generateApi = {
     >("/generate/i2v/incomplete", { credentials: "include" });
     return ApiUtil.extractData(response);
   },
+
+  // Get failed I2V jobs for current user
+  getFailedI2VJobs: async (): Promise<
+    {
+      jobId: string;
+      submittedAt?: string;
+      failedAt?: string;
+      estimatedSeconds?: number;
+      media: Media | null;
+      retryJobId?: string;
+    }[]
+  > => {
+    const response = await ApiUtil.get<
+      {
+        jobId: string;
+        submittedAt?: string;
+        failedAt?: string;
+        estimatedSeconds?: number;
+        media: Media | null;
+        retryJobId?: string;
+      }[]
+    >("/generate/i2v/failed", { credentials: "include" });
+    return ApiUtil.extractData(response);
+  },
+
+  // Retry a failed I2V job
+  retryI2VJob: async (
+    jobId: string
+  ): Promise<{
+    previousJobId: string;
+    job: {
+      jobId: string;
+      submittedAt?: string;
+      estimatedSeconds?: number;
+      estimatedCompletionTimeAt?: string;
+      media: Media | null;
+      retryOfJobId?: string;
+    };
+  }> => {
+    const response = await ApiUtil.post<{
+      previousJobId: string;
+      job: {
+        jobId: string;
+        submittedAt?: string;
+        estimatedSeconds?: number;
+        estimatedCompletionTimeAt?: string;
+        media: Media | null;
+        retryOfJobId?: string;
+      };
+    }>("/generate/i2v/retry", { jobId }, { credentials: "include" });
+    return ApiUtil.extractData(response);
+  },
 };

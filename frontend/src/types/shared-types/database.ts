@@ -467,6 +467,8 @@ export interface I2VJobEntity extends BaseEntity {
   resultMediaId?: string; // Created Media ID for result video
   refundedAt?: string; // When credits were refunded for a failed job
   refundedSeconds?: number; // Number of seconds refunded to the user
+  retryJobId?: string; // Newly created job id when this job is retried
+  retryOfJobId?: string; // Original job id if this job is created via retry
 }
 
 export interface OrderEntity extends BaseEntity {

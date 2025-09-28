@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useDocumentHeadAndMeta } from "@/hooks/useDocumentHeadAndMeta";
 import {
@@ -16,8 +16,11 @@ import {
   Globe,
   Lock,
   Edit,
+  AlertTriangle,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 import { VirtualizedGrid } from "@/components/ui/VirtualizedGrid";
 import { EditTitleDialog } from "@/components/ui/EditTitleDialog";
 import { ShareDropdown } from "@/components/ui/ShareDropdown";
@@ -36,10 +39,16 @@ import { useDevice } from "@/contexts/DeviceContext";
 import { isMediaOwner } from "@/lib/userUtils";
 import {
   useGetIncompleteI2VJobs,
+  useGetFailedI2VJobs,
   usePollI2VJob,
+  useRetryI2VJob,
 } from "@/hooks/queries/useGenerationQuery";
 import ResponsivePicture from "@/components/ui/ResponsivePicture";
 import { composeMediaUrl, composeThumbnailUrls } from "@/lib/urlUtils";
+
+type PollReason = "after10s" | "after30s" | "afterEstimate" | "apiDelay";
+type PollCallback = (reason: PollReason) => void;
+type TimeoutHandle = ReturnType<typeof setTimeout>;
 
 const UserVideosPage: React.FC = () => {
   const t = useTranslations("user.videosPage");
@@ -54,6 +63,7 @@ const UserVideosPage: React.FC = () => {
   const [mobileExpandedAction, setMobileExpandedAction] = useState<
     string | null
   >(null);
+  const [retryingJobId, setRetryingJobId] = useState<string | null>(null);
   const MAX_BULK_SELECTION = 50;
   const { user } = useUserContext();
   const { isMobile } = useDevice();
@@ -71,6 +81,9 @@ const UserVideosPage: React.FC = () => {
   } = useUserMedia({ type: "video" });
   const { prefetch } = usePrefetchInteractionStatus();
   const { data: incompleteJobs } = useGetIncompleteI2VJobs();
+  const { data: failedJobs, isFetching: isFetchingFailed } =
+    useGetFailedI2VJobs();
+  const retryI2VJob = useRetryI2VJob();
 
   const handleConfirmTitleEdit = useCallback(
     async (newTitle: string) => {
@@ -199,6 +212,21 @@ const UserVideosPage: React.FC = () => {
     }
   }, [selectedMedias, bulkDeleteMedia]);
 
+  const handleRetryJob = useCallback(
+    async (jobId: string) => {
+      if (!jobId) return;
+      setRetryingJobId(jobId);
+      try {
+        await retryI2VJob.mutateAsync(jobId);
+      } catch (error) {
+        console.error("Failed to retry I2V job:", error, { jobId });
+      } finally {
+        setRetryingJobId((current) => (current === jobId ? null : current));
+      }
+    },
+    [retryI2VJob]
+  );
+
   const loadMore = () => {
     if (hasNextPage && !isFetchingNextPage) fetchNextPage();
   };
@@ -257,9 +285,14 @@ const UserVideosPage: React.FC = () => {
 
   // Child component to leverage hooks per job
   const I2VJobProgressCard: React.FC<{ job: any }> = ({ job }) => {
-    const [enablePoll, setEnablePoll] = useState(false);
     // Ticking state to re-render and advance progress smoothly without reload
     const [now, setNow] = useState<number>(() => Date.now());
+
+    const { refetch: refetchJobStatus } = usePollI2VJob(job.jobId);
+    const pollFnRef = useRef<PollCallback | null>(null);
+    const timersRef = useRef<TimeoutHandle[]>([]);
+    const apiDelayTimerRef = useRef<TimeoutHandle | null>(null);
+    const lastScheduleKeyRef = useRef<string | null>(null);
 
     useEffect(() => {
       // Update every second while this card is mounted
@@ -267,18 +300,133 @@ const UserVideosPage: React.FC = () => {
       return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-      if (!job.estimatedCompletionTimeAt) return;
-      const est = Date.parse(job.estimatedCompletionTimeAt);
-      const delay = Math.max(0, est - Date.now());
-      if (delay === 0) setEnablePoll(true);
-      else {
-        const to = setTimeout(() => setEnablePoll(true), delay);
-        return () => clearTimeout(to);
+    const clearAllTimers = useCallback(() => {
+      timersRef.current.forEach((timeout) => clearTimeout(timeout));
+      timersRef.current = [];
+      if (apiDelayTimerRef.current) {
+        clearTimeout(apiDelayTimerRef.current);
+        apiDelayTimerRef.current = null;
       }
-    }, [job.estimatedCompletionTimeAt]);
+    }, []);
 
-    usePollI2VJob(job.jobId, enablePoll);
+    const performPoll = useCallback(
+      (reason: PollReason) => {
+        if (!job.jobId) return;
+        refetchJobStatus()
+          .then((result) => {
+            const data = result.data as any;
+            const status = data?.status;
+            if (
+              status === "COMPLETED" ||
+              status === "FAILED" ||
+              status === "CANCELLED"
+            ) {
+              clearAllTimers();
+              return;
+            }
+
+            const delayTime =
+              typeof data?.delayTime === "number" ? data.delayTime : undefined;
+            if (delayTime && delayTime > 0) {
+              if (apiDelayTimerRef.current) {
+                clearTimeout(apiDelayTimerRef.current);
+              }
+              apiDelayTimerRef.current = setTimeout(() => {
+                apiDelayTimerRef.current = null;
+                pollFnRef.current?.("apiDelay");
+              }, delayTime * 1000);
+            }
+          })
+          .catch((error) => {
+            console.error("Failed to poll I2V job:", error, {
+              jobId: job.jobId,
+              reason,
+            });
+          });
+      },
+      [job.jobId, refetchJobStatus, clearAllTimers]
+    );
+
+    useEffect(() => {
+      pollFnRef.current = performPoll;
+    }, [performPoll]);
+
+    const schedulePoll = useCallback((delayMs: number, reason: PollReason) => {
+      if (!pollFnRef.current) return;
+      if (delayMs <= 0) {
+        pollFnRef.current(reason);
+        return;
+      }
+      const timeout = setTimeout(() => {
+        timersRef.current = timersRef.current.filter((t) => t !== timeout);
+        pollFnRef.current?.(reason);
+      }, delayMs);
+      timersRef.current.push(timeout);
+    }, []);
+
+    useEffect(() => {
+      return () => {
+        lastScheduleKeyRef.current = null;
+        clearAllTimers();
+      };
+    }, [clearAllTimers]);
+
+    const scheduleKey = useMemo(() => {
+      const submittedKey = job.submittedAt ? Date.parse(job.submittedAt) : 0;
+      const estimateKey = job.estimatedCompletionTimeAt
+        ? Date.parse(job.estimatedCompletionTimeAt)
+        : 0;
+      const estimatedSecondsKey = job.estimatedSeconds ?? 0;
+      return `${job.jobId}-${submittedKey}-${estimateKey}-${estimatedSecondsKey}`;
+    }, [
+      job.jobId,
+      job.submittedAt,
+      job.estimatedCompletionTimeAt,
+      job.estimatedSeconds,
+    ]);
+
+    useEffect(() => {
+      if (!job.jobId) return;
+      if (lastScheduleKeyRef.current === scheduleKey) return;
+      lastScheduleKeyRef.current = scheduleKey;
+
+      clearAllTimers();
+
+      const nowTs = Date.now();
+      const submittedTs = job.submittedAt ? Date.parse(job.submittedAt) : nowTs;
+
+      const schedules: Array<{ delay: number; reason: PollReason }> = [
+        { delay: submittedTs + 10_000 - nowTs, reason: "after10s" },
+        { delay: submittedTs + 30_000 - nowTs, reason: "after30s" },
+      ];
+
+      const fallbackEstimateMs =
+        job.estimatedSeconds && job.estimatedSeconds > 0
+          ? job.estimatedSeconds * 1000
+          : 60_000;
+      const estimatedTarget = job.estimatedCompletionTimeAt
+        ? Date.parse(job.estimatedCompletionTimeAt)
+        : submittedTs + fallbackEstimateMs;
+
+      if (!Number.isNaN(estimatedTarget)) {
+        schedules.push({
+          delay: estimatedTarget - nowTs,
+          reason: "afterEstimate",
+        });
+      }
+
+      schedules.forEach(({ delay, reason }) => {
+        schedulePoll(delay, reason);
+      });
+    }, [
+      job.jobId,
+      job.submittedAt,
+      job.estimatedCompletionTimeAt,
+      job.estimatedSeconds,
+      scheduleKey,
+      schedulePoll,
+      clearAllTimers,
+    ]);
 
     const submitted = job.submittedAt ? Date.parse(job.submittedAt) : 0;
     const estSeconds = job.estimatedSeconds || 0;
@@ -321,11 +469,130 @@ const UserVideosPage: React.FC = () => {
     );
   };
 
+  const renderFailedJobs = () => {
+    if (isFetchingFailed && (!failedJobs || failedJobs.length === 0)) {
+      return (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>{t("failedSectionLoading")}</span>
+          </div>
+        </div>
+      );
+    }
+
+    if (!failedJobs || failedJobs.length === 0) return null;
+
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+            <h2 className="text-xl font-semibold text-foreground">
+              {t("failedSectionTitle")}
+            </h2>
+          </div>
+          <p className="text-sm text-muted-foreground sm:max-w-[60%]">
+            {t("failedSectionSubtitle")}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {failedJobs.map((job) => {
+            const media = (job.media as Media | null) || null;
+            const isRetrying =
+              retryingJobId === job.jobId && retryI2VJob.isPending;
+            const retryDisabled =
+              Boolean(job.retryJobId) || retryI2VJob.isPending;
+            const failedDate =
+              job.failedAt && !Number.isNaN(Date.parse(job.failedAt))
+                ? new Date(job.failedAt)
+                : null;
+
+            return (
+              <div
+                key={job.jobId}
+                className="overflow-hidden rounded-xl border border-destructive/30 bg-card/80 backdrop-blur-sm shadow-lg"
+              >
+                <div className="aspect-video w-full overflow-hidden bg-destructive/10 flex items-center justify-center">
+                  {media?.thumbnailUrls || media?.thumbnailUrl || media?.url ? (
+                    <ResponsivePicture
+                      thumbnailUrls={composeThumbnailUrls(media?.thumbnailUrls)}
+                      fallbackUrl={composeMediaUrl(
+                        media?.thumbnailUrl || media?.url
+                      )}
+                      alt={
+                        media?.originalFilename || media?.filename || "failed"
+                      }
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <AlertTriangle className="h-10 w-10 text-destructive" />
+                  )}
+                </div>
+                <div className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="destructive" className="gap-1">
+                      <AlertTriangle className="h-3 w-3" />
+                      {t("failedBadge")}
+                    </Badge>
+                    {failedDate ? (
+                      <span className="text-xs text-muted-foreground">
+                        {failedDate.toLocaleString()}
+                      </span>
+                    ) : null}
+                  </div>
+                  {media?.originalFilename ? (
+                    <p className="text-sm font-medium text-foreground line-clamp-2">
+                      {media.originalFilename}
+                    </p>
+                  ) : null}
+                  <p className="text-sm text-muted-foreground">
+                    {t("failedCardDescription")}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    {job.retryJobId ? (
+                      <Badge
+                        variant="outline"
+                        className="gap-1 text-muted-foreground"
+                      >
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        {t("retrySubmitted")}
+                      </Badge>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => handleRetryJob(job.jobId)}
+                        disabled={retryDisabled || isRetrying}
+                      >
+                        {isRetrying ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <RotateCcw className="h-4 w-4" />
+                        )}
+                        {isRetrying ? t("retryingButton") : t("retryButton")}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   const renderIncompleteJobs = () => {
     if (!incompleteJobs || incompleteJobs.length === 0) return null;
     return (
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">In Progress</h2>
+        <h2 className="text-xl font-semibold text-foreground">
+          {t("inProgressTitle")}
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {incompleteJobs.map((job) => (
             <I2VJobProgressCard key={job.jobId} job={job} />
@@ -564,6 +831,7 @@ const UserVideosPage: React.FC = () => {
         )}
       </div>
 
+      {renderFailedJobs()}
       {renderIncompleteJobs()}
       {medias.length > 0 ? (
         <VirtualizedGrid

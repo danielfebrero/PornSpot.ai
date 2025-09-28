@@ -3469,7 +3469,7 @@ Resources:
   I2VGetIncompleteJobsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-generate-i2v-get-incomplete-jobs-v1"
+      FunctionName: !Sub "${Environment}-pornspot-generate-i2v-get-incomplete-jobs-v2"
       PackageType: Image
       ImageUri: !Ref ImageUri
       ImageConfig:
@@ -3501,6 +3501,88 @@ Resources:
               Resource:
                 - !GetAtt MediaTable.Arn
                 - !Sub "${MediaTable.Arn}/index/*"
+
+  I2VGetFailedJobsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-generate-i2v-get-failed-jobs-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/generation/i2v-get-failed-jobs.handler"]
+      Events:
+        GetI2VFailedJobs:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generate/i2v/failed
+            Method: GET
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsI2VFailedJobs:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generate/i2v/failed
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+              Resource:
+                - !GetAtt MediaTable.Arn
+                - !Sub "${MediaTable.Arn}/index/*"
+
+  I2VRetryJobFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-generate-i2v-retry-job-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/generation/i2v-retry-job.handler"]
+      Environment:
+        Variables:
+          I2V_POLL_QUEUE_URL: !Ref I2VPollQueue
+      Events:
+        PostI2VRetryJob:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generate/i2v/retry
+            Method: POST
+            Auth:
+              Authorizer: UserAuthorizer
+        OptionsI2VRetryJob:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generate/i2v/retry
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/runpod-api-key"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/openrouter-api-key"
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource:
+                - !GetAtt I2VPollQueue.Arn
 
   # SQS queue for delayed I2V polling
   I2VPollQueue:

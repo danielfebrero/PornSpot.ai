@@ -2,12 +2,21 @@
  * React Query hooks for generation-related operations
  */
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { generateApi, UsageStatsResponse } from "@/lib/api/generate";
 import { queryKeys } from "@/lib/queryClient";
-import { useEffect } from "react";
 import { queryClient } from "@/lib/queryClient";
 import { Media } from "@/types";
+
+type IncompleteI2VJob = Awaited<
+  ReturnType<typeof generateApi.getIncompleteI2VJobs>
+>[number];
+
+type FailedI2VJob = Awaited<
+  ReturnType<typeof generateApi.getFailedI2VJobs>
+>[number];
+
+type RetryI2VJobResponse = Awaited<ReturnType<typeof generateApi.retryI2VJob>>;
 
 /**
  * Hook to get current usage statistics
@@ -75,6 +84,15 @@ export function useGetIncompleteI2VJobs() {
   });
 }
 
+export function useGetFailedI2VJobs() {
+  return useQuery({
+    queryKey: queryKeys.generation.failedI2VJobs(),
+    queryFn: generateApi.getFailedI2VJobs,
+    refetchInterval: 30_000,
+    staleTime: 5_000,
+  });
+}
+
 // Internal helper to inject media into existing infinite queries (user media of type video)
 function addMediaToUserVideoQueries(newMedia: Media) {
   queryClient.setQueriesData({ queryKey: ["media", "user"] }, (old: any) => {
@@ -94,7 +112,7 @@ function addMediaToUserVideoQueries(newMedia: Media) {
   });
 }
 
-export function usePollI2VJob(jobId: string | undefined, enable: boolean) {
+export function usePollI2VJob(jobId: string | undefined) {
   return useQuery({
     queryKey: jobId
       ? queryKeys.generation.i2vJob(jobId)
@@ -125,7 +143,48 @@ export function usePollI2VJob(jobId: string | undefined, enable: boolean) {
       }
       return resp;
     },
-    enabled: !!jobId && enable,
-    refetchInterval: 5_000,
+    enabled: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
+  });
+}
+
+export function useRetryI2VJob() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (jobId: string) => generateApi.retryI2VJob(jobId),
+    onSuccess: (data: RetryI2VJobResponse) => {
+      queryClient.setQueryData<FailedI2VJob[] | undefined>(
+        queryKeys.generation.failedI2VJobs(),
+        (old) => (old || []).filter((job) => job.jobId !== data.previousJobId)
+      );
+
+      queryClient.setQueryData<IncompleteI2VJob[] | undefined>(
+        queryKeys.generation.incompleteI2VJobs(),
+        (old) => {
+          const existing = old ? [...old] : [];
+          const filtered = existing.filter(
+            (job) => job.jobId !== data.job.jobId
+          );
+          const nextJob: IncompleteI2VJob = {
+            jobId: data.job.jobId,
+            submittedAt: data.job.submittedAt,
+            estimatedSeconds: data.job.estimatedSeconds,
+            estimatedCompletionTimeAt: data.job.estimatedCompletionTimeAt,
+            media: data.job.media,
+          };
+          return [nextJob, ...filtered];
+        }
+      );
+
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.generation.failedI2VJobs(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.generation.incompleteI2VJobs(),
+      });
+    },
   });
 }

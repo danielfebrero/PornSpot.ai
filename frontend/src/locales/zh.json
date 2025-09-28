@@ -1278,6 +1278,15 @@
         "video": "视频",
         "image": "图片"
       },
+      "inProgressTitle": "In progress",
+      "failedSectionTitle": "Failed attempts",
+      "failedSectionSubtitle": "These video generations didn't complete. Retry them to generate videos again.",
+      "failedSectionLoading": "Loading failed attempts...",
+      "failedBadge": "Failed",
+      "failedCardDescription": "We couldn't finish generating this video. Retry to create it again.",
+      "retryButton": "Retry video",
+      "retryingButton": "Retrying...",
+      "retrySubmitted": "Retry in progress",
       "unknownUser": "未知用户",
       "error": {
         "title": "加载通知时出错",

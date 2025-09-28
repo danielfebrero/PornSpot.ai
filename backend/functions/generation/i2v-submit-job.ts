@@ -17,7 +17,7 @@ import { randomBytes } from "crypto";
 const RUNPOD_MODEL = "wan-2-2-i2v-720";
 const RUNPOD_MODEL_LORA = "wan-2-2-t2v-720-lora";
 
-const handleSubmitI2VJob = async (
+export const handleSubmitI2VJob = async (
   event: APIGatewayProxyEvent,
   auth: AuthResult
 ): Promise<APIGatewayProxyResult> => {
