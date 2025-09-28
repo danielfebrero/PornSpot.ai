@@ -55,6 +55,7 @@ const handleRetryI2VJob = async (
   const requestSnapshot = existingJob.request;
   const retryRequest: I2VSubmitJobRequest = {
     mediaId: existingJob.mediaId,
+    enableLoras: requestSnapshot.enableLoras ?? true,
     prompt: requestSnapshot.prompt ?? "",
     negativePrompt: requestSnapshot.negativePrompt ?? "",
     seed: requestSnapshot.seed ?? "0",
