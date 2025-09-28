@@ -472,12 +472,13 @@ const UserVideosPage: React.FC = () => {
   const renderFailedJobs = () => {
     if (isFetchingFailed && (!failedJobs || failedJobs.length === 0)) {
       return (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>{t("failedSectionLoading")}</span>
-          </div>
-        </div>
+        // <div className="space-y-4">
+        //   <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        //     <Loader2 className="h-4 w-4 animate-spin" />
+        //     <span>{t("failedSectionLoading")}</span>
+        //   </div>
+        // </div>
+        null
       );
     }
 

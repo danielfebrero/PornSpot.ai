@@ -63,10 +63,10 @@ export const handleSubmitI2VJob = async (
       "videoLength must be one of 5, 8, 10, 15, 20, 25, 30"
     );
   }
-  if (enableLoras && ![5, 8].includes(videoLength)) {
+  if (enableLoras && ![5].includes(videoLength)) {
     return ResponseUtil.badRequest(
       event,
-      "LoRA-enabled videos must use a length of 5 or 8 seconds"
+      "LoRA-enabled videos must use a length of 5 seconds"
     );
   }
   if (typeof flowShift !== "number" || flowShift < 1 || flowShift > 10) {
