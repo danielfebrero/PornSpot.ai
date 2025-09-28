@@ -2346,7 +2346,7 @@
       "loras": {
         "label": "LoRA Enhancements",
         "description": "LoRA models enhance motion and detail in your video.",
-        "enabled": "LoRAs enabled: Video length limited to 5s or 8s for best results.",
+        "enabled": "LoRAs enabled: Video length limited to 5s for best results.",
         "disabled": "LoRAs disabled: Generate videos up to 30s with standard motion."
       },
       "advanced": {

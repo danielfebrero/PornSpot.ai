@@ -206,11 +206,37 @@ export class DynamoDBService {
     jobId: string,
     updates: Partial<I2VJobEntity>
   ): Promise<void> {
+    const updatesWithDerived: Partial<I2VJobEntity> = { ...updates };
+
+    if (
+      Object.prototype.hasOwnProperty.call(updatesWithDerived, "status") &&
+      updatesWithDerived.status !== undefined &&
+      updatesWithDerived.status !== null
+    ) {
+      const existingJob = await this.getI2VJob(jobId);
+
+      if (!existingJob) {
+        throw new Error(`I2V job ${jobId} not found`);
+      }
+
+      const status = updatesWithDerived.status;
+      const userIdForGsi = updatesWithDerived.userId ?? existingJob.userId;
+
+      if (!userIdForGsi) {
+        throw new Error(
+          `Cannot update I2V job ${jobId} status without a userId`
+        );
+      }
+
+      updatesWithDerived.GSI3PK = `I2VJOB_STATUS#${status}`;
+      updatesWithDerived.GSI4PK = `I2VJOB_STATUS_USER#${userIdForGsi}#${status}`;
+    }
+
     const updateExpression: string[] = [];
     const expressionAttributeNames: Record<string, string> = {};
     const expressionAttributeValues: Record<string, any> = {};
 
-    Object.entries(updates).forEach(([key, value]) => {
+    Object.entries(updatesWithDerived).forEach(([key, value]) => {
       if (key !== "PK" && key !== "SK" && value !== undefined) {
         updateExpression.push(`#${key} = :${key}`);
         expressionAttributeNames[`#${key}`] = key;

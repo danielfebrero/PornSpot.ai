@@ -97,19 +97,11 @@ export function I2VPageContent() {
   );
 
   const handleLorasToggle = useCallback((checked: boolean) => {
-    setSettings((prev) => {
-      const allowedWithLoras: I2VSettings["videoLength"][] = [5, 8];
-      const nextVideoLength = checked
-        ? allowedWithLoras.includes(prev.videoLength)
-          ? prev.videoLength
-          : 8
-        : prev.videoLength;
-      return {
-        ...prev,
-        enableLoras: checked,
-        videoLength: nextVideoLength,
-      };
-    });
+    setSettings((prev) => ({
+      ...prev,
+      enableLoras: checked,
+      videoLength: checked ? 5 : prev.videoLength,
+    }));
   }, []);
 
   const handleVisibilityChange = useCallback(
@@ -121,11 +113,12 @@ export function I2VPageContent() {
 
   const renderSettings = useMemo(() => {
     const allowedVideoLengths: I2VSettings["videoLength"][] =
-      settings.enableLoras ? [5, 8] : [5, 10, 15, 20, 25, 30];
+      settings.enableLoras ? [5] : [5, 10, 15, 20, 25, 30];
     const sliderMax =
       allowedVideoLengths[allowedVideoLengths.length - 1] ??
       settings.videoLength;
-    const sliderStep = settings.enableLoras ? 3 : 5;
+    const sliderStep = settings.enableLoras ? 1 : 5;
+    const isSingleVideoLengthOption = allowedVideoLengths.length === 1;
 
     return (
       <Card className="p-6">
@@ -164,7 +157,11 @@ export function I2VPageContent() {
               min={allowedVideoLengths[0]}
               max={sliderMax}
               step={sliderStep}
-              className="mt-2 w-full"
+              className={`mt-2 w-full ${
+                isSingleVideoLengthOption
+                  ? "pointer-events-none opacity-60"
+                  : ""
+              }`}
             />
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
               {allowedVideoLengths.map((v) => (

@@ -1084,7 +1084,7 @@
         "loras": {
           "label": "LoRA 增强",
           "description": "LoRA 模型可增强视频的运动和细节。",
-          "enabled": "已启用 LoRA：为获得最佳效果，视频时长限制为 5 秒或 8 秒。",
+          "enabled": "已启用 LoRA：为获得最佳效果，视频时长限制为 5 秒。",
           "disabled": "已禁用 LoRA：可生成最长 30 秒的视频，运动效果为标准级别。"
         },
         "account": "账户",

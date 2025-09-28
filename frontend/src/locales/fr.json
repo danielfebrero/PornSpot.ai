@@ -1354,7 +1354,7 @@
       "loras": {
         "label": "Améliorations LoRA",
         "description": "Les modèles LoRA améliorent le mouvement et les détails de votre vidéo.",
-        "enabled": "LoRAs activées : durée limitée à 5 s ou 8 s pour des résultats optimaux.",
+        "enabled": "LoRAs activées : durée limitée à 5 s pour des résultats optimaux.",
         "disabled": "LoRAs désactivées : générez des vidéos jusqu'à 30 s avec un mouvement standard."
       },
       "duration": "Durée",
