@@ -62,7 +62,7 @@ const handlePollI2VJob = async (
 
   // Reuse shared polling logic (single poll only for GET)
   try {
-    const res = await pollOnce(jobId);
+    const res = await pollOnce(jobId, job.runpodModel);
     if (!res.completed) {
       if (res.status === "FAILED") {
         await refundCreditsForFailedJob({ ...job, status: "FAILED" });
@@ -123,13 +123,17 @@ export const handler = async (
 // Backoff sequence 3/6/9/6/3/6/9... repeated
 const BACKOFF = [3, 6, 9, 6, 3, 6, 9];
 
-async function pollOnce(jobId: string): Promise<{
+async function pollOnce(
+  jobId: string,
+  runpodModel?: string
+): Promise<{
   status: string;
   completed: boolean;
   resultUrl?: string;
 }> {
   const runpodApiKey = await ParameterStoreService.getRunpodApiKey();
-  const statusUrl = `https://api.runpod.ai/v2/${RUNPOD_MODEL}/status/${encodeURIComponent(
+  const resolvedModel = runpodModel?.trim() || RUNPOD_MODEL;
+  const statusUrl = `https://api.runpod.ai/v2/${resolvedModel}/status/${encodeURIComponent(
     jobId
   )}`;
   const rpRes = await fetch(statusUrl, {
@@ -298,7 +302,7 @@ const handleSqsEvent = async (event: SQSEvent) => {
       if (job.status === "COMPLETED" && job.resultMediaId) {
         continue; // nothing to do
       }
-      const res = await pollOnce(jobId);
+      const res = await pollOnce(jobId, job.runpodModel);
       if (!res.completed) {
         if (res.status === "FAILED") {
           await refundCreditsForFailedJob({ ...job, status: "FAILED" });
