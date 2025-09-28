@@ -27,7 +27,18 @@ Associated trigger word is: f4c3spl4sh.
 
 ## PENIS_PLAY
 
+Use this LoRA when the user prompt involves a woman playing with a penis with her tongue, mouth or face.
+Associated trigger word is: penis worshipping.
 
+## POSING_NUDE
+
+Use this LoRA when the user prompt involves a woman posing nude.
+No associated trigger words.
+
+## DEEPTHROAT
+
+Use this LoRA when the user prompt involves a woman deepthroating a penis.
+No associated trigger words.
 
 # Required output
 
@@ -49,3 +60,12 @@ Response: {}
 
 User message: "A man cum on the woman face. Camera zoom on her face. She is licking all the semen with her tongue".
 Response: { "loras": "F4C3SPL4SH", "trigger_words": ["f4c3spl4sh"] }
+
+User message: "A woman doing a tongue job to a penis" or "A woman playing with a dick, she licks it" or "A woman worshipping a penis".
+Response: { "loras": "PENIS_PLAY", "trigger_words": ["penis worshipping"] }
+
+User message: "woman, 21, instagram model, standing, naked".
+Response: { "loras": ["POSING_NUDE"] }
+
+User message: "woman deepthroat large penis".
+Response: { "loras": ["DEEPTHROAT"] }
