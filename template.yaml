@@ -1387,8 +1387,6 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref MediaTable
 
-  AdminLogoutFunction:
-    Type: AWS::Serverless::Function
   I2VClearJobFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -1420,6 +1418,8 @@ Resources:
         - DynamoDBWritePolicy:
             TableName: !Ref MediaTable
 
+  AdminLogoutFunction:
+    Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-admin-logout-v2"
       PackageType: Image
