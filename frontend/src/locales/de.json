@@ -1293,6 +1293,12 @@
       "size": "Größe",
       "format": "Format",
       "resolution": "Auflösung",
+      "loras": {
+        "label": "LoRA-Verbesserungen",
+        "description": "LoRA-Modelle verbessern Bewegung und Details in deinem Video.",
+        "enabled": "LoRAs aktiviert: Videolänge auf 5 s oder 8 s für beste Ergebnisse begrenzt.",
+        "disabled": "LoRAs deaktiviert: Erstelle Videos mit bis zu 30 s mit Standardbewegung."
+      },
       "duration": "Dauer",
       "views": "Aufrufe",
       "likes": "Likes",

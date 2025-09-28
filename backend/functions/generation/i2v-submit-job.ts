@@ -53,12 +53,20 @@ export const handleSubmitI2VJob = async (
   const cfgScale = body.cfgScale;
   const optimizePrompt = !!body.optimizePrompt;
   const isPublic = body.isPublic === undefined ? true : !!body.isPublic;
+  const enableLoras =
+    body.enableLoras === undefined ? true : !!body.enableLoras;
 
   // Basic numeric validations (keep lightweight and fail fast)
   if (![5, 8, 10, 15, 20, 25, 30].includes(videoLength)) {
     return ResponseUtil.badRequest(
       event,
       "videoLength must be one of 5, 8, 10, 15, 20, 25, 30"
+    );
+  }
+  if (enableLoras && ![5, 8].includes(videoLength)) {
+    return ResponseUtil.badRequest(
+      event,
+      "LoRA-enabled videos must use a length of 5 or 8 seconds"
     );
   }
   if (typeof flowShift !== "number" || flowShift < 1 || flowShift > 10) {
@@ -121,8 +129,9 @@ export const handleSubmitI2VJob = async (
         imageUrl: sourceImageUrl,
       })
     : Promise.resolve(null);
-  const loraSelectionPromise =
-    PromptProcessingService.selectI2VLoras(trimmedFinalPrompt);
+  const loraSelectionPromise = enableLoras
+    ? PromptProcessingService.selectI2VLoras(trimmedFinalPrompt)
+    : Promise.resolve({ loras: [], triggerWords: [] });
 
   const [moderation, optimizationResult, loraSelection] = await Promise.all([
     moderationPromise,
@@ -185,6 +194,7 @@ export const handleSubmitI2VJob = async (
   }));
 
   const hasValidLoras =
+    enableLoras &&
     runpodHighNoiseLoras.length > 0 &&
     runpodLowNoiseLoras.length > 0 &&
     runpodHighNoiseLoras.length === runpodLowNoiseLoras.length;
@@ -357,6 +367,7 @@ export const handleSubmitI2VJob = async (
       cfgScale,
       optimizePrompt,
       isPublic,
+      enableLoras,
       width: outWidth,
       height: outHeight,
       selectedLoras: hasValidLoras

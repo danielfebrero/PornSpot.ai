@@ -83,6 +83,7 @@ export function I2VPageContent() {
     cfgScale: 5.0,
     optimizePrompt: true,
     isPublic: true,
+    enableLoras: true,
   });
 
   const updateSetting = useCallback(
@@ -95,6 +96,22 @@ export function I2VPageContent() {
     []
   );
 
+  const handleLorasToggle = useCallback((checked: boolean) => {
+    setSettings((prev) => {
+      const allowedWithLoras: I2VSettings["videoLength"][] = [5, 8];
+      const nextVideoLength = checked
+        ? allowedWithLoras.includes(prev.videoLength)
+          ? prev.videoLength
+          : 8
+        : prev.videoLength;
+      return {
+        ...prev,
+        enableLoras: checked,
+        videoLength: nextVideoLength,
+      };
+    });
+  }, []);
+
   const handleVisibilityChange = useCallback(
     (checked: boolean) => {
       updateSetting("isPublic", !checked);
@@ -102,8 +119,15 @@ export function I2VPageContent() {
     [updateSetting]
   );
 
-  const renderSettings = useMemo(
-    () => (
+  const renderSettings = useMemo(() => {
+    const allowedVideoLengths: I2VSettings["videoLength"][] =
+      settings.enableLoras ? [5, 8] : [5, 10, 15, 20, 25, 30];
+    const sliderMax =
+      allowedVideoLengths[allowedVideoLengths.length - 1] ??
+      settings.videoLength;
+    const sliderStep = settings.enableLoras ? 3 : 5;
+
+    return (
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
@@ -126,18 +150,48 @@ export function I2VPageContent() {
             </Label>
             <Slider
               value={[settings.videoLength]}
-              onValueChange={(v) =>
-                updateSetting("videoLength", v[0] as 5 | 10 | 15 | 20 | 25 | 30)
-              }
-              min={5}
-              max={30}
-              step={5}
+              onValueChange={(v) => {
+                const rawValue = v[0];
+                const nextValue = allowedVideoLengths.reduce(
+                  (closest, current) =>
+                    Math.abs(current - rawValue) < Math.abs(closest - rawValue)
+                      ? current
+                      : closest,
+                  allowedVideoLengths[0]
+                );
+                updateSetting("videoLength", nextValue);
+              }}
+              min={allowedVideoLengths[0]}
+              max={sliderMax}
+              step={sliderStep}
               className="mt-2 w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
-              {[5, 10, 15, 20, 25, 30].map((v) => (
+              {allowedVideoLengths.map((v) => (
                 <span key={v}>{v}s</span>
               ))}
+            </div>
+          </div>
+
+          <div className="rounded-lg border bg-card p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-foreground">
+                  {ts("loras.label")}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {ts("loras.description")}
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {settings.enableLoras
+                    ? ts("loras.enabled")
+                    : ts("loras.disabled")}
+                </p>
+              </div>
+              <Switch
+                checked={settings.enableLoras}
+                onCheckedChange={handleLorasToggle}
+              />
             </div>
           </div>
 
@@ -318,16 +372,16 @@ export function I2VPageContent() {
           )}
         </div>
       </Card>
-    ),
-    [
-      settings,
-      showAdvancedSettings,
-      updateSetting,
-      ts,
-      canMakePrivate,
-      handleVisibilityChange,
-    ]
-  );
+    );
+  }, [
+    settings,
+    showAdvancedSettings,
+    updateSetting,
+    ts,
+    canMakePrivate,
+    handleVisibilityChange,
+    handleLorasToggle,
+  ]);
 
   // Mobile detection
   useEffect(() => {

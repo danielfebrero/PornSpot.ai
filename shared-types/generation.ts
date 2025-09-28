@@ -83,6 +83,7 @@ export interface I2VSettings {
   cfgScale: number; // Range 1 to 10
   optimizePrompt: boolean;
   isPublic: boolean;
+  enableLoras: boolean;
 }
 
 export interface I2VSubmitJobRequest extends I2VSettings {

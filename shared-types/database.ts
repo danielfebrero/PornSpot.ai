@@ -436,6 +436,7 @@ export interface I2VJobEntity extends BaseEntity {
     cfgScale: number; // 1-10
     optimizePrompt: boolean;
     isPublic?: boolean;
+    enableLoras?: boolean;
     width: number;
     height: number;
     selectedLoras?: string[];
