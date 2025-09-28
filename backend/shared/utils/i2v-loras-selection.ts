@@ -20,4 +20,11 @@ export const loras = {
       "https://cdn.pornspot.ai/i2v_loras/wan2.2-i2v-low-oral-insertion-v1.0.safetensors",
     scale: 1,
   },
+  F4C3SPL4SH: {
+    lora_high_path:
+      "https://cdn.pornspot.ai/i2v_loras/F4C3SPL4SH_I2V_14B_HIGH.safetensors",
+    lora_low_path:
+      "https://cdn.pornspot.ai/i2v_loras/F4C3SPL4SH_I2V_14B_LOW.safetensors",
+    scale: 1,
+  },
 };

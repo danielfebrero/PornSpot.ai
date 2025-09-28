@@ -112,6 +112,14 @@ const useMediaMetadata = (media: Media) => {
         string,
         { mode: "auto" | "manual"; value: number }
       >,
+      highLorasScales: (metadata.highLorasScales || {}) as Record<
+        string,
+        { mode: "auto" | "manual"; value: number }
+      >,
+      lowLorasScales: (metadata.lowLorasScales || {}) as Record<
+        string,
+        { mode: "auto" | "manual"; value: number }
+      >,
       bulkSiblings: metadata.bulkSiblings || [],
       dimensions:
         media.width && media.height ? `${media.width} × ${media.height}` : null,
@@ -490,17 +498,68 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                   title={t("loraModels")}
                 >
                   <div className="space-y-2">
-                    {metadata.loraModels.map((lora: string, index: number) => (
-                      <InfoPill
-                        key={index}
-                        icon={<Hash className="w-4 h-4" />}
-                        label={getLoraNameById(lora, tGenerate)}
-                        value={String(
-                          metadata.loraStrengths[lora]?.value || "1"
-                        )}
-                        isTag
-                      />
-                    ))}
+                    {metadata.loraModels.map((lora: string, index: number) => {
+                      const strength = metadata.loraStrengths[lora];
+                      const highScale = metadata.highLorasScales[lora];
+                      const lowScale = metadata.lowLorasScales[lora];
+
+                      const formatValue = (value: number) =>
+                        Number(value.toFixed(3)).toString();
+
+                      const formatMode = (mode: "auto" | "manual") =>
+                        mode === "manual"
+                          ? tGenerate("manual")
+                          : tGenerate("auto");
+
+                      const renderScaleLine = (
+                        label: string | null | undefined,
+                        scale?: { mode: "auto" | "manual"; value: number }
+                      ) =>
+                        scale ? (
+                          <span className="block text-right text-sm">
+                            {label ? (
+                              <span className="text-xs text-muted-foreground">
+                                {label}:
+                              </span>
+                            ) : null}
+                            {label ? " " : null}
+                            <span className="text-foreground">
+                              {formatValue(scale.value)}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {" "}
+                              ({formatMode(scale.mode)})
+                            </span>
+                          </span>
+                        ) : null;
+
+                      const loraValue = (() => {
+                        if (highScale || lowScale) {
+                          return (
+                            <>
+                              {renderScaleLine(t("loraHighNoise"), highScale)}
+                              {renderScaleLine(t("loraLowNoise"), lowScale)}
+                            </>
+                          );
+                        }
+
+                        if (strength) {
+                          return renderScaleLine(null, strength);
+                        }
+
+                        return "1";
+                      })();
+
+                      return (
+                        <InfoPill
+                          key={index}
+                          icon={<Hash className="w-4 h-4" />}
+                          label={getLoraNameById(lora, tGenerate)}
+                          value={loraValue}
+                          isTag
+                        />
+                      );
+                    })}
                   </div>
                 </MetaSection>
               )}

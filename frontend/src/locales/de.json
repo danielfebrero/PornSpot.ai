@@ -1984,6 +1984,8 @@
     "prompt": "Prompt",
     "negativePrompt": "Negativer Prompt",
     "loraModels": "LoRA-Modelle",
+    "loraHighNoise": "Hohes Rauschen",
+    "loraLowNoise": "Niedriges Rauschen",
     "otherControls": "Andere Steuerelemente",
     "relatedImages": "Verwandte Bilder",
     "inAlbums": "In Alben",

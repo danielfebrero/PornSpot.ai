@@ -123,10 +123,60 @@ export class PromptProcessingService {
       }
 
       try {
-        const parsed = JSON.parse(content);
-        const rawLoras = Array.isArray(parsed?.loras) ? parsed.loras : [];
-        const rawTriggerWords = Array.isArray(parsed?.trigger_words)
-          ? parsed.trigger_words
+        const candidates: string[] = [];
+
+        const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/i);
+        if (codeBlockMatch?.[1]) {
+          candidates.push(codeBlockMatch[1].trim());
+        }
+
+        const structuredMatch = content.match(
+          /\{[\s\S]*?"loras"\s*:\s*\[[\s\S]*?\][\s\S]*?"trigger_words"\s*:\s*\[[\s\S]*?\][\s\S]*?\}/i
+        );
+        if (structuredMatch?.[0]) {
+          candidates.push(structuredMatch[0].trim());
+        }
+
+        const fallbackMatch = content.match(/\{[\s\S]*\}/);
+        if (fallbackMatch?.[0]) {
+          candidates.push(fallbackMatch[0].trim());
+        }
+
+        const seen = new Set<string>();
+        let parsed: unknown = null;
+
+        for (const candidate of candidates) {
+          const normalized = candidate.trim();
+          if (!normalized || seen.has(normalized)) {
+            continue;
+          }
+          seen.add(normalized);
+
+          try {
+            parsed = JSON.parse(normalized);
+            break;
+          } catch (candidateParseError) {
+            console.warn("Failed to parse candidate JSON for i2v lora response", {
+              candidate: normalized,
+              candidateParseError,
+            });
+          }
+        }
+
+        if (!parsed) {
+          throw new Error("No valid JSON candidates found");
+        }
+
+        const parsedObject = parsed as Record<string, unknown>;
+
+        const rawLoras = Array.isArray(parsedObject["loras"])
+          ? (parsedObject["loras"] as unknown[])
+          : [];
+
+        const triggerWordsSource = Array.isArray(parsedObject["trigger_words"])
+          ? (parsedObject["trigger_words"] as unknown[])
+          : Array.isArray(parsedObject["triggerWords"])
+          ? (parsedObject["triggerWords"] as unknown[])
           : [];
 
         const loras = rawLoras
@@ -135,7 +185,7 @@ export class PromptProcessingService {
           )
           .filter(Boolean);
 
-        const triggerWords = rawTriggerWords
+        const triggerWords = triggerWordsSource
           .map((word: unknown) => (typeof word === "string" ? word.trim() : ""))
           .filter(Boolean);
 

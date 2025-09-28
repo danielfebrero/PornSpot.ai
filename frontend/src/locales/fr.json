@@ -2048,6 +2048,8 @@
     "prompt": "Prompt",
     "negativePrompt": "Prompt négatif",
     "loraModels": "Modèles LoRA",
+    "loraHighNoise": "Bruit élevé",
+    "loraLowNoise": "Bruit faible",
     "otherControls": "Autres contrôles",
     "relatedImages": "Images associées",
     "inAlbums": "Dans les albums",

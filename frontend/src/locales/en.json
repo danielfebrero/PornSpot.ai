@@ -2033,6 +2033,8 @@
     "prompt": "Prompt",
     "negativePrompt": "Negative Prompt",
     "loraModels": "LoRA Models",
+    "loraHighNoise": "High Noise",
+    "loraLowNoise": "Low Noise",
     "otherControls": "Other Controls",
     "relatedImages": "Related Images",
     "inAlbums": "In Albums",

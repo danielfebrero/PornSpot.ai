@@ -20,6 +20,15 @@ No associated trigger words.
 Use this LoRA when the user prompt involves oral insertion, such as "A man appears and she sucks his penis"
 No associated trigger words.
 
+## F4C3SPL4SH
+
+Use this LoRA when the user prompt involves a cumshot.
+Associated trigger word is: f4c3spl4sh.
+
+## PENIS_PLAY
+
+
+
 # Required output
 
 A valid JSON following this schema: { "loras": []string, "trigger_words": []string }
@@ -37,3 +46,6 @@ Response: { "loras": ["DR34ML4Y", "ORAL_INSERTION"], "trigger_words": ["d0gg1e"]
 
 User message: "A flying butterfly".
 Response: {}
+
+User message: "A man cum on the woman face. Camera zoom on her face. She is licking all the semen with her tongue".
+Response: { "loras": "F4C3SPL4SH", "trigger_words": ["f4c3spl4sh"] }

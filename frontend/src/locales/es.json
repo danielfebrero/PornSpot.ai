@@ -2001,6 +2001,8 @@
     "prompt": "Prompt",
     "negativePrompt": "Prompt negativo",
     "loraModels": "Modelos LoRA",
+    "loraHighNoise": "Ruido alto",
+    "loraLowNoise": "Ruido bajo",
     "otherControls": "Otros controles",
     "relatedImages": "Imágenes relacionadas",
     "inAlbums": "En álbumes",

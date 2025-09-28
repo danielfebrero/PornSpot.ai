@@ -2011,6 +2011,8 @@
     "prompt": "Промпт",
     "negativePrompt": "Негативный промпт",
     "loraModels": "Модели LoRA",
+    "loraHighNoise": "Высокий шум",
+    "loraLowNoise": "Низкий шум",
     "otherControls": "Другие элементы управления",
     "relatedImages": "Связанные изображения",
     "inAlbums": "В альбомах",

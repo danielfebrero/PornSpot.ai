@@ -2001,6 +2001,8 @@
     "prompt": "提示词",
     "negativePrompt": "负面提示词",
     "loraModels": "LoRA模型",
+    "loraHighNoise": "高噪声",
+    "loraLowNoise": "低噪声",
     "otherControls": "其他控制",
     "relatedImages": "相关图片",
     "inAlbums": "在相册中",
