@@ -170,6 +170,6 @@
 
 [ ] View counter and interaction status is not up to date in albums.
 
-[ ] "Other controls" meta data on media page of video is not accurate.
+[x] "Other controls" meta data on media page of video is not accurate.
 
 [x] I receive two emails for PSpotCoin balance instead of 1. James receive only 1.

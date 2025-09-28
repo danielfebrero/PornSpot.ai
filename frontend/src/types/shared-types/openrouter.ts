@@ -20,9 +20,7 @@ export type OpenRouterMessagePart =
       };
     };
 
-export type OpenRouterMessageContent =
-  | string
-  | Array<OpenRouterMessagePart>;
+export type OpenRouterMessageContent = string | Array<OpenRouterMessagePart>;
 
 export interface OpenRouterMessage {
   role: "system" | "user" | "assistant";

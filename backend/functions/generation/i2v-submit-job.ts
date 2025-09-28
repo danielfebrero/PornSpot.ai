@@ -11,8 +11,11 @@ import {
 } from "@shared/shared-types";
 import { SQS } from "aws-sdk";
 import { PromptProcessingService } from "@shared/services/prompt-processing";
+import { loras as I2VLoraMap } from "@shared/utils/i2v-loras-selection";
+import { randomBytes } from "crypto";
 
 const RUNPOD_MODEL = "wan-2-2-i2v-720";
+const RUNPOD_MODEL_LORA = "wan-2-2-t2v-720-lora";
 
 const handleSubmitI2VJob = async (
   event: APIGatewayProxyEvent,
@@ -118,10 +121,13 @@ const handleSubmitI2VJob = async (
         imageUrl: sourceImageUrl,
       })
     : Promise.resolve(null);
+  const loraSelectionPromise =
+    PromptProcessingService.selectI2VLoras(trimmedFinalPrompt);
 
-  const [moderation, optimizationResult] = await Promise.all([
+  const [moderation, optimizationResult, loraSelection] = await Promise.all([
     moderationPromise,
     optimizationPromise,
+    loraSelectionPromise,
   ]);
 
   if (!moderation.success) {
@@ -147,23 +153,85 @@ const handleSubmitI2VJob = async (
     }
   }
 
-  // Prepare Runpod payload
-  // Seed rules: -1 for auto/random, otherwise clamp to [0, Number.MAX_SAFE_INTEGER]
-  const MAX_SEED = Number.MAX_SAFE_INTEGER; // 9007199254740991
-  let seedNumber: number = -1;
-  const numericSeed = Number(body.seed);
-  if (Number.isFinite(numericSeed)) {
-    const floored = Math.floor(numericSeed);
-    if (floored < -1) {
-      seedNumber = -1;
-    } else if (floored > MAX_SEED) {
-      seedNumber = MAX_SEED;
-    } else {
-      seedNumber = floored;
+  const uniqueSelectedLoras = Array.from(
+    new Set((loraSelection?.loras || []).filter(Boolean))
+  ).map((name) => name.toUpperCase());
+  const resolvedLoras = uniqueSelectedLoras.flatMap((name) => {
+    const config = I2VLoraMap[name as keyof typeof I2VLoraMap];
+    if (!config || !config.lora_high_path || !config.lora_low_path) {
+      console.warn("Unknown or incomplete LoRA config", name);
+      return [];
     }
-  } else {
-    seedNumber = -1;
-  }
+    return [{ name, config }];
+  });
+
+  const runpodHighNoiseLoras = resolvedLoras.map(({ config }) => ({
+    path: config.lora_high_path,
+    scale: config.scale ?? 1,
+  }));
+  const runpodLowNoiseLoras = resolvedLoras.map(({ config }) => ({
+    path: config.lora_low_path,
+    scale: config.scale ?? 1,
+  }));
+  const storedHighNoiseLoras = resolvedLoras.map(({ name, config }) => ({
+    id: name,
+    mode: "auto" as const,
+    scale: config.scale ?? 1,
+  }));
+  const storedLowNoiseLoras = resolvedLoras.map(({ name, config }) => ({
+    id: name,
+    mode: "auto" as const,
+    scale: config.scale ?? 1,
+  }));
+
+  const hasValidLoras =
+    runpodHighNoiseLoras.length > 0 &&
+    runpodLowNoiseLoras.length > 0 &&
+    runpodHighNoiseLoras.length === runpodLowNoiseLoras.length;
+
+  const triggerWords = hasValidLoras
+    ? Array.from(
+        new Set(
+          (loraSelection?.triggerWords || [])
+            .map((word) => word.trim())
+            .filter(Boolean)
+        )
+      )
+    : [];
+
+  const promptWithTriggers = hasValidLoras
+    ? `\n${triggerWords.join(" ")} ${promptForRunpod}`.trim()
+    : promptForRunpod;
+
+  // Prepare Runpod payload
+  const MAX_SEED = Number.MAX_SAFE_INTEGER; // 9007199254740991
+  const generateRandomSeed = (): number => {
+    let seed = 0;
+    while (seed <= 0) {
+      const buffer = randomBytes(8);
+      let randomValue = 0n;
+      for (const byte of buffer) {
+        randomValue = (randomValue << 8n) | BigInt(byte);
+      }
+      randomValue >>= 11n; // keep within 53 bits to remain Number-safe
+      seed = Math.min(MAX_SEED, Number(randomValue));
+    }
+    return seed > 0 ? seed : 1;
+  };
+
+  const resolveSeed = (rawSeed: unknown): number => {
+    const numericSeed = Number(rawSeed);
+    if (!Number.isFinite(numericSeed)) {
+      return generateRandomSeed();
+    }
+    const floored = Math.floor(numericSeed);
+    if (floored <= 0) {
+      return generateRandomSeed();
+    }
+    return Math.min(floored, MAX_SEED);
+  };
+
+  const seedNumber = resolveSeed(body.seed);
 
   // Determine output size from source media metadata (fallback to top-level width/height, then defaults)
   const srcWidth = (media.metadata as any)?.width ?? media.width ?? 1024;
@@ -178,8 +246,8 @@ const handleSubmitI2VJob = async (
   const outWidth = Math.max(1, Math.floor(widthNum * scale));
   const outHeight = Math.max(1, Math.floor(heightNum * scale));
 
-  const runInput = {
-    prompt: promptForRunpod,
+  const baseRunInput = {
+    prompt: promptWithTriggers,
     image: sourceImageUrl,
     num_inference_steps: inferenceSteps,
     guidance: cfgScale,
@@ -192,7 +260,19 @@ const handleSubmitI2VJob = async (
     enable_safety_checker: false,
   };
 
-  const response = await fetch(`https://api.runpod.ai/v2/${RUNPOD_MODEL}/run`, {
+  const runInput = hasValidLoras
+    ? {
+        ...baseRunInput,
+        high_noise_loras: runpodHighNoiseLoras,
+        low_noise_loras: runpodLowNoiseLoras,
+      }
+    : baseRunInput;
+
+  const runpodUrl = hasValidLoras
+    ? `https://api.runpod.ai/v2/${RUNPOD_MODEL_LORA}/run`
+    : `https://api.runpod.ai/v2/${RUNPOD_MODEL}/run`;
+
+  const response = await fetch(runpodUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -269,9 +349,9 @@ const handleSubmitI2VJob = async (
     mediaId,
     request: {
       videoLength,
-      prompt: promptForRunpod,
+      prompt: promptWithTriggers,
       negativePrompt,
-      seed: String(body.seed),
+      seed: String(seedNumber),
       flowShift,
       inferenceSteps,
       cfgScale,
@@ -279,6 +359,12 @@ const handleSubmitI2VJob = async (
       isPublic,
       width: outWidth,
       height: outHeight,
+      selectedLoras: hasValidLoras
+        ? resolvedLoras.map(({ name }) => name)
+        : undefined,
+      loraTriggerWords: triggerWords.length > 0 ? triggerWords : undefined,
+      loraHighNoise: hasValidLoras ? storedHighNoiseLoras : undefined,
+      loraLowNoise: hasValidLoras ? storedLowNoiseLoras : undefined,
     },
     status,
     submittedAt: now,
@@ -288,7 +374,7 @@ const handleSubmitI2VJob = async (
     ).toISOString(),
     estimatedSeconds,
     sourceImageUrl,
-    runpodModel: RUNPOD_MODEL,
+    runpodModel: hasValidLoras ? RUNPOD_MODEL_LORA : RUNPOD_MODEL,
   };
 
   await DynamoDBService.createI2VJob(jobEntity);

@@ -16,6 +16,11 @@ export type OptimizeI2VPromptResult =
   | { success: true; prompt: string }
   | { success: false; error: string };
 
+export interface I2VLoraSelectionResult {
+  loras: string[];
+  triggerWords: string[];
+}
+
 export class PromptProcessingService {
   static async moderatePrompt(prompt: string): Promise<PromptModerationResult> {
     try {
@@ -91,6 +96,60 @@ export class PromptProcessingService {
     } catch (error) {
       console.error("❌ Failed to optimize I2V prompt:", error);
       return { success: false, error: "Prompt optimization failed" };
+    }
+  }
+
+  static async selectI2VLoras(prompt: string): Promise<I2VLoraSelectionResult> {
+    const cleanedPrompt = prompt?.trim();
+    if (!cleanedPrompt) {
+      return { loras: [], triggerWords: [] };
+    }
+
+    try {
+      const openRouter = OpenRouterService.getInstance();
+      const response = await openRouter.chatCompletion({
+        instructionTemplate: "i2v-loras-selection",
+        userMessage: cleanedPrompt,
+        model: "mistralai/mistral-medium-3.1",
+        parameters: {
+          temperature: 0.1,
+          max_tokens: 256,
+        },
+      });
+
+      const content = (response.content || "").trim();
+      if (!content) {
+        return { loras: [], triggerWords: [] };
+      }
+
+      try {
+        const parsed = JSON.parse(content);
+        const rawLoras = Array.isArray(parsed?.loras) ? parsed.loras : [];
+        const rawTriggerWords = Array.isArray(parsed?.trigger_words)
+          ? parsed.trigger_words
+          : [];
+
+        const loras = rawLoras
+          .map((name: unknown) =>
+            typeof name === "string" ? name.trim().toUpperCase() : ""
+          )
+          .filter(Boolean);
+
+        const triggerWords = rawTriggerWords
+          .map((word: unknown) => (typeof word === "string" ? word.trim() : ""))
+          .filter(Boolean);
+
+        return { loras, triggerWords };
+      } catch (parseError) {
+        console.warn("Failed to parse i2v lora response as JSON", {
+          content,
+          parseError,
+        });
+        return { loras: [], triggerWords: [] };
+      }
+    } catch (error) {
+      console.error("❌ Failed to select I2V LoRAs:", error);
+      return { loras: [], triggerWords: [] };
     }
   }
 }

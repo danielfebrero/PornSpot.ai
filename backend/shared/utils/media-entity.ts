@@ -167,6 +167,8 @@ export function createGenerationMetadata(options: {
   selectedLoras?: string[];
   batchCount: number;
   loraStrengths?: Record<string, { mode: "auto" | "manual"; value: number }>;
+  highLorasScales?: Record<string, { mode: "auto" | "manual"; value: number }>;
+  lowLorasScales?: Record<string, { mode: "auto" | "manual"; value: number }>;
   loraSelectionMode?: "auto" | "manual";
   optimizePrompt?: boolean;
   customWidth?: number;
@@ -206,5 +208,9 @@ export function createGenerationMetadata(options: {
     ...(options.originalMediaId && {
       originalMediaId: options.originalMediaId,
     }),
+    ...(options.highLorasScales && {
+      highLorasScales: options.highLorasScales,
+    }),
+    ...(options.lowLorasScales && { lowLorasScales: options.lowLorasScales }),
   };
 }

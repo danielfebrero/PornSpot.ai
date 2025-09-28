@@ -186,8 +186,10 @@
 
 [x] In renewal plan scheduled lambda, clean user plans of users that have cancelled.
 
-[ ] Add and auto select loras when a user does I2V based on the prompt.
+[x] Add and auto select loras when a user does I2V based on the prompt.
 
 [ ] On video media page, show original media in meta sections.
 
 [ ] Purchasing a plan should reset the Monthly and Daily Usage to 0.
+
+[ ] Possibility to manual select i2v loras and scales.

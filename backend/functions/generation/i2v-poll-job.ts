@@ -179,6 +179,46 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
     job.request?.width ??
     (sourceMedia?.metadata as any)?.width ??
     sourceMedia?.width;
+
+  const highLorasScales =
+    job.request?.loraHighNoise && job.request.loraHighNoise.length > 0
+      ? job.request.loraHighNoise.reduce(
+          (
+            acc: Record<string, { mode: "auto" | "manual"; value: number }>,
+            entry
+          ) => {
+            if (!entry?.id) {
+              return acc;
+            }
+            acc[entry.id] = {
+              mode: entry.mode ?? "auto",
+              value: entry.scale,
+            };
+            return acc;
+          },
+          {}
+        )
+      : undefined;
+
+  const lowLorasScales =
+    job.request?.loraLowNoise && job.request.loraLowNoise.length > 0
+      ? job.request.loraLowNoise.reduce(
+          (
+            acc: Record<string, { mode: "auto" | "manual"; value: number }>,
+            entry
+          ) => {
+            if (!entry?.id) {
+              return acc;
+            }
+            acc[entry.id] = {
+              mode: entry.mode ?? "auto",
+              value: entry.scale,
+            };
+            return acc;
+          },
+          {}
+        )
+      : undefined;
   const metaHeight =
     job.request?.height ??
     (sourceMedia?.metadata as any)?.height ??
@@ -190,6 +230,9 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
     width: metaWidth,
     height: metaHeight,
     generationId: jobId,
+    selectedLoras: job.request?.selectedLoras,
+    highLorasScales,
+    lowLorasScales,
     batchCount: 1,
     cfgScale: job.request?.cfgScale,
     steps: job.request?.inferenceSteps,

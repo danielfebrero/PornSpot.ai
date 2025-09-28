@@ -438,6 +438,18 @@ export interface I2VJobEntity extends BaseEntity {
     isPublic?: boolean;
     width: number;
     height: number;
+    selectedLoras?: string[];
+    loraTriggerWords?: string[];
+    loraHighNoise?: Array<{
+      id: string;
+      scale: number;
+      mode: "auto" | "manual";
+    }>;
+    loraLowNoise?: Array<{
+      id: string;
+      scale: number;
+      mode: "auto" | "manual";
+    }>;
   };
   // Submission and status
   status: "IN_QUEUE" | "IN_PROGRESS" | "COMPLETED" | "FAILED" | string; // store Runpod-like statuses
