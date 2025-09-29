@@ -192,4 +192,4 @@
 
 [x] Purchasing a plan should reset the Monthly and Daily Usage to 0.
 
-[ ] Include 20s of video in the unlimited plan.
+[x] Include 20s of video in the unlimited plan.
