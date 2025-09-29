@@ -2046,7 +2046,9 @@
     "otherControls": "Other Controls",
     "relatedImages": "Related Images",
     "inAlbums": "In Albums",
-    "comments": "Comments"
+    "comments": "Comments",
+    "originalMedia": "Original Media",
+    "viewOriginal": "View Original"
   },
   "userPlan": {
     "anonymous": "Anonymous",

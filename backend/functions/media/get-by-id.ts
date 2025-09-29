@@ -1,9 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
-import { Comment, MediaWithSiblings } from "@shared";
+import { Comment, EnhancedMedia } from "@shared";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
-import { enhanceMediaWithSiblingsAndCreatorName } from "@shared/utils/media";
+import { enhanceMedia } from "@shared/utils/media";
 
 const handleGetMediaById = async (
   event: APIGatewayProxyEvent
@@ -20,14 +20,11 @@ const handleGetMediaById = async (
 
   // Convert to response format
   // Convert MediaEntity to Media using shared helper
-  const mediaResponse: MediaWithSiblings =
+  const mediaResponse: EnhancedMedia =
     DynamoDBService.convertMediaEntityToMedia(mediaEntity);
   console.log("Media response created:", mediaResponse);
 
-  const enhancedMediaResponse = await enhanceMediaWithSiblingsAndCreatorName(
-    mediaResponse,
-    mediaEntity
-  );
+  const enhancedMediaResponse = await enhanceMedia(mediaResponse, mediaEntity);
 
   // Fetch albums containing this media
   try {

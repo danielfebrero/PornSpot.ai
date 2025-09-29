@@ -3,8 +3,8 @@ import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { RevalidationService } from "@shared/utils/revalidation";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
-import { MediaEntity, MediaWithSiblings } from "@shared";
-import { enhanceMediaWithSiblingsAndCreatorName } from "@shared/utils/media";
+import { MediaEntity, EnhancedMedia } from "@shared";
+import { enhanceMedia } from "@shared/utils/media";
 
 interface UpdateMediaRequest {
   title?: string;
@@ -83,10 +83,10 @@ const handleUpdateMedia = async (
   }
 
   // Convert to response format
-  const mediaResponse: MediaWithSiblings =
+  const mediaResponse: EnhancedMedia =
     DynamoDBService.convertMediaEntityToMedia(updatedMediaEntity);
 
-  const enhancedMediaResponse = await enhanceMediaWithSiblingsAndCreatorName(
+  const enhancedMediaResponse = await enhanceMedia(
     mediaResponse,
     updatedMediaEntity
   );

@@ -31,8 +31,9 @@ import {
   Palette,
   Hash,
   Sliders,
+  Image as ImageIcon,
 } from "lucide-react";
-import { Media, MediaWithSiblings } from "@/types";
+import { Media, EnhancedMedia } from "@/types";
 import { usePrefetchInteractionStatus } from "@/hooks/queries/useInteractionsQuery";
 import { ShareDropdown } from "@/components/ui/ShareDropdown";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -52,7 +53,7 @@ import { useMediaById } from "@/hooks/queries/useMediaQuery";
 // --- PROPS INTERFACES ---
 
 interface MediaDetailClientProps {
-  media: MediaWithSiblings;
+  media: EnhancedMedia;
 }
 
 interface MetaSectionProps {
@@ -299,6 +300,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
   // Determine if media is video
   const isVideoMedia = isVideo(localMedia);
   const shouldShowPlayer = isVideoMedia;
+  const originalMedia = localMedia.originalMedia;
 
   // Desktop-only handler for MediaPlayer - mobile behavior is handled by ContentCard
   const handleDesktopMediaClick = () => {
@@ -472,6 +474,27 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                 />
               </div>
             </MetaSection>
+
+            {originalMedia && (
+              <MetaSection
+                icon={<ImageIcon className="w-5 h-5" />}
+                title={t("originalMedia")}
+                defaultOpen
+              >
+                <ContentCard
+                  item={originalMedia}
+                  canLike={false}
+                  canBookmark={false}
+                  canAddToAlbum={false}
+                  canRemoveFromAlbum={false}
+                  canDownload={false}
+                  canDelete={false}
+                  showCounts={false}
+                  showTags={false}
+                  aspectRatio="auto"
+                />
+              </MetaSection>
+            )}
 
             {metadata.prompt && (
               <MetaSection

@@ -42,8 +42,9 @@ export interface Media {
   optimizedVideoUrl?: string; // for videos, URL of the optimized version
 }
 
-export interface MediaWithSiblings extends Media {
+export interface EnhancedMedia extends Media {
   bulkSiblings?: Media[]; // Other media IDs in the same bulk upload
+  originalMedia?: Media; // The original media item (if applicable)
 }
 
 export interface UploadMediaRequest {

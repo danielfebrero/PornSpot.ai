@@ -2003,7 +2003,9 @@
     "otherControls": "Andere Steuerelemente",
     "relatedImages": "Verwandte Bilder",
     "inAlbums": "In Alben",
-    "comments": "Kommentare"
+    "comments": "Kommentare",
+    "originalMedia": "Originales Medium",
+    "viewOriginal": "Original anzeigen"
   },
   "userPlan": {
     "anonymous": "Anonym",

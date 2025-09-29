@@ -1,9 +1,4 @@
-import {
-  Album,
-  Media,
-  MediaWithSiblings,
-  UnifiedPaginationMeta,
-} from "@/types";
+import { Album, Media, EnhancedMedia, UnifiedPaginationMeta } from "@/types";
 import API_URL from "./api";
 
 // Helper function to handle API responses
@@ -147,7 +142,7 @@ export async function getMediaById(mediaId: string) {
       tags: [`media-${mediaId}`],
     },
   });
-  return handleResponse<MediaWithSiblings>(response);
+  return handleResponse<EnhancedMedia>(response);
 }
 
 // Fetch all public media items

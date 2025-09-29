@@ -2030,7 +2030,9 @@
     "otherControls": "Другие элементы управления",
     "relatedImages": "Связанные изображения",
     "inAlbums": "В альбомах",
-    "comments": "Комментарии"
+    "comments": "Комментарии",
+    "originalMedia": "Исходный медиафайл",
+    "viewOriginal": "Посмотреть оригинал"
   },
   "userPlan": {
     "anonymous": "Анонимный",

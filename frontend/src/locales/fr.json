@@ -2067,7 +2067,9 @@
     "otherControls": "Autres contrôles",
     "relatedImages": "Images associées",
     "inAlbums": "Dans les albums",
-    "comments": "Commentaires"
+    "comments": "Commentaires",
+    "originalMedia": "Média d’origine",
+    "viewOriginal": "Voir l’original"
   },
   "userPlan": {
     "anonymous": "Anonyme",

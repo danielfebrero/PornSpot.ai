@@ -1,8 +1,8 @@
-import { MediaEntity, MediaWithSiblings } from "@shared/shared-types";
+import { MediaEntity, EnhancedMedia } from "@shared/shared-types";
 import { DynamoDBService } from "./dynamodb";
 
-export const enhanceMediaWithSiblingsAndCreatorName = async (
-  mediaResponse: MediaWithSiblings,
+export const enhanceMedia = async (
+  mediaResponse: EnhancedMedia,
   mediaEntity: MediaEntity
 ) => {
   // Fetch creator username if createdBy exists
@@ -35,6 +35,15 @@ export const enhanceMediaWithSiblingsAndCreatorName = async (
     mediaResponse.bulkSiblings = siblings
       .filter(Boolean)
       .map((entity) => DynamoDBService.convertMediaEntityToMedia(entity!));
+  }
+
+  if (mediaResponse.metadata?.["originalMediaId"]) {
+    const originalMediaId = mediaResponse.metadata["originalMediaId"] as string;
+    const originalEntity = await DynamoDBService.findMediaById(originalMediaId);
+    if (originalEntity) {
+      mediaResponse.originalMedia =
+        DynamoDBService.convertMediaEntityToMedia(originalEntity);
+    }
   }
 
   return mediaResponse;

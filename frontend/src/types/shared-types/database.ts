@@ -434,9 +434,9 @@ export interface I2VJobEntity extends BaseEntity {
     flowShift: number; // 1-10
     inferenceSteps: number; // 20-40
     cfgScale: number; // 1-10
-  optimizePrompt: boolean;
-  isPublic?: boolean;
-  enableLoras?: boolean;
+    optimizePrompt: boolean;
+    isPublic?: boolean;
+    enableLoras?: boolean;
     width: number;
     height: number;
     selectedLoras?: string[];

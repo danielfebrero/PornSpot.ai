@@ -2020,7 +2020,9 @@
     "otherControls": "Otros controles",
     "relatedImages": "Imágenes relacionadas",
     "inAlbums": "En álbumes",
-    "comments": "Comentarios"
+    "comments": "Comentarios",
+    "originalMedia": "Contenido original",
+    "viewOriginal": "Ver original"
   },
   "userPlan": {
     "anonymous": "Anónimo",

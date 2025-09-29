@@ -2028,7 +2028,9 @@
     "otherControls": "其他控制",
     "relatedImages": "相关图片",
     "inAlbums": "在相册中",
-    "comments": "评论"
+    "comments": "评论",
+    "originalMedia": "原始媒体",
+    "viewOriginal": "查看原始文件"
   },
   "userPlan": {
     "anonymous": "匿名",
