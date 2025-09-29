@@ -481,6 +481,8 @@ const handleGetDiscover = async (
     }));
 
   // Filter and score media (including additional media if any)
+  const VIDEO_SCORE_BOOST_MULTIPLIER = 1.25;
+
   const scoredMedia = allMedia
     .filter((media) => {
       const createdAt = new Date(media.createdAt).getTime();
@@ -492,7 +494,9 @@ const handleGetDiscover = async (
     })
     .map((media) => ({
       item: media,
-      score: calculateTimeWeightedPopularity(media, timeWindow.maxAgeInDays),
+      score:
+        calculateTimeWeightedPopularity(media, timeWindow.maxAgeInDays) *
+        (media.type === "video" ? VIDEO_SCORE_BOOST_MULTIPLIER : 1),
       random: Math.random(),
       isAdditional: additionalMediaResult?.media.includes(media) || false,
     }));
