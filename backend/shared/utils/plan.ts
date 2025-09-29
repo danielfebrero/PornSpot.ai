@@ -21,6 +21,7 @@ export interface UserUsageStats {
   imagesGeneratedThisMonth: number;
   imagesGeneratedToday: number;
   lastGenerationAt?: string;
+  bonusGenerationCredits?: number;
 }
 
 export interface EnhancedUser {
@@ -156,11 +157,17 @@ export class PlanUtil {
       }
     }
 
-    return {
+    const usageStats = {
       imagesGeneratedThisMonth: monthlyCount,
       imagesGeneratedToday: dailyCount,
       ...(user.lastGenerationAt && { lastGenerationAt: user.lastGenerationAt }),
-    };
+    } as UserUsageStats;
+
+    if (typeof user.bonusGenerationCredits === "number") {
+      usageStats.bonusGenerationCredits = user.bonusGenerationCredits;
+    }
+
+    return usageStats;
   }
 
   /**

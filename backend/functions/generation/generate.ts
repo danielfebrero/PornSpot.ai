@@ -1168,13 +1168,7 @@ const handleGenerate = async (
     SimplifiedRateLimitingService.getInstance();
   const rateLimitResult = await simplifiedRateLimitingService.checkRateLimit(
     event,
-    enhancedUser
-      ? {
-          userId: enhancedUser.userId,
-          plan: enhancedUser.planInfo.plan,
-          role: enhancedUser.role as "user" | "admin" | "moderator",
-        }
-      : undefined
+    enhancedUser ?? undefined
   );
   if (!rateLimitResult.allowed) {
     return ResponseUtil.forbidden(
@@ -1271,8 +1265,11 @@ const handleGenerate = async (
         ? {
             userId: enhancedUser.userId,
             plan: enhancedUser.planInfo.plan,
+            bonusGenerationCredits:
+              enhancedUser.usageStats.bonusGenerationCredits,
           }
-        : undefined
+        : undefined,
+      requestBody.batchCount ?? 1
     );
     console.log(
       `✅ Recorded IP generation for ${

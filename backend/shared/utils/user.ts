@@ -69,6 +69,7 @@ export class UserUtil {
       isEmailVerified: false, // Email verification will be Phase 2
       plan: "free",
       role: "user",
+      bonusGenerationCredits: 3,
     };
 
     await DynamoDBService.createUser(userEntity);
@@ -388,6 +389,8 @@ export class UserUtil {
       GSI2SK: googleId,
       GSI3PK: "USER_USERNAME",
       GSI3SK: username.toLowerCase(),
+      GSI4PK: "USER_PLAN#free",
+      GSI4SK: `9999-12-31T00:00:00.000Z#${userId}`,
       EntityType: "User",
       userId,
       email: email.toLowerCase(),
@@ -397,6 +400,9 @@ export class UserUtil {
       isActive,
       isEmailVerified: true, // Google accounts are pre-verified
       googleId,
+      plan: "free",
+      role: "user",
+      bonusGenerationCredits: 3,
     };
 
     await DynamoDBService.createUser(userEntity as UserEntity);

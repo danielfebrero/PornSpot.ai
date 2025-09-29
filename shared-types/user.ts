@@ -60,6 +60,7 @@ export interface User {
     imagesGeneratedToday: number;
     storageUsedGB?: number;
     lastGenerationAt?: string;
+    bonusGenerationCredits?: number;
   };
   // Email notification preferences
   emailPreferences?: EmailPreferences;

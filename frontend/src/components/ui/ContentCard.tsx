@@ -845,24 +845,20 @@ export function ContentCard({
                     </button>
                   </Tooltip>
                 )}
-                {canI2V &&
-                  isMedia &&
-                  media &&
-                  !isVideoMedia &&
-                  user?.planInfo.plan === "pro" && (
-                    <Tooltip content="Convert to video" side="left">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleI2V();
-                        }}
-                        className="p-2.5 sm:p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white transition-all shadow-lg hover:shadow-xl hover:scale-110 ring-2 ring-white/20"
-                        aria-label="Convert to video"
-                      >
-                        <Video className="h-4 w-4 sm:h-4 sm:w-4" />
-                      </button>
-                    </Tooltip>
-                  )}
+                {canI2V && isMedia && media && !isVideoMedia && (
+                  <Tooltip content="Convert to video" side="left">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleI2V();
+                      }}
+                      className="p-2.5 sm:p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white transition-all shadow-lg hover:shadow-xl hover:scale-110 ring-2 ring-white/20"
+                      aria-label="Convert to video"
+                    >
+                      <Video className="h-4 w-4 sm:h-4 sm:w-4" />
+                    </button>
+                  </Tooltip>
+                )}
                 {canAddToAlbum && !inActions?.addToAlbum && (
                   <Tooltip content="Add to album" side="left">
                     <button

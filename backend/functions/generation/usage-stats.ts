@@ -16,7 +16,8 @@ import {
   OptionalAuthResult,
 } from "@shared/utils/lambda-handler";
 import { SimplifiedRateLimitingService } from "@shared/services/simple-rate-limiting";
-import { UserPlan } from "@shared";
+import { PlanUtil } from "@shared/utils/plan";
+import { User, UserPlan } from "@shared";
 
 export interface UsageStatsResponse {
   allowed: boolean;
@@ -42,23 +43,13 @@ async function handleUsageStats(
     const simplifiedRateLimitingService =
       SimplifiedRateLimitingService.getInstance();
 
-    let user:
-      | {
-          userId: string;
-          plan: UserPlan;
-          role: "user" | "admin" | "moderator";
-        }
-      | undefined;
+    let user: User | undefined;
 
     // Get user info if authenticated
     if (auth.userId) {
       const userEntity = await DynamoDBService.getUserById(auth.userId);
       if (userEntity) {
-        user = {
-          userId: auth.userId,
-          plan: userEntity.plan || "anonymous",
-          role: userEntity.role as "user" | "admin" | "moderator",
-        };
+        user = await PlanUtil.enhanceUser(userEntity);
       }
     }
 
@@ -73,7 +64,7 @@ async function handleUsageStats(
       reason: rateLimitResult.reason,
       remaining: rateLimitResult.remaining,
       userId: auth.userId || null,
-      plan: user?.plan,
+      plan: user?.planInfo.plan,
     };
 
     return ResponseUtil.success(event, response);

@@ -1892,6 +1892,61 @@ export class DynamoDBService {
     );
   }
 
+  static async consumeBonusGenerationCredits(
+    userId: string,
+    amount: number,
+    currentCredits?: number
+  ): Promise<number> {
+    if (amount <= 0) {
+      return currentCredits ?? 0;
+    }
+
+    let credits = currentCredits;
+
+    if (credits === undefined) {
+      const user = await this.getUserById(userId);
+      if (!user) {
+        console.warn(
+          `[DynamoDBService] Unable to consume bonus credits; user not found: ${userId}`
+        );
+        return 0;
+      }
+      credits = user.bonusGenerationCredits ?? 0;
+    }
+
+    if (credits <= 0) {
+      return credits;
+    }
+
+    const remainingCredits = Math.max(credits - amount, 0);
+
+    const expressionAttributeNames = { "#bonus": "bonusGenerationCredits" };
+    const expressionAttributeValues: Record<string, number> = {
+      ":remaining": remainingCredits,
+    };
+
+    const updateParams: any = {
+      TableName: TABLE_NAME,
+      Key: {
+        PK: `USER#${userId}`,
+        SK: "METADATA",
+      },
+      UpdateExpression: "SET #bonus = :remaining",
+      ExpressionAttributeNames: expressionAttributeNames,
+      ExpressionAttributeValues: expressionAttributeValues,
+    };
+
+    if (currentCredits !== undefined) {
+      expressionAttributeValues[":expected"] = currentCredits;
+      updateParams.ConditionExpression =
+        "attribute_not_exists(#bonus) OR #bonus = :expected";
+    }
+
+    await docClient.send(new UpdateCommand(updateParams));
+
+    return remainingCredits;
+  }
+
   static async getAllUsers(
     limit: number = 50,
     lastEvaluatedKey?: any

@@ -25,7 +25,7 @@ import { GenerationQueueService } from "./generation-queue";
 import { DynamoDBService } from "../utils/dynamodb";
 import { extractClientIP } from "../utils/ip-extraction";
 import { createHash } from "crypto";
-import { UserPlan } from "@shared/shared-types";
+import { User, UserPlan } from "@shared/shared-types";
 
 export interface SimplifiedRateLimitResult {
   allowed: boolean;
@@ -64,15 +64,13 @@ export class SimplifiedRateLimitingService {
    */
   async checkRateLimit(
     event: APIGatewayProxyEvent,
-    user?: {
-      userId: string;
-      plan: UserPlan;
-      role: "user" | "admin" | "moderator";
-    }
+    user?: User
   ): Promise<SimplifiedRateLimitResult> {
     try {
       // Check for authenticated users
       if (user) {
+        const plan = user.planInfo?.plan ?? "anonymous";
+
         // 1. Check for pending/processing generations (one at a time)
         const concurrentCheck = await this.checkConcurrentGeneration(
           user.userId
@@ -81,12 +79,17 @@ export class SimplifiedRateLimitingService {
           return concurrentCheck;
         }
 
+        const bonusCredits = user.usageStats?.bonusGenerationCredits ?? 0;
+
+        if (bonusCredits > 0) {
+          return {
+            allowed: true,
+            remaining: bonusCredits,
+          };
+        }
+
         // 2. Check daily/monthly quota based on plan
-        const quotaCheck = await this.checkUserQuota(
-          user.userId,
-          user.plan,
-          event
-        );
+        const quotaCheck = await this.checkUserQuota(user.userId, plan, event);
         if (!quotaCheck.allowed) {
           return quotaCheck;
         }
@@ -94,7 +97,7 @@ export class SimplifiedRateLimitingService {
         // 3. Check IP-based quota (prevent multi-account abuse)
         const ipQuotaCheck = await this.checkIPQuotaForUser(
           event,
-          user.plan,
+          plan,
           user.userId
         );
         if (!ipQuotaCheck.allowed) {
@@ -139,7 +142,11 @@ export class SimplifiedRateLimitingService {
    */
   async recordGeneration(
     event: APIGatewayProxyEvent,
-    user?: { userId: string; plan: string },
+    user?: {
+      userId: string;
+      plan: string;
+      bonusGenerationCredits?: number;
+    },
     batchCount: number = 1
   ): Promise<void> {
     try {
@@ -182,6 +189,17 @@ export class SimplifiedRateLimitingService {
         console.log(
           `Recorded ${batchCount} generations - IP: ${clientIP}..., User: ${user.userId}`
         );
+
+        if ((user.bonusGenerationCredits ?? 0) > 0) {
+          const remainingBonusCredits =
+            await DynamoDBService.consumeBonusGenerationCredits(
+              user.userId,
+              batchCount,
+              user.bonusGenerationCredits
+            );
+
+          user.bonusGenerationCredits = remainingBonusCredits;
+        }
       } else {
         // For anonymous users, record only IP generation
         for (let i = 0; i < batchCount; i++) {
