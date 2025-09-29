@@ -160,7 +160,7 @@
 
 [ ] In admin, after delete on select many, stay in select many mode.
 
-[ ] Possibility to optimize i2v prompt.
+[x] Possibility to optimize i2v prompt.
 
 [x] Reconvert videos after i2v to ensure broad compatibility across navigators.
 
@@ -180,7 +180,7 @@
 
 [x] Auto recredit seconds on failed videos generation.
 
-[ ] Implement ReturnTo when logging in or registering.
+[x] Implement ReturnTo when logging in or registering.
 
 [x] Improve pricing page cards design, complete plan features and FAQ.
 
@@ -192,4 +192,4 @@
 
 [x] Purchasing a plan should reset the Monthly and Daily Usage to 0.
 
-[ ] Possibility to manual select i2v loras and scales.
+[ ] Include 20s of video in the unlimited plan.

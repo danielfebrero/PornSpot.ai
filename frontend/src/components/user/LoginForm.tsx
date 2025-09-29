@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocaleRouter } from "@/lib/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +17,9 @@ import { useReturnUrl } from "@/contexts/ReturnUrlContext";
 import { useUserContext } from "@/contexts/UserContext";
 
 // Validation schema with internationalization
-const createLoginSchema = (tAuth: (key: string) => string) =>
+type Translator = ReturnType<typeof useTranslations>;
+
+const createLoginSchema = (tAuth: Translator) =>
   z.object({
     email: z
       .string()
@@ -42,7 +44,7 @@ export function LoginForm() {
   const [emailVerificationRequired, setEmailVerificationRequired] =
     useState(false);
   const router = useLocaleRouter();
-  const { getReturnUrl, clearReturnUrl } = useReturnUrl();
+  const { getReturnUrl, clearReturnUrl, setReturnUrl } = useReturnUrl();
   const { checkAuth } = useUserContext();
 
   // Determine loading state and error message
@@ -66,6 +68,12 @@ export function LoginForm() {
   // Prefer stored return URL from context, fallback to URL parameter
   const storedReturnUrl = getReturnUrl(false); // Don't clear yet
   const returnTo = storedReturnUrl || urlReturnTo;
+
+  useEffect(() => {
+    if (urlReturnTo) {
+      setReturnUrl(urlReturnTo);
+    }
+  }, [setReturnUrl, urlReturnTo]);
 
   const loginSchema = createLoginSchema(tAuth);
 
@@ -135,6 +143,10 @@ export function LoginForm() {
   if (emailVerificationRequired) {
     return <EmailVerificationForm email={email} />;
   }
+
+  const registerHref = returnTo
+    ? `/auth/register?returnTo=${encodeURIComponent(returnTo)}`
+    : "/auth/register";
 
   return (
     <div className="space-y-6">
@@ -251,7 +263,7 @@ export function LoginForm() {
           {tAuth("dontHaveAccount")}{" "}
         </span>
         <LocaleLink
-          href="/auth/register"
+          href={registerHref}
           className="text-primary hover:text-primary/90 font-medium"
         >
           {tAuth("signUp")}

@@ -13,9 +13,12 @@ import { useRegister } from "@/hooks/queries/useUserQuery";
 import { UserRegistrationFormData } from "@/types/user";
 import { userApi } from "@/lib/api";
 import LocaleLink from "@/components/ui/LocaleLink";
+import { useReturnUrl } from "@/contexts/ReturnUrlContext";
 
 // Validation schema
-const createRegisterSchema = (tAuth: (key: string) => string) =>
+type Translator = ReturnType<typeof useTranslations>;
+
+const createRegisterSchema = (tAuth: Translator) =>
   z
     .object({
       email: z
@@ -56,8 +59,23 @@ export function RegisterForm() {
   const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>("idle");
   const [usernameMessage, setUsernameMessage] = useState("");
   const router = useLocaleRouter();
+  const { setReturnUrl, getReturnUrl } = useReturnUrl();
 
   const tAuth = useTranslations("auth");
+
+  const urlReturnTo =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("returnTo")
+      : null;
+
+  const storedReturnUrl = getReturnUrl(false);
+  const returnTo = urlReturnTo || storedReturnUrl;
+
+  useEffect(() => {
+    if (urlReturnTo) {
+      setReturnUrl(urlReturnTo);
+    }
+  }, [setReturnUrl, urlReturnTo]);
 
   const registerSchema = createRegisterSchema(tAuth);
 
@@ -185,6 +203,16 @@ export function RegisterForm() {
   };
 
   const isLoading = loading || isSubmitting;
+  const loginHref = returnTo
+    ? `/auth/login?returnTo=${encodeURIComponent(returnTo)}`
+    : "/auth/login";
+
+  const handleGoToSignIn = () => {
+    if (returnTo) {
+      setReturnUrl(returnTo);
+    }
+    router.push(loginHref);
+  };
 
   // Show success message after registration
   if (registrationSuccess) {
@@ -218,7 +246,7 @@ export function RegisterForm() {
         </div>
 
         <div className="space-y-3">
-          <Button onClick={() => router.push("/auth/login")} className="w-full">
+          <Button onClick={handleGoToSignIn} className="w-full">
             {tAuth("messages.goToSignIn")}
           </Button>
 
@@ -245,7 +273,10 @@ export function RegisterForm() {
       </div>
 
       {/* Google OAuth first */}
-      <GoogleLoginButton disabled={isLoading} />
+      <GoogleLoginButton
+        disabled={isLoading}
+        returnTo={returnTo || undefined}
+      />
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
@@ -490,7 +521,7 @@ export function RegisterForm() {
           {tAuth("alreadyHaveAccount")}{" "}
         </span>
         <LocaleLink
-          href="/auth/login"
+          href={loginHref}
           className="text-primary hover:text-primary/90 font-medium"
         >
           {tAuth("signIn")}
