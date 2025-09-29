@@ -215,6 +215,8 @@ const handlePSCSpend = async (
     GSI4PK: `USER_PLAN#${planConfig.plan}`,
     GSI4SK: `${indexDate}#${auth.userId}`,
     subscriptionStatus: "active",
+    imagesGeneratedThisMonth: 0,
+    imagesGeneratedToday: 0,
   };
 
   if (planConfig.isLifetime) {

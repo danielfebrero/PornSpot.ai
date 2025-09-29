@@ -86,6 +86,8 @@ const updateUserForSubscription = async (
     plan,
     GSI4PK: `USER_PLAN#${plan}`,
     GSI4SK: `${indexDate}#${order.userId}`,
+    imagesGeneratedThisMonth: 0,
+    imagesGeneratedToday: 0,
   };
 
   if (plan === "pro") {
