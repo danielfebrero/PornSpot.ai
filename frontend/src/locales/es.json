@@ -1660,7 +1660,7 @@
           "Control de escala CFG personalizada",
           "Pasos de inferencia personalizados",
           "Elige tu propia semilla",
-          "100 segundos de video para generar cada mes"
+          "100 segundos de créditos de video por mes"
         ]
       }
     },
@@ -1707,7 +1707,7 @@
         },
         "proFeatures": {
           "question": "¿Qué características avanzadas ofrece el plan Pro?",
-          "answer": "Los usuarios Pro desbloquean la generación de imágenes ilimitada, la creación de contenido privado, prompts negativos para un mejor control, la generación masiva de imágenes, tamaños de imagen personalizados, la activación y desactivación de modelos LoRA, el control personalizado de la escala CFG, pasos de inferencia personalizados, la posibilidad de elegir tu propia semilla y 100 segundos de video para generar cada mes."
+          "answer": "Los usuarios Pro desbloquean la generación de imágenes ilimitada, la creación de contenido privado, prompts negativos para un mejor control, la generación masiva de imágenes, tamaños de imagen personalizados, la activación y desactivación de modelos LoRA, el control personalizado de la escala CFG, pasos de inferencia personalizados, la posibilidad de elegir tu propia semilla y 100 segundos de créditos de video por mes."
         },
         "contentAfterCancel": {
           "question": "¿Qué pasa con mi contenido si cancelo?",

@@ -1707,7 +1707,7 @@
           "Contrôle de l'échelle CFG personnalisée",
           "Étapes d'inférence personnalisées",
           "Choisissez votre propre graine",
-          "100 secondes de video à générer chaque mois"
+          "100 secondes de crédits video par mois"
         ]
       }
     },
@@ -1754,7 +1754,7 @@
         },
         "proFeatures": {
           "question": "Quelles fonctionnalités avancées offre le plan Pro ?",
-          "answer": "Les utilisateurs Pro bénéficient de la génération d'images illimitée, de la création de contenu privé, de prompts négatifs pour un meilleur contrôle, de la génération d'images en masse, de tailles d'images personnalisées, de l'activation et la désactivation des modèles LoRA, du contrôle personnalisé de l'échelle CFG, d'étapes d'inférence personnalisées, du choix de leur propre graine et de 100 secondes de video à générer chaque mois."
+          "answer": "Les utilisateurs Pro bénéficient de la génération d'images illimitée, de la création de contenu privé, de prompts négatifs pour un meilleur contrôle, de la génération d'images en masse, de tailles d'images personnalisées, de l'activation et la désactivation des modèles LoRA, du contrôle personnalisé de l'échelle CFG, d'étapes d'inférence personnalisées, du choix de leur propre graine et de 100 secondes de crédits video par mois."
         },
         "contentAfterCancel": {
           "question": "Qu'arrive-t-il à mon contenu si j'annule ?",

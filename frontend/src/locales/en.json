@@ -1686,7 +1686,7 @@
           "Custom CFG scale control",
           "Custom inference steps",
           "Choose your own seed",
-          "100 seconds of video to generate each month"
+          "100 seconds of video credits per month"
         ]
       }
     },
@@ -1733,7 +1733,7 @@
         },
         "proFeatures": {
           "question": "What advanced features does the Pro plan offer?",
-          "answer": "Pro users unlock unlimited image generation, private content creation, negative prompts for better control, bulk image generation, custom image sizes, LoRA model toggles, custom CFG scale control, custom inference steps, the ability to choose your own seed, and 100 seconds of video to generate each month."
+          "answer": "Pro users unlock unlimited image generation, private content creation, negative prompts for better control, bulk image generation, custom image sizes, LoRA model toggles, custom CFG scale control, custom inference steps, the ability to choose your own seed, and 100 seconds of video credits per month."
         },
         "contentAfterCancel": {
           "question": "What happens to my content if I cancel?",
