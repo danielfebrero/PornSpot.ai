@@ -569,15 +569,15 @@
   },
   "site": {
     "name": "PornSpot.ai",
-    "title": "PornSpot.ai - NSFW AI Realistische Bilder Generator",
-    "description": "NSFW KI-Bildgenerator für realistische Bilder. Entdecken und erstellen Sie KI-generierte Erwachseneninhalte. Generieren Sie benutzerdefinierte Bilder mit Prompts, LoRA-Auswahlen und mehr.",
+    "title": "PornSpot.ai - NSFW AI Realistische Bilder und Videos Generator",
+    "description": "NSFW KI-Bild- und Videogenerator für realistische Bilder und Videos. Entdecken und erstellen Sie KI-generierte Erwachseneninhalte. Generieren Sie benutzerdefinierte Bilder und Videos mit Prompts, LoRA-Auswahlen und mehr.",
     "tagline": "KI-generierte Inhalte",
     "meta": {
       "title": "PornSpot.ai - Entdecken Sie KI-generierte Pornos",
-      "description": "NSFW KI-Bildgenerator für realistische Bilder. Durchsuchen und generieren Sie KI-gestützte Pornobilder. Kostenlos zum Starten, mit Premium-Plänen für unbegrenzte Erstellung. Erkunden Sie KI-generierte Erwachseneninhalte: Bilder und mehr."
+      "description": "NSFW KI-Bild- und Videogenerator für realistische Bilder und Videos. Durchsuchen und generieren Sie KI-gestützte Pornobilder und Videos. Kostenlos zum Starten, mit Premium-Plänen für unbegrenzte Erstellung. Erkunden Sie KI-generierte Erwachseneninhalte: Bilder, Videos und mehr."
     },
     "welcomeTitle": "Willkommen bei PornSpot.ai - KI-generierte Erwachseneninhalte",
-    "welcomeDescription": "Erkunden und erstellen Sie KI-generierte Erwachseneninhalte: Bilder und mehr.",
+    "welcomeDescription": "Erkunden und erstellen Sie KI-generierte Erwachseneninhalte: Bilder, Videos und mehr.",
     "welcome": "Willkommen bei PornSpot.ai",
     "subtitle": "Erstellen Sie atemberaubende KI-generierte Erwachseneninhalte",
     "getStarted": "Loslegen",
@@ -594,7 +594,7 @@
       "aiPorn": "KI-Pornos",
       "aiGeneratedContent": "KI-generierte Inhalte",
       "adultContent": "Erwachseneninhalte",
-      "aiImages": "KI-Bilder",
+      "aiImages": "KI-Bilder und Videos",
       "generatedPorn": "generierte Pornos"
     }
   },
@@ -1398,8 +1398,8 @@
     }
   },
   "generate": {
-    "metaTitle": "KI-Bildgenerator - {siteName}",
-    "metaDescription": "Generieren Sie KI-gestützte Inhalte für Erwachsene mit unseren fortschrittlichen Bildgenerierungstools. Wählen Sie aus mehreren Modellen, Stilen und Parametern.",
+    "metaTitle": "KI-Bild- und Videogenerator - {siteName}",
+    "metaDescription": "Generieren Sie KI-gestützte Inhalte für Erwachsene mit unseren fortschrittlichen Bild- und Videogenerierungstools. Wählen Sie aus mehreren Modellen, Stilen und Parametern.",
     "keywords": {
       "aiGeneration": "KI-Bildgenerierung",
       "adultCreation": "Erstellung von Inhalten für Erwachsene",
@@ -1552,7 +1552,7 @@
     "randomSeed": "Zufälliger Seed",
     "generateImages": "{count} Bilder generieren",
     "generateSingle": "Generieren",
-    "aiImageGenerator": "KI-Bildgenerator",
+    "aiImageGenerator": "KI-Bild- und Videogenerator",
     "transformImagination": "Verwandeln Sie Ihre Vorstellungskraft in atemberaubende KI-generierte Kunstwerke",
     "imagesGenerated": "Bilder Generiert",
     "describeVision": "Beschreiben Sie Ihre Vision",
@@ -1574,7 +1574,7 @@
   },
   "pricing": {
     "metaTitle": "Preise - {siteName} | Pläne für KI-Generierte Pornos",
-    "metaDescription": "Wählen Sie den perfekten Plan für Ihre KI-Inhaltsgenerierungsbedürfnisse. Von Starter- bis zu unbegrenzten Plänen mit erweiterten Funktionen wie privaten Inhalten und Anpassung.",
+    "metaDescription": "Wählen Sie den perfekten Plan für Ihre KI-Bild- und Videogenerierungsbedürfnisse. Von Starter- bis zu unbegrenzten Plänen mit erweiterten Funktionen wie privaten Inhalten und Anpassung.",
     "keywords": {
       "aiPricing": "KI-Preise",
       "generatedPlans": "generierte Inhaltspläne",
@@ -1782,7 +1782,7 @@
     "notFound": "Album nicht gefunden",
     "defaultDescription": "Entdecken Sie dieses KI-generierte Album: {title}",
     "metaTitle": "{title} - KI-generiertes Album auf {siteName}",
-    "metaDescription": "{description}. Erstellen Sie Ihre eigenen benutzerdefinierten Inhalte für Erwachsene mit {siteName}.",
+    "metaDescription": "{description}. Erstellen Sie Ihre eigenen benutzerdefinierten Bilder und Videos für Erwachsene mit {siteName}.",
     "addToAlbum": "Zum Album hinzufügen",
     "createAlbum": "Album erstellen",
     "createNewAlbum": "Neues Album erstellen",
@@ -2229,7 +2229,7 @@
         "description": "Fansly-Ersteller nutzen unsere Tag-Analysen, um Aufrufe, Reichweite und Trinkgelder zu steigern"
       },
       "byof": {
-        "description": "Premium Fotorealistische NSFW KI-Bildgenerator"
+        "description": "Premium Fotorealistische NSFW KI-Bild- und Videogenerator"
       }
     },
     "additionalInfo": "Diese Plattformen empfehlen und vertrauen wir. Einige Links können Affiliate-Codes enthalten, die unsere Plattform unterstützen."

@@ -586,12 +586,12 @@
   },
   "site": {
     "name": "PornSpot.ai",
-    "title": "PornSpot.ai - NSFW AI Generador de Imágenes Realistas",
-    "description": "Generador de imágenes AI NSFW para imágenes realistas. Descubre y crea contenido adulto generado por IA. Genera imágenes personalizadas con prompts, selecciones LoRA, y más.",
+    "title": "PornSpot.ai - NSFW AI Generador de Imágenes y Videos Realistas",
+    "description": "Generador de imágenes y videos AI NSFW para imágenes y videos realistas. Descubre y crea contenido adulto generado por IA. Genera imágenes y videos personalizadas con prompts, selecciones LoRA, y más.",
     "tagline": "Contenido generado por IA",
     "meta": {
       "title": "PornSpot.ai - Descubre porno generado por IA",
-      "description": "Generador de imágenes AI NSFW para imágenes realistas. Navega y genera imágenes porno impulsadas por IA. Gratis para empezar, con planes premium para creación ilimitada. Explora contenido adulto generado por IA: imágenes y más."
+      "description": "Generador de imágenes y videos AI NSFW para imágenes y videos realistas. Navega y genera imágenes y videos porno impulsadas por IA. Gratis para empezar, con planes premium para creación ilimitada. Explora contenido adulto generado por IA: imágenes, videos y más."
     },
     "welcomeTitle": "Bienvenido a PornSpot.ai - Contenido adulto generado por IA",
     "welcomeDescription": "Explora y crea contenido adulto generado por IA: imágenes y más.",
@@ -611,7 +611,7 @@
       "aiPorn": "porno IA",
       "aiGeneratedContent": "contenido generado por IA",
       "adultContent": "contenido adulto",
-      "aiImages": "imágenes IA",
+      "aiImages": "imágenes y videos IA",
       "generatedPorn": "porno generado"
     }
   },
@@ -1415,8 +1415,8 @@
     }
   },
   "generate": {
-    "metaTitle": "Generador de Imágenes IA - {siteName}",
-    "metaDescription": "Genera contenido adulto impulsado por IA con nuestras herramientas avanzadas de generación de imágenes. Elige entre múltiples modelos, estilos y parámetros.",
+    "metaTitle": "Generador de Imágenes y Videos IA - {siteName}",
+    "metaDescription": "Genera contenido adulto impulsado por IA con nuestras herramientas avanzadas de generación de imágenes y videos. Elige entre múltiples modelos, estilos y parámetros.",
     "keywords": {
       "aiGeneration": "generación de imágenes IA",
       "adultCreation": "creación de contenido adulto",
@@ -1569,7 +1569,7 @@
     "randomSeed": "Semilla aleatoria",
     "generateImages": "Generar {count} imágenes",
     "generateSingle": "Generar",
-    "aiImageGenerator": "Generador de Imágenes IA",
+    "aiImageGenerator": "Generador de Imágenes y Videos IA",
     "transformImagination": "Transforma tu imaginación en obras de arte impresionantes generadas por IA",
     "imagesGenerated": "Imágenes Generadas",
     "describeVision": "Describe Tu Visión",
@@ -1591,7 +1591,7 @@
   },
   "pricing": {
     "metaTitle": "Precios - {siteName} | Planes para Porno Generado por IA",
-    "metaDescription": "Elige el plan perfecto para tus necesidades de generación de contenido IA. Desde planes iniciales hasta planes ilimitados con características avanzadas como contenido privado y personalización.",
+    "metaDescription": "Elige el plan perfecto para tus necesidades de generación de imágenes y videos IA. Desde planes iniciales hasta planes ilimitados con características avanzadas como contenido privado y personalización.",
     "keywords": {
       "aiPricing": "precios IA",
       "generatedPlans": "planes de contenido generado",
@@ -1799,7 +1799,7 @@
     "notFound": "Álbum no encontrado",
     "defaultDescription": "Explora este álbum generado por IA: {title}",
     "metaTitle": "{title} - Álbum generado por IA en {siteName}",
-    "metaDescription": "{description}. Crea tu propio contenido adulto personalizado con {siteName}.",
+    "metaDescription": "{description}. Crea tus propias imágenes y videos adultos personalizados con {siteName}.",
     "addToAlbum": "Añadir al álbum",
     "createAlbum": "Crear álbum",
     "createNewAlbum": "Crear nuevo álbum",
@@ -2230,7 +2230,7 @@
         "description": "Los creadores de Fansly usan nuestras analíticas de etiquetas para aumentar vistas, alcance y propinas"
       },
       "byof": {
-        "description": "Generador Premium de Imágenes NSFW IA Fotorrealistas"
+        "description": "Generador Premium de Imágenes y Videos NSFW IA Fotorrealistas"
       }
     },
     "additionalInfo": "Estas son plataformas que recomendamos y en las que confiamos. Algunos enlaces pueden contener códigos de afiliación que ayudan a mantener nuestra plataforma."

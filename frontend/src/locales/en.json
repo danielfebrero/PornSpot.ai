@@ -547,7 +547,7 @@
       "benefits": {
         "freeGenerations": {
           "title": "3 Free Generations",
-          "description": "Create your first AI images without commitment"
+          "description": "Create your first AI images and videos without commitment"
         },
         "saveImages": {
           "title": "Save Your Images",
@@ -570,15 +570,15 @@
   },
   "site": {
     "name": "PornSpot.ai",
-    "title": "PornSpot.ai - NSFW AI Realistic Images Generator",
-    "description": "NSFW AI Image generator for realistic images. Discover and create AI-generated adult content. Generate custom images with prompts, LoRA selections, and more.",
+    "title": "PornSpot.ai - NSFW AI Realistic Images and Videos Generator",
+    "description": "NSFW AI Image and Video generator for realistic images and videos. Discover and create AI-generated adult content. Generate custom images and videos with prompts, LoRA selections, and more.",
     "tagline": "AI-Generated Content",
     "meta": {
       "title": "PornSpot.ai - Discover AI Generated Porn",
-      "description": "NSFW AI Image generator for realistic images. Browse and generate AI-powered porn images. Free to start, with premium plans for unlimited creation. Explore AI-generated adult content: images and more."
+      "description": "NSFW AI Image and Video generator for realistic images and videos. Browse and generate AI-powered porn images and videos. Free to start, with premium plans for unlimited creation. Explore AI-generated adult content: images, videos and more."
     },
     "welcomeTitle": "Welcome to PornSpot.ai - AI Generated Adult Content",
-    "welcomeDescription": "Explore and create AI-generated adult content: images and more.",
+    "welcomeDescription": "Explore and create AI-generated adult content: images, videos and more.",
     "welcome": "Welcome to PornSpot.ai",
     "subtitle": "Create stunning AI-generated adult content",
     "getStarted": "Get Started",
@@ -595,7 +595,7 @@
       "aiPorn": "AI porn",
       "aiGeneratedContent": "AI generated content",
       "adultContent": "adult content",
-      "aiImages": "AI images",
+      "aiImages": "AI images and videos",
       "generatedPorn": "generated porn"
     }
   },
@@ -838,7 +838,7 @@
     "imagesPage": {
       "meta": {
         "title": "My Images - {siteName}",
-        "description": "View and manage your personal AI-generated image gallery. Upload, organize, and share your creative content."
+        "description": "View and manage your personal AI-generated image and video gallery. Upload, organize, and share your creative content."
       },
       "images": "Images",
       "personalMediaGallery": "Your personal image gallery",
@@ -847,7 +847,7 @@
       "generateMedia": "Generate Image",
       "selectMany": "Select many",
       "noImagesYet": "No images yet",
-      "startCreatingImages": "Start creating AI-generated images to see them here!",
+      "startCreatingImages": "Start creating AI-generated images and videos to see them here!",
       "loadingMoreImages": "Loading more images...",
       "noMoreImagesToLoad": "No more images to load",
       "confirmDeleteTitle": "Delete Image",
@@ -1441,10 +1441,10 @@
     }
   },
   "generate": {
-    "metaTitle": "AI Image Generator - {siteName}",
-    "metaDescription": "Generate AI-powered adult content with our advanced image generation tools. Choose from multiple models, styles, and parameters.",
+    "metaTitle": "AI Image and Video Generator - {siteName}",
+    "metaDescription": "Generate AI-powered adult content with our advanced image and video generation tools. Choose from multiple models, styles, and parameters.",
     "keywords": {
-      "aiGeneration": "AI image generation",
+      "aiGeneration": "AI image and video generation",
       "adultCreation": "adult content creation",
       "customParameters": "custom parameters",
       "loraModels": "LoRA models",
@@ -1573,7 +1573,7 @@
     "deletePrompt": "Clear prompt",
     "pro": "Pro",
     "noImagesGenerated": "No images generated yet",
-    "enterPromptToGenerate": "Enter a prompt and click generate to create amazing AI images",
+    "enterPromptToGenerate": "Enter a prompt and click generate to create amazing AI images and videos",
     "generatedImages": "Generated Images",
     "quickSettings": "Quick Settings",
     "advancedSettings": "Advanced Settings",
@@ -1595,7 +1595,7 @@
     "randomSeed": "Random seed",
     "generateImages": "Generate {count} Images",
     "generateSingle": "Generate",
-    "aiImageGenerator": "AI Image Generator",
+    "aiImageGenerator": "AI Image and Video Generator",
     "transformImagination": "Transform your imagination into stunning AI-generated artwork",
     "imagesGenerated": "Images Generated",
     "describeVision": "Describe Your Vision",
@@ -1616,8 +1616,8 @@
     "shown": "Shown"
   },
   "pricing": {
-    "metaTitle": "Pricing - {siteName} | Plans for AI Generated Porn",
-    "metaDescription": "Choose the perfect plan for your AI content generation needs. From starter to unlimited plans with advanced features like private content and customization.",
+    "metaTitle": "Pricing - {siteName} | Plans for AI Generated Images and Videos",
+    "metaDescription": "Choose the perfect plan for your AI image and video generation needs. From starter to unlimited plans with advanced features like private content and customization.",
     "keywords": {
       "aiPricing": "AI pricing",
       "generatedPlans": "generated content plans",
@@ -1825,7 +1825,7 @@
     "notFound": "Album Not Found",
     "defaultDescription": "Explore this AI-generated album: {title}",
     "metaTitle": "{title} - AI Generated Album on {siteName}",
-    "metaDescription": "{description}. Create your own custom adult content with {siteName}.",
+    "metaDescription": "{description}. Create your own custom adult images and videos with {siteName}.",
     "addToAlbum": "Add to Album",
     "createAlbum": "Create Album",
     "createNewAlbum": "Create New Album",
@@ -1850,7 +1850,7 @@
     "keywords": {
       "aiAlbum": "AI album",
       "generatedContent": "generated adult content",
-      "images": "AI images",
+      "images": "AI images and videos",
       "videos": "AI videos"
     }
   },
@@ -2272,7 +2272,7 @@
         "description": "Fansly creators use our tag analytics to increase views, reach, and tips"
       },
       "byof": {
-        "description": "Premium Photorealistic NSFW AI Image Generator"
+        "description": "Premium Photorealistic NSFW AI Image and Video Generator"
       }
     },
     "additionalInfo": "These are platforms we recommend and trust. Some links may contain affiliate codes that help support our platform."

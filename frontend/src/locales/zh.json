@@ -586,12 +586,12 @@
   },
   "site": {
     "name": "PornSpot.ai",
-    "title": "PornSpot.ai - NSFW AI 逼真图像生成器",
-    "description": "NSFW AI图像生成器，用于生成逼真图像。发现并创建AI生成的成人内容。使用提示词、LoRA选择等生成自定义图片。",
+    "title": "PornSpot.ai - NSFW AI 逼真图像和视频生成器",
+    "description": "NSFW AI图像和视频生成器，用于生成逼真图像和视频。发现并创建AI生成的成人内容。使用提示词、LoRA选择等生成自定义图片和视频。",
     "tagline": "AI生成内容",
     "meta": {
       "title": "PornSpot.ai - 发现AI生成的色情内容",
-      "description": "NSFW AI图像生成器，用于生成逼真图像。浏览和生成AI驱动的色情图片。免费开始，提供高级套餐以无限制创作。探索AI生成的成人内容：图片等。"
+      "description": "NSFW AI图像和视频生成器，用于生成逼真图像和视频。浏览和生成AI驱动的色情图片和视频。免费开始，提供高级套餐以无限制创作。探索AI生成的成人内容：图片、视频等。"
     },
     "welcomeTitle": "欢迎来到PornSpot.ai - AI生成的成人内容",
     "welcomeDescription": "探索和创建AI生成的成人内容：图片等。",
@@ -611,7 +611,7 @@
       "aiPorn": "AI色情",
       "aiGeneratedContent": "AI生成内容",
       "adultContent": "成人内容",
-      "aiImages": "AI图像",
+      "aiImages": "AI图像和视频",
       "generatedPorn": "生成色情"
     }
   },
@@ -1429,8 +1429,8 @@
     }
   },
   "generate": {
-    "metaTitle": "AI图像生成器 - {siteName}",
-    "metaDescription": "使用我们先进的图像生成工具创建AI驱动的成人内容。从多种模型、风格和参数中选择。",
+    "metaTitle": "AI图像和视频生成器 - {siteName}",
+    "metaDescription": "使用我们先进的图像和视频生成工具创建AI驱动的成人内容。从多种模型、风格和参数中选择。",
     "keywords": {
       "aiGeneration": "AI图像生成",
       "adultCreation": "成人内容创作",
@@ -1564,7 +1564,7 @@
     "randomSeed": "随机种子",
     "generateImages": "生成{count}张图片",
     "generateSingle": "生成",
-    "aiImageGenerator": "AI图像生成器",
+    "aiImageGenerator": "AI图像和视频生成器",
     "transformImagination": "将您的想象力转化为令人惊叹的AI生成艺术作品",
     "imagesGenerated": "已生成图像",
     "describeVision": "描述您的愿景",
@@ -1604,7 +1604,7 @@
   },
   "pricing": {
     "metaTitle": "价格 - {siteName} | AI生成色情内容计划",
-    "metaDescription": "为您的AI内容生成需求选择完美的计划。从入门级到无限制计划，具有私人内容和定制等高级功能。",
+    "metaDescription": "为您的AI图像和视频生成需求选择完美的计划。从入门级到无限制计划，具有私人内容和定制等高级功能。",
     "keywords": {
       "aiPricing": "AI价格",
       "generatedPlans": "生成内容计划",
@@ -1804,7 +1804,7 @@
     "notFound": "未找到相册",
     "defaultDescription": "探索这个AI生成的相册：{title}",
     "metaTitle": "{title} - {siteName}上的AI生成相册",
-    "metaDescription": "{description}。使用{siteName}创建您自己的定制成人内容。",
+    "metaDescription": "{description}。使用{siteName}创建您自己的定制成人图像和视频。",
     "addToAlbum": "添加到相册",
     "createAlbum": "创建相册",
     "createNewAlbum": "创建新相册",
@@ -2235,7 +2235,7 @@
         "description": "Fansly创作者使用我们的标签分析来增加观看次数、覆盖面和小费"
       },
       "byof": {
-        "description": "高级逼真NSFW AI图像生成器"
+        "description": "高级逼真NSFW AI图像和视频生成器"
       }
     },
     "additionalInfo": "这些是我们推荐和信任的平台。某些链接可能包含帮助支持我们平台的推荐代码。"
