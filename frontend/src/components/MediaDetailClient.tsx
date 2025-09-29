@@ -479,7 +479,6 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
               <MetaSection
                 icon={<ImageIcon className="w-5 h-5" />}
                 title={t("originalMedia")}
-                defaultOpen
               >
                 <ContentCard
                   item={originalMedia}
