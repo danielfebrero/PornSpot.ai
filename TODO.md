@@ -154,7 +154,7 @@
 
 [ ] If content media or albums is private but I liked it or bookmarked it before when it was public, I should not be able to access it via direct link if not the owner and it should disappear from my likes and bookmarks list.
 
-[ ] Grant 3 images to new users on signup.
+[x] Grant 3 images to new users on signup.
 
 [ ] Divide PSC distribution in 6\*4h instead of 24h.
 

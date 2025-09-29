@@ -209,6 +209,9 @@ const handlePSCSpend = async (
   }
 
   const indexDate = nextPlanEnd ?? MAX_PLAN_END_DATE;
+  const planVideoCreditsSeconds =
+    planConfig.plan === "pro" ? 100 : planConfig.plan === "unlimited" ? 20 : 0;
+
   const userUpdates: Partial<UserEntity> & Record<string, any> = {
     plan: planConfig.plan,
     planStartDate: nextPlanStart.toISOString(),
@@ -217,16 +220,13 @@ const handlePSCSpend = async (
     subscriptionStatus: "active",
     imagesGeneratedThisMonth: 0,
     imagesGeneratedToday: 0,
+    i2vCreditsSecondsFromPlan: planVideoCreditsSeconds,
   };
 
   if (planConfig.isLifetime) {
     userUpdates.planEndDate = null as any;
   } else {
     userUpdates.planEndDate = nextPlanEnd!;
-  }
-
-  if (planConfig.plan === "pro") {
-    userUpdates.i2vCreditsSecondsFromPlan = 100;
   }
 
   await DynamoDBService.updateUser(auth.userId, userUpdates);

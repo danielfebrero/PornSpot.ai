@@ -5335,11 +5335,14 @@ export class DynamoDBService {
   }
 
   /**
-   * Get Pro users whose monthly renewal date is today
+   * Get users for a given plan whose monthly renewal date is today
    * Renewal date is based on the day of the month from planStartDate
    * Handles month-end edge cases (e.g., Jan 31 -> Feb 28/29)
    */
-  static async getProUsersWithRenewalToday(todayISO: string): Promise<
+  static async getUsersWithPlanRenewalToday(
+    plan: "starter" | "unlimited" | "pro",
+    todayISO: string
+  ): Promise<
     Array<{
       userId: string;
       email: string;
@@ -5351,7 +5354,7 @@ export class DynamoDBService {
     const todayDay = today.getDate();
 
     console.log(
-      `🔍 Querying Pro users with renewal date on day ${todayDay} of the month`
+      `🔍 Querying ${plan} users with renewal date on day ${todayDay} of the month`
     );
 
     // Get all active Pro users first
@@ -5369,7 +5372,7 @@ export class DynamoDBService {
         IndexName: "GSI4",
         KeyConditionExpression: "GSI4PK = :planPK AND GSI4SK > :nowKey",
         ExpressionAttributeValues: {
-          ":planPK": "USER_PLAN#pro",
+          ":planPK": `USER_PLAN#${plan}`,
           ":nowKey": todayISO, // Users with planEndDate > now are active
         },
         ProjectionExpression: "userId, email, planStartDate, planEndDate",
@@ -5390,7 +5393,9 @@ export class DynamoDBService {
         })).filter((user) => user.planStartDate); // Only users with planStartDate
 
         activeUsers.push(...users);
-        console.log(`📄 Found ${users.length} active Pro users in this page`);
+        console.log(
+          `📄 Found ${users.length} active ${plan} users in this page`
+        );
       }
 
       lastEvaluatedKey = result.LastEvaluatedKey;
@@ -5423,9 +5428,13 @@ export class DynamoDBService {
     });
 
     console.log(
-      `✅ Found ${usersWithRenewalToday.length} Pro users with renewal today out of ${activeUsers.length} total active Pro users`
+      `✅ Found ${usersWithRenewalToday.length} ${plan} users with renewal today out of ${activeUsers.length} total active ${plan} users`
     );
     return usersWithRenewalToday;
+  }
+
+  static async getProUsersWithRenewalToday(todayISO: string) {
+    return this.getUsersWithPlanRenewalToday("pro", todayISO);
   }
 
   static async getUsersWithPlanEndingOnDate(

@@ -3911,15 +3911,15 @@ Resources:
               Resource:
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/sendgrid-api-key"
 
-  # Monthly I2V Credits Reset for Pro Users
-  GrantI2vCreditsToProFunction:
+  # Monthly I2V Credits Reset for Pro and Unlimited Users
+  GrantI2vCreditsToPlansFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${Environment}-pornspot-grant-i2v-credits-to-pro"
+      FunctionName: !Sub "${Environment}-pornspot-grant-i2v-credits-to-plans"
       PackageType: Image
       ImageUri: !Ref ImageUri
       ImageConfig:
-        Command: ["functions/scheduled-jobs/grant-i2v-credits-to-pro.handler"]
+        Command: ["functions/scheduled-jobs/grant-i2v-credits-to-plans.handler"]
       MemorySize: 512
       Timeout: 900
       Events:
@@ -3927,8 +3927,8 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: "cron(1 1 * * ? *)" # Every day at 01:01 UTC
-            Name: !Sub "${Environment}-pornspot-grant-i2v-credits-daily"
-            Description: "Grant i2v credits to Pro users on their monthly renewal date daily at 01:01 UTC"
+            Name: !Sub "${Environment}-pornspot-grant-i2v-credits-daily-to-plans"
+            Description: "Grant i2v credits to Pro and Unlimited users on their monthly renewal date daily at 01:01 UTC"
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable

@@ -1624,7 +1624,10 @@
         "name": "Unbegrenzt",
         "description": "Ideal für regelmäßige Content-Ersteller und Enthusiasten",
         "badge": "Am beliebtesten",
-        "features": ["Unbegrenzte Bildgenerierung"]
+        "features": [
+          "Unbegrenzte Bildgenerierung",
+          "20 Sekunden Videoguthaben pro Monat"
+        ]
       },
       "pro": {
         "name": "Pro",

@@ -240,7 +240,10 @@ export function PricingClient() {
       icon: <Zap className="w-6 h-6" />,
       popular: true,
       badge: t("planDetails.unlimited.badge"),
-      features: [t("planDetails.unlimited.features.0")],
+      features: [
+        t("planDetails.unlimited.features.0"),
+        t("planDetails.unlimited.features.1"),
+      ],
     },
     {
       id: "pro",

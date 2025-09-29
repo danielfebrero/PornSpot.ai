@@ -1667,7 +1667,10 @@
         "name": "Unlimited",
         "description": "Ideal for regular content creators and enthusiasts",
         "badge": "Most Popular",
-        "features": ["Unlimited image generation"]
+        "features": [
+          "Unlimited image generation",
+          "20 seconds of video credits per month"
+        ]
       },
       "pro": {
         "name": "Pro",

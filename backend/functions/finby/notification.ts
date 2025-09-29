@@ -88,11 +88,9 @@ const updateUserForSubscription = async (
     GSI4SK: `${indexDate}#${order.userId}`,
     imagesGeneratedThisMonth: 0,
     imagesGeneratedToday: 0,
+    i2vCreditsSecondsFromPlan:
+      plan === "pro" ? 100 : plan === "unlimited" ? 20 : 0,
   };
-
-  if (plan === "pro") {
-    userUpdates.i2vCreditsSecondsFromPlan = 100;
-  }
 
   await DynamoDBService.updateUser(order.userId, userUpdates);
 };

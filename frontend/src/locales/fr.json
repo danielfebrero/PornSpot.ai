@@ -1688,7 +1688,10 @@
         "name": "Illimité",
         "description": "Idéal pour les créateurs de contenu réguliers et les passionnés",
         "badge": "Le plus populaire",
-        "features": ["Génération d'images illimitée"]
+        "features": [
+          "Génération d'images illimitée",
+          "20 secondes de crédits vidéo par mois"
+        ]
       },
       "pro": {
         "name": "Pro",

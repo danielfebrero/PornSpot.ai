@@ -1,11 +1,11 @@
 /**
- * @fileoverview Scheduled job to grant i2v credits to Pro users on their monthly renewal date
+ * @fileoverview Scheduled job to grant i2v credits to Pro and Unlimited users on their monthly renewal date
  * @schedule Daily at 01:01 UTC via EventBridge
  * @notes
- * - Runs daily and checks if any Pro users have their monthly renewal date today
+ * - Runs daily and checks if any Pro or Unlimited users have their monthly renewal date today
  * - Renewal date is based on the day of the month from planStartDate
  * - Handles month-end edge cases (e.g., Jan 31 -> Feb 28/29, Oct 31 -> Nov 30)
- * - Grants 100 i2vCreditsSecondsFromPlan to qualifying Pro users
+ * - Grants 100 i2vCreditsSecondsFromPlan to Pro users and 20 seconds to Unlimited users
  * - Uses batch updates for efficiency
  */
 import type { EventBridgeEvent } from "aws-lambda";
@@ -25,15 +25,30 @@ export async function handler(
     const todayISO = now.toISOString();
 
     console.log(`📅 Current time: ${todayISO}`);
-    console.log("🔍 Checking for Pro users with renewal date today...");
+    console.log(
+      "🔍 Checking for Pro and Unlimited users with renewal date today..."
+    );
 
-    // Get Pro users whose renewal date is today
-    const usersWithRenewalToday =
-      await DynamoDBService.getProUsersWithRenewalToday(todayISO);
+    const [proUsersWithRenewalToday, unlimitedUsersWithRenewalToday] =
+      await Promise.all([
+        DynamoDBService.getUsersWithPlanRenewalToday("pro", todayISO),
+        DynamoDBService.getUsersWithPlanRenewalToday("unlimited", todayISO),
+      ]);
 
     console.log(
-      `👥 Found ${usersWithRenewalToday.length} Pro users with renewal today`
+      `👥 Found ${proUsersWithRenewalToday.length} Pro users and ${unlimitedUsersWithRenewalToday.length} Unlimited users with renewal today`
     );
+
+    const usersWithRenewalToday = [
+      ...proUsersWithRenewalToday.map((user) => ({
+        ...user,
+        plan: "pro" as const,
+      })),
+      ...unlimitedUsersWithRenewalToday.map((user) => ({
+        ...user,
+        plan: "unlimited" as const,
+      })),
+    ];
 
     if (usersWithRenewalToday.length === 0) {
       console.log("✅ No Pro users have renewal today, nothing to update");
@@ -57,13 +72,14 @@ export async function handler(
 
       const batchResults = await Promise.allSettled(
         batch.map(async (user) => {
+          const creditsForPlan = user.plan === "pro" ? 100 : 20;
           try {
             await DynamoDBService.updateUser(user.userId, {
-              i2vCreditsSecondsFromPlan: 100,
+              i2vCreditsSecondsFromPlan: creditsForPlan,
             });
 
             console.log(
-              `✅ Granted i2v credits for user ${user.userId} (${user.email}) - renewal from ${user.planStartDate}`
+              `✅ Granted ${creditsForPlan}s i2v credits for ${user.plan} user ${user.userId} (${user.email}) - renewal from ${user.planStartDate}`
             );
             return { success: true, userId: user.userId };
           } catch (error) {
