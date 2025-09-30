@@ -48,4 +48,18 @@ export const loras = {
       "https://cdn.pornspot.ai/i2v_loras/wan22-ultimatedeepthroat-I2V-101epoc-low-k3nk.safetensors",
     scale: 1,
   },
+  BOOBJOB: {
+    lora_high_path:
+      "https://cdn.pornspot.ai/i2v_loras/wan2.2-i2v-high-breast-insertion-v1.0.safetensors",
+    lora_low_path:
+      "https://cdn.pornspot.ai/i2v_loras/wan2.2-i2v-low-breast-insertion-v1.0.safetensors",
+    scale: 1,
+  },
+  FINGERING: {
+    lora_high_path:
+      "https://cdn.pornspot.ai/i2v_loras/Sensual_fingering_v1_high_noise.safetensors",
+    lora_low_path:
+      "https://cdn.pornspot.ai/i2v_loras/Sensual_fingering_v1_low_noise.safetensors",
+    scale: 1,
+  },
 };

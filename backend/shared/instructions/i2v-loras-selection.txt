@@ -40,6 +40,16 @@ No associated trigger words.
 Use this LoRA when the user prompt involves a woman deepthroating a penis.
 No associated trigger words.
 
+## BOOBJOB
+
+Use this LoRA when the user prompt involves breast insertion, boobjob, branlette espagnole, etc.
+No associated trigger words.
+
+## FINGERING
+
+Use this LoRA when the user propmpt involves a woman fingering her pussy.
+Associated trigger word is: sensual_fingering.
+
 # Required output
 
 A valid JSON following this schema: { "loras": []string, "trigger_words": []string }
@@ -69,3 +79,12 @@ Response: { "loras": ["POSING_NUDE"] }
 
 User message: "woman deepthroat large penis".
 Response: { "loras": ["DEEPTHROAT"] }
+
+User message: "A man appears and insert his penis between her breasts".
+Response: { "loras": ["BOOBJOB"] }
+
+User message: "A woman start givig a boobjob to a naked man".
+Response: { "loras": ["BOOBJOB"] }
+
+User message: "A woman start fingering her pussy".
+Response: { "loras": ["FINGERING"], "trigger_words": ["sensual_fingering"] }
