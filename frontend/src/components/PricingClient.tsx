@@ -104,7 +104,7 @@ const getPricePerStep = (seconds: number): number => {
 };
 
 const PRODUCTION_SITE_URL = "https://www.pornspot.ai";
-const TRUSTPAY_RELEASE_TIMESTAMP = Date.UTC(2025, 9, 1, 0, 0, 0);
+const TRUSTPAY_RELEASE_TIMESTAMP = Date.UTC(2025, 9, 2, 0, 0, 0);
 
 export function PricingClient() {
   const [isYearly, setIsYearly] = useState(false);
