@@ -86,7 +86,9 @@ export function createMediaEntity(
 
     // GSI5: Media by public status
     GSI5PK: "MEDIA",
-    GSI5SK: options.isPublic !== undefined ? String(options.isPublic) : "true",
+    GSI5SK:
+      (options.isPublic !== undefined ? String(options.isPublic) : "true") +
+      `#${now}`,
 
     // GSI6: Popularity score
     GSI6PK: "POPULARITY",

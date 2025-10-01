@@ -207,3 +207,5 @@
 [x] Find why it does not show advantages of registering anymore.
 
 [x] Play video from content cards in one click.
+
+[ ] Media GSI5SK should be {isPublic}#{createdAt} instead of just {isPublic} to allow fetching recent public media.

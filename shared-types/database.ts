@@ -39,7 +39,7 @@ export interface AlbumEntity extends BaseEntity {
   GSI4PK: string; // ALBUM_BY_CREATOR
   GSI4SK: string; // {createdBy}#{createdAt}#{albumId}
   GSI5PK: string; // ALBUM
-  GSI5SK: string; // {isPublic}
+  GSI5SK: string; // {isPublic}#{createdAt}
   GSI6PK: string; // POPULARITY
   GSI6SK: number; // 0
   GSI7PK: string; // CONTENT
@@ -77,7 +77,7 @@ export interface MediaEntity extends BaseEntity {
   GSI4PK: string; // MEDIA
   GSI4SK: string; // {createdAt}#{mediaId}
   GSI5PK: string; // MEDIA
-  GSI5SK: string; // {isPublic}
+  GSI5SK: string; // {isPublic}#{createdAt}
   GSI6PK: string; // POPULARITY
   GSI6SK: number; // 0
   GSI7PK: string; // CONTENT

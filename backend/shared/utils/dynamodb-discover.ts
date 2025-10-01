@@ -336,7 +336,7 @@ export class DynamoDBDiscoverService {
     const queryParams: QueryCommandInput = {
       TableName: TABLE_NAME,
       IndexName: "GSI5",
-      KeyConditionExpression: "GSI5PK = :gsi5pk AND GSI5SK = :gsi5sk",
+      KeyConditionExpression: "GSI5PK = :gsi5pk AND begins_with(GSI5SK, :gsi5sk)",
       FilterExpression: "mediaCount > :minMediaCount",
       ExpressionAttributeValues: {
         ":gsi5pk": "ALBUM",
@@ -378,7 +378,7 @@ export class DynamoDBDiscoverService {
     const queryParams: QueryCommandInput = {
       TableName: TABLE_NAME,
       IndexName: "GSI5",
-      KeyConditionExpression: "GSI5PK = :gsi5pk AND GSI5SK = :gsi5sk",
+      KeyConditionExpression: "GSI5PK = :gsi5pk AND begins_with(GSI5SK, :gsi5sk)",
       ExpressionAttributeValues: {
         ":gsi5pk": "MEDIA",
         ":gsi5sk": "true",
