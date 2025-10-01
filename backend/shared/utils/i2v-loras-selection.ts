@@ -29,9 +29,9 @@ export const loras = {
   },
   PENIS_PLAY: {
     lora_high_path:
-      "https://cdn.poprnspot.ai/i2v_loras/pworship_high_noise.safetensors",
+      "https://cdn.pornspot.ai/i2v_loras/pworship_high_noise.safetensors",
     lora_low_path:
-      "https://cdn.poprnspot.ai/i2v_loras/pworship_low_noise.safetensors",
+      "https://cdn.pornspot.ai/i2v_loras/pworship_low_noise.safetensors",
     scale: 1,
   },
   POSING_NUDE: {
