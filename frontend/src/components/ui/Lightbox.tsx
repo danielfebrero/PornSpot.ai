@@ -15,6 +15,7 @@ interface LightboxProps {
   media: Media[];
   currentIndex: number;
   isOpen: boolean;
+  playOnOpen?: boolean;
 
   canDelete?: boolean;
 
@@ -34,6 +35,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
   media,
   currentIndex,
   isOpen,
+  playOnOpen = false,
   canDelete = false,
   hasNextPage = false,
   isFetchingNextPage = false,
@@ -53,6 +55,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
   const [slideshowInterval, setSlideshowInterval] = useState(3000); // Default 3 seconds
   const [areControlsVisible, setAreControlsVisible] = useState(true);
   const hideControlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [hasAppliedPlayOnOpen, setHasAppliedPlayOnOpen] = useState(false);
 
   // Sleep prevention for slideshow
   const { enableSleepPrevention, disableSleepPrevention } =
@@ -223,6 +226,21 @@ export const Lightbox: React.FC<LightboxProps> = ({
       setIsPlayingVideo(false);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !playOnOpen) {
+      setHasAppliedPlayOnOpen(false);
+    }
+  }, [isOpen, playOnOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !playOnOpen || !isVideoMedia || hasAppliedPlayOnOpen) {
+      return;
+    }
+
+    setIsPlayingVideo(true);
+    setHasAppliedPlayOnOpen(true);
+  }, [isOpen, playOnOpen, isVideoMedia, hasAppliedPlayOnOpen]);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only close if the backdrop itself is clicked

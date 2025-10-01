@@ -170,6 +170,7 @@ export function ContentCard({
   const deleteAlbumMutation = useDeleteAlbum();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [lightboxPlayOnOpen, setLightboxPlayOnOpen] = useState(false);
   const [showMobileActions, setShowMobileActions] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
@@ -351,20 +352,44 @@ export function ContentCard({
     }
   };
 
+  const openLightbox = (autoPlayVideo: boolean) => {
+    if (!isMedia || !media) {
+      return;
+    }
+
+    const lightboxMedia = getLightboxMedia();
+    let index = 0;
+    if (lightboxMedia.length > 1) {
+      const foundIndex = lightboxMedia.findIndex((m) => m.id === media.id);
+      index = foundIndex >= 0 ? foundIndex : currentIndex;
+    }
+
+    setLightboxPlayOnOpen(autoPlayVideo && isVideoMedia);
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
   const handleFullscreen = () => {
     if (onFullscreen) {
       onFullscreen();
-    } else if (isMedia && media) {
-      // Default behavior: open lightbox with proper index
-      const lightboxMedia = getLightboxMedia();
-      let index = 0;
-      if (lightboxMedia.length > 1) {
-        const foundIndex = lightboxMedia.findIndex((m) => m.id === media.id);
-        index = foundIndex >= 0 ? foundIndex : currentIndex;
-      }
-      setLightboxIndex(index);
-      setLightboxOpen(true);
+    } else {
+      openLightbox(false);
     }
+  };
+
+  const handlePlayCircleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isVideoMedia || isSelecting) {
+      return;
+    }
+
+    if (isMobileInterface) {
+      setShowMobileActions(false);
+    }
+
+    openLightbox(true);
   };
 
   const handleAddToAlbum = useCallback(() => {
@@ -488,14 +513,14 @@ export function ContentCard({
   };
 
   // Get the appropriate media list for lightbox
-  const getLightboxMedia = (): Media[] => {
+  function getLightboxMedia(): Media[] {
     if (mediaList && mediaList.length > 0) {
       return mediaList;
     } else if (isMedia && media) {
       return [media];
     }
     return [];
-  };
+  }
 
   // Build custom actions array based on inActions prop
   const builtCustomActions = useMemo(() => {
@@ -778,14 +803,22 @@ export function ContentCard({
             {/* Play button for videos */}
             {isVideoMedia && (
               <div className="absolute inset-0 flex items-center justify-center">
-                <PlayCircle
-                  className={cn(
-                    "w-16 h-16 text-white/80 transition-all duration-300",
-                    isHovered || isDropdownHovered
-                      ? "opacity-100 scale-110"
-                      : "opacity-50 scale-100"
-                  )}
-                />
+                <button
+                  type="button"
+                  onClick={handlePlayCircleClick}
+                  className="group flex items-center justify-center rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                  aria-label="Play video"
+                >
+                  <PlayCircle
+                    className={cn(
+                      "w-16 h-16 text-white/80 transition-all duration-300",
+                      isHovered || isDropdownHovered
+                        ? "opacity-100 scale-110"
+                        : "opacity-50 scale-100",
+                      "group-hover:opacity-100 group-hover:scale-110"
+                    )}
+                  />
+                </button>
               </div>
             )}
 
@@ -1228,6 +1261,7 @@ export function ContentCard({
           media={getLightboxMedia()}
           currentIndex={lightboxIndex}
           isOpen={lightboxOpen}
+          playOnOpen={lightboxPlayOnOpen}
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
           canDelete={media.createdBy === user?.userId || user?.role === "admin"}
@@ -1235,7 +1269,10 @@ export function ContentCard({
             onDelete?.();
           }}
           onLoadMore={onLoadMore}
-          onClose={() => setLightboxOpen(false)}
+          onClose={() => {
+            setLightboxOpen(false);
+            setLightboxPlayOnOpen(false);
+          }}
           onNext={() => {
             const lightboxMedia = getLightboxMedia();
             if (lightboxIndex < lightboxMedia.length - 1 || hasNextPage) {

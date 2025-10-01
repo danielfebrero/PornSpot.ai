@@ -205,3 +205,5 @@
 [x] Make PornSpot free until we choose it's paid. Use a constant.
 
 [x] Find why it does not show advantages of registering anymore.
+
+[ ] Play video from content cards in one click.
