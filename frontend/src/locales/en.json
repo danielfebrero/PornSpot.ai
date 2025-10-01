@@ -886,7 +886,7 @@
       "cancel": "Cancel",
       "album": "Album",
       "download": "Download",
-      "comingSoon": "Available for pro and on Oct 1st for all users",
+      "comingSoon": "Available for pro and on Oct 7th for all users",
       "convertHintMobile": "To convert an image to video, tap this <btn></btn> button on any image.",
       "convertHintDesktop": "To convert an image to video, click this <btn></btn> button on any image."
     },
@@ -1757,8 +1757,8 @@
     "loginRequiredTitle": "Login Required",
     "loginRequiredMessage": "You must be logged in to purchase a plan or video credits. Please sign in or create an account.",
     "comingSoon": {
-      "title": "New payments launch October 1st",
-      "message": "We're putting the finishing touches on our upgraded checkout. Please check back on October 1st to complete your purchase.",
+      "title": "New payments launch October 7th",
+      "message": "We're putting the finishing touches on our upgraded checkout. Please check back on October 7th to complete your purchase.",
       "note": "Thanks for your patience while we finalize this feature."
     }
   },

@@ -854,7 +854,7 @@
       "cancel": "Abbrechen",
       "album": "Album",
       "download": "Herunterladen",
-      "comingSoon": "Verfügbar für Pro und ab 1. Oktober für alle Nutzer",
+      "comingSoon": "Verfügbar für Pro und ab 7. Oktober für alle Nutzer",
       "convertHintMobile": "Um ein Bild in ein Video zu konvertieren, tippe auf diesen <btn></btn> Button bei einem Bild.",
       "convertHintDesktop": "Um ein Bild in ein Video zu konvertieren, klicke auf diesen <btn></btn> Button bei einem Bild."
     },
@@ -1714,8 +1714,8 @@
     "loginRequiredTitle": "Anmeldung erforderlich",
     "loginRequiredMessage": "Sie müssen angemeldet sein, um einen Plan oder Video-Credits zu kaufen. Bitte melden Sie sich an oder erstellen Sie ein Konto.",
     "comingSoon": {
-      "title": "Neue Zahlungen starten am 1. Oktober",
-      "message": "Wir setzen die letzten Schliffe an unserem verbesserten Checkout. Bitte schauen Sie am 1. Oktober zurück, um Ihren Kauf abzuschließen.",
+      "title": "Neue Zahlungen starten am 7. Oktober",
+      "message": "Wir setzen die letzten Schliffe an unserem verbesserten Checkout. Bitte schauen Sie am 7. Oktober zurück, um Ihren Kauf abzuschließen.",
       "note": "Vielen Dank für Ihre Geduld, während wir diese Funktion fertigstellen."
     }
   },
