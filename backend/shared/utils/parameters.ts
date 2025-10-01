@@ -392,4 +392,23 @@ export class ParameterStoreService {
       false
     );
   }
+
+  /**
+   * Get the Active Promotions from Parameter Store or environment variable. They are stored as comma-separated string.
+   */
+  static async getActivePromotions(): Promise<string> {
+    if (isLocal) {
+      const url = process.env["ACTIVE_PROMOTIONS"];
+      if (!url) {
+        throw new Error(
+          "ACTIVE_PROMOTIONS environment variable is required in local development"
+        );
+      }
+      console.log("Using local ACTIVE_PROMOTIONS from environment variable");
+      return url;
+    }
+
+    const environment = process.env["ENVIRONMENT"] || "dev";
+    return await this.getParameter(`/${environment}/active-promotions`, false);
+  }
 }

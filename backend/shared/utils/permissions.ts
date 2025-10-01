@@ -6,6 +6,7 @@
 const fs = require("fs");
 const path = require("path");
 
+import { ParameterStoreService } from "@shared";
 // Import shared permission types instead of defining them locally
 import type {
   UserPlan,
@@ -200,15 +201,19 @@ export function getRolePermissions(role: UserRole): RolePermissions {
 /**
  * Get generation-specific permissions for a plan (for backward compatibility)
  */
-export function getGenerationPermissions(
+export async function getGenerationPermissions(
   plan: UserPlan
-): GenerationPermissions {
-  // Special promotion: Until September 30, 2025, all authenticated users (all plans)
+): Promise<GenerationPermissions> {
   // get access to all generation features
-  const currentDate = new Date();
-  const promotionEndDate = new Date("2025-09-30T23:59:59Z");
+  const activePromotions = await ParameterStoreService.getActivePromotions();
+  const activePromotionsArray = activePromotions
+    .split(",")
+    .map((p) => p.trim());
+  const isPromotionActive = activePromotionsArray.includes(
+    "all_plans_pro_features"
+  );
 
-  if (currentDate <= promotionEndDate && plan !== "anonymous") {
+  if (isPromotionActive && plan !== "anonymous") {
     // During promotion period, all plans get full pro-level generation permissions
     return {
       canUseBulkGeneration: true,

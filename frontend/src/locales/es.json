@@ -1735,9 +1735,9 @@
     "loginRequiredTitle": "Inicio de sesión requerido",
     "loginRequiredMessage": "Debes iniciar sesión para comprar un plan o créditos de video. Por favor, inicia sesión o crea una cuenta.",
     "comingSoon": {
-      "title": "Nuevos pagos lanzamiento 7 de octubre",
-      "message": "Estamos dando los toques finales a nuestro sistema de pago mejorado. Por favor, vuelve el 7 de octubre para completar tu compra.",
-      "note": "Gracias por tu paciencia mientras finalizamos esta funcionalidad."
+      "title": "¡Tiempo limitado: Funciones Pro para todos!",
+      "message": "¡Por tiempo limitado, todos los usuarios registrados obtienen funciones pro! Los usuarios que compraron planes pro anteriormente también pueden generar videos. Vuelve más tarde para comprar créditos de video o un plan.",
+      "note": "Disfruta del acceso ilimitado mientras dure esta promoción."
     }
   },
   "usage": {

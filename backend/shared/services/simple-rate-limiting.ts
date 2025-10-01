@@ -26,6 +26,7 @@ import { DynamoDBService } from "../utils/dynamodb";
 import { extractClientIP } from "../utils/ip-extraction";
 import { createHash } from "crypto";
 import { User, UserPlan } from "@shared/shared-types";
+import { ParameterStoreService } from "@shared";
 
 export interface SimplifiedRateLimitResult {
   allowed: boolean;
@@ -265,11 +266,16 @@ export class SimplifiedRateLimitingService {
     event: APIGatewayProxyEvent
   ): Promise<SimplifiedRateLimitResult> {
     try {
-      // TEMPORARY: Until September 30, 2025, all registered users get unlimited quota
-      const temporaryUnlimitedEndDate = new Date("2025-09-30T23:59:59.999Z");
-      const currentDate = new Date();
+      const activePromotions =
+        await ParameterStoreService.getActivePromotions();
+      const activePromotionsArray = activePromotions
+        .split(",")
+        .map((p) => p.trim());
+      const isPromotionActive = activePromotionsArray.includes(
+        "all_plans_pro_features"
+      );
 
-      if (currentDate < temporaryUnlimitedEndDate) {
+      if (isPromotionActive) {
         return { allowed: true, remaining: "unlimited" };
       }
 
@@ -352,11 +358,16 @@ export class SimplifiedRateLimitingService {
     userId: string
   ): Promise<SimplifiedRateLimitResult> {
     try {
-      // TEMPORARY: Until September 30, 2025, all registered users get unlimited quota
-      const temporaryUnlimitedEndDate = new Date("2025-09-30T23:59:59.999Z");
-      const currentDate = new Date();
+      const activePromotions =
+        await ParameterStoreService.getActivePromotions();
+      const activePromotionsArray = activePromotions
+        .split(",")
+        .map((p) => p.trim());
+      const isPromotionActive = activePromotionsArray.includes(
+        "all_plans_pro_features"
+      );
 
-      if (currentDate < temporaryUnlimitedEndDate) {
+      if (isPromotionActive) {
         return { allowed: true, remaining: "unlimited" };
       }
 

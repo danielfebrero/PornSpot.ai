@@ -1783,9 +1783,9 @@
     "loginRequiredTitle": "Connexion requise",
     "loginRequiredMessage": "Vous devez être connecté pour acheter un plan ou des crédits vidéo. Veuillez vous connecter ou créer un compte.",
     "comingSoon": {
-      "title": "Nouveaux paiements le 7 octobre",
-      "message": "Nous finalisons notre système de paiement amélioré. Veuillez revenir le 7 octobre pour finaliser votre achat.",
-      "note": "Merci de votre patience pendant que nous finalisons cette fonctionnalité."
+      "title": "Offre limitée : Fonctionnalités Pro pour tous !",
+      "message": "Pour une durée limitée, tous les utilisateurs enregistrés bénéficient des fonctionnalités pro ! Les utilisateurs qui ont acheté un plan pro auparavant peuvent également générer des vidéos. Revenez plus tard pour acheter des crédits vidéo ou un plan.",
+      "note": "Profitez de l'accès illimité tant que cette promotion dure."
     }
   },
   "usage": {

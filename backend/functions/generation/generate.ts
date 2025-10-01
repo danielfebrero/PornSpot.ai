@@ -1147,7 +1147,7 @@ const handleGenerate = async (
   }
 
   const userPlan = enhancedUser?.planInfo.plan || "anonymous";
-  const permissions = getGenerationPermissions(userPlan);
+  const permissions = await getGenerationPermissions(userPlan);
 
   // Validate request
   const validationError = ValidationService.validateRequest(

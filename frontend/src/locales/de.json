@@ -1719,9 +1719,9 @@
     "loginRequiredTitle": "Anmeldung erforderlich",
     "loginRequiredMessage": "Sie müssen angemeldet sein, um einen Plan oder Video-Credits zu kaufen. Bitte melden Sie sich an oder erstellen Sie ein Konto.",
     "comingSoon": {
-      "title": "Neue Zahlungen starten am 7. Oktober",
-      "message": "Wir setzen die letzten Schliffe an unserem verbesserten Checkout. Bitte schauen Sie am 7. Oktober zurück, um Ihren Kauf abzuschließen.",
-      "note": "Vielen Dank für Ihre Geduld, während wir diese Funktion fertigstellen."
+      "title": "Zeitlich begrenzt: Pro-Features für alle!",
+      "message": "Für eine begrenzte Zeit erhalten alle registrierten Benutzer Pro-Features! Benutzer, die zuvor Pro-Pläne gekauft haben, können auch Videos generieren. Kommen Sie später zurück, um Video-Credits oder einen Plan zu kaufen.",
+      "note": "Genießen Sie unbegrenzten Zugang, solange diese Aktion läuft."
     }
   },
   "usage": {

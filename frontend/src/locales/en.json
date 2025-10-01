@@ -1761,9 +1761,9 @@
     "loginRequiredTitle": "Login Required",
     "loginRequiredMessage": "You must be logged in to purchase a plan or video credits. Please sign in or create an account.",
     "comingSoon": {
-      "title": "New payments launch October 7th",
-      "message": "We're putting the finishing touches on our upgraded checkout. Please check back on October 7th to complete your purchase.",
-      "note": "Thanks for your patience while we finalize this feature."
+      "title": "Limited Time: Pro Features for All!",
+      "message": "For a limited time, all registered users get pro features! Users who previously purchased pro plans can also generate videos. Come back later for purchasing video credits or a plan.",
+      "note": "Enjoy unlimited access while this promotion lasts."
     }
   },
   "usage": {
