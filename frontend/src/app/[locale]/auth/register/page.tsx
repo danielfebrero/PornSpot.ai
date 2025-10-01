@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { locales } from "@/i18n";
 import { Suspense } from "react";
-import { RegisterFormWithInvitation } from "@/components/user/RegisterFormWithInvitation";
+import RegisterForm from "@/components/user/RegisterForm";
 
 type RegisterPageProps = {
   params: { locale: string };
@@ -46,7 +46,7 @@ async function RegisterFallback({ locale }: { locale: string }) {
 export default function RegisterPage({ params }: RegisterPageProps) {
   return (
     <Suspense fallback={<RegisterFallback locale={params.locale} />}>
-      <RegisterFormWithInvitation />
+      <RegisterForm />
     </Suspense>
   );
 }

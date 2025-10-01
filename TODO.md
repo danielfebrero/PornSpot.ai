@@ -202,4 +202,6 @@
 
 [ ] Add a "cookie" bar at the bottom of the page.
 
-[ ] Make PornSpot free until we choose it's paid. Use a constant.
+[x] Make PornSpot free until we choose it's paid. Use a constant.
+
+[x] Find why it does not show advantages of registering anymore.

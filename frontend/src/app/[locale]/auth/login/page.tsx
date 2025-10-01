@@ -1,12 +1,12 @@
 import { Metadata } from "next";
 import { locales } from "@/i18n";
 import { Suspense } from "react";
-import { LoginFormWithInvitation } from "@/components/user/LoginFormWithInvitation";
 import {
   generateTranslatedOpenGraphMetadata,
   generateSiteUrl,
 } from "@/lib/opengraph";
 import { getTranslations } from "next-intl/server";
+import LoginForm from "@/components/user/LoginForm";
 
 type LoginPageProps = {
   params: { locale: string };
@@ -49,7 +49,7 @@ async function LoginFallback({ locale }: { locale: string }) {
 export default function LoginPage({ params }: LoginPageProps) {
   return (
     <Suspense fallback={<LoginFallback locale={params.locale} />}>
-      <LoginFormWithInvitation />
+      <LoginForm />
     </Suspense>
   );
 }
