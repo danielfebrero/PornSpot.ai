@@ -116,6 +116,10 @@
     "albums": "专辑",
     "signIn": "登录"
   },
+  "cookieBanner": {
+    "message": "本网站使用 cookies 来为您提供更好的浏览体验。通过浏览 PornSpot 网站，您同意使用 cookies。了解更多关于我们如何使用 cookies 的信息请<link>点击这里</link>。",
+    "accept": "确定"
+  },
   "profile": {
     "username": "用户名",
     "bio": "个人简介",

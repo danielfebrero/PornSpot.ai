@@ -173,3 +173,7 @@
 [x] "Other controls" meta data on media page of video is not accurate.
 
 [x] I receive two emails for PSpotCoin balance instead of 1. James receive only 1.
+
+[ ] I cannot delete my bio in profile.
+
+[ ] I cannot change my profile picture in profile.

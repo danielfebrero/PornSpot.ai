@@ -104,6 +104,10 @@
       "daysAgo": "il y a {count}j"
     },
     "noMediaFound": "Aucun média trouvé",
+    "cookieBanner": {
+      "message": "Ce site utilise des cookies pour vous offrir une meilleure expérience de navigation. En naviguant sur les sites PornSpot, vous acceptez l'utilisation de cookies. Découvrez comment nous utilisons les cookies <link>ici</link>.",
+      "accept": "OK"
+    },
     "albumDoesntContainMediaFiles": "Cet album ne contient pas encore de fichiers multimédias.",
     "loadingMoreMedia": "Chargement de plus de médias...",
     "failedToLoadMoreMedia": "Échec du chargement de plus de médias",

@@ -22,6 +22,7 @@ import { MobileNavigationWrapper } from "@/components/MobileNavigationWrapper";
 import { LanguageRedirect } from "@/components/LanguageRedirect";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { detectDevice } from "@/lib/deviceUtils";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import {
   PageErrorBoundary,
   SectionErrorBoundary,
@@ -173,6 +174,7 @@ export default async function LocaleLayout({
                               </AgeGateWrapper>
                               <NavigationLoadingOverlay />
                               <MobileNavigationWrapper />
+                              <CookieConsentBanner />
                             </NavigationLoadingProvider>
                           </GenerationProvider>
                         </WebSocketProvider>

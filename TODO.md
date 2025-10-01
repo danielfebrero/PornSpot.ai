@@ -195,3 +195,11 @@
 [x] Include 20s of video in the unlimited plan.
 
 [ ] Create a FAQ page (list of lora models, how long does it take to generate a video, etc)
+
+[ ] Send an email to user when someone follow him.
+
+[ ] Send a weekly email with recap of new followers, likes, bookmarks, comments, etc.
+
+[ ] Add a "cookie" bar at the bottom of the page.
+
+[ ] Make PornSpot free until we choose it's paid. Use a constant.

@@ -99,6 +99,10 @@
     "albums": "Albums",
     "signIn": "Sign In"
   },
+  "cookieBanner": {
+    "message": "This site uses cookies to provide you with a better browsing experience. By browsing PornSpot websites, you agree with using cookies. Find out more on how we use cookies <link>here</link>.",
+    "accept": "OK"
+  },
   "profile": {
     "username": "Username",
     "bio": "Bio",

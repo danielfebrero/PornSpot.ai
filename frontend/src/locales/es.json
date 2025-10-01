@@ -116,6 +116,10 @@
     "albums": "Álbumes",
     "signIn": "Iniciar sesión"
   },
+  "cookieBanner": {
+    "message": "Este sitio utiliza cookies para ofrecerte una mejor experiencia de navegación. Al navegar por los sitios de PornSpot, aceptas el uso de cookies. Descubre más sobre cómo usamos las cookies <link>aquí</link>.",
+    "accept": "OK"
+  },
   "profile": {
     "username": "Nombre de usuario",
     "bio": "Biografía",

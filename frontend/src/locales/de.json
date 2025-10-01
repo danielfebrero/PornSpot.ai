@@ -100,6 +100,10 @@
     "albums": "Alben",
     "signIn": "Anmelden"
   },
+  "cookieBanner": {
+    "message": "Diese Website verwendet Cookies, um Ihnen ein besseres Surferlebnis zu bieten. Wenn Sie auf Websites von PornSpot surfen, stimmen Sie der Verwendung von Cookies zu. Erfahren Sie mehr darüber, wie wir Cookies verwenden <link>hier</link>.",
+    "accept": "OK"
+  },
   "profile": {
     "username": "Benutzername",
     "bio": "Bio",
