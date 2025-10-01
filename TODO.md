@@ -206,4 +206,4 @@
 
 [x] Find why it does not show advantages of registering anymore.
 
-[ ] Play video from content cards in one click.
+[x] Play video from content cards in one click.

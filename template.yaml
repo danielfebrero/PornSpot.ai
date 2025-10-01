@@ -530,6 +530,7 @@ Resources:
 
   GetDiscoverFunction:
     Type: AWS::Serverless::Function
+    MemorySize: 512
     Properties:
       FunctionName: !Sub "${Environment}-pornspot-get-discover-v2"
       PackageType: Image

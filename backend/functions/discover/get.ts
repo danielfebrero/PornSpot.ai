@@ -69,6 +69,15 @@ function calculateTimeWeightedPopularity(
   return basePopularity * timeFactor * recencyBoost;
 }
 
+function createSeededRandom(seed: number): () => number {
+  let state = Math.floor((seed % 1) * 2147483646) + 1;
+
+  return () => {
+    state = (state * 16807) % 2147483647;
+    return (state - 1) / 2147483646;
+  };
+}
+
 /**
  * Get time window parameters based on pagination depth
  * As users scroll, we fetch slightly older content
@@ -182,6 +191,10 @@ const handleGetDiscover = async (
 
   // Add random seed to ensure different results on each request
   const randomSeed = Math.random();
+  const seededRandom = createSeededRandom(randomSeed);
+  const SCORE_WEIGHT = 0.7;
+  const RANDOM_WEIGHT = 0.3;
+  const RANDOM_SCALE = RANDOM_WEIGHT * 1000;
 
   console.log("[Discover API] Request params:", {
     limit,
@@ -387,7 +400,8 @@ const handleGetDiscover = async (
   }
 
   // Fetch larger batches to account for filtering and diversification
-  const fetchLimit = limit * 3; // Fetch 3x to ensure enough content after filtering
+  const fetchMultiplier = limit <= 40 ? 2 : 3;
+  const fetchLimit = limit * fetchMultiplier;
 
   // Fetch recent content (we'll apply popularity scoring after)
   const [albumsResult, mediaResult] = await Promise.all([
@@ -401,6 +415,8 @@ const handleGetDiscover = async (
     albums: albumsResult.albums.length,
     media: mediaResult.media.length,
     albumsExhausted: albumsResult.albums.length === 0 && !!albumsCursor,
+    fetchLimit,
+    fetchMultiplier,
   });
 
   // Check if albums are exhausted (no more albums but we had a cursor)
@@ -463,43 +479,62 @@ const handleGetDiscover = async (
   const windowStartMs = now - timeWindow.windowEndDays * 24 * 60 * 60 * 1000;
   const windowEndMs = now - timeWindow.windowStartDays * 24 * 60 * 60 * 1000;
 
-  // Filter and score albums (including recycled ones if any)
-  const scoredAlbums = allAlbums
-    .filter((album) => {
-      const createdAt = new Date(album.createdAt).getTime();
-      // For recycled albums, be more lenient with time window
-      if (recycledAlbumsResult?.albums.includes(album)) {
-        return true; // Include all recycled albums regardless of age
-      }
-      return createdAt >= windowStartMs && createdAt <= windowEndMs;
-    })
-    .map((album) => ({
+  const recycledAlbumIdSet =
+    recycledAlbumsResult && recycledAlbumsResult.albums.length > 0
+      ? new Set(recycledAlbumsResult.albums.map((album) => album.id))
+      : null;
+  const additionalMediaIdSet =
+    additionalMediaResult && additionalMediaResult.media.length > 0
+      ? new Set(additionalMediaResult.media.map((mediaItem) => mediaItem.id))
+      : null;
+
+  const scoredAlbums: Array<{ item: Album; combinedScore: number }> = [];
+  for (const album of allAlbums) {
+    const createdAt = new Date(album.createdAt).getTime();
+    const isRecycled = recycledAlbumIdSet?.has(album.id) ?? false;
+
+    if (!isRecycled && (createdAt < windowStartMs || createdAt > windowEndMs)) {
+      continue;
+    }
+
+    const baseScore = calculateTimeWeightedPopularity(
+      album,
+      timeWindow.maxAgeInDays
+    );
+    const combinedScore =
+      baseScore * SCORE_WEIGHT + seededRandom() * RANDOM_SCALE;
+
+    scoredAlbums.push({
       item: album,
-      score: calculateTimeWeightedPopularity(album, timeWindow.maxAgeInDays),
-      random: Math.random(), // Add random factor for shuffling
-      isRecycled: recycledAlbumsResult?.albums.includes(album) || false,
-    }));
+      combinedScore,
+    });
+  }
 
-  // Filter and score media (including additional media if any)
   const VIDEO_SCORE_BOOST_MULTIPLIER = 1.25;
+  const scoredMedia: Array<{ item: Media; combinedScore: number }> = [];
 
-  const scoredMedia = allMedia
-    .filter((media) => {
-      const createdAt = new Date(media.createdAt).getTime();
-      // For additional media fetched due to album shortage, be more lenient
-      if (additionalMediaResult?.media.includes(media)) {
-        return true; // Include all additional media
-      }
-      return createdAt >= windowStartMs && createdAt <= windowEndMs;
-    })
-    .map((media) => ({
-      item: media,
-      score:
-        calculateTimeWeightedPopularity(media, timeWindow.maxAgeInDays) *
-        (media.type === "video" ? VIDEO_SCORE_BOOST_MULTIPLIER : 1),
-      random: Math.random(),
-      isAdditional: additionalMediaResult?.media.includes(media) || false,
-    }));
+  for (const mediaItem of allMedia) {
+    const createdAt = new Date(mediaItem.createdAt).getTime();
+    const isAdditional = additionalMediaIdSet?.has(mediaItem.id) ?? false;
+
+    if (
+      !isAdditional &&
+      (createdAt < windowStartMs || createdAt > windowEndMs)
+    ) {
+      continue;
+    }
+
+    const baseScore =
+      calculateTimeWeightedPopularity(mediaItem, timeWindow.maxAgeInDays) *
+      (mediaItem.type === "video" ? VIDEO_SCORE_BOOST_MULTIPLIER : 1);
+    const combinedScore =
+      baseScore * SCORE_WEIGHT + seededRandom() * RANDOM_SCALE;
+
+    scoredMedia.push({
+      item: mediaItem,
+      combinedScore,
+    });
+  }
 
   console.log("[Discover API] After time window filtering:", {
     albums: scoredAlbums.length,
@@ -507,29 +542,11 @@ const handleGetDiscover = async (
     timeWindow: `${timeWindow.windowStartDays}-${timeWindow.windowEndDays} days`,
   });
 
-  // Sort by score with randomization
-  // Mix score-based sorting with randomness to avoid being too deterministic
-  const sortWithRandomness = <T extends { score: number; random: number }>(
-    items: T[]
-  ): T[] => {
-    return items.sort((a, b) => {
-      // 70% weight on score, 30% weight on randomness
-      const scoreWeight = 0.7;
-      const randomWeight = 0.3;
+  scoredAlbums.sort((a, b) => b.combinedScore - a.combinedScore);
+  scoredMedia.sort((a, b) => b.combinedScore - a.combinedScore);
 
-      const aValue = a.score * scoreWeight + a.random * 1000 * randomWeight;
-      const bValue = b.score * scoreWeight + b.random * 1000 * randomWeight;
-
-      return bValue - aValue; // Descending order
-    });
-  };
-
-  const sortedAlbums = sortWithRandomness(scoredAlbums);
-  const sortedMedia = sortWithRandomness(scoredMedia);
-
-  // Extract just the items (remove scores)
-  let albums = sortedAlbums.map((s) => s.item);
-  let media = sortedMedia.map((s) => s.item);
+  let albums = scoredAlbums.map((entry) => entry.item);
+  let media = scoredMedia.map((entry) => entry.item);
 
   // Apply user diversification
   albums = ContentDiversificationUtil.diversifyByUser(albums, maxPerUser);
