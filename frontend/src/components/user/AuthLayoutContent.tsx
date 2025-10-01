@@ -10,7 +10,6 @@ interface AuthLayoutContentProps {
 export function AuthLayoutContent({ children }: AuthLayoutContentProps) {
   const pathname = usePathname();
   const isRegisterPage = pathname.includes("/register");
-  const isLoginPage = pathname.includes("/login");
 
   // Utiliser le contexte d'invitation pour savoir si on doit afficher la section Why Register
 
