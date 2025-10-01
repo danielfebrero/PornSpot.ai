@@ -1568,7 +1568,7 @@
     "randomSeed": "随机种子",
     "generateImages": "生成{count}张图片",
     "generateSingle": "生成",
-    "aiImageGenerator": "AI图像和视频生成器",
+    "aiImageGenerator": "AI图像生成器",
     "transformImagination": "将您的想象力转化为令人惊叹的AI生成艺术作品",
     "imagesGenerated": "已生成图像",
     "describeVision": "描述您的愿景",
