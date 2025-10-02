@@ -1,0 +1,14 @@
+{{subject}}
+
+Hello {{displayName}},
+
+{{followerName}} just followed you on PornSpot.ai!
+
+Check out their profile and welcome them:
+{{profileUrl}}
+
+You can manage which emails you receive anytime:
+{{settingsUrl}}
+
+See you soon,
+The PornSpot.ai Team

@@ -1,14 +1,16 @@
-- @fileoverview Email Templates README
-- @description Documentation for email templates in the shared directory.
-- @notes
-- - Structure: HTML and TXT pairs for each template.
-- - Available templates: verification, welcome.
-- - Variables per template.
-- - Usage with EmailTemplateService.
-- - Design guidelines for HTML (responsive, dark theme) and text.
-- - Testing with validation methods.
-
 # Email Templates
+
+<!--
+@fileoverview Email Templates README
+@description Documentation for email templates in the shared directory.
+@notes
+- Structure: HTML and TXT pairs for each template.
+- Available templates: verification, welcome.
+- Variables per template.
+- Usage with EmailTemplateService.
+- Design guidelines for HTML (responsive, dark theme) and text.
+- Testing with validation methods.
+-->
 
 This directory contains HTML and text email templates for the PornSpot.ai application.
 
@@ -54,6 +56,16 @@ Each email template consists of two files:
   - `{{displayName}}` - User's display name (first name or email)
   - `{{balancePSC}}` - Current PSC balance to display
   - `{{dashboardUrl}}` - Link to the PSC dashboard (e.g., <https://www.pornspot.ai/en/user/pornspotcoin>)
+
+### new-follower
+
+- **Purpose**: Notify users when they receive a new follower and provide a quick link to the follower's profile
+- **Variables**:
+  - `{{subject}}` - Email subject line
+  - `{{displayName}}` - Followed user's display name
+  - `{{followerName}}` - Follower's display name to show in the email
+  - `{{profileUrl}}` - Direct link to the follower's profile page
+  - `{{settingsUrl}}` - Link for the user to manage their email notification preferences
 
 ## Template Variables
 

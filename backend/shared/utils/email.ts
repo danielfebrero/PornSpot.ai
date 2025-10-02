@@ -222,6 +222,39 @@ export class EmailService {
   }
 
   /**
+   * Send new follower notification email
+   */
+  static async sendNewFollowerEmail(options: {
+    to: string;
+    username?: string;
+    followerName: string;
+    profileUrl: string;
+    settingsUrl: string;
+  }): Promise<EmailSendResult> {
+    const { to, username, followerName, profileUrl, settingsUrl } = options;
+    const displayName = username ? username : to;
+    const followerDisplay = followerName || "A new user";
+
+    const subject = `${followerDisplay} just followed you on PornSpot.ai`;
+
+    const { htmlBody, textBody } = await EmailTemplateService.loadTemplate(
+      "new-follower",
+      {
+        subject,
+        displayName,
+        followerName: followerDisplay,
+        profileUrl,
+        settingsUrl,
+      }
+    );
+
+    return this.sendEmail({
+      to,
+      template: { subject, htmlBody, textBody },
+    });
+  }
+
+  /**
    * Get email verification template
    */
   private static async getVerificationEmailTemplate(

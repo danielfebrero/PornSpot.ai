@@ -177,3 +177,5 @@
 [ ] I cannot delete my bio in profile.
 
 [ ] I cannot change my profile picture in profile.
+
+[ ] Discover by tag not working.

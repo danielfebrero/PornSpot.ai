@@ -1301,6 +1301,10 @@
         "pscBalance": {
           "label": "Mises à jour du solde PornSpotCoin"
         },
+        "newFollower": {
+          "label": "Alertes pour nouveaux abonnés",
+          "description": "Recevez un email lorsqu'une personne vous suit"
+        },
         "unread": {
           "label": "Résumé des notifications non lues"
         },

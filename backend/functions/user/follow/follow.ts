@@ -13,7 +13,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
+import { EmailService } from "@shared/utils/email";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
+import { ParameterStoreService } from "@shared/utils/parameters";
 import { ValidationUtil } from "@shared/utils/validation";
 import { NotificationTargetType } from "@shared";
 
@@ -81,6 +83,8 @@ const handleFollowUser = async (
       );
     }
 
+    const followerUser = await DynamoDBService.getUserById(followerId);
+
     // Create follow relationship and increment follower count
     await Promise.all([
       DynamoDBService.createFollowRelationship(followerId, followedId),
@@ -100,6 +104,59 @@ const handleFollowUser = async (
       console.log(`📬 Created follow notification for user ${followedId}`);
     } catch (error) {
       console.warn(`⚠️ Failed to create like notification:`, error);
+    }
+
+    try {
+      const toEmail = userToFollow.email;
+      const emailPreference = userToFollow.emailPreferences?.newFollowers;
+
+      if (!toEmail) {
+        console.log(
+          "✉️ Skipping new follower email: followed user has no email",
+          { followedId }
+        );
+      } else if (emailPreference === "never") {
+        console.log("✉️ Skipping new follower email per user preference", {
+          followedId,
+        });
+      } else {
+        const frontendUrl = await ParameterStoreService.getFrontendUrl();
+        const baseUrl = frontendUrl.endsWith("/")
+          ? frontendUrl.slice(0, -1)
+          : frontendUrl;
+        const locale = (userToFollow.preferredLanguage || "en").toLowerCase();
+        const followerDisplayName =
+          followerUser?.username ||
+          followerUser?.firstName ||
+          followerUser?.email ||
+          "A new user";
+
+        const profilePathSegment = followerUser?.username
+          ? `/profile/${encodeURIComponent(followerUser.username)}`
+          : `/profile/${followerUser?.userId || followerId}`;
+
+        const profileUrl = `${baseUrl}/${locale}${profilePathSegment}`;
+        const settingsUrl = `${baseUrl}/${locale}/settings`;
+
+        await EmailService.sendNewFollowerEmail({
+          to: toEmail,
+          username: userToFollow.username,
+          followerName: followerDisplayName,
+          profileUrl,
+          settingsUrl,
+        });
+
+        console.log(
+          "📧 Sent new follower email",
+          JSON.stringify({ followedId, followerId })
+        );
+      }
+    } catch (error) {
+      console.warn("⚠️ Failed to send new follower email", {
+        error,
+        followedId,
+        followerId,
+      });
     }
 
     const response: FollowUserResponse = {

@@ -22,6 +22,7 @@ export type EmailPreferenceMode = "intelligently" | "never";
 export interface EmailPreferences {
   pscBalance?: EmailPreferenceMode;
   unreadNotifications?: EmailPreferenceMode;
+  newFollowers?: EmailPreferenceMode;
 }
 
 export interface User {

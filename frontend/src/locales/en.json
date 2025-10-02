@@ -1285,6 +1285,10 @@
         "pscBalance": {
           "label": "PornSpotCoin balance updates"
         },
+        "newFollower": {
+          "label": "New follower alerts",
+          "description": "Get an email when someone follows you"
+        },
         "unread": {
           "label": "Unread notifications summary"
         },

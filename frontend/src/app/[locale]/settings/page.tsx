@@ -126,6 +126,9 @@ export default function SettingsPage() {
   const [unreadEmailPref, setUnreadEmailPref] = useState<
     "intelligently" | "never"
   >("intelligently");
+  const [newFollowerEmailPref, setNewFollowerEmailPref] = useState<
+    "intelligently" | "never"
+  >("intelligently");
   const [isSavingEmailPrefs, setIsSavingEmailPrefs] = useState(false);
 
   // Alert Dialog states
@@ -248,6 +251,9 @@ export default function SettingsPage() {
       if (user.emailPreferences.unreadNotifications) {
         setUnreadEmailPref(user.emailPreferences.unreadNotifications);
       }
+      if (user.emailPreferences.newFollowers) {
+        setNewFollowerEmailPref(user.emailPreferences.newFollowers);
+      }
     }
   }, [user?.emailPreferences]);
 
@@ -264,7 +270,7 @@ export default function SettingsPage() {
   };
 
   const updateEmailPreference = async (
-    field: "pscBalance" | "unreadNotifications",
+    field: "pscBalance" | "unreadNotifications" | "newFollowers",
     value: "intelligently" | "never",
     prevValue: "intelligently" | "never"
   ) => {
@@ -277,7 +283,8 @@ export default function SettingsPage() {
       });
     } catch (error: unknown) {
       if (field === "pscBalance") setPscEmailPref(prevValue);
-      else setUnreadEmailPref(prevValue);
+      else if (field === "unreadNotifications") setUnreadEmailPref(prevValue);
+      else setNewFollowerEmailPref(prevValue);
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -815,6 +822,35 @@ export default function SettingsPage() {
                 const prev = pscEmailPref;
                 setPscEmailPref(next);
                 updateEmailPreference("pscBalance", next, prev);
+              }}
+              disabled={isSavingEmailPrefs}
+              className="px-3 py-1.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="intelligently">
+                {tSettings("notifications.options.intelligently")}
+              </option>
+              <option value="never">
+                {tSettings("notifications.options.never")}
+              </option>
+            </select>
+          </div>
+
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+            <div>
+              <p className="font-medium text-sm">
+                {tSettings("notifications.newFollower.label")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {tSettings("notifications.newFollower.description")}
+              </p>
+            </div>
+            <select
+              value={newFollowerEmailPref}
+              onChange={(e) => {
+                const next = e.target.value as "intelligently" | "never";
+                const prev = newFollowerEmailPref;
+                setNewFollowerEmailPref(next);
+                updateEmailPreference("newFollowers", next, prev);
               }}
               disabled={isSavingEmailPrefs}
               className="px-3 py-1.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
@@ -1410,6 +1446,41 @@ export default function SettingsPage() {
                   const prev = pscEmailPref;
                   setPscEmailPref(next);
                   updateEmailPreference("pscBalance", next, prev);
+                }}
+                disabled={isSavingEmailPrefs}
+                className="w-full px-4 py-2.5 pr-10 rounded-lg border bg-background text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+              >
+                <option value="intelligently">
+                  {tSettings("notifications.options.intelligently")}
+                </option>
+                <option value="never">
+                  {tSettings("notifications.options.never")}
+                </option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        {/* New Follower Notifications */}
+        <div className="bg-card rounded-xl border p-4">
+          <div className="space-y-3">
+            <div>
+              <p className="font-medium text-sm mb-1">
+                {tSettings("notifications.newFollower.label")}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {tSettings("notifications.newFollower.description")}
+              </p>
+            </div>
+            <div className="relative">
+              <select
+                value={newFollowerEmailPref}
+                onChange={(e) => {
+                  const next = e.target.value as "intelligently" | "never";
+                  const prev = newFollowerEmailPref;
+                  setNewFollowerEmailPref(next);
+                  updateEmailPreference("newFollowers", next, prev);
                 }}
                 disabled={isSavingEmailPrefs}
                 className="w-full px-4 py-2.5 pr-10 rounded-lg border bg-background text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"

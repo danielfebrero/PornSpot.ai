@@ -196,7 +196,7 @@
 
 [ ] Create a FAQ page (list of lora models, how long does it take to generate a video, etc)
 
-[ ] Send an email to user when someone follow him.
+[x] Send an email to user when someone follow him.
 
 [ ] Send a weekly email with recap of new followers, likes, bookmarks, comments, etc.
 

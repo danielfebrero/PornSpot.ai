@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{subject}}</title>
+  </head>
+  <body
+    style="
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #020817 !important;
+    "
+  >
+    <div
+      style="
+        background-color: #0f172a !important;
+        border-radius: 12px;
+        padding: 40px;
+        border: 1px solid #1e293b;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
+          0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        color: #f8fafc !important;
+        margin: 0 auto;
+      "
+    >
+      <div style="text-align: center; margin-bottom: 30px">
+        <div
+          style="
+            font-size: 32px;
+            font-weight: bold;
+            color: #8b5cf6 !important;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+          "
+        >
+          PornSpot.ai
+        </div>
+        <h1
+          style="
+            font-size: 24px;
+            color: #f8fafc !important;
+            margin-bottom: 20px;
+            font-weight: 600;
+          "
+        >
+          You have a new follower
+        </h1>
+      </div>
+
+      <div
+        style="font-size: 16px; margin-bottom: 30px; color: #cbd5e1 !important"
+      >
+        <p style="color: #cbd5e1 !important">Hello {{displayName}},</p>
+
+        <p style="color: #cbd5e1 !important">
+          <strong style="color: #f8fafc !important">{{followerName}}</strong>
+          just followed you on PornSpot.ai. Send them some love back or share
+          new content to keep the momentum going!
+        </p>
+
+        <div style="text-align: center">
+          <a
+            href="{{profileUrl}}"
+            style="
+              display: inline-block;
+              background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+              color: #ffffff !important;
+              padding: 16px 32px;
+              text-decoration: none;
+              border-radius: 8px;
+              font-weight: 600;
+              font-size: 16px;
+              text-align: center;
+              margin: 20px 0;
+              box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.25);
+            "
+            >View {{followerName}}'s profile</a
+          >
+        </div>
+
+        <p style="color: #cbd5e1 !important">
+          If the button above doesn't work, copy and paste this link into your
+          browser:
+        </p>
+        <p
+          style="
+            word-break: break-all;
+            background-color: #1e293b !important;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            color: #94a3b8 !important;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+          "
+        >
+          {{profileUrl}}
+        </p>
+
+        <p style="color: #cbd5e1 !important">
+          Want to control which emails you receive? Update your preferences
+          anytime:
+        </p>
+        <p style="color: #cbd5e1 !important">
+          <a href="{{settingsUrl}}" style="color: #94a3b8 !important"
+            >Manage email settings</a
+          >
+        </p>
+
+        <p style="color: #cbd5e1 !important">See you soon,</p>
+        <p style="color: #cbd5e1 !important">The PornSpot.ai Team</p>
+      </div>
+
+      <div
+        style="
+          margin-top: 30px;
+          padding-top: 20px;
+          border-top: 1px solid #334155;
+          font-size: 14px;
+          color: #64748b !important;
+          text-align: center;
+        "
+      >
+        <p style="color: #64748b !important">
+          Manage or opt-out of these emails in your settings:
+          <a href="{{settingsUrl}}" style="color: #94a3b8 !important"
+            >{{settingsUrl}}</a
+          >
+        </p>
+        <p style="color: #64748b !important">
+          © 2025 PornSpot.ai. All rights reserved.
+        </p>
+        <p style="color: #64748b !important">
+          This is an automated email. Please do not reply to this message.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
