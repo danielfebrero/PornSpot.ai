@@ -471,8 +471,26 @@ export class DynamoDBService {
 
     // Check if isPublic is being updated - need to update corresponding GSI keys
     if (updates.isPublic !== undefined) {
+      // Get the existing album entity to retrieve createdAt for GSI5SK format
+      const existingAlbum = await docClient.send(
+        new GetCommand({
+          TableName: TABLE_NAME,
+          Key: {
+            PK: `ALBUM#${albumId}`,
+            SK: "METADATA",
+          },
+        })
+      );
+
+      if (!existingAlbum.Item) {
+        throw new Error(`Album ${albumId} not found`);
+      }
+
+      const createdAt = existingAlbum.Item["createdAt"] as string;
+
       // Update GSI5SK to match the new isPublic value
-      updates.GSI5SK = updates.isPublic;
+      // GSI5SK format: {isPublic}#{createdAt}
+      updates.GSI5SK = `${updates.isPublic}#${createdAt}`;
     }
 
     Object.entries(updates).forEach(([key, value]) => {
@@ -1127,13 +1145,30 @@ export class DynamoDBService {
 
     // Check if isPublic is being updated - need to update corresponding GSI keys
     if (updates.isPublic !== undefined) {
+      // Get the existing media entity to retrieve createdAt for GSI5SK format
+      const existingMedia = await docClient.send(
+        new GetCommand({
+          TableName: TABLE_NAME,
+          Key: {
+            PK: `MEDIA#${mediaId}`,
+            SK: "METADATA",
+          },
+        })
+      );
+
+      if (!existingMedia.Item) {
+        throw new Error(`Media ${mediaId} not found`);
+      }
+
+      const createdAt = existingMedia.Item["createdAt"] as string;
+
       // Update GSI3PK to match the new isPublic value
       // GSI3PK format: MEDIA_BY_USER_{isPublic}
       updates.GSI3PK = `MEDIA_BY_USER_${updates.isPublic}`;
 
       // Update GSI5SK to match the new isPublic value
-      // GSI5SK format: {isPublic}
-      updates.GSI5SK = updates.isPublic;
+      // GSI5SK format: {isPublic}#{createdAt}
+      updates.GSI5SK = `${updates.isPublic}#${createdAt}`;
     }
 
     // Build dynamic update expression
