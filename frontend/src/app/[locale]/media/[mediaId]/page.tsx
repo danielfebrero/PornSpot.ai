@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { MediaDetailClient } from "@/components/MediaDetailClient";
 import { generateMediaMetadata } from "@/lib/opengraph";
+import { Lock } from "lucide-react";
 
 interface MediaDetailPageProps {
   params: {
@@ -50,10 +51,37 @@ export async function generateMetadata({
 export default async function MediaDetailPage({
   params,
 }: MediaDetailPageProps) {
-  const { mediaId } = params;
+  const { mediaId, locale } = params;
   const mediaResult = await getMediaById(mediaId);
 
-  if (mediaResult.error || !mediaResult.data) {
+  if (mediaResult.error) {
+    if (mediaResult.error === "Content is private") {
+      const tCommon = await getTranslations({
+        locale,
+        namespace: "common",
+      });
+
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background text-foreground px-6">
+          <div className="max-w-md text-center space-y-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+              <Lock className="h-7 w-7 text-muted-foreground" />
+            </div>
+            <h1 className="text-2xl font-semibold">
+              {tCommon("errors.contentPrivate")}
+            </h1>
+            <p className="text-muted-foreground">
+              {tCommon("errors.contentPrivateDescription")}
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    notFound();
+  }
+
+  if (!mediaResult.data) {
     notFound();
   }
 

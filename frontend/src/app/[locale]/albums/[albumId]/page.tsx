@@ -5,6 +5,7 @@ import { AlbumDetailClient } from "@/components/AlbumDetailClient";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { generateAlbumMetadata } from "@/lib/opengraph";
+import { Lock } from "lucide-react";
 import {
   HydrationBoundary,
   dehydrate,
@@ -51,10 +52,37 @@ export async function generateMetadata({
 export default async function AlbumDetailPage({
   params,
 }: AlbumDetailPageProps) {
-  const { albumId } = params;
+  const { albumId, locale } = params;
   const albumResult = await getAlbumById(albumId);
 
-  if (albumResult.error || !albumResult.data) {
+  if (albumResult.error) {
+    if (albumResult.error === "Content is private") {
+      const tCommon = await getTranslations({
+        locale,
+        namespace: "common",
+      });
+
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background text-foreground px-6">
+          <div className="max-w-md text-center space-y-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+              <Lock className="h-7 w-7 text-muted-foreground" />
+            </div>
+            <h1 className="text-2xl font-semibold">
+              {tCommon("errors.contentPrivate")}
+            </h1>
+            <p className="text-muted-foreground">
+              {tCommon("errors.contentPrivateDescription")}
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    notFound();
+  }
+
+  if (!albumResult.data) {
     notFound();
   }
 

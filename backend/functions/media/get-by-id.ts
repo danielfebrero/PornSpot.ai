@@ -2,11 +2,15 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { Comment, EnhancedMedia } from "@shared";
-import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
+import {
+  LambdaHandlerUtil,
+  OptionalAuthResult,
+} from "@shared/utils/lambda-handler";
 import { enhanceMedia } from "@shared/utils/media";
 
 const handleGetMediaById = async (
-  event: APIGatewayProxyEvent
+  event: APIGatewayProxyEvent,
+  auth: OptionalAuthResult
 ): Promise<APIGatewayProxyResult> => {
   const mediaId = LambdaHandlerUtil.getPathParam(event, "mediaId");
 
@@ -16,6 +20,19 @@ const handleGetMediaById = async (
 
   if (!mediaEntity) {
     return ResponseUtil.notFound(event, "Media not found");
+  }
+
+  const isPublic =
+    mediaEntity.isPublic === undefined || mediaEntity.isPublic === "true";
+  const isOwner =
+    !!auth.userId &&
+    mediaEntity.createdBy &&
+    mediaEntity.createdBy === auth.userId;
+  const isPrivileged =
+    auth.userRole === "admin" || auth.userRole === "moderator";
+
+  if (!isPublic && !isOwner && !isPrivileged) {
+    return ResponseUtil.forbidden(event, "Content is private");
   }
 
   // Convert to response format
@@ -76,6 +93,7 @@ const handleGetMediaById = async (
   return ResponseUtil.success(event, enhancedMediaResponse);
 };
 
-export const handler = LambdaHandlerUtil.withoutAuth(handleGetMediaById, {
+export const handler = LambdaHandlerUtil.withOptionalAuth(handleGetMediaById, {
   validatePathParams: ["mediaId"],
+  includeRole: true,
 });

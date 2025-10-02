@@ -95,7 +95,9 @@
       "unexpected": "Ocurrió un error inesperado",
       "checkConnection": "Verifica tu conexión a internet",
       "failedToLoad": "Error al cargar",
-      "networkResponse": "La respuesta de red no fue correcta"
+      "networkResponse": "La respuesta de red no fue correcta",
+      "contentPrivate": "Este contenido es privado.",
+      "contentPrivateDescription": "Solo el creador o los espectadores autorizados pueden acceder a él."
     },
     "dateTime": {
       "justNow": "ahora mismo",

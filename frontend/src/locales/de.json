@@ -79,7 +79,9 @@
       "unexpected": "Ein unerwarteter Fehler ist aufgetreten",
       "checkConnection": "Überprüfen Sie Ihre Internetverbindung",
       "failedToLoad": "Laden fehlgeschlagen",
-      "networkResponse": "Netzwerkantwort war nicht in Ordnung"
+      "networkResponse": "Netzwerkantwort war nicht in Ordnung",
+      "contentPrivate": "Dieser Inhalt ist privat.",
+      "contentPrivateDescription": "Nur der Ersteller oder autorisierte Zuschauer können darauf zugreifen."
     },
     "dateTime": {
       "justNow": "gerade eben",

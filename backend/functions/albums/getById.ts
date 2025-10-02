@@ -14,11 +14,15 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { Comment } from "@shared";
-import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
+import {
+  LambdaHandlerUtil,
+  OptionalAuthResult,
+} from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 
 const handleGetAlbumById = async (
-  event: APIGatewayProxyEvent
+  event: APIGatewayProxyEvent,
+  auth: OptionalAuthResult
 ): Promise<APIGatewayProxyResult> => {
   const albumId = ValidationUtil.validateRequiredString(
     event.pathParameters?.["albumId"],
@@ -29,6 +33,14 @@ const handleGetAlbumById = async (
 
   if (!album) {
     return ResponseUtil.notFound(event, "Album not found");
+  }
+
+  const isOwner = !!auth.userId && album.createdBy === auth.userId;
+  const isPrivileged =
+    auth.userRole === "admin" || auth.userRole === "moderator";
+
+  if (!album.isPublic && !isOwner && !isPrivileged) {
+    return ResponseUtil.forbidden(event, "Content is private");
   }
 
   // Fetch comments for this album
@@ -62,6 +74,7 @@ const handleGetAlbumById = async (
   return ResponseUtil.success(event, album);
 };
 
-export const handler = LambdaHandlerUtil.withoutAuth(handleGetAlbumById, {
+export const handler = LambdaHandlerUtil.withOptionalAuth(handleGetAlbumById, {
   validatePathParams: ["albumId"],
+  includeRole: true,
 });

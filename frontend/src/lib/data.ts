@@ -98,13 +98,20 @@ export async function fetchAllPublicAlbums(): Promise<Album[]> {
 
 // Fetch a single album by ID
 export async function getAlbumById(albumId: string) {
-  const response = await fetch(`${API_URL}/albums/${albumId}`, {
-    next: {
-      tags: [`album-${albumId}`],
-    },
-    // Remove cache: force-cache since we're using revalidate
-  });
-  return handleResponse<Album>(response);
+  try {
+    const response = await fetch(`${API_URL}/albums/${albumId}`, {
+      next: {
+        tags: [`album-${albumId}`],
+      },
+      // Remove cache: force-cache since we're using revalidate
+    });
+    return await handleResponse<Album>(response);
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
 }
 
 // Fetch media for a specific album
@@ -137,12 +144,19 @@ export async function getMediaForAlbum(
 
 // Fetch a single media item by ID
 export async function getMediaById(mediaId: string) {
-  const response = await fetch(`${API_URL}/media/${mediaId}`, {
-    next: {
-      tags: [`media-${mediaId}`],
-    },
-  });
-  return handleResponse<EnhancedMedia>(response);
+  try {
+    const response = await fetch(`${API_URL}/media/${mediaId}`, {
+      next: {
+        tags: [`media-${mediaId}`],
+      },
+    });
+    return await handleResponse<EnhancedMedia>(response);
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
 }
 
 // Fetch all public media items

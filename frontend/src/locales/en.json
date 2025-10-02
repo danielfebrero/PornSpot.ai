@@ -78,7 +78,9 @@
       "unexpected": "An unexpected error occurred",
       "checkConnection": "Check your internet connection",
       "failedToLoad": "Failed to load",
-      "networkResponse": "Network response was not ok"
+      "networkResponse": "Network response was not ok",
+      "contentPrivate": "This content is private.",
+      "contentPrivateDescription": "Only the creator or authorized viewers can access it."
     },
     "dateTime": {
       "justNow": "just now",

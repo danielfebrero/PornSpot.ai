@@ -95,7 +95,9 @@
       "unexpected": "Une erreur inattendue s'est produite",
       "checkConnection": "Vérifiez votre connexion internet",
       "failedToLoad": "Échec du chargement",
-      "networkResponse": "La réponse réseau n'était pas correcte"
+      "networkResponse": "La réponse réseau n'était pas correcte",
+      "contentPrivate": "Ce contenu est privé.",
+      "contentPrivateDescription": "Seul le créateur ou les spectateurs autorisés peuvent y accéder."
     },
     "dateTime": {
       "justNow": "à l'instant",
