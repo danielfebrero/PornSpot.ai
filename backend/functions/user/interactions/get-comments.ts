@@ -11,7 +11,10 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ResponseUtil } from "@shared/utils/response";
 import { Album, Comment, Media } from "@shared";
-import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
+import {
+  LambdaHandlerUtil,
+  OptionalAuthResult,
+} from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 
 import {
@@ -21,7 +24,8 @@ import {
 } from "@shared/utils/pagination";
 
 const handleGetComments = async (
-  event: APIGatewayProxyEvent
+  event: APIGatewayProxyEvent,
+  auth: OptionalAuthResult
 ): Promise<APIGatewayProxyResult> => {
   console.log("🔄 Get comments function called");
 
@@ -34,7 +38,12 @@ const handleGetComments = async (
 
   // Check if this is a user-based query (when user param is provided)
   if (userParam) {
-    return await getUserComments(event, userParam, includeContentPreview);
+    return await getUserComments(
+      event,
+      userParam,
+      includeContentPreview,
+      auth.userId
+    );
   }
 
   // Original target-based comments functionality - validate required parameters
@@ -124,7 +133,8 @@ const handleGetComments = async (
 async function getUserComments(
   event: APIGatewayProxyEvent,
   targetUsername: string,
-  includeContentPreview: boolean
+  includeContentPreview: boolean,
+  requestingUserId: string | null
 ): Promise<APIGatewayProxyResult> {
   const validatedUsername = ValidationUtil.validateRequiredString(
     targetUsername,
@@ -209,10 +219,22 @@ async function getUserComments(
     })
   );
 
+  // Filter out comments on private content when viewing another user's comments
+  const filteredComments =
+    requestingUserId !== targetUserId
+      ? enrichedComments.filter((comment) => {
+          // Keep only comments where the target is public or doesn't exist (already deleted)
+          if (!comment.target) {
+            return false; // Exclude comments on deleted content
+          }
+          return comment.target.isPublic === true;
+        })
+      : enrichedComments;
+
   // Build typed paginated payload
   const payload = PaginationUtil.createPaginatedResponse(
     "comments",
-    enrichedComments,
+    filteredComments,
     result.lastEvaluatedKey,
     limit
   );
@@ -224,4 +246,4 @@ async function getUserComments(
   return ResponseUtil.success(event, payload);
 }
 
-export const handler = LambdaHandlerUtil.withoutAuth(handleGetComments);
+export const handler = LambdaHandlerUtil.withOptionalAuth(handleGetComments);

@@ -200,7 +200,7 @@
 
 [ ] Send a weekly email with recap of new followers, likes, bookmarks, comments, etc.
 
-[ ] Add a "cookie" bar at the bottom of the page.
+[x] Add a "cookie" bar at the bottom of the page.
 
 [x] Make PornSpot free until we choose it's paid. Use a constant.
 
@@ -208,6 +208,6 @@
 
 [x] Play video from content cards in one click.
 
-[ ] Media GSI5SK should be {isPublic}#{createdAt} instead of just {isPublic} to allow fetching recent public media.
+[x] Media GSI5SK should be {isPublic}#{createdAt} instead of just {isPublic} to allow fetching recent public media.
 
-[ ] Set up GSI3SK for albums the same way as media.
+[x] Set up GSI3SK for albums the same way as media.

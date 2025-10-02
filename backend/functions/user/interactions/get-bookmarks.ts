@@ -14,6 +14,7 @@ const handleGetBookmarks = async (
 ): Promise<APIGatewayProxyResult> => {
   console.log("🔄 Get user bookmarks function called");
 
+  // Users can only query their own bookmarks
   const userId = auth.userId;
 
   // Parse pagination parameters using unified utility
@@ -72,10 +73,24 @@ const handleGetBookmarks = async (
     })
   );
 
+  // Filter out bookmarks to private content or deleted content
+  // Users can only see bookmarks to public content, even if they bookmarked it when it was public
+  const filteredInteractions = enrichedInteractions.filter((interaction) => {
+    // Exclude deleted content
+    if (!interaction.target) {
+      return false;
+    }
+    // Exclude private content
+    return (
+      interaction.target.isPublic === true ||
+      interaction.target.createdBy === userId
+    );
+  });
+
   // Build typed paginated payload
   const payload = PaginationUtil.createPaginatedResponse(
     "interactions",
-    enrichedInteractions,
+    filteredInteractions,
     result.lastEvaluatedKey,
     limit
   );

@@ -88,10 +88,22 @@ const handleGetLikes = async (
     })
   );
 
+  // Filter out private content when viewing another user's likes
+  const filteredInteractions =
+    targetUserId !== requestingUserId
+      ? enrichedInteractions.filter((interaction) => {
+          // Keep only interactions where the target is public or doesn't exist (already deleted)
+          if (!interaction.target) {
+            return false; // Exclude deleted content
+          }
+          return interaction.target.isPublic === true;
+        })
+      : enrichedInteractions;
+
   // Build typed paginated payload
   const payload = PaginationUtil.createPaginatedResponse(
     "interactions",
-    enrichedInteractions,
+    filteredInteractions,
     result.lastEvaluatedKey,
     limit
   );
