@@ -469,9 +469,9 @@ export class DynamoDBService {
     const expressionAttributeNames: Record<string, string> = {};
     const expressionAttributeValues: Record<string, any> = {};
 
-    // Check if isPublic is being updated - need to update corresponding GSI keys
-    if (updates.isPublic !== undefined) {
-      // Get the existing album entity to retrieve createdAt for GSI5SK format
+    // Check if isPublic or createdBy is being updated - need to update corresponding GSI keys
+    if (updates.isPublic !== undefined || updates.createdBy !== undefined) {
+      // Get the existing album entity to retrieve missing fields for GSI updates
       const existingAlbum = await docClient.send(
         new GetCommand({
           TableName: TABLE_NAME,
@@ -487,10 +487,24 @@ export class DynamoDBService {
       }
 
       const createdAt = existingAlbum.Item["createdAt"] as string;
+      const currentIsPublic =
+        updates.isPublic ?? (existingAlbum.Item["isPublic"] as string);
+      const currentCreatedBy =
+        updates.createdBy ?? (existingAlbum.Item["createdBy"] as string);
 
-      // Update GSI5SK to match the new isPublic value
+      // Update GSI3 keys when isPublic or createdBy changes
+      // GSI3PK format: ALBUM_BY_USER_{isPublic}
+      // GSI3SK format: {createdBy}#{createdAt}#{albumId}
+      if (updates.isPublic !== undefined || updates.createdBy !== undefined) {
+        updates.GSI3PK = `ALBUM_BY_USER_${currentIsPublic}`;
+        updates.GSI3SK = `${currentCreatedBy}#${createdAt}#${albumId}`;
+      }
+
+      // Update GSI5SK when isPublic changes
       // GSI5SK format: {isPublic}#{createdAt}
-      updates.GSI5SK = `${updates.isPublic}#${createdAt}`;
+      if (updates.isPublic !== undefined) {
+        updates.GSI5SK = `${updates.isPublic}#${createdAt}`;
+      }
     }
 
     Object.entries(updates).forEach(([key, value]) => {
@@ -595,14 +609,15 @@ export class DynamoDBService {
     const queryParams: QueryCommandInput = {
       TableName: TABLE_NAME,
       IndexName: "GSI5",
-      KeyConditionExpression: "#GSI5PK = :album AND #GSI5SK = :isPublic",
+      KeyConditionExpression:
+        "#GSI5PK = :album AND begins_with(#GSI5SK, :isPublicPrefix)",
       ExpressionAttributeNames: {
         "#GSI5PK": "GSI5PK",
         "#GSI5SK": "GSI5SK",
       },
       ExpressionAttributeValues: {
         ":album": "ALBUM",
-        ":isPublic": isPublicString,
+        ":isPublicPrefix": `${isPublicString}#`,
       },
       ScanIndexForward: false, // Most recent first
       Limit: limit,
@@ -636,7 +651,8 @@ export class DynamoDBService {
     createdBy: string,
     limit: number = 20,
     lastEvaluatedKey?: Record<string, any>,
-    tag?: string
+    tag?: string,
+    publicOnly?: boolean
   ): Promise<{
     albums: Album[];
     lastEvaluatedKey?: Record<string, any>;
@@ -647,7 +663,8 @@ export class DynamoDBService {
         createdBy,
         tag,
         limit,
-        lastEvaluatedKey
+        lastEvaluatedKey,
+        publicOnly
       );
     }
 
@@ -659,26 +676,47 @@ export class DynamoDBService {
       limit,
       tag,
       tableName: TABLE_NAME,
+      publicOnly,
       lastEvaluatedKey: lastEvaluatedKey ? "present" : "none",
     });
 
-    const queryParams: QueryCommandInput = {
-      TableName: TABLE_NAME,
-      IndexName: "GSI4",
-      KeyConditionExpression:
-        "#gsi4pk = :gsi4pk AND begins_with(#gsi4sk, :createdBy)",
-      ExpressionAttributeNames: {
-        "#gsi4pk": "GSI4PK",
-        "#gsi4sk": "GSI4SK",
-      },
-      ExpressionAttributeValues: {
-        ":gsi4pk": "ALBUM_BY_CREATOR",
-        ":createdBy": `${createdBy}#`,
-      },
-      ScanIndexForward: false, // Most recent first
-      Limit: limit,
-      ExclusiveStartKey: lastEvaluatedKey,
-    };
+    const usePublicOnly = publicOnly === true;
+
+    const queryParams: QueryCommandInput = usePublicOnly
+      ? {
+          TableName: TABLE_NAME,
+          IndexName: "GSI3",
+          KeyConditionExpression:
+            "#gsi3pk = :gsi3pk AND begins_with(#gsi3sk, :createdBy)",
+          ExpressionAttributeNames: {
+            "#gsi3pk": "GSI3PK",
+            "#gsi3sk": "GSI3SK",
+          },
+          ExpressionAttributeValues: {
+            ":gsi3pk": "ALBUM_BY_USER_true",
+            ":createdBy": `${createdBy}#`,
+          },
+          ScanIndexForward: false,
+          Limit: limit,
+          ExclusiveStartKey: lastEvaluatedKey,
+        }
+      : {
+          TableName: TABLE_NAME,
+          IndexName: "GSI4",
+          KeyConditionExpression:
+            "#gsi4pk = :gsi4pk AND begins_with(#gsi4sk, :createdBy)",
+          ExpressionAttributeNames: {
+            "#gsi4pk": "GSI4PK",
+            "#gsi4sk": "GSI4SK",
+          },
+          ExpressionAttributeValues: {
+            ":gsi4pk": "ALBUM_BY_CREATOR",
+            ":createdBy": `${createdBy}#`,
+          },
+          ScanIndexForward: false,
+          Limit: limit,
+          ExclusiveStartKey: lastEvaluatedKey,
+        };
 
     const result = await docClient.send(new QueryCommand(queryParams));
 

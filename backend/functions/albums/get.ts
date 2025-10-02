@@ -111,18 +111,10 @@ const handleGetAlbums = async (
       finalCreatedBy,
       limit,
       lastEvaluatedKey,
-      tag
+      tag,
+      !!(isPublicParam || finalCreatedBy !== currentUserId)
     );
     console.log("[Albums API] Raw albums from DB:", result.albums?.length || 0);
-
-    // Filter to only show public albums if finalCreatedBy !== currentUserId
-    if (finalCreatedBy !== currentUserId || isPublicParam) {
-      result.albums = result.albums.filter((album) => album.isPublic === true);
-      console.log(
-        "[Albums API] Public albums after filtering:",
-        result.albums?.length || 0
-      );
-    }
   } else {
     // No user provided - show all public albums from everyone
     result = await DynamoDBService.listAlbumsByPublicStatus(
