@@ -379,10 +379,11 @@ export async function calculateMediaMetrics(
         new QueryCommand({
           TableName: TABLE_NAME,
           IndexName: "GSI5",
-          KeyConditionExpression: "GSI5PK = :pk AND GSI5SK = :sk",
+          KeyConditionExpression:
+            "GSI5PK = :pk AND begins_with(GSI5SK, :isPublicPrefix)",
           ExpressionAttributeValues: {
             ":pk": "MEDIA",
-            ":sk": "true",
+            ":isPublicPrefix": "true",
           },
           Select: "COUNT",
           ExclusiveStartKey: lastKey,
