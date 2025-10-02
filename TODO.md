@@ -209,3 +209,5 @@
 [x] Play video from content cards in one click.
 
 [ ] Media GSI5SK should be {isPublic}#{createdAt} instead of just {isPublic} to allow fetching recent public media.
+
+[ ] Set up GSI3SK for albums the same way as media.
