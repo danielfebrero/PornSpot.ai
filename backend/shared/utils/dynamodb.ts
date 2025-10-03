@@ -2095,12 +2095,14 @@ export class DynamoDBService {
 
   static async updateUser(
     userId: string,
-    updates: Partial<UserEntity>
+    updates: Partial<UserEntity>,
+    options?: { removeFields?: (keyof UserEntity)[] }
   ): Promise<void> {
     const setExpressions: string[] = [];
     const removeExpressions: string[] = [];
     const expressionAttributeNames: Record<string, string> = {};
     const expressionAttributeValues: Record<string, any> = {};
+    const removeFieldsSet = new Set(options?.removeFields ?? []);
 
     Object.entries(updates).forEach(([key, value]) => {
       if (key === "PK" || key === "SK" || value === undefined) {
@@ -2112,11 +2114,24 @@ export class DynamoDBService {
 
       if (value === null) {
         removeExpressions.push(attributeKey);
+        removeFieldsSet.delete(key as keyof UserEntity);
         return;
       }
 
       setExpressions.push(`${attributeKey} = :${key}`);
       expressionAttributeValues[`:${key}`] = value;
+      removeFieldsSet.delete(key as keyof UserEntity);
+    });
+
+    removeFieldsSet.forEach((field) => {
+      const attributeKey = `#${field as string}`;
+      if (!expressionAttributeNames[attributeKey]) {
+        expressionAttributeNames[attributeKey] = field as string;
+      }
+
+      if (!removeExpressions.includes(attributeKey)) {
+        removeExpressions.push(attributeKey);
+      }
     });
 
     if (setExpressions.length === 0 && removeExpressions.length === 0) {

@@ -49,6 +49,8 @@ const handleEditProfile = async (
   const updateData: UserProfileUpdateRequest = JSON.parse(event.body!);
   console.log("📝 Profile update data:", updateData);
 
+  const fieldsToRemove: (keyof UserEntity)[] = [];
+
   // Validate input data using shared validation utilities
   const validationErrors: string[] = [];
 
@@ -208,18 +210,24 @@ const handleEditProfile = async (
   }
 
   if (updateData.bio !== undefined) {
-    if (updateData.bio.trim()) {
-      updates.bio = updateData.bio.trim();
-    } else {
-      delete updates.bio; // Remove the field entirely if empty
+    const trimmedBio = updateData.bio.trim();
+    if (trimmedBio) {
+      if (trimmedBio !== (currentUserEntity.bio || "")) {
+        updates.bio = trimmedBio;
+      }
+    } else if (currentUserEntity.bio) {
+      fieldsToRemove.push("bio");
     }
   }
 
   if (updateData.location !== undefined) {
-    if (updateData.location.trim()) {
-      updates.location = updateData.location.trim();
-    } else {
-      delete updates.location; // Remove the field entirely if empty
+    const trimmedLocation = updateData.location.trim();
+    if (trimmedLocation) {
+      if (trimmedLocation !== (currentUserEntity.location || "")) {
+        updates.location = trimmedLocation;
+      }
+    } else if (currentUserEntity.location) {
+      fieldsToRemove.push("location");
     }
   }
 
@@ -229,9 +237,11 @@ const handleEditProfile = async (
       if (!website.startsWith("http://") && !website.startsWith("https://")) {
         website = `https://${website}`;
       }
-      updates.website = website;
-    } else {
-      delete updates.website; // Remove the field entirely if empty
+      if (website !== (currentUserEntity.website || "")) {
+        updates.website = website;
+      }
+    } else if (currentUserEntity.website) {
+      fieldsToRemove.push("website");
     }
   }
 
@@ -252,7 +262,7 @@ const handleEditProfile = async (
   }
 
   // Only proceed if there are actually changes to make
-  if (Object.keys(updates).length === 0) {
+  if (Object.keys(updates).length === 0 && fieldsToRemove.length === 0) {
     console.log("ℹ️ No changes to apply");
     const response: UserProfileUpdateResponse = {
       message: "No changes to apply",
@@ -283,7 +293,9 @@ const handleEditProfile = async (
   console.log("💾 Updating user profile with:", updates);
 
   // Update the user in the database
-  await DynamoDBService.updateUser(currentUserEntity.userId, updates);
+  await DynamoDBService.updateUser(currentUserEntity.userId, updates, {
+    removeFields: fieldsToRemove,
+  });
 
   // Fetch the updated user data
   const updatedUser = await DynamoDBService.getUserById(
@@ -300,30 +312,54 @@ const handleEditProfile = async (
   console.log("✅ Profile updated successfully");
 
   // Return the updated user data using ResponseUtil.success
+  const responseUser: NonNullable<UserProfileUpdateResponse["user"]> = {
+    userId: updatedUser.userId,
+    email: updatedUser.email,
+    username: updatedUser.username,
+    createdAt: updatedUser.createdAt,
+  };
+
+  if (updatedUser.bio) {
+    responseUser.bio = updatedUser.bio;
+  } else if (fieldsToRemove.includes("bio")) {
+    responseUser.bio = "";
+  }
+
+  if (updatedUser.location) {
+    responseUser.location = updatedUser.location;
+  } else if (fieldsToRemove.includes("location")) {
+    responseUser.location = "";
+  }
+
+  if (updatedUser.website) {
+    responseUser.website = updatedUser.website;
+  } else if (fieldsToRemove.includes("website")) {
+    responseUser.website = "";
+  }
+
+  if (updatedUser.preferredLanguage) {
+    responseUser.preferredLanguage = updatedUser.preferredLanguage;
+  }
+
+  if (updatedUser.emailPreferences) {
+    responseUser.emailPreferences = updatedUser.emailPreferences;
+  }
+
+  if (updatedUser.lastLoginAt) {
+    responseUser.lastLoginAt = updatedUser.lastLoginAt;
+  }
+
+  if (updatedUser.avatarUrl) {
+    responseUser.avatarUrl = updatedUser.avatarUrl;
+  }
+
+  if (updatedUser.avatarThumbnails) {
+    responseUser.avatarThumbnails = updatedUser.avatarThumbnails;
+  }
+
   const response: UserProfileUpdateResponse = {
     message: "Profile updated successfully",
-    user: {
-      userId: updatedUser.userId,
-      email: updatedUser.email,
-      username: updatedUser.username,
-      ...(updatedUser.bio && { bio: updatedUser.bio }),
-      ...(updatedUser.location && { location: updatedUser.location }),
-      ...(updatedUser.website && { website: updatedUser.website }),
-      ...(updatedUser.preferredLanguage && {
-        preferredLanguage: updatedUser.preferredLanguage,
-      }),
-      ...(updatedUser.emailPreferences && {
-        emailPreferences: updatedUser.emailPreferences,
-      }),
-      createdAt: updatedUser.createdAt,
-      ...(updatedUser.lastLoginAt && {
-        lastLoginAt: updatedUser.lastLoginAt,
-      }),
-      ...(updatedUser.avatarUrl && { avatarUrl: updatedUser.avatarUrl }),
-      ...(updatedUser.avatarThumbnails && {
-        avatarThumbnails: updatedUser.avatarThumbnails,
-      }),
-    },
+    user: responseUser,
   };
 
   return ResponseUtil.success(event, response);

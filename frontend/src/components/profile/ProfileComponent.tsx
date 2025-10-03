@@ -300,7 +300,6 @@ export default function ProfileComponent({
       return {
         success: true,
         avatarUrl: avatarKey,
-        avatarThumbnails: {}, // Thumbnails will be available after S3 processing
       };
     } catch (error) {
       console.error("❌ Avatar upload failed:", error);
@@ -391,14 +390,20 @@ export default function ProfileComponent({
       }
 
       // Handle avatar upload if a new file was selected
-      let avatarUpdateData = {};
+      let avatarUpdateData: {
+        avatarUrl?: string;
+        avatarThumbnails?: ThumbnailUrls;
+      } = {};
       if (selectedAvatarFile) {
         const avatarResult = await handleAvatarUpload(selectedAvatarFile);
         if (avatarResult.success) {
           avatarUpdateData = {
             avatarUrl: avatarResult.avatarUrl,
-            avatarThumbnails: avatarResult.avatarThumbnails,
           };
+
+          if (avatarResult.avatarThumbnails) {
+            avatarUpdateData.avatarThumbnails = avatarResult.avatarThumbnails;
+          }
         } else {
           console.error("❌ Avatar upload failed");
           // Continue with profile update even if avatar upload fails
@@ -412,11 +417,17 @@ export default function ProfileComponent({
 
         refetch();
         // Update the current user state with the response data
-        setCurrentUser({
+        const updatedUserData = {
           ...currentUser,
           ...result.user,
           ...avatarUpdateData,
-        } as UserType);
+        } as UserType;
+
+        if (avatarUpdateData.avatarUrl && !avatarUpdateData.avatarThumbnails) {
+          delete (updatedUserData as Partial<UserType>).avatarThumbnails;
+        }
+
+        setCurrentUser(updatedUserData);
 
         // Reset username status since we've successfully saved
         resetUsernameStatus();
@@ -474,7 +485,11 @@ export default function ProfileComponent({
   const avatarUser = {
     ...currentUser,
     // Override avatarUrl with preview when editing
-    ...(isEditing && previewAvatarUrl && { avatarUrl: previewAvatarUrl }),
+    ...(isEditing &&
+      previewAvatarUrl && {
+        avatarUrl: previewAvatarUrl,
+        avatarThumbnails: undefined,
+      }),
   };
 
   return (
