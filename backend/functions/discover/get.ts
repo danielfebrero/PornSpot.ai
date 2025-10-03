@@ -24,6 +24,19 @@ import {
 } from "@shared/utils/dynamodb-discover";
 import { FollowingFeedService } from "@shared/utils/dynamodb-following-feed";
 
+import { DISCOVER_CONFIG } from "./utils/discover-config";
+import {
+  buildTimeWindow,
+  buildFallbackAttempts,
+  scoreContentWithinWindow,
+  calculateMinimumResultsForAttempt,
+  diversifyCollectionsWithRelaxation,
+  formatTimeWindowLabel,
+  deriveContentTargets,
+  cycleMediaBiasPattern,
+  DiscoverTimeWindow,
+} from "./utils/discover-logic";
+
 interface DiscoverCursors {
   albums?: string | null;
   media?: string | null;
@@ -41,305 +54,241 @@ interface DiscoverContent {
   };
 }
 
-interface TimeWindowConfig {
-  maxAgeInDays: number;
-  windowStartDays: number;
-  windowEndDays: number;
-}
-
-interface ScoreContentResult {
-  albums: Array<{ item: Album; combinedScore: number }>;
-  media: Array<{ item: Media; combinedScore: number }>;
-}
-
-interface ScoreContentArgs {
-  albums: Album[];
-  media: Media[];
-  timeWindow: TimeWindowConfig | null;
-  now: number;
+interface DiscoverRequestParams {
+  limit: number;
+  tag?: string;
+  sort?: string | null;
+  maxPerUser: number;
+  shuffleContent: boolean;
   randomSeed: number;
-  scoreWeight: number;
-  randomScale: number;
-  videoScoreBoostMultiplier: number;
-  recycledAlbumIdSet?: Set<string> | null;
-  additionalMediaIdSet?: Set<string> | null;
-  defaultMaxAgeInDays: number;
+  cursorDepth: number;
+  albumCursor?: Record<string, unknown>;
+  mediaCursor?: Record<string, unknown>;
+  rawAlbumCursor?: string;
+  rawMediaCursor?: string;
+  followingCursor?: string;
 }
 
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
-const MAX_DIVERSIFICATION_RELAXATION = 5;
-
-/**
- * Calculate time-weighted popularity score
- * Newer content gets a boost, older content gets penalized
- * @param item Album or Media item
- * @param maxAgeInDays Maximum age to consider (older items get minimal score)
- * @returns Weighted popularity score
- */
-function calculateTimeWeightedPopularity(
-  item: Album | Media,
-  maxAgeInDays: number = 30
-): number {
-  const now = Date.now();
-  const createdAt = new Date(item.createdAt).getTime();
-  const ageInMs = now - createdAt;
-  const ageInDays = ageInMs / (1000 * 60 * 60 * 24);
-  const basePopularity = item.popularity || 0;
-
-  // Calculate time decay factor (1.0 for new content, approaching 0 for old content)
-  const timeFactor = Math.max(0, 1 - ageInDays / maxAgeInDays);
-
-  // For very recent content (< 1 day), give extra boost
-  const recencyBoost =
-    ageInDays < 1 ? 2.0 : ageInDays < 3 ? 1.5 : ageInDays < 7 ? 1.2 : 1.0;
-
-  // Calculate final score with time weighting
-  return basePopularity * timeFactor * recencyBoost;
+interface FinalizedItemsResult {
+  items: (Album | Media)[];
+  albumCount: number;
+  mediaCount: number;
 }
 
-function createSeededRandom(seed: number): () => number {
-  let state = Math.floor((seed % 1) * 2147483646) + 1;
+function parseDiscoverRequest(
+  event: APIGatewayProxyEvent
+): DiscoverRequestParams {
+  const queryParams = event.queryStringParameters || {};
+  const requestedLimit = parseInt(queryParams["limit"] ?? "20", 10);
+  const limit = Math.max(
+    1,
+    Math.min(requestedLimit, DISCOVER_CONFIG.pagination.maxLimit)
+  );
 
-  return () => {
-    state = (state * 16807) % 2147483647;
-    return (state - 1) / 2147483646;
-  };
-}
+  const maxPerUser = Math.max(
+    1,
+    parseInt(queryParams["maxPerUser"] ?? "2", 10)
+  );
+  const sort = queryParams["sort"];
+  const tag = queryParams["tag"] ?? undefined;
 
-/**
- * Get time window parameters based on pagination depth
- * As users scroll, we fetch slightly older content
- */
-function getTimeWindow(cursorDepth: number): TimeWindowConfig {
-  // Each "page" represents roughly 3-7 days of content
-  const daysPerPage = 1;
-  const windowStartDays = cursorDepth * daysPerPage;
-  const windowEndDays = windowStartDays + daysPerPage * 2; // Overlap for better mixing
+  const {
+    albums: albumCursor,
+    media: mediaCursor,
+    cursorDepth,
+  } = parseDiscoverCursors(queryParams);
 
   return {
-    maxAgeInDays: Math.max(30, windowEndDays), // At least 30 days for scoring
-    windowStartDays,
-    windowEndDays,
+    limit,
+    tag,
+    sort,
+    maxPerUser,
+    shuffleContent: true,
+    randomSeed: Math.random(),
+    cursorDepth,
+    albumCursor,
+    mediaCursor,
+    rawAlbumCursor: queryParams["cursorAlbums"],
+    rawMediaCursor: queryParams["cursorMedia"],
+    followingCursor:
+      queryParams["cursorAlbums"] ||
+      queryParams["cursorMedia"] ||
+      queryParams["cursor"],
   };
 }
 
-function scoreContentWithinWindow({
-  albums,
-  media,
-  timeWindow,
-  now,
-  randomSeed,
-  scoreWeight,
-  randomScale,
-  videoScoreBoostMultiplier,
-  recycledAlbumIdSet,
-  additionalMediaIdSet,
-  defaultMaxAgeInDays,
-}: ScoreContentArgs): ScoreContentResult {
-  const seededRandom = createSeededRandom(randomSeed);
-  const windowStartMs = timeWindow
-    ? now - timeWindow.windowEndDays * DAY_IN_MS
-    : undefined;
-  const windowEndMs = timeWindow
-    ? now - timeWindow.windowStartDays * DAY_IN_MS
-    : undefined;
-  const maxAgeInDays = timeWindow?.maxAgeInDays ?? defaultMaxAgeInDays;
-
-  const scoredAlbums: Array<{ item: Album; combinedScore: number }> = [];
-  for (const album of albums) {
-    const createdAt = new Date(album.createdAt).getTime();
-    const isRecycled = recycledAlbumIdSet?.has(album.id) ?? false;
-
-    if (
-      timeWindow &&
-      !isRecycled &&
-      windowStartMs !== undefined &&
-      windowEndMs !== undefined &&
-      (createdAt < windowStartMs || createdAt > windowEndMs)
-    ) {
-      continue;
-    }
-
-    const baseScore = calculateTimeWeightedPopularity(album, maxAgeInDays);
-    const combinedScore =
-      baseScore * scoreWeight + seededRandom() * randomScale;
-
-    scoredAlbums.push({
-      item: album,
-      combinedScore,
-    });
-  }
-
-  const scoredMedia: Array<{ item: Media; combinedScore: number }> = [];
-  for (const mediaItem of media) {
-    const createdAt = new Date(mediaItem.createdAt).getTime();
-    const isAdditional = additionalMediaIdSet?.has(mediaItem.id) ?? false;
-
-    if (
-      timeWindow &&
-      !isAdditional &&
-      windowStartMs !== undefined &&
-      windowEndMs !== undefined &&
-      (createdAt < windowStartMs || createdAt > windowEndMs)
-    ) {
-      continue;
-    }
-
-    const baseScore =
-      calculateTimeWeightedPopularity(mediaItem, maxAgeInDays) *
-      (mediaItem.type === "video" ? videoScoreBoostMultiplier : 1);
-    const combinedScore =
-      baseScore * scoreWeight + seededRandom() * randomScale;
-
-    scoredMedia.push({
-      item: mediaItem,
-      combinedScore,
-    });
-  }
-
-  return { albums: scoredAlbums, media: scoredMedia };
+/**
+ * Attach lightweight content previews to albums so the frontend can render cover media
+ * without issuing additional round trips per album.
+ */
+async function enrichAlbumsWithPreview(albums: Album[]): Promise<Album[]> {
+  return Promise.all(
+    albums.map(async (album) => ({
+      ...album,
+      contentPreview:
+        (await DynamoDBService.getContentPreviewForAlbum(album.id)) || null,
+    }))
+  );
 }
 
-function formatTimeWindowLabel(
-  timeWindow: TimeWindowConfig | null,
-  fallbackApplied: boolean
-): string {
-  if (!timeWindow) {
-    return fallbackApplied ? "all-time (fallback)" : "all-time";
-  }
-
-  const baseLabel = `${timeWindow.windowStartDays}-${timeWindow.windowEndDays} days ago`;
-  return fallbackApplied ? `${baseLabel} (fallback)` : baseLabel;
-}
-
-function calculateMinimumResultsForAttempt(
-  limit: number,
-  attemptIndex: number
-): number {
-  if (attemptIndex === 0) {
-    return limit;
-  }
-
-  if (attemptIndex === 1) {
-    return Math.max(1, Math.ceil(limit * 0.8));
-  }
-
-  if (attemptIndex === 2) {
-    return Math.max(1, Math.ceil(limit * 0.6));
-  }
-
-  return Math.max(1, Math.ceil(limit * 0.4));
-}
-
-function diversifyCollectionsWithRelaxation(
+/**
+ * Interleave the highest scoring albums and media into a balanced feed, enrich albums
+ * with previews, and optionally apply soft shuffling to avoid deterministic ordering.
+ */
+async function composeFinalItems(
   albums: Album[],
   media: Media[],
-  baseMaxPerUser: number,
-  maxRelaxation: number,
-  minCombinedTarget: number
-): {
-  albums: Album[];
-  media: Media[];
-  appliedMaxPerUser: number;
-  combinedCount: number;
-} {
-  let appliedMaxPerUser = Math.max(1, baseMaxPerUser);
-  let diversifiedAlbums = ContentDiversificationUtil.diversifyByUser(
-    albums,
-    appliedMaxPerUser
+  limit: number,
+  shouldShuffle: boolean,
+  targets: { targetAlbumCount: number; targetMediaCount: number }
+): Promise<FinalizedItemsResult> {
+  const { targetAlbumCount, targetMediaCount } = targets;
+
+  const trimmedAlbums = await enrichAlbumsWithPreview(
+    albums.slice(0, targetAlbumCount)
   );
-  let diversifiedMedia = ContentDiversificationUtil.diversifyByUser(
-    media,
-    appliedMaxPerUser
+  const trimmedMedia = media.slice(0, targetMediaCount);
+
+  const interleavePattern = cycleMediaBiasPattern(
+    DISCOVER_CONFIG.selection.mediaBiasPattern
   );
 
-  let combinedCount = diversifiedAlbums.length + diversifiedMedia.length;
+  const finalItems: (Album | Media)[] = [];
+  let albumIndex = 0;
+  let mediaIndex = 0;
 
   while (
-    combinedCount < minCombinedTarget &&
-    appliedMaxPerUser < Math.max(1, baseMaxPerUser) + maxRelaxation
+    finalItems.length < limit &&
+    (albumIndex < trimmedAlbums.length || mediaIndex < trimmedMedia.length)
   ) {
-    appliedMaxPerUser += 1;
-    diversifiedAlbums = ContentDiversificationUtil.diversifyByUser(
-      albums,
-      appliedMaxPerUser
-    );
-    diversifiedMedia = ContentDiversificationUtil.diversifyByUser(
-      media,
-      appliedMaxPerUser
-    );
-    combinedCount = diversifiedAlbums.length + diversifiedMedia.length;
+    const nextType = interleavePattern.next().value;
+
+    if (nextType === "media") {
+      if (mediaIndex < trimmedMedia.length) {
+        const mediaItem = trimmedMedia[mediaIndex]!;
+        finalItems.push(mediaItem);
+        mediaIndex += 1;
+        continue;
+      }
+    } else if (nextType === "album") {
+      if (albumIndex < trimmedAlbums.length) {
+        const albumItem = trimmedAlbums[albumIndex]!;
+        finalItems.push(albumItem);
+        albumIndex += 1;
+        continue;
+      }
+    }
+
+    // Fallback when preferred type is unavailable: add from remaining collection
+    if (mediaIndex < trimmedMedia.length) {
+      const mediaItem = trimmedMedia[mediaIndex]!;
+      finalItems.push(mediaItem);
+      mediaIndex += 1;
+      continue;
+    }
+
+    if (albumIndex < trimmedAlbums.length) {
+      const albumItem = trimmedAlbums[albumIndex]!;
+      finalItems.push(albumItem);
+      albumIndex += 1;
+    }
   }
 
+  const orderedItems = shouldShuffle
+    ? ContentDiversificationUtil.softRandomize(
+        finalItems,
+        DISCOVER_CONFIG.selection.shuffleSoftness
+      )
+    : finalItems;
+
+  const albumCount = orderedItems.filter((item) => "mediaCount" in item).length;
+  const mediaCount = orderedItems.length - albumCount;
+
   return {
-    albums: diversifiedAlbums,
-    media: diversifiedMedia,
-    appliedMaxPerUser,
-    combinedCount,
+    items: orderedItems,
+    albumCount,
+    mediaCount,
   };
 }
 
 /**
  * Parse cursor parameters from query string
  */
+/**
+ * Decode pagination cursors while preserving custom depth metadata that informs
+ * how far back in time the consumer has paged through the discover feed.
+ */
 function parseDiscoverCursors(
   queryParams: { [key: string]: string | undefined } | null
 ): {
-  albums?: Record<string, any>;
-  media?: Record<string, any>;
+  albums?: Record<string, unknown>;
+  media?: Record<string, unknown>;
   cursorDepth: number;
 } {
   const params = queryParams || {};
-  const cursors: any = {};
+  const cursors: {
+    albums?: Record<string, unknown>;
+    media?: Record<string, unknown>;
+  } = {};
   let cursorDepth = 0;
 
-  // Parse album cursor
   if (params["cursorAlbums"]) {
     try {
-      cursors.albums = PaginationUtil.decodeCursor(params["cursorAlbums"]);
-      // Extract depth from cursor if available
-      if (cursors.albums?.depth) {
-        cursorDepth = Math.max(cursorDepth, cursors.albums.depth);
-        delete cursors.albums.depth;
+      const decoded = PaginationUtil.decodeCursor(
+        params["cursorAlbums"]
+      ) as Record<string, unknown>;
+      const depthValue = decoded["depth"];
+      if (typeof depthValue === "number") {
+        cursorDepth = Math.max(cursorDepth, depthValue);
+        delete decoded["depth"];
       }
+      cursors.albums = decoded;
     } catch (error) {
       console.warn("Invalid cursorAlbums:", error);
     }
   }
 
-  // Parse media cursor
   if (params["cursorMedia"]) {
     try {
-      cursors.media = PaginationUtil.decodeCursor(params["cursorMedia"]);
-      if (cursors.media?.depth) {
-        cursorDepth = Math.max(cursorDepth, cursors.media.depth);
-        delete cursors.media.depth;
+      const decoded = PaginationUtil.decodeCursor(
+        params["cursorMedia"]
+      ) as Record<string, unknown>;
+      const depthValue = decoded["depth"];
+      if (typeof depthValue === "number") {
+        cursorDepth = Math.max(cursorDepth, depthValue);
+        delete decoded["depth"];
       }
+      cursors.media = decoded;
     } catch (error) {
       console.warn("Invalid cursorMedia:", error);
     }
   }
 
-  // Parse explicit depth parameter if provided
   if (params["depth"]) {
-    cursorDepth = parseInt(params["depth"]) || 0;
+    cursorDepth = parseInt(params["depth"], 10) || 0;
   }
 
-  return { ...cursors, cursorDepth };
+  return {
+    albums: cursors.albums,
+    media: cursors.media,
+    cursorDepth,
+  };
 }
 
+/**
+ * Entry point for the discover feed. Delegates to specialized flows depending on the
+ * requested sort while keeping shared concerns (auth, logging, configuration) centralized.
+ */
 const handleGetDiscover = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-  // Extract user authentication with anonymous access allowed
   const authResult = await UserAuthUtil.allowAnonymous(event);
 
-  // Handle error response from authentication (should not happen with allowAnonymous)
   if (UserAuthUtil.isErrorResponse(authResult)) {
     return authResult;
   }
 
-  const currentUserId = authResult.userId; // Can be null for anonymous users
+  const currentUserId = authResult.userId;
 
   if (currentUserId) {
     console.log("✅ Authenticated user:", currentUserId);
@@ -347,268 +296,292 @@ const handleGetDiscover = async (
     console.log("ℹ️ Anonymous user - proceeding with public content only");
   }
 
-  // Parse query parameters
-  const queryParams = event.queryStringParameters;
-  const limit = Math.min(parseInt(queryParams?.["limit"] || "20"), 100);
-  const tag = queryParams?.["tag"]; // Tag parameter for filtering
-  const sort = queryParams?.["sort"]; // Sort parameter: "popular" or undefined for default
-
-  // Parse cursors and determine pagination depth
-  const {
-    albums: albumsCursor,
-    media: mediaCursor,
-    cursorDepth,
-  } = parseDiscoverCursors(queryParams);
-
-  // Get time window based on pagination depth
-  const timeWindow = getTimeWindow(cursorDepth);
-
-  // Diversification parameters
-  const maxPerUser = parseInt(queryParams?.["maxPerUser"] || "2");
-
-  // Always add randomization for non-deterministic results
-  const shuffleContent = true;
-
-  // Add random seed to ensure different results on each request
-  const randomSeed = Math.random();
-  const SCORE_WEIGHT = 0.7;
-  const RANDOM_WEIGHT = 0.3;
-  const RANDOM_SCALE = RANDOM_WEIGHT * 1000;
+  const request = parseDiscoverRequest(event);
 
   console.log("[Discover API] Request params:", {
-    limit,
-    maxPerUser,
-    cursorDepth,
-    timeWindow,
-    randomSeed,
-    tag, // Log the tag parameter
-    sort, // Log the sort parameter
+    limit: request.limit,
+    maxPerUser: request.maxPerUser,
+    cursorDepth: request.cursorDepth,
+    randomSeed: request.randomSeed,
+    tag: request.tag ?? "none",
+    sort: request.sort ?? "default",
+    itemsPerDayTarget: DISCOVER_CONFIG.selection.itemsPerDayTarget,
     hasCursors: {
-      albums: !!albumsCursor,
-      media: !!mediaCursor,
+      albums: !!request.albumCursor,
+      media: !!request.mediaCursor,
     },
   });
 
-  // Handle sort=popular - use popularity-based queries instead of time-based
-  if (sort === "popular") {
-    console.log("[Discover API] Popular sorting requested");
+  if (request.sort === "popular") {
+    return handlePopularSort(event, request);
+  }
 
-    // For popular sorting, we want the most popular content without diversification
-    // Fetch exactly what we need
-    const [albumsResult, mediaResult] = await Promise.all([
-      DynamoDBDiscoverService.queryPopularAlbumsViaGSI6(
-        limit,
-        albumsCursor,
-        tag
-      ),
-      DynamoDBDiscoverService.queryPopularMediaViaGSI6(limit, mediaCursor, tag),
-    ]);
+  if (request.sort === "following") {
+    return handleFollowingSort(event, request, currentUserId);
+  }
 
-    console.log("[Discover API] Popular results:", {
-      albums: albumsResult.albums.length,
-      media: mediaResult.media.length,
-      tag: tag || "none",
-    });
+  if (request.tag) {
+    return handleTagDiscover(event, request);
+  }
 
-    // Add content preview for albums
-    const albumsWithPreview = await Promise.all(
-      albumsResult.albums.map(async (album) => ({
-        ...album,
-        contentPreview:
-          (await DynamoDBService.getContentPreviewForAlbum(album.id)) || null,
-      }))
+  const baseTimeWindow = buildTimeWindow(
+    request.limit,
+    request.cursorDepth,
+    DISCOVER_CONFIG
+  );
+
+  console.log("[Discover API] Base time window:", baseTimeWindow);
+
+  return handleDefaultDiscover({
+    event,
+    request,
+    baseTimeWindow,
+    currentUserId,
+  });
+};
+
+/**
+ * Serve a strictly popularity-ordered feed without diversification, used when users
+ * explicitly request the "popular" sort option.
+ */
+async function handlePopularSort(
+  event: APIGatewayProxyEvent,
+  request: DiscoverRequestParams
+): Promise<APIGatewayProxyResult> {
+  console.log("[Discover API] Popular sorting requested");
+
+  const [albumsResult, mediaResult] = await Promise.all([
+    DynamoDBDiscoverService.queryPopularAlbumsViaGSI6(
+      request.limit,
+      request.albumCursor,
+      request.tag
+    ),
+    DynamoDBDiscoverService.queryPopularMediaViaGSI6(
+      request.limit,
+      request.mediaCursor,
+      request.tag
+    ),
+  ]);
+
+  console.log("[Discover API] Popular results:", {
+    albums: albumsResult.albums.length,
+    media: mediaResult.media.length,
+    tag: request.tag ?? "none",
+  });
+
+  const albumsWithPreview = await enrichAlbumsWithPreview(albumsResult.albums);
+
+  const sortedItems = [...albumsWithPreview, ...mediaResult.media]
+    .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+    .slice(0, request.limit);
+
+  const response: DiscoverContent = {
+    items: sortedItems,
+    cursors: {
+      albums: PaginationUtil.encodeCursor(albumsResult.lastEvaluatedKey),
+      media: PaginationUtil.encodeCursor(mediaResult.lastEvaluatedKey),
+    },
+    metadata: {
+      totalItems: sortedItems.length,
+      albumCount: albumsWithPreview.length,
+      mediaCount: mediaResult.media.length,
+      diversificationApplied: false,
+      timeWindow: "popular",
+    },
+  };
+
+  console.log("[Discover API] Popular response:", {
+    totalItems: response.metadata.totalItems,
+    albumCount: response.metadata.albumCount,
+    mediaCount: response.metadata.mediaCount,
+    tag: request.tag ?? "none",
+  });
+
+  return ResponseUtil.success(event, response);
+}
+
+/**
+ * Build the personalized following feed, requiring authentication and reusing the
+ * dedicated FollowingFeedService aggregation.
+ */
+async function handleFollowingSort(
+  event: APIGatewayProxyEvent,
+  request: DiscoverRequestParams,
+  currentUserId: string | null
+): Promise<APIGatewayProxyResult> {
+  console.log("[Discover API] Following feed sorting requested");
+
+  if (!currentUserId) {
+    console.log("❌ Following feed requires authentication");
+    return ResponseUtil.unauthorized(
+      event,
+      "Following feed requires authentication"
+    );
+  }
+
+  try {
+    const followingResult = await FollowingFeedService.generateFollowingFeed(
+      currentUserId,
+      request.limit,
+      request.followingCursor
     );
 
-    // Combine albums and media, then sort by popularity score
-    const combinedItems: (Album | Media)[] = [
-      ...albumsWithPreview,
-      ...mediaResult.media,
-    ];
-
-    // Sort by popularity score in descending order (highest popularity first)
-    const sortedItems = combinedItems.sort((a, b) => {
-      const aPopularity = a.popularity || 0;
-      const bPopularity = b.popularity || 0;
-      return bPopularity - aPopularity;
-    });
-
-    // Take only the requested limit
-    const items = sortedItems.slice(0, limit);
-
-    // Count types in final output
-    const albumCount = albumsWithPreview.length;
-    const mediaCount = mediaResult.media.length;
-
-    // Build response for popular sorting
-    const popularResponse: DiscoverContent = {
-      items,
+    const response: DiscoverContent = {
+      items: followingResult.items,
       cursors: {
-        albums: PaginationUtil.encodeCursor(albumsResult.lastEvaluatedKey),
-        media: PaginationUtil.encodeCursor(mediaResult.lastEvaluatedKey),
+        albums: followingResult.cursor,
+        media: followingResult.cursor,
       },
       metadata: {
-        totalItems: items.length,
-        albumCount,
-        mediaCount,
-        diversificationApplied: false, // No diversification for popular sorting
-        timeWindow: "popular",
+        totalItems: followingResult.metadata.totalItems,
+        albumCount: followingResult.metadata.albumCount,
+        mediaCount: followingResult.metadata.mediaCount,
+        diversificationApplied: false,
+        timeWindow: followingResult.metadata.timeWindow,
       },
     };
 
-    console.log("[Discover API] Popular response:", {
-      totalItems: popularResponse.metadata.totalItems,
-      albumCount: popularResponse.metadata.albumCount,
-      mediaCount: popularResponse.metadata.mediaCount,
-      sort: "popular",
-      tag: tag || "none",
+    console.log("[Discover API] Following feed response:", {
+      totalItems: response.metadata.totalItems,
+      albumCount: response.metadata.albumCount,
+      mediaCount: response.metadata.mediaCount,
+      followedUsersProcessed: followingResult.metadata.followedUsersProcessed,
     });
 
-    return ResponseUtil.success(event, popularResponse);
-  }
-
-  // Handle sort=following - use following feed aggregation strategy
-  if (sort === "following") {
-    console.log("[Discover API] Following feed sorting requested");
-
-    // Following feed requires authentication
-    if (!currentUserId) {
-      console.log("❌ Following feed requires authentication");
-      return ResponseUtil.unauthorized(
-        event,
-        "Following feed requires authentication"
-      );
-    }
-
-    // For following feed, we use a single cursor combining both albums and media
-    // Parse the cursor from either cursorAlbums or cursorMedia (they should be the same for following)
-    const followingCursor =
-      queryParams?.["cursorAlbums"] ||
-      queryParams?.["cursorMedia"] ||
-      queryParams?.["cursor"];
-
-    try {
-      const followingResult = await FollowingFeedService.generateFollowingFeed(
-        currentUserId,
-        limit,
-        followingCursor
-      );
-
-      // Build response for following feed
-      const followingResponse: DiscoverContent = {
-        items: followingResult.items,
-        cursors: {
-          albums: followingResult.cursor, // Use same cursor for both
-          media: followingResult.cursor,
-        },
-        metadata: {
-          totalItems: followingResult.metadata.totalItems,
-          albumCount: followingResult.metadata.albumCount,
-          mediaCount: followingResult.metadata.mediaCount,
-          diversificationApplied: false, // No additional diversification needed
-          timeWindow: followingResult.metadata.timeWindow,
-        },
-      };
-
-      console.log("[Discover API] Following feed response:", {
-        totalItems: followingResponse.metadata.totalItems,
-        albumCount: followingResponse.metadata.albumCount,
-        mediaCount: followingResponse.metadata.mediaCount,
-        followedUsersProcessed: followingResult.metadata.followedUsersProcessed,
-        sort: "following",
-      });
-
-      return ResponseUtil.success(event, followingResponse);
-    } catch (error) {
-      console.error("❌ Error generating following feed:", error);
-      return ResponseUtil.error(
-        event,
-        error instanceof Error
-          ? error.message
-          : "Failed to generate following feed"
-      );
-    }
-  }
-
-  // Special handling for tag-based discovery
-  if (tag) {
-    console.log(`[Discover API] Tag-based discovery for tag: "${tag}"`);
-
-    // For tag-based discovery, only return albums with the specified tag
-    // Use DynamoDBService.listAlbumsByTag with isPublic=true for public content
-    const tagBasedResult = await DynamoDBService.listAlbumsByTag(
-      tag,
-      limit,
-      albumsCursor,
-      true // Only public albums
+    return ResponseUtil.success(event, response);
+  } catch (error) {
+    console.error("❌ Error generating following feed:", error);
+    return ResponseUtil.error(
+      event,
+      error instanceof Error
+        ? error.message
+        : "Failed to generate following feed"
     );
+  }
+}
 
-    // Add content preview for each album
-    const albumsWithPreview = await Promise.all(
-      tagBasedResult.albums
-        .filter((a) => a.mediaCount > 0)
-        .map(async (album) => ({
-          ...album,
-          contentPreview:
-            (await DynamoDBService.getContentPreviewForAlbum(album.id)) || null,
-        }))
-    );
-
-    // Build response for tag-based discovery
-    const tagResponse: DiscoverContent = {
-      items: albumsWithPreview,
-      cursors: {
-        albums: PaginationUtil.encodeCursor(tagBasedResult.lastEvaluatedKey),
-        media: null, // No media cursor for tag-based discovery
-      },
+/**
+ * Provide tag-scoped discovery results, focusing exclusively on public albums that
+ * contain media and enriching them with previews for quick client rendering.
+ */
+async function handleTagDiscover(
+  event: APIGatewayProxyEvent,
+  request: DiscoverRequestParams
+): Promise<APIGatewayProxyResult> {
+  if (!request.tag) {
+    return ResponseUtil.success(event, {
+      items: [],
+      cursors: { albums: null, media: null },
       metadata: {
-        totalItems: albumsWithPreview.length,
-        albumCount: albumsWithPreview.length,
+        totalItems: 0,
+        albumCount: 0,
         mediaCount: 0,
         diversificationApplied: false,
-        timeWindow: `tag:${tag}`,
+        timeWindow: "tag",
       },
-    };
-
-    console.log("[Discover API] Tag-based response:", {
-      tag,
-      totalItems: tagResponse.metadata.totalItems,
-      albumCount: tagResponse.metadata.albumCount,
     });
-
-    return ResponseUtil.success(event, tagResponse);
   }
 
-  // Fetch larger batches to account for filtering and diversification
-  const fetchMultiplier = limit <= 40 ? 2 : 3;
-  const fetchLimit = limit * fetchMultiplier;
+  console.log(`[Discover API] Tag-based discovery for tag: "${request.tag}"`);
 
-  // Fetch recent content (we'll apply popularity scoring after)
+  const tagBasedResult = await DynamoDBService.listAlbumsByTag(
+    request.tag,
+    request.limit,
+    request.albumCursor,
+    true
+  );
+
+  const filteredAlbums = tagBasedResult.albums.filter(
+    (album) => album.mediaCount > 0
+  );
+
+  const albumsWithPreview = await enrichAlbumsWithPreview(filteredAlbums);
+
+  const response: DiscoverContent = {
+    items: albumsWithPreview,
+    cursors: {
+      albums: PaginationUtil.encodeCursor(tagBasedResult.lastEvaluatedKey),
+      media: null,
+    },
+    metadata: {
+      totalItems: albumsWithPreview.length,
+      albumCount: albumsWithPreview.length,
+      mediaCount: 0,
+      diversificationApplied: false,
+      timeWindow: `tag:${request.tag}`,
+    },
+  };
+
+  console.log("[Discover API] Tag-based response:", {
+    tag: request.tag,
+    totalItems: response.metadata.totalItems,
+    albumCount: response.metadata.albumCount,
+  });
+
+  return ResponseUtil.success(event, response);
+}
+
+interface DefaultDiscoverArgs {
+  event: APIGatewayProxyEvent;
+  request: DiscoverRequestParams;
+  baseTimeWindow: DiscoverTimeWindow;
+  currentUserId: string | null;
+}
+
+/**
+ * Default discover strategy that balances recency, popularity, and diversification.
+ * It progressively widens the time window when content is sparse while respecting
+ * configuration-driven targets such as items-per-day and per-user limits.
+ */
+async function handleDefaultDiscover({
+  event,
+  request,
+  baseTimeWindow,
+  currentUserId,
+}: DefaultDiscoverArgs): Promise<APIGatewayProxyResult> {
+  console.log("[Discover API] Default discover execution context:", {
+    user: currentUserId ?? "anonymous",
+    baseTimeWindow,
+  });
+
+  const fetchMultiplier =
+    request.limit <= DISCOVER_CONFIG.pagination.smallLimitThreshold
+      ? DISCOVER_CONFIG.pagination.regularFetchMultiplier
+      : DISCOVER_CONFIG.pagination.largeFetchMultiplier;
+  const fetchLimit = request.limit * fetchMultiplier;
+
   const [albumsResult, mediaResult] = await Promise.all([
-    // Fetch recent public albums
-    DynamoDBDiscoverService.queryPublicAlbumsViaGSI5(fetchLimit, albumsCursor),
-    // Fetch recent public media
-    DynamoDBDiscoverService.queryPublicMediaViaGSI5(fetchLimit, mediaCursor),
+    DynamoDBDiscoverService.queryPublicAlbumsViaGSI5(
+      fetchLimit,
+      request.albumCursor
+    ),
+    DynamoDBDiscoverService.queryPublicMediaViaGSI5(
+      fetchLimit,
+      request.mediaCursor
+    ),
   ]);
 
   console.log("[Discover API] Raw results:", {
     albums: albumsResult.albums.length,
     media: mediaResult.media.length,
-    albumsExhausted: albumsResult.albums.length === 0 && !!albumsCursor,
+    albumsExhausted: albumsResult.albums.length === 0 && !!request.albumCursor,
     fetchLimit,
     fetchMultiplier,
   });
 
-  // Check if albums are exhausted (no more albums but we had a cursor)
-  const albumsExhausted = albumsResult.albums.length === 0 && !!albumsCursor;
-  let recycledAlbumsResult = null;
+  const albumsExhausted =
+    albumsResult.albums.length === 0 && !!request.albumCursor;
 
-  // If albums are exhausted and we have very few albums, fetch from the beginning (recycle)
+  let recycledAlbumsResult: Awaited<
+    ReturnType<typeof DynamoDBDiscoverService.queryPublicAlbumsViaGSI5>
+  > | null = null;
+
   if (albumsExhausted) {
     console.log("[Discover API] Albums exhausted, recycling from beginning");
     recycledAlbumsResult =
       await DynamoDBDiscoverService.queryPublicAlbumsViaGSI5(
         fetchLimit,
-        undefined // No cursor to start from beginning
+        undefined
       );
     console.log(
       "[Discover API] Recycled albums:",
@@ -616,19 +589,20 @@ const handleGetDiscover = async (
     );
   }
 
-  // If we still don't have enough content diversity, fetch additional media
   const totalAlbumCount =
-    albumsResult.albums.length + (recycledAlbumsResult?.albums.length || 0);
-  let additionalMediaResult = null;
+    albumsResult.albums.length + (recycledAlbumsResult?.albums.length ?? 0);
 
-  if (totalAlbumCount < limit * 0.2 && mediaResult.lastEvaluatedKey) {
-    // We have less than 20% albums of the target limit, fetch more media
+  let additionalMediaResult: Awaited<
+    ReturnType<typeof DynamoDBDiscoverService.queryPublicMediaViaGSI5>
+  > | null = null;
+
+  if (totalAlbumCount < request.limit * 0.2 && mediaResult.lastEvaluatedKey) {
     console.log(
       "[Discover API] Insufficient albums, fetching additional media"
     );
     additionalMediaResult =
       await DynamoDBDiscoverService.queryPublicMediaViaGSI5(
-        fetchLimit * 2, // Fetch even more media
+        fetchLimit * 2,
         mediaResult.lastEvaluatedKey
       );
     console.log(
@@ -637,15 +611,13 @@ const handleGetDiscover = async (
     );
   }
 
-  // Combine all results
   const allAlbums = [
     ...albumsResult.albums,
-    ...(recycledAlbumsResult?.albums || []),
+    ...(recycledAlbumsResult?.albums ?? []),
   ];
-
   const allMedia = [
     ...mediaResult.media,
-    ...(additionalMediaResult?.media || []),
+    ...(additionalMediaResult?.media ?? []),
   ];
 
   console.log("[Discover API] Combined results:", {
@@ -653,67 +625,35 @@ const handleGetDiscover = async (
     media: allMedia.length,
   });
 
-  // Filter by time window and calculate time-weighted popularity with fallbacks
   const now = Date.now();
-  const recycledAlbumIdSet =
-    recycledAlbumsResult && recycledAlbumsResult.albums.length > 0
-      ? new Set(recycledAlbumsResult.albums.map((album) => album.id))
-      : null;
-  const additionalMediaIdSet =
-    additionalMediaResult && additionalMediaResult.media.length > 0
-      ? new Set(additionalMediaResult.media.map((mediaItem) => mediaItem.id))
-      : null;
+  const recycledAlbumIdSet = recycledAlbumsResult
+    ? new Set(recycledAlbumsResult.albums.map((album) => album.id))
+    : null;
+  const additionalMediaIdSet = additionalMediaResult
+    ? new Set(additionalMediaResult.media.map((mediaItem) => mediaItem.id))
+    : null;
 
-  const VIDEO_SCORE_BOOST_MULTIPLIER = 1.25;
-  const fallbackAttempts: Array<{
-    window: TimeWindowConfig | null;
-    defaultMaxAgeInDays: number;
-  }> = [
-    { window: timeWindow, defaultMaxAgeInDays: timeWindow.maxAgeInDays },
-    {
-      window: {
-        windowStartDays: 0,
-        windowEndDays: Math.max(timeWindow.windowEndDays, 7),
-        maxAgeInDays: Math.max(timeWindow.maxAgeInDays, 60),
-      },
-      defaultMaxAgeInDays: Math.max(timeWindow.maxAgeInDays, 60),
-    },
-    {
-      window: {
-        windowStartDays: 0,
-        windowEndDays: Math.max(timeWindow.windowEndDays, 14),
-        maxAgeInDays: Math.max(timeWindow.maxAgeInDays, 90),
-      },
-      defaultMaxAgeInDays: Math.max(timeWindow.maxAgeInDays, 90),
-    },
-    {
-      window: {
-        windowStartDays: 0,
-        windowEndDays: Math.max(timeWindow.windowEndDays, 30),
-        maxAgeInDays: Math.max(timeWindow.maxAgeInDays, 120),
-      },
-      defaultMaxAgeInDays: Math.max(timeWindow.maxAgeInDays, 120),
-    },
-    {
-      window: {
-        windowStartDays: 0,
-        windowEndDays: Math.max(timeWindow.windowEndDays, 90),
-        maxAgeInDays: Math.max(timeWindow.maxAgeInDays, 180),
-      },
-      defaultMaxAgeInDays: Math.max(timeWindow.maxAgeInDays, 180),
-    },
-    { window: null, defaultMaxAgeInDays: 365 },
-  ];
+  const fallbackAttempts = buildFallbackAttempts(
+    baseTimeWindow,
+    DISCOVER_CONFIG
+  );
 
-  let selectedScoredAlbums: Array<{ item: Album; combinedScore: number }> = [];
-  let selectedScoredMedia: Array<{ item: Media; combinedScore: number }> = [];
-  let finalDiversifiedAlbums: Album[] = [];
-  let finalDiversifiedMedia: Media[] = [];
-  let appliedMaxPerUserForWindow = maxPerUser;
-  let effectiveTimeWindowLabel = formatTimeWindowLabel(timeWindow, false);
+  const scoreWeight = DISCOVER_CONFIG.randomization.scoreWeight;
+  const randomScale = DISCOVER_CONFIG.randomization.randomWeight * 1000;
+  const seedStep = DISCOVER_CONFIG.randomization.seedStep;
+  const videoBoost = DISCOVER_CONFIG.scoring.videoBoostMultiplier;
+
+  let finalAlbums: Album[] = [];
+  let finalMedia: Media[] = [];
+  let appliedMaxPerUser = request.maxPerUser;
+  let effectiveTimeWindowLabel = formatTimeWindowLabel(baseTimeWindow, false);
+  let lastScoredAlbumsCount = 0;
+  let lastScoredMediaCount = 0;
 
   for (const [attemptIndex, attempt] of fallbackAttempts.entries()) {
-    const attemptSeed = (randomSeed + attemptIndex * 0.173) % 1;
+    // Each attempt widens the temporal window or falls back to all-time, giving
+    // preference to recent content but guaranteeing we eventually return results.
+    const attemptSeed = (request.randomSeed + attemptIndex * seedStep) % 1;
 
     const scored = scoreContentWithinWindow({
       albums: allAlbums,
@@ -721,75 +661,69 @@ const handleGetDiscover = async (
       timeWindow: attempt.window,
       now,
       randomSeed: attemptSeed,
-      scoreWeight: SCORE_WEIGHT,
-      randomScale: RANDOM_SCALE,
-      videoScoreBoostMultiplier: VIDEO_SCORE_BOOST_MULTIPLIER,
+      scoreWeight,
+      randomScale,
+      videoScoreBoostMultiplier: videoBoost,
       recycledAlbumIdSet,
       additionalMediaIdSet,
       defaultMaxAgeInDays: attempt.defaultMaxAgeInDays,
+      config: DISCOVER_CONFIG,
     });
 
-    const sortedAlbums = [...scored.albums].sort(
-      (a, b) => b.combinedScore - a.combinedScore
-    );
-    const sortedMedia = [...scored.media].sort(
-      (a, b) => b.combinedScore - a.combinedScore
-    );
+    lastScoredAlbumsCount = scored.albums.length;
+    lastScoredMediaCount = scored.media.length;
 
-    const candidateAlbums = sortedAlbums.map((entry) => entry.item);
-    const candidateMedia = sortedMedia.map((entry) => entry.item);
+    const candidateAlbums = scored.albums
+      .sort((a, b) => b.combinedScore - a.combinedScore)
+      .map((entry) => entry.item);
+    const candidateMedia = scored.media
+      .sort((a, b) => b.combinedScore - a.combinedScore)
+      .map((entry) => entry.item);
 
     const minCombinedTarget = calculateMinimumResultsForAttempt(
-      limit,
+      request.limit,
       attemptIndex
     );
 
     const diversificationResult = diversifyCollectionsWithRelaxation(
       candidateAlbums,
       candidateMedia,
-      maxPerUser,
-      MAX_DIVERSIFICATION_RELAXATION,
+      request.maxPerUser,
+      DISCOVER_CONFIG,
       minCombinedTarget
     );
 
-    const fallbackApplied =
-      attemptIndex > 0 &&
-      (attempt.window === null ||
-        attempt.window.windowStartDays !== timeWindow.windowStartDays ||
-        attempt.window.windowEndDays !== timeWindow.windowEndDays);
+    const fallbackLabel = formatTimeWindowLabel(
+      attempt.window,
+      attemptIndex > 0
+    );
 
-    const shouldAcceptAttempt =
+    const shouldAccept =
       diversificationResult.combinedCount >= minCombinedTarget ||
       attemptIndex === fallbackAttempts.length - 1;
 
-    if (shouldAcceptAttempt) {
-      selectedScoredAlbums = sortedAlbums;
-      selectedScoredMedia = sortedMedia;
-      finalDiversifiedAlbums = diversificationResult.albums;
-      finalDiversifiedMedia = diversificationResult.media;
-      appliedMaxPerUserForWindow = diversificationResult.appliedMaxPerUser;
-      effectiveTimeWindowLabel = formatTimeWindowLabel(
-        attempt.window,
-        fallbackApplied
-      );
+    if (shouldAccept) {
+      finalAlbums = diversificationResult.albums;
+      finalMedia = diversificationResult.media;
+      appliedMaxPerUser = diversificationResult.appliedMaxPerUser;
+      effectiveTimeWindowLabel = fallbackLabel;
 
-      if (fallbackApplied) {
+      if (attemptIndex > 0) {
         console.log(
           "[Discover API] Expanded time window due to sparse content",
           {
-            appliedWindow: effectiveTimeWindowLabel,
-            totalItems: diversificationResult.combinedCount,
+            appliedWindow: fallbackLabel,
             attemptIndex,
+            combinedCount: diversificationResult.combinedCount,
           }
         );
       }
 
-      if (diversificationResult.appliedMaxPerUser > maxPerUser) {
+      if (diversificationResult.appliedMaxPerUser > request.maxPerUser) {
         console.log("[Discover API] Relaxed maxPerUser constraint", {
-          baseMaxPerUser: maxPerUser,
+          baseMaxPerUser: request.maxPerUser,
           appliedMaxPerUser: diversificationResult.appliedMaxPerUser,
           attemptIndex,
-          combinedCount: diversificationResult.combinedCount,
         });
       }
 
@@ -798,7 +732,7 @@ const handleGetDiscover = async (
 
     console.log("[Discover API] Insufficient content for time window attempt", {
       attemptIndex,
-      timeWindow: formatTimeWindowLabel(attempt.window, fallbackApplied),
+      timeWindow: fallbackLabel,
       combinedCount: diversificationResult.combinedCount,
       minCombinedTarget,
       appliedMaxPerUser: diversificationResult.appliedMaxPerUser,
@@ -806,112 +740,55 @@ const handleGetDiscover = async (
   }
 
   console.log("[Discover API] After time window filtering:", {
-    availableAlbums: selectedScoredAlbums.length,
-    availableMedia: selectedScoredMedia.length,
-    diversifiedAlbums: finalDiversifiedAlbums.length,
-    diversifiedMedia: finalDiversifiedMedia.length,
+    availableAlbums: lastScoredAlbumsCount,
+    availableMedia: lastScoredMediaCount,
+    diversifiedAlbums: finalAlbums.length,
+    diversifiedMedia: finalMedia.length,
     timeWindow: effectiveTimeWindowLabel,
-    maxPerUserApplied: appliedMaxPerUserForWindow,
+    maxPerUserApplied: appliedMaxPerUser,
   });
 
-  const albums = finalDiversifiedAlbums;
-  const media = finalDiversifiedMedia;
-
-  // Dynamic ratio based on available content
-  // If albums are scarce, adjust ratio to favor media
-  const availableAlbumRatio = Math.min(0.4, albums.length / limit);
-  const targetAlbumCount = Math.floor(limit * availableAlbumRatio);
-  const targetMediaCount = limit - targetAlbumCount;
+  const targets = deriveContentTargets(
+    finalAlbums.length,
+    request.limit,
+    DISCOVER_CONFIG
+  );
 
   console.log("[Discover API] Dynamic content ratio:", {
-    availableAlbums: albums.length,
-    availableMedia: media.length,
-    targetAlbumCount,
-    targetMediaCount,
-    albumRatio: ((targetAlbumCount / limit) * 100).toFixed(1) + "%",
-    mediaRatio: ((targetMediaCount / limit) * 100).toFixed(1) + "%",
+    availableAlbums: finalAlbums.length,
+    availableMedia: finalMedia.length,
+    targetAlbumCount: targets.targetAlbumCount,
+    targetMediaCount: targets.targetMediaCount,
+    albumRatio:
+      ((targets.targetAlbumCount / request.limit) * 100).toFixed(1) + "%",
+    mediaRatio:
+      ((targets.targetMediaCount / request.limit) * 100).toFixed(1) + "%",
   });
 
-  // Take only what we need
-  const preFinalAlbums = albums.slice(0, targetAlbumCount).map(async (a) => ({
-    ...a,
-    contentPreview:
-      (await DynamoDBService.getContentPreviewForAlbum(a.id)) || null,
-  }));
-  const finalAlbums = await Promise.all(preFinalAlbums);
-  const finalMedia = media.slice(0, targetMediaCount);
+  const finalized = await composeFinalItems(
+    finalAlbums,
+    finalMedia,
+    request.limit,
+    request.shuffleContent,
+    targets
+  );
 
-  // Interleave albums and media for better content mix
-  const items: (Album | Media)[] = [];
-  let albumIndex = 0;
-  let mediaIndex = 0;
+  const nextDepth = request.cursorDepth + 1;
 
-  // Alternate between albums and media, with slight preference for media
-  while (
-    (albumIndex < finalAlbums.length || mediaIndex < finalMedia.length) &&
-    items.length < limit
-  ) {
-    // Add 2 media for every 1 album (roughly)
-    if (mediaIndex < finalMedia.length) {
-      const mediaItem = finalMedia[mediaIndex];
-      if (mediaItem) {
-        items.push(mediaItem);
-        mediaIndex++;
-      }
-    }
-    if (mediaIndex < finalMedia.length && items.length < limit) {
-      const mediaItem = finalMedia[mediaIndex];
-      if (mediaItem) {
-        items.push(mediaItem);
-        mediaIndex++;
-      }
-    }
-    if (albumIndex < finalAlbums.length && items.length < limit) {
-      const albumItem = finalAlbums[albumIndex];
-      if (albumItem) {
-        items.push(albumItem);
-        albumIndex++;
-      }
-    }
-  }
-
-  // Apply final shuffle with soft randomization
-  const finalItems = shuffleContent
-    ? ContentDiversificationUtil.softRandomize(items, 10)
-    : items;
-
-  // Count types in final output
-  const albumCount = finalItems.filter((item) => "mediaCount" in item).length;
-  const mediaCount = finalItems.filter(
-    (item) => "url" in item && !("mediaCount" in item)
-  ).length;
-
-  // Prepare cursors for next page with depth information
-  const nextDepth = cursorDepth + 1;
-
-  // For albums cursor: if we recycled, use the recycled cursor; if exhausted, reset to null
-  let albumsCursorWithDepth;
-  if (recycledAlbumsResult) {
-    // We recycled albums, use the recycled cursor for next page
-    albumsCursorWithDepth = recycledAlbumsResult.lastEvaluatedKey
-      ? {
-          ...recycledAlbumsResult.lastEvaluatedKey,
-          depth: 1,
-        }
-      : undefined;
+  let albumsCursorWithDepth: Record<string, unknown> | undefined;
+  if (recycledAlbumsResult?.lastEvaluatedKey) {
+    albumsCursorWithDepth = {
+      ...recycledAlbumsResult.lastEvaluatedKey,
+      depth: 1,
+    };
   } else if (albumsResult.lastEvaluatedKey) {
-    // Normal case, use the regular cursor
     albumsCursorWithDepth = {
       ...albumsResult.lastEvaluatedKey,
       depth: nextDepth,
     };
-  } else {
-    // No more albums and not recycled yet
-    albumsCursorWithDepth = undefined;
   }
 
-  // For media cursor: use additional media cursor if available, otherwise regular
-  let mediaCursorWithDepth;
+  let mediaCursorWithDepth: Record<string, unknown> | undefined;
   if (additionalMediaResult?.lastEvaluatedKey) {
     mediaCursorWithDepth = {
       ...additionalMediaResult.lastEvaluatedKey,
@@ -922,21 +799,18 @@ const handleGetDiscover = async (
       ...mediaResult.lastEvaluatedKey,
       depth: nextDepth,
     };
-  } else {
-    mediaCursorWithDepth = undefined;
   }
 
-  // Build response
   const response: DiscoverContent = {
-    items: finalItems,
+    items: finalized.items,
     cursors: {
       albums: PaginationUtil.encodeCursor(albumsCursorWithDepth),
       media: PaginationUtil.encodeCursor(mediaCursorWithDepth),
     },
     metadata: {
-      totalItems: finalItems.length,
-      albumCount,
-      mediaCount,
+      totalItems: finalized.items.length,
+      albumCount: finalized.albumCount,
+      mediaCount: finalized.mediaCount,
       diversificationApplied: true,
       timeWindow: effectiveTimeWindowLabel,
     },
@@ -953,6 +827,6 @@ const handleGetDiscover = async (
   });
 
   return ResponseUtil.success(event, response);
-};
+}
 
 export const handler = LambdaHandlerUtil.withoutAuth(handleGetDiscover);
