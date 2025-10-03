@@ -12,6 +12,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { mediaApi } from "@/lib/api";
+import { headers } from "next/headers";
 
 type AlbumDetailPageProps = {
   params: {
@@ -27,7 +28,11 @@ export async function generateMetadata({
   params,
 }: AlbumDetailPageProps): Promise<Metadata> {
   const { locale, albumId } = params;
-  const { data: album, error } = await getAlbumById(albumId);
+  const headersList = headers();
+  const cookieHeader = headersList.get("cookie") || undefined;
+  const { data: album, error } = await getAlbumById(albumId, {
+    cookieHeader,
+  });
 
   // Get localized translations for fallback
   const tAlbum = await getTranslations({ locale, namespace: "album" });
@@ -53,7 +58,9 @@ export default async function AlbumDetailPage({
   params,
 }: AlbumDetailPageProps) {
   const { albumId, locale } = params;
-  const albumResult = await getAlbumById(albumId);
+  const headersList = headers();
+  const cookieHeader = headersList.get("cookie") || undefined;
+  const albumResult = await getAlbumById(albumId, { cookieHeader });
 
   if (albumResult.error) {
     if (albumResult.error === "Content is private") {

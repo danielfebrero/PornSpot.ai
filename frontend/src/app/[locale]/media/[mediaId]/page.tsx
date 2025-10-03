@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { MediaDetailClient } from "@/components/MediaDetailClient";
 import { generateMediaMetadata } from "@/lib/opengraph";
 import { Lock } from "lucide-react";
+import { headers } from "next/headers";
 
 interface MediaDetailPageProps {
   params: {
@@ -52,7 +53,9 @@ export default async function MediaDetailPage({
   params,
 }: MediaDetailPageProps) {
   const { mediaId, locale } = params;
-  const mediaResult = await getMediaById(mediaId);
+  const headersList = headers();
+  const cookieHeader = headersList.get("cookie") || undefined;
+  const mediaResult = await getMediaById(mediaId, { cookieHeader });
 
   if (mediaResult.error) {
     if (mediaResult.error === "Content is private") {

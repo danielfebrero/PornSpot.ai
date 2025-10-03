@@ -97,13 +97,19 @@ export async function fetchAllPublicAlbums(): Promise<Album[]> {
 }
 
 // Fetch a single album by ID
-export async function getAlbumById(albumId: string) {
+export async function getAlbumById(
+  albumId: string,
+  options: { cookieHeader?: string } = {}
+) {
+  const { cookieHeader } = options;
   try {
     const response = await fetch(`${API_URL}/albums/${albumId}`, {
       next: {
         tags: [`album-${albumId}`],
       },
-      // Remove cache: force-cache since we're using revalidate
+      cache: "no-store",
+      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+      credentials: "include",
     });
     return await handleResponse<Album>(response);
   } catch (error) {
@@ -143,12 +149,19 @@ export async function getMediaForAlbum(
 }
 
 // Fetch a single media item by ID
-export async function getMediaById(mediaId: string) {
+export async function getMediaById(
+  mediaId: string,
+  options: { cookieHeader?: string } = {}
+) {
+  const { cookieHeader } = options;
   try {
     const response = await fetch(`${API_URL}/media/${mediaId}`, {
       next: {
         tags: [`media-${mediaId}`],
       },
+      cache: "no-store",
+      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+      credentials: "include",
     });
     return await handleResponse<EnhancedMedia>(response);
   } catch (error) {
