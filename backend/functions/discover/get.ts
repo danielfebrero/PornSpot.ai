@@ -41,6 +41,33 @@ interface DiscoverContent {
   };
 }
 
+interface TimeWindowConfig {
+  maxAgeInDays: number;
+  windowStartDays: number;
+  windowEndDays: number;
+}
+
+interface ScoreContentResult {
+  albums: Array<{ item: Album; combinedScore: number }>;
+  media: Array<{ item: Media; combinedScore: number }>;
+}
+
+interface ScoreContentArgs {
+  albums: Album[];
+  media: Media[];
+  timeWindow: TimeWindowConfig | null;
+  now: number;
+  randomSeed: number;
+  scoreWeight: number;
+  randomScale: number;
+  videoScoreBoostMultiplier: number;
+  recycledAlbumIdSet?: Set<string> | null;
+  additionalMediaIdSet?: Set<string> | null;
+  defaultMaxAgeInDays: number;
+}
+
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+
 /**
  * Calculate time-weighted popularity score
  * Newer content gets a boost, older content gets penalized
@@ -82,11 +109,7 @@ function createSeededRandom(seed: number): () => number {
  * Get time window parameters based on pagination depth
  * As users scroll, we fetch slightly older content
  */
-function getTimeWindow(cursorDepth: number): {
-  maxAgeInDays: number;
-  windowStartDays: number;
-  windowEndDays: number;
-} {
+function getTimeWindow(cursorDepth: number): TimeWindowConfig {
   // Each "page" represents roughly 3-7 days of content
   const daysPerPage = 1;
   const windowStartDays = cursorDepth * daysPerPage;
@@ -97,6 +120,95 @@ function getTimeWindow(cursorDepth: number): {
     windowStartDays,
     windowEndDays,
   };
+}
+
+function scoreContentWithinWindow({
+  albums,
+  media,
+  timeWindow,
+  now,
+  randomSeed,
+  scoreWeight,
+  randomScale,
+  videoScoreBoostMultiplier,
+  recycledAlbumIdSet,
+  additionalMediaIdSet,
+  defaultMaxAgeInDays,
+}: ScoreContentArgs): ScoreContentResult {
+  const seededRandom = createSeededRandom(randomSeed);
+  const windowStartMs = timeWindow
+    ? now - timeWindow.windowEndDays * DAY_IN_MS
+    : undefined;
+  const windowEndMs = timeWindow
+    ? now - timeWindow.windowStartDays * DAY_IN_MS
+    : undefined;
+  const maxAgeInDays = timeWindow?.maxAgeInDays ?? defaultMaxAgeInDays;
+
+  const scoredAlbums: Array<{ item: Album; combinedScore: number }> = [];
+  for (const album of albums) {
+    const createdAt = new Date(album.createdAt).getTime();
+    const isRecycled = recycledAlbumIdSet?.has(album.id) ?? false;
+
+    if (
+      timeWindow &&
+      !isRecycled &&
+      windowStartMs !== undefined &&
+      windowEndMs !== undefined &&
+      (createdAt < windowStartMs || createdAt > windowEndMs)
+    ) {
+      continue;
+    }
+
+    const baseScore = calculateTimeWeightedPopularity(album, maxAgeInDays);
+    const combinedScore =
+      baseScore * scoreWeight + seededRandom() * randomScale;
+
+    scoredAlbums.push({
+      item: album,
+      combinedScore,
+    });
+  }
+
+  const scoredMedia: Array<{ item: Media; combinedScore: number }> = [];
+  for (const mediaItem of media) {
+    const createdAt = new Date(mediaItem.createdAt).getTime();
+    const isAdditional = additionalMediaIdSet?.has(mediaItem.id) ?? false;
+
+    if (
+      timeWindow &&
+      !isAdditional &&
+      windowStartMs !== undefined &&
+      windowEndMs !== undefined &&
+      (createdAt < windowStartMs || createdAt > windowEndMs)
+    ) {
+      continue;
+    }
+
+    const baseScore =
+      calculateTimeWeightedPopularity(mediaItem, maxAgeInDays) *
+      (mediaItem.type === "video" ? videoScoreBoostMultiplier : 1);
+    const combinedScore =
+      baseScore * scoreWeight + seededRandom() * randomScale;
+
+    scoredMedia.push({
+      item: mediaItem,
+      combinedScore,
+    });
+  }
+
+  return { albums: scoredAlbums, media: scoredMedia };
+}
+
+function formatTimeWindowLabel(
+  timeWindow: TimeWindowConfig | null,
+  fallbackApplied: boolean
+): string {
+  if (!timeWindow) {
+    return fallbackApplied ? "all-time (fallback)" : "all-time";
+  }
+
+  const baseLabel = `${timeWindow.windowStartDays}-${timeWindow.windowEndDays} days ago`;
+  return fallbackApplied ? `${baseLabel} (fallback)` : baseLabel;
 }
 
 /**
@@ -191,7 +303,6 @@ const handleGetDiscover = async (
 
   // Add random seed to ensure different results on each request
   const randomSeed = Math.random();
-  const seededRandom = createSeededRandom(randomSeed);
   const SCORE_WEIGHT = 0.7;
   const RANDOM_WEIGHT = 0.3;
   const RANDOM_SCALE = RANDOM_WEIGHT * 1000;
@@ -474,11 +585,8 @@ const handleGetDiscover = async (
     media: allMedia.length,
   });
 
-  // Filter by time window and calculate time-weighted popularity
+  // Filter by time window and calculate time-weighted popularity with fallbacks
   const now = Date.now();
-  const windowStartMs = now - timeWindow.windowEndDays * 24 * 60 * 60 * 1000;
-  const windowEndMs = now - timeWindow.windowStartDays * 24 * 60 * 60 * 1000;
-
   const recycledAlbumIdSet =
     recycledAlbumsResult && recycledAlbumsResult.albums.length > 0
       ? new Set(recycledAlbumsResult.albums.map((album) => album.id))
@@ -488,58 +596,102 @@ const handleGetDiscover = async (
       ? new Set(additionalMediaResult.media.map((mediaItem) => mediaItem.id))
       : null;
 
-  const scoredAlbums: Array<{ item: Album; combinedScore: number }> = [];
-  for (const album of allAlbums) {
-    const createdAt = new Date(album.createdAt).getTime();
-    const isRecycled = recycledAlbumIdSet?.has(album.id) ?? false;
-
-    if (!isRecycled && (createdAt < windowStartMs || createdAt > windowEndMs)) {
-      continue;
-    }
-
-    const baseScore = calculateTimeWeightedPopularity(
-      album,
-      timeWindow.maxAgeInDays
-    );
-    const combinedScore =
-      baseScore * SCORE_WEIGHT + seededRandom() * RANDOM_SCALE;
-
-    scoredAlbums.push({
-      item: album,
-      combinedScore,
-    });
-  }
-
   const VIDEO_SCORE_BOOST_MULTIPLIER = 1.25;
-  const scoredMedia: Array<{ item: Media; combinedScore: number }> = [];
+  const fallbackAttempts: Array<{
+    window: TimeWindowConfig | null;
+    defaultMaxAgeInDays: number;
+  }> = [
+    { window: timeWindow, defaultMaxAgeInDays: timeWindow.maxAgeInDays },
+    {
+      window: {
+        windowStartDays: 0,
+        windowEndDays: Math.max(timeWindow.windowEndDays, 7),
+        maxAgeInDays: Math.max(timeWindow.maxAgeInDays, 60),
+      },
+      defaultMaxAgeInDays: Math.max(timeWindow.maxAgeInDays, 60),
+    },
+    {
+      window: {
+        windowStartDays: 0,
+        windowEndDays: Math.max(timeWindow.windowEndDays, 14),
+        maxAgeInDays: Math.max(timeWindow.maxAgeInDays, 90),
+      },
+      defaultMaxAgeInDays: Math.max(timeWindow.maxAgeInDays, 90),
+    },
+    {
+      window: {
+        windowStartDays: 0,
+        windowEndDays: Math.max(timeWindow.windowEndDays, 30),
+        maxAgeInDays: Math.max(timeWindow.maxAgeInDays, 120),
+      },
+      defaultMaxAgeInDays: Math.max(timeWindow.maxAgeInDays, 120),
+    },
+    {
+      window: {
+        windowStartDays: 0,
+        windowEndDays: Math.max(timeWindow.windowEndDays, 90),
+        maxAgeInDays: Math.max(timeWindow.maxAgeInDays, 180),
+      },
+      defaultMaxAgeInDays: Math.max(timeWindow.maxAgeInDays, 180),
+    },
+    { window: null, defaultMaxAgeInDays: 365 },
+  ];
 
-  for (const mediaItem of allMedia) {
-    const createdAt = new Date(mediaItem.createdAt).getTime();
-    const isAdditional = additionalMediaIdSet?.has(mediaItem.id) ?? false;
+  let scoredAlbums: Array<{ item: Album; combinedScore: number }> = [];
+  let scoredMedia: Array<{ item: Media; combinedScore: number }> = [];
+  let effectiveTimeWindowLabel = formatTimeWindowLabel(timeWindow, false);
+
+  for (const [attemptIndex, attempt] of fallbackAttempts.entries()) {
+    const attemptSeed = (randomSeed + attemptIndex * 0.173) % 1;
+
+    const scored = scoreContentWithinWindow({
+      albums: allAlbums,
+      media: allMedia,
+      timeWindow: attempt.window,
+      now,
+      randomSeed: attemptSeed,
+      scoreWeight: SCORE_WEIGHT,
+      randomScale: RANDOM_SCALE,
+      videoScoreBoostMultiplier: VIDEO_SCORE_BOOST_MULTIPLIER,
+      recycledAlbumIdSet,
+      additionalMediaIdSet,
+      defaultMaxAgeInDays: attempt.defaultMaxAgeInDays,
+    });
 
     if (
-      !isAdditional &&
-      (createdAt < windowStartMs || createdAt > windowEndMs)
+      scored.albums.length + scored.media.length > 0 ||
+      attemptIndex === fallbackAttempts.length - 1
     ) {
-      continue;
+      scoredAlbums = scored.albums;
+      scoredMedia = scored.media;
+      const fallbackApplied =
+        attemptIndex > 0 &&
+        (attempt.window === null ||
+          attempt.window.windowStartDays !== timeWindow.windowStartDays ||
+          attempt.window.windowEndDays !== timeWindow.windowEndDays);
+      effectiveTimeWindowLabel = formatTimeWindowLabel(
+        attempt.window,
+        fallbackApplied
+      );
+
+      if (fallbackApplied) {
+        console.log(
+          "[Discover API] Expanded time window due to sparse content",
+          {
+            appliedWindow: effectiveTimeWindowLabel,
+            totalItems: scored.albums.length + scored.media.length,
+            attemptIndex,
+          }
+        );
+      }
+      break;
     }
-
-    const baseScore =
-      calculateTimeWeightedPopularity(mediaItem, timeWindow.maxAgeInDays) *
-      (mediaItem.type === "video" ? VIDEO_SCORE_BOOST_MULTIPLIER : 1);
-    const combinedScore =
-      baseScore * SCORE_WEIGHT + seededRandom() * RANDOM_SCALE;
-
-    scoredMedia.push({
-      item: mediaItem,
-      combinedScore,
-    });
   }
 
   console.log("[Discover API] After time window filtering:", {
     albums: scoredAlbums.length,
     media: scoredMedia.length,
-    timeWindow: `${timeWindow.windowStartDays}-${timeWindow.windowEndDays} days`,
+    timeWindow: effectiveTimeWindowLabel,
   });
 
   scoredAlbums.sort((a, b) => b.combinedScore - a.combinedScore);
@@ -678,7 +830,7 @@ const handleGetDiscover = async (
       albumCount,
       mediaCount,
       diversificationApplied: true,
-      timeWindow: `${timeWindow.windowStartDays}-${timeWindow.windowEndDays} days ago`,
+      timeWindow: effectiveTimeWindowLabel,
     },
   };
 
