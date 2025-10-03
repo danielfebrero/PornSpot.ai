@@ -31,6 +31,15 @@ const handleGetMediaById = async (
   const isPrivileged =
     auth.userRole === "admin" || auth.userRole === "moderator";
 
+  console.log({
+    isPublic,
+    isOwner,
+    isPrivileged,
+    userId: auth.userId,
+    userRole: auth.userRole,
+    createdBy: mediaEntity.createdBy,
+  });
+
   if (!isPublic && !isOwner && !isPrivileged) {
     return ResponseUtil.forbidden(event, "Content is private");
   }

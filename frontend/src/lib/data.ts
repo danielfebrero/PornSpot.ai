@@ -97,19 +97,12 @@ export async function fetchAllPublicAlbums(): Promise<Album[]> {
 }
 
 // Fetch a single album by ID
-export async function getAlbumById(
-  albumId: string,
-  options: { cookieHeader?: string } = {}
-) {
-  const { cookieHeader } = options;
+export async function getAlbumById(albumId: string) {
   try {
     const response = await fetch(`${API_URL}/albums/${albumId}`, {
       next: {
         tags: [`album-${albumId}`],
       },
-      cache: "no-store",
-      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
-      credentials: "include",
     });
     return await handleResponse<Album>(response);
   } catch (error) {
@@ -149,19 +142,12 @@ export async function getMediaForAlbum(
 }
 
 // Fetch a single media item by ID
-export async function getMediaById(
-  mediaId: string,
-  options: { cookieHeader?: string } = {}
-) {
-  const { cookieHeader } = options;
+export async function getMediaById(mediaId: string) {
   try {
     const response = await fetch(`${API_URL}/media/${mediaId}`, {
       next: {
         tags: [`media-${mediaId}`],
       },
-      cache: "no-store",
-      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
-      credentials: "include",
     });
     return await handleResponse<EnhancedMedia>(response);
   } catch (error) {
