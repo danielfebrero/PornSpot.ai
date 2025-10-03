@@ -47,8 +47,21 @@ No associated trigger words.
 
 ## FINGERING
 
-Use this LoRA when the user propmpt involves a woman fingering her pussy.
+Use this LoRA when the user prompt involves a woman fingering her pussy.
 Associated trigger word is: sensual_fingering.
+
+## MIDDLE_DROOLING
+
+Use this LoRA when the user prompt involves a character showing middle finger or a woman doing ahegao (rolling eyes) or a woman mouth drool.
+No associated trigger words.
+
+## ORGASM
+
+Use this LoRA when the user prompt involves a woman having an orgasm.
+
+## FACEDOWNASSUP
+
+Use this LoRA when the user prompt involves a woman face down ass up.
 
 # Required output
 
@@ -88,3 +101,18 @@ Response: { "loras": ["BOOBJOB"] }
 
 User message: "A woman start fingering her pussy".
 Response: { "loras": ["FINGERING"], "trigger_words": ["sensual_fingering"] }
+
+User message: "A woman flipping off the viewer" or "A woman show her middle finger"
+Response: { "loras": ["MIDDLE_DROOLING"] }
+
+User message: "Sticks out her tongue and rolls her eyes"
+Response: { "loras": ["MIDDLE_DROOLING"] }
+
+User message: "She is drooling"
+Response: { "loras": ["MIDDLE_DROOLING"] }
+
+User message: "She is orgasming"
+Response: { "loras": ["ORGASM"] }
+
+User message: "She is on her knees and goes face down ass up"
+Response: { "loras": ["FACEDOWNASSUP"] }

@@ -174,8 +174,8 @@
 
 [x] I receive two emails for PSpotCoin balance instead of 1. James receive only 1.
 
-[ ] I cannot delete my bio in profile.
+[x] I cannot delete my bio in profile.
 
-[ ] I cannot change my profile picture in profile.
+[x] I cannot change my profile picture in profile.
 
-[ ] Discover by tag not working.
+[ ] Discover by tag not working on some old tags/albums.

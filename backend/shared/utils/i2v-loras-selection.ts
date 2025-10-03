@@ -62,4 +62,25 @@ export const loras = {
       "https://cdn.pornspot.ai/i2v_loras/Sensual_fingering_v1_low_noise.safetensors",
     scale: 1,
   },
+  MIDDLE_DROOLING: {
+    lora_high_path:
+      "https://cdn.pornspot.ai/i2v_loras/flipOffAhegao_high_noise.safetensors",
+    lora_low_path:
+      "https://cdn.pornspot.ai/i2v_loras/flipOffAhegao_low_noise.safetensors",
+    scale: 1,
+  },
+  ORGASM: {
+    lora_high_path:
+      "https://cdn.pornspot.ai/i2v_loras/WAN-2.2-I2V-Orgasm-HIGH-v1.safetensors",
+    lora_low:
+      "https://cdn.pornspot.ai/i2v_loras/WAN-2.2-I2V-Orgasm-LOW-v1.safetensors",
+    scale: 1,
+  },
+  FACEDOWNASSUP: {
+    lora_high_path:
+      "https://cdn.pornspot.ai/i2v_loras/WAN-2.2-I2V-FaceDownAssUp-HIGH-v1.safetensors",
+    lora_low_path:
+      "https://cdn.pornspot.ai/i2v_loras/WAN-2.2-I2V-FaceDownAssUp-LOW-v1.safetensors",
+    scale: 1,
+  },
 };
