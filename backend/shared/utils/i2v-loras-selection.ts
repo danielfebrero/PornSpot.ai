@@ -72,7 +72,7 @@ export const loras = {
   ORGASM: {
     lora_high_path:
       "https://cdn.pornspot.ai/i2v_loras/WAN-2.2-I2V-Orgasm-HIGH-v1.safetensors",
-    lora_low:
+    lora_low_path:
       "https://cdn.pornspot.ai/i2v_loras/WAN-2.2-I2V-Orgasm-LOW-v1.safetensors",
     scale: 1,
   },
