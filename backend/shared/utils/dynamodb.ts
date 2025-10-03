@@ -468,6 +468,12 @@ export class DynamoDBService {
     const updateExpression: string[] = [];
     const expressionAttributeNames: Record<string, string> = {};
     const expressionAttributeValues: Record<string, any> = {};
+    let tagVisibilityUpdateParams: {
+      tags: string[];
+      createdAt: string;
+      createdBy: string;
+      isPublic: boolean;
+    } | null = null;
 
     // Check if isPublic or createdBy is being updated - need to update corresponding GSI keys
     if (updates.isPublic !== undefined || updates.createdBy !== undefined) {
@@ -486,11 +492,27 @@ export class DynamoDBService {
         throw new Error(`Album ${albumId} not found`);
       }
 
-      const createdAt = existingAlbum.Item["createdAt"] as string;
-      const currentIsPublic =
-        updates.isPublic ?? (existingAlbum.Item["isPublic"] as string);
+      const existingAlbumEntity = existingAlbum.Item as AlbumEntity;
+      const createdAt = existingAlbumEntity.createdAt;
+      const existingIsPublic = existingAlbumEntity.isPublic;
+      const currentIsPublic = updates.isPublic ?? existingIsPublic;
       const currentCreatedBy =
-        updates.createdBy ?? (existingAlbum.Item["createdBy"] as string);
+        updates.createdBy ?? existingAlbumEntity.createdBy;
+
+      if (
+        updates.isPublic !== undefined &&
+        updates.isPublic !== existingIsPublic &&
+        Array.isArray(existingAlbumEntity.tags) &&
+        existingAlbumEntity.tags.length > 0 &&
+        existingAlbumEntity.createdBy
+      ) {
+        tagVisibilityUpdateParams = {
+          tags: existingAlbumEntity.tags,
+          createdAt,
+          createdBy: existingAlbumEntity.createdBy,
+          isPublic: updates.isPublic === "true",
+        };
+      }
 
       // Update GSI3 keys when isPublic or createdBy changes
       // GSI3PK format: ALBUM_BY_USER_{isPublic}
@@ -529,6 +551,23 @@ export class DynamoDBService {
         ExpressionAttributeValues: expressionAttributeValues,
       })
     );
+
+    if (tagVisibilityUpdateParams) {
+      try {
+        await this.updateAlbumTagRelations(
+          albumId,
+          tagVisibilityUpdateParams.tags,
+          tagVisibilityUpdateParams.createdAt,
+          tagVisibilityUpdateParams.isPublic,
+          tagVisibilityUpdateParams.createdBy
+        );
+      } catch (error) {
+        console.warn(
+          `⚠️ Failed to update album tag relations after visibility change for album ${albumId}:`,
+          error
+        );
+      }
+    }
   }
 
   static async deleteAlbum(albumId: string): Promise<void> {
@@ -910,17 +949,167 @@ export class DynamoDBService {
     lastEvaluatedKey?: Record<string, unknown>;
   }> {
     const normalizedTag = tag.toLowerCase().trim();
+    const paginationState = this.extractTagPaginationState(
+      lastEvaluatedKey,
+      normalizedTag
+    );
 
-    // Use GSI2 for efficient tag filtering
-    // If isPublic is specified, include it in GSI2PK for maximum efficiency
-    let gsi2pk: string;
-    if (isPublic !== undefined) {
-      gsi2pk = `ALBUM_TAG#${normalizedTag}#${isPublic.toString()}`;
-    } else {
-      // If isPublic is not specified, we need to query both public and private
-      // For now, let's query public albums by default (most common case)
-      // TODO: Implement pagination across multiple GSI2PK values for full coverage
-      gsi2pk = `ALBUM_TAG#${normalizedTag}#true`;
+    // If a specific visibility is requested, query a single partition as before
+    if (isPublic === true) {
+      const visibility = isPublic.toString() as "true" | "false";
+      const { albums, lastEvaluatedKey: nextKey } =
+        await this.queryAlbumsByTagAndVisibility(
+          normalizedTag,
+          visibility,
+          limit,
+          paginationState.exclusiveStartKey
+        );
+
+      return {
+        albums,
+        ...(nextKey && {
+          lastEvaluatedKey: this.buildTagCursor(nextKey, visibility),
+        }),
+      };
+    }
+
+    // Otherwise, iterate through both public and private partitions to provide full coverage
+    const visibilitySegments: Array<"true" | "false"> = ["true", "false"];
+
+    let startIndex = 0;
+    if (paginationState.segment) {
+      const index = visibilitySegments.indexOf(paginationState.segment);
+      if (index >= 0) {
+        startIndex = index;
+      }
+    }
+
+    const collectedAlbums: Album[] = [];
+    let nextCursor: Record<string, unknown> | undefined;
+    let exclusiveStartKey = paginationState.exclusiveStartKey;
+
+    for (let i = startIndex; i < visibilitySegments.length; i++) {
+      const segment = visibilitySegments[i];
+
+      if (!segment) {
+        break;
+      }
+      const remainingLimit = limit - collectedAlbums.length;
+
+      if (remainingLimit <= 0) {
+        break;
+      }
+
+      const { albums: segmentAlbums, lastEvaluatedKey: segmentLastKey } =
+        await this.queryAlbumsByTagAndVisibility(
+          normalizedTag,
+          segment,
+          remainingLimit,
+          exclusiveStartKey
+        );
+
+      collectedAlbums.push(...segmentAlbums);
+
+      if (segmentLastKey) {
+        nextCursor = this.buildTagCursor(segmentLastKey, segment);
+        break;
+      }
+
+      // Once we move past the initial segment (or it is exhausted), reset the start key
+      exclusiveStartKey = undefined;
+    }
+
+    return {
+      albums: collectedAlbums,
+      ...(nextCursor && { lastEvaluatedKey: nextCursor }),
+    };
+  }
+
+  private static buildTagCursor(
+    exclusiveStartKey: Record<string, unknown>,
+    segment: "true" | "false"
+  ): Record<string, unknown> {
+    return {
+      __tagSegment: segment,
+      __exclusiveStartKey: exclusiveStartKey,
+    };
+  }
+
+  private static extractTagPaginationState(
+    lastEvaluatedKey: Record<string, unknown> | undefined,
+    normalizedTag: string
+  ): {
+    segment?: "true" | "false";
+    exclusiveStartKey?: Record<string, unknown>;
+  } {
+    if (!lastEvaluatedKey) {
+      return {};
+    }
+
+    const cursor = lastEvaluatedKey as Record<string, unknown> & {
+      __exclusiveStartKey?: Record<string, unknown>;
+      __tagSegment?: string;
+    };
+
+    const exclusiveStartKey = cursor.__exclusiveStartKey
+      ? (cursor.__exclusiveStartKey as Record<string, unknown>)
+      : (lastEvaluatedKey as Record<string, unknown>);
+
+    let segment: "true" | "false" | undefined;
+
+    const cursorSegment = cursor.__tagSegment;
+    if (cursorSegment === "true" || cursorSegment === "false") {
+      segment = cursorSegment;
+    }
+
+    if (!segment) {
+      segment = this.getSegmentFromExclusiveStartKey(
+        exclusiveStartKey,
+        normalizedTag
+      );
+    }
+
+    return {
+      exclusiveStartKey,
+      ...(segment && { segment }),
+    };
+  }
+
+  private static getSegmentFromExclusiveStartKey(
+    exclusiveStartKey: Record<string, unknown> | undefined,
+    normalizedTag: string
+  ): "true" | "false" | undefined {
+    if (!exclusiveStartKey) {
+      return undefined;
+    }
+
+    const gsi2pkValue = exclusiveStartKey["GSI2PK"];
+    if (typeof gsi2pkValue !== "string") {
+      return undefined;
+    }
+
+    if (
+      normalizedTag &&
+      !gsi2pkValue.startsWith(`ALBUM_TAG#${normalizedTag}`)
+    ) {
+      return undefined;
+    }
+
+    const suffix = gsi2pkValue.split("#").pop();
+    return suffix === "true" || suffix === "false" ? suffix : undefined;
+  }
+
+  private static async queryAlbumsByTagAndVisibility(
+    normalizedTag: string,
+    visibility: "true" | "false",
+    limit: number,
+    exclusiveStartKey?: Record<string, unknown>
+  ): Promise<{
+    albums: Album[];
+    lastEvaluatedKey?: Record<string, unknown>;
+  }> {
+    if (limit <= 0) {
+      return { albums: [] };
     }
 
     const queryParams: QueryCommandInput = {
@@ -928,17 +1117,16 @@ export class DynamoDBService {
       IndexName: "GSI2",
       KeyConditionExpression: "GSI2PK = :gsi2pk",
       ExpressionAttributeValues: {
-        ":gsi2pk": gsi2pk,
+        ":gsi2pk": `ALBUM_TAG#${normalizedTag}#${visibility}`,
       },
-      ScanIndexForward: false, // Most recent first (descending order by createdAt)
+      ScanIndexForward: false,
       Limit: limit,
-      ExclusiveStartKey: lastEvaluatedKey,
+      ...(exclusiveStartKey && { ExclusiveStartKey: exclusiveStartKey }),
     };
 
     const result = await docClient.send(new QueryCommand(queryParams));
     const albumTagEntities = (result.Items as AlbumTagEntity[]) || [];
 
-    // Get the actual album records
     const albumPromises = albumTagEntities.map((tagEntity) =>
       this.getAlbum(tagEntity.albumId)
     );
@@ -946,16 +1134,12 @@ export class DynamoDBService {
     const albumResults = await Promise.all(albumPromises);
     const albums = albumResults.filter((album) => album !== null) as Album[];
 
-    const response: {
-      albums: Album[];
-      lastEvaluatedKey?: Record<string, unknown>;
-    } = { albums };
-
-    if (result.LastEvaluatedKey) {
-      response.lastEvaluatedKey = result.LastEvaluatedKey;
-    }
-
-    return response;
+    return {
+      albums,
+      ...(result.LastEvaluatedKey && {
+        lastEvaluatedKey: result.LastEvaluatedKey,
+      }),
+    };
   }
 
   static async listAlbumsByCreatorAndTag(

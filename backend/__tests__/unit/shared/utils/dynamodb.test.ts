@@ -120,6 +120,34 @@ describe("DynamoDBService", () => {
         expect(mockSend).toHaveBeenCalledTimes(1);
         expect(mockSend).toHaveBeenCalledWith(expect.any(UpdateCommand));
       });
+
+      it("should refresh album tag relations when visibility changes", async () => {
+        const updateAlbumTagRelationsSpy = jest
+          .spyOn(DynamoDBService, "updateAlbumTagRelations")
+          .mockResolvedValue();
+
+        mockSend
+          .mockImplementationOnce(() =>
+            Promise.resolve({ Item: mockAlbumEntity })
+          )
+          .mockImplementationOnce(() => Promise.resolve({}));
+
+        await DynamoDBService.updateAlbum(mockAlbumId, {
+          isPublic: "false",
+        });
+
+        expect(mockSend).toHaveBeenNthCalledWith(1, expect.any(GetCommand));
+        expect(mockSend).toHaveBeenNthCalledWith(2, expect.any(UpdateCommand));
+        expect(updateAlbumTagRelationsSpy).toHaveBeenCalledWith(
+          mockAlbumId,
+          mockAlbumEntity.tags,
+          mockAlbumEntity.createdAt,
+          false,
+          mockAlbumEntity.createdBy as string
+        );
+
+        updateAlbumTagRelationsSpy.mockRestore();
+      });
     });
 
     describe("deleteAlbum", () => {
@@ -225,9 +253,12 @@ describe("DynamoDBService", () => {
       it("should return media when it exists", async () => {
         mockSend.mockResolvedValue({ Item: mockMediaEntity });
 
-        const result = await DynamoDBService.getMedia(mockAlbumId, mockMediaId);
+        const result = await DynamoDBService.getMedia(mockMediaId);
 
-        expect(result).toEqual(mockMediaEntity);
+        expect(result).toMatchObject({
+          id: mockMediaEntity.id,
+          filename: mockMediaEntity.filename,
+        });
         expect(mockSend).toHaveBeenCalledTimes(1);
         expect(mockSend).toHaveBeenCalledWith(expect.any(GetCommand));
       });
@@ -235,7 +266,7 @@ describe("DynamoDBService", () => {
       it("should return null when media does not exist", async () => {
         mockSend.mockResolvedValue({});
 
-        const result = await DynamoDBService.getMedia(mockAlbumId, mockMediaId);
+        const result = await DynamoDBService.getMedia(mockMediaId);
 
         expect(result).toBeNull();
       });
@@ -291,7 +322,7 @@ describe("DynamoDBService", () => {
       it("should delete media successfully", async () => {
         mockSend.mockResolvedValue({});
 
-        await DynamoDBService.deleteMedia(mockAlbumId, mockMediaId);
+        await DynamoDBService.deleteMedia(mockMediaId);
 
         expect(mockSend).toHaveBeenCalledTimes(1);
         expect(mockSend).toHaveBeenCalledWith(expect.any(DeleteCommand));
