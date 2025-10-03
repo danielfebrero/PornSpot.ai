@@ -67,6 +67,7 @@ interface ScoreContentArgs {
 }
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const MAX_DIVERSIFICATION_RELAXATION = 5;
 
 /**
  * Calculate time-weighted popularity score
@@ -209,6 +210,73 @@ function formatTimeWindowLabel(
 
   const baseLabel = `${timeWindow.windowStartDays}-${timeWindow.windowEndDays} days ago`;
   return fallbackApplied ? `${baseLabel} (fallback)` : baseLabel;
+}
+
+function calculateMinimumResultsForAttempt(
+  limit: number,
+  attemptIndex: number
+): number {
+  if (attemptIndex === 0) {
+    return limit;
+  }
+
+  if (attemptIndex === 1) {
+    return Math.max(1, Math.ceil(limit * 0.8));
+  }
+
+  if (attemptIndex === 2) {
+    return Math.max(1, Math.ceil(limit * 0.6));
+  }
+
+  return Math.max(1, Math.ceil(limit * 0.4));
+}
+
+function diversifyCollectionsWithRelaxation(
+  albums: Album[],
+  media: Media[],
+  baseMaxPerUser: number,
+  maxRelaxation: number,
+  minCombinedTarget: number
+): {
+  albums: Album[];
+  media: Media[];
+  appliedMaxPerUser: number;
+  combinedCount: number;
+} {
+  let appliedMaxPerUser = Math.max(1, baseMaxPerUser);
+  let diversifiedAlbums = ContentDiversificationUtil.diversifyByUser(
+    albums,
+    appliedMaxPerUser
+  );
+  let diversifiedMedia = ContentDiversificationUtil.diversifyByUser(
+    media,
+    appliedMaxPerUser
+  );
+
+  let combinedCount = diversifiedAlbums.length + diversifiedMedia.length;
+
+  while (
+    combinedCount < minCombinedTarget &&
+    appliedMaxPerUser < Math.max(1, baseMaxPerUser) + maxRelaxation
+  ) {
+    appliedMaxPerUser += 1;
+    diversifiedAlbums = ContentDiversificationUtil.diversifyByUser(
+      albums,
+      appliedMaxPerUser
+    );
+    diversifiedMedia = ContentDiversificationUtil.diversifyByUser(
+      media,
+      appliedMaxPerUser
+    );
+    combinedCount = diversifiedAlbums.length + diversifiedMedia.length;
+  }
+
+  return {
+    albums: diversifiedAlbums,
+    media: diversifiedMedia,
+    appliedMaxPerUser,
+    combinedCount,
+  };
 }
 
 /**
@@ -637,8 +705,11 @@ const handleGetDiscover = async (
     { window: null, defaultMaxAgeInDays: 365 },
   ];
 
-  let scoredAlbums: Array<{ item: Album; combinedScore: number }> = [];
-  let scoredMedia: Array<{ item: Media; combinedScore: number }> = [];
+  let selectedScoredAlbums: Array<{ item: Album; combinedScore: number }> = [];
+  let selectedScoredMedia: Array<{ item: Media; combinedScore: number }> = [];
+  let finalDiversifiedAlbums: Album[] = [];
+  let finalDiversifiedMedia: Media[] = [];
+  let appliedMaxPerUserForWindow = maxPerUser;
   let effectiveTimeWindowLabel = formatTimeWindowLabel(timeWindow, false);
 
   for (const [attemptIndex, attempt] of fallbackAttempts.entries()) {
@@ -658,17 +729,45 @@ const handleGetDiscover = async (
       defaultMaxAgeInDays: attempt.defaultMaxAgeInDays,
     });
 
-    if (
-      scored.albums.length + scored.media.length > 0 ||
-      attemptIndex === fallbackAttempts.length - 1
-    ) {
-      scoredAlbums = scored.albums;
-      scoredMedia = scored.media;
-      const fallbackApplied =
-        attemptIndex > 0 &&
-        (attempt.window === null ||
-          attempt.window.windowStartDays !== timeWindow.windowStartDays ||
-          attempt.window.windowEndDays !== timeWindow.windowEndDays);
+    const sortedAlbums = [...scored.albums].sort(
+      (a, b) => b.combinedScore - a.combinedScore
+    );
+    const sortedMedia = [...scored.media].sort(
+      (a, b) => b.combinedScore - a.combinedScore
+    );
+
+    const candidateAlbums = sortedAlbums.map((entry) => entry.item);
+    const candidateMedia = sortedMedia.map((entry) => entry.item);
+
+    const minCombinedTarget = calculateMinimumResultsForAttempt(
+      limit,
+      attemptIndex
+    );
+
+    const diversificationResult = diversifyCollectionsWithRelaxation(
+      candidateAlbums,
+      candidateMedia,
+      maxPerUser,
+      MAX_DIVERSIFICATION_RELAXATION,
+      minCombinedTarget
+    );
+
+    const fallbackApplied =
+      attemptIndex > 0 &&
+      (attempt.window === null ||
+        attempt.window.windowStartDays !== timeWindow.windowStartDays ||
+        attempt.window.windowEndDays !== timeWindow.windowEndDays);
+
+    const shouldAcceptAttempt =
+      diversificationResult.combinedCount >= minCombinedTarget ||
+      attemptIndex === fallbackAttempts.length - 1;
+
+    if (shouldAcceptAttempt) {
+      selectedScoredAlbums = sortedAlbums;
+      selectedScoredMedia = sortedMedia;
+      finalDiversifiedAlbums = diversificationResult.albums;
+      finalDiversifiedMedia = diversificationResult.media;
+      appliedMaxPerUserForWindow = diversificationResult.appliedMaxPerUser;
       effectiveTimeWindowLabel = formatTimeWindowLabel(
         attempt.window,
         fallbackApplied
@@ -679,35 +778,44 @@ const handleGetDiscover = async (
           "[Discover API] Expanded time window due to sparse content",
           {
             appliedWindow: effectiveTimeWindowLabel,
-            totalItems: scored.albums.length + scored.media.length,
+            totalItems: diversificationResult.combinedCount,
             attemptIndex,
           }
         );
       }
+
+      if (diversificationResult.appliedMaxPerUser > maxPerUser) {
+        console.log("[Discover API] Relaxed maxPerUser constraint", {
+          baseMaxPerUser: maxPerUser,
+          appliedMaxPerUser: diversificationResult.appliedMaxPerUser,
+          attemptIndex,
+          combinedCount: diversificationResult.combinedCount,
+        });
+      }
+
       break;
     }
+
+    console.log("[Discover API] Insufficient content for time window attempt", {
+      attemptIndex,
+      timeWindow: formatTimeWindowLabel(attempt.window, fallbackApplied),
+      combinedCount: diversificationResult.combinedCount,
+      minCombinedTarget,
+      appliedMaxPerUser: diversificationResult.appliedMaxPerUser,
+    });
   }
 
   console.log("[Discover API] After time window filtering:", {
-    albums: scoredAlbums.length,
-    media: scoredMedia.length,
+    availableAlbums: selectedScoredAlbums.length,
+    availableMedia: selectedScoredMedia.length,
+    diversifiedAlbums: finalDiversifiedAlbums.length,
+    diversifiedMedia: finalDiversifiedMedia.length,
     timeWindow: effectiveTimeWindowLabel,
+    maxPerUserApplied: appliedMaxPerUserForWindow,
   });
 
-  scoredAlbums.sort((a, b) => b.combinedScore - a.combinedScore);
-  scoredMedia.sort((a, b) => b.combinedScore - a.combinedScore);
-
-  let albums = scoredAlbums.map((entry) => entry.item);
-  let media = scoredMedia.map((entry) => entry.item);
-
-  // Apply user diversification
-  albums = ContentDiversificationUtil.diversifyByUser(albums, maxPerUser);
-  media = ContentDiversificationUtil.diversifyByUser(media, maxPerUser);
-
-  console.log("[Discover API] After diversification:", {
-    albums: albums.length,
-    media: media.length,
-  });
+  const albums = finalDiversifiedAlbums;
+  const media = finalDiversifiedMedia;
 
   // Dynamic ratio based on available content
   // If albums are scarce, adjust ratio to favor media
