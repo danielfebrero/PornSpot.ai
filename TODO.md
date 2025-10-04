@@ -211,3 +211,9 @@
 [x] Media GSI5SK should be {isPublic}#{createdAt} instead of just {isPublic} to allow fetching recent public media.
 
 [x] Set up GSI3SK for albums the same way as media.
+
+[ ] Add promotion: buy 1 month, get 1 month free.
+
+[ ] Add "always" mode to notification email frequency setting.
+
+[ ] TrustPilot promotion 1 month free.

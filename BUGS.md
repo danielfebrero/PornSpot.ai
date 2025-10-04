@@ -179,3 +179,11 @@
 [x] I cannot change my profile picture in profile.
 
 [ ] Discover by tag not working on some old tags/albums.
+
+[ ] On mobile, on discover page, adding a tag do not fit the screen width.
+
+[ ] Admin cannot see private content on Media page.
+
+[ ] If I change a media from public to private, I can still access it with private navigation.
+
+[ ] On mobile, long username push item count on a new line which overlap the image on Media page.
