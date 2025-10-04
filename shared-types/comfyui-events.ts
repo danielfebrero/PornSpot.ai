@@ -109,6 +109,43 @@ export interface QueueStatusEvent extends BaseComfyUIEvent {
   };
 }
 
+// Upload completion payloads emitted by the ComfyUI monitor
+export interface UploadCompleteImage {
+  index?: number;
+  s3Key?: string;
+  bucket?: string;
+  relativePath?: string;
+  publicUrl?: string;
+  size?: number;
+  mimeType?: string;
+  originalFilename?: string;
+  uploadedAt?: string;
+}
+
+export interface UploadCompleteFailure {
+  index?: number;
+  filename?: string;
+  error: string;
+}
+
+export interface ComfyUIUploadCompleteData {
+  prompt_id: string;
+  node?: string;
+  uploaded_images?: UploadCompleteImage[];
+  failed_uploads?: UploadCompleteFailure[];
+  total_images?: number;
+  uploaded_count?: number;
+  failed_count?: number;
+  status?: "completed" | "partial" | "failed" | string;
+  timestamp?: string;
+  request_id?: string;
+}
+
+export interface ComfyUIUploadCompleteMessage {
+  type: "upload_complete";
+  data: ComfyUIUploadCompleteData;
+}
+
 // Union type for all ComfyUI events
 export type ComfyUIEvent =
   | MonitorInitializedEvent

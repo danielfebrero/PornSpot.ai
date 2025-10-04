@@ -35,16 +35,18 @@ import {
   Media,
   MediaEntity,
   Metadata,
-  ParameterStoreService,
   S3Service,
+} from "@shared";
+import {
+  ComfyUIUploadCompleteMessage,
+  UploadCompleteFailure,
+  UploadCompleteImage,
 } from "@shared";
 
 import {
   createMediaEntity,
   createGenerationMetadata,
 } from "@shared/utils/media-entity";
-import axios from "axios";
-import { S3StorageService } from "@shared/services/s3-storage";
 
 interface ComfyUINode {
   value: number;
@@ -115,7 +117,6 @@ const dynamoClient = new DynamoDBClient(clientConfig);
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
 const TABLE_NAME = process.env["DYNAMODB_TABLE"]!;
 const queueService = GenerationQueueService.getInstance();
-const s3Service = S3StorageService.getInstance();
 const WEBSOCKET_ENDPOINT = process.env["WEBSOCKET_API_ENDPOINT"];
 
 // Initialize API Gateway Management API client
@@ -265,8 +266,16 @@ export const handler = async (
             await handleProgressState(message as ComfyUIProgressState);
             break;
 
+          case "upload_complete":
+            await handleGenerationComplete(
+              message as ComfyUIUploadCompleteMessage
+            );
+            break;
+
           case "executed":
-            await handleGenerationComplete(message as ComfyUIExecutedMessage);
+            console.info(
+              "ℹ️ Received executed message; awaiting upload_complete event"
+            );
             break;
 
           default:
@@ -296,345 +305,322 @@ export const handler = async (
   }
 };
 
-async function createMediaEntitiesFirst(
+async function createMediaEntitiesFromUploads(
   queueEntry: QueueEntry,
-  images: Array<{ filename: string; subfolder: string; type: string }>
-): Promise<MediaEntity[]> {
+  uploads: UploadCompleteImage[],
+  batchCount: number
+): Promise<{ entities: MediaEntity[]; failures: UploadCompleteFailure[] }> {
   const startTime = performance.now();
-  console.log(
-    `💾 Creating ${images.length} media entities in DynamoDB for generation: ${queueEntry.queueId}`
-  );
 
-  const mediaIds = images.map((_, index) => `${queueEntry.queueId}_${index}`);
+  if (uploads.length === 0) {
+    return { entities: [], failures: [] };
+  }
 
-  // Create all media entities in parallel using Promise.allSettled for better error handling
-  const createEntityPromises = images.map(async (image, index) => {
-    if (!image) {
-      throw new Error(`No image found at index ${index}`);
-    }
-
-    const mediaId = `${queueEntry.queueId}_${index}`;
-    // Extract file extension from the actual image filename
-    const fileExtension = image.filename.split(".").pop() || "jpg";
-    const customFilename = `${mediaId}.${fileExtension}`;
-    const s3Key = `generated/${queueEntry.queueId}/${customFilename}`;
-
-    // Generate relative URL from S3 key
-    const relativeUrl = S3Service.getRelativePath(s3Key);
-
-    // Extract dimensions from queue parameters or use defaults
-    const width = queueEntry.parameters.width || 1024;
-    const height = queueEntry.parameters.height || 1024;
-
-    // Create generation-specific metadata
-    const generationMetadata = createGenerationMetadata({
-      prompt: queueEntry.parameters.prompt || "Generated image",
-      negativePrompt: queueEntry.parameters.negativePrompt || "",
-      width,
-      height,
-      generationId: queueEntry.queueId,
-      selectedLoras: queueEntry.parameters?.selectedLoras || [],
-      batchCount: images.length,
-      loraStrengths: queueEntry.parameters?.loraStrengths || {},
-      loraSelectionMode: queueEntry.parameters?.loraSelectionMode,
-      optimizePrompt: queueEntry.parameters?.optimizePrompt || false,
-      bulkSiblings:
-        mediaIds.length > 1
-          ? mediaIds.filter((id) => id !== mediaId)
-          : undefined,
-      cfgScale: queueEntry.parameters.cfg_scale || 4.5,
-      steps: queueEntry.parameters.steps || 30,
-      seed: queueEntry.parameters.seed || -1,
-    });
-
-    // Create MediaEntity for database storage using shared utility
-    const mediaEntity: MediaEntity = createMediaEntity({
-      mediaId,
-      userId: queueEntry.userId || "ANONYMOUS",
-      filename: s3Key, // Use S3 key as filename
-      originalFilename: queueEntry.filename || image.filename, // Use actual ComfyUI filename
-      mimeType: `image/${fileExtension}`, // Use actual file extension for MIME type
-      width,
-      height,
-      url: relativeUrl, // Use relative URL from S3 key
-      metadata: generationMetadata,
-      isPublic: queueEntry.parameters.isPublic,
-      type: "image",
-      // Thumbnails will be set by process-upload worker
-      // Status defaults to "pending" and will be updated by process-upload worker
-      // Interaction counts default to 0
-      // createdByType defaults to "user"
-    });
-
-    // Save to database
-    await DynamoDBService.createMedia(mediaEntity);
-    console.log(`✅ Created media entity ${mediaId} in DynamoDB`);
-
-    return { success: true, mediaEntity, index };
+  const sortedUploads = [...uploads].sort((a, b) => {
+    const indexA = a.index ?? uploads.indexOf(a);
+    const indexB = b.index ?? uploads.indexOf(b);
+    return indexA - indexB;
   });
 
-  // Wait for all entity creation operations to complete
-  const entityResults = await Promise.allSettled(createEntityPromises);
+  const parameters = queueEntry.parameters || {};
+  const width = parameters.width || 1024;
+  const height = parameters.height || 1024;
 
-  // Process results and collect successful entities
-  const createdEntities: MediaEntity[] = [];
-  const failedIndices: number[] = [];
-
-  entityResults.forEach((result, index) => {
-    if (result.status === "fulfilled") {
-      createdEntities.push(result.value.mediaEntity);
-    } else {
-      failedIndices.push(index);
-      const errorMessage = `Failed to create media entity ${index}: ${
-        result.reason?.message || String(result.reason)
-      }`;
-      console.error(`❌ ${errorMessage}`);
-    }
-  });
-
-  const entityCreationTime = performance.now() - startTime;
-  console.log(
-    `⚡ Created ${createdEntities.length}/${
-      images.length
-    } media entities in ${entityCreationTime.toFixed(2)}ms (${(
-      entityCreationTime / images.length
-    ).toFixed(2)}ms avg per entity)`
-  );
-
-  // Update user metrics for generated media (run in parallel with other operations)
-  const userMetricsPromise = (async () => {
-    if (createdEntities.length > 0 && queueEntry.userId) {
-      try {
-        // Increment totalGeneratedMedias metric for each created media
-        await DynamoDBService.incrementUserProfileMetric(
-          queueEntry.userId,
-          "totalGeneratedMedias",
-          createdEntities.length
-        );
-        console.log(
-          `📈 Incremented totalGeneratedMedias by ${createdEntities.length} for user: ${queueEntry.userId}`
-        );
-      } catch (error) {
-        console.warn(
-          `⚠️ Failed to update user metrics for ${queueEntry.userId}:`,
-          error
-        );
-        // Don't fail the entire operation if metrics update fails
-      }
-    }
-  })();
-
-  // Don't await user metrics update - let it run in background
-  userMetricsPromise.catch((error) =>
-    console.warn("Background user metrics update failed:", error)
-  );
-
-  return createdEntities;
-}
-
-type DownloadUploadResult =
-  | { success: true; url: string }
-  | { success: false; error: string };
-
-/**
- * Create a timeout promise that rejects after specified milliseconds
- */
-function createTimeoutPromise(
-  ms: number,
-  operationName: string
-): Promise<never> {
-  return new Promise((_, reject) => {
-    setTimeout(() => {
-      reject(new Error(`${operationName} timed out after ${ms}ms`));
-    }, ms);
-  });
-}
-
-async function downloadAndUploadImage(
-  image: { filename: string; subfolder: string; type: string },
-  queueEntry: QueueEntry,
-  comfyuiEndpoint: string,
-  mediaId: string
-): Promise<DownloadUploadResult> {
-  // Download image from ComfyUI
-  const imageUrl = `${comfyuiEndpoint}/view?filename=${encodeURIComponent(
-    image.filename
-  )}&subfolder=${encodeURIComponent(image.subfolder)}&type=${encodeURIComponent(
-    image.type
-  )}`;
-
-  console.log(`Downloading image from: ${imageUrl}`);
-
-  // Retry logic for downloading images with better timeout handling
-  const maxRetries = 2;
-  const retryDelays = [500]; // Progressive backoff: 0.5s before final attempt
-  const perAttemptTimeout = 7000; // 7 seconds per attempt to keep failures under 20s total
-  let lastError: Error | null = null;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const attemptStartTime = performance.now();
-    try {
-      console.log(
-        `📥 Download attempt ${attempt + 1}/${maxRetries} for ${
-          image.filename
-        } (timeout: ${perAttemptTimeout}ms)`
+  const creationResults = await Promise.allSettled(
+    sortedUploads.map(async (upload, position) => {
+      const index = upload.index ?? position;
+      const mediaId = `${queueEntry.queueId}_${index}`;
+      const extension = inferFileExtension(upload);
+      const mimeType = inferMimeType(upload);
+      const relativePathCandidate = resolveRelativePath(upload);
+      const objectKey = resolveObjectKey(
+        queueEntry,
+        upload,
+        index,
+        extension,
+        relativePathCandidate
       );
+      const relativePath =
+        relativePathCandidate ?? S3Service.getRelativePath(objectKey);
 
-      // Race between the download and a timeout to ensure we don't hang
-      const downloadPromise = axios.get(imageUrl, {
-        responseType: "arraybuffer",
-        timeout: 5000, // Axios internal timeout: 5 seconds
-        maxRedirects: 5,
-        headers: {
-          Accept: "image/*",
-          "User-Agent": "PornSpot-ImageDownloader/1.0",
-        },
-        // Prevent axios from throwing on HTTP error status codes
-        validateStatus: (status) => status < 500, // Only retry on 5xx errors
+      const generationMetadata = createGenerationMetadata({
+        prompt: parameters.prompt || "Generated image",
+        negativePrompt: parameters.negativePrompt || "",
+        width,
+        height,
+        generationId: queueEntry.queueId,
+        selectedLoras: parameters?.selectedLoras || [],
+        batchCount,
+        loraStrengths: parameters?.loraStrengths || {},
+        loraSelectionMode: parameters?.loraSelectionMode,
+        optimizePrompt: parameters?.optimizePrompt || false,
+        cfgScale: parameters.cfg_scale || 4.5,
+        steps: parameters.steps || 30,
+        seed: parameters.seed || -1,
       });
 
-      const timeoutPromise = createTimeoutPromise(
-        perAttemptTimeout,
-        `Download attempt ${attempt + 1} for ${image.filename}`
-      );
+      const mediaEntity = createMediaEntity({
+        mediaId,
+        userId: queueEntry.userId || "ANONYMOUS",
+        filename: objectKey,
+        originalFilename:
+          upload.originalFilename ||
+          queueEntry.filename ||
+          `${mediaId}.${extension}`,
+        mimeType,
+        width,
+        height,
+        url: relativePath,
+        metadata: generationMetadata,
+        isPublic: parameters.isPublic,
+        type: "image",
+        size: upload.size,
+      });
 
-      const response = await Promise.race([downloadPromise, timeoutPromise]);
-
-      if (response.status !== 200) {
-        throw new Error(`Failed to download image: HTTP ${response.status}`);
-      }
-
-      const downloadTime = performance.now() - attemptStartTime;
+      await DynamoDBService.createMedia(mediaEntity);
       console.log(
-        `✅ Successfully downloaded image ${image.filename} on attempt ${
-          attempt + 1
-        } in ${downloadTime.toFixed(0)}ms`
+        `✅ Created media entity ${mediaId} from uploaded image (index ${index})`
       );
 
-      const imageBuffer = Buffer.from(response.data);
+      return { entity: mediaEntity, index };
+    })
+  );
 
-      // Validate that we actually got image data
-      if (imageBuffer.length === 0) {
-        throw new Error("Downloaded image is empty");
-      }
+  const entities: MediaEntity[] = [];
+  const failures: UploadCompleteFailure[] = [];
 
-      console.log(`Downloaded image size: ${imageBuffer.length} bytes`);
+  creationResults.forEach((result, position) => {
+    if (result.status === "fulfilled") {
+      entities.push(result.value.entity);
+      return;
+    }
 
-      // Generate file extension for the image
-      const fileExtension = image.filename.split(".").pop() || "png";
-      const customFilename = `${mediaId}.${fileExtension}`;
+    const upload = sortedUploads[position];
+    const derivedIndex = upload?.index ?? position;
+    const failure: UploadCompleteFailure = {
+      index: derivedIndex,
+      filename: upload?.originalFilename,
+      error:
+        result.reason instanceof Error
+          ? result.reason.message
+          : String(result.reason ?? "Unknown error"),
+    };
+    failures.push(failure);
+    console.error(
+      `❌ Failed to create media entity for queue ${queueEntry.queueId} index ${derivedIndex}:`,
+      result.reason
+    );
+  });
 
-      // Upload to S3 with custom filename and update database in parallel
-      const [s3Result] = await Promise.allSettled([
-        s3Service.uploadGeneratedImageWithCustomFilename(
-          imageBuffer,
-          queueEntry.queueId,
-          customFilename,
-          `image/${fileExtension}`
-        ),
-        // Update media entity in DynamoDB with file size (non-blocking)
-        (async () => {
-          try {
-            const updateData: Partial<MediaEntity> = {
-              size: imageBuffer.length, // File size in bytes
-              updatedAt: new Date().toISOString(),
-            };
-
-            await DynamoDBService.updateMedia(mediaId, updateData);
-            console.log(
-              `Successfully updated media entity ${mediaId} with size (${imageBuffer.length} bytes)`
-            );
-          } catch (dbError) {
-            console.error(`Failed to update media entity ${mediaId}:`, dbError);
-            // Don't throw here - the upload is the primary operation
-          }
-        })(),
-      ]);
-
-      if (s3Result.status === "rejected") {
-        throw new Error(`S3 upload failed: ${s3Result.reason}`);
-      }
-
+  if (entities.length > 0 && queueEntry.userId) {
+    try {
+      await DynamoDBService.incrementUserProfileMetric(
+        queueEntry.userId,
+        "totalGeneratedMedias",
+        entities.length
+      );
       console.log(
-        `Successfully uploaded image to S3: ${s3Result.value.publicUrl}`
+        `📈 Incremented totalGeneratedMedias by ${entities.length} for user: ${queueEntry.userId}`
       );
-      return { success: true, url: s3Result.value.publicUrl };
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-      const attemptTime = performance.now() - attemptStartTime;
-
-      const isTimeout =
-        (error as any)?.code === "ECONNABORTED" ||
-        (error instanceof Error && error.message.includes("timeout"));
-      const isNetworkError =
-        (error as any)?.code === "ENOTFOUND" ||
-        (error as any)?.code === "ECONNREFUSED" ||
-        (error instanceof Error && error.message.includes("network"));
-      const isServerError = (error as any)?.response?.status >= 500;
-
-      console.error(
-        `❌ Download attempt ${attempt + 1} failed for ${
-          image.filename
-        } after ${attemptTime.toFixed(0)}ms:`,
-        {
-          message: lastError.message,
-          code: (error as any)?.code,
-          status: (error as any)?.response?.status,
-          isTimeout,
-          isNetworkError,
-          isServerError,
-        }
+      console.warn(
+        `⚠️ Failed to update user metrics for ${queueEntry.userId}:`,
+        error
       );
-
-      // Don't retry on client errors (4xx) except 408, 429
-      if (
-        (error as any)?.response?.status >= 400 &&
-        (error as any)?.response?.status < 500 &&
-        (error as any)?.response?.status !== 408 &&
-        (error as any)?.response?.status !== 429
-      ) {
-        console.error(
-          `Non-retryable client error ${
-            (error as any)?.response?.status
-          }, not retrying`
-        );
-        break;
-      }
-
-      // If this was the last attempt, don't wait
-      if (attempt === maxRetries - 1) {
-        break;
-      }
-
-      // Wait before retry with progressive backoff
-      const delay = retryDelays[attempt] || 5000;
-      console.log(`Waiting ${delay}ms before retry...`);
-      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 
-  // All attempts failed, handle the error
-  console.error(
-    `All ${maxRetries} download attempts failed for ${image.filename}`
+  const entityCreationTime = performance.now() - startTime;
+  console.log(
+    `⚡ Created ${entities.length}/${
+      uploads.length
+    } media entities in ${entityCreationTime.toFixed(2)}ms`
   );
 
-  const isTimeout =
-    lastError &&
-    ((lastError as any).code === "ECONNABORTED" ||
-      lastError.message.includes("timeout"));
+  return { entities, failures };
+}
 
-  const lastErrorMessage =
-    lastError instanceof Error && lastError.message
-      ? lastError.message
-      : lastError
-      ? String(lastError)
-      : "Unknown error";
+function inferFileExtension(upload: UploadCompleteImage): string {
+  const mimeType = upload.mimeType?.toLowerCase();
+  if (mimeType && mimeType.includes("/")) {
+    const [, subtype] = mimeType.split("/");
+    if (subtype) {
+      if (subtype === "jpeg") {
+        return "jpg";
+      }
+      const normalizedSubtype = (subtype.split("+")[0] || subtype).trim();
+      return normalizedSubtype || "png";
+    }
+  }
 
-  const errorMessage = isTimeout
-    ? `Image download timeout after ${maxRetries} attempts: ${lastErrorMessage}`
-    : `Image download failed after ${maxRetries} attempts: ${lastErrorMessage}`;
+  const candidates = [
+    upload.originalFilename,
+    upload.s3Key,
+    upload.publicUrl,
+    upload.relativePath,
+  ];
 
-  return { success: false, error: errorMessage };
+  for (const candidate of candidates) {
+    if (!candidate) {
+      continue;
+    }
+    const match = candidate.toLowerCase().match(/\.([a-z0-9]+)(?:$|[?#])/);
+    if (match && match[1]) {
+      const ext = match[1];
+      if (ext === "jpeg") {
+        return "jpg";
+      }
+      return ext;
+    }
+  }
+
+  return "png";
+}
+
+function inferMimeType(upload: UploadCompleteImage): string {
+  if (upload.mimeType) {
+    return upload.mimeType;
+  }
+
+  const extension = inferFileExtension(upload);
+
+  switch (extension) {
+    case "jpg":
+    case "jpeg":
+      return "image/jpeg";
+    case "png":
+      return "image/png";
+    case "webp":
+      return "image/webp";
+    case "gif":
+      return "image/gif";
+    case "bmp":
+      return "image/bmp";
+    case "tiff":
+    case "tif":
+      return "image/tiff";
+    default:
+      return `image/${extension || "png"}`;
+  }
+}
+
+function resolveRelativePath(upload: UploadCompleteImage): string | undefined {
+  if (upload.relativePath) {
+    return upload.relativePath.startsWith("/")
+      ? upload.relativePath
+      : `/${upload.relativePath}`;
+  }
+
+  if (upload.s3Key) {
+    return S3Service.getRelativePath(upload.s3Key);
+  }
+
+  if (upload.publicUrl) {
+    const keyFromUrl = S3Service.extractKeyFromUrl(upload.publicUrl);
+    if (keyFromUrl) {
+      return S3Service.getRelativePath(keyFromUrl);
+    }
+  }
+
+  return undefined;
+}
+
+function resolveObjectKey(
+  queueEntry: QueueEntry,
+  upload: UploadCompleteImage,
+  index: number,
+  extension: string,
+  relativePath?: string
+): string {
+  if (upload.s3Key) {
+    return upload.s3Key;
+  }
+
+  if (relativePath) {
+    return relativePath.startsWith("/")
+      ? relativePath.substring(1)
+      : relativePath;
+  }
+
+  if (upload.publicUrl) {
+    const keyFromUrl = S3Service.extractKeyFromUrl(upload.publicUrl);
+    if (keyFromUrl) {
+      return keyFromUrl;
+    }
+  }
+
+  const cleanedExtension = extension || "png";
+  return `generated/${queueEntry.queueId}/${queueEntry.queueId}_${index}.${cleanedExtension}`;
+}
+
+async function updateBulkSiblingMetadata(
+  entities: MediaEntity[]
+): Promise<void> {
+  if (entities.length <= 1) {
+    return;
+  }
+
+  const successfulIds = entities.map((entity) => entity.id);
+
+  const updateResults = await Promise.allSettled(
+    entities.map(async (entity) => {
+      const siblingIds = successfulIds.filter((id) => id !== entity.id);
+      const updatedMetadata: Metadata = {
+        ...(entity.metadata || {}),
+      };
+
+      if (siblingIds.length > 0) {
+        updatedMetadata["bulkSiblings"] = siblingIds;
+      } else {
+        delete updatedMetadata["bulkSiblings"];
+      }
+
+      const updatedAt = new Date().toISOString();
+
+      await DynamoDBService.updateMedia(entity.id, {
+        metadata: updatedMetadata,
+        updatedAt,
+      });
+    })
+  );
+
+  updateResults.forEach((result, index) => {
+    if (result.status === "rejected") {
+      console.warn(
+        `⚠️ Failed to update metadata for media ${entities[index]?.id}:`,
+        result.reason
+      );
+    }
+  });
+}
+
+function resolvePublicUrl(
+  upload: UploadCompleteImage | undefined,
+  mediaEntity: MediaEntity
+): string | undefined {
+  if (upload?.publicUrl) {
+    return upload.publicUrl;
+  }
+
+  if (upload?.relativePath) {
+    return S3Service.composePublicUrl(upload.relativePath);
+  }
+
+  if (upload?.s3Key) {
+    return S3Service.composePublicUrl(S3Service.getRelativePath(upload.s3Key));
+  }
+
+  if (mediaEntity.url) {
+    return S3Service.composePublicUrl(mediaEntity.url);
+  }
+
+  if (mediaEntity.filename) {
+    return S3Service.composePublicUrl(
+      S3Service.getRelativePath(mediaEntity.filename)
+    );
+  }
+
+  return undefined;
 }
 
 async function handleGetClientConnectionId(
@@ -655,386 +641,179 @@ async function handleGetClientConnectionId(
 }
 
 /**
- * Main function to handle generation completion from ComfyUI executed message
- * @param message - Raw ComfyUI executed websocket message
- * @param context - Generation context with queue and user information
- * @returns CompletionData object or null if no images
+ * Main function to handle generation completion from ComfyUI upload_complete message
  */
 export async function handleGenerationComplete(
-  message: ComfyUIExecutedMessage
+  message: ComfyUIUploadCompleteMessage
 ): Promise<void | null> {
   const startTime = performance.now();
-  const { prompt_id, node, output } = message.data;
+  const data = message.data;
 
-  // Run queue lookup and parameter store fetch in parallel
-  const [queueEntry, COMFYUI_ENDPOINT] = await Promise.all([
-    queueService.findQueueEntryByPromptId(prompt_id),
-    ParameterStoreService.getComfyUIApiEndpoint(),
-  ]);
-
-  // Check if this execution produced images
-  const images = output.images || [];
-
-  if (images.length === 0) {
-    console.log(`Node ${node} executed but produced no images`);
+  if (!data) {
+    console.warn("⚠️ upload_complete message missing data payload");
     return null;
   }
 
-  console.log(`Node ${node} produced ${images.length} image(s)`);
+  const {
+    prompt_id: promptId,
+    node,
+    uploaded_images: uploadedImagesRaw,
+    failed_uploads: failedUploadsRaw,
+    total_images: totalImages,
+    status,
+  } = data;
 
-  if (!queueEntry || images.length === 0) {
-    console.log(`Node ${node} executed but no queue entry found or no images`);
+  if (!promptId) {
+    console.warn("⚠️ upload_complete message missing prompt_id");
     return null;
   }
 
-  try {
-    // Create Media entities in DynamoDB FIRST before uploading to S3
-    const createdMediaEntities = await createMediaEntitiesFirst(
+  const uploadedImages: UploadCompleteImage[] = [...(uploadedImagesRaw ?? [])];
+  const failedUploads: UploadCompleteFailure[] = [...(failedUploadsRaw ?? [])];
+
+  console.log(
+    `📨 Received upload_complete message for prompt ${promptId} with ${uploadedImages.length} uploaded image(s)`
+  );
+
+  const queueEntry = await queueService.findQueueEntryByPromptId(promptId);
+
+  if (!queueEntry) {
+    console.warn(`⚠️ No queue entry found for prompt ID: ${promptId}`);
+    return null;
+  }
+
+  const expectedBatchCount =
+    totalImages ?? uploadedImages.length + failedUploads.length;
+
+  if (uploadedImages.length === 0) {
+    const errorMessage =
+      status === "failed"
+        ? "Generation failed: no images uploaded"
+        : failedUploads.length > 0
+        ? `Generation failed: ${failedUploads.length} upload(s) failed`
+        : "Generation failed: no uploaded media provided";
+
+    await queueService.updateQueueEntry(queueEntry.queueId, {
+      status: "failed",
+      errorMessage,
+      completedAt: Date.now().toString(),
+    });
+
+    if (WEBSOCKET_ENDPOINT && queueEntry.connectionId) {
+      await sendMessageToConnection(queueEntry.connectionId, {
+        type: "failed",
+        queueId: queueEntry.queueId,
+        promptId: queueEntry.comfyPromptId,
+        timestamp: new Date().toISOString(),
+        status: "failed",
+        message: errorMessage,
+        error: errorMessage,
+        failures: failedUploads,
+      });
+    }
+
+    console.warn(
+      `❌ upload_complete for prompt ${promptId} contained no successful uploads`
+    );
+    return null;
+  }
+
+  const { entities: createdEntities, failures: creationFailures } =
+    await createMediaEntitiesFromUploads(
       queueEntry,
-      images
+      uploadedImages,
+      expectedBatchCount
     );
 
-    if (createdMediaEntities.length === 0) {
-      throw new Error("Failed to create any media entities in DynamoDB");
-    }
-
-    console.log(
-      `Created ${createdMediaEntities.length} media entities in DynamoDB`
-    );
-
-    // Process all images in parallel with controlled concurrency
-    const maxConcurrentUploads = Math.min(images.length, 8); // Limit to 8 concurrent uploads
-    const imageProcessingStartTime = performance.now();
-
-    // Create batches for controlled parallelism
-    const imageBatches: Array<
-      Array<{
-        image: { filename: string; subfolder: string; type: string };
-        mediaEntity: MediaEntity;
-        index: number;
-      }>
-    > = [];
-
-    for (let i = 0; i < images.length; i += maxConcurrentUploads) {
-      const batch = [];
-      for (
-        let j = i;
-        j < Math.min(i + maxConcurrentUploads, images.length);
-        j++
-      ) {
-        const image = images[j];
-        const mediaEntity = createdMediaEntities[j];
-        if (image && mediaEntity) {
-          batch.push({ image, mediaEntity, index: j });
-        }
-      }
-      if (batch.length > 0) {
-        imageBatches.push(batch);
-      }
-    }
-
-    const successfulUploads: { index: number; url: string }[] = [];
-    const failedUploads: { index: number; error: string }[] = [];
-
-    // Process batches sequentially, but items within each batch in parallel
-    // Add overall timeout per batch to prevent indefinite hanging
-    const batchTimeout = 20000; // 20 seconds max per batch to align with Lambda timeout requirements
-
-    for (const batch of imageBatches) {
-      console.log(`🔄 Processing batch of ${batch.length} images`);
-      const batchStartTime = performance.now();
-
-      const batchPromises = batch.map(async ({ image, mediaEntity, index }) => {
-        try {
-          const result = await downloadAndUploadImage(
-            image,
-            queueEntry,
-            COMFYUI_ENDPOINT,
-            mediaEntity.id
-          );
-
-          if (result.success) {
-            return { success: true, url: result.url, index };
-          }
-
-          return { success: false, error: result.error, index };
-        } catch (error) {
-          const errorMessage = `Failed to process image ${image.filename}: ${
-            error instanceof Error ? error.message : String(error)
-          }`;
-          console.error(errorMessage);
-          return { success: false, error: errorMessage, index };
-        }
-      });
-
-      // Race the batch against a timeout to ensure we don't hang indefinitely
-      const batchTimeoutPromise = createTimeoutPromise(
-        batchTimeout,
-        `Batch of ${batch.length} images`
-      );
-
-      let batchResults;
-      try {
-        // Wait for batch to complete or timeout
-        batchResults = await Promise.race([
-          Promise.allSettled(batchPromises),
-          batchTimeoutPromise.then(() => {
-            throw new Error(
-              `Batch processing timed out after ${batchTimeout}ms`
-            );
-          }),
-        ]);
-      } catch (error) {
-        // Batch timeout occurred - mark all pending items as failed
-        console.error(
-          `❌ Batch timeout: ${
-            error instanceof Error ? error.message : String(error)
-          }`
-        );
-        batch.forEach(({ image, index }) => {
-          failedUploads.push({
-            index,
-            error: `Batch timeout: image ${image.filename} did not complete in time`,
-          });
-        });
-        const batchTime = performance.now() - batchStartTime;
-        console.warn(
-          `⚠️ Batch timed out after ${batchTime.toFixed(
-            2
-          )}ms, continuing with next batch`
-        );
-        continue; // Skip to next batch
-      }
-
-      const batchTime = performance.now() - batchStartTime;
-      console.log(`✅ Batch completed in ${batchTime.toFixed(2)}ms`);
-
-      batchResults.forEach((result, batchIndex) => {
-        if (result.status === "fulfilled") {
-          if (result.value.success && result.value.url) {
-            successfulUploads.push({
-              index: result.value.index,
-              url: result.value.url,
-            });
-          } else {
-            failedUploads.push({
-              index: result.value.index,
-              error: result.value.error || "Unknown upload error",
-            });
-          }
-        } else {
-          const globalIndex = batch[batchIndex]?.index ?? -1;
-          failedUploads.push({
-            index: globalIndex,
-            error: result.reason?.message || String(result.reason),
-          });
-        }
-      });
-    }
-
-    const imageProcessingTime = performance.now() - imageProcessingStartTime;
-    console.log(
-      `⚡ Processed ${images.length} images in ${imageProcessingTime.toFixed(
-        2
-      )}ms (${(imageProcessingTime / images.length).toFixed(
-        2
-      )}ms avg per image)`
-    );
-
-    const successfulIndexSet = new Set(
-      successfulUploads.map(({ index }) => index)
-    );
-    const uploadedImageUrls = successfulUploads.map(({ url }) => url);
-
-    const failedIndices = createdMediaEntities
-      .map((_, idx) => idx)
-      .filter((idx) => !successfulIndexSet.has(idx));
-
-    const failedMediaEntities = failedIndices
-      .map((idx) => createdMediaEntities[idx])
-      .filter((entity): entity is MediaEntity => Boolean(entity));
-
-    if (failedUploads.length > 0) {
-      console.warn(
-        `⚠️ ${failedUploads.length}/${images.length} image uploads failed:`,
-        failedUploads
-      );
-    }
-
-    if (failedMediaEntities.length > 0) {
-      console.warn(
-        `🧹 Cleaning up ${failedMediaEntities.length} orphaned media entities`
-      );
-
-      const cleanupResults = await Promise.allSettled(
-        failedMediaEntities.map((entity) =>
-          DynamoDBService.deleteMedia(entity.id)
-        )
-      );
-
-      cleanupResults.forEach((result, idx) => {
-        if (result.status === "rejected") {
-          console.warn(
-            `⚠️ Failed to remove orphaned media ${failedMediaEntities[idx]?.id}:`,
-            result.reason
-          );
-        }
-      });
-
-      if (queueEntry.userId) {
-        try {
-          await DynamoDBService.incrementUserProfileMetric(
-            queueEntry.userId,
-            "totalGeneratedMedias",
-            -failedMediaEntities.length
-          );
-        } catch (metricError) {
-          console.warn(
-            `⚠️ Failed to adjust user metrics for ${queueEntry.userId}:`,
-            metricError
-          );
-        }
-      }
-    }
-
-    if (uploadedImageUrls.length === 0) {
-      const errorMessage = "Failed to upload any generated images";
-
-      // Update queue status and send failure notification in parallel
-      const [,] = await Promise.allSettled([
-        queueService.updateQueueEntry(queueEntry.queueId, {
-          status: "failed",
-          errorMessage,
-          completedAt: Date.now().toString(),
-        }),
-        (async () => {
-          if (WEBSOCKET_ENDPOINT && queueEntry.connectionId) {
-            const failureMessage = {
-              type: "failed",
-              queueId: queueEntry.queueId,
-              promptId: queueEntry.comfyPromptId,
-              timestamp: new Date().toISOString(),
-              status: "failed",
-              message: "Generation failed",
-              error: errorMessage,
-            };
-
-            await sendMessageToConnection(
-              queueEntry.connectionId,
-              failureMessage
-            );
-          }
-        })(),
-      ]);
-
-      throw new Error(errorMessage);
-    }
-
-    const successfulMediaEntities = successfulUploads
-      .map(({ index }) => createdMediaEntities[index])
-      .filter((entity): entity is MediaEntity => Boolean(entity));
-
-    if (failedMediaEntities.length > 0 && successfulMediaEntities.length > 0) {
-      const successfulIds = successfulMediaEntities.map((entity) => entity.id);
-
-      const metadataUpdateResults = await Promise.allSettled(
-        successfulMediaEntities.map(async (entity) => {
-          const siblingIds = successfulIds.filter((id) => id !== entity.id);
-          const updatedMetadata: Metadata = {
-            ...(entity.metadata || {}),
-          };
-
-          if (siblingIds.length > 0) {
-            updatedMetadata["bulkSiblings"] = siblingIds;
-          } else {
-            delete updatedMetadata["bulkSiblings"];
-          }
-
-          const updatedAt = new Date().toISOString();
-          entity.metadata = updatedMetadata;
-          entity.updatedAt = updatedAt;
-
-          await DynamoDBService.updateMedia(entity.id, {
-            metadata: updatedMetadata,
-            updatedAt,
-          });
-        })
-      );
-
-      metadataUpdateResults.forEach((result, idx) => {
-        if (result.status === "rejected") {
-          console.warn(
-            `⚠️ Failed to update metadata for media ${successfulMediaEntities[idx]?.id}:`,
-            result.reason
-          );
-        }
-      });
-    }
-
-    const mediaObjects: Media[] = successfulMediaEntities.map((mediaEntity) =>
-      DynamoDBService.convertMediaEntityToMedia(mediaEntity)
-    );
-
-    console.log(
-      `Using ${mediaObjects.length} already-created Media entities for job completion`
-    );
-
-    console.log(
-      `Successfully uploaded ${uploadedImageUrls.length}/${images.length} images`
-    );
-
-    // Update queue entry and send success notification in parallel
-    const hadPartialFailures =
-      failedMediaEntities.length > 0 && mediaObjects.length > 0;
-    const completionMessage = hadPartialFailures
-      ? "Generation completed with partial results"
-      : "Generation completed successfully!";
-
-    const [,] = await Promise.allSettled([
-      queueService.updateQueueEntry(queueEntry.queueId, {
-        status: "completed",
-        resultImageUrl: uploadedImageUrls[0] || undefined, // Primary image URL
-        completedAt: Date.now().toString(),
-      }),
-      (async () => {
-        if (WEBSOCKET_ENDPOINT && queueEntry.connectionId) {
-          const successMessage = {
-            type: "completed",
-            queueId: queueEntry.queueId,
-            promptId: queueEntry.comfyPromptId,
-            timestamp: new Date().toISOString(),
-            status: "completed",
-            message: completionMessage,
-            medias: mediaObjects,
-            ...(hadPartialFailures
-              ? {
-                  partialFailures: failedUploads,
-                }
-              : {}),
-          };
-
-          await sendMessageToConnection(
-            queueEntry.connectionId,
-            successMessage
-          );
-        }
-      })(),
-    ]);
-
-    console.log(
-      `Updated queue entry ${queueEntry.queueId} status to completed`
-    );
-
-    const totalTime = performance.now() - startTime;
-    console.log(
-      `⚡ Total handleGenerationComplete execution time: ${totalTime.toFixed(
-        2
-      )}ms for ${images.length} images`
-    );
-  } catch (error) {
-    console.error("Error handling job completion:", error);
-    throw error;
+  if (creationFailures.length > 0) {
+    failedUploads.push(...creationFailures);
   }
+
+  if (createdEntities.length === 0) {
+    const errorMessage = "Failed to persist uploaded media entities";
+
+    await queueService.updateQueueEntry(queueEntry.queueId, {
+      status: "failed",
+      errorMessage,
+      completedAt: Date.now().toString(),
+    });
+
+    if (WEBSOCKET_ENDPOINT && queueEntry.connectionId) {
+      await sendMessageToConnection(queueEntry.connectionId, {
+        type: "failed",
+        queueId: queueEntry.queueId,
+        promptId: queueEntry.comfyPromptId,
+        timestamp: new Date().toISOString(),
+        status: "failed",
+        message: errorMessage,
+        error: errorMessage,
+        failures: failedUploads,
+      });
+    }
+
+    console.warn(
+      `❌ Failed to create any media entities for prompt ${promptId}`
+    );
+    return null;
+  }
+
+  await updateBulkSiblingMetadata(createdEntities);
+
+  const mediaObjects: Media[] = createdEntities.map((mediaEntity) =>
+    DynamoDBService.convertMediaEntityToMedia(mediaEntity)
+  );
+
+  const hadPartialFailures = failedUploads.length > 0;
+  const completionMessage = hadPartialFailures
+    ? "Generation completed with partial results"
+    : "Generation completed successfully!";
+
+  const primaryEntity = createdEntities[0]!;
+  const primaryUpload = uploadedImages.find((upload) => {
+    const index = upload.index ?? uploadedImages.indexOf(upload);
+    const mediaId = `${queueEntry.queueId}_${index}`;
+    return mediaId === primaryEntity.id;
+  });
+
+  const resultImageUrl = resolvePublicUrl(
+    primaryUpload ?? uploadedImages[0],
+    primaryEntity
+  );
+
+  await queueService.updateQueueEntry(queueEntry.queueId, {
+    status: "completed",
+    resultImageUrl,
+    completedAt: Date.now().toString(),
+  });
+
+  if (WEBSOCKET_ENDPOINT && queueEntry.connectionId) {
+    const websocketPayload: any = {
+      type: "completed",
+      queueId: queueEntry.queueId,
+      promptId: queueEntry.comfyPromptId,
+      timestamp: new Date().toISOString(),
+      status: "completed",
+      message: completionMessage,
+      medias: mediaObjects,
+    };
+
+    if (hadPartialFailures) {
+      websocketPayload.partialFailures = failedUploads;
+    }
+
+    await sendMessageToConnection(queueEntry.connectionId, websocketPayload);
+  }
+
+  const totalTime = performance.now() - startTime;
+  console.log(
+    `⚡ handleGenerationComplete processed upload_complete for prompt ${promptId} in ${totalTime.toFixed(
+      2
+    )}ms (created ${
+      createdEntities.length
+    }/${expectedBatchCount} media entities${node ? `; node=${node}` : ""})`
+  );
+
+  return null;
 }
 
 /**

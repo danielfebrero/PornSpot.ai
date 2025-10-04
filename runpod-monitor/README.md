@@ -5,6 +5,7 @@ This Python script monitors ComfyUI WebSocket events in real-time and publishes 
 ## Features
 
 - **Real-time Monitoring**: Connects to ComfyUI WebSocket API for instant event detection
+- **S3 Upload Pipeline**: Downloads generated images directly from ComfyUI, uploads them to S3, and emits an `upload_complete` WebSocket message for the backend Lambda.
 - **Event Publishing**: Publishes structured events to AWS EventBridge with retry logic
 - **Prompt Mapping**: Maps ComfyUI prompt_ids to application queue_ids
 - **Robust Connection**: Handles reconnection and error scenarios
@@ -13,8 +14,8 @@ This Python script monitors ComfyUI WebSocket events in real-time and publishes 
 
 ## Architecture
 
-```
-ComfyUI WebSocket → Python Monitor → AWS EventBridge → Lambda Functions
+```text
+ComfyUI WebSocket → Python Monitor (S3 Upload) → API Gateway WebSocket → Lambda Functions → DynamoDB
 ```
 
 ## Event Types Published
@@ -67,6 +68,7 @@ ComfyUI WebSocket → Python Monitor → AWS EventBridge → Lambda Functions
    ```
 
 5. **Start the service:**
+
    ```bash
    systemctl daemon-reload
    systemctl enable comfyui-monitor
@@ -77,14 +79,23 @@ ComfyUI WebSocket → Python Monitor → AWS EventBridge → Lambda Functions
 
 ### Environment Variables
 
-| Variable                | Description                            | Default          |
-| ----------------------- | -------------------------------------- | ---------------- |
-| `COMFYUI_HOST`          | ComfyUI server host                    | `localhost`      |
-| `COMFYUI_PORT`          | ComfyUI server port                    | `8188`           |
-| `AWS_REGION`            | AWS region for EventBridge             | `us-east-1`      |
-| `EVENTBRIDGE_BUS_NAME`  | EventBridge custom bus name            | `comfyui-events` |
-| `AWS_ACCESS_KEY_ID`     | AWS access key (if not using IAM role) | -                |
-| `AWS_SECRET_ACCESS_KEY` | AWS secret key (if not using IAM role) | -                |
+| Variable                  | Description                                      | Default             |
+| ------------------------- | ------------------------------------------------ | ------------------- |
+| `COMFYUI_HOST`            | ComfyUI server host                              | `localhost`         |
+| `COMFYUI_PORT`            | ComfyUI server port                              | `8188`              |
+| `AWS_REGION`              | AWS region for EventBridge                       | `us-east-1`         |
+| `EVENTBRIDGE_BUS_NAME`    | EventBridge custom bus name                      | `comfyui-events`    |
+| `S3_BUCKET`               | Target S3 bucket for generated uploads           | _(required)_        |
+| `S3_PREFIX`               | Key prefix for generated assets                  | `generated/comfyui` |
+| `CLOUDFRONT_DOMAIN`       | Optional CloudFront domain for public URLs       | -                   |
+| `S3_PUBLIC_BASE_URL`      | Optional full base URL override                  | -                   |
+| `S3_ENDPOINT_URL`         | Optional custom S3 endpoint (LocalStack/testing) | -                   |
+| `UPLOAD_CONCURRENCY`      | Maximum concurrent S3 uploads                    | `4`                 |
+| `DOWNLOAD_TIMEOUT_MS`     | Timeout in milliseconds for ComfyUI downloads    | `7000`              |
+| `DOWNLOAD_RETRIES`        | Number of retry attempts for downloads           | `2`                 |
+| `DOWNLOAD_RETRY_DELAY_MS` | Delay in milliseconds between retries            | `750`               |
+| `AWS_ACCESS_KEY_ID`       | AWS access key (if not using IAM role)           | -                   |
+| `AWS_SECRET_ACCESS_KEY`   | AWS secret key (if not using IAM role)           | -                   |
 
 ### AWS IAM Permissions
 
@@ -249,7 +260,7 @@ python comfyui_monitor.py
 
 ### File Structure
 
-```
+```text
 runpod-monitor/
 ├── comfyui_monitor.py    # Main monitor script
 ├── test_monitor.py       # Test suite

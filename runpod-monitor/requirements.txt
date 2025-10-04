@@ -1,6 +1,7 @@
 # ComfyUI Monitor Dependencies
 # WebSocket client for real-time ComfyUI monitoring
 websockets>=11.0.3
+aiohttp>=3.9.1
 
 # AWS SDK for EventBridge integration
 boto3>=1.34.0
