@@ -217,3 +217,5 @@
 [ ] Add "always" mode to notification email frequency setting.
 
 [ ] TrustPilot promotion 1 month free.
+
+[ ] "Generation limit reached" should not appear if there is a job in progress or queued on screen.

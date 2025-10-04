@@ -34,6 +34,7 @@ import {
   DynamoDBService,
   Media,
   MediaEntity,
+  Metadata,
   ParameterStoreService,
   S3Service,
 } from "@shared";
@@ -431,12 +432,30 @@ async function createMediaEntitiesFirst(
   return createdEntities;
 }
 
+type DownloadUploadResult =
+  | { success: true; url: string }
+  | { success: false; error: string };
+
+/**
+ * Create a timeout promise that rejects after specified milliseconds
+ */
+function createTimeoutPromise(
+  ms: number,
+  operationName: string
+): Promise<never> {
+  return new Promise((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`${operationName} timed out after ${ms}ms`));
+    }, ms);
+  });
+}
+
 async function downloadAndUploadImage(
   image: { filename: string; subfolder: string; type: string },
   queueEntry: QueueEntry,
   comfyuiEndpoint: string,
   mediaId: string
-): Promise<string | null> {
+): Promise<DownloadUploadResult> {
   // Download image from ComfyUI
   const imageUrl = `${comfyuiEndpoint}/view?filename=${encodeURIComponent(
     image.filename
@@ -447,19 +466,24 @@ async function downloadAndUploadImage(
   console.log(`Downloading image from: ${imageUrl}`);
 
   // Retry logic for downloading images with better timeout handling
-  const maxRetries = 3;
-  const retryDelays = [1000, 2000, 5000]; // Progressive backoff: 1s, 2s, 5s
+  const maxRetries = 2;
+  const retryDelays = [500]; // Progressive backoff: 0.5s before final attempt
+  const perAttemptTimeout = 7000; // 7 seconds per attempt to keep failures under 20s total
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const attemptStartTime = performance.now();
     try {
       console.log(
-        `Download attempt ${attempt + 1}/${maxRetries} for ${image.filename}`
+        `📥 Download attempt ${attempt + 1}/${maxRetries} for ${
+          image.filename
+        } (timeout: ${perAttemptTimeout}ms)`
       );
 
-      const response = await axios.get(imageUrl, {
+      // Race between the download and a timeout to ensure we don't hang
+      const downloadPromise = axios.get(imageUrl, {
         responseType: "arraybuffer",
-        timeout: 10000, // Timeout to 10 seconds
+        timeout: 5000, // Axios internal timeout: 5 seconds
         maxRedirects: 5,
         headers: {
           Accept: "image/*",
@@ -469,14 +493,22 @@ async function downloadAndUploadImage(
         validateStatus: (status) => status < 500, // Only retry on 5xx errors
       });
 
+      const timeoutPromise = createTimeoutPromise(
+        perAttemptTimeout,
+        `Download attempt ${attempt + 1} for ${image.filename}`
+      );
+
+      const response = await Promise.race([downloadPromise, timeoutPromise]);
+
       if (response.status !== 200) {
         throw new Error(`Failed to download image: HTTP ${response.status}`);
       }
 
+      const downloadTime = performance.now() - attemptStartTime;
       console.log(
-        `Successfully downloaded image ${image.filename} on attempt ${
+        `✅ Successfully downloaded image ${image.filename} on attempt ${
           attempt + 1
-        }`
+        } in ${downloadTime.toFixed(0)}ms`
       );
 
       const imageBuffer = Buffer.from(response.data);
@@ -526,9 +558,10 @@ async function downloadAndUploadImage(
       console.log(
         `Successfully uploaded image to S3: ${s3Result.value.publicUrl}`
       );
-      return s3Result.value.publicUrl;
+      return { success: true, url: s3Result.value.publicUrl };
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
+      const attemptTime = performance.now() - attemptStartTime;
 
       const isTimeout =
         (error as any)?.code === "ECONNABORTED" ||
@@ -540,7 +573,9 @@ async function downloadAndUploadImage(
       const isServerError = (error as any)?.response?.status >= 500;
 
       console.error(
-        `Download attempt ${attempt + 1} failed for ${image.filename}:`,
+        `❌ Download attempt ${attempt + 1} failed for ${
+          image.filename
+        } after ${attemptTime.toFixed(0)}ms:`,
         {
           message: lastError.message,
           code: (error as any)?.code,
@@ -588,26 +623,18 @@ async function downloadAndUploadImage(
     ((lastError as any).code === "ECONNABORTED" ||
       lastError.message.includes("timeout"));
 
-  // Update queue entry status to failed
-  try {
-    await queueService.updateQueueEntry(queueEntry.queueId, {
-      status: "failed",
-      errorMessage: isTimeout
-        ? `Image download timeout after ${maxRetries} attempts: ${lastError?.message}`
-        : `Image download failed after ${maxRetries} attempts: ${lastError?.message}`,
-      completedAt: Date.now().toString(),
-    });
-    console.log(
-      `Updated queue entry ${queueEntry.queueId} status to failed due to ${
-        isTimeout ? "timeout" : "error"
-      } after ${maxRetries} attempts`
-    );
-  } catch (updateError) {
-    console.error(`Failed to update queue entry status:`, updateError);
-  }
+  const lastErrorMessage =
+    lastError instanceof Error && lastError.message
+      ? lastError.message
+      : lastError
+      ? String(lastError)
+      : "Unknown error";
 
-  // Don't throw error, return null to allow processing of other images
-  return null;
+  const errorMessage = isTimeout
+    ? `Image download timeout after ${maxRetries} attempts: ${lastErrorMessage}`
+    : `Image download failed after ${maxRetries} attempts: ${lastErrorMessage}`;
+
+  return { success: false, error: errorMessage };
 }
 
 async function handleGetClientConnectionId(
@@ -675,15 +702,6 @@ export async function handleGenerationComplete(
       `Created ${createdMediaEntities.length} media entities in DynamoDB`
     );
 
-    // Convert MediaEntities to Media objects for response (this is fast, no I/O)
-    const mediaObjects: Media[] = createdMediaEntities.map((mediaEntity) =>
-      DynamoDBService.convertMediaEntityToMedia(mediaEntity)
-    );
-
-    console.log(
-      `Using ${mediaObjects.length} already-created Media entities for job completion`
-    );
-
     // Process all images in parallel with controlled concurrency
     const maxConcurrentUploads = Math.min(images.length, 8); // Limit to 8 concurrent uploads
     const imageProcessingStartTime = performance.now();
@@ -715,24 +733,31 @@ export async function handleGenerationComplete(
       }
     }
 
-    const uploadedImageUrls: string[] = [];
+    const successfulUploads: { index: number; url: string }[] = [];
     const failedUploads: { index: number; error: string }[] = [];
 
     // Process batches sequentially, but items within each batch in parallel
+    // Add overall timeout per batch to prevent indefinite hanging
+    const batchTimeout = 20000; // 20 seconds max per batch to align with Lambda timeout requirements
+
     for (const batch of imageBatches) {
+      console.log(`🔄 Processing batch of ${batch.length} images`);
+      const batchStartTime = performance.now();
+
       const batchPromises = batch.map(async ({ image, mediaEntity, index }) => {
         try {
-          const imageUrl = await downloadAndUploadImage(
+          const result = await downloadAndUploadImage(
             image,
             queueEntry,
             COMFYUI_ENDPOINT,
             mediaEntity.id
           );
-          if (imageUrl) {
-            return { success: true, url: imageUrl, index };
-          } else {
-            return { success: false, error: "Upload returned null", index };
+
+          if (result.success) {
+            return { success: true, url: result.url, index };
           }
+
+          return { success: false, error: result.error, index };
         } catch (error) {
           const errorMessage = `Failed to process image ${image.filename}: ${
             error instanceof Error ? error.message : String(error)
@@ -742,13 +767,55 @@ export async function handleGenerationComplete(
         }
       });
 
-      // Wait for the current batch to complete
-      const batchResults = await Promise.allSettled(batchPromises);
+      // Race the batch against a timeout to ensure we don't hang indefinitely
+      const batchTimeoutPromise = createTimeoutPromise(
+        batchTimeout,
+        `Batch of ${batch.length} images`
+      );
+
+      let batchResults;
+      try {
+        // Wait for batch to complete or timeout
+        batchResults = await Promise.race([
+          Promise.allSettled(batchPromises),
+          batchTimeoutPromise.then(() => {
+            throw new Error(
+              `Batch processing timed out after ${batchTimeout}ms`
+            );
+          }),
+        ]);
+      } catch (error) {
+        // Batch timeout occurred - mark all pending items as failed
+        console.error(
+          `❌ Batch timeout: ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
+        batch.forEach(({ image, index }) => {
+          failedUploads.push({
+            index,
+            error: `Batch timeout: image ${image.filename} did not complete in time`,
+          });
+        });
+        const batchTime = performance.now() - batchStartTime;
+        console.warn(
+          `⚠️ Batch timed out after ${batchTime.toFixed(
+            2
+          )}ms, continuing with next batch`
+        );
+        continue; // Skip to next batch
+      }
+
+      const batchTime = performance.now() - batchStartTime;
+      console.log(`✅ Batch completed in ${batchTime.toFixed(2)}ms`);
 
       batchResults.forEach((result, batchIndex) => {
         if (result.status === "fulfilled") {
           if (result.value.success && result.value.url) {
-            uploadedImageUrls.push(result.value.url);
+            successfulUploads.push({
+              index: result.value.index,
+              url: result.value.url,
+            });
           } else {
             failedUploads.push({
               index: result.value.index,
@@ -774,11 +841,60 @@ export async function handleGenerationComplete(
       )}ms avg per image)`
     );
 
+    const successfulIndexSet = new Set(
+      successfulUploads.map(({ index }) => index)
+    );
+    const uploadedImageUrls = successfulUploads.map(({ url }) => url);
+
+    const failedIndices = createdMediaEntities
+      .map((_, idx) => idx)
+      .filter((idx) => !successfulIndexSet.has(idx));
+
+    const failedMediaEntities = failedIndices
+      .map((idx) => createdMediaEntities[idx])
+      .filter((entity): entity is MediaEntity => Boolean(entity));
+
     if (failedUploads.length > 0) {
       console.warn(
         `⚠️ ${failedUploads.length}/${images.length} image uploads failed:`,
         failedUploads
       );
+    }
+
+    if (failedMediaEntities.length > 0) {
+      console.warn(
+        `🧹 Cleaning up ${failedMediaEntities.length} orphaned media entities`
+      );
+
+      const cleanupResults = await Promise.allSettled(
+        failedMediaEntities.map((entity) =>
+          DynamoDBService.deleteMedia(entity.id)
+        )
+      );
+
+      cleanupResults.forEach((result, idx) => {
+        if (result.status === "rejected") {
+          console.warn(
+            `⚠️ Failed to remove orphaned media ${failedMediaEntities[idx]?.id}:`,
+            result.reason
+          );
+        }
+      });
+
+      if (queueEntry.userId) {
+        try {
+          await DynamoDBService.incrementUserProfileMetric(
+            queueEntry.userId,
+            "totalGeneratedMedias",
+            -failedMediaEntities.length
+          );
+        } catch (metricError) {
+          console.warn(
+            `⚠️ Failed to adjust user metrics for ${queueEntry.userId}:`,
+            metricError
+          );
+        }
+      }
     }
 
     if (uploadedImageUrls.length === 0) {
@@ -814,9 +930,66 @@ export async function handleGenerationComplete(
       throw new Error(errorMessage);
     }
 
-    console.log(`Successfully uploaded ${uploadedImageUrls.length} images`);
+    const successfulMediaEntities = successfulUploads
+      .map(({ index }) => createdMediaEntities[index])
+      .filter((entity): entity is MediaEntity => Boolean(entity));
+
+    if (failedMediaEntities.length > 0 && successfulMediaEntities.length > 0) {
+      const successfulIds = successfulMediaEntities.map((entity) => entity.id);
+
+      const metadataUpdateResults = await Promise.allSettled(
+        successfulMediaEntities.map(async (entity) => {
+          const siblingIds = successfulIds.filter((id) => id !== entity.id);
+          const updatedMetadata: Metadata = {
+            ...(entity.metadata || {}),
+          };
+
+          if (siblingIds.length > 0) {
+            updatedMetadata["bulkSiblings"] = siblingIds;
+          } else {
+            delete updatedMetadata["bulkSiblings"];
+          }
+
+          const updatedAt = new Date().toISOString();
+          entity.metadata = updatedMetadata;
+          entity.updatedAt = updatedAt;
+
+          await DynamoDBService.updateMedia(entity.id, {
+            metadata: updatedMetadata,
+            updatedAt,
+          });
+        })
+      );
+
+      metadataUpdateResults.forEach((result, idx) => {
+        if (result.status === "rejected") {
+          console.warn(
+            `⚠️ Failed to update metadata for media ${successfulMediaEntities[idx]?.id}:`,
+            result.reason
+          );
+        }
+      });
+    }
+
+    const mediaObjects: Media[] = successfulMediaEntities.map((mediaEntity) =>
+      DynamoDBService.convertMediaEntityToMedia(mediaEntity)
+    );
+
+    console.log(
+      `Using ${mediaObjects.length} already-created Media entities for job completion`
+    );
+
+    console.log(
+      `Successfully uploaded ${uploadedImageUrls.length}/${images.length} images`
+    );
 
     // Update queue entry and send success notification in parallel
+    const hadPartialFailures =
+      failedMediaEntities.length > 0 && mediaObjects.length > 0;
+    const completionMessage = hadPartialFailures
+      ? "Generation completed with partial results"
+      : "Generation completed successfully!";
+
     const [,] = await Promise.allSettled([
       queueService.updateQueueEntry(queueEntry.queueId, {
         status: "completed",
@@ -831,8 +1004,13 @@ export async function handleGenerationComplete(
             promptId: queueEntry.comfyPromptId,
             timestamp: new Date().toISOString(),
             status: "completed",
-            message: "Generation completed successfully!",
+            message: completionMessage,
             medias: mediaObjects,
+            ...(hadPartialFailures
+              ? {
+                  partialFailures: failedUploads,
+                }
+              : {}),
           };
 
           await sendMessageToConnection(
