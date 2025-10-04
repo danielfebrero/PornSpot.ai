@@ -188,4 +188,4 @@
 
 [ ] On mobile, long username push item count on a new line which overlap the image on Media page.
 
-[ ] Image creation sometimes cannot download the original image and create media entity that is broken.
+[x] Image creation sometimes cannot download the original image and create media entity that is broken.

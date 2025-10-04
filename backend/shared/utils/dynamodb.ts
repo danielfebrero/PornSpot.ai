@@ -1250,6 +1250,153 @@ export class DynamoDBService {
     );
   }
 
+  static async upsertMediaEntity(
+    baseMedia: MediaEntity,
+    updates: Partial<MediaEntity> = {}
+  ): Promise<MediaEntity> {
+    const existing = await this.findMediaById(baseMedia.id);
+
+    const merged: MediaEntity = existing ? { ...existing } : { ...baseMedia };
+
+    const ensureKeys: Array<keyof MediaEntity> = [
+      "PK",
+      "SK",
+      "GSI1PK",
+      "GSI1SK",
+      "GSI2PK",
+      "GSI2SK",
+      "GSI3PK",
+      "GSI3SK",
+      "GSI4PK",
+      "GSI4SK",
+      "GSI5PK",
+      "GSI5SK",
+      "GSI6PK",
+      "GSI6SK",
+      "GSI7PK",
+      "GSI7SK",
+      "GSI8PK",
+      "GSI8SK",
+      "EntityType",
+      "id",
+      "filename",
+      "originalFilename",
+      "mimeType",
+      "type",
+      "size",
+      "url",
+      "width",
+      "height",
+      "metadata",
+      "thumbnailUrl",
+      "thumbnailUrls",
+      "createdAt",
+      "updatedAt",
+      "createdBy",
+      "createdByType",
+      "status",
+      "likeCount",
+      "bookmarkCount",
+      "viewCount",
+      "commentCount",
+      "optimizedVideoUrl",
+    ];
+
+    ensureKeys.forEach((key) => {
+      const currentValue = merged[key];
+      const baseValue = baseMedia[key];
+
+      if (
+        (currentValue === undefined || currentValue === null) &&
+        baseValue !== undefined
+      ) {
+        (merged as unknown as Record<string, unknown>)[key as string] =
+          baseValue as unknown;
+      }
+    });
+
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value !== undefined) {
+        (merged as unknown as Record<string, unknown>)[key] = value;
+      }
+    });
+
+    const normalized = this.normalizeMediaEntityForStorage(merged, baseMedia);
+
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: normalized,
+      })
+    );
+
+    return normalized;
+  }
+
+  private static normalizeMediaEntityForStorage(
+    entity: MediaEntity,
+    baseMedia: MediaEntity
+  ): MediaEntity {
+    const normalized: MediaEntity = { ...entity };
+
+    const createdAt =
+      normalized.createdAt || baseMedia.createdAt || new Date().toISOString();
+    normalized.createdAt = createdAt;
+
+    const updatedAt = normalized.updatedAt || createdAt;
+    normalized.updatedAt = updatedAt;
+
+    const createdBy =
+      normalized.createdBy || baseMedia.createdBy || "ANONYMOUS";
+    normalized.createdBy = createdBy;
+
+    const createdByType =
+      normalized.createdByType || baseMedia.createdByType || "user";
+    normalized.createdByType = createdByType;
+
+    const isPublicValue =
+      normalized.isPublic !== undefined
+        ? String(normalized.isPublic)
+        : baseMedia.isPublic !== undefined
+        ? String(baseMedia.isPublic)
+        : "true";
+    normalized.isPublic = isPublicValue;
+
+    normalized.PK = `MEDIA#${normalized.id}`;
+    normalized.SK = "METADATA";
+
+    normalized.GSI1PK = "MEDIA_BY_CREATOR";
+    normalized.GSI1SK = `${createdBy}#${createdAt}#${normalized.id}`;
+
+    normalized.GSI2PK = "MEDIA_ID";
+    normalized.GSI2SK = normalized.id;
+
+    normalized.GSI3PK = `MEDIA_BY_USER_${isPublicValue}`;
+    normalized.GSI3SK = `${createdBy}#${createdAt}#${normalized.id}`;
+
+    normalized.GSI4PK = "MEDIA";
+    normalized.GSI4SK = `${createdAt}#${normalized.id}`;
+
+    normalized.GSI5PK = "MEDIA";
+    normalized.GSI5SK = `${isPublicValue}#${createdAt}`;
+
+    normalized.GSI6PK = "POPULARITY";
+    normalized.GSI6SK =
+      typeof normalized.GSI6SK === "number" ? normalized.GSI6SK : 0;
+
+    normalized.GSI7PK = "CONTENT";
+    normalized.GSI7SK = normalized.GSI7SK || createdAt;
+
+    if (normalized.type && createdBy) {
+      normalized.GSI8PK = "MEDIA_BY_TYPE_AND_CREATOR";
+      normalized.GSI8SK = `${normalized.type}#${createdBy}#${createdAt}#${normalized.id}`;
+    }
+
+    normalized.EntityType = "Media";
+
+    return normalized;
+  }
+
   static async getMedia(mediaId: string): Promise<Media | null> {
     const result = await docClient.send(
       new GetCommand({

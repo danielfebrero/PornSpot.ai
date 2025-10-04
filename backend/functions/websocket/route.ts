@@ -363,10 +363,7 @@ async function createMediaEntitiesFromUploads(
         mediaId,
         userId: queueEntry.userId || "ANONYMOUS",
         filename: objectKey,
-        originalFilename:
-          upload.originalFilename ||
-          queueEntry.filename ||
-          `${mediaId}.${extension}`,
+        originalFilename: queueEntry.filename || `${mediaId}.${extension}`,
         mimeType,
         width,
         height,
@@ -377,7 +374,7 @@ async function createMediaEntitiesFromUploads(
         size: upload.size,
       });
 
-      await DynamoDBService.createMedia(mediaEntity);
+      await DynamoDBService.upsertMediaEntity(mediaEntity);
       console.log(
         `✅ Created media entity ${mediaId} from uploaded image (index ${index})`
       );

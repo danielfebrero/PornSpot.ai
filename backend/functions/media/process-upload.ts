@@ -18,6 +18,12 @@ import { RevalidationService } from "@shared/utils/revalidation";
 import { S3Service } from "@shared/utils/s3";
 import { Readable } from "stream";
 import { MediaEntity } from "@shared";
+import { GenerationQueueService } from "@shared/services/generation-queue";
+import type { QueueEntry } from "@shared/services/generation-queue";
+import {
+  createGenerationMetadata,
+  createMediaEntity,
+} from "@shared/utils/media-entity";
 
 // Dynamically import Sharp to handle platform-specific binaries
 let sharp: typeof import("sharp");
@@ -69,6 +75,8 @@ if (isLocal) {
 }
 
 const s3Client = new S3Client(s3Config);
+
+const queueService = GenerationQueueService.getInstance();
 
 export const handler = async (event: S3Event): Promise<void> => {
   // Lambda invocation logging
@@ -409,11 +417,8 @@ async function processGeneratedMediaUpload(
     return;
   }
 
-  // Extract media ID from filename
-  // Generated media follows pattern: {imageId}_{imageIndex}.{extension}
-  // Media ID follows pattern: {generationId}_{imageIndex}
   const filenameParts = filename.split(".");
-  const baseFilename = filenameParts[0]; // Remove extension
+  const baseFilename = filenameParts[0];
 
   if (!baseFilename) {
     console.log("Could not extract base filename from:", filename);
@@ -428,19 +433,9 @@ async function processGeneratedMediaUpload(
   }
 
   const imageIndex = imageIndexMatch[1];
-  const mediaId = `${generationId}_${imageIndex}`;
+  const inferredExtension =
+    filenameParts[filenameParts.length - 1]?.toLowerCase() || "png";
 
-  console.log(`Processing generated media: ${mediaId}, file: ${filename}`);
-
-  // Find the media record by media ID
-  const mediaEntity = await DynamoDBService.findMediaById(mediaId);
-
-  if (!mediaEntity) {
-    console.log("Generated media record not found for ID:", mediaId);
-    return;
-  }
-
-  // Get the file from S3
   const getObjectCommand = new GetObjectCommand({
     Bucket: bucket,
     Key: key,
@@ -452,7 +447,19 @@ async function processGeneratedMediaUpload(
     return;
   }
 
-  // Convert stream to buffer
+  const normalizedMetadata = Object.entries(response.Metadata ?? {}).reduce(
+    (acc, [metadataKey, metadataValue]) => {
+      if (metadataKey) {
+        acc[metadataKey.toLowerCase()] = metadataValue as string;
+      }
+      return acc;
+    },
+    {} as Record<string, string>
+  );
+
+  const promptId =
+    normalizedMetadata["promptid"] || normalizedMetadata["prompt-id"];
+
   const chunks: Buffer[] = [];
   const stream = response.Body as Readable;
 
@@ -461,51 +468,132 @@ async function processGeneratedMediaUpload(
   }
 
   const buffer = Buffer.concat(chunks);
+  const relativePath = S3Service.getRelativePath(key);
 
-  // Check if it's an image and process accordingly
-  if (ThumbnailService.isImageFile(mediaEntity.mimeType)) {
+  let queueEntry: QueueEntry | null = null;
+  if (promptId) {
+    try {
+      queueEntry = await queueService.findQueueEntryByPromptId(promptId);
+    } catch (error) {
+      console.warn(
+        `⚠️ Failed to resolve queue entry for prompt ${promptId}:`,
+        error
+      );
+    }
+  }
+
+  const queueId = queueEntry?.queueId || generationId;
+  const mediaId = `${queueId}_${imageIndex}`;
+
+  console.log(`Processing generated media: ${mediaId}, file: ${filename}`);
+
+  let mediaEntity = await DynamoDBService.findMediaById(mediaId);
+  const resolvedMimeType =
+    mediaEntity?.mimeType ||
+    response.ContentType ||
+    `image/${inferredExtension}`;
+  const contentLength =
+    typeof response.ContentLength === "number"
+      ? response.ContentLength
+      : undefined;
+
+  if (!mediaEntity && queueEntry) {
+    const parameters: any = queueEntry.parameters || {};
+    const width = parameters.width || 1024;
+    const height = parameters.height || 1024;
+    const batchCount =
+      parameters.batch_size ||
+      parameters.batchCount ||
+      (Array.isArray(parameters.images)
+        ? parameters.images.length
+        : undefined) ||
+      1;
+
+    const generationMetadata = createGenerationMetadata({
+      prompt: parameters.prompt || "Generated image",
+      negativePrompt: parameters.negativePrompt || "",
+      width,
+      height,
+      generationId: queueId,
+      selectedLoras: parameters.selectedLoras || [],
+      batchCount,
+      loraStrengths: parameters.loraStrengths || {},
+      loraSelectionMode: parameters.loraSelectionMode,
+      optimizePrompt: parameters.optimizePrompt || false,
+      cfgScale: parameters.cfg_scale || 4.5,
+      steps: parameters.steps || 30,
+      seed: parameters.seed ?? -1,
+    });
+
+    const originalFilename =
+      queueEntry.filename || `${mediaId}.${inferredExtension}`;
+
+    const baseMedia = createMediaEntity({
+      mediaId,
+      userId: queueEntry.userId || "ANONYMOUS",
+      filename: key,
+      originalFilename,
+      mimeType: resolvedMimeType,
+      size: contentLength ?? buffer.length,
+      width,
+      height,
+      url: relativePath,
+      metadata: generationMetadata,
+      isPublic: parameters.isPublic,
+      type: "image",
+    });
+
+    mediaEntity = await DynamoDBService.upsertMediaEntity(baseMedia);
+  }
+
+  if (!mediaEntity) {
+    console.log(
+      "Generated media record not found and queue entry unavailable for ID:",
+      mediaId
+    );
+    return;
+  }
+
+  const mimeType = mediaEntity.mimeType || resolvedMimeType;
+
+  if (ThumbnailService.isImageFile(mimeType)) {
     console.log("Processing generated image file:", key);
 
     try {
-      // Generate thumbnails using the original buffer (thumbnails will be WebP)
       const thumbnailUrls = await ThumbnailService.generateThumbnails(
         key,
         buffer
       );
 
-      // Create WebP version of original for lightbox display (if convertible)
       let webpUrl: string | undefined;
-      if (shouldConvertToWebP(mediaEntity.mimeType)) {
+      if (shouldConvertToWebP(mimeType)) {
         console.log("Creating WebP version for lightbox display:", key);
 
         const sharpInstance = await loadSharp();
         const webpBuffer = await sharpInstance(buffer)
-          .webp({ quality: 95 }) // High quality for lightbox
+          .webp({ quality: 95 })
           .toBuffer();
 
-        // Create WebP key by changing extension
-        const keyParts = key.split(".");
+        const webpKeyParts = key.split(".");
         let webpKey: string;
-        if (keyParts.length > 1) {
-          keyParts[keyParts.length - 1] = "webp";
-          webpKey = keyParts.join(".");
+        if (webpKeyParts.length > 1) {
+          webpKeyParts[webpKeyParts.length - 1] = "webp";
+          webpKey = webpKeyParts.join(".");
         } else {
           webpKey = `${key}.webp`;
         }
 
-        // Add "display" suffix to distinguish from original
         const pathParts = webpKey.split("/");
-        const filename = pathParts[pathParts.length - 1];
-        if (filename) {
-          const filenameParts = filename.split(".");
-          if (filenameParts.length > 1) {
-            filenameParts[filenameParts.length - 2] += "_display";
-            pathParts[pathParts.length - 1] = filenameParts.join(".");
+        const lastSegment = pathParts[pathParts.length - 1];
+        if (lastSegment) {
+          const webpFilenameParts = lastSegment.split(".");
+          if (webpFilenameParts.length > 1) {
+            webpFilenameParts[webpFilenameParts.length - 2] += "_display";
+            pathParts[pathParts.length - 1] = webpFilenameParts.join(".");
             webpKey = pathParts.join("/");
           }
         }
 
-        // Upload WebP version for display
         await S3Service.uploadBuffer(webpKey, webpBuffer, "image/webp", {
           "original-key": key,
           purpose: "lightbox-display",
@@ -516,20 +604,21 @@ async function processGeneratedMediaUpload(
       }
 
       if (thumbnailUrls && Object.keys(thumbnailUrls).length > 0) {
-        // Update the media record with thumbnail URLs and WebP display URL
         const updateData: Partial<MediaEntity> = {
           thumbnailUrl:
-            thumbnailUrls["small"] || Object.values(thumbnailUrls)[0], // Default to small (240px) or first available
+            thumbnailUrls["small"] || Object.values(thumbnailUrls)[0],
           thumbnailUrls: {
             ...thumbnailUrls,
-            // Add WebP display URL as originalSize if created
             ...(webpUrl && { originalSize: webpUrl }),
           },
-          status: "uploaded" as const,
+          status: "uploaded",
           updatedAt: new Date().toISOString(),
         };
 
-        await DynamoDBService.updateMedia(mediaEntity.id!, updateData);
+        mediaEntity = await DynamoDBService.upsertMediaEntity(
+          mediaEntity,
+          updateData
+        );
 
         console.log(
           "Updated generated media record with thumbnail URLs:",
@@ -539,13 +628,11 @@ async function processGeneratedMediaUpload(
           console.log("Added WebP display URL for lightbox");
         }
       } else {
-        // Just update status and WebP URL if thumbnail generation failed
-        const updateData: Partial<import("@shared").MediaEntity> = {
-          status: "uploaded" as const,
+        const updateData: Partial<MediaEntity> = {
+          status: "uploaded",
           updatedAt: new Date().toISOString(),
         };
 
-        // Add WebP display URL as originalSize if created
         if (webpUrl) {
           updateData.thumbnailUrls = {
             ...mediaEntity.thumbnailUrls,
@@ -553,7 +640,10 @@ async function processGeneratedMediaUpload(
           };
         }
 
-        await DynamoDBService.updateMedia(mediaEntity.id!, updateData);
+        mediaEntity = await DynamoDBService.upsertMediaEntity(
+          mediaEntity,
+          updateData
+        );
 
         console.log("Thumbnail generation failed, updated status only");
         if (webpUrl) {
@@ -563,18 +653,16 @@ async function processGeneratedMediaUpload(
     } catch (error) {
       console.error("Error processing generated image:", error);
 
-      // Update status even if processing failed
-      await DynamoDBService.updateMedia(mediaEntity.id!, {
-        status: "uploaded" as const,
+      await DynamoDBService.upsertMediaEntity(mediaEntity, {
+        status: "uploaded",
         updatedAt: new Date().toISOString(),
       });
     }
   } else {
     console.log("Not an image file, updating status only");
 
-    // For non-image files, just update the status
-    await DynamoDBService.updateMedia(mediaEntity.id!, {
-      status: "uploaded" as const,
+    await DynamoDBService.upsertMediaEntity(mediaEntity, {
+      status: "uploaded",
       updatedAt: new Date().toISOString(),
     });
   }

@@ -249,6 +249,56 @@ describe("DynamoDBService", () => {
       });
     });
 
+    describe("upsertMediaEntity", () => {
+      it("should create media when it does not exist", async () => {
+        mockSend.mockResolvedValueOnce({ Items: [] }).mockResolvedValueOnce({});
+
+        const result = await DynamoDBService.upsertMediaEntity(mockMediaEntity);
+
+        expect(mockSend).toHaveBeenNthCalledWith(1, expect.any(QueryCommand));
+        const putCommand = mockSend.mock.calls[1][0] as PutCommand;
+        expect(putCommand).toBeInstanceOf(PutCommand);
+        expect(putCommand.input).toBeDefined();
+        expect(putCommand.input?.Item).toMatchObject({
+          PK: `MEDIA#${mockMediaEntity.id}`,
+          GSI1PK: "MEDIA_BY_CREATOR",
+          status: "pending",
+        });
+        expect(result).toMatchObject({
+          id: mockMediaEntity.id,
+          thumbnailUrl: mockMediaEntity.thumbnailUrl,
+        });
+      });
+
+      it("should merge existing media without losing thumbnails", async () => {
+        const existingEntity = {
+          ...mockMediaEntity,
+          thumbnailUrl: "existing-thumb",
+          thumbnailUrls: { small: "existing-thumb" },
+          status: "uploaded",
+        };
+
+        const baseMedia = { ...mockMediaEntity };
+        delete (baseMedia as any).thumbnailUrl;
+        delete (baseMedia as any).thumbnailUrls;
+
+        mockSend
+          .mockResolvedValueOnce({ Items: [existingEntity] })
+          .mockResolvedValueOnce({});
+
+        await DynamoDBService.upsertMediaEntity(baseMedia, {
+          status: "uploaded",
+        });
+
+        expect(mockSend).toHaveBeenNthCalledWith(1, expect.any(QueryCommand));
+        const putCommand = mockSend.mock.calls[1][0] as PutCommand;
+        expect(putCommand.input?.Item).toMatchObject({
+          thumbnailUrl: "existing-thumb",
+          status: "uploaded",
+        });
+      });
+    });
+
     describe("getMedia", () => {
       it("should return media when it exists", async () => {
         mockSend.mockResolvedValue({ Item: mockMediaEntity });

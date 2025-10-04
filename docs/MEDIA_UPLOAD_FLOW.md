@@ -66,9 +66,10 @@ AI-generated media follows a special workflow:
 - **Upload**: The job completion handler downloads generated images from ComfyUI and uploads them to S3 with keys like `generated/{generationId}/{imageId}_{index}.jpg`.
 - **Processing**: The process-upload function detects the `generated/` prefix and:
   1. Extracts the media ID from the filename pattern (`{generationId}_{index}`).
-  2. Finds the corresponding Media entity using `DynamoDBService.findMediaById()`.
-  3. Generates thumbnails and WebP display versions like regular media.
-  4. Updates the Media entity status from `pending` to `uploaded`.
+  2. Resolves the queued generation metadata (user, visibility, prompts) via the ComfyUI prompt ID stored in S3 object metadata.
+  3. Uses `DynamoDBService.upsertMediaEntity()` to create or merge the Media record before any image processing, preventing race conditions with the WebSocket route handler.
+  4. Generates thumbnails and WebP display versions like regular media.
+  5. Updates the Media entity status from `pending` to `uploaded` together with the generated thumbnail URLs.
 
 ## Frontend Implementation
 
