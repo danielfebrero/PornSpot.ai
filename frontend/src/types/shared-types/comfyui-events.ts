@@ -161,7 +161,7 @@ export type ComfyUIEvent =
   | WorkflowNodesEvent;
 
 // Workflow events
-export interface WorkflowNode {
+export interface ComfyWorkflowNode {
   nodeId: string;
   classType: string;
   nodeTitle: string;
@@ -169,7 +169,7 @@ export interface WorkflowNode {
 }
 
 export interface WorkflowNodesEvent extends BaseComfyUIEvent {
-  workflowNodes: WorkflowNode[];
+  workflowNodes: ComfyWorkflowNode[];
   totalNodes: number;
 }
 
@@ -258,7 +258,7 @@ export interface WebSocketWorkflowNodes {
   promptId: string;
   timestamp: string;
   workflowData: {
-    nodes: WorkflowNode[];
+    nodes: ComfyWorkflowNode[];
     totalNodes: number;
     currentNodeIndex: number;
     nodeOrder: string[];

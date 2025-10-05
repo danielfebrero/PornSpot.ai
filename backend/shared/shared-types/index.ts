@@ -14,12 +14,7 @@ export * from "./user";
 export * from "./admin";
 export * from "./interaction";
 export * from "./generation";
-export {
-	UploadCompleteImage,
-	UploadCompleteFailure,
-	ComfyUIUploadCompleteData,
-	ComfyUIUploadCompleteMessage,
-} from "./comfyui-events";
+export * from "./comfyui-events";
 export * from "./permissions";
 export * from "./openrouter";
 export * from "./discover";
