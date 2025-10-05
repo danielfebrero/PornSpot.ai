@@ -65,7 +65,7 @@ export function createComfyUIWorkflow(
     "11": {
       class_type: "CheckpointLoaderSimple",
       inputs: {
-        ckpt_name: "mopMixtureOfPerverts_v20.safetensors",
+        ckpt_name: "mopMixtureOfPerverts_v40.safetensors",
       },
       _meta: {
         title: "Load Checkpoint",

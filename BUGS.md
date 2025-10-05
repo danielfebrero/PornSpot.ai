@@ -189,3 +189,5 @@
 [ ] On mobile, long username push item count on a new line which overlap the image on Media page.
 
 [x] Image creation sometimes cannot download the original image and create media entity that is broken.
+
+[ ] On generate page, if I fullscreen generated images and goes left to right multiple times then delete an image, it's not the good one that appears as deleted but the good one that is really deleted.
