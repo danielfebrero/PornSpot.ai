@@ -94,6 +94,9 @@ async function handleStopGeneration(
   return ResponseUtil.success(event, response);
 }
 
-export const handler = LambdaHandlerUtil.withOptionalAuth(handleStopGeneration, {
-  requireBody: true,
-});
+export const handler = LambdaHandlerUtil.withOptionalAuth(
+  handleStopGeneration,
+  {
+    requireBody: true,
+  }
+);
