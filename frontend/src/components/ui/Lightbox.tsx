@@ -623,7 +623,10 @@ export const Lightbox: React.FC<LightboxProps> = ({
                     canAddToAlbum={true}
                     canDownload={true}
                     canDelete={canDelete}
-                    onDelete={(media) => onDelete?.(media?.id!)}
+                    onDelete={() => {
+                      console.log("onDelete", { currentMedia });
+                      onDelete?.(currentMedia?.id!);
+                    }}
                     showCounts={true}
                     disableHoverEffects={true}
                     preferredThumbnailSize="originalSize"

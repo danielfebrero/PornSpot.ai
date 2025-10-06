@@ -809,19 +809,15 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
     }
   }, []);
 
-  const handleDeleteRecentMedia = useCallback(
-    (mediaId: string) => {
-      const media = uiState.allGeneratedImages.find(
-        (img) => img.id === mediaId
-      );
-      console.log("deleting", { mediaId, media });
-      setDeletedImageIds((prev) => new Set(prev).add(mediaId));
-      setAllGeneratedImages((prev) =>
-        prev.filter((media) => media.id !== mediaId)
-      );
-    },
-    [setAllGeneratedImages, setDeletedImageIds, uiState.allGeneratedImages]
-  );
+  const handleDeleteRecentMedia = (mediaId: string) => {
+    console.log({ mediaId });
+    const media = uiState.allGeneratedImages.find((img) => img.id === mediaId);
+    console.log("deleting", { mediaId, media });
+    setDeletedImageIds((prev) => new Set(prev).add(mediaId));
+    setAllGeneratedImages((prev) =>
+      prev.filter((media) => media.id !== mediaId)
+    );
+  };
 
   const toggleLora = useCallback(
     (loraId: string) => {
