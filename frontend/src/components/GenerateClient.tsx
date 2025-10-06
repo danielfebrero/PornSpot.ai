@@ -213,7 +213,11 @@ export function GenerateClient() {
   );
 
   const hasActiveQueueId = Boolean(queueStatus?.queueId);
-  const canStopAction = isGenerating && hasActiveQueueId;
+
+  // Button states
+  const isInPreparingState =
+    isOptimizing || (isGenerating && !hasActiveQueueId);
+  const isInStopState = isGenerating && hasActiveQueueId;
 
   // Device detection with better breakpoints
   useEffect(() => {
@@ -1422,39 +1426,24 @@ export function GenerateClient() {
         {/* Fixed Generate Button - Higher z-index to stay above footer */}
         <div className="fixed bottom-[61px] left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t z-50">
           <Button
-            onClick={
-              isOptimizing
-                ? handleStopGeneration
-                : isGenerating && hasActiveQueueId
-                ? handleStopGeneration
-                : handleGenerate
-            }
-            disabled={
-              ((!allowed || !settings.prompt.trim()) &&
-                !isGenerating &&
-                !isOptimizing) ||
-              (isGenerating && !hasActiveQueueId)
-            }
+            onClick={isInStopState ? handleStopGeneration : handleGenerate}
+            disabled={!allowed || !settings.prompt.trim() || isInPreparingState}
             className={cn(
               "w-full h-12 text-sm font-semibold rounded-xl shadow-lg",
-              canStopAction
+              isInStopState
                 ? "bg-red-500 hover:bg-red-600"
                 : "bg-gradient-to-r from-primary to-purple-600"
             )}
           >
-            {isOptimizing ? (
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 animate-pulse" />
-                <span>{t("stopOptimization")}</span>
-              </div>
-            ) : isGenerating ? (
+            {isInStopState ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>
-                  {hasActiveQueueId
-                    ? t("stopGeneration")
-                    : t("preparingGeneration")}
-                </span>
+                <span>{t("stopGeneration")}</span>
+              </div>
+            ) : isInPreparingState ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>{t("preparingGeneration")}</span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
@@ -1892,39 +1881,26 @@ export function GenerateClient() {
           <div className="col-span-8">
             {/* Generate Button */}
             <Button
-              onClick={
-                isOptimizing
-                  ? handleStopGeneration
-                  : isGenerating && hasActiveQueueId
-                  ? handleStopGeneration
-                  : handleGenerate
-              }
+              onClick={isInStopState ? handleStopGeneration : handleGenerate}
               disabled={
-                ((!allowed || !settings.prompt.trim()) &&
-                  !isGenerating &&
-                  !isOptimizing) ||
-                (isGenerating && !hasActiveQueueId && !isOptimizing)
+                !allowed || !settings.prompt.trim() || isInPreparingState
               }
               className={cn(
                 "w-full h-16 text-lg font-semibold rounded-xl shadow-lg mb-6 transition-all",
-                canStopAction
+                isInStopState
                   ? "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
                   : "bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
               )}
             >
-              {isOptimizing ? (
-                <div className="flex items-center gap-3">
-                  <Sparkles className="h-6 w-6 animate-pulse" />
-                  <span>{t("stopOptimization")}</span>
-                </div>
-              ) : isGenerating ? (
+              {isInStopState ? (
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>
-                    {hasActiveQueueId
-                      ? t("stopGeneration")
-                      : t("preparingGeneration")}
-                  </span>
+                  <span>{t("stopGeneration")}</span>
+                </div>
+              ) : isInPreparingState ? (
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>{t("preparingGeneration")}</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
