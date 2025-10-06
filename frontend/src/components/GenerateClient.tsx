@@ -219,10 +219,6 @@ export function GenerateClient() {
     isOptimizing || (isGenerating && !hasActiveQueueId);
   const isInStopState = isGenerating && hasActiveQueueId;
 
-  useEffect(() => {
-    console.log({ deletedImageIds });
-  }, [deletedImageIds]);
-
   // Device detection with better breakpoints
   useEffect(() => {
     const checkDevice = () => {
@@ -277,7 +273,6 @@ export function GenerateClient() {
   };
 
   const handleOptimisticDelete = (mediaId: string) => {
-    console.log("handleOptimisticDelete", { mediaId });
     setDeletedImageIds((prev) => new Set(prev).add(mediaId));
     setAllGeneratedImages((prev) =>
       prev.filter((media) => media.id !== mediaId)
