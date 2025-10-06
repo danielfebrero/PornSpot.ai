@@ -1984,7 +1984,7 @@ export function GenerateClient() {
                       canDelete={true}
                       mediaList={filteredGeneratedImages}
                       currentIndex={index}
-                      onDelete={() => handleOptimisticDelete(image.id)}
+                      onDelete={handleOptimisticDelete}
                     />
                   ))}
                 </div>

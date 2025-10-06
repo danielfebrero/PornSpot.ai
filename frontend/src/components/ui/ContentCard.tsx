@@ -97,7 +97,7 @@ interface ContentCardProps {
   onAddToAlbum?: () => void;
   onRemoveFromAlbum?: () => Promise<void>;
   onDownload?: () => void;
-  onDelete?: (contentId?: string) => void;
+  onDelete?: (contentId: string) => void;
 
   // Additional props for media
   context?: ThumbnailContext;
@@ -1265,7 +1265,20 @@ export function ContentCard({
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
           canDelete={media.createdBy === user?.userId || user?.role === "admin"}
-          onDelete={() => onDelete?.(media.id)}
+          onDelete={(mediaId) => {
+            if (mediaId) {
+              onDelete?.(mediaId);
+              return;
+            }
+
+            const lightboxMedia = getLightboxMedia();
+            const currentMediaFromLightbox =
+              lightboxMedia[lightboxIndex] ?? media;
+
+            if (currentMediaFromLightbox) {
+              onDelete?.(currentMediaFromLightbox.id);
+            }
+          }}
           onLoadMore={onLoadMore}
           onClose={() => {
             setLightboxOpen(false);
