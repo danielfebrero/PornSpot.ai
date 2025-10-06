@@ -1597,6 +1597,7 @@
     "negativePromptPlaceholder": "размытый, низкое качество, искаженный, плохая анатомия...",
     "stopOptimization": "Остановить оптимизацию",
     "stopGeneration": "Остановить генерацию",
+    "preparingGeneration": "Подготовка генерации...",
     "viewingOriginalPrompt": "Просмотр оригинального промпта",
     "promptOptimized": "Промпт оптимизирован",
     "image": "Изображение",

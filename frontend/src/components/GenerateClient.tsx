@@ -212,6 +212,9 @@ export function GenerateClient() {
     (image) => !deletedImageIds.has(image.id)
   );
 
+  const hasActiveQueueId = Boolean(queueStatus?.queueId);
+  const canStopAction = isGenerating && hasActiveQueueId;
+
   // Device detection with better breakpoints
   useEffect(() => {
     const checkDevice = () => {
@@ -1420,18 +1423,21 @@ export function GenerateClient() {
         <div className="fixed bottom-[61px] left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t z-50">
           <Button
             onClick={
-              isGenerating || isOptimizing
+              isOptimizing
+                ? handleStopGeneration
+                : isGenerating && hasActiveQueueId
                 ? handleStopGeneration
                 : handleGenerate
             }
             disabled={
-              (!allowed || !settings.prompt.trim()) &&
-              !isGenerating &&
-              !isOptimizing
+              ((!allowed || !settings.prompt.trim()) &&
+                !isGenerating &&
+                !isOptimizing) ||
+              (isGenerating && !hasActiveQueueId)
             }
             className={cn(
               "w-full h-12 text-sm font-semibold rounded-xl shadow-lg",
-              isGenerating || isOptimizing
+              canStopAction
                 ? "bg-red-500 hover:bg-red-600"
                 : "bg-gradient-to-r from-primary to-purple-600"
             )}
@@ -1444,7 +1450,11 @@ export function GenerateClient() {
             ) : isGenerating ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>{t("stopGeneration")}</span>
+                <span>
+                  {hasActiveQueueId
+                    ? t("stopGeneration")
+                    : t("preparingGeneration")}
+                </span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
@@ -1883,18 +1893,21 @@ export function GenerateClient() {
             {/* Generate Button */}
             <Button
               onClick={
-                isGenerating || isOptimizing
+                isOptimizing
+                  ? handleStopGeneration
+                  : isGenerating && hasActiveQueueId
                   ? handleStopGeneration
                   : handleGenerate
               }
               disabled={
-                (!allowed || !settings.prompt.trim()) &&
-                !isGenerating &&
-                !isOptimizing
+                ((!allowed || !settings.prompt.trim()) &&
+                  !isGenerating &&
+                  !isOptimizing) ||
+                (isGenerating && !hasActiveQueueId && !isOptimizing)
               }
               className={cn(
                 "w-full h-16 text-lg font-semibold rounded-xl shadow-lg mb-6 transition-all",
-                isGenerating || isOptimizing
+                canStopAction
                   ? "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
                   : "bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
               )}
@@ -1907,7 +1920,11 @@ export function GenerateClient() {
               ) : isGenerating ? (
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>{t("stopGeneration")}</span>
+                  <span>
+                    {hasActiveQueueId
+                      ? t("stopGeneration")
+                      : t("preparingGeneration")}
+                  </span>
                 </div>
               ) : (
                 <div className="flex items-center gap-3">

@@ -1493,6 +1493,7 @@
     "promptOptimized": "Prompt optimiert",
     "stopOptimization": "Optimierung stoppen",
     "stopGeneration": "Generierung stoppen",
+    "preparingGeneration": "Generierung wird vorbereitet...",
     "image": "bild",
     "images": "bilder",
     "loraSelection": "LoRA-Auswahl",

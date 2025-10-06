@@ -1535,6 +1535,7 @@
     "promptOptimized": "Prompt optimized",
     "stopOptimization": "Stop optimization",
     "stopGeneration": "Stop generation",
+    "preparingGeneration": "Preparing generation...",
     "image": "image",
     "images": "images",
     "loraSelection": "LoRA Selection",
