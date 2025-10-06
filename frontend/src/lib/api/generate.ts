@@ -3,6 +3,8 @@ import {
   GenerationSettings,
   I2VSubmitJobRequest,
   Media,
+  StopGenerationRequest,
+  StopGenerationResponse,
 } from "@/types";
 import { ApiUtil } from "../api-util";
 
@@ -36,6 +38,17 @@ export const generateApi = {
     const response = await ApiUtil.post<GenerationResponse>(
       "/generation/generate",
       request,
+      { credentials: "include" }
+    );
+    return ApiUtil.extractData(response);
+  },
+
+  stopGeneration: async (
+    payload: StopGenerationRequest
+  ): Promise<StopGenerationResponse> => {
+    const response = await ApiUtil.post<StopGenerationResponse>(
+      "/generation/stop",
+      payload,
       { credentials: "include" }
     );
     return ApiUtil.extractData(response);

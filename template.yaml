@@ -3374,6 +3374,45 @@ Resources:
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/comfyui-api-endpoint"
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/active-promotions"
 
+  GenerationStopFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-generation-stop-v1"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/generation/stop.handler"]
+      Events:
+        StopPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generation/stop
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        OptionsStop:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /generation/stop
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:DeleteItem
+                - dynamodb:UpdateItem
+              Resource:
+                - !GetAtt MediaTable.Arn
+
   # AI Generation Usage Stats Function
   GenerationUsageStatsFunction:
     Type: AWS::Serverless::Function

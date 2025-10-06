@@ -654,7 +654,9 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
   }, [unsubscribe]);
 
   const stopGeneration = useCallback(() => {
-    // Stop the generation by updating state and unsubscribing from WebSocket
+    const queueId = currentQueueIdRef.current;
+    currentQueueIdRef.current = null;
+
     setUiState((prev) => ({
       ...prev,
       isGenerating: false,
@@ -663,13 +665,30 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
       showProgressCard: false,
     }));
 
-    // Unsubscribe from any active subscriptions
     if (messageCallbackRef.current) {
       unsubscribe(messageCallbackRef.current);
       messageCallbackRef.current = null;
-      currentQueueIdRef.current = null;
     }
-  }, [unsubscribe]);
+
+    if (!queueId) {
+      return;
+    }
+
+    void (async () => {
+      try {
+        await generateApi.stopGeneration({
+          queueId,
+          connectionId: connectionId || undefined,
+        });
+      } catch (error) {
+        console.error("Failed to stop generation", error);
+        setUiState((prev) => ({
+          ...prev,
+          currentMessage: "Failed to stop generation",
+        }));
+      }
+    })();
+  }, [connectionId, unsubscribe]);
 
   // Settings methods
   const updateSettings = useCallback(

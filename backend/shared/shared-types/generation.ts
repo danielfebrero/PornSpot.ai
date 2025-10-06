@@ -93,3 +93,13 @@ export interface I2VSubmitJobRequest extends I2VSettings {
 export interface I2VPollJobRequest {
   jobId: string;
 }
+
+export interface StopGenerationRequest {
+  queueId: string;
+  connectionId?: string;
+}
+
+export interface StopGenerationResponse {
+  queueId: string;
+  status: "stopped";
+}
