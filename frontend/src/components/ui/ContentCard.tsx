@@ -1265,7 +1265,7 @@ export function ContentCard({
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
           canDelete={media.createdBy === user?.userId || user?.role === "admin"}
-          onDelete={onDelete}
+          onDelete={() => onDelete?.(media.id)}
           onLoadMore={onLoadMore}
           onClose={() => {
             setLightboxOpen(false);
