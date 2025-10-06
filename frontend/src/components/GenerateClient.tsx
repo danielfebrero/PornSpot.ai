@@ -277,6 +277,7 @@ export function GenerateClient() {
   };
 
   const handleOptimisticDelete = (mediaId: string) => {
+    console.log("handleOptimisticDelete", { mediaId });
     setDeletedImageIds((prev) => new Set(prev).add(mediaId));
     setAllGeneratedImages((prev) =>
       prev.filter((media) => media.id !== mediaId)
@@ -2215,7 +2216,7 @@ export function GenerateClient() {
           currentIndex={lightboxIndex}
           isOpen={lightboxOpen}
           canDelete={true}
-          onDelete={handleDeleteRecentMedia}
+          onDelete={handleOptimisticDelete}
           onClose={() => setLightboxOpen(false)}
           onNext={handleLightboxNext}
           onPrevious={handleLightboxPrevious}
