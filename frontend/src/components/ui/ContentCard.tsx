@@ -97,7 +97,7 @@ interface ContentCardProps {
   onAddToAlbum?: () => void;
   onRemoveFromAlbum?: () => Promise<void>;
   onDownload?: () => void;
-  onDelete?: () => void;
+  onDelete?: (media?: Media) => void;
 
   // Additional props for media
   context?: ThumbnailContext;
@@ -497,7 +497,7 @@ export function ContentCard({
 
   const handleConfirmDelete = async () => {
     if (onDelete) {
-      onDelete();
+      onDelete(media!);
     }
     try {
       setDeleteConfirmOpen(false);

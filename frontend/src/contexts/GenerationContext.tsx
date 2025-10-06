@@ -811,9 +811,16 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
 
   const handleDeleteRecentMedia = useCallback(
     (mediaId: string) => {
+      const media = uiState.allGeneratedImages.find(
+        (img) => img.id === mediaId
+      );
+      console.log("deleting", { mediaId, media });
       setDeletedImageIds((prev) => new Set(prev).add(mediaId));
+      setAllGeneratedImages((prev) =>
+        prev.filter((media) => media.id !== mediaId)
+      );
     },
-    [setDeletedImageIds]
+    [setAllGeneratedImages, setDeletedImageIds, uiState.allGeneratedImages]
   );
 
   const toggleLora = useCallback(

@@ -219,6 +219,10 @@ export function GenerateClient() {
     isOptimizing || (isGenerating && !hasActiveQueueId);
   const isInStopState = isGenerating && hasActiveQueueId;
 
+  useEffect(() => {
+    console.log({ deletedImageIds });
+  }, [deletedImageIds]);
+
   // Device detection with better breakpoints
   useEffect(() => {
     const checkDevice = () => {
