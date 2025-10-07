@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 import { useLocaleRouter } from "@/lib/navigation";
 import { useNavigationLoading } from "@/contexts/NavigationLoadingContext";
 import {
@@ -161,6 +162,7 @@ export function ContentCard({
   isSelected = false,
   onToggleSelection,
 }: ContentCardProps) {
+  const t = useTranslations("common");
   const router = useLocaleRouter();
   const { startNavigation } = useNavigationLoading();
   const { user } = useUserContext();
@@ -1315,9 +1317,11 @@ export function ContentCard({
         isOpen={deleteConfirmOpen}
         onClose={() => setDeleteConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete Content"
-        message={`Are you sure you want to delete this ${item.type}? This action cannot be undone.`}
-        confirmText="Delete"
+        title={t("confirmDialog.deleteContent.title")}
+        message={t("confirmDialog.deleteContent.message", {
+          type: item.type,
+        })}
+        confirmText={t("delete")}
         confirmVariant="danger"
       />
 
@@ -1326,9 +1330,9 @@ export function ContentCard({
         isOpen={removeConfirmOpen}
         onClose={() => setRemoveConfirmOpen(false)}
         onConfirm={handleConfirmRemove}
-        title="Remove Media"
-        message={`Are you sure you want to remove this media from the album? This action cannot be undone.`}
-        confirmText="Remove"
+        title={t("confirmDialog.removeMedia.title")}
+        message={t("confirmDialog.removeMedia.message")}
+        confirmText={t("remove")}
         confirmVariant="danger"
       />
 

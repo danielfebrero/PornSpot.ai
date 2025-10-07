@@ -99,7 +99,17 @@
     "likes": "Likes",
     "bookmarks": "Bookmarks",
     "albums": "Albums",
-    "signIn": "Sign In"
+    "signIn": "Sign In",
+    "confirmDialog": {
+      "deleteContent": {
+        "title": "Delete Content",
+        "message": "Are you sure you want to delete this {type}? This action cannot be undone."
+      },
+      "removeMedia": {
+        "title": "Remove Media",
+        "message": "Are you sure you want to remove this media from the album? This action cannot be undone."
+      }
+    }
   },
   "cookieBanner": {
     "message": "This site uses cookies to provide you with a better browsing experience. By browsing PornSpot websites, you agree with using cookies. Find out more on how we use cookies <link>here</link>.",

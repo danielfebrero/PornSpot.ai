@@ -117,7 +117,17 @@
     "likes": "J'aime",
     "bookmarks": "Favoris",
     "albums": "Albums",
-    "signIn": "Se connecter"
+    "signIn": "Se connecter",
+    "confirmDialog": {
+      "deleteContent": {
+        "title": "Supprimer le contenu",
+        "message": "Êtes-vous sûr de vouloir supprimer ce {type} ? Cette action ne peut pas être annulée."
+      },
+      "removeMedia": {
+        "title": "Retirer le média",
+        "message": "Êtes-vous sûr de vouloir retirer ce média de l'album ? Cette action ne peut pas être annulée."
+      }
+    }
   },
   "cookieBanner": {
     "message": "Ce site utilise des cookies pour vous offrir une meilleure expérience de navigation. En naviguant sur les sites PornSpot, vous acceptez l'utilisation de cookies. Découvrez comment nous utilisons les cookies <link>ici</link>.",

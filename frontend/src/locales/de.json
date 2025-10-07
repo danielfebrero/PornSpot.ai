@@ -100,7 +100,17 @@
     "likes": "Gefällt mir",
     "bookmarks": "Lesezeichen",
     "albums": "Alben",
-    "signIn": "Anmelden"
+    "signIn": "Anmelden",
+    "confirmDialog": {
+      "deleteContent": {
+        "title": "Inhalt löschen",
+        "message": "Sind Sie sicher, dass Sie diesen {type} löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+      },
+      "removeMedia": {
+        "title": "Medien entfernen",
+        "message": "Sind Sie sicher, dass Sie diese Medien aus dem Album entfernen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+      }
+    }
   },
   "cookieBanner": {
     "message": "Diese Website verwendet Cookies, um Ihnen ein besseres Surferlebnis zu bieten. Wenn Sie auf Websites von PornSpot surfen, stimmen Sie der Verwendung von Cookies zu. Erfahren Sie mehr darüber, wie wir Cookies verwenden <link>hier</link>.",

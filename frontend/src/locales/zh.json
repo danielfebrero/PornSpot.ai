@@ -116,7 +116,17 @@
     "likes": "点赞",
     "bookmarks": "书签",
     "albums": "专辑",
-    "signIn": "登录"
+    "signIn": "登录",
+    "confirmDialog": {
+      "deleteContent": {
+        "title": "删除内容",
+        "message": "您确定要删除此{type}吗？此操作无法撤销。"
+      },
+      "removeMedia": {
+        "title": "删除媒体",
+        "message": "您确定要从专辑中删除此媒体吗？此操作无法撤销。"
+      }
+    }
   },
   "cookieBanner": {
     "message": "本网站使用 cookies 来为您提供更好的浏览体验。通过浏览 PornSpot 网站，您同意使用 cookies。了解更多关于我们如何使用 cookies 的信息请<link>点击这里</link>。",
