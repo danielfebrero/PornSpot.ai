@@ -327,14 +327,16 @@ export function PricingClient() {
           <Card className="overflow-hidden border-yellow-500/20 shadow-lg shadow-yellow-500/10 transition-all duration-300 hover:shadow-2xl">
             {/* Gradient Header */}
             <div className="h-2 bg-gradient-to-r from-yellow-500 to-orange-500" />
-            
+
             <div className="bg-gradient-to-br from-yellow-500/5 to-orange-500/5 p-6 sm:p-8">
               <div className="inline-flex items-center gap-2 mb-4">
                 <div className="p-2 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg">
                   <Clapperboard className="h-5 w-5 text-white" />
                 </div>
                 <span className="text-sm font-semibold uppercase tracking-widest bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-                  {t("videoCredits.badge", { fallback: "Video Credits" } as any)}
+                  {t("videoCredits.badge", {
+                    fallback: "Video Credits",
+                  } as any)}
                 </span>
               </div>
 
@@ -371,7 +373,8 @@ export function PricingClient() {
                       </div>
                       <div className="text-left sm:text-right">
                         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">
-                          💵 {t("videoCredits.total", {
+                          💵{" "}
+                          {t("videoCredits.total", {
                             amount: formattedVideoPrice,
                             fallback: "Total",
                           } as any)}
@@ -465,7 +468,9 @@ export function PricingClient() {
                     <span
                       className={cn(
                         "text-sm font-semibold transition-all duration-300",
-                        !isYearly ? "text-foreground scale-110" : "text-muted-foreground"
+                        !isYearly
+                          ? "text-foreground scale-110"
+                          : "text-muted-foreground"
                       )}
                     >
                       {t("monthly")}
@@ -474,7 +479,9 @@ export function PricingClient() {
                       onClick={() => setIsYearly(!isYearly)}
                       className={cn(
                         "relative inline-flex h-7 w-14 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                        isYearly ? "bg-gradient-to-r from-primary to-purple-500" : "bg-muted"
+                        isYearly
+                          ? "bg-gradient-to-r from-primary to-purple-500"
+                          : "bg-muted"
                       )}
                       aria-label={t("toggleBilling", {
                         fallback: "Toggle billing interval",
@@ -490,7 +497,9 @@ export function PricingClient() {
                     <span
                       className={cn(
                         "text-sm font-semibold transition-all duration-300",
-                        isYearly ? "text-foreground scale-110" : "text-muted-foreground"
+                        isYearly
+                          ? "text-foreground scale-110"
+                          : "text-muted-foreground"
                       )}
                     >
                       {t("yearly")}
@@ -712,7 +721,9 @@ export function PricingClient() {
             <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent mb-3">
               {t("faq.title")}
             </h2>
-            <p className="text-muted-foreground">Common questions about our plans and features</p>
+            <p className="text-muted-foreground">
+              Common questions about our plans and features
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
