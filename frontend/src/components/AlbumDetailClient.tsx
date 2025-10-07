@@ -9,7 +9,6 @@ import {
   Download,
   Loader2,
   Heart,
-  Bookmark,
   Eye,
   User,
 } from "lucide-react";

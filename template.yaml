@@ -1021,7 +1021,7 @@ Resources:
           Properties:
             RestApiId: !Ref ApiGateway
             Path: /albums/{albumId}/download-zip
-            Method: GET
+            Method: POST
             Auth:
               Authorizer: UserAuthorizer
         OptionsDownloadAlbumZip:
