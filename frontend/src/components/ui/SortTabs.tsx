@@ -82,7 +82,12 @@ export function SortTabs({ className }: SortTabsProps) {
   ];
 
   return (
-    <div className={cn("flex flex-row items-center gap-2 mb-6", className)}>
+    <div
+      className={cn(
+        "flex flex-col sm:flex-row sm:items-center gap-2 mb-6",
+        className
+      )}
+    >
       {/* Tab Navigation */}
       <div className="bg-card/50 backdrop-blur-sm border border-admin-primary/10 rounded-lg p-1 shadow-sm">
         <div className="flex bg-background/50 rounded-md p-0.5">
