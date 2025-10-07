@@ -131,7 +131,7 @@ export function SortTabs({ className }: SortTabsProps) {
 
       {/* Enhanced tag indicator with tag-like design */}
       {currentTag && (
-        <div className="relative flex items-center flex-shrink min-w-0">
+        <div className="relative flex items-center justify-center sm:justify-start flex-shrink min-w-0 w-full sm:w-auto">
           {/* Tag shape with arrow notch */}
           <div className="relative bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-full pl-3 pr-4 py-1.5 shadow-md max-w-[120px] flex items-center">
             {/* Tag content */}

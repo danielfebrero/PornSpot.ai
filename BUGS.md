@@ -180,7 +180,7 @@
 
 [ ] Discover by tag not working on some old tags/albums.
 
-[ ] On mobile, on discover page, adding a tag do not fit the screen width.
+[x] On mobile, on discover page, adding a tag do not fit the screen width.
 
 [x] Admin cannot see private content on Media page.
 
