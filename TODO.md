@@ -220,6 +220,6 @@
 
 [ ] "Generation limit reached" should not appear if there is a job in progress or queued on screen.
 
-[ ] Download album as zip.
+[x] Download album as zip.
 
 [x] Redesign the PricingPage.

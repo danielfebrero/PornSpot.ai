@@ -176,7 +176,6 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
               <span>{album.likeCount || 0} likes</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Bookmark className="w-4 h-4" />
               <span>
                 {album.mediaCount}{" "}
                 {album.mediaCount === 1 ? t("item") : t("items")}
