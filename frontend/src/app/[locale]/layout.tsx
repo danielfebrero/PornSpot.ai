@@ -147,7 +147,7 @@ export default async function LocaleLayout({
                                     <footer className="border-t border-border mt-16 pb-[55px] lg:pb-0 text-sm">
                                       <div className="container mx-auto py-4">
                                         <div className="text-center">
-                                          <p className="text-muted-foreground whitespace-nowrap overflow-x-auto overflow-y-hidden">
+                                          <p className="text-muted-foreground whitespace-nowrap overflow-x-auto overflow-y-hidden scrollbar-hide">
                                             &copy; 2025 PornSpot.ai. 943 919 423
                                             R.C.S. Annecy, France - All rights
                                             reserved.{" "}
