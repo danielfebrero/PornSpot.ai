@@ -36,7 +36,7 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
       <ViewTracker targetType="album" targetId={album.id} />
 
       {/* Header */}
-      <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm border-border">
+      <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm border-border pb-4">
         <div className="flex items-center min-h-16 gap-4 md:px-4">
           <Tooltip content={t("goBack")} side="bottom">
             <button
