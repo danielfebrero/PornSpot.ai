@@ -411,10 +411,10 @@ export function PricingClient() {
                     disabled={Boolean(processingItem)}
                     onClick={handleVideoCreditsPurchase}
                   >
-                    <div className="flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap sm:gap-3">
+                    <div className="flex flex-nowrap items-center justify-center gap-2 sm:gap-3">
                       {processingItem?.startsWith("video-credits") ? (
                         <>
-                          <Loader2 className="h-5 w-5 animate-spin" />
+                          <Loader2 className="h-5 w-5 animate-spin flex-shrink-0" />
                           <span className="font-semibold whitespace-nowrap">
                             {t("processing")}
                           </span>
@@ -427,9 +427,9 @@ export function PricingClient() {
                               fallback: `Pay ${formattedVideoPrice}`,
                             } as any)}
                           </span>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <MastercardLogo className="h-6 w-auto" />
-                            <VisaLogo className="h-6 w-auto" />
+                          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                            <MastercardLogo className="h-5 w-auto sm:h-6" />
+                            <VisaLogo className="h-5 w-auto sm:h-6" />
                           </div>
                         </>
                       )}
