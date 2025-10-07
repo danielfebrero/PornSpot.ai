@@ -11,6 +11,9 @@ import { useLightboxPreloader } from "@/hooks/useLightboxPreloader";
 import { useAdvancedGestures } from "@/hooks/useAdvancedGestures";
 import { useSleepPrevention } from "@/hooks/useSleepPrevention";
 
+type LightboxNavigateHandler = (...args: [number]) => void;
+type LightboxDeleteHandler = (...args: [string]) => void;
+
 interface LightboxProps {
   media: Media[];
   currentIndex: number;
@@ -27,8 +30,8 @@ interface LightboxProps {
   onClose: () => void;
   onNext: () => void;
   onPrevious: () => void;
-  onGoToIndex?: (index: number) => void;
-  onDelete?: (mediaId: string) => void;
+  onGoToIndex?: LightboxNavigateHandler;
+  onDelete?: LightboxDeleteHandler;
 }
 
 export const Lightbox: React.FC<LightboxProps> = ({
@@ -452,6 +455,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
           key={currentMedia.id}
           targetType={currentMedia.type}
           targetId={currentMedia.id}
+          initialViewCount={currentMedia.viewCount}
         />
       )}
 

@@ -143,6 +143,41 @@ export function useBulkViewCounts(
   };
 }
 
+// Helper to seed the cache with a known view count before tracking occurs
+export function primeViewCountCache(
+  targetType: "album" | "image" | "video",
+  targetId: string,
+  viewCount: number | null | undefined
+) {
+  if (viewCount == null) {
+    return;
+  }
+
+  const targets = [{ targetType, targetId }];
+  const queryKey = queryKeys.content.viewCounts(targets);
+
+  const existing = queryClient.getQueryData<ViewCountResponse>(queryKey);
+  const nextViewCounts = existing?.viewCounts ? [...existing.viewCounts] : [];
+
+  const alreadySeeded = nextViewCounts.some(
+    (item) => item.targetType === targetType && item.targetId === targetId
+  );
+
+  if (alreadySeeded) {
+    return;
+  }
+
+  nextViewCounts.push({
+    targetType,
+    targetId,
+    viewCount,
+  });
+
+  queryClient.setQueryData<ViewCountResponse>(queryKey, {
+    viewCounts: nextViewCounts,
+  });
+}
+
 // Hook for tracking a view - updates cache optimistically
 export function useTrackView() {
   return useMutation({

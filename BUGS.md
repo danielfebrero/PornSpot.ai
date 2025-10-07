@@ -168,7 +168,7 @@
 
 [x] My likes and bookmarks are not showing as Like/bookmark in term of interaction status.
 
-[ ] View counter and interaction status is not up to date in albums.
+[x] View counter and interaction status is not up to date in albums.
 
 [x] "Other controls" meta data on media page of video is not accurate.
 
@@ -178,7 +178,7 @@
 
 [x] I cannot change my profile picture in profile.
 
-[ ] Discover by tag not working on some old tags/albums.
+[x] Discover by tag not working on some old tags/albums.
 
 [x] On mobile, on discover page, adding a tag do not fit the screen width.
 

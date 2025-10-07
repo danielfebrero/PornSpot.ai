@@ -33,7 +33,11 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <ViewTracker targetType="album" targetId={album.id} />
+      <ViewTracker
+        targetType="album"
+        targetId={album.id}
+        initialViewCount={album.viewCount}
+      />
 
       {/* Header */}
       <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm border-border pb-4">

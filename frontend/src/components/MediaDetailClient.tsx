@@ -11,6 +11,7 @@ import {
 } from "react";
 import { useLocaleRouter } from "@/lib/navigation";
 import {
+  primeViewCountCache,
   useBulkViewCounts,
   useTrackView,
 } from "@/hooks/queries/useViewCountsQuery";
@@ -229,6 +230,10 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
     if (hasTrackedView.current) return;
     hasTrackedView.current = true;
 
+    if (localMedia.type === "image" || localMedia.type === "video") {
+      primeViewCountCache(localMedia.type, localMedia.id, localMedia.viewCount);
+    }
+
     // Track view and then enable view count fetching
     trackViewMutation.mutate(
       {
@@ -242,7 +247,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
         },
       }
     );
-  }, [localMedia.id, localMedia.type, trackViewMutation]);
+  }, [localMedia.id, localMedia.type, localMedia.viewCount, trackViewMutation]);
 
   // Bulk prefetch view counts for the media and albums
   const viewCountTargets = useMemo(() => {
