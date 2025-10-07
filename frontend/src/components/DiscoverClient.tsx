@@ -115,6 +115,12 @@ export function DiscoverClient({
     return null;
   }, [items.length, initialError, error]);
 
+  const scrollRestorationKey = useMemo(() => {
+    const tagKey = tag ? `tag-${encodeURIComponent(tag)}` : "tag-all";
+    const sortKey = `sort-${sort ?? "discover"}`;
+    return `discover-content-grid-${tagKey}-${sortKey}`;
+  }, [tag, sort]);
+
   return (
     <SectionErrorBoundary context="Discover Page">
       {/* Sort Navigation Tabs */}
@@ -131,7 +137,7 @@ export function DiscoverClient({
           loading={isActuallyLoading || isFetchingNextPage}
           hasMore={hasNextPage}
           error={displayError}
-          scrollRestorationKey="discover-content-grid"
+          scrollRestorationKey={scrollRestorationKey}
         />
       </SectionErrorBoundary>
     </SectionErrorBoundary>
