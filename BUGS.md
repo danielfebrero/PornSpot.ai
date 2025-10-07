@@ -186,7 +186,7 @@
 
 [ ] If I change a media from public to private, I can still access it with private navigation.
 
-[ ] On mobile, long username push item count on a new line which overlap the image on Media page.
+[x] On mobile, long username push item count on a new line which overlap the image on Media page.
 
 [x] Image creation sometimes cannot download the original image and create media entity that is broken.
 
