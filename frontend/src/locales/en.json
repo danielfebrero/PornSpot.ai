@@ -1723,6 +1723,18 @@
           "Choose your own seed",
           "100 seconds of video credits per month"
         ]
+      },
+      "lifetime": {
+        "name": "Lifetime",
+        "description": "One-time payment for eternal access",
+        "badge": "Best Value",
+        "features": [
+          "All Pro features forever",
+          "All future updates included",
+          "Priority support",
+          "Early access to new features",
+          "No recurring payments"
+        ]
       }
     },
     "features": {
@@ -2142,6 +2154,39 @@
     "meta": {
       "title": "PornSpotCoin - {siteName}",
       "description": "Track your PSC earnings, exchange rates, and manage your rewards from the AI-generated content platform."
+    },
+    "page": {
+      "yourBalance": "Your Balance",
+      "earnedToday": "Earned Today",
+      "live": "Live",
+      "earnPscRates": "Earn PSC Rates",
+      "upgradeWithPsc": "Upgrade with PSC",
+      "upgradeDescription": "Use your earned coins to unlock premium features",
+      "view": "View",
+      "like": "Like",
+      "comment": "Comment",
+      "save": "Save",
+      "profile": "Profile",
+      "pscAction": "PSC/action",
+      "oneTime": "One-time",
+      "perMonth": "Per {duration}",
+      "usdValue": "USD Value",
+      "moreFeatures": "+ {count} more features",
+      "upgradeTo": "Upgrade to {planName}",
+      "yourCurrentPlan": "Your Current Plan",
+      "needMorePsc": "Need {amount} more PSC",
+      "totalEarned": "Total Earned",
+      "today": "Today",
+      "totalSpent": "Total Spent",
+      "pscLifetime": "PSC lifetime",
+      "pscToday": "PSC today",
+      "pscInvested": "PSC invested",
+      "currentPlan": "Current Plan",
+      "oneTimePayment": "🎯 One-time payment",
+      "perMonthSchedule": "📅 Per {duration}",
+      "confirmPurchaseTitle": "Confirm Purchase",
+      "confirmPurchaseMessage": "Purchase {planName} plan for {price} PSC? This will unlock all plan features immediately.",
+      "completePurchase": "Complete Purchase"
     },
     "dashboard": {
       "title": "PornSpotCoin Dashboard",

@@ -1697,6 +1697,18 @@
           "Elige tu propia semilla",
           "100 segundos de créditos de video por mes"
         ]
+      },
+      "lifetime": {
+        "name": "De por vida",
+        "description": "Pago único para acceso eterno",
+        "badge": "Mejor valor",
+        "features": [
+          "Todas las funciones Pro para siempre",
+          "Todas las actualizaciones futuras incluidas",
+          "Soporte prioritario",
+          "Acceso anticipado a nuevas funciones",
+          "Sin pagos recurrentes"
+        ]
       }
     },
     "features": {
@@ -2116,6 +2128,39 @@
     "meta": {
       "title": "PornSpotCoin - {siteName}",
       "description": "Rastrea tus ganancias PSC, tasas de cambio y gestiona tus recompensas de la plataforma de contenido IA."
+    },
+    "page": {
+      "yourBalance": "Tu Saldo",
+      "earnedToday": "Ganado Hoy",
+      "live": "En Vivo",
+      "earnPscRates": "Tasas de Ganancia PSC",
+      "upgradeWithPsc": "Mejora con PSC",
+      "upgradeDescription": "Usa tus monedas ganadas para desbloquear funciones premium",
+      "view": "Vista",
+      "like": "Me gusta",
+      "comment": "Comentario",
+      "save": "Guardar",
+      "profile": "Perfil",
+      "pscAction": "PSC/acción",
+      "oneTime": "Pago único",
+      "perMonth": "Por {duration}",
+      "usdValue": "Valor USD",
+      "moreFeatures": "+ {count} funciones más",
+      "upgradeTo": "Actualizar a {planName}",
+      "yourCurrentPlan": "Tu Plan Actual",
+      "needMorePsc": "Necesitas {amount} PSC más",
+      "totalEarned": "Total Ganado",
+      "today": "Hoy",
+      "totalSpent": "Total Gastado",
+      "pscLifetime": "PSC de por vida",
+      "pscToday": "PSC hoy",
+      "pscInvested": "PSC invertidos",
+      "currentPlan": "Plan Actual",
+      "oneTimePayment": "🎯 Pago único",
+      "perMonthSchedule": "📅 Por {duration}",
+      "confirmPurchaseTitle": "Confirmar Compra",
+      "confirmPurchaseMessage": "¿Comprar el plan {planName} por {price} PSC? Esto desbloqueará todas las funciones del plan inmediatamente.",
+      "completePurchase": "Completar Compra"
     },
     "dashboard": {
       "title": "Panel de PornSpotCoin",

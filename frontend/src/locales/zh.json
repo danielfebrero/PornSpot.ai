@@ -1702,6 +1702,18 @@
           "选择您自己的种子",
           "每月 100 秒视频积分"
         ]
+      },
+      "lifetime": {
+        "name": "终身版",
+        "description": "一次性付款，永久访问",
+        "badge": "最超值",
+        "features": [
+          "永久享有所有专业版功能",
+          "包含所有未来更新",
+          "优先支持",
+          "抢先体验新功能",
+          "无需重复付款"
+        ]
       }
     },
     "features": {
@@ -2118,6 +2130,43 @@
     "redditLink": "Reddit"
   },
   "pornspotcoin": {
+    "meta": {
+      "title": "PornSpotCoin - {siteName}",
+      "description": "跟踪您的 PSC 收入、汇率，并管理来自 AI 内容平台的奖励。"
+    },
+    "page": {
+      "yourBalance": "您的余额",
+      "earnedToday": "今日赚取",
+      "live": "实时",
+      "earnPscRates": "PSC 赚取率",
+      "upgradeWithPsc": "使用 PSC 升级",
+      "upgradeDescription": "使用您赚取的代币解锁高级功能",
+      "view": "查看",
+      "like": "喜欢",
+      "comment": "评论",
+      "save": "保存",
+      "profile": "个人资料",
+      "pscAction": "PSC/操作",
+      "oneTime": "一次性",
+      "perMonth": "每{duration}",
+      "usdValue": "美元价值",
+      "moreFeatures": "+ {count} 个更多功能",
+      "upgradeTo": "升级到 {planName}",
+      "yourCurrentPlan": "您的当前计划",
+      "needMorePsc": "还需要 {amount} PSC",
+      "totalEarned": "总赚取",
+      "today": "今天",
+      "totalSpent": "总消费",
+      "pscLifetime": "PSC 终身",
+      "pscToday": "PSC 今天",
+      "pscInvested": "PSC 已投资",
+      "currentPlan": "当前计划",
+      "oneTimePayment": "🎯 一次性付款",
+      "perMonthSchedule": "📅 每{duration}",
+      "confirmPurchaseTitle": "确认购买",
+      "confirmPurchaseMessage": "以 {price} PSC 购买 {planName} 计划？这将立即解锁所有计划功能。",
+      "completePurchase": "完成购买"
+    },
     "dashboard": {
       "title": "PornSpotCoin 仪表板",
       "description": "跟踪您的 PSC 收入、支付率和兑换机会",
@@ -2251,10 +2300,6 @@
         "noTransactionsGeneral": "开始与内容互动以赚取PornSpotCoin！",
         "clearFilters": "清除筛选器"
       }
-    },
-    "meta": {
-      "title": "PornSpotCoin - {siteName}",
-      "description": "管理您的PornSpotCoin余额并跟踪收入"
     }
   },
   "ourFriends": {

@@ -1681,6 +1681,18 @@
           "Wählen Sie Ihren eigenen Seed",
           "100 Sekunden Video-Credits pro Monat"
         ]
+      },
+      "lifetime": {
+        "name": "Lebenslang",
+        "description": "Einmalige Zahlung für ewigen Zugang",
+        "badge": "Bester Wert",
+        "features": [
+          "Alle Pro-Funktionen für immer",
+          "Alle zukünftigen Updates inklusive",
+          "Prioritäts-Support",
+          "Früher Zugang zu neuen Funktionen",
+          "Keine wiederkehrenden Zahlungen"
+        ]
       }
     },
     "features": {
@@ -2100,6 +2112,39 @@
     "meta": {
       "title": "PornSpotCoin - {siteName}",
       "description": "Verfolgen Sie Ihre PSC-Einnahmen, Wechselkurse und verwalten Sie Ihre Belohnungen von der KI-Content-Plattform."
+    },
+    "page": {
+      "yourBalance": "Ihr Guthaben",
+      "earnedToday": "Heute Verdient",
+      "live": "Live",
+      "earnPscRates": "PSC-Verdienstsätze",
+      "upgradeWithPsc": "Mit PSC upgraden",
+      "upgradeDescription": "Nutzen Sie Ihre verdienten Münzen, um Premium-Funktionen freizuschalten",
+      "view": "Ansicht",
+      "like": "Like",
+      "comment": "Kommentar",
+      "save": "Speichern",
+      "profile": "Profil",
+      "pscAction": "PSC/Aktion",
+      "oneTime": "Einmalzahlung",
+      "perMonth": "Pro {duration}",
+      "usdValue": "USD-Wert",
+      "moreFeatures": "+ {count} weitere Funktionen",
+      "upgradeTo": "Upgrade auf {planName}",
+      "yourCurrentPlan": "Ihr Aktueller Plan",
+      "needMorePsc": "{amount} PSC mehr benötigt",
+      "totalEarned": "Insgesamt Verdient",
+      "today": "Heute",
+      "totalSpent": "Insgesamt Ausgegeben",
+      "pscLifetime": "PSC lebenslang",
+      "pscToday": "PSC heute",
+      "pscInvested": "PSC investiert",
+      "currentPlan": "Aktueller Plan",
+      "oneTimePayment": "🎯 Einmalzahlung",
+      "perMonthSchedule": "📅 Pro {duration}",
+      "confirmPurchaseTitle": "Kauf Bestätigen",
+      "confirmPurchaseMessage": "{planName}-Plan für {price} PSC kaufen? Dies schaltet sofort alle Plan-Funktionen frei.",
+      "completePurchase": "Kauf Abschließen"
     },
     "dashboard": {
       "title": "PornSpotCoin Dashboard",

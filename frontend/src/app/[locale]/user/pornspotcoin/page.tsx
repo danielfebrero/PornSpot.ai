@@ -1,39 +1,30 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useDocumentHeadAndMeta } from "@/hooks/useDocumentHeadAndMeta";
 import {
-  Coins,
-  TrendingUp,
+  Sparkles,
+  Zap,
+  Crown,
+  Infinity,
   Eye,
   Heart,
   MessageCircle,
   Bookmark,
   User,
-  Calendar,
-  DollarSign,
-  BarChart3,
-  Activity,
-  ArrowUpRight,
+  TrendingUp,
   Loader2,
+  Coins,
+  Check,
+  ArrowRight,
+  Gem,
+  Clock,
+  Shield,
 } from "lucide-react";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-} from "chart.js";
-// import { Line } from "react-chartjs-2";
-import { Card, CardHeader, CardContent } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import LocaleLink from "@/components/ui/LocaleLink";
-import { usePSCDashboard, usePSCStats } from "@/hooks/queries/usePSCQuery";
+import { Badge } from "@/components/ui/Badge";
+import { usePSCDashboard } from "@/hooks/queries/usePSCQuery";
 import { useTranslations } from "next-intl";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLocaleRouter } from "@/lib/navigation";
@@ -44,325 +35,187 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { pscQueryUtils } from "@/hooks/queries/usePSCQuery";
 import type { UserPlan } from "@/types/shared-types/permissions";
 import type { PSCSpendRequest } from "@/types/shared-types/pornspotcoin";
-
-// Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-);
+import { cn } from "@/lib/utils";
 
 type PlanKey = "starter" | "unlimited" | "pro" | "lifetime";
-type PurchaseScenario = "extend" | "upgrade" | "downgrade" | "activate";
 
-const PLAN_ORDER: Record<UserPlan | PlanKey, number> = {
-  anonymous: 0,
-  free: 0,
-  starter: 1,
-  unlimited: 2,
-  pro: 3,
-  lifetime: 4,
-};
-
-const EXCHANGE_RATES: Record<PlanKey, { duration: string; cost: number }> = {
-  starter: { duration: "1 month", cost: 9 },
-  unlimited: { duration: "1 month", cost: 18 },
-  pro: { duration: "1 month", cost: 27 },
-  lifetime: { duration: "Lifetime", cost: 1000 },
-};
-
-interface PurchaseModalState {
-  plan: PlanKey;
-  scenario: PurchaseScenario;
-  cost: number;
-  autoRenew: boolean;
+interface PlanFeature {
+  text: string;
+  highlight?: boolean;
 }
 
-const determineScenario = (
-  current: UserPlan,
-  target: PlanKey
-): PurchaseScenario => {
-  if (current !== "free" && current !== "anonymous" && current === target) {
-    return "extend";
-  }
+interface Plan {
+  id: PlanKey;
+  name: string;
+  description: string;
+  features: PlanFeature[];
+  badge?: string;
+  price: number; // PSC price
+  duration: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+  borderColor: string;
+  bgGradient: string;
+  popular: boolean;
+}
 
-  if (current === "free" || current === "anonymous") {
-    return "activate";
-  }
-
-  const currentOrder = PLAN_ORDER[current];
-  const targetOrder = PLAN_ORDER[target];
-
-  if (targetOrder > currentOrder) {
-    return "upgrade";
-  }
-
-  if (targetOrder < currentOrder) {
-    return "downgrade";
-  }
-
-  return "activate";
+const PLAN_CONFIGS: Record<
+  PlanKey,
+  Omit<Plan, "id" | "name" | "description" | "features" | "badge">
+> = {
+  starter: {
+    price: 9,
+    duration: "month",
+    icon: Sparkles,
+    color: "from-blue-500 to-cyan-500",
+    borderColor: "border-blue-500/20",
+    bgGradient: "from-blue-500/5 to-cyan-500/5",
+    popular: false,
+  },
+  unlimited: {
+    price: 18,
+    duration: "month",
+    icon: Zap,
+    color: "from-purple-500 to-pink-500",
+    borderColor: "border-purple-500/20",
+    bgGradient: "from-purple-500/5 to-pink-500/5",
+    popular: true,
+  },
+  pro: {
+    price: 27,
+    duration: "month",
+    icon: Crown,
+    color: "from-orange-500 to-red-500",
+    borderColor: "border-orange-500/20",
+    bgGradient: "from-orange-500/5 to-red-500/5",
+    popular: false,
+  },
+  lifetime: {
+    price: 1000,
+    duration: "forever",
+    icon: Infinity,
+    color: "from-yellow-500 to-amber-500",
+    borderColor: "border-yellow-500/20",
+    bgGradient: "from-yellow-500/5 to-amber-500/5",
+    popular: false,
+  },
 };
 
-// Generate mock data for 24x7 (168 points) over one week
-// function generateMockWeeklyData() {
-//   const data = [];
-//   const actions = [
-//     "view",
-//     "like",
-//     "comment",
-//     "bookmark",
-//     "profileView",
-//   ] as const;
-//   const baseRates: Record<string, number> = {
-//     view: 0.0012,
-//     like: 0.0045,
-//     comment: 0.0078,
-//     bookmark: 0.0034,
-//     profileView: 0.0019,
-//   };
-
-//   for (let day = 0; day < 7; day++) {
-//     for (let hour = 0; hour < 24; hour++) {
-//       const timestamp = new Date();
-//       timestamp.setDate(timestamp.getDate() - (6 - day));
-//       timestamp.setHours(hour, 0, 0, 0);
-
-//       const point = {
-//         timestamp: timestamp.toISOString(),
-//         day: day,
-//         hour: hour,
-//         rates: {} as Record<string, number>,
-//       };
-
-//       // Simulate activity patterns and budget effects
-//       const activityMultiplier = getActivityMultiplier(day, hour);
-//       const budgetFactor = getBudgetFactor(hour);
-
-//       actions.forEach((action) => {
-//         // Base rate adjusted by activity and budget availability
-//         point.rates[action] =
-//           baseRates[action] *
-//           activityMultiplier *
-//           budgetFactor *
-//           (0.8 + Math.random() * 0.4); // Add some randomness
-//       });
-
-//       data.push(point);
-//     }
-//   }
-
-//   return data;
-// }
-
-// function getActivityMultiplier(day: number, hour: number): number {
-//   // Simulate higher activity on weekends and during peak hours
-//   const isWeekend = day === 0 || day === 6;
-//   const isPeakTime = hour >= 19 && hour <= 23; // 7 PM to 11 PM
-//   const isLateNight = hour >= 0 && hour <= 2; // Midnight to 2 AM
-
-//   let multiplier = 1;
-//   if (isWeekend) multiplier *= 1.3;
-//   if (isPeakTime) multiplier *= 1.5;
-//   if (isLateNight) multiplier *= 0.7;
-
-//   return multiplier;
-// }
-
-// function getBudgetFactor(hour: number): number {
-//   // Simulate budget depletion throughout the day
-//   // Higher rates early in the day when budget is full
-//   return Math.max(0.3, 1.2 - (hour / 24) * 0.9);
-// }
+const RATE_ITEMS = [
+  {
+    icon: Eye,
+    label: "page.view",
+    key: "viewRate",
+    color: "text-blue-500",
+    bg: "bg-blue-500/10",
+  },
+  {
+    icon: Heart,
+    label: "page.like",
+    key: "likeRate",
+    color: "text-red-500",
+    bg: "bg-red-500/10",
+  },
+  {
+    icon: MessageCircle,
+    label: "page.comment",
+    key: "commentRate",
+    color: "text-green-500",
+    bg: "bg-green-500/10",
+  },
+  {
+    icon: Bookmark,
+    label: "page.save",
+    key: "bookmarkRate",
+    color: "text-purple-500",
+    bg: "bg-purple-500/10",
+  },
+  {
+    icon: User,
+    label: "page.profile",
+    key: "profileViewRate",
+    color: "text-orange-500",
+    bg: "bg-orange-500/10",
+  },
+];
 
 export default function PornSpotCoinPage() {
-  // Initialize translations
   const t = useTranslations("pornspotcoin");
+  const tPricing = useTranslations("pricing");
   const { user, refetch } = useUserContext();
   const router = useLocaleRouter();
-  const [modalState, setModalState] = useState<PurchaseModalState | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [expandedPlan, setExpandedPlan] = useState<PlanKey | null>(null);
+
+  useDocumentHeadAndMeta(t("meta.title"), t("meta.description"));
+
+  const { data: dashboardData, isLoading } = usePSCDashboard();
+
+  // Build plans with translations
+  const PLANS: Plan[] = [
+    {
+      id: "starter",
+      name: tPricing("planDetails.starter.name"),
+      description: tPricing("planDetails.starter.description"),
+      features: [{ text: tPricing("planDetails.starter.features.0") }],
+      badge: undefined,
+      ...PLAN_CONFIGS.starter,
+    },
+    {
+      id: "unlimited",
+      name: tPricing("planDetails.unlimited.name"),
+      description: tPricing("planDetails.unlimited.description"),
+      features: [
+        { text: tPricing("planDetails.unlimited.features.0"), highlight: true },
+        { text: tPricing("planDetails.unlimited.features.1") },
+      ],
+      badge: tPricing("planDetails.unlimited.badge"),
+      ...PLAN_CONFIGS.unlimited,
+    },
+    {
+      id: "pro",
+      name: tPricing("planDetails.pro.name"),
+      description: tPricing("planDetails.pro.description"),
+      features: [
+        { text: tPricing("planDetails.pro.features.0"), highlight: true },
+        { text: tPricing("planDetails.pro.features.9"), highlight: true },
+        { text: tPricing("planDetails.pro.features.1") },
+        { text: tPricing("planDetails.pro.features.2") },
+        { text: tPricing("planDetails.pro.features.3") },
+        { text: tPricing("planDetails.pro.features.4") },
+        { text: tPricing("planDetails.pro.features.5") },
+        { text: tPricing("planDetails.pro.features.6") },
+        { text: tPricing("planDetails.pro.features.7") },
+        { text: tPricing("planDetails.pro.features.8") },
+      ],
+      badge: tPricing("planDetails.pro.badge"),
+      ...PLAN_CONFIGS.pro,
+    },
+    {
+      id: "lifetime",
+      name: tPricing("planDetails.lifetime.name"),
+      description: tPricing("planDetails.lifetime.description"),
+      features: [
+        { text: tPricing("planDetails.lifetime.features.0"), highlight: true },
+        { text: tPricing("planDetails.lifetime.features.1"), highlight: true },
+        { text: tPricing("planDetails.lifetime.features.2") },
+        { text: tPricing("planDetails.lifetime.features.3") },
+        { text: tPricing("planDetails.lifetime.features.4") },
+      ],
+      badge: tPricing("planDetails.lifetime.badge"),
+      ...PLAN_CONFIGS.lifetime,
+    },
+  ];
 
   const spendMutation = useMutation({
     mutationFn: (payload: PSCSpendRequest) => pscApi.spend(payload),
   });
 
   const currentPlan = (user?.planInfo?.plan ?? "free") as UserPlan;
-  const autoRenew = Boolean(user?.planInfo?.subscriptionId);
-
-  const modalCopy = useMemo(() => {
-    if (!modalState) return null;
-
-    const planLabel = t(`exchange.plans.${modalState.plan}`);
-    const currentPlanLabel = t(`exchange.plans.${currentPlan}`);
-    const autoRenewSuffix = modalState.autoRenew
-      ? t("purchase.autoRenewSuffix")
-      : "";
-
-    const title = t(`purchase.titles.${modalState.scenario}`, {
-      plan: planLabel,
-      currentPlan: currentPlanLabel,
-    });
-
-    const message = t(`purchase.messages.${modalState.scenario}`, {
-      plan: planLabel,
-      currentPlan: currentPlanLabel,
-      cost: modalState.cost,
-      autoRenewSuffix,
-    });
-
-    return { title, message };
-  }, [modalState, t, currentPlan]);
-
-  // Set document title and meta description
-  useDocumentHeadAndMeta(t("meta.title"), t("meta.description"));
-
-  // Fetch real PSC data
-  const {
-    data: dashboardData,
-    isLoading: isDashboardLoading,
-    error: dashboardError,
-  } = usePSCDashboard();
-
-  const {
-    data: weeklyStats,
-    isLoading: isStatsLoading,
-    error: statsError,
-  } = usePSCStats("weekly");
-
-  // Handle loading state
-  if (isDashboardLoading || isStatsLoading) {
-    return (
-      <div className="container mx-auto px-4 py-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>{t("dashboard.loadingData")}</span>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle error state
-  if (dashboardError || statsError) {
-    return (
-      <>
-        <div className="container mx-auto px-4 py-6">
-          <div className="text-center py-8">
-            <h2 className="text-xl font-semibold text-red-500 mb-2">
-              {t("dashboard.errorTitle")}
-            </h2>
-            <p className="text-muted-foreground">
-              {dashboardError?.message ||
-                statsError?.message ||
-                t("dashboard.unknownError")}
-            </p>
-            <Button className="mt-4" onClick={() => window.location.reload()}>
-              {t("dashboard.tryAgain")}
-            </Button>
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  // Use dashboard data or fallbacks
-  const balance = dashboardData?.balance || {
-    balance: 0,
-    totalEarned: 0,
-    totalSpent: 0,
-    totalWithdrawn: 0,
-  };
-
-  const rates = dashboardData?.rates || {
-    viewRate: 0,
-    likeRate: 0,
-    commentRate: 0,
-    bookmarkRate: 0,
-    profileViewRate: 0,
-  };
-
+  const balance = dashboardData?.balance?.balance ?? 0;
+  const rates = dashboardData?.rates;
   const recentTransactions = dashboardData?.recentTransactions || [];
-
-  // Extract weekly stats data with fallbacks
-  //   const weeklyTotalInteractions = weeklyStats?.stats.totalInteractions || 0;
-  //   const weeklyTotalViews = weeklyStats?.stats.totalViews || 0;
-  const weeklyPayoutGrowth = weeklyStats?.stats.payoutGrowth || 0;
-
-  const handleOpenPurchaseModal = (planKey: PlanKey) => {
-    if (!user) {
-      router.push("/auth/login");
-      return;
-    }
-
-    const planDetails = EXCHANGE_RATES[planKey];
-
-    if (balance.balance < planDetails.cost) {
-      return;
-    }
-
-    const scenario = determineScenario(currentPlan, planKey);
-
-    setModalState({
-      plan: planKey,
-      scenario,
-      cost: planDetails.cost,
-      autoRenew,
-    });
-  };
-
-  const handleCloseModal = () => {
-    if (spendMutation.isPending) {
-      return;
-    }
-    setModalState(null);
-  };
-
-  const handleConfirmPurchase = async () => {
-    if (!modalState || !user) {
-      return;
-    }
-
-    const payload: PSCSpendRequest = {
-      plan: modalState.plan,
-      pscAmount: modalState.cost,
-      metadata: {
-        scenario: modalState.scenario,
-        previousPlan: currentPlan,
-      },
-    };
-
-    spendMutation.reset();
-
-    try {
-      await spendMutation.mutateAsync(payload);
-      await Promise.all([
-        pscQueryUtils.invalidateBalance(),
-        pscQueryUtils.invalidateDashboard(),
-      ]);
-      await refetch();
-
-      setModalState(null);
-
-      const successParams = new URLSearchParams({
-        source: "psc",
-        reference: `psc-${Date.now()}`,
-      });
-      router.push(`/payment/success?${successParams.toString()}`);
-    } catch (error) {
-      const message = ApiUtil.handleApiError(error);
-      setModalState(null);
-
-      const errorParams = new URLSearchParams({
-        source: "psc",
-        message,
-      });
-      router.push(`/payment/error?${errorParams.toString()}`);
-    }
-  };
 
   // Calculate daily stats from available data
   const todayEarned = recentTransactions
@@ -373,567 +226,598 @@ export default function PornSpotCoinPage() {
     })
     .reduce((sum, tx) => sum + tx.amount, 0);
 
-  const yesterdayEarned = recentTransactions
-    .filter((tx) => {
-      const txDate = new Date(tx.createdAt).toDateString();
-      const yesterday = new Date(
-        Date.now() - 24 * 60 * 60 * 1000
-      ).toDateString();
-      return txDate === yesterday && tx.amount > 0;
-    })
-    .reduce((sum, tx) => sum + tx.amount, 0);
+  const handlePurchase = async () => {
+    if (!selectedPlan || !user) return;
 
-  // Calculate trends
-  const balanceTrend =
-    yesterdayEarned > 0
-      ? ((todayEarned - yesterdayEarned) / yesterdayEarned) * 100
-      : todayEarned > 0
-      ? 100
-      : 0;
+    const plan = PLANS.find((p) => p.id === selectedPlan);
+    if (!plan) return;
 
-  // For weekly stats, we'll use mock data for the chart until we have historical data
-  //   const weeklyPayoutRates = generateMockWeeklyData();
+    const payload: PSCSpendRequest = {
+      plan: selectedPlan,
+      pscAmount: plan.price,
+      metadata: {
+        previousPlan: currentPlan,
+      },
+    };
 
-  // Process chart data for weekly payout rates
-  //   const processWeeklyChartData = () => {
-  //     const weeklyData = weeklyPayoutRates;
+    try {
+      await spendMutation.mutateAsync(payload);
+      await Promise.all([
+        pscQueryUtils.invalidateBalance(),
+        pscQueryUtils.invalidateDashboard(),
+      ]);
+      await refetch();
 
-  //     // Create hourly labels for 168 hours (7 days * 24 hours)
-  //     const hourlyLabels = [];
-  //     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      setShowConfirm(false);
+      router.push(`/payment/success?source=psc&reference=psc-${Date.now()}`);
+    } catch (error) {
+      const message = ApiUtil.handleApiError(error);
+      setShowConfirm(false);
+      router.push(
+        `/payment/error?source=psc&message=${encodeURIComponent(message)}`
+      );
+    }
+  };
 
-  //     for (let day = 0; day < 7; day++) {
-  //       for (let hour = 0; hour < 24; hour++) {
-  //         hourlyLabels.push(
-  //           `${days[day]} ${hour.toString().padStart(2, "0")}:00`
-  //         );
-  //       }
-  //     }
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
-  //     // Extract hourly data for each action type
-  //     const viewData = weeklyData.map((point) => point.rates.view);
-  //     const likeData = weeklyData.map((point) => point.rates.like);
-  //     const commentData = weeklyData.map((point) => point.rates.comment);
-  //     const bookmarkData = weeklyData.map((point) => point.rates.bookmark);
-  //     const profileViewData = weeklyData.map((point) => point.rates.profileView);
-
-  //     return {
-  //       labels: hourlyLabels,
-  //       datasets: [
-  //         {
-  //           label: "Views (PSC)",
-  //           data: viewData,
-  //           borderColor: "rgba(59, 130, 246, 1)",
-  //           backgroundColor: "rgba(59, 130, 246, 0.1)",
-  //           fill: true,
-  //           tension: 0.4,
-  //         },
-  //         {
-  //           label: "Likes (PSC)",
-  //           data: likeData,
-  //           borderColor: "rgba(239, 68, 68, 1)",
-  //           backgroundColor: "rgba(239, 68, 68, 0.1)",
-  //           fill: true,
-  //           tension: 0.4,
-  //         },
-  //         {
-  //           label: "Comments (PSC)",
-  //           data: commentData,
-  //           borderColor: "rgba(34, 197, 94, 1)",
-  //           backgroundColor: "rgba(34, 197, 94, 0.1)",
-  //           fill: true,
-  //           tension: 0.4,
-  //         },
-  //         {
-  //           label: "Bookmarks (PSC)",
-  //           data: bookmarkData,
-  //           borderColor: "rgba(168, 85, 247, 1)",
-  //           backgroundColor: "rgba(168, 85, 247, 0.1)",
-  //           fill: true,
-  //           tension: 0.4,
-  //         },
-  //         {
-  //           label: "Profile Views (PSC)",
-  //           data: profileViewData,
-  //           borderColor: "rgba(245, 158, 11, 1)",
-  //           backgroundColor: "rgba(245, 158, 11, 0.1)",
-  //           fill: true,
-  //           tension: 0.4,
-  //         },
-  //       ],
-  //     };
-  //   };
-
-  //   const chartOptions = {
-  //     responsive: true,
-  //     maintainAspectRatio: false,
-  //     plugins: {
-  //       legend: {
-  //         position: "top" as const,
-  //         labels: {
-  //           padding: 20,
-  //           usePointStyle: true,
-  //         },
-  //       },
-  //       title: {
-  //         display: false,
-  //       },
-  //       tooltip: {
-  //         mode: "index" as const,
-  //         intersect: false,
-  //         callbacks: {
-  //           label: function (context: any) {
-  //             const label = context.dataset.label || "";
-  //             const value = context.parsed.y;
-  //             return `${label}: ${value.toFixed(4)} PSC`;
-  //           },
-  //         },
-  //       },
-  //     },
-  //     scales: {
-  //       x: {
-  //         display: true,
-  //         title: {
-  //           display: true,
-  //           text: "Hour of Week",
-  //         },
-  //         grid: {
-  //           display: false,
-  //         },
-  //         ticks: {
-  //           maxTicksLimit: 24, // Show only some labels to avoid crowding
-  //         },
-  //       },
-  //       y: {
-  //         display: true,
-  //         title: {
-  //           display: true,
-  //           text: "PSC per Action",
-  //         },
-  //         beginAtZero: true,
-  //         grid: {
-  //           color: "rgba(0, 0, 0, 0.1)",
-  //         },
-  //       },
-  //     },
-  //     interaction: {
-  //       mode: "nearest" as const,
-  //       axis: "x" as const,
-  //       intersect: false,
-  //     },
-  //   };
+  const totalEarned = dashboardData?.balance?.totalEarned ?? 0;
+  const totalSpent = dashboardData?.balance?.totalSpent ?? 0;
 
   return (
     <>
-      <div className="container mx-auto px-4 py-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Coins className="h-8 w-8 text-yellow-500" />
-              {t("dashboard.title")}
+      <div className="min-h-screen bg-background">
+        {/* Balance Card */}
+        <div className="bg-background/95 backdrop-blur-xl border-b border-border/50">
+          <div className="px-4 py-3 lg:py-6">
+            <Card className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20 hover:shadow-xl transition-shadow duration-300 max-w-7xl mx-auto">
+              <div className="p-4 lg:p-6">
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Coins className="h-5 w-5 lg:h-6 lg:w-6 text-yellow-500" />
+                      <span className="text-sm lg:text-base font-medium text-muted-foreground">
+                        {t("page.yourBalance")}
+                      </span>
+                    </div>
+                    <div className="flex items-baseline gap-2 lg:gap-3">
+                      <span className="text-3xl lg:text-5xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                        {balance.toFixed(2)}
+                      </span>
+                      <span className="text-sm lg:text-lg font-medium text-muted-foreground">
+                        PSC
+                      </span>
+                    </div>
+                    <p className="text-xs lg:text-sm text-muted-foreground mt-1 lg:mt-2">
+                      ≈ ${((balance * 10) / 9).toFixed(2)} USD
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <Badge
+                      variant="outline"
+                      className="bg-green-500/10 text-green-600 border-green-500/30 mb-2 lg:mb-3 lg:text-sm"
+                    >
+                      <TrendingUp className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
+                      {t("page.live")}
+                    </Badge>
+                    <p className="text-xs lg:text-sm text-muted-foreground">
+                      {t("page.earnedToday")}
+                    </p>
+                    <p className="text-sm lg:text-xl font-bold text-green-600">
+                      +{todayEarned.toFixed(2)} PSC
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+
+        {/* Earning Rates Carousel */}
+        <div className="bg-gradient-to-b from-primary/5 to-transparent px-4 py-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">{t("page.earnPscRates")}</h2>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </div>
+
+          {/* Mobile: Horizontal scroll */}
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide lg:hidden">
+            {RATE_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const rate = rates?.[item.key as "viewRate"] || 0;
+
+              return (
+                <Card
+                  key={item.key}
+                  className="flex-shrink-0 min-w-[120px] border-border/50"
+                >
+                  <div className="p-3">
+                    <div
+                      className={`inline-flex p-2 rounded-lg ${item.bg} mb-2`}
+                    >
+                      <Icon className={`h-4 w-4 ${item.color}`} />
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-1">
+                      {t(item.label)}
+                    </p>
+                    <p className="font-bold">{rate.toFixed(4)}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {t("page.pscAction")}
+                    </p>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Desktop: Grid with space-between */}
+          <div className="hidden lg:grid lg:grid-cols-5 gap-4">
+            {RATE_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const rate = rates?.[item.key as "viewRate"] || 0;
+
+              return (
+                <Card
+                  key={item.key}
+                  className="border-border/50 hover:shadow-lg transition-all duration-300 hover:scale-105"
+                >
+                  <div className="p-4">
+                    <div
+                      className={`inline-flex p-3 rounded-xl ${item.bg} mb-3`}
+                    >
+                      <Icon className={`h-5 w-5 ${item.color}`} />
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {t(item.label)}
+                    </p>
+                    <p className="text-xl font-bold">{rate.toFixed(4)}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t("page.pscAction")}
+                    </p>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Plans Section */}
+        <div className="px-4 py-6">
+          <div className="text-center mb-6 lg:mb-10">
+            <h1 className="text-2xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+              {t("page.upgradeWithPsc")}
             </h1>
-            <p className="text-muted-foreground">
-              {t("dashboard.description")}
+            <p className="text-sm lg:text-base text-muted-foreground">
+              {t("page.upgradeDescription")}
             </p>
           </div>
-          <Badge
-            variant="outline"
-            className="text-yellow-600 border-yellow-600"
-          >
-            <Activity className="h-3 w-3 mr-1" />
-            {t("dashboard.liveData")}
-          </Badge>
-        </div>
 
-        {/* Balance Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-muted-foreground">
-                  {t("balance.currentBalance")}
-                </h3>
-                <Coins className="h-4 w-4 text-yellow-500" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-1">
-                <div className="text-2xl font-bold text-yellow-600">
-                  {balance.balance.toFixed(3)} PSC
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  ${((balance.balance * 10) / 9).toFixed(2)} {t("balance.usd")}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Mobile: Single column */}
+          <div className="space-y-4 max-w-2xl mx-auto lg:hidden">
+            {PLANS.map((plan) => {
+              const Icon = plan.icon;
+              const canAfford = balance >= plan.price;
+              const isCurrentPlan = currentPlan === plan.id;
+              const isExpanded = expandedPlan === plan.id;
+              const showAllFeatures = plan.features.length > 3;
 
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-muted-foreground">
-                  {t("balance.totalEarned")}
-                </h3>
-                <TrendingUp className="h-4 w-4 text-green-500" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-1">
-                <div className="text-2xl font-bold">
-                  {balance.totalEarned.toFixed(3)} PSC
-                </div>
-                <div className="flex items-center text-sm text-green-600">
-                  <ArrowUpRight className="h-3 w-3 mr-1" />
-                  {balanceTrend.toFixed(1)}% {t("balance.vsYesterday")}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-muted-foreground">
-                  {t("balance.todayEarnings")}
-                </h3>
-                <Calendar className="h-4 w-4 text-blue-500" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-1">
-                <div className="text-2xl font-bold">
-                  {todayEarned.toFixed(3)} PSC
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {t("balance.recentActivity")}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Current Payout Rates */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <h3 className="text-lg font-semibold">{t("rates.title")}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {t("rates.description")}
-                </p>
-              </div>
-              <BarChart3 className="h-5 w-5 text-blue-500" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              {[
-                {
-                  icon: Eye,
-                  label: t("rates.views"),
-                  rate: rates.viewRate,
-                  bgClass:
-                    "bg-gradient-to-r from-blue-500/10 to-admin-secondary/10 border-blue-200 text-foreground",
-                  iconClass: "text-blue-600",
-                  textClass: "text-blue-700",
-                },
-                {
-                  icon: Heart,
-                  label: t("rates.likes"),
-                  rate: rates.likeRate,
-                  bgClass:
-                    "bg-gradient-to-r from-red-500/10 to-admin-secondary/10 border-red-200 text-foreground",
-                  iconClass: "text-red-600",
-                  textClass: "text-red-700",
-                },
-                {
-                  icon: MessageCircle,
-                  label: t("rates.comments"),
-                  rate: rates.commentRate,
-                  bgClass:
-                    "bg-gradient-to-r from-green-500/10 to-admin-secondary/10 border-green-200 text-foreground",
-                  iconClass: "text-green-600",
-                  textClass: "text-green-700",
-                },
-                {
-                  icon: Bookmark,
-                  label: t("rates.bookmarks"),
-                  rate: rates.bookmarkRate,
-                  bgClass:
-                    "bg-gradient-to-r from-purple-500/10 to-admin-secondary/10 border-purple-200 text-foreground",
-                  iconClass: "text-purple-600",
-                  textClass: "text-purple-700",
-                },
-                {
-                  icon: User,
-                  label: t("rates.profileViews"),
-                  rate: rates.profileViewRate,
-                  bgClass:
-                    "bg-gradient-to-r from-orange-500/10 to-admin-secondary/10 border-orange-200 text-foreground",
-                  iconClass: "text-orange-600",
-                  textClass: "text-orange-700",
-                },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className={`p-4 border rounded-lg ${item.bgClass}`}
+              return (
+                <Card
+                  key={plan.id}
+                  className={cn(
+                    "relative overflow-hidden transition-all duration-300",
+                    canAfford && !isCurrentPlan ? "hover:shadow-lg" : "",
+                    isCurrentPlan ? "ring-2 ring-primary" : "",
+                    !canAfford ? "opacity-90" : "",
+                    plan.popular ? "scale-[1.02]" : ""
+                  )}
                 >
-                  <div className="flex items-center gap-2 mb-2">
-                    <item.icon className={`h-4 w-4 ${item.iconClass}`} />
-                    <span className="text-sm font-medium">{item.label}</span>
-                  </div>
-                  <div className={`text-lg font-bold ${item.textClass}`}>
-                    {item.rate.toFixed(4)} PSC
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {t("rates.perAction")}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                  {/* Gradient Header */}
+                  <div className={cn("h-1.5 bg-gradient-to-r", plan.color)} />
 
-        {/* Weekly Payout Rates Chart */}
-        {/* <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="text-lg font-semibold">
-                Weekly Payout Rate Trends
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Hourly view of payout rates over the last week (168 data points)
-              </p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="h-80">
-            <Line data={processWeeklyChartData()} options={chartOptions} />
-          </div>
-        </CardContent>
-      </Card> */}
+                  {/* Badges */}
+                  <div className="absolute top-3 right-3 flex gap-2">
+                    {plan.badge && (
+                      <Badge
+                        className={cn(
+                          "text-xs border-0 bg-gradient-to-r text-white",
+                          plan.color
+                        )}
+                      >
+                        {plan.badge}
+                      </Badge>
+                    )}
+                    {isCurrentPlan && (
+                      <Badge variant="outline" className="text-xs">
+                        Current
+                      </Badge>
+                    )}
+                  </div>
 
-        {/* Exchange Rates */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <h3 className="text-lg font-semibold">{t("exchange.title")}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {t("exchange.description")}
+                  <div className={cn("p-4 bg-gradient-to-br", plan.bgGradient)}>
+                    {/* Plan Header */}
+                    <div className="flex items-start gap-3 mb-4">
+                      <div
+                        className={cn(
+                          "p-2.5 rounded-xl bg-gradient-to-br shadow-lg",
+                          plan.color
+                        )}
+                      >
+                        <Icon className="h-5 w-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold">{plan.name}</h3>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {plan.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Pricing */}
+                    <div className="flex items-end justify-between mb-4 pb-4 border-b border-border/50">
+                      <div>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-3xl font-bold">
+                            {plan.price}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            PSC
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {plan.duration === "forever"
+                            ? t("page.oneTime")
+                            : t("page.perMonth", { duration: plan.duration })}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">
+                          {t("page.usdValue")}
+                        </p>
+                        <p className="text-lg font-semibold">
+                          ${((plan.price * 10) / 9).toFixed(0)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Features List */}
+                    <div className="space-y-2 mb-4">
+                      {plan.features
+                        .slice(0, isExpanded ? undefined : 3)
+                        .map((feature, i) => (
+                          <div key={i} className="flex items-start gap-2">
+                            <div
+                              className={cn(
+                                "mt-0.5 rounded-full p-0.5 bg-green-500"
+                              )}
+                            >
+                              <Check className="h-3 w-3 text-white" />
+                            </div>
+                            <span
+                              className={cn(
+                                "text-sm",
+                                feature.highlight
+                                  ? "font-medium"
+                                  : "text-muted-foreground"
+                              )}
+                            >
+                              {feature.text}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+
+                    {/* Show More Button */}
+                    {showAllFeatures && !isExpanded && (
+                      <button
+                        onClick={() => setExpandedPlan(plan.id)}
+                        className="text-xs text-primary hover:underline mb-3"
+                      >
+                        {t("page.moreFeatures", {
+                          count: plan.features.length - 3,
+                        })}
+                      </button>
+                    )}
+
+                    {/* Action Button */}
+                    <Button
+                      className={cn(
+                        "w-full",
+                        canAfford && !isCurrentPlan
+                          ? cn("bg-gradient-to-r text-white", plan.color)
+                          : ""
+                      )}
+                      variant={
+                        canAfford && !isCurrentPlan ? "default" : "outline"
+                      }
+                      disabled={
+                        !canAfford || isCurrentPlan || spendMutation.isPending
+                      }
+                      onClick={() => {
+                        if (canAfford && !isCurrentPlan) {
+                          setSelectedPlan(plan.id);
+                          setShowConfirm(true);
+                        }
+                      }}
+                    >
+                      {isCurrentPlan ? (
+                        <span className="flex items-center gap-2">
+                          <Shield className="h-4 w-4" />
+                          {t("page.yourCurrentPlan")}
+                        </span>
+                      ) : canAfford ? (
+                        <span className="flex items-center gap-2">
+                          {t("page.upgradeTo", { planName: plan.name })}
+                          <ArrowRight className="h-4 w-4" />
+                        </span>
+                      ) : (
+                        <span>
+                          {t("page.needMorePsc", {
+                            amount: (plan.price - balance).toFixed(0),
+                          })}
+                        </span>
+                      )}
+                    </Button>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Desktop: 2-column grid */}
+          <div className="hidden lg:grid lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
+            {PLANS.map((plan) => {
+              const Icon = plan.icon;
+              const canAfford = balance >= plan.price;
+              const isCurrentPlan = currentPlan === plan.id;
+
+              return (
+                <Card
+                  key={plan.id}
+                  className={cn(
+                    "relative overflow-hidden transition-all duration-300 group",
+                    canAfford && !isCurrentPlan
+                      ? "hover:shadow-2xl hover:scale-[1.02]"
+                      : "",
+                    isCurrentPlan ? "ring-2 ring-primary shadow-xl" : "",
+                    !canAfford ? "opacity-75" : "",
+                    plan.popular ? "shadow-lg" : ""
+                  )}
+                >
+                  {/* Animated Gradient Header */}
+                  <div
+                    className={cn(
+                      "h-2 bg-gradient-to-r transition-all duration-300",
+                      plan.color,
+                      canAfford && !isCurrentPlan ? "group-hover:h-3" : ""
+                    )}
+                  />
+
+                  {/* Badges */}
+                  <div className="absolute top-4 right-4 flex flex-col gap-2 items-end z-10">
+                    {plan.badge && (
+                      <Badge
+                        className={cn(
+                          "text-xs font-semibold border-0 bg-gradient-to-r text-white shadow-lg",
+                          plan.color
+                        )}
+                      >
+                        ✨ {plan.badge}
+                      </Badge>
+                    )}
+                    {isCurrentPlan && (
+                      <Badge
+                        variant="outline"
+                        className="text-xs font-semibold bg-primary/10 border-primary"
+                      >
+                        ✓ Current Plan
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className={cn("p-6 bg-gradient-to-br", plan.bgGradient)}>
+                    {/* Plan Header */}
+                    <div className="flex items-start gap-4 mb-6">
+                      <div
+                        className={cn(
+                          "p-4 rounded-2xl bg-gradient-to-br shadow-xl transition-transform duration-300",
+                          plan.color,
+                          canAfford && !isCurrentPlan
+                            ? "group-hover:scale-110 group-hover:rotate-6"
+                            : ""
+                        )}
+                      >
+                        <Icon className="h-7 w-7 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-bold mb-1">{plan.name}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {plan.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Pricing - Enhanced Desktop Layout */}
+                    <div className="bg-card/50 rounded-xl p-5 mb-6 border border-border/50">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-baseline gap-2 mb-1">
+                            <span
+                              className={cn(
+                                "text-5xl font-bold bg-gradient-to-r bg-clip-text text-transparent",
+                                plan.color
+                              )}
+                            >
+                              {plan.price}
+                            </span>
+                            <span className="text-lg font-medium text-muted-foreground">
+                              PSC
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground font-medium">
+                            {plan.duration === "forever"
+                              ? t("page.oneTimePayment")
+                              : t("page.perMonthSchedule", {
+                                  duration: plan.duration,
+                                })}
+                          </p>
+                        </div>
+                        <div className="text-right bg-gradient-to-br from-green-500/10 to-emerald-500/10 px-4 py-3 rounded-lg border border-green-500/20">
+                          <p className="text-xs text-muted-foreground font-medium mb-1">
+                            💵 {t("page.usdValue")}
+                          </p>
+                          <p className="text-2xl font-bold text-green-600">
+                            ${((plan.price * 10) / 9).toFixed(0)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Features List - Always show all features on desktop */}
+                    <div className="space-y-3 mb-6 min-h-[240px]">
+                      {plan.features.map((feature, i) => (
+                        <div
+                          key={i}
+                          className="flex items-start gap-3 group/feature"
+                        >
+                          <div
+                            className={cn(
+                              "mt-0.5 rounded-full p-1 bg-gradient-to-br from-green-500 to-emerald-500 shadow-md transition-transform duration-200 group-hover/feature:scale-110"
+                            )}
+                          >
+                            <Check className="h-3.5 w-3.5 text-white" />
+                          </div>
+                          <span
+                            className={cn(
+                              "text-sm leading-relaxed",
+                              feature.highlight
+                                ? "font-semibold text-foreground"
+                                : "text-muted-foreground"
+                            )}
+                          >
+                            {feature.text}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Action Button - Enhanced */}
+                    <Button
+                      className={cn(
+                        "w-full h-12 text-base font-semibold transition-all duration-300",
+                        canAfford && !isCurrentPlan
+                          ? cn(
+                              "bg-gradient-to-r text-white shadow-lg hover:shadow-2xl",
+                              plan.color
+                            )
+                          : ""
+                      )}
+                      variant={
+                        canAfford && !isCurrentPlan ? "default" : "outline"
+                      }
+                      disabled={
+                        !canAfford || isCurrentPlan || spendMutation.isPending
+                      }
+                      onClick={() => {
+                        if (canAfford && !isCurrentPlan) {
+                          setSelectedPlan(plan.id);
+                          setShowConfirm(true);
+                        }
+                      }}
+                    >
+                      {isCurrentPlan ? (
+                        <span className="flex items-center gap-2">
+                          <Shield className="h-5 w-5" />
+                          {t("page.yourCurrentPlan")}
+                        </span>
+                      ) : canAfford ? (
+                        <span className="flex items-center gap-2 group-hover:gap-3 transition-all">
+                          {t("page.upgradeTo", { planName: plan.name })}
+                          <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          🔒{" "}
+                          {t("page.needMorePsc", {
+                            amount: (plan.price - balance).toFixed(0),
+                          })}
+                        </span>
+                      )}
+                    </Button>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="px-4 pb-8">
+          <Card className="bg-card/50 hover:shadow-lg transition-shadow duration-300">
+            <div className="grid grid-cols-3 divide-x divide-border">
+              <div className="p-4 lg:p-6 text-center group hover:bg-purple-500/5 transition-colors duration-300">
+                <Gem className="h-5 w-5 lg:h-6 lg:w-6 mx-auto mb-2 text-purple-500 group-hover:scale-110 transition-transform duration-300" />
+                <p className="text-xs lg:text-sm text-muted-foreground mb-1">
+                  {t("page.totalEarned")}
+                </p>
+                <p className="text-lg lg:text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+                  {totalEarned.toFixed(0)}
+                </p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">
+                  {t("page.pscLifetime")}
                 </p>
               </div>
-              <DollarSign className="h-5 w-5 text-green-500" />
+              <div className="p-4 lg:p-6 text-center group hover:bg-green-500/5 transition-colors duration-300">
+                <TrendingUp className="h-5 w-5 lg:h-6 lg:w-6 mx-auto mb-2 text-green-500 group-hover:scale-110 transition-transform duration-300" />
+                <p className="text-xs lg:text-sm text-muted-foreground mb-1">
+                  {t("page.today")}
+                </p>
+                <p className="text-lg lg:text-2xl font-bold text-green-600">
+                  +{todayEarned.toFixed(1)}
+                </p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">
+                  {t("page.pscToday")}
+                </p>
+              </div>
+              <div className="p-4 lg:p-6 text-center group hover:bg-orange-500/5 transition-colors duration-300">
+                <Crown className="h-5 w-5 lg:h-6 lg:w-6 mx-auto mb-2 text-orange-500 group-hover:scale-110 transition-transform duration-300" />
+                <p className="text-xs lg:text-sm text-muted-foreground mb-1">
+                  {t("page.totalSpent")}
+                </p>
+                <p className="text-lg lg:text-2xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+                  {totalSpent.toFixed(0)}
+                </p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">
+                  {t("page.pscInvested")}
+                </p>
+              </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {(
-                Object.entries(EXCHANGE_RATES) as [
-                  PlanKey,
-                  { duration: string; cost: number }
-                ][]
-              ).map(([planKey, details]) => {
-                const canAfford = balance.balance >= details.cost;
-                const isCurrentPlan = currentPlan === planKey;
-
-                return (
-                  <div
-                    key={planKey}
-                    className={`p-4 border rounded-lg transition-colors ${
-                      canAfford
-                        ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
-                        : "border-border bg-card"
-                    }`}
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-semibold capitalize">
-                          {t(`exchange.plans.${planKey}`)}
-                        </h4>
-                        <div className="flex items-center gap-2">
-                          {isCurrentPlan && (
-                            <Badge
-                              variant="outline"
-                              className="text-blue-600 border-blue-600"
-                            >
-                              {t("purchase.currentPlan")}
-                            </Badge>
-                          )}
-                          {canAfford && (
-                            <Badge
-                              variant="outline"
-                              className="text-green-600 border-green-600"
-                            >
-                              {t("exchange.affordable")}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-2xl font-bold text-yellow-600">
-                        {details.cost} PSC
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {planKey === "lifetime"
-                          ? t("exchange.duration.lifetime")
-                          : t("exchange.duration.month")}
-                      </div>
-                      <Button
-                        size="sm"
-                        variant={canAfford ? "default" : "outline"}
-                        disabled={!canAfford || spendMutation.isPending}
-                        className="w-full"
-                        onClick={() => handleOpenPurchaseModal(planKey)}
-                      >
-                        {canAfford
-                          ? t("exchange.purchase")
-                          : t("exchange.insufficientPsc")}
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Performance Insights & Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Performance Insights */}
-          <Card>
-            <CardHeader>
-              <h3 className="text-lg font-semibold">{t("insights.title")}</h3>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                {/* <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">
-                  Weekly Total Interactions
-                </span>
-                <span className="font-semibold">
-                  {weeklyTotalInteractions.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">
-                  Weekly Total Views
-                </span>
-                <span className="font-semibold">
-                  {weeklyTotalViews.toLocaleString()}
-                </span>
-              </div> */}
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">
-                    {t("insights.weeklyPayoutGrowth")}
-                  </span>
-                  <span
-                    className={`font-semibold ${
-                      weeklyPayoutGrowth >= 0
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {weeklyPayoutGrowth > 0 ? "+" : ""}
-                    {weeklyPayoutGrowth.toFixed(1)}%
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-border">
-                <div className="space-y-2">
-                  <h4 className="font-medium">{t("insights.earningTips")}</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• {t("insights.tip1")}</li>
-                    <li>• {t("insights.tip2")}</li>
-                    <li>• {t("insights.tip3")}</li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recent Transactions */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">
-                  {t("transactions.title")}
-                </h3>
-                <LocaleLink href="/user/pornspotcoin/transactions">
-                  <Button variant="outline" size="sm">
-                    {t("transactions.viewAll")}
-                  </Button>
-                </LocaleLink>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {recentTransactions.slice(0, 5).map((tx) => (
-                  <div
-                    key={tx.transactionId}
-                    className="flex items-center justify-between p-3 border border-border rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-green-100 dark:bg-green-900 rounded-full">
-                        {tx.transactionType.includes("like") && (
-                          <Heart className="h-3 w-3 text-green-600" />
-                        )}
-                        {tx.transactionType.includes("view") && (
-                          <Eye className="h-3 w-3 text-green-600" />
-                        )}
-                        {tx.transactionType.includes("comment") && (
-                          <MessageCircle className="h-3 w-3 text-green-600" />
-                        )}
-                        {tx.transactionType.includes("bookmark") && (
-                          <Bookmark className="h-3 w-3 text-green-600" />
-                        )}
-                        {tx.transactionType.includes("profileView") && (
-                          <User className="h-3 w-3 text-green-600" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div
-                          className="text-sm font-medium overflow-hidden"
-                          style={{
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            wordBreak: "break-word",
-                          }}
-                        >
-                          {tx.description}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {new Date(tx.createdAt).toLocaleTimeString()}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-sm font-bold text-green-600">
-                      +{tx.amount.toFixed(4)} PSC
-                    </div>
-                  </div>
-                ))}
-                {recentTransactions.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    {t("transactions.noTransactions")}
-                  </div>
-                )}
-              </div>
-            </CardContent>
           </Card>
         </div>
       </div>
-      {modalState && modalCopy && (
+
+      {selectedPlan && (
         <ConfirmDialog
-          isOpen={Boolean(modalState)}
-          onClose={handleCloseModal}
-          onConfirm={handleConfirmPurchase}
-          title={modalCopy.title}
-          message={modalCopy.message}
-          confirmText={t("exchange.purchase")}
+          isOpen={showConfirm}
+          onClose={() => {
+            if (!spendMutation.isPending) {
+              setShowConfirm(false);
+              setSelectedPlan(null);
+            }
+          }}
+          onConfirm={handlePurchase}
+          title={t("page.confirmPurchaseTitle")}
+          message={t("page.confirmPurchaseMessage", {
+            planName: PLANS.find((p) => p.id === selectedPlan)?.name || "",
+            price: PLANS.find((p) => p.id === selectedPlan)?.price || 0,
+          })}
+          confirmText={t("page.completePurchase")}
           loading={spendMutation.isPending}
         />
       )}

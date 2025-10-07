@@ -1746,6 +1746,18 @@
           "Choisissez votre propre graine",
           "100 secondes de crédits video par mois"
         ]
+      },
+      "lifetime": {
+        "name": "À vie",
+        "description": "Paiement unique pour un accès éternel",
+        "badge": "Meilleure valeur",
+        "features": [
+          "Toutes les fonctionnalités Pro pour toujours",
+          "Toutes les mises à jour futures incluses",
+          "Support prioritaire",
+          "Accès anticipé aux nouvelles fonctionnalités",
+          "Aucun paiement récurrent"
+        ]
       }
     },
     "features": {
@@ -2165,6 +2177,39 @@
     "meta": {
       "title": "PornSpotCoin - {siteName}",
       "description": "Suivez vos gains PSC, les taux de change et gérez vos récompenses de la plateforme de contenu IA."
+    },
+    "page": {
+      "yourBalance": "Votre Solde",
+      "earnedToday": "Gagné Aujourd'hui",
+      "live": "En Direct",
+      "earnPscRates": "Taux de Gain PSC",
+      "upgradeWithPsc": "Améliorez avec PSC",
+      "upgradeDescription": "Utilisez vos pièces gagnées pour débloquer des fonctionnalités premium",
+      "view": "Vue",
+      "like": "J'aime",
+      "comment": "Commentaire",
+      "save": "Sauvegarder",
+      "profile": "Profil",
+      "pscAction": "PSC/action",
+      "oneTime": "Paiement unique",
+      "perMonth": "Par {duration}",
+      "usdValue": "Valeur USD",
+      "moreFeatures": "+ {count} fonctionnalités supplémentaires",
+      "upgradeTo": "Passer à {planName}",
+      "yourCurrentPlan": "Votre Plan Actuel",
+      "needMorePsc": "Besoin de {amount} PSC de plus",
+      "totalEarned": "Total Gagné",
+      "today": "Aujourd'hui",
+      "totalSpent": "Total Dépensé",
+      "pscLifetime": "PSC à vie",
+      "pscToday": "PSC aujourd'hui",
+      "pscInvested": "PSC investis",
+      "currentPlan": "Plan Actuel",
+      "oneTimePayment": "🎯 Paiement unique",
+      "perMonthSchedule": "📅 Par {duration}",
+      "confirmPurchaseTitle": "Confirmer l'Achat",
+      "confirmPurchaseMessage": "Acheter le plan {planName} pour {price} PSC ? Cela débloquera toutes les fonctionnalités du plan immédiatement.",
+      "completePurchase": "Finaliser l'Achat"
     },
     "dashboard": {
       "title": "Tableau de bord PornSpotCoin",
