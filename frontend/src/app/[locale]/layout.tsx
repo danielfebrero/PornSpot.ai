@@ -150,20 +150,20 @@ export default async function LocaleLayout({
                                           <p className="text-muted-foreground whitespace-nowrap overflow-x-auto overflow-y-hidden scrollbar-hide">
                                             &copy; 2025 PornSpot.ai. 943 919 423
                                             R.C.S. Annecy, France - All rights
-                                            reserved-{" "}
+                                            reserved -{" "}
                                             <LocaleLink
                                               href="/terms"
                                               className="text-muted-foreground hover:text-foreground transition-colors"
                                             >
                                               {t("terms")}
-                                            </LocaleLink>
+                                            </LocaleLink>{" "}
                                             -{" "}
                                             <LocaleLink
                                               href="/our-friends"
                                               className="text-muted-foreground hover:text-foreground transition-colors"
                                             >
                                               {t("ourFriends")}
-                                            </LocaleLink>
+                                            </LocaleLink>{" "}
                                             -{" "}
                                             <LocaleLink
                                               href="/faq"

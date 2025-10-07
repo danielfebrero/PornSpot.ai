@@ -95,7 +95,7 @@ export function FaqClient() {
       {
         key: "lorasVideo",
         icon: "🎬",
-        items: ["videoLoras", "doubleBlowjobVideo"],
+        items: ["videoLoras"],
         layout: "single",
       },
     ],
@@ -141,33 +141,6 @@ export function FaqClient() {
             ))}
           </ul>
           <p>{t("loras.video.outro")}</p>
-        </div>
-      );
-    }
-
-    if (sectionKey === "lorasVideo" && itemKey === "doubleBlowjobVideo") {
-      return (
-        <div className="space-y-3 text-muted-foreground leading-relaxed">
-          {t.rich("sections.lorasVideo.items.doubleBlowjobVideo.answer", {
-            strong: (chunks) => (
-              <strong className="text-foreground font-semibold">
-                {chunks}
-              </strong>
-            ),
-            code: (chunks) => (
-              <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground/80">
-                {chunks}
-              </code>
-            ),
-            link: (chunks) => (
-              <LocaleLink
-                href="/generate"
-                className="text-primary underline-offset-4 hover:underline"
-              >
-                {chunks}
-              </LocaleLink>
-            ),
-          })}
         </div>
       );
     }
