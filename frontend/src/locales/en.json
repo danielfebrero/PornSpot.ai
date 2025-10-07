@@ -2074,7 +2074,8 @@
     "items": "items",
     "share": "Share",
     "copyLink": "Copy link",
-    "comments": "Comments"
+    "comments": "Comments",
+    "downloadAlbum": "Download Album"
   },
   "discover": {
     "filteringByTag": "Filtering by tag:",

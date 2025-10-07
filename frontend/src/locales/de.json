@@ -2032,7 +2032,8 @@
     "items": "Elemente",
     "share": "Teilen",
     "copyLink": "Link kopieren",
-    "comments": "Kommentare"
+    "comments": "Kommentare",
+    "downloadAlbum": "Album herunterladen"
   },
   "discover": {
     "filteringByTag": "Filtern nach Tag:",

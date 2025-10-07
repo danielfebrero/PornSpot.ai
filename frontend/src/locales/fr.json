@@ -2097,7 +2097,8 @@
     "items": "éléments",
     "share": "Partager",
     "copyLink": "Copier le lien",
-    "comments": "Commentaires"
+    "comments": "Commentaires",
+    "downloadAlbum": "Télécharger l'album"
   },
   "discover": {
     "filteringByTag": "Filtrage par tag :",

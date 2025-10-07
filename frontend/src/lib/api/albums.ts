@@ -118,4 +118,9 @@ export const albumsApi = {
     const response = await ApiUtil.get<any>(`/albums/${albumId}`);
     return ApiUtil.extractData(response);
   },
+
+  // Download album as zip
+  downloadAlbumZip: async (albumId: string): Promise<void> => {
+    await ApiUtil.download(`/albums/${albumId}/download-zip`, {});
+  },
 };

@@ -2048,7 +2048,8 @@
     "items": "elementos",
     "share": "Compartir",
     "copyLink": "Copiar enlace",
-    "comments": "Comentarios"
+    "comments": "Comentarios",
+    "downloadAlbum": "Descargar álbum"
   },
   "discover": {
     "filteringByTag": "Filtrado por etiqueta:",

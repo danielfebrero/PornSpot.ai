@@ -1182,3 +1182,16 @@ export function usePrefetchAlbum() {
     },
   };
 }
+
+// Mutation hook for downloading album as zip
+export function useDownloadAlbumZip() {
+  return useMutation({
+    mutationFn: async (albumId: string) => {
+      return await albumsApi.downloadAlbumZip(albumId);
+    },
+    onError: (error: Error) => {
+      console.error("Failed to download album zip:", error);
+      throw error;
+    },
+  });
+}

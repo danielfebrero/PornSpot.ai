@@ -2053,7 +2053,8 @@
     "items": "项目",
     "share": "分享",
     "copyLink": "复制链接",
-    "comments": "评论"
+    "comments": "评论",
+    "downloadAlbum": "下载相册"
   },
   "discover": {
     "filteringByTag": "按标签过滤:",

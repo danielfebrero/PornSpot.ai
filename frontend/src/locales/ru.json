@@ -2058,7 +2058,8 @@
     "items": "элементы",
     "share": "Поделиться",
     "copyLink": "Копировать ссылку",
-    "comments": "Комментарии"
+    "comments": "Комментарии",
+    "downloadAlbum": "Скачать альбом"
   },
   "discover": {
     "filteringByTag": "Фильтрация по тегу:",
