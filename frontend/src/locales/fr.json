@@ -622,6 +622,7 @@
     "contact": "Contact",
     "terms": "Conditions d'utilisation",
     "ourFriends": "Nos Amis",
+    "faq": "FAQ",
     "privacy": "Politique de confidentialité",
     "copyright": "Droits d'auteur",
     "allRightsReserved": "Tous droits réservés",
@@ -2504,6 +2505,167 @@
     },
     "actions": {
       "backToPricing": "Retourner aux tarifs"
+    }
+  },
+  "faqPage": {
+    "metaTitle": "FAQ - {siteName}",
+    "metaDescription": "Obtenez des réponses sur la génération de porno par IA, les modèles LoRA, les abonnements et les politiques de sécurité de PornSpot.ai.",
+    "hero": {
+      "tagline": "Tout ce que vous devez savoir",
+      "title": "Questions fréquemment posées sur PornSpot.ai",
+      "subtitle": "Apprenez à générer des images et vidéos NSFW hyper-réalistes, explorez notre catalogue de LoRAs et restez informé sur la sécurité, la confidentialité et la facturation.",
+      "ctaGenerate": "Commencer à générer",
+      "ctaPricing": "Voir les tarifs"
+    },
+    "cta": {
+      "title": "Prêt à créer votre fantasme ?",
+      "subtitle": "Lancez-vous dans le générateur ou parcourez les créations tendances de la communauté pour vous inspirer.",
+      "primary": "Générer maintenant",
+      "secondary": "Découvrir le contenu populaire"
+    },
+    "loras": {
+      "image": {
+        "intro": "Nous combinons une sélection de modèles LoRA pour améliorer des esthétiques, des fétiches et des styles photographiques spécifiques pour la génération d'images.",
+        "outro": "Vous pouvez mélanger plusieurs LoRAs dans un prompt — notre moteur équilibre automatiquement les poids pour des rendus cohérents et soignés.",
+        "items": {
+          "leakedNudes": "Base incontournable pour la photographie amateur, candide, style fuite.",
+          "piercedNipples": "Ajoute des piercings de tétons réalistes avec détails de peau environnants.",
+          "addDetail": "Améliore les micro-détails comme les textures, les tissus et le rendu de peau.",
+          "harnessStraps": "Met en valeur les harnais en cuir, les sangles, les jarretières et accessoires similaires.",
+          "bdsm": "Parfait pour le bondage, les équipements de domination/soumission et l'ambiance BDSM.",
+          "bodyTattoo": "Applique des tatouages corporels étendus avec des lignes nettes.",
+          "doggystyleAnal": "Optimise l'anatomie et les angles pour les scènes anales en levrette.",
+          "realDownblouse": "Parfait pour les compositions voyeuristes en plongée.",
+          "sextoyDildo": "Améliore le réalisme lors de l'insertion vaginale de jouets ou godes.",
+          "bread": "Ajoute des traits anthropomorphiques ou furry comme oreilles, queues et fourrure.",
+          "nudify": "Améliore la précision anatomique pour les photos de nudité complète.",
+          "dynaPose": "Guide vers des poses élégantes dignes des réseaux sociaux et des cadrages de caméra."
+        }
+      },
+      "video": {
+        "intro": "Notre stack WAN2.2 I2V inclut des LoRAs et des mots déclencheurs pour pousser des mouvements et actions spécifiques dans de courtes vidéos adultes IA.",
+        "outro": "Combinez les mots déclencheurs dans vos prompts pour verrouiller l'IA sur le mouvement exact souhaité tout en gardant les visages et corps stables.",
+        "items": {
+          "dr34ml4y": "Séquences missionnaire, fellation, double fellation, cowgirl ou levrette. Mots déclencheurs : m15510n4ry, bl0wj0b, d0ubl3_bj, c0wg1rl, d0gg1e.",
+          "bouncingBoobs": "Ajoute rebond cinétique et mouvement aux seins.",
+          "oralInsertion": "Se concentre sur la pénétration dans la bouche et les mouvements de succion.",
+          "f4c3spl4sh": "Cible les éjaculations faciales avec le mot déclencheur f4c3spl4sh.",
+          "penisPlay": "Idéal pour l'adoration du pénis, le léchage et le jeu de langue (déclencheur : penis worshipping).",
+          "posingNude": "Ajustements subtils de pose pour des photos glamour nues.",
+          "deepthroat": "Pousse les visuels de pénétration orale profonde.",
+          "boobjob": "Spécialisé dans la pénétration entre les seins et les titjobs.",
+          "fingering": "Se concentre sur le plaisir solitaire et la masturbation digitale (déclencheur : sensual_fingering).",
+          "middleDrooling": "Ajoute de la bave, ahegao ou des gestes coquins du majeur.",
+          "orgasm": "Met l'accent sur les expressions d'orgasme et les réactions corporelles.",
+          "facedownAssup": "Verrouille les poses en position face contre terre, fesses en l'air."
+        }
+      }
+    },
+    "sections": {
+      "general": {
+        "title": "Questions générales sur la plateforme",
+        "description": "Aperçu rapide de ce qu'offre PornSpot.ai et comment tout fonctionne.",
+        "items": {
+          "whatIs": {
+            "question": "Qu'est-ce que PornSpot.ai ?",
+            "answer": "PornSpot.ai est un générateur d'images et vidéos NSFW par IA qui crée du contenu adulte réaliste. Parcourez les galeries IA existantes ou produisez des scènes entièrement personnalisées. Vous pouvez expérimenter gratuitement et débloquer des forfaits premium pour des créations illimitées et une fidélité améliorée."
+          },
+          "howWorks": {
+            "question": "Comment fonctionne la génération IA sur PornSpot.ai ?",
+            "answer": "Nous orchestrons des modèles de diffusion de pointe entraînés pour les visuels adultes. Décrivez votre fantasme avec des prompts, styles, personnages ou scénarios, et notre moteur compose des images haute résolution ou de courtes vidéos avec éclairage, peau et mouvement naturels."
+          },
+          "isFree": {
+            "question": "PornSpot.ai est-il gratuit ?",
+            "answer": "Oui. Vous pouvez générer et parcourir gratuitement avec des limites quotidiennes. Les forfaits premium suppriment les plafonds, débloquent des pipelines de meilleure qualité et ajoutent des options avancées comme des mouvements vidéo plus longs et un rendu prioritaire."
+          },
+          "ageRestrictions": {
+            "question": "Quelles restrictions d'âge s'appliquent ?",
+            "answer": "PornSpot.ai est strictement 18+. Chaque utilisateur doit confirmer son âge avant d'accéder au contenu NSFW, garantissant la conformité légale et une communauté responsable."
+          }
+        }
+      },
+      "usage": {
+        "title": "Utilisation du générateur",
+        "description": "Conseils pour affiner les prompts, le mouvement et obtenir les meilleurs résultats.",
+        "items": {
+          "customizeContent": {
+            "question": "Comment personnaliser le contenu adulte généré par IA ?",
+            "answer": "Soyez aussi descriptif que vous le souhaitez — détaillez les types de corps, les tenues, les angles de caméra, les ambiances ou les fétiches. Incluez des tags comme hentai, fétiche ou thèmes de jeu de rôle, mélangez des LoRAs et ajoutez des prompts négatifs pour tout ce qu'il faut éviter."
+          },
+          "videoSupport": {
+            "question": "PornSpot.ai prend-il en charge la génération vidéo ?",
+            "answer": "Oui. Créez de courtes vidéos adultes IA avec des contrôles de mouvement pour les actions, l'éclairage et le rythme. Utilisez les déclencheurs LoRA I2V pour garder les mouvements cohérents et immersifs."
+          },
+          "unhappyOutput": {
+            "question": "Que faire si l'IA génère quelque chose que je n'aime pas ?",
+            "answer": "Ajustez votre prompt avec des détails plus clairs ou des mots-clés négatifs comme \"éviter X\". Régénérez autant de fois que nécessaire — chaque tentative apprend au système à mieux comprendre vos préférences."
+          },
+          "platformUpdates": {
+            "question": "À quelle fréquence la plateforme est-elle mise à jour ?",
+            "answer": "Nous déployons régulièrement de nouveaux modèles, LoRAs et améliorations UX. Attendez-vous à des mises à niveau fréquentes de la qualité vidéo, des contrôles de mouvement et de la personnalisation des fantasmes."
+          }
+        }
+      },
+      "safety": {
+        "title": "Sécurité, éthique et confidentialité",
+        "description": "Comprenez comment nous maintenons la plateforme éthique et vos données sécurisées.",
+        "items": {
+          "ethicalContent": {
+            "question": "Le contenu est-il sûr et éthique ?",
+            "answer": "Tout est de la fiction générée par IA — aucune personne réelle n'est impliquée. Nous rejetons les prompts nuisibles ou illégaux et modérons activement pour garder l'expérience consensuelle et respectueuse."
+          },
+          "dataPrivacy": {
+            "question": "Quelle est la confidentialité de mes données ?",
+            "answer": "Les prompts et rendus sont traités en toute sécurité sans stocker d'informations personnellement identifiables. Nous priorisons l'anonymat, en particulier pour les fantasmes sensibles, et ne partageons pas de données avec des tiers."
+          },
+          "prohibitedContent": {
+            "question": "Y a-t-il des types de contenu interdits ?",
+            "answer": "Oui. Tout ce qui implique des individus réels, des représentations de mineurs, des thèmes non consensuels ou de la violence est interdit. Rester dans les fantasmes fictifs et consensuels maintient la communauté en sécurité."
+          }
+        }
+      },
+      "content": {
+        "title": "Gestion des créations",
+        "description": "Propriété, téléchargements et directives de partage.",
+        "items": {
+          "downloadsSharing": {
+            "question": "Puis-je télécharger ou partager le contenu généré ?",
+            "answer": "Les téléchargements sont sans filigrane sur tous les forfaits. Le partage personnel est le bienvenu, mais ne redistribuez pas commercialement les créations d'autres utilisateurs sans autorisation explicite."
+          }
+        }
+      },
+      "billing": {
+        "title": "Facturation et forfaits",
+        "description": "Paiements, mises à niveau et avantages premium.",
+        "items": {
+          "paymentMethods": {
+            "question": "Quels modes de paiement sont acceptés ?",
+            "answer": "<p>Nous traitons les paiements via des passerelles sécurisées avec une forte prévention de la fraude. Les options suivantes sont prises en charge :</p><list><item><strong>Visa et Mastercard</strong> — couverture mondiale avec authentification 3D Secure.</item><item><strong>Partenaires TrustPay</strong> — pour les virements bancaires instantanés européens lorsque disponible.</item><item><strong>PornSpotCoin</strong> — échangez les jetons PSC gagnés sur la plateforme contre des abonnements.</item></list><p>Besoin d'une autre option ? <link>Consultez notre page de tarifs</link> ou contactez le support et nous vous aiderons.</p>"
+          }
+        }
+      },
+      "lorasImage": {
+        "title": "Catalogue LoRA d'images",
+        "description": "Chaque affinage LoRA que nous utilisons pour diriger les rendus SDXL.",
+        "items": {
+          "imageLoras": {
+            "question": "Quels LoRAs alimentent la génération d'images ?"
+          }
+        }
+      },
+      "lorasVideo": {
+        "title": "Catalogue LoRA de vidéos",
+        "description": "LoRAs axés sur le mouvement et mots déclencheurs pour les pipelines image-vers-vidéo WAN2.2.",
+        "items": {
+          "videoLoras": {
+            "question": "Quels LoRAs alimentent la génération vidéo ?"
+          },
+          "doubleBlowjobVideo": {
+            "question": "Puis-je générer une vidéo de double fellation ?",
+            "answer": "<p>Absolument. Utilisez le LoRA <code>DR34ML4Y</code> avec le mot déclencheur <code>d0ubl3_bj</code> pour verrouiller l'action orale double. Pour un focus gorge profonde, ajoutez <code>DEEPTHROAT</code>, et gardez les visages expressifs avec <code>ORGASM</code> ou <code>MIDDLE_DROOLING</code> si vous voulez un ahegao joueur. Commencez par une image dans le générateur, passez en mode vidéo, activez les LoRAs et <link>lancez un rendu</link> pour le voir en mouvement.</p>"
+          }
+        }
+      }
     }
   }
 }

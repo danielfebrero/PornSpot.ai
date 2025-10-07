@@ -150,9 +150,9 @@
 
 [x] Improve setting page on mobile.
 
-[ ] If content media or album is private, I should not be able to access it via direct link if not the owner.
+[x] If content media or album is private, I should not be able to access it via direct link if not the owner.
 
-[ ] If content media or albums is private but I liked it or bookmarked it before when it was public, I should not be able to access it via direct link if not the owner and it should disappear from my likes and bookmarks list.
+[x] If content media or albums is private but I liked it or bookmarked it before when it was public, I should not be able to access it via direct link if not the owner and it should disappear from my likes and bookmarks list.
 
 [x] Grant 3 images to new users on signup.
 
@@ -194,7 +194,7 @@
 
 [x] Include 20s of video in the unlimited plan.
 
-[ ] Create a FAQ page (list of lora models, how long does it take to generate a video, etc)
+[x] Create a FAQ page (list of lora models, how long does it take to generate a video, etc)
 
 [x] Send an email to user when someone follow him.
 

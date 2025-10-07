@@ -604,6 +604,7 @@
     "contact": "Contact",
     "terms": "Terms of Service",
     "ourFriends": "Our Friends",
+    "faq": "FAQ",
     "privacy": "Privacy Policy",
     "copyright": "Copyright",
     "allRightsReserved": "All rights reserved",
@@ -2503,6 +2504,167 @@
     },
     "actions": {
       "backToPricing": "Back to pricing"
+    }
+  },
+  "faqPage": {
+    "metaTitle": "FAQ - {siteName}",
+    "metaDescription": "Get answers about PornSpot.ai's AI porn generation, LoRA models, subscriptions, and safety policies.",
+    "hero": {
+      "tagline": "Everything you need to know",
+      "title": "PornSpot.ai Frequently Asked Questions",
+      "subtitle": "Learn how to generate hyper-realistic NSFW images and videos, explore our LoRA catalog, and stay on top of safety, privacy, and billing policies.",
+      "ctaGenerate": "Start generating",
+      "ctaPricing": "View pricing"
+    },
+    "cta": {
+      "title": "Ready to create your fantasy?",
+      "subtitle": "Jump into the generator or browse trending creations to get inspired by what the community is producing.",
+      "primary": "Generate now",
+      "secondary": "Discover popular content"
+    },
+    "loras": {
+      "image": {
+        "intro": "We combine a curated set of LoRA models to enhance specific aesthetics, kinks, and photography styles for image generation.",
+        "outro": "You can mix multiple LoRAs in one prompt — our engine automatically balances weights for coherent, polished outputs.",
+        "items": {
+          "leakedNudes": "Go-to foundation for amateur, candid, leaked-style photography.",
+          "piercedNipples": "Adds realistic barbell nipple piercings and surrounding skin detail.",
+          "addDetail": "Boosts micro-details like textures, fabrics, and skin rendering.",
+          "harnessStraps": "Highlights leather harnesses, straps, garters, and similar lingerie accessories.",
+          "bdsm": "Dial in bondage, dominance/submission gear, and BDSM ambiance.",
+          "bodyTattoo": "Applies extensive body tattoos with sharp line work.",
+          "doggystyleAnal": "Optimizes anatomy and angles for anal doggystyle scenes.",
+          "realDownblouse": "Perfect for voyeuristic downblouse compositions.",
+          "sextoyDildo": "Enhances realism when toys or dildos are inserted vaginally.",
+          "bread": "Adds anthropomorphic or furry traits like ears, tails, and fur.",
+          "nudify": "Improves anatomical accuracy for full nudity shots.",
+          "dynaPose": "Guides stylish, social-media-ready posing and camera framing."
+        }
+      },
+      "video": {
+        "intro": "Our WAN2.2 I2V stack includes LoRAs and trigger words to push specific motions and actions in short AI adult videos.",
+        "outro": "Combine trigger words in your prompts to lock the AI into the exact motion you want while keeping faces and bodies stable.",
+        "items": {
+          "dr34ml4y": "Missionary, blowjob, double blowjob, cowgirl, or doggystyle sequences. Trigger words: m15510n4ry, bl0wj0b, d0ubl3_bj, c0wg1rl, d0gg1e.",
+          "bouncingBoobs": "Adds kinetic bounce and jiggle to breasts.",
+          "oralInsertion": "Focuses on penetration into the mouth and sucking motions.",
+          "f4c3spl4sh": "Targets facial cumshots with the trigger word f4c3spl4sh.",
+          "penisPlay": "Great for penis worship, licking, and tongue play (trigger: penis worshipping).",
+          "posingNude": "Subtle posing adjustments for nude glamour shots.",
+          "deepthroat": "Pushes deeper oral penetration visuals.",
+          "boobjob": "Specializes in breast-based penetration and titjobs.",
+          "fingering": "Focuses on self-pleasure and fingering (trigger: sensual_fingering).",
+          "middleDrooling": "Adds drool, ahegao, or cheeky middle finger gestures.",
+          "orgasm": "Emphasizes climax expressions and body reactions.",
+          "facedownAssup": "Locks poses into a face-down, ass-up framing."
+        }
+      }
+    },
+    "sections": {
+      "general": {
+        "title": "General platform questions",
+        "description": "Quick overview of what PornSpot.ai offers and how everything works.",
+        "items": {
+          "whatIs": {
+            "question": "What is PornSpot.ai?",
+            "answer": "PornSpot.ai is an NSFW AI image and video generator that creates realistic adult content. Browse existing AI galleries or produce fully custom scenes. You can experiment for free and unlock premium tiers for limitless creations and enhanced fidelity."
+          },
+          "howWorks": {
+            "question": "How does the AI generation work on PornSpot.ai?",
+            "answer": "We orchestrate cutting-edge diffusion models trained for adult visuals. Describe your fantasy with prompts, styles, characters, or scenarios, and our engine composes high-resolution imagery or short videos with natural lighting, skin, and motion."
+          },
+          "isFree": {
+            "question": "Is PornSpot.ai free to use?",
+            "answer": "Yes. You can generate and browse for free with daily limits. Premium plans remove caps, unlock higher quality pipelines, and add advanced options like longer video motion and priority rendering."
+          },
+          "ageRestrictions": {
+            "question": "What age restrictions apply?",
+            "answer": "PornSpot.ai is strictly 18+. Every user must confirm their age before accessing NSFW material, ensuring legal compliance and a responsible community."
+          }
+        }
+      },
+      "usage": {
+        "title": "Using the generator",
+        "description": "Tips for dialing in prompts, motion, and getting the best results.",
+        "items": {
+          "customizeContent": {
+            "question": "How can I customize AI-generated adult content?",
+            "answer": "Be as descriptive as you like—detail body types, attire, camera angles, moods, or fetishes. Include tags like hentai, fetish, or roleplay themes, mix in LoRAs, and add negative prompts for anything to avoid."
+          },
+          "videoSupport": {
+            "question": "Does PornSpot.ai support video generation?",
+            "answer": "Yes. Create short AI adult videos with motion controls for actions, lighting, and pacing. Use the I2V LoRA triggers to keep movement coherent and immersive."
+          },
+          "unhappyOutput": {
+            "question": "What if the AI generates something I don't like?",
+            "answer": "Adjust your prompt with clearer details or negative keywords like \"avoid X\". Regenerate as often as needed—each attempt teaches the system more about your preferences."
+          },
+          "platformUpdates": {
+            "question": "How often is the platform updated?",
+            "answer": "We roll out fresh models, LoRAs, and UX improvements regularly. Expect frequent upgrades to video quality, motion controls, and fantasy customization."
+          }
+        }
+      },
+      "safety": {
+        "title": "Safety, ethics, and privacy",
+        "description": "Understand how we keep the platform ethical and your data secure.",
+        "items": {
+          "ethicalContent": {
+            "question": "Is the content safe and ethical?",
+            "answer": "Everything is AI-generated fiction—no real people involved. We reject harmful or illegal prompts and actively moderate to keep the experience consensual and respectful."
+          },
+          "dataPrivacy": {
+            "question": "How private is my data?",
+            "answer": "Prompts and renders are processed securely without storing personally identifiable information. We prioritize anonymity, especially for sensitive fantasies, and do not share data with third parties."
+          },
+          "prohibitedContent": {
+            "question": "Are there prohibited content types?",
+            "answer": "Yes. Anything involving real individuals, underage depictions, non-consensual themes, or violence is banned. Staying within consenting, fictional fantasies keeps the community safe."
+          }
+        }
+      },
+      "content": {
+        "title": "Managing creations",
+        "description": "Ownership, downloads, and sharing guidelines.",
+        "items": {
+          "downloadsSharing": {
+            "question": "Can I download or share generated content?",
+            "answer": "Downloads are watermark-free across plans. Personal sharing is welcome, but don't commercially redistribute other users' creations without explicit permission."
+          }
+        }
+      },
+      "billing": {
+        "title": "Billing and plans",
+        "description": "Payments, upgrades, and premium perks.",
+        "items": {
+          "paymentMethods": {
+            "question": "What payment methods are accepted?",
+            "answer": "<p>We process payments through secure gateways with strong fraud prevention. The following options are supported:</p><list><item><strong>Visa & Mastercard</strong> — global coverage with 3D Secure authentication.</item><item><strong>TrustPay partners</strong> — for instant European bank transfers where available.</item><item><strong>PornSpotCoin</strong> — redeem platform-earned PSC tokens for memberships.</item></list><p>Need a different option? <link>Check our pricing page</link> or message support and we'll help.</p>"
+          }
+        }
+      },
+      "lorasImage": {
+        "title": "Image LoRA catalog",
+        "description": "Every LoRA fine-tune we use to steer SDXL renders.",
+        "items": {
+          "imageLoras": {
+            "question": "Which LoRAs power image generation?"
+          }
+        }
+      },
+      "lorasVideo": {
+        "title": "Video LoRA catalog",
+        "description": "Motion-focused LoRAs and trigger words for WAN2.2 image-to-video pipelines.",
+        "items": {
+          "videoLoras": {
+            "question": "Which LoRAs power video generation?"
+          },
+          "doubleBlowjobVideo": {
+            "question": "Can I generate a video of a double blowjob?",
+            "answer": "<p>Absolutely. Use the <code>DR34ML4Y</code> LoRA alongside the <code>d0ubl3_bj</code> trigger word to lock in dual oral action. For deeper throat focus, add <code>DEEPTHROAT</code>, and keep faces expressive with <code>ORGASM</code> or <code>MIDDLE_DROOLING</code> if you want playful ahegao. Start from an image in the generator, switch to video mode, enable LoRAs, and <link>launch a render</link> to see it in motion.</p>"
+          }
+        }
+      }
     }
   }
 }

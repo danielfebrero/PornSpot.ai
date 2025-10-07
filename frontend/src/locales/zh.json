@@ -620,6 +620,7 @@
     "contact": "联系",
     "terms": "服务条款",
     "ourFriends": "我们的朋友",
+    "faq": "常见问题",
     "privacy": "隐私政策",
     "copyright": "版权",
     "allRightsReserved": "版权所有",
@@ -2460,6 +2461,167 @@
     },
     "actions": {
       "backToPricing": "返回价格页"
+    }
+  },
+  "faqPage": {
+    "metaTitle": "常见问题 - {siteName}",
+    "metaDescription": "获取关于PornSpot.ai的AI成人内容生成、LoRA模型、订阅和安全政策的答案。",
+    "hero": {
+      "tagline": "您需要知道的一切",
+      "title": "PornSpot.ai 常见问题",
+      "subtitle": "学习如何生成超逼真的NSFW图像和视频，探索我们的LoRA目录，并了解安全、隐私和计费政策。",
+      "ctaGenerate": "开始生成",
+      "ctaPricing": "查看价格"
+    },
+    "cta": {
+      "title": "准备好创造您的幻想了吗？",
+      "subtitle": "进入生成器或浏览社区的热门创作以获得灵感。",
+      "primary": "立即生成",
+      "secondary": "发现热门内容"
+    },
+    "loras": {
+      "image": {
+        "intro": "我们组合了一套精选的LoRA模型，以增强图像生成的特定美学、癖好和摄影风格。",
+        "outro": "您可以在一个提示中混合多个LoRA——我们的引擎会自动平衡权重以获得连贯、精致的输出。",
+        "items": {
+          "leakedNudes": "业余、坦率、泄露风格摄影的首选基础。",
+          "piercedNipples": "添加逼真的乳头杠铃穿孔和周围皮肤细节。",
+          "addDetail": "增强纹理、织物和皮肤渲染等微观细节。",
+          "harnessStraps": "突出皮革束具、吊带、吊袜带和类似内衣配件。",
+          "bdsm": "调整束缚、支配/服从装备和BDSM氛围。",
+          "bodyTattoo": "应用具有清晰线条的大面积身体纹身。",
+          "doggystyleAnal": "优化后入式肛交场景的解剖结构和角度。",
+          "realDownblouse": "完美适用于偷窥式低胸构图。",
+          "sextoyDildo": "增强玩具或假阳具阴道插入时的真实感。",
+          "bread": "添加拟人或兽人特征，如耳朵、尾巴和毛发。",
+          "nudify": "提高全裸镜头的解剖准确性。",
+          "dynaPose": "引导时尚的社交媒体风格姿势和相机取景。"
+        }
+      },
+      "video": {
+        "intro": "我们的WAN2.2 I2V堆栈包括LoRA和触发词，以在短AI成人视频中推动特定动作和动作。",
+        "outro": "在提示中组合触发词，以将AI锁定到您想要的确切动作，同时保持面部和身体稳定。",
+        "items": {
+          "dr34ml4y": "传教士、口交、双人口交、女上位或后入式序列。触发词：m15510n4ry、bl0wj0b、d0ubl3_bj、c0wg1rl、d0gg1e。",
+          "bouncingBoobs": "为乳房添加动态弹跳和摆动。",
+          "oralInsertion": "专注于口腔插入和吸吮动作。",
+          "f4c3spl4sh": "以触发词f4c3spl4sh瞄准面部射精。",
+          "penisPlay": "非常适合阴茎崇拜、舔舐和舌头游戏（触发词：penis worshipping）。",
+          "posingNude": "裸体魅力照片的微妙姿势调整。",
+          "deepthroat": "推动更深的口腔插入视觉效果。",
+          "boobjob": "专注于乳交和乳房插入。",
+          "fingering": "专注于自慰和手指插入（触发词：sensual_fingering）。",
+          "middleDrooling": "添加口水、阿黑颜或调皮的竖中指手势。",
+          "orgasm": "强调高潮表情和身体反应。",
+          "facedownAssup": "将姿势锁定为俯卧撅臀的框架。"
+        }
+      }
+    },
+    "sections": {
+      "general": {
+        "title": "平台常规问题",
+        "description": "快速了解PornSpot.ai提供的内容以及一切如何运作。",
+        "items": {
+          "whatIs": {
+            "question": "什么是PornSpot.ai？",
+            "answer": "PornSpot.ai是一个NSFW AI图像和视频生成器，创建逼真的成人内容。浏览现有的AI画廊或制作完全定制的场景。您可以免费试验并解锁高级套餐以获得无限创作和增强的保真度。"
+          },
+          "howWorks": {
+            "question": "PornSpot.ai上的AI生成如何工作？",
+            "answer": "我们编排经过成人视觉训练的尖端扩散模型。用提示、风格、角色或场景描述您的幻想，我们的引擎会创作出具有自然光照、皮肤和动作的高分辨率图像或短视频。"
+          },
+          "isFree": {
+            "question": "PornSpot.ai免费使用吗？",
+            "answer": "是的。您可以在每日限制内免费生成和浏览。高级计划取消限制，解锁更高质量的管道，并添加高级选项，如更长的视频动作和优先渲染。"
+          },
+          "ageRestrictions": {
+            "question": "适用什么年龄限制？",
+            "answer": "PornSpot.ai严格限定为18+。每位用户必须在访问NSFW材料之前确认其年龄，确保法律合规和负责任的社区。"
+          }
+        }
+      },
+      "usage": {
+        "title": "使用生成器",
+        "description": "调整提示、动作和获得最佳结果的技巧。",
+        "items": {
+          "customizeContent": {
+            "question": "如何自定义AI生成的成人内容？",
+            "answer": "尽可能详细——详细说明身体类型、服装、相机角度、情绪或癖好。包括诸如hentai、fetish或角色扮演主题等标签，混合LoRA，并为要避免的任何内容添加负面提示。"
+          },
+          "videoSupport": {
+            "question": "PornSpot.ai支持视频生成吗？",
+            "answer": "是的。创建具有动作、照明和节奏控制的短AI成人视频。使用I2V LoRA触发器保持动作连贯和沉浸。"
+          },
+          "unhappyOutput": {
+            "question": "如果AI生成了我不喜欢的东西怎么办？",
+            "answer": "使用更清晰的细节或负面关键词（如\"避免X\"）调整您的提示。根据需要重新生成——每次尝试都会让系统更多地了解您的偏好。"
+          },
+          "platformUpdates": {
+            "question": "平台多久更新一次？",
+            "answer": "我们定期推出新模型、LoRA和UX改进。期待视频质量、动作控制和幻想定制的频繁升级。"
+          }
+        }
+      },
+      "safety": {
+        "title": "安全、道德和隐私",
+        "description": "了解我们如何保持平台道德和您的数据安全。",
+        "items": {
+          "ethicalContent": {
+            "question": "内容安全且道德吗？",
+            "answer": "一切都是AI生成的虚构内容——没有涉及真实人物。我们拒绝有害或非法的提示，并积极审核以保持体验的自愿性和尊重性。"
+          },
+          "dataPrivacy": {
+            "question": "我的数据有多私密？",
+            "answer": "提示和渲染在安全处理中不存储个人可识别信息。我们优先考虑匿名性，特别是对于敏感幻想，并且不与第三方共享数据。"
+          },
+          "prohibitedContent": {
+            "question": "是否有禁止的内容类型？",
+            "answer": "是的。涉及真实个人、未成年人描绘、非自愿主题或暴力的任何内容都被禁止。保持在自愿的虚构幻想范围内可确保社区安全。"
+          }
+        }
+      },
+      "content": {
+        "title": "管理创作",
+        "description": "所有权、下载和共享指南。",
+        "items": {
+          "downloadsSharing": {
+            "question": "我可以下载或分享生成的内容吗？",
+            "answer": "所有计划的下载都无水印。欢迎个人分享，但未经明确许可，请勿商业性重新分发其他用户的创作。"
+          }
+        }
+      },
+      "billing": {
+        "title": "计费和计划",
+        "description": "付款、升级和高级特权。",
+        "items": {
+          "paymentMethods": {
+            "question": "接受哪些付款方式？",
+            "answer": "<p>我们通过具有强大欺诈预防功能的安全网关处理付款。支持以下选项：</p><list><item><strong>Visa和Mastercard</strong> — 全球覆盖，具有3D安全认证。</item><item><strong>TrustPay合作伙伴</strong> — 在可用的地方进行即时欧洲银行转账。</item><item><strong>PornSpotCoin</strong> — 兑换平台赚取的PSC代币以获得会员资格。</item></list><p>需要其他选项？<link>查看我们的定价页面</link>或联系支持，我们会提供帮助。</p>"
+          }
+        }
+      },
+      "lorasImage": {
+        "title": "图像LoRA目录",
+        "description": "我们用于引导SDXL渲染的每个LoRA微调。",
+        "items": {
+          "imageLoras": {
+            "question": "哪些LoRA为图像生成提供动力？"
+          }
+        }
+      },
+      "lorasVideo": {
+        "title": "视频LoRA目录",
+        "description": "用于WAN2.2图像到视频管道的以运动为重点的LoRA和触发词。",
+        "items": {
+          "videoLoras": {
+            "question": "哪些LoRA为视频生成提供动力？"
+          },
+          "doubleBlowjobVideo": {
+            "question": "我可以生成双人口交的视频吗？",
+            "answer": "<p>当然可以。使用<code>DR34ML4Y</code> LoRA和<code>d0ubl3_bj</code>触发词来锁定双重口交动作。要深喉焦点，添加<code>DEEPTHROAT</code>，并使用<code>ORGASM</code>或<code>MIDDLE_DROOLING</code>保持面部表情丰富，如果您想要俏皮的阿黑颜。从生成器中的图像开始，切换到视频模式，启用LoRA，然后<link>启动渲染</link>以查看动作。</p>"
+          }
+        }
+      }
     }
   }
 }
