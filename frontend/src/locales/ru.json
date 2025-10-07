@@ -826,6 +826,20 @@
       "deleteMedia": "Удалить медиа",
       "deleteSelectedConfirm": "Вы уверены, что хотите удалить {count} выбранных медиаэлементов? Это действие нельзя отменить.",
       "deleteItemConfirm": "Вы уверены, что хотите удалить \"{filename}\"? Это действие нельзя отменить."
+    },
+    "coverImageSelector": {
+      "coverImage": "Обложка",
+      "currentCover": "Текущая обложка",
+      "noCoverSelected": "Обложка не выбрана",
+      "changeCover": "Изменить обложку",
+      "selectCover": "Выбрать обложку",
+      "removeCover": "Удалить обложку",
+      "selectFromAlbumImages": "Выбрать из изображений альбома ({count})",
+      "loadingImages": "Загрузка изображений...",
+      "noImagesAvailable": "Нет доступных изображений",
+      "uploadImagesFirst": "Сначала загрузите изображения, чтобы выбрать обложку",
+      "coverImageSelected": "Обложка выбрана",
+      "clearSelection": "Очистить выбор"
     }
   },
   "user": {

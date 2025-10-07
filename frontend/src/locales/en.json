@@ -838,6 +838,20 @@
       "deleteMedia": "Delete Media",
       "deleteSelectedConfirm": "Are you sure you want to delete {count} selected media items? This action cannot be undone.",
       "deleteItemConfirm": "Are you sure you want to delete \"{filename}\"? This action cannot be undone."
+    },
+    "coverImageSelector": {
+      "coverImage": "Cover Image",
+      "currentCover": "Current Cover",
+      "noCoverSelected": "No cover selected",
+      "changeCover": "Change Cover",
+      "selectCover": "Select Cover",
+      "removeCover": "Remove Cover",
+      "selectFromAlbumImages": "Select from album images ({count})",
+      "loadingImages": "Loading images...",
+      "noImagesAvailable": "No images available",
+      "uploadImagesFirst": "Upload images first to select a cover",
+      "coverImageSelected": "Cover image selected",
+      "clearSelection": "Clear Selection"
     }
   },
   "user": {

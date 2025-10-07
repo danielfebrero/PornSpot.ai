@@ -84,7 +84,7 @@
 
 [x] On User Albums Create page, thumbnails overlap and show be infinite scroll.
 
-[ ] On settings page, in quotas section, the monthly usage indicate it's based on billing cycle but currently it's based on 1-30 cycle - use billing cycle instead.
+[x] On settings page, in quotas section, the monthly usage indicate it's based on billing cycle but currently it's based on 1-30 cycle - use billing cycle instead.
 
 [x] On generate page, when I navigate, it add again last images to recent images.
 
@@ -124,7 +124,7 @@
 
 [x] Delete image from admin media page does not work.
 
-[ ] In an album, when I fullscreen an image, it's view count is set to 1 instead of +1.
+[x] In an album, when I fullscreen an image, it's view count is set to 1 instead of +1.
 
 [x] Do not show empty albums on discover page.
 
@@ -138,7 +138,7 @@
 
 [x] On media page, delete sibling dialog and add to albums appears in the scrollable container instead of in the middle of the page. Add to albums is not usable.
 
-[ ] Admin edit album missing locales.
+[x] Admin edit album missing locales.
 
 [x] Edit album does not work on mobile.
 

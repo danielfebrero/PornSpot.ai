@@ -823,6 +823,20 @@
       "deleteMedia": "Eliminar medios",
       "deleteSelectedConfirm": "¿Estás seguro de que quieres eliminar {count} elementos de medios seleccionados? Esta acción no se puede deshacer.",
       "deleteItemConfirm": "¿Estás seguro de que quieres eliminar \"{filename}\"? Esta acción no se puede deshacer."
+    },
+    "coverImageSelector": {
+      "coverImage": "Imagen de portada",
+      "currentCover": "Portada actual",
+      "noCoverSelected": "No hay portada seleccionada",
+      "changeCover": "Cambiar portada",
+      "selectCover": "Seleccionar portada",
+      "removeCover": "Eliminar portada",
+      "selectFromAlbumImages": "Seleccionar de las imágenes del álbum ({count})",
+      "loadingImages": "Cargando imágenes...",
+      "noImagesAvailable": "No hay imágenes disponibles",
+      "uploadImagesFirst": "Sube imágenes primero para seleccionar una portada",
+      "coverImageSelected": "Imagen de portada seleccionada",
+      "clearSelection": "Limpiar selección"
     }
   },
   "user": {

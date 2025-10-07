@@ -807,6 +807,20 @@
       "deleteMedia": "Medien löschen",
       "deleteSelectedConfirm": "Sind Sie sicher, dass Sie {count} ausgewählte Medienelemente löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
       "deleteItemConfirm": "Sind Sie sicher, dass Sie \"{filename}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+    "coverImageSelector": {
+      "coverImage": "Titelbild",
+      "currentCover": "Aktuelles Titelbild",
+      "noCoverSelected": "Kein Titelbild ausgewählt",
+      "changeCover": "Titelbild ändern",
+      "selectCover": "Titelbild auswählen",
+      "removeCover": "Titelbild entfernen",
+      "selectFromAlbumImages": "Aus Albumbildern auswählen ({count})",
+      "loadingImages": "Bilder werden geladen...",
+      "noImagesAvailable": "Keine Bilder verfügbar",
+      "uploadImagesFirst": "Laden Sie zuerst Bilder hoch, um ein Titelbild auszuwählen",
+      "coverImageSelected": "Titelbild ausgewählt",
+      "clearSelection": "Auswahl löschen"
     }
   },
   "user": {

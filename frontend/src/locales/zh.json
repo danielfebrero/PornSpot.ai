@@ -825,6 +825,20 @@
       "deleteMedia": "删除媒体",
       "deleteSelectedConfirm": "您确定要删除 {count} 个选中的媒体项吗？此操作无法撤销。",
       "deleteItemConfirm": "您确定要删除 \"{filename}\" 吗？此操作无法撤销。"
+    },
+    "coverImageSelector": {
+      "coverImage": "封面图片",
+      "currentCover": "当前封面",
+      "noCoverSelected": "未选择封面",
+      "changeCover": "更换封面",
+      "selectCover": "选择封面",
+      "removeCover": "移除封面",
+      "selectFromAlbumImages": "从相册图片中选择 ({count})",
+      "loadingImages": "加载图片中...",
+      "noImagesAvailable": "暂无可用图片",
+      "uploadImagesFirst": "请先上传图片以选择封面",
+      "coverImageSelected": "已选择封面图片",
+      "clearSelection": "清除选择"
     }
   },
   "user": {

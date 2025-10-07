@@ -862,6 +862,20 @@
       "deleteMedia": "Supprimer le média",
       "deleteSelectedConfirm": "Êtes-vous sûr de vouloir supprimer {count} éléments médias sélectionnés ? Cette action ne peut pas être annulée.",
       "deleteItemConfirm": "Êtes-vous sûr de vouloir supprimer \"{filename}\" ? Cette action ne peut pas être annulée."
+    },
+    "coverImageSelector": {
+      "coverImage": "Image de couverture",
+      "currentCover": "Couverture actuelle",
+      "noCoverSelected": "Aucune couverture sélectionnée",
+      "changeCover": "Changer la couverture",
+      "selectCover": "Sélectionner une couverture",
+      "removeCover": "Supprimer la couverture",
+      "selectFromAlbumImages": "Sélectionner parmi les images de l'album ({count})",
+      "loadingImages": "Chargement des images...",
+      "noImagesAvailable": "Aucune image disponible",
+      "uploadImagesFirst": "Téléchargez d'abord des images pour sélectionner une couverture",
+      "coverImageSelected": "Image de couverture sélectionnée",
+      "clearSelection": "Effacer la sélection"
     }
   },
   "user": {
