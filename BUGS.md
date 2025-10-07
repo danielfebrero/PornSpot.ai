@@ -154,8 +154,6 @@
 
 [ ] On mobile, I cannot drag lora strength in generate page.
 
-[ ] The user PornSpotCoin Transactions page loads ALL transactions instead of paginating.
-
 [x] On videos page, incomplete video progression do not progress, I have to re render the page to see updated progress.
 
 [x] Videos page, when 1 video, load more videos in loop.
