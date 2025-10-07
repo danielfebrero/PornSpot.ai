@@ -195,6 +195,7 @@ export class UserAuthMiddleware {
       "HttpOnly",
       "Path=/",
       `Expires=${expires.toUTCString()}`,
+      "Domain=.pornspot.ai",
     ];
 
     if (isOffline) {

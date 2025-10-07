@@ -1,4 +1,5 @@
 import { Album, Media, EnhancedMedia, UnifiedPaginationMeta } from "@/types";
+import { cookies } from "next/headers";
 import API_URL from "./api";
 
 // Helper function to handle API responses
@@ -142,12 +143,27 @@ export async function getMediaForAlbum(
 }
 
 // Fetch a single media item by ID
-export async function getMediaById(mediaId: string) {
+export async function getMediaById(
+  mediaId: string,
+  options?: { injectHeadersCookie?: boolean }
+) {
+  const cookieStore = cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
+
   try {
     const response = await fetch(`${API_URL}/media/${mediaId}`, {
       next: {
         tags: [`media-${mediaId}`],
       },
+      ...(options?.injectHeadersCookie && {
+        headers: {
+          Cookie: cookieHeader,
+        },
+        cache: "no-store",
+      }),
     });
     return await handleResponse<EnhancedMedia>(response);
   } catch (error) {

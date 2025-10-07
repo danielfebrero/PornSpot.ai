@@ -22,7 +22,9 @@ export async function generateMetadata({
   params,
 }: MediaDetailPageProps): Promise<Metadata> {
   const { locale, mediaId } = params;
-  const { data: media, error } = await getMediaById(mediaId);
+  const { data: media, error } = await getMediaById(mediaId, {
+    injectHeadersCookie: true,
+  });
 
   // Get localized translations for fallback
   const tMedia = await getTranslations({ locale, namespace: "media" });
@@ -52,7 +54,9 @@ export default async function MediaDetailPage({
   params,
 }: MediaDetailPageProps) {
   const { mediaId, locale } = params;
-  const mediaResult = await getMediaById(mediaId);
+  const mediaResult = await getMediaById(mediaId, {
+    injectHeadersCookie: true,
+  });
 
   if (mediaResult.error) {
     if (mediaResult.error === "Content is private") {

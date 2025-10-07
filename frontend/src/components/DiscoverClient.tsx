@@ -117,25 +117,23 @@ export function DiscoverClient({
 
   return (
     <SectionErrorBoundary context="Discover Page">
-      <div className="space-y-6">
-        {/* Sort Navigation Tabs */}
-        <ComponentErrorBoundary context="Sort Tabs">
-          <div className="flex justify-center md:justify-start">
-            <SortTabs />
-          </div>
-        </ComponentErrorBoundary>
+      {/* Sort Navigation Tabs */}
+      <ComponentErrorBoundary context="Sort Tabs">
+        <div className="flex justify-center md:justify-start">
+          <SortTabs />
+        </div>
+      </ComponentErrorBoundary>
 
-        <SectionErrorBoundary context="Content Grid">
-          <ContentGrid
-            items={items}
-            loadMore={loadMore}
-            loading={isActuallyLoading || isFetchingNextPage}
-            hasMore={hasNextPage}
-            error={displayError}
-            scrollRestorationKey="discover-content-grid"
-          />
-        </SectionErrorBoundary>
-      </div>
+      <SectionErrorBoundary context="Content Grid">
+        <ContentGrid
+          items={items}
+          loadMore={loadMore}
+          loading={isActuallyLoading || isFetchingNextPage}
+          hasMore={hasNextPage}
+          error={displayError}
+          scrollRestorationKey="discover-content-grid"
+        />
+      </SectionErrorBoundary>
     </SectionErrorBoundary>
   );
 }

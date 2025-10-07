@@ -182,7 +182,7 @@
 
 [ ] On mobile, on discover page, adding a tag do not fit the screen width.
 
-[ ] Admin cannot see private content on Media page.
+[x] Admin cannot see private content on Media page.
 
 [ ] If I change a media from public to private, I can still access it with private navigation.
 
