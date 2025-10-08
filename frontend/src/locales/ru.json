@@ -1269,6 +1269,7 @@
         },
         "options": {
           "intelligently": "Умно",
+          "always": "Всегда",
           "never": "Никогда"
         }
       },

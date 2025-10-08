@@ -1,0 +1,16 @@
+{{subject}}
+
+Hi {{displayNameText}},
+
+{{actorNameText}} commented on your {{targetTypeLabel}} "{{targetTitleText}}":
+
+{{commentText}}
+
+{{thumbnailText}}
+Join the conversation: {{targetUrl}}
+
+Notifications center: {{notificationsUrl}}
+Email settings: {{settingsUrl}}
+
+Thanks for sharing your art,
+The PornSpot.ai Team

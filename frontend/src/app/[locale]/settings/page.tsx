@@ -15,6 +15,7 @@ import { UsageIndicator } from "@/components/UsageIndicator";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { useLocaleRouter } from "@/lib/navigation";
 import { locales } from "@/i18n";
+import type { EmailPreferenceMode } from "@/types";
 import {
   Globe,
   CreditCard,
@@ -120,15 +121,12 @@ export default function SettingsPage() {
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
 
   // Email notification preferences
-  const [pscEmailPref, setPscEmailPref] = useState<"intelligently" | "never">(
-    "intelligently"
-  );
-  const [unreadEmailPref, setUnreadEmailPref] = useState<
-    "intelligently" | "never"
-  >("intelligently");
-  const [newFollowerEmailPref, setNewFollowerEmailPref] = useState<
-    "intelligently" | "never"
-  >("intelligently");
+  const [pscEmailPref, setPscEmailPref] =
+    useState<EmailPreferenceMode>("intelligently");
+  const [unreadEmailPref, setUnreadEmailPref] =
+    useState<EmailPreferenceMode>("always");
+  const [newFollowerEmailPref, setNewFollowerEmailPref] =
+    useState<EmailPreferenceMode>("intelligently");
   const [isSavingEmailPrefs, setIsSavingEmailPrefs] = useState(false);
 
   // Alert Dialog states
@@ -271,8 +269,8 @@ export default function SettingsPage() {
 
   const updateEmailPreference = async (
     field: "pscBalance" | "unreadNotifications" | "newFollowers",
-    value: "intelligently" | "never",
-    prevValue: "intelligently" | "never"
+    value: EmailPreferenceMode,
+    prevValue: EmailPreferenceMode
   ) => {
     setIsSavingEmailPrefs(true);
     try {
@@ -818,7 +816,7 @@ export default function SettingsPage() {
             <select
               value={pscEmailPref}
               onChange={(e) => {
-                const next = e.target.value as "intelligently" | "never";
+                const next = e.target.value as EmailPreferenceMode;
                 const prev = pscEmailPref;
                 setPscEmailPref(next);
                 updateEmailPreference("pscBalance", next, prev);
@@ -847,7 +845,7 @@ export default function SettingsPage() {
             <select
               value={newFollowerEmailPref}
               onChange={(e) => {
-                const next = e.target.value as "intelligently" | "never";
+                const next = e.target.value as EmailPreferenceMode;
                 const prev = newFollowerEmailPref;
                 setNewFollowerEmailPref(next);
                 updateEmailPreference("newFollowers", next, prev);
@@ -876,7 +874,7 @@ export default function SettingsPage() {
             <select
               value={unreadEmailPref}
               onChange={(e) => {
-                const next = e.target.value as "intelligently" | "never";
+                const next = e.target.value as EmailPreferenceMode;
                 const prev = unreadEmailPref;
                 setUnreadEmailPref(next);
                 updateEmailPreference("unreadNotifications", next, prev);
@@ -886,6 +884,9 @@ export default function SettingsPage() {
             >
               <option value="intelligently">
                 {tSettings("notifications.options.intelligently")}
+              </option>
+              <option value="always">
+                {tSettings("notifications.options.always")}
               </option>
               <option value="never">
                 {tSettings("notifications.options.never")}
@@ -1442,7 +1443,7 @@ export default function SettingsPage() {
               <select
                 value={pscEmailPref}
                 onChange={(e) => {
-                  const next = e.target.value as "intelligently" | "never";
+                  const next = e.target.value as EmailPreferenceMode;
                   const prev = pscEmailPref;
                   setPscEmailPref(next);
                   updateEmailPreference("pscBalance", next, prev);
@@ -1477,7 +1478,7 @@ export default function SettingsPage() {
               <select
                 value={newFollowerEmailPref}
                 onChange={(e) => {
-                  const next = e.target.value as "intelligently" | "never";
+                  const next = e.target.value as EmailPreferenceMode;
                   const prev = newFollowerEmailPref;
                   setNewFollowerEmailPref(next);
                   updateEmailPreference("newFollowers", next, prev);
@@ -1512,7 +1513,7 @@ export default function SettingsPage() {
               <select
                 value={unreadEmailPref}
                 onChange={(e) => {
-                  const next = e.target.value as "intelligently" | "never";
+                  const next = e.target.value as EmailPreferenceMode;
                   const prev = unreadEmailPref;
                   setUnreadEmailPref(next);
                   updateEmailPreference("unreadNotifications", next, prev);
@@ -1522,6 +1523,9 @@ export default function SettingsPage() {
               >
                 <option value="intelligently">
                   {tSettings("notifications.options.intelligently")}
+                </option>
+                <option value="always">
+                  {tSettings("notifications.options.always")}
                 </option>
                 <option value="never">
                   {tSettings("notifications.options.never")}

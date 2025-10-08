@@ -1265,6 +1265,7 @@
         },
         "options": {
           "intelligently": "智能",
+          "always": "总是",
           "never": "从不"
         }
       },

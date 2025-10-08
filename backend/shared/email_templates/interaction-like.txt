@@ -1,0 +1,16 @@
+{{subject}}
+
+Hello {{displayNameText}},
+
+{{actorNameText}} just liked your {{targetTypeLabel}} "{{targetTitleText}}".
+
+{{commentText}}
+
+{{thumbnailText}}
+View it now: {{targetUrl}}
+
+Notifications center: {{notificationsUrl}}
+Email settings: {{settingsUrl}}
+
+Stay inspired,
+The PornSpot.ai Team

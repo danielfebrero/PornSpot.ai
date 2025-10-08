@@ -12,6 +12,20 @@ import { v4 as uuidv4 } from "uuid";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { ValidationUtil } from "@shared/utils/validation";
 import { PSCIntegrationService } from "@shared/utils/psc-integration";
+import {
+  InteractionTargetType,
+  type InteractionEmailOptions,
+} from "@shared/utils/email";
+import { EmailService } from "@shared/utils/email";
+import {
+  getAlbumThumbnailUrl,
+  getMediaThumbnailUrl,
+  getMediaTitle,
+  getUserDisplayName,
+  type MaybeAlbum,
+  type MaybeMedia,
+  type MaybeUser,
+} from "@shared/utils/notification-email-helpers";
 
 const handleComment = async (
   event: APIGatewayProxyEvent,
@@ -163,6 +177,77 @@ async function createComment(
       );
     } catch (error) {
       console.warn(`⚠️ Failed to create comment notification:`, error);
+    }
+
+    try {
+      const targetUser = await DynamoDBService.getUserById(targetCreatorId);
+      if (
+        targetUser?.email &&
+        targetUser.emailPreferences?.unreadNotifications === "always"
+      ) {
+        const actorName = getUserDisplayName(user as MaybeUser);
+        const locale = (targetUser.preferredLanguage || "en").toLowerCase();
+
+        const emailTargetType: InteractionTargetType =
+          targetType === "album"
+            ? "album"
+            : (media?.type as InteractionTargetType) ||
+              (targetType as InteractionTargetType);
+
+        let emailTargetTitle: string | undefined =
+          targetType === "album"
+            ? (album as MaybeAlbum | undefined)?.title || undefined
+            : getMediaTitle(media as MaybeMedia);
+
+        const emailThumbnailUrl: string | undefined =
+          targetType === "album"
+            ? getAlbumThumbnailUrl(album as MaybeAlbum)
+            : getMediaThumbnailUrl(media as MaybeMedia);
+
+        if (!emailTargetTitle) {
+          emailTargetTitle =
+            emailTargetType === "album"
+              ? "your album"
+              : emailTargetType === "image"
+              ? "your image"
+              : "your video";
+        }
+
+        const emailPayload: InteractionEmailOptions = {
+          to: targetUser.email,
+          username: targetUser.username,
+          actorName,
+          locale,
+          targetType: emailTargetType,
+          targetId,
+          targetTitle: emailTargetTitle,
+          targetThumbnailUrl: emailThumbnailUrl,
+          commentContent: content,
+        };
+
+        const emailResult = await EmailService.sendCommentNotificationEmail(
+          emailPayload
+        );
+
+        if (emailResult.success) {
+          console.log("📧 Sent comment notification email", {
+            targetCreatorId,
+            targetId,
+          });
+        } else {
+          console.warn("⚠️ Comment notification email send failed", {
+            targetCreatorId,
+            targetId,
+            error: emailResult.error,
+          });
+        }
+      }
+    } catch (error) {
+      console.warn("⚠️ Failed to send comment notification email", {
+        targetCreatorId,
+        targetId,
+        error,
+      });
     }
 
     // PSC Payout Integration for comments (immediate payout)

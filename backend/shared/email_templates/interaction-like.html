@@ -47,27 +47,30 @@
             font-weight: 600;
           "
         >
-          You have unread notifications
+          {{subject}}
         </h1>
       </div>
 
       <div
         style="font-size: 16px; margin-bottom: 30px; color: #cbd5e1 !important"
       >
-        <p style="color: #cbd5e1 !important">Hello {{displayName}},</p>
+        <p style="color: #cbd5e1 !important">Hello {{displayNameHtml}},</p>
 
         <p style="color: #cbd5e1 !important">
-          You have
-          <strong style="color: #f8fafc !important">{{unreadCount}}</strong>
-          unread notifications waiting for you on PornSpot.ai.
+          <strong style="color: #f8fafc !important">{{actorNameHtml}}</strong>
+          just liked your {{targetTypeLabel}}
+          <strong style="color: #f8fafc !important">{{targetTitleHtml}}</strong
+          >. Keep the creativity coming!
         </p>
+
+        {{commentSection}} {{thumbnailSection}}
 
         <div style="text-align: center">
           <a
-            href="{{notificationsUrl}}"
+            href="{{targetUrl}}"
             style="
               display: inline-block;
-              background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+              background: linear-gradient(135deg, #22d3ee 0%, #0ea5e9 100%);
               color: #ffffff !important;
               padding: 16px 32px;
               text-decoration: none;
@@ -76,15 +79,15 @@
               font-size: 16px;
               text-align: center;
               margin: 20px 0;
-              box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.25);
+              box-shadow: 0 4px 14px 0 rgba(14, 165, 233, 0.25);
             "
-            >View Notifications</a
+            >View your {{targetTypeLabelCapitalized}}</a
           >
         </div>
 
         <p style="color: #cbd5e1 !important">
-          If the button above doesn't work, you can copy and paste this link
-          into your browser:
+          If the button above doesn't work, copy and paste this link into your
+          browser:
         </p>
         <p
           style="
@@ -98,10 +101,20 @@
             font-size: 14px;
           "
         >
-          {{notificationsUrl}}
+          {{targetUrl}}
         </p>
 
-        <p style="color: #cbd5e1 !important">See you soon,</p>
+        <p style="color: #cbd5e1 !important">
+          Want to control which emails you receive? Update your preferences
+          anytime:
+        </p>
+        <p style="color: #cbd5e1 !important">
+          <a href="{{settingsUrl}}" style="color: #94a3b8 !important"
+            >Manage email settings</a
+          >
+        </p>
+
+        <p style="color: #cbd5e1 !important">Stay inspired,</p>
         <p style="color: #cbd5e1 !important">The PornSpot.ai Team</p>
       </div>
 
@@ -119,6 +132,12 @@
           Manage or opt-out of these emails in your settings:
           <a href="{{settingsUrl}}" style="color: #94a3b8 !important"
             >{{settingsUrl}}</a
+          >
+        </p>
+        <p style="color: #64748b !important">
+          See all your notifications:
+          <a href="{{notificationsUrl}}" style="color: #94a3b8 !important"
+            >{{notificationsUrl}}</a
           >
         </p>
         <p style="color: #64748b !important">

@@ -1336,6 +1336,7 @@
         },
         "options": {
           "intelligently": "Intelligemment",
+          "always": "Toujours",
           "never": "Jamais"
         }
       },

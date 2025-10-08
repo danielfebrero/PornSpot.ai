@@ -1319,6 +1319,7 @@
         },
         "options": {
           "intelligently": "Intelligently",
+          "always": "Always",
           "never": "Never"
         }
       },

@@ -102,13 +102,28 @@ async function main() {
     const {
       EmailTemplateService,
     } = require("../backend/shared/utils/emailTemplates");
+    const {
+      ParameterStoreService,
+    } = require("../backend/shared/utils/parameters");
+    const frontendUrl = await ParameterStoreService.getFrontendUrl();
+    const baseUrl = frontendUrl.endsWith("/")
+      ? frontendUrl.slice(0, -1)
+      : frontendUrl;
+    const notificationsUrl = `${baseUrl}/en/user/notifications`;
+    const settingsUrl = `${baseUrl}/en/settings`;
     const subject =
       countArg === 1
         ? `You have 1 unread notification`
         : `You have ${countArg} unread notifications`;
     const { htmlBody, textBody } = await EmailTemplateService.loadTemplate(
       "unread-notifications",
-      { subject, displayName: usernameArg, unreadCount: String(countArg) }
+      {
+        subject,
+        displayName: usernameArg,
+        unreadCount: String(countArg),
+        notificationsUrl,
+        settingsUrl,
+      }
     );
     const res = await EmailService.sendEmail({
       to: toArg,

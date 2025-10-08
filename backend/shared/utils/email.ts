@@ -2,6 +2,23 @@ import sgMail from "@sendgrid/mail";
 import { ParameterStoreService } from "./parameters";
 import { EmailTemplateService } from "./emailTemplates";
 
+export type InteractionNotificationType = "like" | "bookmark" | "comment";
+
+export type InteractionTargetType = "album" | "image" | "video" | "comment";
+
+export interface InteractionEmailOptions {
+  to: string;
+  username?: string;
+  actorName: string;
+  locale?: string;
+  targetType: InteractionTargetType;
+  targetId: string;
+  targetTitle?: string;
+  targetThumbnailUrl?: string;
+  commentContent?: string;
+  targetPath?: string;
+}
+
 // Initialize SendGrid
 let isInitialized = false;
 
@@ -99,8 +116,10 @@ export class EmailService {
    */
   static async sendUnreadNotificationsEmail(options: {
     to: string;
-    username: string;
+    username?: string;
     unreadCount: number;
+    notificationsUrl?: string;
+    settingsUrl?: string;
   }): Promise<EmailSendResult> {
     const { to, username, unreadCount } = options;
     const displayName = username || to;
@@ -109,12 +128,26 @@ export class EmailService {
         ? `You have 1 unread notification`
         : `You have ${unreadCount} unread notifications`;
 
+    let notificationsUrl = options.notificationsUrl;
+    let settingsUrl = options.settingsUrl;
+
+    if (!notificationsUrl || !settingsUrl) {
+      const frontendUrl = await ParameterStoreService.getFrontendUrl();
+      const baseUrl = frontendUrl.endsWith("/")
+        ? frontendUrl.slice(0, -1)
+        : frontendUrl;
+      notificationsUrl = notificationsUrl || `${baseUrl}/en/user/notifications`;
+      settingsUrl = settingsUrl || `${baseUrl}/en/settings`;
+    }
+
     const { htmlBody, textBody } = await EmailTemplateService.loadTemplate(
       "unread-notifications",
       {
         subject,
         displayName,
         unreadCount: String(unreadCount),
+        notificationsUrl,
+        settingsUrl,
       }
     );
 
@@ -252,6 +285,206 @@ export class EmailService {
       to,
       template: { subject, htmlBody, textBody },
     });
+  }
+
+  static async sendLikeNotificationEmail(
+    options: InteractionEmailOptions
+  ): Promise<EmailSendResult> {
+    return this.sendInteractionNotificationEmail("like", options);
+  }
+
+  static async sendBookmarkNotificationEmail(
+    options: InteractionEmailOptions
+  ): Promise<EmailSendResult> {
+    return this.sendInteractionNotificationEmail("bookmark", options);
+  }
+
+  static async sendCommentNotificationEmail(
+    options: InteractionEmailOptions
+  ): Promise<EmailSendResult> {
+    return this.sendInteractionNotificationEmail("comment", options);
+  }
+
+  private static async sendInteractionNotificationEmail(
+    notificationType: InteractionNotificationType,
+    options: InteractionEmailOptions
+  ): Promise<EmailSendResult> {
+    const actorName = (options.actorName || "Someone").trim();
+    const actorNameHtml = this.escapeHtml(actorName);
+    const displayName = (options.username || options.to).trim();
+    const displayNameHtml = this.escapeHtml(displayName);
+    const displayNameText = displayName;
+    const locale = (options.locale || "en").toLowerCase();
+
+    const frontendUrl = await ParameterStoreService.getFrontendUrl();
+    const baseUrl = frontendUrl.endsWith("/")
+      ? frontendUrl.slice(0, -1)
+      : frontendUrl;
+
+    const targetTypeLabel = this.getTargetTypeLabel(options.targetType);
+    const targetTypeLabelCapitalized =
+      targetTypeLabel.charAt(0).toUpperCase() + targetTypeLabel.slice(1);
+
+    const defaultPath = this.getDefaultTargetPath(
+      options.targetType,
+      options.targetId
+    );
+    const normalizedCustomPath = options.targetPath
+      ? options.targetPath.replace(/^\/+/, "")
+      : undefined;
+    const relativePath = normalizedCustomPath || defaultPath;
+
+    const targetUrl = `${baseUrl}/${locale}/${relativePath}`;
+    const notificationsUrl = `${baseUrl}/${locale}/user/notifications`;
+    const settingsUrl = `${baseUrl}/${locale}/settings`;
+
+    const subject = this.getInteractionSubject(
+      notificationType,
+      actorName,
+      targetTypeLabel
+    );
+
+    const rawTargetTitle = options.targetTitle?.trim();
+    const targetTitle = rawTargetTitle || `your ${targetTypeLabel}`;
+    const targetTitleHtml = this.escapeHtml(targetTitle);
+    const targetTitleText = targetTitle;
+
+    const thumbnailUrl = options.targetThumbnailUrl?.trim();
+    const thumbnailSection = thumbnailUrl
+      ? `<div style="text-align:center;margin:24px 0;">
+          <img src="https://cdn.pornspot.ai${this.escapeAttribute(
+            thumbnailUrl
+          )}" alt="${this.escapeHtml(
+          `${targetTypeLabelCapitalized} preview`
+        )}" style="width:100%;max-width:360px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.35);" />
+        </div>`
+      : "";
+    const thumbnailText = thumbnailUrl ? `Preview: ${thumbnailUrl}` : "";
+
+    const rawComment = options.commentContent?.trim();
+    const truncatedComment = rawComment ? this.truncate(rawComment, 400) : "";
+    const commentSection = truncatedComment
+      ? `<blockquote style="margin:24px 0;padding:16px 20px;background-color:#1e293b;border-left:4px solid #8b5cf6;border-radius:10px;color:#e2e8f0;">${this.escapeHtml(
+          truncatedComment
+        )}</blockquote>`
+      : "";
+    const commentText = truncatedComment
+      ? `Comment: "${truncatedComment}"`
+      : "";
+
+    const finalTargetUrl = relativePath
+      ? targetUrl
+      : `${baseUrl}/${locale}/user/notifications`;
+
+    const { htmlBody, textBody } = await EmailTemplateService.loadTemplate(
+      this.getInteractionTemplateName(notificationType),
+      {
+        subject,
+        displayNameHtml,
+        displayNameText,
+        actorNameHtml,
+        actorNameText: actorName,
+        targetTypeLabel,
+        targetTypeLabelCapitalized,
+        targetTitleHtml,
+        targetTitleText,
+        targetUrl: finalTargetUrl,
+        thumbnailSection,
+        thumbnailText,
+        notificationsUrl,
+        settingsUrl,
+        commentSection,
+        commentText,
+      }
+    );
+
+    return this.sendEmail({
+      to: options.to,
+      template: { subject, htmlBody, textBody },
+    });
+  }
+
+  private static getInteractionTemplateName(
+    notificationType: InteractionNotificationType
+  ): string {
+    switch (notificationType) {
+      case "like":
+        return "interaction-like";
+      case "bookmark":
+        return "interaction-bookmark";
+      case "comment":
+        return "interaction-comment";
+      default:
+        return "interaction-like";
+    }
+  }
+
+  private static getInteractionSubject(
+    notificationType: InteractionNotificationType,
+    actorName: string,
+    targetTypeLabel: string
+  ): string {
+    switch (notificationType) {
+      case "like":
+        return `${actorName} liked your ${targetTypeLabel}!`;
+      case "bookmark":
+        return `${actorName} bookmarked your ${targetTypeLabel}!`;
+      case "comment":
+        return `${actorName} commented on your ${targetTypeLabel}!`;
+      default:
+        return `${actorName} interacted with your ${targetTypeLabel}!`;
+    }
+  }
+
+  private static getTargetTypeLabel(targetType: InteractionTargetType): string {
+    switch (targetType) {
+      case "album":
+        return "album";
+      case "image":
+        return "image";
+      case "video":
+        return "video";
+      case "comment":
+        return "comment";
+      default:
+        return "content";
+    }
+  }
+
+  private static getDefaultTargetPath(
+    targetType: InteractionTargetType,
+    targetId: string
+  ): string {
+    switch (targetType) {
+      case "album":
+        return `albums/${targetId}`;
+      case "image":
+      case "video":
+        return `media/${targetId}`;
+      case "comment":
+      default:
+        return "user/notifications";
+    }
+  }
+
+  private static escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  private static escapeAttribute(value: string): string {
+    return this.escapeHtml(value);
+  }
+
+  private static truncate(value: string, max: number = 280): string {
+    if (value.length <= max) {
+      return value;
+    }
+    return `${value.slice(0, max - 1)}…`;
   }
 
   /**

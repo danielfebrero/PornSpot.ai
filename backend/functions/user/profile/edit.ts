@@ -152,7 +152,11 @@ const handleEditProfile = async (
   if (updateData.emailPreferences !== undefined) {
     try {
       const prefs = updateData.emailPreferences as EmailPreferences;
-      const validModes: EmailPreferenceMode[] = ["intelligently", "never"];
+      const validModes: EmailPreferenceMode[] = [
+        "intelligently",
+        "always",
+        "never",
+      ];
       if (prefs.pscBalance && !validModes.includes(prefs.pscBalance)) {
         validationErrors.push("Invalid email preference for PSC balance");
       }
@@ -163,6 +167,9 @@ const handleEditProfile = async (
         validationErrors.push(
           "Invalid email preference for unread notifications"
         );
+      }
+      if (prefs.newFollowers && !validModes.includes(prefs.newFollowers)) {
+        validationErrors.push("Invalid email preference for new followers");
       }
     } catch (error) {
       validationErrors.push(

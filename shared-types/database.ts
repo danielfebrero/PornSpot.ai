@@ -238,11 +238,11 @@ export interface UserEntity extends BaseEntity {
   lastSentPscBalanceEmailAt?: string; // when the last PSC balance email was sent
 
   // email notification preferences
-  emailPreferences?: EmailPreferences; // per-user email notification preferences
+  emailPreferences: EmailPreferences; // per-user email notification preferences
 
   // video generation
-  i2vCreditsSecondsPurchased?: number; // image-to-video generation credits in seconds
-  i2vCreditsSecondsFromPlan?: number; // credits granted by subscription plan
+  i2vCreditsSecondsPurchased: number; // image-to-video generation credits in seconds
+  i2vCreditsSecondsFromPlan: number; // credits granted by subscription plan
 }
 
 // User Session Entity

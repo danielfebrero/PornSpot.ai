@@ -1261,6 +1261,7 @@
         },
         "options": {
           "intelligently": "Inteligentemente",
+          "always": "Siempre",
           "never": "Nunca"
         }
       },

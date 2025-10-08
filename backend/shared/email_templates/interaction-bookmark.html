@@ -32,9 +32,9 @@
           style="
             font-size: 32px;
             font-weight: bold;
-            color: #8b5cf6 !important;
+            color: #f97316 !important;
             margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+            text-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
           "
         >
           PornSpot.ai
@@ -47,27 +47,30 @@
             font-weight: 600;
           "
         >
-          You have unread notifications
+          {{subject}}
         </h1>
       </div>
 
       <div
         style="font-size: 16px; margin-bottom: 30px; color: #cbd5e1 !important"
       >
-        <p style="color: #cbd5e1 !important">Hello {{displayName}},</p>
+        <p style="color: #cbd5e1 !important">Hey {{displayNameHtml}},</p>
 
         <p style="color: #cbd5e1 !important">
-          You have
-          <strong style="color: #f8fafc !important">{{unreadCount}}</strong>
-          unread notifications waiting for you on PornSpot.ai.
+          <strong style="color: #f8fafc !important">{{actorNameHtml}}</strong>
+          just bookmarked your {{targetTypeLabel}}
+          <strong style="color: #f8fafc !important">{{targetTitleHtml}}</strong
+          >. Your work is making waves—keep it up!
         </p>
+
+        {{thumbnailSection}}
 
         <div style="text-align: center">
           <a
-            href="{{notificationsUrl}}"
+            href="{{targetUrl}}"
             style="
               display: inline-block;
-              background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+              background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
               color: #ffffff !important;
               padding: 16px 32px;
               text-decoration: none;
@@ -76,15 +79,15 @@
               font-size: 16px;
               text-align: center;
               margin: 20px 0;
-              box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.25);
+              box-shadow: 0 4px 14px 0 rgba(249, 115, 22, 0.25);
             "
-            >View Notifications</a
+            >Open your {{targetTypeLabelCapitalized}}</a
           >
         </div>
 
         <p style="color: #cbd5e1 !important">
-          If the button above doesn't work, you can copy and paste this link
-          into your browser:
+          If the button above doesn't work, copy and paste this link into your
+          browser:
         </p>
         <p
           style="
@@ -98,10 +101,20 @@
             font-size: 14px;
           "
         >
-          {{notificationsUrl}}
+          {{targetUrl}}
         </p>
 
-        <p style="color: #cbd5e1 !important">See you soon,</p>
+        <p style="color: #cbd5e1 !important">
+          Want to control which emails you receive? Update your preferences
+          anytime:
+        </p>
+        <p style="color: #cbd5e1 !important">
+          <a href="{{settingsUrl}}" style="color: #94a3b8 !important"
+            >Manage email settings</a
+          >
+        </p>
+
+        <p style="color: #cbd5e1 !important">With appreciation,</p>
         <p style="color: #cbd5e1 !important">The PornSpot.ai Team</p>
       </div>
 
@@ -119,6 +132,12 @@
           Manage or opt-out of these emails in your settings:
           <a href="{{settingsUrl}}" style="color: #94a3b8 !important"
             >{{settingsUrl}}</a
+          >
+        </p>
+        <p style="color: #64748b !important">
+          Browse all your notifications:
+          <a href="{{notificationsUrl}}" style="color: #94a3b8 !important"
+            >{{notificationsUrl}}</a
           >
         </p>
         <p style="color: #64748b !important">

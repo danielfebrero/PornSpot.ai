@@ -1245,6 +1245,7 @@
         },
         "options": {
           "intelligently": "Intelligent",
+          "always": "Immer",
           "never": "Nie"
         }
       },

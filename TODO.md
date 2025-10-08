@@ -42,7 +42,7 @@
 
 [x] Remove all console logs.
 
-[ ] Implement additional image credit, so we can do promotions and offer 10 images on signup.
+[x] Implement additional image credit, so we can do promotions and offer 10 images on signup.
 
 [x] Review or implement Change password.
 
@@ -50,9 +50,9 @@
 
 [x] If I login after website load, make sure to get a new jwt token and websocket connection.
 
-[ ] Verify the entire mobile and tablet experience.
+[x] Verify the entire mobile and tablet experience.
 
-[ ] Review page titles and meta descriptions.
+[x] Review page titles and meta descriptions.
 
 [x] Hardcode things in negative prompt to prevent CSM.
 

@@ -1,0 +1,14 @@
+{{subject}}
+
+Hello {{displayNameText}},
+
+{{actorNameText}} bookmarked your {{targetTypeLabel}} "{{targetTitleText}}".
+
+{{thumbnailText}}
+Take a look: {{targetUrl}}
+
+Notifications center: {{notificationsUrl}}
+Email settings: {{settingsUrl}}
+
+With appreciation,
+The PornSpot.ai Team

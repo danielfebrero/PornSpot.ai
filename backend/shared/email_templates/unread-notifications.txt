@@ -10,12 +10,12 @@ Hello {{displayName}},
 You have {{unreadCount}} unread notifications waiting for you on PornSpot.ai.
 
 View your notifications here:
-https://www.pornspot.ai/en/user/notifications
+{{notificationsUrl}}
 
 Tip: Enable notifications to stay up to date with new likes, comments, and followers.
 
 Manage or opt-out of these emails in your settings:
-https://www.pornspot.ai/en/settings
+{{settingsUrl}}
 
 See you soon,
 The PornSpot.ai Team

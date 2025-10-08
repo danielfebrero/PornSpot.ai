@@ -70,6 +70,13 @@ export class UserUtil {
       plan: "free",
       role: "user",
       bonusGenerationCredits: 3,
+      i2vCreditsSecondsPurchased: 0,
+      i2vCreditsSecondsFromPlan: 0,
+      emailPreferences: {
+        pscBalance: "intelligently",
+        unreadNotifications: "always",
+        newFollowers: "intelligently",
+      },
     };
 
     await DynamoDBService.createUser(userEntity);

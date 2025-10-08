@@ -17,7 +17,7 @@ import type { ThumbnailUrls } from "./core";
 import type { UserPlan, PlanPermissions } from "./permissions";
 
 // Email notification preferences
-export type EmailPreferenceMode = "intelligently" | "never";
+export type EmailPreferenceMode = "intelligently" | "always" | "never";
 
 export interface EmailPreferences {
   pscBalance?: EmailPreferenceMode;

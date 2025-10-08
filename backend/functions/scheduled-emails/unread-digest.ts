@@ -13,6 +13,7 @@
 import type { EventBridgeEvent } from "aws-lambda";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { EmailService } from "@shared/utils/email";
+import { ParameterStoreService } from "@shared/utils/parameters";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000; // Just under 7 days
 
@@ -51,6 +52,11 @@ export async function handler(
     eventDetailType: event["detail-type"],
   });
 
+  const frontendUrl = await ParameterStoreService.getFrontendUrl();
+  const baseUrl = frontendUrl.endsWith("/")
+    ? frontendUrl.slice(0, -1)
+    : frontendUrl;
+
   // Step 1: Get unread counts per user via GSI3
   const countsByUser =
     await DynamoDBService.getUnreadNotificationCountsByUserGSI3();
@@ -77,7 +83,16 @@ export async function handler(
       if (unreadCount <= 0) continue;
 
       // Respect user email preferences: skip if user opted out
-      if (user.emailPreferences?.unreadNotifications === "never") {
+      if (!user.email) {
+        continue;
+      }
+
+      const preference = user.emailPreferences?.unreadNotifications;
+      if (preference === "never") {
+        continue;
+      }
+
+      if (preference === "always") {
         continue;
       }
 
@@ -91,10 +106,16 @@ export async function handler(
 
       // Send the email
       try {
+        const locale = (user.preferredLanguage || "en").toLowerCase();
+        const notificationsUrl = `${baseUrl}/${locale}/user/notifications`;
+        const settingsUrl = `${baseUrl}/${locale}/settings`;
+
         await EmailService.sendUnreadNotificationsEmail({
           to: user.email,
           username: user.username,
           unreadCount,
+          notificationsUrl,
+          settingsUrl,
         });
 
         // Update lastSent timestamp
