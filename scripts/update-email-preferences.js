@@ -218,7 +218,7 @@ async function updateEmailPreferences(environment, options = {}) {
                 TableName: tableName,
                 Key: {
                   PK: `USER#${userId}`,
-                  SK: "PROFILE",
+                  SK: "METADATA",
                 },
               };
 
