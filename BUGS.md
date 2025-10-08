@@ -191,3 +191,7 @@
 [x] On generate page, Stop Generation button should clean the queue entry.
 
 [ ] Solve cyclic lambda issue.
+
+[ ] Album page padding on mobile is too large.
+
+[ ] When I subscribe to a plan then go to settings page, the usage & quotas section do not reflect the new plan until I force refresh the page.

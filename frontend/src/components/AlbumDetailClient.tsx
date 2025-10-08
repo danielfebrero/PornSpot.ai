@@ -228,7 +228,7 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
       </div>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 md:p-6 lg:p-8">
+      <main className="container mx-auto md:p-6 lg:p-8">
         <div className="space-y-4">
           {album.tags && album.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
