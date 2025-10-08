@@ -171,10 +171,6 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
               <span>{album.viewCount || 0} views</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Heart className="w-4 h-4" />
-              <span>{album.likeCount || 0} likes</span>
-            </div>
-            <div className="flex items-center gap-1.5">
               <span>
                 {album.mediaCount}{" "}
                 {album.mediaCount === 1 ? t("item") : t("items")}
