@@ -730,7 +730,11 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
 
   // Load user settings when user changes
   useEffect(() => {
-    if (user) {
+    if (
+      user &&
+      user.planInfo.plan !== "free" &&
+      user.planInfo.plan !== "anonymous"
+    ) {
       loadUserSettings();
     } else {
       // Reset to defaults when user logs out

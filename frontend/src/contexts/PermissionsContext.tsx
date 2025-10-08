@@ -25,7 +25,7 @@ import {
  * This is a promotional period. After this date, normal plan-based permissions will be enforced.
  */
 const isTemporaryUnlimitedPeriod = (): boolean => {
-  const temporaryEndDate = new Date("2099-10-06T23:59:59.999Z");
+  const temporaryEndDate = new Date("2025-10-07T23:59:59.999Z");
   const currentDate = new Date();
   return currentDate < temporaryEndDate;
 };

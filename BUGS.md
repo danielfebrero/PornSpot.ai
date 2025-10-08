@@ -189,3 +189,5 @@
 [x] On generate page, if I fullscreen generated images and goes left to right multiple times then delete an image, it's not the good one that appears as deleted but the good one that is really deleted.
 
 [x] On generate page, Stop Generation button should clean the queue entry.
+
+[ ] Solve cyclic lambda issue.
