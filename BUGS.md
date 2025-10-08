@@ -192,6 +192,8 @@
 
 [ ] Solve cyclic lambda issue.
 
-[ ] Album page padding on mobile is too large.
+[x] Album page padding on mobile is too large.
 
 [ ] When I subscribe to a plan then go to settings page, the usage & quotas section do not reflect the new plan until I force refresh the page.
+
+[ ] FAQ page on mobile has layout issue with footer navigation.

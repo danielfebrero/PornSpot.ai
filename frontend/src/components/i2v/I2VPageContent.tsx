@@ -523,7 +523,7 @@ export function I2VPageContent() {
       <div className="min-h-screen bg-background">
         {/* Header */}
         <div className="bg-card border-b sticky top-0 z-10">
-          <div className="px-4 py-4">
+          <div className="pb-4">
             <div className="flex items-center gap-3">
               <Button
                 onClick={() => router.back()}
@@ -550,7 +550,7 @@ export function I2VPageContent() {
           </div>
         </div>
 
-        <div className="p-4 space-y-6">
+        <div className="pt-4 space-y-6">
           {/* Source Image */}
           <div>
             <h2 className="text-base font-semibold text-foreground mb-3">
