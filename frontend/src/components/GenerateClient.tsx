@@ -77,7 +77,7 @@ export function GenerateClient() {
   // const [showMobileSettings, setShowMobileSettings] = useState(false);
 
   // Maintenance modal state
-  const [showMaintenanceModal, setShowMaintenanceModal] = useState(true);
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
 
   // Image sizes with translations
   const IMAGE_SIZES = [
