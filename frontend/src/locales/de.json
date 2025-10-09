@@ -1608,7 +1608,11 @@
     "strengthAutoDescriptionComplete": "Die Stärke wird automatisch basierend auf dem Prompt gesetzt",
     "promptAdherence": "Prompt-Befolgung",
     "hidden": "Versteckt",
-    "shown": "Angezeigt"
+    "shown": "Angezeigt",
+    "maintenanceModal": {
+      "title": "Wartungshinweis",
+      "message": "Unser Bildgenerierungsdienst befindet sich derzeit in einer geplanten Wartung und wird in einigen Stunden wieder online sein. Wir entschuldigen uns für die Unannehmlichkeiten und danken Ihnen für Ihre Geduld."
+    }
   },
   "pricing": {
     "metaTitle": "Preise - {siteName} | Pläne für KI-Generierte Pornos",

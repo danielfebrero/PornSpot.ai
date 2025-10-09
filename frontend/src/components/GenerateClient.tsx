@@ -48,6 +48,7 @@ import { cn } from "@/lib/utils";
 import { GenerationProgressCard } from "./ui/GenerationProgressCard";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { useWebSocket } from "@/contexts/WebSocketContext";
+import { AlertDialog } from "@/components/ui/AlertDialog";
 import { useTranslations } from "next-intl";
 import { getLoraModels } from "@/utils/loraModels";
 import { motion, AnimatePresence } from "framer-motion";
@@ -74,6 +75,9 @@ export function GenerateClient() {
     "generate"
   );
   // const [showMobileSettings, setShowMobileSettings] = useState(false);
+
+  // Maintenance modal state
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState(true);
 
   // Image sizes with translations
   const IMAGE_SIZES = [
@@ -2216,6 +2220,15 @@ export function GenerateClient() {
           onNext={handleLightboxNext}
           onPrevious={handleLightboxPrevious}
           onGoToIndex={(index) => setLightboxIndex(index)}
+        />
+
+        {/* Maintenance Modal */}
+        <AlertDialog
+          isOpen={showMaintenanceModal}
+          onClose={() => setShowMaintenanceModal(false)}
+          title={t("maintenanceModal.title")}
+          message={t("maintenanceModal.message")}
+          variant="warning"
         />
       </div>
     </div>

@@ -1637,7 +1637,11 @@
     "automatic": "自动",
     "manual": "手动",
     "hidden": "隐藏",
-    "shown": "显示"
+    "shown": "显示",
+    "maintenanceModal": {
+      "title": "维护通知",
+      "message": "我们的图像生成服务目前正在进行计划维护，将在几个小时后重新上线。对于造成的不便，我们深表歉意，并感谢您的耐心等待。"
+    }
   },
   "pricing": {
     "metaTitle": "价格 - {siteName} | AI生成色情内容计划",

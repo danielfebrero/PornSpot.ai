@@ -1673,7 +1673,11 @@
     "strengthAutoDescriptionComplete": "La force sera définie automatiquement basée sur le prompt",
     "promptAdherence": "Adhérence au prompt",
     "hidden": "Caché",
-    "shown": "Affiché"
+    "shown": "Affiché",
+    "maintenanceModal": {
+      "title": "Avis de Maintenance",
+      "message": "Notre service de génération d'images est actuellement en maintenance programmée et sera de retour en ligne dans quelques heures. Nous nous excusons pour la gêne occasionnée et vous remercions de votre patience."
+    }
   },
   "pricing": {
     "metaTitle": "Tarifs - {siteName} | Plans pour du Porno Généré par IA",

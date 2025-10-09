@@ -1650,7 +1650,11 @@
     "strengthAutoDescriptionComplete": "Strength will be set automatically based on the prompt",
     "promptAdherence": "Prompt adherence",
     "hidden": "Hidden",
-    "shown": "Shown"
+    "shown": "Shown",
+    "maintenanceModal": {
+      "title": "Maintenance Notice",
+      "message": "Our image generation service is currently undergoing scheduled maintenance and will be back online in a few hours. We apologize for the inconvenience and appreciate your patience."
+    }
   },
   "pricing": {
     "metaTitle": "Pricing - {siteName} | Plans for AI Generated Images and Videos",
