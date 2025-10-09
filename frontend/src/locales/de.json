@@ -1740,7 +1740,7 @@
         },
         "freeTrial": {
           "question": "Gibt es eine kostenlose Testversion?",
-          "answer": "Ja! Alle Benutzer erhalten bei der Registrierung 5 kostenlose Bildgenerierungen sowie täglich ein zusätzliches kostenloses Bild, um unsere Plattform zu erkunden."
+          "answer": "Ja! Alle Benutzer erhalten bei der Registrierung 3 kostenlose Bildgenerierungen sowie täglich ein zusätzliches kostenloses Bild, um unsere Plattform zu erkunden."
         },
         "proFeatures": {
           "question": "Welche erweiterten Funktionen bietet der Pro-Plan?",

@@ -1756,7 +1756,7 @@
         },
         "freeTrial": {
           "question": "¿Hay una prueba gratuita disponible?",
-          "answer": "¡Sí! Todos los usuarios reciben 5 generaciones de imágenes gratuitas al registrarse, además de una imagen gratuita adicional cada día para explorar nuestra plataforma."
+          "answer": "¡Sí! Todos los usuarios reciben 3 generaciones de imágenes gratuitas al registrarse, además de una imagen gratuita adicional cada día para explorar nuestra plataforma."
         },
         "proFeatures": {
           "question": "¿Qué características avanzadas ofrece el plan Pro?",

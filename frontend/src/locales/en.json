@@ -1782,7 +1782,7 @@
         },
         "freeTrial": {
           "question": "Is there a free trial available?",
-          "answer": "Yes! All users receive 5 free image generations upon registration, plus one additional free image every day to explore our platform."
+          "answer": "Yes! All users receive 3 free image generations upon registration, plus one additional free image every day to explore our platform."
         },
         "proFeatures": {
           "question": "What advanced features does the Pro plan offer?",

@@ -223,3 +223,5 @@
 [x] Download album as zip.
 
 [x] Redesign the PricingPage.
+
+[ ] Updated albums should appear in Discover.
