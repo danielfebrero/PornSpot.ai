@@ -46,6 +46,8 @@ export interface AlbumEntity extends BaseEntity {
   GSI6SK: number; // 0
   GSI7PK: string; // CONTENT
   GSI7SK: string; // {createdAt}
+  GSI8PK?: string; // VISIBILITY_UPDATED
+  GSI8SK?: string; // {isPublic}#{updatedAt}#{albumId}
   EntityType: "Album";
   id: string;
   title: string;

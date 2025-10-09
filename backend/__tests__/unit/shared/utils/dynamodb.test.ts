@@ -148,6 +148,59 @@ describe("DynamoDBService", () => {
 
         updateAlbumTagRelationsSpy.mockRestore();
       });
+
+      it("should always update updatedAt and GSI8SK for any album update", async () => {
+        mockSend
+          .mockImplementationOnce(() =>
+            Promise.resolve({ Item: mockAlbumEntity })
+          )
+          .mockImplementationOnce(() => Promise.resolve({}));
+
+        await DynamoDBService.updateAlbum(mockAlbumId, {
+          title: "Updated Title",
+        });
+
+        expect(mockSend).toHaveBeenNthCalledWith(1, expect.any(GetCommand));
+        expect(mockSend).toHaveBeenNthCalledWith(2, expect.any(UpdateCommand));
+
+        const updateCall = mockSend.mock.calls[1][0];
+        const expressionValues = updateCall.input.ExpressionAttributeValues;
+
+        // Check that updatedAt is set
+        expect(expressionValues[":updatedAt"]).toBeDefined();
+
+        // Check that GSI8PK and GSI8SK are always updated
+        expect(expressionValues[":GSI8PK"]).toBe("VISIBILITY_UPDATED");
+        expect(expressionValues[":GSI8SK"]).toMatch(
+          new RegExp(`^${mockAlbumEntity.isPublic}#.+#${mockAlbumId}$`)
+        );
+      });
+
+      it("should update GSI8SK when isPublic changes", async () => {
+        const updatedAt = "2023-01-02T00:00:00.000Z";
+        mockSend
+          .mockImplementationOnce(() =>
+            Promise.resolve({ Item: mockAlbumEntity })
+          )
+          .mockImplementationOnce(() => Promise.resolve({}));
+
+        await DynamoDBService.updateAlbum(mockAlbumId, {
+          isPublic: "false",
+          updatedAt,
+        });
+
+        expect(mockSend).toHaveBeenNthCalledWith(1, expect.any(GetCommand));
+        expect(mockSend).toHaveBeenNthCalledWith(2, expect.any(UpdateCommand));
+
+        const updateCall = mockSend.mock.calls[1][0];
+        const expressionValues = updateCall.input.ExpressionAttributeValues;
+
+        // Check that GSI8PK and GSI8SK are updated with new isPublic value
+        expect(expressionValues[":GSI8PK"]).toBe("VISIBILITY_UPDATED");
+        expect(expressionValues[":GSI8SK"]).toBe(
+          `false#${updatedAt}#${mockAlbumId}`
+        );
+      });
     });
 
     describe("deleteAlbum", () => {

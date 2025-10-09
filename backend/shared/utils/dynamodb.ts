@@ -475,59 +475,67 @@ export class DynamoDBService {
       isPublic: boolean;
     } | null = null;
 
-    // Check if isPublic or createdBy is being updated - need to update corresponding GSI keys
-    if (updates.isPublic !== undefined || updates.createdBy !== undefined) {
-      // Get the existing album entity to retrieve missing fields for GSI updates
-      const existingAlbum = await docClient.send(
-        new GetCommand({
-          TableName: TABLE_NAME,
-          Key: {
-            PK: `ALBUM#${albumId}`,
-            SK: "METADATA",
-          },
-        })
-      );
-
-      if (!existingAlbum.Item) {
-        throw new Error(`Album ${albumId} not found`);
-      }
-
-      const existingAlbumEntity = existingAlbum.Item as AlbumEntity;
-      const createdAt = existingAlbumEntity.createdAt;
-      const existingIsPublic = existingAlbumEntity.isPublic;
-      const currentIsPublic = updates.isPublic ?? existingIsPublic;
-      const currentCreatedBy =
-        updates.createdBy ?? existingAlbumEntity.createdBy;
-
-      if (
-        updates.isPublic !== undefined &&
-        updates.isPublic !== existingIsPublic &&
-        Array.isArray(existingAlbumEntity.tags) &&
-        existingAlbumEntity.tags.length > 0 &&
-        existingAlbumEntity.createdBy
-      ) {
-        tagVisibilityUpdateParams = {
-          tags: existingAlbumEntity.tags,
-          createdAt,
-          createdBy: existingAlbumEntity.createdBy,
-          isPublic: updates.isPublic === "true",
-        };
-      }
-
-      // Update GSI3 keys when isPublic or createdBy changes
-      // GSI3PK format: ALBUM_BY_USER_{isPublic}
-      // GSI3SK format: {createdBy}#{createdAt}#{albumId}
-      if (updates.isPublic !== undefined || updates.createdBy !== undefined) {
-        updates.GSI3PK = `ALBUM_BY_USER_${currentIsPublic}`;
-        updates.GSI3SK = `${currentCreatedBy}#${createdAt}#${albumId}`;
-      }
-
-      // Update GSI5SK when isPublic changes
-      // GSI5SK format: {isPublic}#{createdAt}
-      if (updates.isPublic !== undefined) {
-        updates.GSI5SK = `${updates.isPublic}#${createdAt}`;
-      }
+    // Always set updatedAt if not provided
+    if (!updates.updatedAt) {
+      updates.updatedAt = new Date().toISOString();
     }
+
+    // Get the existing album entity to retrieve missing fields for GSI updates
+    const existingAlbum = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `ALBUM#${albumId}`,
+          SK: "METADATA",
+        },
+      })
+    );
+
+    if (!existingAlbum.Item) {
+      throw new Error(`Album ${albumId} not found`);
+    }
+
+    const existingAlbumEntity = existingAlbum.Item as AlbumEntity;
+    const createdAt = existingAlbumEntity.createdAt;
+    const existingIsPublic = existingAlbumEntity.isPublic;
+    const currentIsPublic = updates.isPublic ?? existingIsPublic;
+    const currentCreatedBy = updates.createdBy ?? existingAlbumEntity.createdBy;
+
+    // Check if we need to update album tag relations (only when visibility changes)
+    if (
+      updates.isPublic !== undefined &&
+      updates.isPublic !== existingIsPublic &&
+      Array.isArray(existingAlbumEntity.tags) &&
+      existingAlbumEntity.tags.length > 0 &&
+      existingAlbumEntity.createdBy
+    ) {
+      tagVisibilityUpdateParams = {
+        tags: existingAlbumEntity.tags,
+        createdAt,
+        createdBy: existingAlbumEntity.createdBy,
+        isPublic: updates.isPublic === "true",
+      };
+    }
+
+    // Update GSI3 keys when isPublic or createdBy changes
+    // GSI3PK format: ALBUM_BY_USER_{isPublic}
+    // GSI3SK format: {createdBy}#{createdAt}#{albumId}
+    if (updates.isPublic !== undefined || updates.createdBy !== undefined) {
+      updates.GSI3PK = `ALBUM_BY_USER_${currentIsPublic}`;
+      updates.GSI3SK = `${currentCreatedBy}#${createdAt}#${albumId}`;
+    }
+
+    // Update GSI5SK when isPublic changes
+    // GSI5SK format: {isPublic}#{createdAt}
+    if (updates.isPublic !== undefined) {
+      updates.GSI5SK = `${updates.isPublic}#${createdAt}`;
+    }
+
+    // ALWAYS update GSI8 keys to track when album was last updated
+    // GSI8PK format: VISIBILITY_UPDATED
+    // GSI8SK format: {isPublic}#{updatedAt}#{albumId}
+    updates.GSI8PK = "VISIBILITY_UPDATED";
+    updates.GSI8SK = `${currentIsPublic}#${updates.updatedAt}#${albumId}`;
 
     Object.entries(updates).forEach(([key, value]) => {
       if (key !== "PK" && key !== "SK" && value !== undefined) {

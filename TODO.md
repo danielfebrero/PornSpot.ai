@@ -225,3 +225,5 @@
 [x] Redesign the PricingPage.
 
 [ ] Updated albums should appear in Discover.
+
+[ ] Modal asking for Name on Card and Billing country on checkout.

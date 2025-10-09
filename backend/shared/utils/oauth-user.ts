@@ -83,6 +83,13 @@ export class OAuthUserUtil {
       googleId,
       role: "user",
       plan: "free",
+      emailPreferences: {
+        pscBalance: "intelligently",
+        unreadNotifications: "always",
+        newFollowers: "intelligently",
+      },
+      i2vCreditsSecondsFromPlan: 0,
+      i2vCreditsSecondsPurchased: 0,
     };
 
     await DynamoDBService.createUser(userEntity as UserEntity);

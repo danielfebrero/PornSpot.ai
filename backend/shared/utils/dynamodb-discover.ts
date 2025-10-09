@@ -335,13 +335,13 @@ export class DynamoDBDiscoverService {
   }> {
     const queryParams: QueryCommandInput = {
       TableName: TABLE_NAME,
-      IndexName: "GSI5",
+      IndexName: "GSI8",
       KeyConditionExpression:
-        "GSI5PK = :gsi5pk AND begins_with(GSI5SK, :gsi5sk)",
+        "GSI8PK = :gsi8pk AND begins_with(GSI8SK, :gsi8sk)",
       FilterExpression: "mediaCount > :minMediaCount",
       ExpressionAttributeValues: {
-        ":gsi5pk": "ALBUM",
-        ":gsi5sk": "true",
+        ":gsi8pk": "VISIBILITY_UPDATED",
+        ":gsi8sk": "true#",
         ":minMediaCount": 0,
       },
       ScanIndexForward: false, // Most recent first
