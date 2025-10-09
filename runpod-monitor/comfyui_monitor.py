@@ -50,6 +50,7 @@ class WebSocketForwarder:
     def __init__(self):
         # Configuration
         self.local_host = os.getenv("LOCAL_HOST", "localhost")
+        self.local_wss_host = os.getenv("LOCAL_WSS_HOST", "localhost")
         self.local_port = os.getenv("LOCAL_PORT", "8188")
         self.remote_ws_url = os.getenv("REMOTE_WS_URL", "")
 
@@ -58,7 +59,7 @@ class WebSocketForwarder:
             raise ValueError("REMOTE_WS_URL environment variable is required")
 
         # Build local WebSocket URL
-        self.local_ws_url = f"ws://{self.local_host}:{self.local_port}/ws?clientId=666"
+        self.local_ws_url = f"wss://{self.local_wss_host}/ws?clientId=666"
 
         # Connection settings
         self.reconnect_delay = int(os.getenv("RECONNECT_DELAY", "5"))
