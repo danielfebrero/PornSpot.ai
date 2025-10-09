@@ -2556,7 +2556,7 @@
           },
           "unhappyOutput": {
             "question": "如果AI生成了我不喜欢的东西怎么办？",
-            "answer": "使用更清晰的细节或负面关键词（如\"避免X\"）调整您的提示。根据需要重新生成——每次尝试都会让系统更多地了解您的偏好。"
+            "answer": "使用更清晰的细节或负面关键词调整您的提示。根据需要重新生成。"
           },
           "platformUpdates": {
             "question": "平台多久更新一次？",
@@ -2598,7 +2598,7 @@
         "items": {
           "paymentMethods": {
             "question": "接受哪些付款方式？",
-            "answer": "<p>我们通过具有强大欺诈预防功能的安全网关处理付款。支持以下选项：</p><list><item><strong>Visa和Mastercard</strong> — 全球覆盖，具有3D安全认证。</item><item><strong>TrustPay合作伙伴</strong> — 在可用的地方进行即时欧洲银行转账。</item><item><strong>PornSpotCoin</strong> — 兑换平台赚取的PSC代币以获得会员资格。</item></list><p>需要其他选项？<link>查看我们的定价页面</link>或联系支持，我们会提供帮助。</p>"
+            "answer": "<p>我们通过具有强大欺诈预防功能的安全网关处理付款。支持以下选项：</p><list><item><strong>Visa和Mastercard</strong> — 全球覆盖，具有3D安全认证。</item><item><strong>PornSpotCoin</strong> — 兑换平台赚取的PSC代币以获得会员资格。</item></list><p>需要其他选项？<link>查看我们的定价页面</link>或联系支持，我们会提供帮助。</p>"
           }
         }
       },

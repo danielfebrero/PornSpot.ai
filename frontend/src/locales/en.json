@@ -2599,7 +2599,7 @@
           },
           "unhappyOutput": {
             "question": "What if the AI generates something I don't like?",
-            "answer": "Adjust your prompt with clearer details or negative keywords like \"avoid X\". Regenerate as often as needed—each attempt teaches the system more about your preferences."
+            "answer": "Adjust your prompt with clearer details or negative keywords. Regenerate as often as needed."
           },
           "platformUpdates": {
             "question": "How often is the platform updated?",
@@ -2641,7 +2641,7 @@
         "items": {
           "paymentMethods": {
             "question": "What payment methods are accepted?",
-            "answer": "<p>We process payments through secure gateways with strong fraud prevention. The following options are supported:</p><list><item><strong>Visa & Mastercard</strong> — global coverage with 3D Secure authentication.</item><item><strong>TrustPay partners</strong> — for instant European bank transfers where available.</item><item><strong>PornSpotCoin</strong> — redeem platform-earned PSC tokens for memberships.</item></list><p>Need a different option? <link>Check our pricing page</link> or message support and we'll help.</p>"
+            "answer": "<p>We process payments through secure gateways with strong fraud prevention. The following options are supported:</p><list><item><strong>Visa & Mastercard</strong> — global coverage with 3D Secure authentication.</item><item><strong>PornSpotCoin</strong> — redeem platform-earned PSC tokens for memberships.</item></list><p>Need a different option? <link>Check our pricing page</link> or message support and we'll help.</p>"
           }
         }
       },

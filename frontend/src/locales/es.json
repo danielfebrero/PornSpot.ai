@@ -2551,7 +2551,7 @@
           },
           "unhappyOutput": {
             "question": "¿Qué hago si no me gusta el resultado?",
-            "answer": "Ajusta el prompt con más detalles o palabras negativas como \"evitar X\". Regenera tantas veces como quieras; cada intento ayuda al sistema a aprender tus preferencias."
+            "answer": "Ajusta el prompt con más detalles o palabras negativas. Regenera tantas veces como quieras."
           },
           "platformUpdates": {
             "question": "¿Con qué frecuencia se actualiza la plataforma?",
@@ -2593,7 +2593,7 @@
         "items": {
           "paymentMethods": {
             "question": "¿Qué métodos de pago aceptan?",
-            "answer": "<p>Procesamos pagos mediante pasarelas seguras con fuerte prevención de fraude. Aceptamos:</p><list><item><strong>Visa y Mastercard</strong> — cobertura global con autenticación 3D Secure.</item><item><strong>Socios TrustPay</strong> — transferencias bancarias instantáneas en Europa donde esté disponible.</item><item><strong>PornSpotCoin</strong> — canjea los PSC que ganas en la plataforma por membresías.</item></list><p>¿Necesitas otra opción? <link>Consulta nuestra página de precios</link> o contacta a soporte.</p>"
+            "answer": "<p>Procesamos pagos mediante pasarelas seguras con fuerte prevención de fraude. Aceptamos:</p><list><item><strong>Visa y Mastercard</strong> — cobertura global con autenticación 3D Secure.</item><item><strong>PornSpotCoin</strong> — canjea los PSC que ganas en la plataforma por membresías.</item></list><p>¿Necesitas otra opción? <link>Consulta nuestra página de precios</link> o contacta a soporte.</p>"
           }
         }
       },

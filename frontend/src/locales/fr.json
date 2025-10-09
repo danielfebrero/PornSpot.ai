@@ -2600,7 +2600,7 @@
           },
           "unhappyOutput": {
             "question": "Que faire si l'IA génère quelque chose que je n'aime pas ?",
-            "answer": "Ajustez votre prompt avec des détails plus clairs ou des mots-clés négatifs comme \"éviter X\". Régénérez autant de fois que nécessaire — chaque tentative apprend au système à mieux comprendre vos préférences."
+            "answer": "Ajustez votre prompt avec des détails plus clairs ou des mots-clés négatifs. Régénérez autant de fois que nécessaire."
           },
           "platformUpdates": {
             "question": "À quelle fréquence la plateforme est-elle mise à jour ?",
@@ -2642,7 +2642,7 @@
         "items": {
           "paymentMethods": {
             "question": "Quels modes de paiement sont acceptés ?",
-            "answer": "<p>Nous traitons les paiements via des passerelles sécurisées avec une forte prévention de la fraude. Les options suivantes sont prises en charge :</p><list><item><strong>Visa et Mastercard</strong> — couverture mondiale avec authentification 3D Secure.</item><item><strong>Partenaires TrustPay</strong> — pour les virements bancaires instantanés européens lorsque disponible.</item><item><strong>PornSpotCoin</strong> — échangez les jetons PSC gagnés sur la plateforme contre des abonnements.</item></list><p>Besoin d'une autre option ? <link>Consultez notre page de tarifs</link> ou contactez le support et nous vous aiderons.</p>"
+            "answer": "<p>Nous traitons les paiements via des passerelles sécurisées avec une forte prévention de la fraude. Les options suivantes sont prises en charge :</p><list><item><strong>Visa et Mastercard</strong> — couverture mondiale avec authentification 3D Secure.</item><item><strong>PornSpotCoin</strong> — échangez les jetons PSC gagnés sur la plateforme contre des abonnements.</item></list><p>Besoin d'une autre option ? <link>Consultez notre page de tarifs</link> ou contactez le support et nous vous aiderons.</p>"
           }
         }
       },

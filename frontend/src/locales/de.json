@@ -2391,7 +2391,7 @@
           },
           "unhappyOutput": {
             "question": "Was, wenn mir ein Ergebnis nicht gefällt?",
-            "answer": "Verfeinern Sie den Prompt mit klareren Details oder negativen Schlagworten wie \"avoid X\". Generieren Sie erneut – jede Iteration hilft, Ihre Wünsche besser zu treffen."
+            "answer": "Verfeinern Sie den Prompt mit klareren Details oder negativen Schlagworten. Generieren Sie erneut."
           },
           "platformUpdates": {
             "question": "Wie oft gibt es Updates?",
@@ -2433,7 +2433,7 @@
         "items": {
           "paymentMethods": {
             "question": "Welche Zahlungsmethoden werden akzeptiert?",
-            "answer": "<p>Wir verarbeiten Zahlungen über sichere Gateways mit Betrugsschutz. Unterstützt werden:</p><list><item><strong>Visa & Mastercard</strong> — weltweite Akzeptanz mit 3D-Secure.</item><item><strong>TrustPay-Partner</strong> — für sofortige SEPA-/Banktransfers in unterstützten Regionen.</item><item><strong>PornSpotCoin</strong> — nutzen Sie verdiente PSC-Token für Abos.</item></list><p>Brauchen Sie eine andere Option? <link>Schauen Sie auf unserer Preisseite</link> vorbei oder kontaktieren Sie den Support.</p>"
+            "answer": "<p>Wir verarbeiten Zahlungen über sichere Gateways mit Betrugsschutz. Unterstützt werden:</p><list><item><strong>Visa & Mastercard</strong> — weltweite Akzeptanz mit 3D-Secure.</item><item><strong>PornSpotCoin</strong> — nutzen Sie verdiente PSC-Token für Abos.</item></list><p>Brauchen Sie eine andere Option? <link>Schauen Sie auf unserer Preisseite</link> vorbei oder kontaktieren Sie den Support.</p>"
           }
         }
       },
