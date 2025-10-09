@@ -110,7 +110,7 @@ export function FaqClient() {
           <ul className="list-disc pl-6 space-y-2">
             {imageLoras.map((lora) => (
               <li key={lora.key}>
-                <span className="font-semibold text-foreground">
+                <span className="font-semibold text-foreground break-all">
                   {lora.name}
                 </span>
                 <span className="ml-2">
@@ -131,7 +131,7 @@ export function FaqClient() {
           <ul className="list-disc pl-6 space-y-2">
             {videoLoras.map((lora) => (
               <li key={lora.key}>
-                <span className="font-semibold text-foreground">
+                <span className="font-semibold text-foreground break-all">
                   {lora.name}
                 </span>
                 <span className="ml-2">
