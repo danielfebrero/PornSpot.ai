@@ -5,6 +5,7 @@
  * - Generic incrementCounter for any entity.
  * - Specific methods for like, bookmark, view, comment, media counts.
  * - Popularity multipliers for GSI6SK (like/bookmark 10x, view 1x, comment 3x).
+ * - incrementAlbumMediaCount updates GSI8SK ({isPublic}#{updatedAt}#{albumId}) to track album updates.
  * - Bulk operations for multiple counters.
  * - Uses UpdateCommand with ADD for atomic increments.
  * - LocalStack config.
@@ -134,7 +135,7 @@ export class CounterUtil {
     albumId: string,
     increment: number = 1
   ): Promise<void> {
-    const { DynamoDBDocumentClient, UpdateCommand } = await import(
+    const { DynamoDBDocumentClient, UpdateCommand, GetCommand } = await import(
       "@aws-sdk/lib-dynamodb"
     );
     const { DynamoDBClient } = await import("@aws-sdk/client-dynamodb");
@@ -155,14 +156,29 @@ export class CounterUtil {
     const docClient = DynamoDBDocumentClient.from(client);
     const TABLE_NAME = process.env["DYNAMODB_TABLE"]!;
 
+    // First, get the album to retrieve the current isPublic value
+    const getResult = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: { PK: `ALBUM#${albumId}`, SK: "METADATA" },
+        ProjectionExpression: "isPublic",
+      })
+    );
+
+    const isPublic = getResult.Item?.["isPublic"] || "false";
+    const updatedAt = new Date().toISOString();
+
+    // Update mediaCount, updatedAt, GSI8PK, and GSI8SK
     await docClient.send(
       new UpdateCommand({
         TableName: TABLE_NAME,
         Key: { PK: `ALBUM#${albumId}`, SK: "METADATA" },
-        UpdateExpression: "ADD mediaCount :inc SET updatedAt = :updatedAt",
+        UpdateExpression:
+          "ADD mediaCount :inc SET updatedAt = :updatedAt, GSI8SK = :gsi8sk",
         ExpressionAttributeValues: {
           ":inc": increment,
-          ":updatedAt": new Date().toISOString(),
+          ":updatedAt": updatedAt,
+          ":gsi8sk": `${isPublic}#${updatedAt}#${albumId}`,
         },
       })
     );
