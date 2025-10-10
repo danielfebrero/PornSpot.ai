@@ -1364,62 +1364,48 @@ export function GenerateClient() {
 
                   {/* Recent Generations - Mobile/Tablet */}
                   {filteredAllGeneratedImages.length > 0 && (
-                    <Card className="mt-4">
-                      <CardHeader className="py-3">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-medium flex items-center gap-2 text-sm">
-                            <ImageIcon className="h-4 w-4" />
-                            {t("recentGenerations")}
-                          </h3>
-                          <Badge variant="outline" className="text-xs">
-                            {filteredAllGeneratedImages.length} {t("total")}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div
-                          className={cn(
-                            "grid gap-2",
-                            deviceType === "mobile"
-                              ? "grid-cols-4"
-                              : "grid-cols-6"
-                          )}
-                        >
-                          {filteredAllGeneratedImages
-                            .slice(0, 20)
-                            .map((image, index) => (
-                              <button
-                                key={index}
-                                onClick={() =>
-                                  openThumbnailLightbox(image.url || "")
-                                }
-                                className="group relative aspect-square rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-all hover:scale-105"
-                              >
-                                <img
-                                  src={composeMediaUrl(image.url)}
-                                  alt={`${t("previous")} ${index + 1}`}
-                                  className="w-full h-full object-cover"
-                                />
-                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <div className="w-7 h-7 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                                      <Eye className="h-4 w-4 text-white" />
-                                    </div>
-                                  </div>
-                                </div>
-                              </button>
-                            ))}
-                        </div>
-                        {filteredAllGeneratedImages.length > 20 && (
-                          <div className="mt-3 text-center">
-                            <p className="text-xs text-muted-foreground">
-                              +{filteredAllGeneratedImages.length - 20}{" "}
-                              {t("moreImagesInHistory")}
-                            </p>
-                          </div>
+                    <div className="mt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-medium flex items-center gap-2 text-sm">
+                          <ImageIcon className="h-4 w-4" />
+                          {t("recentGenerations")}
+                        </h3>
+                        <Badge variant="outline" className="text-xs">
+                          {filteredAllGeneratedImages.length}
+                        </Badge>
+                      </div>
+                      <div
+                        className={cn(
+                          "grid gap-2",
+                          deviceType === "mobile"
+                            ? "grid-cols-4"
+                            : "grid-cols-6"
                         )}
-                      </CardContent>
-                    </Card>
+                      >
+                        {filteredAllGeneratedImages.map((image, index) => (
+                          <button
+                            key={index}
+                            onClick={() =>
+                              openThumbnailLightbox(image.url || "")
+                            }
+                            className="group relative aspect-square rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-all hover:scale-105"
+                          >
+                            <img
+                              src={composeMediaUrl(image.url)}
+                              alt={`${t("previous")} ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="w-7 h-7 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                                  <Eye className="h-4 w-4 text-white" />
+                                </div>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
               )}
@@ -2023,43 +2009,33 @@ export function GenerateClient() {
                       {t("recentGenerations")}
                     </h3>
                     <Badge variant="outline">
-                      {filteredAllGeneratedImages.length} {t("total")}
+                      {filteredAllGeneratedImages.length}
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-2">
-                    {filteredAllGeneratedImages
-                      .slice(0, 20)
-                      .map((image, index) => (
-                        <button
-                          key={index}
-                          onClick={() => openThumbnailLightbox(image.url || "")}
-                          className="group relative aspect-square rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-all hover:scale-105"
-                        >
-                          <img
-                            src={composeMediaUrl(image.url)}
-                            alt={`${t("previous")} ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                              <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                                <Eye className="h-4 w-4 text-white" />
-                              </div>
+                    {filteredAllGeneratedImages.map((image, index) => (
+                      <button
+                        key={index}
+                        onClick={() => openThumbnailLightbox(image.url || "")}
+                        className="group relative aspect-square rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-all hover:scale-105"
+                      >
+                        <img
+                          src={composeMediaUrl(image.url)}
+                          alt={`${t("previous")} ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                              <Eye className="h-4 w-4 text-white" />
                             </div>
                           </div>
-                        </button>
-                      ))}
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                  {filteredAllGeneratedImages.length > 20 && (
-                    <div className="mt-4 text-center">
-                      <p className="text-sm text-muted-foreground">
-                        +{filteredAllGeneratedImages.length - 20}{" "}
-                        {t("moreImagesInHistory")}
-                      </p>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             )}
