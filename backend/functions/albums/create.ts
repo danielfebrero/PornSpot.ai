@@ -120,6 +120,8 @@ const handleCreateAlbum = async (
     SK: "METADATA",
     GSI1PK: "ALBUM",
     GSI1SK: `${now}#${albumId}`,
+    GSI2PK: "ALBUM_COVER_IMAGE",
+    GSI2SK: `${coverImageId}#${now}#${albumId}`,
     GSI3PK: `ALBUM_BY_USER_${isPublicValue}`,
     GSI3SK: `${userId}#${now}#${albumId}`,
     GSI4PK: "ALBUM_BY_CREATOR",
