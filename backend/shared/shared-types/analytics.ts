@@ -16,6 +16,7 @@ export type MetricType =
   | "albums"
   | "interactions"
   | "generations"
+  | "business"
   | "storage";
 
 export type MetricTypeWithAll = MetricType | "all";

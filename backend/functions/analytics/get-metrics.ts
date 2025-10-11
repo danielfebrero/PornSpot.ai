@@ -103,6 +103,7 @@ function validateQueryParams(event: APIGatewayProxyEvent): {
     "interactions",
     "storage",
     "generations",
+    "business",
     "all",
   ];
   if (!validMetricTypes.includes(metricType as MetricTypeWithAll)) {
@@ -273,6 +274,7 @@ async function handleGetMetrics(
         "interactions",
         "storage",
         "generations",
+        "business",
       ];
 
       const allMetricsPromises = metricTypes.map(async (type) => {

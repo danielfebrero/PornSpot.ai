@@ -154,6 +154,7 @@ async function aggregateHourlyToDaily(
       dailyMetrics.totalBookmarks = latestHour.metrics.totalBookmarks;
       dailyMetrics.totalComments = latestHour.metrics.totalComments;
       dailyMetrics.totalViews = latestHour.metrics.totalViews;
+      dailyMetrics.MRR = latestHour.metrics.MRR;
 
       // New items - sum all hourly increments
       dailyMetrics.newUsers = hourlyData.reduce(

@@ -169,6 +169,7 @@ async function aggregateDailyToMonthly(
       monthlyMetrics.totalBookmarks = latestDay.metrics.totalBookmarks;
       monthlyMetrics.totalComments = latestDay.metrics.totalComments;
       monthlyMetrics.totalViews = latestDay.metrics.totalViews;
+      monthlyMetrics.MRR = latestDay.metrics.MRR;
 
       // New items - sum all daily increments across the month
       monthlyMetrics.newUsers = dailyData.reduce(

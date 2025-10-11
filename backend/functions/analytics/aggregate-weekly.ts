@@ -167,6 +167,7 @@ async function aggregateDailyToWeekly(
       weeklyMetrics.totalBookmarks = latestDay.metrics.totalBookmarks;
       weeklyMetrics.totalComments = latestDay.metrics.totalComments;
       weeklyMetrics.totalViews = latestDay.metrics.totalViews;
+      weeklyMetrics.MRR = latestDay.metrics.MRR;
 
       // New items - sum all daily increments across the week
       weeklyMetrics.newUsers = dailyData.reduce(

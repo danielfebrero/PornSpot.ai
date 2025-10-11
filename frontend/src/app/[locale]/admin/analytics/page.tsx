@@ -17,8 +17,7 @@ import {
   MessageCircle,
   Bookmark,
   Lock,
-  Cpu,
-  HardDrive,
+  DollarSign,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -702,19 +701,19 @@ export default function AnalyticsPage() {
               })()}
             </ChartCard>
 
-            {/* Storage Usage Chart */}
+            {/* Monthly Recurring Revenue (MRR) Chart */}
             <ChartCard
-              title="Storage Usage"
-              subtitle={`Storage usage in GB per ${selectedGranularity
+              title="Monthly Recurring Revenue (MRR)"
+              subtitle={`MRR per ${selectedGranularity
                 .slice(0, -2)
                 .replace("dai", "day")}`}
-              icon={HardDrive}
+              icon={DollarSign}
             >
               {(() => {
                 const chartData = processChartData(
-                  "storage",
-                  "totalStorageGB",
-                  "Storage (GB)",
+                  "business",
+                  "MRR",
+                  "Total MRR",
                   {
                     border: "rgba(59, 130, 246, 1)", // Blue
                     background: "rgba(59, 130, 246, 0.2)",
@@ -724,7 +723,7 @@ export default function AnalyticsPage() {
                   <Line data={chartData} options={chartOptions} />
                 ) : (
                   <div className="h-64 flex items-center justify-center text-muted-foreground">
-                    No storage data available
+                    No data available
                   </div>
                 );
               })()}

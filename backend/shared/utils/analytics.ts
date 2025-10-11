@@ -11,7 +11,9 @@ import {
   MetricType,
   AnalyticsEntity,
   MetricsCacheEntity,
+  UserEntity,
 } from "@shared/shared-types";
+import { resolveOrderItem } from "./order-items";
 
 // Get DynamoDB client from environment
 const TABLE_NAME = process.env["DYNAMODB_TABLE"]!;
@@ -52,6 +54,7 @@ const METRIC_TYPE_MAPPING: Record<MetricType, (keyof AnalyticsMetrics)[]> = {
     "mediaStorageBytes",
     "thumbnailStorageBytes",
   ],
+  business: ["MRR"],
 };
 
 /**
@@ -73,92 +76,92 @@ function filterMetricsByType(
   return filteredMetrics;
 }
 
-export async function calculateGenerationMetrics(
-  docClient: DynamoDBDocumentClient,
-  startTime: string,
-  endTime: string
-): Promise<Partial<AnalyticsMetrics>> {
-  const metrics: Partial<AnalyticsMetrics> = {};
+// export async function calculateGenerationMetrics(
+//   docClient: DynamoDBDocumentClient,
+//   startTime: string,
+//   endTime: string
+// ): Promise<Partial<AnalyticsMetrics>> {
+//   const metrics: Partial<AnalyticsMetrics> = {};
 
-  try {
-    // Get total generations count using GSI6
-    let totalGenerationsCount = 0;
-    let lastKey;
-    do {
-      const res: any = await docClient.send(
-        new QueryCommand({
-          TableName: TABLE_NAME,
-          IndexName: "GSI6",
-          KeyConditionExpression: "GSI6PK = :pk",
-          ExpressionAttributeValues: {
-            ":pk": "GENERATION_ID",
-          },
-          Select: "COUNT",
-          ExclusiveStartKey: lastKey,
-        })
-      );
-      totalGenerationsCount += res?.Count || 0;
-      lastKey = res.LastEvaluatedKey;
-    } while (lastKey);
-    metrics.totalGenerations = totalGenerationsCount;
+//   try {
+//     // Get total generations count using GSI6
+//     let totalGenerationsCount = 0;
+//     let lastKey;
+//     do {
+//       const res: any = await docClient.send(
+//         new QueryCommand({
+//           TableName: TABLE_NAME,
+//           IndexName: "GSI6",
+//           KeyConditionExpression: "GSI6PK = :pk",
+//           ExpressionAttributeValues: {
+//             ":pk": "GENERATION_ID",
+//           },
+//           Select: "COUNT",
+//           ExclusiveStartKey: lastKey,
+//         })
+//       );
+//       totalGenerationsCount += res?.Count || 0;
+//       lastKey = res.LastEvaluatedKey;
+//     } while (lastKey);
+//     metrics.totalGenerations = totalGenerationsCount;
 
-    // Get successful generations in time range using GSI6
-    let successfulGenerationsCount = 0;
-    lastKey = undefined;
-    do {
-      const res: any = await docClient.send(
-        new QueryCommand({
-          TableName: TABLE_NAME,
-          IndexName: "GSI6",
-          KeyConditionExpression:
-            "GSI6PK = :pk AND GSI6SK BETWEEN :start AND :end",
-          FilterExpression: "status = :status",
-          ExpressionAttributeValues: {
-            ":pk": "GENERATION",
-            ":start": startTime,
-            ":end": `${endTime}#zzz`,
-            ":status": "successful",
-          },
-          Select: "COUNT",
-          ExclusiveStartKey: lastKey,
-        })
-      );
-      successfulGenerationsCount += res?.Count || 0;
-      lastKey = res.LastEvaluatedKey;
-    } while (lastKey);
-    metrics.successfulGenerations = successfulGenerationsCount;
+//     // Get successful generations in time range using GSI6
+//     let successfulGenerationsCount = 0;
+//     lastKey = undefined;
+//     do {
+//       const res: any = await docClient.send(
+//         new QueryCommand({
+//           TableName: TABLE_NAME,
+//           IndexName: "GSI6",
+//           KeyConditionExpression:
+//             "GSI6PK = :pk AND GSI6SK BETWEEN :start AND :end",
+//           FilterExpression: "status = :status",
+//           ExpressionAttributeValues: {
+//             ":pk": "GENERATION",
+//             ":start": startTime,
+//             ":end": `${endTime}#zzz`,
+//             ":status": "successful",
+//           },
+//           Select: "COUNT",
+//           ExclusiveStartKey: lastKey,
+//         })
+//       );
+//       successfulGenerationsCount += res?.Count || 0;
+//       lastKey = res.LastEvaluatedKey;
+//     } while (lastKey);
+//     metrics.successfulGenerations = successfulGenerationsCount;
 
-    // Get failed generations in time range using GSI6
-    let failedGenerationsCount = 0;
-    lastKey = undefined;
-    do {
-      const res: any = await docClient.send(
-        new QueryCommand({
-          TableName: TABLE_NAME,
-          IndexName: "GSI6",
-          KeyConditionExpression:
-            "GSI6PK = :pk AND GSI6SK BETWEEN :start AND :end",
-          FilterExpression: "status = :status",
-          ExpressionAttributeValues: {
-            ":pk": "GENERATION",
-            ":start": startTime,
-            ":end": `${endTime}#zzz`,
-            ":status": "failed",
-          },
-          Select: "COUNT",
-          ExclusiveStartKey: lastKey,
-        })
-      );
-      failedGenerationsCount += res?.Count || 0;
-      lastKey = res.LastEvaluatedKey;
-    } while (lastKey);
-    metrics.failedGenerations = failedGenerationsCount;
-  } catch (error) {
-    console.error("Error calculating generation metrics:", error);
-  }
+//     // Get failed generations in time range using GSI6
+//     let failedGenerationsCount = 0;
+//     lastKey = undefined;
+//     do {
+//       const res: any = await docClient.send(
+//         new QueryCommand({
+//           TableName: TABLE_NAME,
+//           IndexName: "GSI6",
+//           KeyConditionExpression:
+//             "GSI6PK = :pk AND GSI6SK BETWEEN :start AND :end",
+//           FilterExpression: "status = :status",
+//           ExpressionAttributeValues: {
+//             ":pk": "GENERATION",
+//             ":start": startTime,
+//             ":end": `${endTime}#zzz`,
+//             ":status": "failed",
+//           },
+//           Select: "COUNT",
+//           ExclusiveStartKey: lastKey,
+//         })
+//       );
+//       failedGenerationsCount += res?.Count || 0;
+//       lastKey = res.LastEvaluatedKey;
+//     } while (lastKey);
+//     metrics.failedGenerations = failedGenerationsCount;
+//   } catch (error) {
+//     console.error("Error calculating generation metrics:", error);
+//   }
 
-  return metrics;
-}
+//   return metrics;
+// }
 
 export async function calculateActiveUsers(
   docClient: DynamoDBDocumentClient,
@@ -231,6 +234,81 @@ export async function calculateVisitorCount(
     lastKey = res.LastEvaluatedKey;
   } while (lastKey);
   return uniqueClientIPs.size;
+}
+
+export async function calculateBusinessMetrics(
+  docClient: DynamoDBDocumentClient,
+  _startTime: string,
+  endTime: string
+): Promise<Partial<AnalyticsMetrics>> {
+  const metrics: Partial<AnalyticsMetrics> = {};
+
+  try {
+    const paidPlans: Array<Exclude<UserEntity["plan"], "anonymous" | "free">> =
+      ["starter", "unlimited", "pro"];
+
+    const planToOrderItemId: Record<(typeof paidPlans)[number], string> = {
+      starter: "starter-monthly",
+      unlimited: "unlimited-monthly",
+      pro: "pro-monthly",
+    };
+
+    const referenceDate = (() => {
+      const parsed = new Date(endTime);
+      return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+    })();
+
+    const referenceISO = referenceDate.toISOString();
+    let mrr = 0;
+
+    for (const plan of paidPlans) {
+      const orderItem = resolveOrderItem(planToOrderItemId[plan]);
+
+      if (!orderItem) {
+        console.warn(
+          `No pricing information found for plan '${plan}', skipping in MRR calculation`
+        );
+        continue;
+      }
+
+      const monthlyAmount = orderItem.amount;
+      let lastKey: any = undefined;
+      let activeSubscribers = 0;
+
+      do {
+        const res: any = await docClient.send(
+          new QueryCommand({
+            TableName: TABLE_NAME,
+            IndexName: "GSI4",
+            KeyConditionExpression: "GSI4PK = :planPK AND GSI4SK > :reference",
+            FilterExpression:
+              "#subscriptionStatus = :activeStatus AND attribute_exists(planEndDate) AND attribute_exists(subscriptionId)",
+            ExpressionAttributeNames: {
+              "#subscriptionStatus": "subscriptionStatus",
+            },
+            ExpressionAttributeValues: {
+              ":planPK": `USER_PLAN#${plan}`,
+              ":reference": referenceISO,
+              ":activeStatus": "active",
+            },
+            Select: "COUNT",
+            ExclusiveStartKey: lastKey,
+          })
+        );
+
+        activeSubscribers += res?.Count || 0;
+        lastKey = res?.LastEvaluatedKey;
+      } while (lastKey);
+
+      mrr += activeSubscribers * monthlyAmount;
+    }
+
+    metrics["MRR"] = Number(mrr.toFixed(2));
+  } catch (error) {
+    console.error("Error calculating business metrics:", error);
+  }
+
+  return metrics;
 }
 
 /**
@@ -809,14 +887,17 @@ export async function aggregateAllMetrics(
     mediaMetrics,
     albumMetrics,
     interactionMetrics,
+    // generationMetrics,
     storageMetrics,
+    businessMetrics,
   ] = await Promise.all([
     calculateUserMetrics(docClient, startTime, endTime),
     calculateMediaMetrics(docClient, startTime, endTime),
     calculateAlbumMetrics(docClient, startTime, endTime),
     calculateInteractionMetrics(docClient, startTime, endTime),
-    calculateGenerationMetrics(docClient, startTime, endTime),
+    // calculateGenerationMetrics(docClient, startTime, endTime),
     calculateStorageMetrics(s3Client, S3_BUCKET!),
+    calculateBusinessMetrics(docClient, startTime, endTime),
   ]);
 
   return {
@@ -824,7 +905,9 @@ export async function aggregateAllMetrics(
     ...mediaMetrics,
     ...albumMetrics,
     ...interactionMetrics,
+    // ...generationMetrics,
     ...storageMetrics,
+    ...businessMetrics,
   } as AnalyticsMetrics;
 }
 

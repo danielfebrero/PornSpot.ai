@@ -81,6 +81,7 @@ const METRIC_TYPES: MetricType[] = [
   "interactions",
   "generations",
   "storage",
+  "business",
 ];
 
 /**
