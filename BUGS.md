@@ -196,4 +196,6 @@
 
 [ ] When I subscribe to a plan then go to settings page, the usage & quotas section do not reflect the new plan until I force refresh the page.
 
-[ ] FAQ page on mobile has layout issue with footer navigation.
+[x] FAQ page on mobile has layout issue with footer navigation.
+
+[ ] There is a bug with the way we debit videos seconds from users. USER#a70f4ce9-f0f9-4e9c-8026-dbf4e3e7718a has negative credit.
