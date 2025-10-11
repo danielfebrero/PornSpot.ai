@@ -37,6 +37,12 @@ Users can now edit and delete their own albums from the `/user/albums` page. Thi
 - `backend/functions/albums/delete.ts` - New album delete handler
 - `template.yaml` - Added new Lambda functions and API routes
 
+### Album Cover Synchronization
+
+- When a media item is deleted (or removed from an album), any album that used that media as its cover automatically selects a new cover from the remaining media.
+- If no media remain in the album, cover metadata and the `ALBUM_COVER_IMAGE` GSI2 keys are cleared to avoid stale references.
+- The revalidation step triggered by media deletion ensures updated covers propagate to the frontend without manual refreshes.
+
 #### Security
 
 - Uses `UserAuthorizer` for authentication
@@ -187,7 +193,7 @@ Users can now edit and delete their own albums from the `/user/albums` page. Thi
 
 ### Update Album
 
-```
+```http
 PUT /albums/{albumId}
 Content-Type: application/json
 Cookie: session=...
@@ -202,7 +208,7 @@ Cookie: session=...
 
 ### Delete Album
 
-```
+```http
 DELETE /albums/{albumId}
 Cookie: session=...
 ```

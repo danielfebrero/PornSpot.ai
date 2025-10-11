@@ -721,3 +721,25 @@ npm run repair:thumbnails
 - [ ] **Error Monitoring**: Check for any thumbnail generation failures
 
 For comprehensive migration procedures, see [`docs/THUMBNAIL_MIGRATION.md`](../docs/THUMBNAIL_MIGRATION.md).
+
+---
+
+## DynamoDB Backfill Scripts
+
+### [`backfill-gsi2-albums.js`](backfill-gsi2-albums.js)
+
+Backfills album entities to ensure the cover image relationship is indexed consistently.
+
+- Sets `GSI2PK` to `ALBUM_COVER_IMAGE` and `GSI2SK` to `<coverImageMediaId>#<albumId>` when a cover exists
+- Removes stale GSI2 attributes when an album no longer has a `coverImageMediaId`
+- Supports `--dry-run`, `--env`, `--concurrency`, and `--page-size` arguments
+
+**Usage:**
+
+```bash
+cd scripts
+node backfill-gsi2-albums.js --env=stage --dry-run
+# Re-run without --dry-run to apply updates
+```
+
+> 💡 Shares the same safety patterns as other DynamoDB migrations (for example `backfill-gsi3-albums.js` and `backfill-gsi5-visibility.js`).

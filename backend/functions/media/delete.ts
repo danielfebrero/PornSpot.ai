@@ -19,6 +19,7 @@ import { ResponseUtil } from "@shared/utils/response";
 import { S3Service } from "@shared/utils/s3";
 import { RevalidationService } from "@shared/utils/revalidation";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
+import { AlbumEntity } from "@shared/shared-types";
 
 interface BulkDeleteRequest {
   mediaIds: string[];
@@ -41,6 +42,22 @@ interface BulkDeleteResponse {
   };
   affectedAlbums: string[];
 }
+
+const extractAlbumId = (album: AlbumEntity): string | null => {
+  if (album.id) {
+    return album.id;
+  }
+
+  if ((album as { albumId?: string }).albumId) {
+    return (album as { albumId?: string }).albumId ?? null;
+  }
+
+  if (album.PK && album.PK.includes("#")) {
+    return album.PK.split("#")[1] ?? null;
+  }
+
+  return null;
+};
 
 const handleDeleteMedia = async (
   event: APIGatewayProxyEvent,
@@ -114,6 +131,7 @@ const handleDeleteMedia = async (
       mediaId: string;
       media: any;
       albumRelations: any[];
+      coverAlbums: AlbumEntity[];
     }> = [];
     const results: MediaDeletionResult[] = [];
     const allAffectedAlbumIds = new Set<string>();
@@ -164,10 +182,15 @@ const handleDeleteMedia = async (
           allAffectedAlbumIds.add(relation.albumId)
         );
 
+        const coverAlbums = await DynamoDBService.findAlbumsUsingCoverMedia(
+          mediaId
+        );
+
         mediaToDelete.push({
           mediaId,
           media: existingMedia,
           albumRelations,
+          coverAlbums,
         });
 
         results.push({
@@ -248,6 +271,35 @@ const handleDeleteMedia = async (
         // Delete the media record (this also removes from all albums)
         await DynamoDBService.deleteMedia(item.mediaId);
         console.log(`✅ Deleted media record ${item.mediaId} from DynamoDB`);
+
+        if (item.coverAlbums.length > 0) {
+          const refreshedAlbums = await Promise.all(
+            item.coverAlbums.map(async (albumEntity) => {
+              const albumId = extractAlbumId(albumEntity);
+              if (!albumId) {
+                return null;
+              }
+
+              try {
+                await DynamoDBService.refreshAlbumCoverForAlbum(
+                  albumId,
+                  albumEntity
+                );
+                return albumId;
+              } catch (error) {
+                console.error(
+                  `Error refreshing cover for album ${albumId}:`,
+                  error
+                );
+                return null;
+              }
+            })
+          );
+
+          refreshedAlbums
+            .filter((albumId): albumId is string => Boolean(albumId))
+            .forEach((albumId) => allAffectedAlbumIds.add(albumId));
+        }
       } catch (error) {
         console.error(
           `Error during DynamoDB cleanup for media ${item.mediaId}:`,

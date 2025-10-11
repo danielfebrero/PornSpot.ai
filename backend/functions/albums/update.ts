@@ -105,6 +105,7 @@ const handleUpdateAlbum = async (
       }
 
       updates.coverImageMediaId = coverImageMediaId;
+      updates.GSI2SK = `${coverImageMediaId}#${albumId}`;
       updates.coverImageUrl = media.thumbnailUrl;
       updates.thumbnailUrls = media.thumbnailUrls;
     }

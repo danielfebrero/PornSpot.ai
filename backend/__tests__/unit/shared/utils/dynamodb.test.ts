@@ -20,6 +20,7 @@ const mockMediaId = "test-media-456";
 describe("DynamoDBService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockSend.mockReset();
     // Mock Date.now() for consistent timestamps
     jest
       .spyOn(Date, "now")
@@ -424,11 +425,17 @@ describe("DynamoDBService", () => {
     describe("deleteMedia", () => {
       it("should delete media successfully", async () => {
         mockSend.mockResolvedValue({});
+        const removeMediaSpy = jest
+          .spyOn(DynamoDBService, "removeMediaFromAllAlbums")
+          .mockResolvedValue();
 
         await DynamoDBService.deleteMedia(mockMediaId);
 
         expect(mockSend).toHaveBeenCalledTimes(1);
         expect(mockSend).toHaveBeenCalledWith(expect.any(DeleteCommand));
+        expect(removeMediaSpy).toHaveBeenCalledWith(mockMediaId);
+
+        removeMediaSpy.mockRestore();
       });
     });
   });
@@ -452,6 +459,100 @@ describe("DynamoDBService", () => {
       await expect(
         DynamoDBService.createAlbum(mockAlbumEntity)
       ).rejects.toThrow("One or more parameter values were invalid");
+    });
+  });
+
+  describe("Album cover management", () => {
+    const albumWithCover = {
+      ...mockAlbumEntity,
+      coverImageMediaId: mockMediaId,
+      GSI2PK: "ALBUM_COVER_IMAGE",
+      GSI2SK: `${mockMediaId}#${mockAlbumId}`,
+    };
+
+    it("refreshes album cover when removing the current cover media", async () => {
+      const refreshSpy = jest
+        .spyOn(DynamoDBService as any, "refreshAlbumCover")
+        .mockResolvedValue(undefined);
+
+      jest
+        .spyOn(DynamoDBService, "getAlbumEntity")
+        .mockResolvedValue(albumWithCover as any);
+      jest
+        .spyOn(DynamoDBService, "decrementAlbumMediaCount")
+        .mockResolvedValue();
+
+      mockSend.mockResolvedValue({});
+
+      await DynamoDBService.removeMediaFromAlbum(mockAlbumId, mockMediaId);
+
+      expect(mockSend).toHaveBeenCalledWith(expect.any(DeleteCommand));
+      expect(refreshSpy).toHaveBeenCalledWith(mockAlbumId, albumWithCover);
+    });
+
+    it("selects a new cover when other media remain", async () => {
+      const applySpy = jest
+        .spyOn(DynamoDBService as any, "applyAlbumCoverUpdate")
+        .mockResolvedValue(undefined);
+
+      const remainingMediaId = "media-789";
+      const albumEntity = {
+        ...albumWithCover,
+        coverImageMediaId: "different-cover",
+        GSI2SK: `different-cover#${mockAlbumId}`,
+      };
+
+      mockSend
+        .mockResolvedValueOnce({
+          Items: [
+            {
+              mediaId: remainingMediaId,
+              addedAt: "2024-01-01T00:00:00.000Z",
+            },
+          ],
+        })
+        .mockResolvedValueOnce({
+          Items: [
+            {
+              ...mockMediaEntity,
+              id: remainingMediaId,
+              thumbnailUrls: {
+                cover: "https://test.cloudfront.net/cover.jpg",
+              },
+              thumbnailUrl: undefined,
+            },
+          ],
+        });
+
+      await (DynamoDBService as any).refreshAlbumCover(
+        mockAlbumId,
+        albumEntity
+      );
+
+      expect(applySpy).toHaveBeenCalledWith(
+        mockAlbumId,
+        expect.objectContaining({
+          mediaId: remainingMediaId,
+          thumbnailUrls: {
+            cover: "https://test.cloudfront.net/cover.jpg",
+          },
+        })
+      );
+    });
+
+    it("clears album cover when no media remain", async () => {
+      const applySpy = jest
+        .spyOn(DynamoDBService as any, "applyAlbumCoverUpdate")
+        .mockResolvedValue(undefined);
+
+      mockSend.mockResolvedValue({ Items: [] });
+
+      await (DynamoDBService as any).refreshAlbumCover(
+        mockAlbumId,
+        albumWithCover
+      );
+
+      expect(applySpy).toHaveBeenCalledWith(mockAlbumId, null);
     });
   });
 });

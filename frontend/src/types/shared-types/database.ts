@@ -36,6 +36,8 @@ export interface AlbumEntity extends BaseEntity {
   SK: string; // METADATA
   GSI1PK: string; // ALBUM
   GSI1SK: string; // {createdAt}#{albumId}
+  GSI2PK: string; // ALBUM_COVER_IMAGE
+  GSI2SK: string; // {coverImageMediaId}#{albumId}
   GSI3PK: string; // ALBUM_BY_USER_{isPublic}
   GSI3SK: string; // {createdBy}#{createdAt}#{albumId}
   GSI4PK: string; // ALBUM_BY_CREATOR

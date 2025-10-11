@@ -1824,6 +1824,8 @@ export class DynamoDBService {
     albumId: string,
     mediaId: string
   ): Promise<void> {
+    const existingAlbum = await this.getAlbumEntity(albumId);
+
     await docClient.send(
       new DeleteCommand({
         TableName: TABLE_NAME,
@@ -1836,6 +1838,10 @@ export class DynamoDBService {
 
     // Update album media count
     await this.decrementAlbumMediaCount(albumId);
+
+    if (existingAlbum?.coverImageMediaId === mediaId) {
+      await this.refreshAlbumCover(albumId, existingAlbum);
+    }
   }
 
   static async bulkRemoveMediaFromAlbum(
@@ -1910,6 +1916,249 @@ export class DynamoDBService {
     for (const relationship of albumMediaRelationships) {
       await this.removeMediaFromAlbum(relationship.albumId, mediaId);
     }
+  }
+
+  static async findAlbumsUsingCoverMedia(
+    mediaId: string
+  ): Promise<AlbumEntity[]> {
+    if (!mediaId) {
+      return [];
+    }
+
+    try {
+      const queryResult = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI2",
+          KeyConditionExpression:
+            "GSI2PK = :gsi2pk AND begins_with(GSI2SK, :gsi2sk)",
+          ExpressionAttributeValues: {
+            ":gsi2pk": "ALBUM_COVER_IMAGE",
+            ":gsi2sk": `${mediaId}#`,
+          },
+        })
+      );
+
+      return (queryResult.Items as AlbumEntity[]) || [];
+    } catch (error) {
+      console.error("❌ Error querying albums by cover media via GSI2:", error);
+      return [];
+    }
+  }
+
+  static async refreshAlbumCoverForAlbum(
+    albumId: string,
+    existingAlbum?: AlbumEntity | null
+  ): Promise<void> {
+    if (!albumId) {
+      return;
+    }
+
+    try {
+      await this.refreshAlbumCover(albumId, existingAlbum);
+    } catch (error) {
+      console.error(
+        `❌ Failed to refresh album cover for album ${albumId}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  private static async refreshAlbumCover(
+    albumId: string,
+    existingAlbum?: AlbumEntity | null
+  ): Promise<void> {
+    const albumEntity = existingAlbum ?? (await this.getAlbumEntity(albumId));
+
+    if (!albumEntity) {
+      return;
+    }
+
+    const relationshipsResult = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk_prefix)",
+        ExpressionAttributeValues: {
+          ":pk": `ALBUM#${albumId}`,
+          ":sk_prefix": "MEDIA#",
+        },
+        ProjectionExpression: "mediaId, addedAt",
+      })
+    );
+
+    const relationships =
+      (relationshipsResult.Items as AlbumMediaEntity[]) || [];
+
+    const remaining = relationships
+      .filter((relation) => relation.mediaId && relation.mediaId.length > 0)
+      .sort((a, b) => {
+        const aAdded = a.addedAt || "";
+        const bAdded = b.addedAt || "";
+        if (aAdded === bAdded) {
+          return 0;
+        }
+        return bAdded.localeCompare(aAdded);
+      });
+
+    const candidate = remaining[0];
+
+    if (!candidate) {
+      const hasCover =
+        Boolean(albumEntity.coverImageMediaId) ||
+        Boolean(albumEntity.coverImageUrl) ||
+        Boolean(albumEntity.thumbnailUrls) ||
+        Boolean(albumEntity.GSI2PK) ||
+        Boolean(albumEntity.GSI2SK);
+
+      if (hasCover) {
+        await this.applyAlbumCoverUpdate(albumId, null);
+      }
+
+      return;
+    }
+
+    const mediaEntity = await this.findMediaById(candidate.mediaId);
+
+    if (!mediaEntity) {
+      if (albumEntity.coverImageMediaId) {
+        await this.applyAlbumCoverUpdate(albumId, null);
+      }
+      return;
+    }
+
+    const expectedGsi2Sk = `${candidate.mediaId}#${albumId}`;
+    const coverImageUrl =
+      mediaEntity.thumbnailUrl ||
+      mediaEntity.thumbnailUrls?.large ||
+      mediaEntity.url ||
+      null;
+
+    const thumbnailsJson = mediaEntity.thumbnailUrls
+      ? JSON.stringify(mediaEntity.thumbnailUrls)
+      : undefined;
+    const currentThumbsJson = albumEntity.thumbnailUrls
+      ? JSON.stringify(albumEntity.thumbnailUrls)
+      : undefined;
+
+    const isSameCover =
+      albumEntity.coverImageMediaId === candidate.mediaId &&
+      albumEntity.GSI2PK === "ALBUM_COVER_IMAGE" &&
+      albumEntity.GSI2SK === expectedGsi2Sk &&
+      (coverImageUrl === null
+        ? !albumEntity.coverImageUrl
+        : albumEntity.coverImageUrl === coverImageUrl) &&
+      thumbnailsJson === currentThumbsJson;
+
+    if (isSameCover) {
+      return;
+    }
+
+    await this.applyAlbumCoverUpdate(albumId, {
+      mediaId: candidate.mediaId,
+      coverImageUrl: coverImageUrl ?? undefined,
+      thumbnailUrls: mediaEntity.thumbnailUrls ?? undefined,
+    });
+  }
+
+  private static async applyAlbumCoverUpdate(
+    albumId: string,
+    coverDetails: {
+      mediaId: string;
+      coverImageUrl?: string;
+      thumbnailUrls?: ThumbnailUrls;
+    } | null
+  ): Promise<void> {
+    const now = new Date().toISOString();
+
+    const expressionAttributeNames: Record<string, string> = {
+      "#updatedAt": "updatedAt",
+    };
+    const expressionAttributeValues: Record<string, any> = {
+      ":updatedAt": now,
+    };
+
+    const setExpressions: string[] = ["#updatedAt = :updatedAt"];
+    const removeExpressions: string[] = [];
+
+    if (coverDetails) {
+      expressionAttributeNames["#coverImageMediaId"] = "coverImageMediaId";
+      expressionAttributeValues[":coverImageMediaId"] = coverDetails.mediaId;
+      setExpressions.push("#coverImageMediaId = :coverImageMediaId");
+
+      expressionAttributeNames["#GSI2PK"] = "GSI2PK";
+      expressionAttributeValues[":gsi2pk"] = "ALBUM_COVER_IMAGE";
+      setExpressions.push("#GSI2PK = :gsi2pk");
+
+      expressionAttributeNames["#GSI2SK"] = "GSI2SK";
+      expressionAttributeValues[
+        ":gsi2sk"
+      ] = `${coverDetails.mediaId}#${albumId}`;
+      setExpressions.push("#GSI2SK = :gsi2sk");
+
+      if (coverDetails.coverImageUrl) {
+        expressionAttributeNames["#coverImageUrl"] = "coverImageUrl";
+        expressionAttributeValues[":coverImageUrl"] =
+          coverDetails.coverImageUrl;
+        setExpressions.push("#coverImageUrl = :coverImageUrl");
+      } else {
+        expressionAttributeNames["#coverImageUrl"] = "coverImageUrl";
+        removeExpressions.push("#coverImageUrl");
+      }
+
+      if (coverDetails.thumbnailUrls) {
+        expressionAttributeNames["#thumbnailUrls"] = "thumbnailUrls";
+        expressionAttributeValues[":thumbnailUrls"] =
+          coverDetails.thumbnailUrls;
+        setExpressions.push("#thumbnailUrls = :thumbnailUrls");
+      } else {
+        expressionAttributeNames["#thumbnailUrls"] = "thumbnailUrls";
+        removeExpressions.push("#thumbnailUrls");
+      }
+    } else {
+      expressionAttributeNames["#coverImageMediaId"] = "coverImageMediaId";
+      expressionAttributeNames["#coverImageUrl"] = "coverImageUrl";
+      expressionAttributeNames["#thumbnailUrls"] = "thumbnailUrls";
+      expressionAttributeNames["#GSI2PK"] = "GSI2PK";
+      expressionAttributeNames["#GSI2SK"] = "GSI2SK";
+
+      removeExpressions.push(
+        "#coverImageMediaId",
+        "#coverImageUrl",
+        "#thumbnailUrls",
+        "#GSI2PK",
+        "#GSI2SK"
+      );
+    }
+
+    const updateExpressionParts: string[] = [];
+
+    if (setExpressions.length > 0) {
+      updateExpressionParts.push(`SET ${setExpressions.join(", ")}`);
+    }
+
+    if (removeExpressions.length > 0) {
+      updateExpressionParts.push(`REMOVE ${removeExpressions.join(", ")}`);
+    }
+
+    const updateExpression = updateExpressionParts.join(" ");
+
+    if (!updateExpression) {
+      return;
+    }
+
+    await docClient.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `ALBUM#${albumId}`,
+          SK: "METADATA",
+        },
+        UpdateExpression: updateExpression,
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues,
+      })
+    );
   }
 
   static async getAlbumMediaRelations(
