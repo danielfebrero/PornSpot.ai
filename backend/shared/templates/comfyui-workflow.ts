@@ -472,7 +472,7 @@ export const DEFAULT_WORKFLOW_PARAMS: Partial<WorkflowParameters> = {
   batchSize: 1,
   steps: 6,
   cfgScale: 1,
-  seed: 666,
+  seed: 0,
   sampler: "lcm",
   scheduler: "exponential",
   negativePrompt:

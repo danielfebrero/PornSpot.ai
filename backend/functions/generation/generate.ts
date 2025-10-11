@@ -405,8 +405,10 @@ class ValidationService {
       this.validatePrivateContent,
       this.validateCfgScale,
       this.validateSteps,
-      this.validateSeed,
+      // this.validateSeed,
     ];
+
+    console.log("Request body for validation:", requestBody);
 
     for (const validator of validators) {
       const error = validator(requestBody, permissions);
@@ -611,40 +613,40 @@ class ValidationService {
     return null;
   }
 
-  private static validateSeed(
-    requestBody: GenerationRequest,
-    permissions: any
-  ): ValidationError | null {
-    const { seed } = requestBody;
+  //   private static validateSeed(
+  //     requestBody: GenerationRequest,
+  //     permissions: any
+  //   ): ValidationError | null {
+  //     const { seed } = requestBody;
 
-    // If seed is not provided, use default value
-    if (
-      seed === undefined ||
-      seed === null ||
-      seed === DEFAULT_WORKFLOW_PARAMS.seed
-    ) {
-      return null;
-    }
+  //     // If seed is not provided, use default value
+  //     if (
+  //       seed === undefined ||
+  //       seed === null ||
+  //       seed === DEFAULT_WORKFLOW_PARAMS.seed
+  //     ) {
+  //       return null;
+  //     }
 
-    // Check permission for using Seed
-    if (!permissions.canUseSeed) {
-      return {
-        message: "Seed control requires a Pro plan",
-        field: "seed",
-      };
-    }
+  //     // Check permission for using Seed
+  //     if (!permissions.canUseSeed) {
+  //       return {
+  //         message: "Seed control requires a Pro plan",
+  //         field: "seed",
+  //       };
+  //     }
 
-    // Validate range and ensure it's an integer
-    const { min, max } = CONFIG.VALIDATION_LIMITS.seed;
-    if (!Number.isInteger(seed) || seed < min || seed > max) {
-      return {
-        message: `Seed must be an integer between ${min} and ${max} (use -1 for random)`,
-        field: "seed",
-      };
-    }
+  //     // Validate range and ensure it's an integer
+  //     const { min, max } = CONFIG.VALIDATION_LIMITS.seed;
+  //     if (!Number.isInteger(seed) || seed < min || seed > max) {
+  //       return {
+  //         message: `Seed must be an integer between ${min} and ${max} (use -1 for random)`,
+  //         field: "seed",
+  //       };
+  //     }
 
-    return null;
-  }
+  //     return null;
+  //   }
 }
 
 // ====================================
