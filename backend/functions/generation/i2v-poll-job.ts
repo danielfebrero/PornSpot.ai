@@ -316,6 +316,14 @@ const handleSqsEvent = async (event: SQSEvent) => {
           );
           continue;
         }
+        if (res.status !== "IN_PROGRESS" && res.status !== "PENDING") {
+          console.warn(
+            "I2V job in unexpected non-terminal state; skipping re-enqueue",
+            jobId,
+            res.status
+          );
+          continue;
+        }
         // Not done, schedule next backoff
         if (!queueUrl) {
           console.warn("I2V_POLL_QUEUE_URL not set; cannot re-enqueue");
