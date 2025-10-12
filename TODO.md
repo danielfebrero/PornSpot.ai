@@ -227,3 +227,5 @@
 [x] Updated albums should appear in Discover.
 
 [ ] Modal asking for Name on Card and Billing country on checkout.
+
+[ ] On I2V generate page, make "advanced settings" more visible with color or something.

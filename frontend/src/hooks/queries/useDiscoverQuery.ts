@@ -8,6 +8,8 @@ import {
   DiscoverParams,
 } from "@/types/shared-types";
 
+const STALE_TIME_MS = 3 * 60 * 1000;
+
 interface UseDiscoverParams
   extends Omit<DiscoverParams, "cursorAlbums" | "cursorMedia"> {
   // SSG/ISR support
@@ -60,6 +62,17 @@ export function useDiscover(params: UseDiscoverParams = {}) {
     },
     // Use initial data from SSG/ISR if provided
     initialData: transformedInitialData,
+    // Avoid refetching while the user stays on the page; only refresh on mount if stale
+    refetchOnMount: (query) => {
+      const lastUpdatedAt = query.state.dataUpdatedAt ?? 0;
+
+      if (!lastUpdatedAt) {
+        return true;
+      }
+
+      return Date.now() - lastUpdatedAt > STALE_TIME_MS;
+    },
+    refetchOnReconnect: false,
     getNextPageParam: (lastPage: DiscoverContent) => {
       // Always return cursors for next page since hasNext is always true by default
       // The backend will handle when to stop returning items
@@ -72,7 +85,7 @@ export function useDiscover(params: UseDiscoverParams = {}) {
     },
     getPreviousPageParam: () => undefined, // We don't support backward pagination
     // Fresh data for 3 minutes, then stale-while-revalidate
-    staleTime: 3 * 60 * 1000,
+    staleTime: STALE_TIME_MS,
     // Enable background refetching for discover content
     refetchOnWindowFocus: false,
   });

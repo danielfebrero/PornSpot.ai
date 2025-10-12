@@ -190,7 +190,7 @@
 
 [x] On generate page, Stop Generation button should clean the queue entry.
 
-[ ] Solve cyclic lambda issue.
+[ ] **Solve cyclic lambda issue.**
 
 [x] Album page padding on mobile is too large.
 
@@ -201,3 +201,5 @@
 [ ] There is a bug with the way we debit videos seconds from users. USER#a70f4ce9-f0f9-4e9c-8026-dbf4e3e7718a has negative credit.
 
 [ ] ValidateSeed does not work as expected in Generate function.
+
+[ ] Writing a comment on my own content send me an email, it shoudn't.
