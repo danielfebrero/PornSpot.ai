@@ -415,6 +415,7 @@
       "emailInvalid": "Por favor ingresa una dirección de email válida",
       "passwordRequired": "La contraseña es requerida",
       "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+      "confirmPasswordRequired": "Por favor confirma tu contraseña",
       "passwordsDoNotMatch": "Las contraseñas no coinciden",
       "usernameRequired": "El nombre de usuario es requerido",
       "usernameTooShort": "El nombre de usuario debe tener al menos 3 caracteres",

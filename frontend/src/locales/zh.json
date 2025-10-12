@@ -415,6 +415,7 @@
       "emailInvalid": "请输入有效的邮箱地址",
       "passwordRequired": "密码是必需的",
       "passwordTooShort": "密码必须至少8个字符",
+      "confirmPasswordRequired": "请确认您的密码",
       "passwordsDoNotMatch": "密码不匹配",
       "usernameRequired": "用户名是必需的",
       "usernameTooShort": "用户名必须至少3个字符",
