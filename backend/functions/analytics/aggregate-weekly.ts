@@ -84,6 +84,7 @@ const METRIC_TYPES: MetricType[] = [
   "interactions",
   "generations",
   "storage",
+  "business",
 ];
 /**
  * Gets the start and end of a week (Monday to Sunday)

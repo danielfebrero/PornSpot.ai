@@ -84,6 +84,7 @@ const METRIC_TYPES: MetricType[] = [
   "interactions",
   "generations",
   "storage",
+  "business",
 ];
 /**
  * Aggregates hourly data into daily metrics
