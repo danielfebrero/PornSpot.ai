@@ -229,3 +229,5 @@
 [ ] Modal asking for Name on Card and Billing country on checkout.
 
 [ ] On I2V generate page, make "advanced settings" more visible with color or something.
+
+[ ] SSR is blocked by AgeGate and therefore do not render the page.
