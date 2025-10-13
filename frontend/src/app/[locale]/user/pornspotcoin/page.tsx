@@ -321,9 +321,16 @@ export default function PornSpotCoinPage() {
 
         {/* Earning Rates Carousel */}
         <div className="bg-gradient-to-b from-primary/5 to-transparent px-4 py-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">{t("page.earnPscRates")}</h2>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-lg font-semibold">
+                {t("page.earnPscRates")}
+              </h2>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {t("page.earnPscRatesSubtitle")}
+            </p>
           </div>
 
           {/* Mobile: Horizontal scroll */}
