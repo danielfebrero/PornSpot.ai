@@ -66,8 +66,8 @@ export function calculateTimeWeightedPopularity(
   now: number,
   config: DiscoverConfig = DEFAULT_CONFIG
 ): number {
-  const createdAt = new Date(item.createdAt).getTime();
-  const ageInMs = now - createdAt;
+  const updatedAt = new Date(item.updatedAt).getTime();
+  const ageInMs = now - updatedAt;
   const ageInDays = ageInMs / config.dayInMs;
   const basePopularity = item.popularity || 0;
 
@@ -177,7 +177,7 @@ export function scoreContentWithinWindow({
 
   const scoredAlbums: Array<{ item: Album; combinedScore: number }> = [];
   for (const album of albums) {
-    const createdAt = new Date(album.createdAt).getTime();
+    const updatedAt = new Date(album.updatedAt).getTime();
     const isRecycled = recycledAlbumIdSet?.has(album.id) ?? false;
 
     if (
@@ -185,7 +185,7 @@ export function scoreContentWithinWindow({
       !isRecycled &&
       windowStartMs !== undefined &&
       windowEndMs !== undefined &&
-      (createdAt < windowStartMs || createdAt > windowEndMs)
+      (updatedAt < windowStartMs || updatedAt > windowEndMs)
     ) {
       continue;
     }
@@ -204,7 +204,7 @@ export function scoreContentWithinWindow({
 
   const scoredMedia: Array<{ item: Media; combinedScore: number }> = [];
   for (const mediaItem of media) {
-    const createdAt = new Date(mediaItem.createdAt).getTime();
+    const updatedAt = new Date(mediaItem.updatedAt).getTime();
     const isAdditional = additionalMediaIdSet?.has(mediaItem.id) ?? false;
 
     if (
@@ -212,7 +212,7 @@ export function scoreContentWithinWindow({
       !isAdditional &&
       windowStartMs !== undefined &&
       windowEndMs !== undefined &&
-      (createdAt < windowStartMs || createdAt > windowEndMs)
+      (updatedAt < windowStartMs || updatedAt > windowEndMs)
     ) {
       continue;
     }
