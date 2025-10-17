@@ -78,7 +78,7 @@ const handlePollI2VJob = async (
     }
     await finalizeCompletedJob(job, res.resultUrl);
     await DynamoDBService.incrementUserProfileMetric(
-      auth.userId,
+      job.userId,
       "totalGeneratedMedias",
       1
     );
