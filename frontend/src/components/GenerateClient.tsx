@@ -597,34 +597,32 @@ export function GenerateClient() {
           showMagicText && !isOptimizing && setShowMagicText(false)
         }
       >
-        <div className="sticky top-0 z-40 bg-card border-b">
-          <div className="px-4 py-3">
+        <div className="sticky top-0 z-40 bg-card/95 backdrop-blur-lg border-b shadow-sm">
+          <div className="px-3 py-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
-                  <Wand2 className="h-4 w-4 text-white" />
+                <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center flex-shrink-0">
+                  <Wand2 className="h-3.5 w-3.5 text-white" />
                 </div>
-                <h1
-                  className={cn(
-                    "font-bold",
-                    deviceType === "mobile" ? "text-lg" : "text-xl"
-                  )}
-                >
+                <h1 className="font-bold text-base truncate">
                   {t("aiImageGenerator")}
                 </h1>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-xs">
-                  {plan}
-                </Badge>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
                 {remaining !== "unlimited" && (
                   <Badge
                     variant="secondary"
-                    className="text-xs whitespace-nowrap leading-none px-2 py-1"
+                    className="text-[10px] leading-none px-1.5 py-0.5"
                   >
-                    {remaining} left
+                    {remaining}
                   </Badge>
                 )}
+                <Badge
+                  variant="outline"
+                  className="text-[10px] leading-none px-1.5 py-0.5"
+                >
+                  {plan}
+                </Badge>
               </div>
             </div>
           </div>
@@ -637,7 +635,7 @@ export function GenerateClient() {
               <button
                 onClick={() => setActiveTab("generate")}
                 className={cn(
-                  "flex-1 py-2 text-sm font-medium transition-colors relative",
+                  "flex-1 py-1.5 text-xs font-medium transition-colors relative",
                   activeTab === "generate"
                     ? "text-primary"
                     : "text-muted-foreground"
@@ -651,7 +649,7 @@ export function GenerateClient() {
               <button
                 onClick={() => setActiveTab("results")}
                 className={cn(
-                  "flex-1 py-2 text-sm font-medium transition-colors relative",
+                  "flex-1 py-1.5 text-xs font-medium transition-colors relative",
                   activeTab === "results"
                     ? "text-primary"
                     : "text-muted-foreground"
@@ -659,7 +657,10 @@ export function GenerateClient() {
               >
                 Results
                 {filteredGeneratedImages.length > 0 && (
-                  <Badge variant="secondary" className="ml-2 text-xs">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1.5 text-[10px] leading-none px-1 py-0.5"
+                  >
                     {filteredGeneratedImages.length}
                   </Badge>
                 )}
@@ -1414,12 +1415,19 @@ export function GenerateClient() {
         </AnimatePresence>
 
         {/* Fixed Generate Button - Higher z-index to stay above footer */}
-        <div className="fixed bottom-[61px] left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t z-50">
+        <div className="fixed bottom-[61px] left-0 right-0 px-3 py-2 bg-background/95 backdrop-blur-lg border-t z-50">
+          {!allowed && !isGenerating && (
+            <div className="mb-2 px-2 py-1 bg-destructive/10 border border-destructive/20 rounded-md">
+              <p className="text-[10px] text-destructive text-center leading-tight">
+                {t("generationLimitReached")}
+              </p>
+            </div>
+          )}
           <Button
             onClick={isInStopState ? handleStopGeneration : handleGenerate}
             disabled={!allowed || !settings.prompt.trim() || isInPreparingState}
             className={cn(
-              "w-full h-12 text-sm font-semibold rounded-xl shadow-lg",
+              "w-full h-10 text-xs font-semibold rounded-lg shadow-lg",
               isInStopState
                 ? "bg-red-500 hover:bg-red-600"
                 : "bg-gradient-to-r from-primary to-purple-600"
@@ -1427,17 +1435,17 @@ export function GenerateClient() {
           >
             {isInStopState ? (
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 <span>{t("stopGeneration")}</span>
               </div>
             ) : isInPreparingState ? (
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 <span>{t("preparingGeneration")}</span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4" />
+                <Zap className="h-3.5 w-3.5" />
                 <span>
                   {settings.batchCount > 1
                     ? t("generateImages", { count: settings.batchCount })
@@ -1446,11 +1454,6 @@ export function GenerateClient() {
               </div>
             )}
           </Button>
-          {!allowed && (
-            <p className="text-[10px] text-destructive text-center mt-1.5">
-              {t("generationLimitReached")}
-            </p>
-          )}
         </div>
 
         {/* Lightbox */}
