@@ -536,6 +536,24 @@ export default function AnalyticsPage() {
               icon={Bookmark}
               color="hsl(var(--muted-foreground))"
             />
+            <SummaryCard
+              title="Total Revenue"
+              value={
+                analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "business"
+                )?.dataPoints?.[0]?.metrics?.totalRevenue || 0
+              }
+              change={
+                analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "business"
+                )?.dataPoints?.[0]?.metrics?.newRevenue || 0
+              }
+              changeLabel={`last ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
+              icon={Bookmark}
+              color="hsl(var(--muted-foreground))"
+            />
           </div>
 
           {/* Charts Grid */}
@@ -724,6 +742,34 @@ export default function AnalyticsPage() {
                 ) : (
                   <div className="h-64 flex items-center justify-center text-muted-foreground">
                     No data available
+                  </div>
+                );
+              })()}
+            </ChartCard>
+
+            {/* Total Revenue Chart */}
+            <ChartCard
+              title="Total Revenue"
+              subtitle={`Cumulative revenue per ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
+              icon={DollarSign}
+            >
+              {(() => {
+                const chartData = processChartData(
+                  "business",
+                  "totalRevenue",
+                  "Total Revenue",
+                  {
+                    border: "rgba(16, 185, 129, 1)", // Emerald
+                    background: "rgba(16, 185, 129, 0.2)",
+                  }
+                );
+                return chartData ? (
+                  <Line data={chartData} options={chartOptions} />
+                ) : (
+                  <div className="h-64 flex items-center justify-center text-muted-foreground">
+                    No revenue data available
                   </div>
                 );
               })()}

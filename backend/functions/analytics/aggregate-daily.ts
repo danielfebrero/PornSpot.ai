@@ -156,6 +156,7 @@ async function aggregateHourlyToDaily(
       dailyMetrics.totalComments = latestHour.metrics.totalComments;
       dailyMetrics.totalViews = latestHour.metrics.totalViews;
       dailyMetrics.MRR = latestHour.metrics.MRR;
+      dailyMetrics.totalRevenue = latestHour.metrics.totalRevenue;
 
       // New items - sum all hourly increments
       dailyMetrics.newUsers = hourlyData.reduce(
@@ -184,6 +185,10 @@ async function aggregateHourlyToDaily(
       );
       dailyMetrics.newViews = hourlyData.reduce(
         (sum, hour) => sum + (hour.metrics["newViews"] || 0),
+        0
+      );
+      dailyMetrics.newRevenue = hourlyData.reduce(
+        (sum, hour) => sum + (hour.metrics.newRevenue || 0),
         0
       );
 

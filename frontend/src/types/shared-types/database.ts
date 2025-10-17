@@ -363,6 +363,8 @@ export interface AnalyticsEntity extends BaseEntity {
 
     // Business metrics
     MRR?: number; // Monthly Recurring Revenue
+    totalRevenue?: number;
+    newRevenue?: number;
 
     // Additional metrics can be added here
     [key: string]: any;

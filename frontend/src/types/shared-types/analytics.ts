@@ -69,6 +69,10 @@ export interface AnalyticsMetrics {
   mediaStorageBytes?: number;
   thumbnailStorageBytes?: number;
 
+  totalRevenue?: number;
+  newRevenue?: number;
+  MRR?: number; // Monthly Recurring Revenue
+
   // Allow for future metrics without schema changes
   [key: string]: any;
 }

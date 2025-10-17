@@ -171,6 +171,7 @@ async function aggregateDailyToMonthly(
       monthlyMetrics.totalComments = latestDay.metrics.totalComments;
       monthlyMetrics.totalViews = latestDay.metrics.totalViews;
       monthlyMetrics.MRR = latestDay.metrics.MRR;
+      monthlyMetrics.totalRevenue = latestDay.metrics.totalRevenue;
 
       // New items - sum all daily increments across the month
       monthlyMetrics.newUsers = dailyData.reduce(
@@ -199,6 +200,10 @@ async function aggregateDailyToMonthly(
       );
       monthlyMetrics.newViews = dailyData.reduce(
         (sum, day) => sum + (day.metrics["newViews"] || 0),
+        0
+      );
+      monthlyMetrics.newRevenue = dailyData.reduce(
+        (sum, day) => sum + (day.metrics.newRevenue || 0),
         0
       );
 

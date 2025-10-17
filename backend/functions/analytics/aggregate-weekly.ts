@@ -169,6 +169,7 @@ async function aggregateDailyToWeekly(
       weeklyMetrics.totalComments = latestDay.metrics.totalComments;
       weeklyMetrics.totalViews = latestDay.metrics.totalViews;
       weeklyMetrics.MRR = latestDay.metrics.MRR;
+      weeklyMetrics.totalRevenue = latestDay.metrics.totalRevenue;
 
       // New items - sum all daily increments across the week
       weeklyMetrics.newUsers = dailyData.reduce(
@@ -197,6 +198,10 @@ async function aggregateDailyToWeekly(
       );
       weeklyMetrics.newViews = dailyData.reduce(
         (sum, day) => sum + (day.metrics["newViews"] || 0),
+        0
+      );
+      weeklyMetrics.newRevenue = dailyData.reduce(
+        (sum, day) => sum + (day.metrics.newRevenue || 0),
         0
       );
 

@@ -8,12 +8,28 @@ describe("calculateBusinessMetrics", () => {
     jest.clearAllMocks();
   });
 
-  it("calculates MRR using active monthly subscriptions across paid plans", async () => {
+  it("calculates business metrics including MRR and revenue", async () => {
     mockSend
       .mockResolvedValueOnce({ Count: 2, LastEvaluatedKey: { id: "next" } })
       .mockResolvedValueOnce({ Count: 1 })
       .mockResolvedValueOnce({ Count: 3 })
-      .mockResolvedValueOnce({ Count: 4 });
+      .mockResolvedValueOnce({ Count: 4 })
+      .mockResolvedValueOnce({
+        Items: [
+          {
+            amount: "9.00",
+            completedAt: "2023-12-31T23:59:59.000Z",
+          },
+          {
+            amount: "30.50",
+            completedAt: "2024-01-15T10:00:00.000Z",
+          },
+          {
+            amount: "15.00",
+            completedAt: "2024-02-01T00:00:00.000Z",
+          },
+        ],
+      });
 
     const result = await calculateBusinessMetrics(
       mockDynamoDBDocumentClient as any,
@@ -23,11 +39,17 @@ describe("calculateBusinessMetrics", () => {
 
     const expectedMrr = (2 + 1) * 9 + 3 * 20 + 4 * 30;
     expect(result.MRR).toBe(expectedMrr);
-    expect(mockSend).toHaveBeenCalledTimes(4);
+    expect(result.totalRevenue).toBe(54.5);
+    expect(result.newRevenue).toBe(30.5);
+    expect(mockSend).toHaveBeenCalledTimes(5);
   });
 
   it("returns zero MRR when no active subscriptions are found", async () => {
-    mockSend.mockResolvedValue({ Count: 0 });
+    mockSend
+      .mockResolvedValueOnce({ Count: 0 })
+      .mockResolvedValueOnce({ Count: 0 })
+      .mockResolvedValueOnce({ Count: 0 })
+      .mockResolvedValueOnce({ Items: [] });
 
     const result = await calculateBusinessMetrics(
       mockDynamoDBDocumentClient as any,
@@ -36,6 +58,8 @@ describe("calculateBusinessMetrics", () => {
     );
 
     expect(result.MRR).toBe(0);
-    expect(mockSend).toHaveBeenCalled();
+    expect(result.totalRevenue).toBe(0);
+    expect(result.newRevenue).toBe(0);
+    expect(mockSend).toHaveBeenCalledTimes(4);
   });
 });

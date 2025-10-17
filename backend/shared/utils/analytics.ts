@@ -54,7 +54,7 @@ const METRIC_TYPE_MAPPING: Record<MetricType, (keyof AnalyticsMetrics)[]> = {
     "mediaStorageBytes",
     "thumbnailStorageBytes",
   ],
-  business: ["MRR"],
+  business: ["MRR", "totalRevenue", "newRevenue"],
 };
 
 /**
@@ -75,93 +75,6 @@ function filterMetricsByType(
 
   return filteredMetrics;
 }
-
-// export async function calculateGenerationMetrics(
-//   docClient: DynamoDBDocumentClient,
-//   startTime: string,
-//   endTime: string
-// ): Promise<Partial<AnalyticsMetrics>> {
-//   const metrics: Partial<AnalyticsMetrics> = {};
-
-//   try {
-//     // Get total generations count using GSI6
-//     let totalGenerationsCount = 0;
-//     let lastKey;
-//     do {
-//       const res: any = await docClient.send(
-//         new QueryCommand({
-//           TableName: TABLE_NAME,
-//           IndexName: "GSI6",
-//           KeyConditionExpression: "GSI6PK = :pk",
-//           ExpressionAttributeValues: {
-//             ":pk": "GENERATION_ID",
-//           },
-//           Select: "COUNT",
-//           ExclusiveStartKey: lastKey,
-//         })
-//       );
-//       totalGenerationsCount += res?.Count || 0;
-//       lastKey = res.LastEvaluatedKey;
-//     } while (lastKey);
-//     metrics.totalGenerations = totalGenerationsCount;
-
-//     // Get successful generations in time range using GSI6
-//     let successfulGenerationsCount = 0;
-//     lastKey = undefined;
-//     do {
-//       const res: any = await docClient.send(
-//         new QueryCommand({
-//           TableName: TABLE_NAME,
-//           IndexName: "GSI6",
-//           KeyConditionExpression:
-//             "GSI6PK = :pk AND GSI6SK BETWEEN :start AND :end",
-//           FilterExpression: "status = :status",
-//           ExpressionAttributeValues: {
-//             ":pk": "GENERATION",
-//             ":start": startTime,
-//             ":end": `${endTime}#zzz`,
-//             ":status": "successful",
-//           },
-//           Select: "COUNT",
-//           ExclusiveStartKey: lastKey,
-//         })
-//       );
-//       successfulGenerationsCount += res?.Count || 0;
-//       lastKey = res.LastEvaluatedKey;
-//     } while (lastKey);
-//     metrics.successfulGenerations = successfulGenerationsCount;
-
-//     // Get failed generations in time range using GSI6
-//     let failedGenerationsCount = 0;
-//     lastKey = undefined;
-//     do {
-//       const res: any = await docClient.send(
-//         new QueryCommand({
-//           TableName: TABLE_NAME,
-//           IndexName: "GSI6",
-//           KeyConditionExpression:
-//             "GSI6PK = :pk AND GSI6SK BETWEEN :start AND :end",
-//           FilterExpression: "status = :status",
-//           ExpressionAttributeValues: {
-//             ":pk": "GENERATION",
-//             ":start": startTime,
-//             ":end": `${endTime}#zzz`,
-//             ":status": "failed",
-//           },
-//           Select: "COUNT",
-//           ExclusiveStartKey: lastKey,
-//         })
-//       );
-//       failedGenerationsCount += res?.Count || 0;
-//       lastKey = res.LastEvaluatedKey;
-//     } while (lastKey);
-//     metrics.failedGenerations = failedGenerationsCount;
-//   } catch (error) {
-//     console.error("Error calculating generation metrics:", error);
-//   }
-
-//   return metrics;
-// }
 
 export async function calculateActiveUsers(
   docClient: DynamoDBDocumentClient,
@@ -238,7 +151,7 @@ export async function calculateVisitorCount(
 
 export async function calculateBusinessMetrics(
   docClient: DynamoDBDocumentClient,
-  _startTime: string,
+  startTime: string,
   endTime: string
 ): Promise<Partial<AnalyticsMetrics>> {
   const metrics: Partial<AnalyticsMetrics> = {};
@@ -304,6 +217,70 @@ export async function calculateBusinessMetrics(
     }
 
     metrics["MRR"] = Number(mrr.toFixed(2));
+
+    const completedOrdersPartitionKey = "ORDERS_BY_STATUS#completed";
+    const newRevenueStartDate = new Date(startTime);
+    const newRevenueEndDate = new Date(endTime);
+    const startTimeMs = Number.isNaN(newRevenueStartDate.getTime())
+      ? Number.NEGATIVE_INFINITY
+      : newRevenueStartDate.getTime();
+    const endTimeMs = Number.isNaN(newRevenueEndDate.getTime())
+      ? Date.now()
+      : newRevenueEndDate.getTime();
+
+    let totalRevenueCents = 0;
+    let newRevenueCents = 0;
+    let revenueLastKey: any = undefined;
+
+    do {
+      const revenueResult: any = await docClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: "GSI2",
+          KeyConditionExpression: "GSI2PK = :status",
+          ExpressionAttributeValues: {
+            ":status": completedOrdersPartitionKey,
+          },
+          ProjectionExpression: "amount, completedAt",
+          ExclusiveStartKey: revenueLastKey,
+        })
+      );
+
+      if (revenueResult.Items) {
+        for (const item of revenueResult.Items) {
+          const amountValue = item.amount;
+          const numericAmount =
+            typeof amountValue === "number"
+              ? amountValue
+              : parseFloat(amountValue);
+
+          if (!Number.isFinite(numericAmount)) {
+            continue;
+          }
+
+          const amountCents = Math.round(numericAmount * 100);
+          totalRevenueCents += amountCents;
+
+          if (item.completedAt) {
+            const completedAtDate = new Date(item.completedAt as string);
+            const completedAtMs = completedAtDate.getTime();
+
+            if (
+              !Number.isNaN(completedAtMs) &&
+              completedAtMs >= startTimeMs &&
+              completedAtMs <= endTimeMs
+            ) {
+              newRevenueCents += amountCents;
+            }
+          }
+        }
+      }
+
+      revenueLastKey = revenueResult.LastEvaluatedKey;
+    } while (revenueLastKey);
+
+    metrics["totalRevenue"] = Number((totalRevenueCents / 100).toFixed(2));
+    metrics["newRevenue"] = Number((newRevenueCents / 100).toFixed(2));
   } catch (error) {
     console.error("Error calculating business metrics:", error);
   }

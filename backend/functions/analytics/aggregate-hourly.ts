@@ -128,43 +128,6 @@ async function processHourlyMetrics(targetHour: Date): Promise<void> {
 
     await Promise.all(savePromises);
 
-    // // Update real-time cache with latest totals
-    // const cacheUpdates = [
-    //   {
-    //     key: "total_users",
-    //     value: aggregatedMetrics.totalUsers || 0,
-    //     ttl: 3600,
-    //   },
-    //   {
-    //     key: "total_media",
-    //     value: aggregatedMetrics.totalMedia || 0,
-    //     ttl: 3600,
-    //   },
-    //   {
-    //     key: "total_albums",
-    //     value: aggregatedMetrics.totalAlbums || 0,
-    //     ttl: 3600,
-    //   },
-    //   {
-    //     key: "new_users_last_hour",
-    //     value: aggregatedMetrics.newUsers || 0,
-    //     ttl: 3600,
-    //   },
-    //   {
-    //     key: "new_media_last_hour",
-    //     value: aggregatedMetrics.newMedia || 0,
-    //     ttl: 3600,
-    //   },
-    //   {
-    //     key: "new_albums_last_hour",
-    //     value: aggregatedMetrics.newAlbums || 0,
-    //     ttl: 3600,
-    //   },
-    //   { key: "last_updated", value: new Date().toISOString(), ttl: 3600 },
-    // ];
-
-    // await batchUpdateMetricsCache(docClient, cacheUpdates);
-
     console.log(`✅ Successfully processed hourly metrics for ${startTimeISO}`);
   } catch (error) {
     console.error(
