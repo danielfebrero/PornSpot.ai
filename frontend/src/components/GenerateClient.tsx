@@ -680,238 +680,257 @@ export function GenerateClient() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className={cn(
-                "space-y-4 pb-20",
-                deviceType === "mobile" ? "px-4 py-4" : "px-6 py-6"
-              )}
+              className="pb-20"
             >
-              {/* Prompt Input Card with Gradient */}
-              <Card>
-                <CardContent className="p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h2 className="font-semibold text-sm">
+              {/* Prompt Input - Full Width, No Card */}
+              <div className="px-4 pt-4 pb-3 space-y-3 bg-gradient-to-b from-primary/5 to-background">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <h2 className="font-semibold text-sm text-foreground">
                       {t("describeVision")}
                     </h2>
-                    {settings.prompt && (
-                      <button
-                        onClick={() => {
-                          updateSettings("prompt", "");
-                          setOptimizedPromptCache("");
-                          setOriginalPromptBeforeOptimization("");
-                        }}
-                        className="p-1.5 hover:bg-muted rounded-lg transition-colors"
-                      >
-                        <X className="h-4 w-4 text-muted-foreground" />
-                      </button>
-                    )}
                   </div>
-
-                  <div className="relative">
-                    <GradientTextarea
-                      placeholder={t("promptPlaceholder")}
-                      value={settings.prompt}
-                      onChange={(e) => {
-                        updateSettings("prompt", e.target.value);
-                        if (e.target.value !== optimizedPromptCache) {
-                          setOptimizedPromptCache("");
-                          setOriginalPromptBeforeOptimization("");
-                        }
+                  {settings.prompt && (
+                    <button
+                      onClick={() => {
+                        updateSettings("prompt", "");
+                        setOptimizedPromptCache("");
+                        setOriginalPromptBeforeOptimization("");
                       }}
-                      className={cn(
-                        "resize-none",
-                        deviceType === "mobile"
-                          ? "min-h-[100px] text-sm"
-                          : "min-h-[120px] text-base"
-                      )}
-                    />
-                    {showMagicText && (
-                      <MagicText
-                        originalText={
-                          originalPromptBeforeOptimization || settings.prompt
-                        }
-                        ref={magicTextRef}
-                      />
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground hidden sm:block">
-                      {t("descriptiveTip")}
-                    </span>
-                    <span
-                      className={cn(
-                        "font-medium ml-auto",
-                        settings.prompt.length > 800
-                          ? "text-amber-500"
-                          : settings.prompt.length > 900
-                          ? "text-red-500"
-                          : "text-muted-foreground"
-                      )}
+                      className="p-1.5 hover:bg-muted/50 rounded-md transition-colors"
                     >
-                      {settings.prompt.length}/2000
+                      <X className="h-3.5 w-3.5 text-muted-foreground" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <GradientTextarea
+                    placeholder={t("promptPlaceholder")}
+                    value={settings.prompt}
+                    onChange={(e) => {
+                      updateSettings("prompt", e.target.value);
+                      if (e.target.value !== optimizedPromptCache) {
+                        setOptimizedPromptCache("");
+                        setOriginalPromptBeforeOptimization("");
+                      }
+                    }}
+                    className={cn(
+                      "resize-none border-2 shadow-sm",
+                      deviceType === "mobile"
+                        ? "min-h-[120px] text-sm"
+                        : "min-h-[140px] text-base"
+                    )}
+                  />
+                  {showMagicText && (
+                    <MagicText
+                      originalText={
+                        originalPromptBeforeOptimization || settings.prompt
+                      }
+                      ref={magicTextRef}
+                    />
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span
+                    className={cn(
+                      "text-[10px] font-medium",
+                      settings.prompt.length > 800
+                        ? "text-amber-500"
+                        : settings.prompt.length > 900
+                        ? "text-red-500"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    {settings.prompt.length}/2000
+                  </span>
+                </div>
+
+                {/* AI Optimize Toggle - Compact */}
+                <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-primary/10 to-purple-600/10 rounded-lg border">
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-6 rounded-md bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+                      <Sparkles className="h-3 w-3 text-white" />
+                    </div>
+                    <span className="text-xs font-medium">
+                      {t("optimizePrompt")}
                     </span>
                   </div>
-
-                  {/* AI Optimize Toggle */}
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-primary/10 to-purple-600/10 rounded-xl border">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium">
-                        {t("optimizePrompt")}
-                      </span>
-                    </div>
-                    <Switch
-                      checked={settings.optimizePrompt}
-                      onCheckedChange={(checked) =>
-                        updateSettings("optimizePrompt", checked)
-                      }
-                    />
-                  </div>
-
-                  {originalPromptBeforeOptimization &&
-                    settings.prompt !== originalPromptBeforeOptimization && (
-                      <button
-                        onClick={revertToOriginalPrompt}
-                        className="w-full p-2 text-xs text-primary bg-primary/10 rounded-lg flex items-center justify-center gap-1"
-                      >
-                        <RotateCcw className="h-3 w-3" />
-                        {t("revertToOriginal")}
-                      </button>
-                    )}
-                </CardContent>
-              </Card>
-
-              {/* Quick Settings Grid - Adjusted for mobile */}
-              <div
-                className={cn(
-                  "grid gap-2",
-                  deviceType === "mobile" ? "grid-cols-2" : "grid-cols-3"
-                )}
-              >
-                {/* Image Size */}
-                <button
-                  onClick={() => toggleSection("size")}
-                  className="bg-card rounded-lg border p-2.5 text-left flex flex-col"
-                >
-                  <div className="flex items-start justify-between mb-1">
-                    <Grid3X3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    {!canUseCustomSizes() && (
-                      <Crown className="h-3 w-3 text-amber-500 flex-shrink-0" />
-                    )}
-                  </div>
-                  <p className="text-[10px] text-muted-foreground mb-0.5">
-                    {t("imageSize")}
-                  </p>
-                  <p className="text-xs font-medium truncate">
-                    {
-                      IMAGE_SIZES.find((s) => s.value === settings.imageSize)
-                        ?.label
+                  <Switch
+                    checked={settings.optimizePrompt}
+                    onCheckedChange={(checked) =>
+                      updateSettings("optimizePrompt", checked)
                     }
-                  </p>
-                </button>
+                  />
+                </div>
 
-                {/* Batch Count */}
-                <button
-                  onClick={() => toggleSection("batch")}
-                  className="bg-card rounded-lg border p-2.5 text-left flex flex-col"
-                >
-                  <div className="flex items-start justify-between mb-1">
-                    <Layers className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    {!canUseBulk && (
-                      <Crown className="h-3 w-3 text-amber-500 flex-shrink-0" />
-                    )}
-                  </div>
-                  <p className="text-[10px] text-muted-foreground mb-0.5">
-                    {t("batchCount")}
-                  </p>
-                  <p className="text-xs font-medium">
-                    {settings.batchCount} {t("images")}
-                  </p>
-                </button>
-
-                {/* Visibility */}
-                <button
-                  onClick={() => toggleSection("visibility")}
-                  className="bg-card rounded-lg border p-2.5 text-left flex flex-col"
-                >
-                  <div className="flex items-start justify-between mb-1">
-                    {settings.isPublic ? (
-                      <Eye className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    ) : (
-                      <EyeOff className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    )}
-                    {!canCreatePrivateContent() && (
-                      <Crown className="h-3 w-3 text-amber-500 flex-shrink-0" />
-                    )}
-                  </div>
-                  <p className="text-[10px] text-muted-foreground mb-0.5">
-                    {t("visibility")}
-                  </p>
-                  <p className="text-xs font-medium">
-                    {settings.isPublic ? t("public") : t("private")}
-                  </p>
-                </button>
-
-                {/* Advanced Settings */}
-                <button
-                  onClick={() => setShowAdvanced(!showAdvanced)}
-                  className={cn(
-                    "bg-card rounded-lg border p-2.5 text-left flex flex-col",
-                    deviceType === "tablet"
-                      ? "col-span-3"
-                      : deviceType === "mobile"
-                      ? "col-span-2"
-                      : ""
+                {originalPromptBeforeOptimization &&
+                  settings.prompt !== originalPromptBeforeOptimization && (
+                    <button
+                      onClick={revertToOriginalPrompt}
+                      className="w-full px-3 py-2 text-xs text-primary bg-primary/10 rounded-lg flex items-center justify-center gap-1.5 border border-primary/20"
+                    >
+                      <RotateCcw className="h-3 w-3" />
+                      {t("revertToOriginal")}
+                    </button>
                   )}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Settings2 className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-[10px] text-muted-foreground">
-                          {t("advancedControls")}
-                        </p>
-                      </div>
-                      <p className="text-xs font-medium">
-                        {showAdvanced ? t("shown") : t("hidden")}
-                      </p>
-                    </div>
-                    {showAdvanced ? (
-                      <ChevronUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    )}
-                  </div>
-                </button>
               </div>
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleResetAllSettings}
-                className="w-full h-9 flex items-center justify-center gap-2"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                {t("actions.resetParameters")}
-              </Button>
+              <div className="px-4 space-y-3 mt-4">
+                {/* Quick Settings Title */}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Quick Settings
+                  </h3>
+                  <button
+                    onClick={handleResetAllSettings}
+                    className="text-xs text-primary hover:underline flex items-center gap-1"
+                  >
+                    <RotateCcw className="h-3 w-3" />
+                    Reset
+                  </button>
+                </div>
+
+                {/* Quick Settings Grid - More Visual */}
+                <div
+                  className={cn(
+                    "grid gap-2",
+                    deviceType === "mobile" ? "grid-cols-2" : "grid-cols-3"
+                  )}
+                >
+                  {/* Image Size */}
+                  <button
+                    onClick={() => toggleSection("size")}
+                    className="bg-gradient-to-br from-card to-card/50 rounded-xl border-2 border-border hover:border-primary/50 p-3 text-left flex flex-col transition-all active:scale-95"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Grid3X3 className="h-4 w-4 text-primary" />
+                      </div>
+                      {!canUseCustomSizes() && (
+                        <Crown className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mb-1 font-medium">
+                      {t("imageSize")}
+                    </p>
+                    <p className="text-xs font-semibold truncate">
+                      {
+                        IMAGE_SIZES.find((s) => s.value === settings.imageSize)
+                          ?.label
+                      }
+                    </p>
+                  </button>
+
+                  {/* Batch Count */}
+                  <button
+                    onClick={() => toggleSection("batch")}
+                    className="bg-gradient-to-br from-card to-card/50 rounded-xl border-2 border-border hover:border-primary/50 p-3 text-left flex flex-col transition-all active:scale-95"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                        <Layers className="h-4 w-4 text-purple-500" />
+                      </div>
+                      {!canUseBulk && (
+                        <Crown className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mb-1 font-medium">
+                      {t("batchCount")}
+                    </p>
+                    <p className="text-xs font-semibold">
+                      {settings.batchCount} {t("images")}
+                    </p>
+                  </button>
+
+                  {/* Visibility */}
+                  <button
+                    onClick={() => toggleSection("visibility")}
+                    className="bg-gradient-to-br from-card to-card/50 rounded-xl border-2 border-border hover:border-primary/50 p-3 text-left flex flex-col transition-all active:scale-95"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                        {settings.isPublic ? (
+                          <Eye className="h-4 w-4 text-blue-500" />
+                        ) : (
+                          <EyeOff className="h-4 w-4 text-blue-500" />
+                        )}
+                      </div>
+                      {!canCreatePrivateContent() && (
+                        <Crown className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mb-1 font-medium">
+                      {t("visibility")}
+                    </p>
+                    <p className="text-xs font-semibold">
+                      {settings.isPublic ? t("public") : t("private")}
+                    </p>
+                  </button>
+
+                  {/* Advanced Settings Toggle */}
+                  <button
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    className={cn(
+                      "bg-gradient-to-br from-card to-card/50 rounded-xl border-2 border-border hover:border-primary/50 p-3 text-left flex flex-col transition-all active:scale-95",
+                      deviceType === "tablet"
+                        ? "col-span-3"
+                        : deviceType === "mobile"
+                        ? "col-span-2"
+                        : ""
+                    )}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                          <Settings2 className="h-4 w-4 text-amber-500" />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-[10px] text-muted-foreground font-medium">
+                            {t("advancedControls")}
+                          </p>
+                          <p className="text-xs font-semibold">
+                            {showAdvanced ? t("shown") : t("hidden")}
+                          </p>
+                        </div>
+                      </div>
+                      {showAdvanced ? (
+                        <ChevronUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      )}
+                    </div>
+                  </button>
+                </div>
+              </div>
 
               {/* Expandable Sections */}
-              <AnimatePresence>
-                {/* Size Selection */}
-                {expandedSection === "size" && (
-                  <motion.div
-                    ref={sizeSectionRef}
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden scroll-mt-24"
-                  >
-                    <Card>
-                      <CardContent className="p-4 space-y-3">
-                        <h3 className="font-medium flex items-center gap-2 text-sm">
-                          <Grid3X3 className="h-4 w-4" />
-                          {t("imageSize")}
-                        </h3>
+              <div className="px-4 space-y-3">
+                <AnimatePresence>
+                  {/* Size Selection */}
+                  {expandedSection === "size" && (
+                    <motion.div
+                      ref={sizeSectionRef}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden scroll-mt-24"
+                    >
+                      <div className="bg-card/50 backdrop-blur-sm rounded-xl border-2 border-primary/20 p-4 space-y-3 shadow-lg">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-semibold flex items-center gap-2 text-sm">
+                            <Grid3X3 className="h-4 w-4 text-primary" />
+                            {t("imageSize")}
+                          </h3>
+                          <button
+                            onClick={() => toggleSection("size")}
+                            className="p-1 hover:bg-muted rounded-md"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
                         <div
                           className={cn(
                             "grid gap-2",
@@ -933,7 +952,6 @@ export function GenerateClient() {
                                 if (size.value !== "custom") {
                                   updateSettings("customWidth", size.width);
                                   updateSettings("customHeight", size.height);
-                                  // close panel for predefined sizes only
                                   toggleSection("size");
                                 }
                               }}
@@ -942,23 +960,23 @@ export function GenerateClient() {
                                 size.value !== "1024x1024"
                               }
                               className={cn(
-                                "p-2.5 rounded-lg border text-left transition-all",
+                                "p-3 rounded-lg border-2 text-left transition-all active:scale-95",
                                 settings.imageSize === size.value
-                                  ? "bg-primary text-primary-foreground border-primary"
-                                  : "bg-background border-border",
+                                  ? "bg-primary text-primary-foreground border-primary shadow-md"
+                                  : "bg-card border-border",
                                 !canUseCustomSizes() &&
                                   size.value !== "1024x1024" &&
                                   "opacity-50"
                               )}
                             >
                               <div className="flex items-center gap-2">
-                                <span className="text-base">{size.icon}</span>
+                                <span className="text-lg">{size.icon}</span>
                                 <div>
-                                  <p className="text-xs font-medium">
+                                  <p className="text-xs font-semibold">
                                     {size.label}
                                   </p>
                                   {size.value !== "custom" && (
-                                    <p className="text-[10px] opacity-80">
+                                    <p className="text-[10px] opacity-70">
                                       {size.ratio}
                                     </p>
                                   )}
@@ -971,7 +989,7 @@ export function GenerateClient() {
                           canUseCustomSizes() && (
                             <div className="grid grid-cols-2 gap-3 pt-2">
                               <div>
-                                <label className="text-xs text-muted-foreground">
+                                <label className="text-xs text-muted-foreground font-medium mb-1 block">
                                   {t("width")}
                                 </label>
                                 <Input
@@ -986,11 +1004,11 @@ export function GenerateClient() {
                                       parseInt(e.target.value) || 1024
                                     )
                                   }
-                                  className="h-8 text-xs"
+                                  className="h-9 text-sm"
                                 />
                               </div>
                               <div>
-                                <label className="text-xs text-muted-foreground">
+                                <label className="text-xs text-muted-foreground font-medium mb-1 block">
                                   {t("height")}
                                 </label>
                                 <Input
@@ -1005,31 +1023,37 @@ export function GenerateClient() {
                                       parseInt(e.target.value) || 1024
                                     )
                                   }
-                                  className="h-8 text-xs"
+                                  className="h-9 text-sm"
                                 />
                               </div>
                             </div>
                           )}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )}
+                      </div>
+                    </motion.div>
+                  )}
 
-                {/* Batch Selection */}
-                {expandedSection === "batch" && (
-                  <motion.div
-                    ref={batchSectionRef}
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden scroll-mt-24"
-                  >
-                    <Card>
-                      <CardContent className="p-4 space-y-3">
-                        <h3 className="font-medium flex items-center gap-2 text-sm">
-                          <Layers className="h-4 w-4" />
-                          {t("batchCount")}
-                        </h3>
+                  {/* Batch Selection */}
+                  {expandedSection === "batch" && (
+                    <motion.div
+                      ref={batchSectionRef}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden scroll-mt-24"
+                    >
+                      <div className="bg-card/50 backdrop-blur-sm rounded-xl border-2 border-purple-500/20 p-4 space-y-3 shadow-lg">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-semibold flex items-center gap-2 text-sm">
+                            <Layers className="h-4 w-4 text-purple-500" />
+                            {t("batchCount")}
+                          </h3>
+                          <button
+                            onClick={() => toggleSection("batch")}
+                            className="p-1 hover:bg-muted rounded-md"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
                         <div className="grid grid-cols-4 gap-2">
                           {[1, 2, 4, 8].map((count) => (
                             <button
@@ -1042,10 +1066,10 @@ export function GenerateClient() {
                               }}
                               disabled={!canUseBulk && count > 1}
                               className={cn(
-                                "py-2.5 rounded-lg border font-medium transition-all text-sm",
+                                "py-3 rounded-lg border-2 font-semibold transition-all text-sm active:scale-95",
                                 settings.batchCount === count
-                                  ? "bg-primary text-primary-foreground border-primary"
-                                  : "bg-background border-border",
+                                  ? "bg-purple-500 text-white border-purple-500 shadow-md"
+                                  : "bg-card border-border",
                                 !canUseBulk && count > 1 && "opacity-50"
                               )}
                             >
@@ -1054,32 +1078,38 @@ export function GenerateClient() {
                           ))}
                         </div>
                         {!canUseBulk && (
-                          <div className="p-2.5 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                            <p className="text-[10px] text-amber-700 dark:text-amber-400">
+                          <div className="px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                            <p className="text-[10px] text-amber-600 dark:text-amber-400 leading-tight">
                               {t("upgradeForBulk")}
                             </p>
                           </div>
                         )}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )}
+                      </div>
+                    </motion.div>
+                  )}
 
-                {/* Visibility Selection */}
-                {expandedSection === "visibility" && (
-                  <motion.div
-                    ref={visibilitySectionRef}
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden scroll-mt-24"
-                  >
-                    <Card>
-                      <CardContent className="p-4 space-y-3">
-                        <h3 className="font-medium flex items-center gap-2 text-sm">
-                          <Lock className="h-4 w-4" />
-                          {t("visibility")}
-                        </h3>
+                  {/* Visibility Selection */}
+                  {expandedSection === "visibility" && (
+                    <motion.div
+                      ref={visibilitySectionRef}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden scroll-mt-24"
+                    >
+                      <div className="bg-card/50 backdrop-blur-sm rounded-xl border-2 border-blue-500/20 p-4 space-y-3 shadow-lg">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-semibold flex items-center gap-2 text-sm">
+                            <Lock className="h-4 w-4 text-blue-500" />
+                            {t("visibility")}
+                          </h3>
+                          <button
+                            onClick={() => toggleSection("visibility")}
+                            className="p-1 hover:bg-muted rounded-md"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
                         <div className="space-y-2">
                           <button
                             onClick={() => {
@@ -1087,19 +1117,19 @@ export function GenerateClient() {
                               toggleSection("visibility");
                             }}
                             className={cn(
-                              "w-full p-2.5 rounded-lg border text-left transition-all",
+                              "w-full p-3 rounded-lg border-2 text-left transition-all active:scale-95",
                               settings.isPublic
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background border-border"
+                                ? "bg-blue-500 text-white border-blue-500 shadow-md"
+                                : "bg-card border-border"
                             )}
                           >
                             <div className="flex items-center gap-3">
                               <Eye className="h-4 w-4" />
                               <div>
-                                <p className="font-medium text-sm">
+                                <p className="font-semibold text-sm">
                                   {t("public")}
                                 </p>
-                                <p className="text-[10px] opacity-80">
+                                <p className="text-[10px] opacity-70">
                                   {t("generatedImagesPublic")}
                                 </p>
                               </div>
@@ -1114,10 +1144,10 @@ export function GenerateClient() {
                             }}
                             disabled={!canCreatePrivateContent()}
                             className={cn(
-                              "w-full p-2.5 rounded-lg border text-left transition-all",
+                              "w-full p-3 rounded-lg border-2 text-left transition-all active:scale-95",
                               !settings.isPublic
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background border-border",
+                                ? "bg-blue-500 text-white border-blue-500 shadow-md"
+                                : "bg-card border-border",
                               !canCreatePrivateContent() && "opacity-50"
                             )}
                           >
@@ -1125,147 +1155,150 @@ export function GenerateClient() {
                               <div className="flex items-center gap-3">
                                 <EyeOff className="h-4 w-4" />
                                 <div>
-                                  <p className="font-medium text-sm">
+                                  <p className="font-semibold text-sm">
                                     {t("private")}
                                   </p>
-                                  <p className="text-[10px] opacity-80">
+                                  <p className="text-[10px] opacity-70">
                                     {t("generatedImagesPrivate")}
                                   </p>
                                 </div>
                               </div>
                               {!canCreatePrivateContent() && (
-                                <Crown className="h-3 w-3 text-amber-500" />
+                                <Crown className="h-3.5 w-3.5 text-amber-500" />
                               )}
                             </div>
                           </button>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               {/* Advanced Settings */}
-              <AnimatePresence>
-                {showAdvanced && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="space-y-3"
-                  >
-                    {/* LoRA Models with Individual Strength Controls */}
-                    <Card>
-                      <CardContent className="p-4">
-                        <LoRAModelsSection compact={true} />
-                      </CardContent>
-                    </Card>
-
-                    {/* Other Advanced Settings */}
-                    <div
-                      className={cn(
-                        "grid gap-2",
-                        deviceType === "mobile" ? "grid-cols-2" : "grid-cols-3"
-                      )}
+              <div className="px-4">
+                <AnimatePresence>
+                  {showAdvanced && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="space-y-3"
                     >
-                      {/* CFG Scale */}
-                      <Card>
-                        <CardContent className="p-2.5">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[10px] font-medium">
-                              {t("cfgScale")}
-                            </span>
-                            {!canUseCfgScale() && (
-                              <Crown className="h-3 w-3 text-amber-500" />
-                            )}
-                          </div>
-                          <Slider
-                            value={[settings.cfgScale || 1]}
-                            onValueChange={(value) =>
-                              canUseCfgScale() &&
-                              updateSettings("cfgScale", value[0].toFixed(1))
-                            }
-                            min={0.5}
-                            max={5}
-                            step={0.1}
-                            className="mb-1"
-                          />
-                          <span className="text-[10px] text-muted-foreground">
-                            {settings.cfgScale || 1}
-                          </span>
-                        </CardContent>
-                      </Card>
+                      {/* LoRA Models with Individual Strength Controls */}
+                      <div className="bg-card/50 backdrop-blur-sm rounded-xl border p-4 shadow-sm">
+                        <LoRAModelsSection compact={true} />
+                      </div>
 
-                      {/* Steps */}
-                      <Card>
-                        <CardContent className="p-2.5">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[10px] font-medium">
-                              {t("steps")}
+                      {/* Other Advanced Settings - Inline Cards */}
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-1">
+                          Fine-tune Parameters
+                        </h4>
+                        <div
+                          className={cn(
+                            "grid gap-2",
+                            deviceType === "mobile"
+                              ? "grid-cols-2"
+                              : "grid-cols-3"
+                          )}
+                        >
+                          {/* CFG Scale */}
+                          <div className="bg-card/50 backdrop-blur-sm rounded-lg border p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs font-semibold">
+                                {t("cfgScale")}
+                              </span>
+                              {!canUseCfgScale() && (
+                                <Crown className="h-3 w-3 text-amber-500" />
+                              )}
+                            </div>
+                            <Slider
+                              value={[settings.cfgScale || 1]}
+                              onValueChange={(value) =>
+                                canUseCfgScale() &&
+                                updateSettings("cfgScale", value[0].toFixed(1))
+                              }
+                              min={0.5}
+                              max={5}
+                              step={0.1}
+                              className="mb-2"
+                            />
+                            <span className="text-[10px] text-muted-foreground font-medium">
+                              {settings.cfgScale || 1}
                             </span>
-                            {!canUseSteps() && (
-                              <Crown className="h-3 w-3 text-amber-500" />
-                            )}
                           </div>
-                          <Slider
-                            value={[settings.steps || 6]}
-                            onValueChange={(value) =>
-                              canUseSteps() && updateSettings("steps", value[0])
-                            }
-                            min={3}
-                            max={20}
-                            step={1}
-                            className="mb-1"
-                          />
-                          <span className="text-[10px] text-muted-foreground">
-                            {settings.steps || 6}
-                          </span>
-                        </CardContent>
-                      </Card>
 
-                      {/* Seed */}
-                      <Card
-                        className={deviceType === "tablet" ? "" : "col-span-2"}
-                      >
-                        <CardContent className="p-2.5">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[10px] font-medium">
-                              {t("seed")}
+                          {/* Steps */}
+                          <div className="bg-card/50 backdrop-blur-sm rounded-lg border p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs font-semibold">
+                                {t("steps")}
+                              </span>
+                              {!canUseSteps() && (
+                                <Crown className="h-3 w-3 text-amber-500" />
+                              )}
+                            </div>
+                            <Slider
+                              value={[settings.steps || 6]}
+                              onValueChange={(value) =>
+                                canUseSteps() &&
+                                updateSettings("steps", value[0])
+                              }
+                              min={3}
+                              max={20}
+                              step={1}
+                              className="mb-2"
+                            />
+                            <span className="text-[10px] text-muted-foreground font-medium">
+                              {settings.steps || 6}
                             </span>
-                            {!canUseSeed() && (
-                              <Crown className="h-3 w-3 text-amber-500" />
-                            )}
                           </div>
-                          <Input
-                            type="number"
-                            value={
-                              settings.seed !== undefined ? settings.seed : ""
-                            }
-                            onChange={(e) =>
-                              canUseSeed() &&
-                              updateSettings(
-                                "seed",
-                                parseInt(e.target.value) || 0
-                              )
-                            }
-                            disabled={!canUseSeed()}
-                            placeholder="Random"
-                            className="h-7 text-[10px]"
-                          />
-                        </CardContent>
-                      </Card>
-                    </div>
 
-                    {/* Negative Prompt */}
-                    <Card>
-                      <CardContent className="p-3 space-y-2">
+                          {/* Seed */}
+                          <div
+                            className={cn(
+                              "bg-card/50 backdrop-blur-sm rounded-lg border p-3",
+                              deviceType === "tablet" ? "" : "col-span-2"
+                            )}
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs font-semibold">
+                                {t("seed")}
+                              </span>
+                              {!canUseSeed() && (
+                                <Crown className="h-3 w-3 text-amber-500" />
+                              )}
+                            </div>
+                            <Input
+                              type="number"
+                              value={
+                                settings.seed !== undefined ? settings.seed : ""
+                              }
+                              onChange={(e) =>
+                                canUseSeed() &&
+                                updateSettings(
+                                  "seed",
+                                  parseInt(e.target.value) || 0
+                                )
+                              }
+                              disabled={!canUseSeed()}
+                              placeholder="Random"
+                              className="h-8 text-xs"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Negative Prompt */}
+                      <div className="bg-card/50 backdrop-blur-sm rounded-xl border p-4 space-y-3 shadow-sm">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-medium flex items-center gap-1.5">
-                            <MinusCircle className="h-3.5 w-3.5" />
+                          <h3 className="text-sm font-semibold flex items-center gap-2">
+                            <MinusCircle className="h-4 w-4" />
                             {t("negativePrompt")}
                           </h3>
                           {!canUseNegativePrompts && (
-                            <Crown className="h-3 w-3 text-amber-500" />
+                            <Crown className="h-3.5 w-3.5 text-amber-500" />
                           )}
                         </div>
                         <Textarea
@@ -1276,24 +1309,13 @@ export function GenerateClient() {
                             canUseNegativePrompts &&
                             updateSettings("negativePrompt", e.target.value)
                           }
-                          className="min-h-[60px] text-xs resize-none"
+                          className="min-h-[70px] text-sm resize-none"
                         />
-                      </CardContent>
-                    </Card>
-
-                    {/* Reset Button */}
-                    <Button
-                      variant="outline"
-                      onClick={handleResetAllSettings}
-                      className="w-full h-9"
-                      size="sm"
-                    >
-                      <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
-                      {t("actions.resetParameters")}
-                    </Button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               {/* Recent Generations intentionally hidden on Generate tab for mobile/tablet */}
             </motion.div>
