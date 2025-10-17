@@ -15,6 +15,7 @@ import {
   DollarSign,
   Image as ImageIcon,
   Video as VideoIcon,
+  Coins,
 } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 import { useUnreadNotificationCount } from "@/hooks/queries/useUserQuery";
@@ -140,6 +141,19 @@ export function Header() {
                   <DollarSign className="h-3.5 w-3.5" />
                   <span>{t("pricing")}</span>
                 </LocaleLink>
+                {!user && (
+                  <LocaleLink
+                    href="/pornspotcoin"
+                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:bg-accent/80 hover:scale-105 ${
+                      isActivePath(pathname, "/pornspotcoin")
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    <Coins className="h-3.5 w-3.5" />
+                    <span>{tNav("pornspotcoin")}</span>
+                  </LocaleLink>
+                )}
                 {user && (
                   <>
                     <LocaleLink
@@ -150,7 +164,7 @@ export function Header() {
                           : "text-muted-foreground"
                       }`}
                     >
-                      <DollarSign className="h-3.5 w-3.5" />
+                      <Coins className="h-3.5 w-3.5" />
                       <span>{tNav("pornspotcoin")}</span>
                     </LocaleLink>
                     <LocaleLink
