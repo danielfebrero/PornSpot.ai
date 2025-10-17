@@ -719,6 +719,34 @@ export default function AnalyticsPage() {
               })()}
             </ChartCard>
 
+            {/* Total Views Chart */}
+            <ChartCard
+              title="Total Views"
+              subtitle={`Total media views per ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
+              icon={Eye}
+            >
+              {(() => {
+                const chartData = processChartData(
+                  "interactions",
+                  "totalViews",
+                  "Total Views",
+                  {
+                    border: "rgba(147, 51, 234, 1)", // Purple
+                    background: "rgba(147, 51, 234, 0.2)",
+                  }
+                );
+                return chartData ? (
+                  <Line data={chartData} options={chartOptions} />
+                ) : (
+                  <div className="h-64 flex items-center justify-center text-muted-foreground">
+                    No views data available
+                  </div>
+                );
+              })()}
+            </ChartCard>
+
             {/* Monthly Recurring Revenue (MRR) Chart */}
             <ChartCard
               title="Monthly Recurring Revenue (MRR)"
