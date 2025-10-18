@@ -32,9 +32,9 @@
 
 [ ] Migrate to Terraform.
 
-[ ] Migrate to Next.js 15.
+[x] Migrate to Next.js 15.
 
-[ ] Migrate to React.js 19.
+[x] Migrate to React.js 19.
 
 [x] Implement forgot password page.
 

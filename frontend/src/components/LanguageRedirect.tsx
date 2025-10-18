@@ -24,6 +24,15 @@ export function LanguageRedirect() {
 
     // Check if user has a language preference set
     if (user.preferredLanguage && user.preferredLanguage !== currentLocale) {
+      const getCookie = (name: string): string | undefined => {
+        const value = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith(`${name}=`));
+        return value?.split("=")[1];
+      };
+
+      const preferredLocale = user.preferredLanguage;
+
       // Get current path without locale
       const currentPath = window.location.pathname;
       const pathSegments = currentPath.split("/").filter(Boolean);
@@ -36,8 +45,25 @@ export function LanguageRedirect() {
       const search = window.location.search;
       const hash = window.location.hash;
 
+      // Ensure future requests prefer the user's language
+      if (getCookie("NEXT_LOCALE") !== preferredLocale) {
+        document.cookie = `NEXT_LOCALE=${preferredLocale}; path=/; max-age=31536000; SameSite=Lax`;
+      }
+
+      if (getCookie("ps-preferred-locale") !== preferredLocale) {
+        document.cookie = `ps-preferred-locale=${preferredLocale}; path=/; max-age=31536000; SameSite=Lax`;
+      }
+
+      const targetPath = `/${preferredLocale}${newPath}`;
+      const targetUrl = `${targetPath}${search}${hash}`;
+
+      // Avoid unnecessary navigation if we're already at the target URL
+      if (targetUrl === `${currentPath}${search}${hash}`) {
+        return;
+      }
+
       // Replace the current URL with the preferred language
-      router.replace(`/${user.preferredLanguage}${newPath}${search}${hash}`);
+      router.replace(targetUrl);
     }
   }, [user, loading, currentLocale, router]);
 

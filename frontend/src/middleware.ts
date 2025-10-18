@@ -16,7 +16,15 @@ const intlMiddleware = createMiddleware({
 export default function middleware(request: NextRequest) {
   // Get the locale from the pathname
   const pathname = request.nextUrl.pathname;
-  const locale = pathname.split("/")[1] || defaultLocale;
+  const pathLocale = pathname.split("/")[1];
+  const cookieLocale =
+    request.cookies.get("NEXT_LOCALE")?.value ||
+    request.cookies.get("ps-preferred-locale")?.value;
+  const locale = locales.includes(pathLocale as any)
+    ? pathLocale
+    : cookieLocale && locales.includes(cookieLocale as any)
+    ? cookieLocale
+    : defaultLocale;
 
   // Run the intl middleware
   const response = intlMiddleware(request);

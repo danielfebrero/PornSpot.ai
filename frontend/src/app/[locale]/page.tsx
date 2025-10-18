@@ -14,7 +14,6 @@ export async function generateStaticParams() {
 
 // Enable ISR for this page - static generation with revalidation
 export const revalidate = 600; // Revalidate every 10 minutes (60 * 10)
-export const dynamic = "force-static"; // Force static generation at build time
 export const dynamicParams = true; // Allow dynamic params (for tags)
 
 export async function generateMetadata({
@@ -38,15 +37,12 @@ export default async function DiscoverPage({
 }) {
   const { locale } = await params;
   const { tag } = await searchParams;
-  const t = await getTranslations({ locale, namespace: "site" });
-  const tCommon = await getTranslations({
-    locale,
-    namespace: "common",
-  });
-  const tPlaceholders = await getTranslations({
-    locale,
-    namespace: "placeholders",
-  });
+  // Run translations in parallel for faster response
+  const [t, tCommon, tPlaceholders] = await Promise.all([
+    getTranslations({ locale, namespace: "site" }),
+    getTranslations({ locale, namespace: "common" }),
+    getTranslations({ locale, namespace: "placeholders" }),
+  ]);
 
   let items: (Album | Media)[] = [];
   let pagination: DiscoverCursors | null = null;
@@ -55,44 +51,52 @@ export default async function DiscoverPage({
   try {
     const result = await discoverApi.getDiscover({
       limit: 60,
-      ...(tag && { tag }), // Include tag if provided
+      ...(tag && { tag }),
+      // ensure Next caches properly under ISR
+      fetchOptions: { cache: "force-cache", next: { revalidate: 600 } },
     });
 
-    items = result.items || [];
-    pagination = result.cursors || null;
+    items = result.items ?? [];
+    pagination = result.cursors ?? null;
   } catch (fetchError) {
     console.error("Exception while fetching albums:", fetchError);
     error = String(fetchError);
   }
 
+  // ---- Render ----
+  if (error && items.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500 mb-4">
+          {tCommon("errors.loadingItems")}: {error}
+        </p>
+        <p className="text-gray-500">{tCommon("errors.refreshPage")}</p>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">{tPlaceholders("noItems")}</p>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* SEO-friendly hidden content for search engines */}
-      {/* <EvilPrefetch data="test" /> */}
       <div className="sr-only">
         <h1>{t("welcomeTitle")}</h1>
         <p>{t("welcomeDescription")}</p>
       </div>
 
-      {error && items.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-red-500 mb-4">
-            {tCommon("errors.loadingItems")}: {error}
-          </p>
-          <p className="text-gray-500">{tCommon("errors.refreshPage")}</p>
-        </div>
-      ) : items.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500">{tPlaceholders("noItems")}</p>
-        </div>
-      ) : (
-        <DiscoverClient
-          initialContent={items}
-          initialPagination={pagination}
-          initialError={error}
-          initialTag={tag}
-        />
-      )}
+      <DiscoverClient
+        initialContent={items}
+        initialPagination={pagination}
+        initialError={error}
+        initialTag={tag}
+      />
     </>
   );
 }

@@ -33,4 +33,5 @@ export interface DiscoverParams {
   cursorMedia?: string;
   tag?: string;
   sort?: string;
+  fetchOptions?: RequestInit;
 }

@@ -19,6 +19,7 @@ export interface ApiRequestConfig {
   params?: Record<string, string | number | boolean | undefined>;
   body?: unknown;
   credentials?: RequestCredentials;
+  fetchOptions?: RequestInit;
 }
 
 /**
@@ -58,6 +59,7 @@ export class ApiUtil {
       params,
       body,
       credentials = "include",
+      fetchOptions = {},
     } = config;
 
     const url = this.buildUrl(endpoint, params);
@@ -71,6 +73,7 @@ export class ApiUtil {
       method,
       headers: requestHeaders,
       credentials,
+      ...fetchOptions, // Merge fetchOptions last to allow overrides
     };
 
     if (body && method !== "GET") {
@@ -116,9 +119,10 @@ export class ApiUtil {
    */
   static async get<T = any>(
     endpoint: string,
-    params?: Record<string, any>
+    params?: Record<string, any>,
+    fetchOptions?: RequestInit
   ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: "GET", params });
+    return this.request<T>(endpoint, { method: "GET", params, fetchOptions });
   }
 
   /**

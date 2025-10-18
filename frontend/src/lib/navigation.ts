@@ -1,6 +1,18 @@
 import { locales, defaultLocale } from "@/i18n";
 import { useParams, useRouter } from "next/navigation";
 
+const escapedLocales = locales.map((locale) =>
+  locale.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+);
+
+const localePrefixPattern = new RegExp(
+  `^/(?:${escapedLocales.join("|")})(?:/|$|\\?|#)`
+);
+
+export function hasLocalePrefix(href: string): boolean {
+  return localePrefixPattern.test(href);
+}
+
 /**
  * Creates a locale-aware path
  */
@@ -95,7 +107,7 @@ export function useLocaleRouter() {
       href.startsWith("http") ||
       href.startsWith("mailto:") ||
       href.startsWith("tel:");
-    const hasLocale = locales.some((loc) => href.startsWith(`/${loc}/`));
+    const hasLocale = hasLocalePrefix(href);
 
     // If external or already has locale, use href as-is
     // If it's an API route, use as-is (API routes should remain unlocalized)
@@ -119,7 +131,7 @@ export function useLocaleRouter() {
       href.startsWith("http") ||
       href.startsWith("mailto:") ||
       href.startsWith("tel:");
-    const hasLocale = locales.some((loc) => href.startsWith(`/${loc}/`));
+    const hasLocale = hasLocalePrefix(href);
 
     // If external or already has locale, use href as-is
     // If it's an API route, use as-is (API routes should remain unlocalized)
