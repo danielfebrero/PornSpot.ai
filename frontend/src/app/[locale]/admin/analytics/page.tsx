@@ -537,6 +537,24 @@ export default function AnalyticsPage() {
               color="hsl(var(--muted-foreground))"
             />
             <SummaryCard
+              title="Total MRR"
+              value={
+                analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "business"
+                )?.dataPoints?.[0]?.metrics?.MRR || 0
+              }
+              change={
+                analyticsData?.allMetrics?.find(
+                  (m: any) => m.metricType === "business"
+                )?.dataPoints?.[0]?.metrics?.newMRR || 0
+              }
+              changeLabel={`last ${selectedGranularity
+                .slice(0, -2)
+                .replace("dai", "day")}`}
+              icon={DollarSign}
+              color="hsl(var(--chart-1))"
+            />
+            <SummaryCard
               title="Total Revenue"
               value={
                 analyticsData?.allMetrics?.find(
@@ -551,8 +569,8 @@ export default function AnalyticsPage() {
               changeLabel={`last ${selectedGranularity
                 .slice(0, -2)
                 .replace("dai", "day")}`}
-              icon={Bookmark}
-              color="hsl(var(--muted-foreground))"
+              icon={DollarSign}
+              color="hsl(var(--chart-2))"
             />
           </div>
 
