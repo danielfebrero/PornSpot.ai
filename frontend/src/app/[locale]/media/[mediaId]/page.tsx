@@ -9,10 +9,10 @@ import { generateMediaMetadata } from "@/lib/opengraph";
 import { Lock } from "lucide-react";
 
 interface MediaDetailPageProps {
-  params: {
+  params: Promise<{
     locale: string;
     mediaId: string;
-  };
+  }>;
 }
 
 // Force dynamic - pages are rendered on each request
@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: MediaDetailPageProps): Promise<Metadata> {
-  const { locale, mediaId } = params;
+  const { locale, mediaId } = await params;
   const { data: media, error } = await getMediaById(mediaId, {
     injectHeadersCookie: true,
   });
@@ -53,7 +53,7 @@ export async function generateMetadata({
 export default async function MediaDetailPage({
   params,
 }: MediaDetailPageProps) {
-  const { mediaId, locale } = params;
+  const { mediaId, locale } = await params;
   const mediaResult = await getMediaById(mediaId, {
     injectHeadersCookie: true,
   });

@@ -16,6 +16,7 @@ const nextConfig = {
         "dpoieeap5d01g.cloudfront.net",
 
       "cdn.pornspot.ai",
+      "stage.cdn.pornspot.ai",
     ],
     // Removed formats since we're serving unoptimized PNG, MP4, and GIF from CDN
     remotePatterns: [
@@ -30,6 +31,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "cdn.pornspot.ai",
+      },
+      {
+        protocol: "https",
+        hostname: "stage.cdn.pornspot.ai",
       },
     ],
   },
@@ -96,13 +101,19 @@ const nextConfig = {
 
   // Performance optimizations
   experimental: {
-    optimizePackageImports: ["lucide-react"],
-    outputFileTracingRoot: __dirname,
+    optimizePackageImports: ["lucide-react", "@tanstack/react-query"],
     // Allow importing from directories outside of the app (monorepo setup)
     externalDir: true,
+    // Placeholder for enabling React Compiler once stable
+    // reactCompiler: true,
   },
 
+  // Monorepo file tracing
+  outputFileTracingRoot: __dirname,
+
   transpilePackages: ["shared-types"],
+
+  cacheMaxMemorySize: 50 * 1024 * 1024,
 
   // Enable static optimization and ISR
   // output: "standalone", // or 'export' for full static export

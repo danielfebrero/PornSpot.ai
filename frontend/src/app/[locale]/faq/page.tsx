@@ -11,7 +11,7 @@ import {
 } from "@/lib/opengraph";
 
 type FaqPageProps = {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
 export async function generateStaticParams() {
@@ -19,11 +19,12 @@ export async function generateStaticParams() {
 }
 
 export const revalidate = false;
+export const dynamic = "force-static";
 
 export async function generateMetadata({
   params,
 }: FaqPageProps): Promise<Metadata> {
-  const { locale } = params;
+  const { locale } = await params;
 
   return generateTranslatedOpenGraphMetadata({
     locale,
@@ -68,7 +69,7 @@ const faqQuestionKeys: Array<{
 ];
 
 export default async function FaqPage({ params }: FaqPageProps) {
-  const { locale } = params;
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "faqPage" });
   const pageUrl = generateSiteUrl(locale, "faq");
 

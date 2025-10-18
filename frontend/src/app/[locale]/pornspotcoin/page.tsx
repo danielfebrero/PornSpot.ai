@@ -7,7 +7,7 @@ import {
 import { PublicPSCPageClient } from "@/components/pornspotcoin/PublicPSCPageClient";
 
 type PornSpotCoinPageProps = {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
 // Generate static pages for all locales at build time
@@ -17,11 +17,12 @@ export async function generateStaticParams() {
 
 // Enable pure SSG
 export const revalidate = false;
+export const dynamic = "force-static";
 
 export async function generateMetadata({
   params,
 }: PornSpotCoinPageProps): Promise<Metadata> {
-  const { locale } = params;
+  const { locale } = await params;
 
   return generateTranslatedOpenGraphMetadata({
     locale,

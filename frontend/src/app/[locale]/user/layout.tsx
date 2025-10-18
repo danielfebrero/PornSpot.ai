@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { useLocaleRouter } from "@/lib/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -27,13 +27,11 @@ import { useUserContext } from "@/contexts/UserContext";
 
 interface UserLayoutProps {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }
 
-const UserLayout: React.FC<UserLayoutProps> = ({
-  children,
-  params: { locale },
-}) => {
+const UserLayout: React.FC<UserLayoutProps> = ({ children, params }) => {
+  const { locale } = use(params);
   const { user, loading } = useUserContext();
   const userContext = useUserContext();
   const router = useLocaleRouter();

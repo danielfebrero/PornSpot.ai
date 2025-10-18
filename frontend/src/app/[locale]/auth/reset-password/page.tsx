@@ -9,7 +9,7 @@ import {
 } from "@/lib/opengraph";
 
 type ResetPasswordPageProps = {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
 // Enable ISR for this page - static generation with revalidation
@@ -25,12 +25,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: ResetPasswordPageProps): Promise<Metadata> {
+  const { locale } = await params;
   return generateTranslatedOpenGraphMetadata({
-    locale: params.locale,
+    locale,
     titleKey: "meta.title",
     descriptionKey: "meta.description",
     namespace: "auth.resetPassword",
-    url: generateSiteUrl(params.locale, "auth/reset-password"),
+    url: generateSiteUrl(locale, "auth/reset-password"),
     type: "website",
   });
 }
@@ -46,9 +47,12 @@ async function ResetPasswordFallback({ locale }: { locale: string }) {
   );
 }
 
-export default function ResetPasswordPage({ params }: ResetPasswordPageProps) {
+export default async function ResetPasswordPage({
+  params,
+}: ResetPasswordPageProps) {
+  const { locale } = await params;
   return (
-    <Suspense fallback={<ResetPasswordFallback locale={params.locale} />}>
+    <Suspense fallback={<ResetPasswordFallback locale={locale} />}>
       <ResetPasswordForm />
     </Suspense>
   );

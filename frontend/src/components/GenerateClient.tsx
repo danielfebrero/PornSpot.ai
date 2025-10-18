@@ -359,7 +359,7 @@ export function GenerateClient() {
   // Auto-scroll opened parameter section into view on mobile/tablet
   useEffect(() => {
     if (deviceType === "desktop" || !expandedSection) return;
-    const map: Record<string, React.RefObject<HTMLDivElement>> = {
+    const map: Record<string, React.RefObject<HTMLDivElement | null>> = {
       size: sizeSectionRef,
       batch: batchSectionRef,
       visibility: visibilitySectionRef,

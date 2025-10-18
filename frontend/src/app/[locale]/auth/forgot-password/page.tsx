@@ -9,7 +9,7 @@ import {
 import { getTranslations } from "next-intl/server";
 
 type ForgotPasswordPageProps = {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
 // Enable ISR for this page - static generation with revalidation
@@ -25,12 +25,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: ForgotPasswordPageProps): Promise<Metadata> {
+  const { locale } = await params;
   return generateTranslatedOpenGraphMetadata({
-    locale: params.locale,
+    locale,
     titleKey: "meta.title",
     descriptionKey: "meta.description",
     namespace: "auth.forgotPassword",
-    url: generateSiteUrl(params.locale, "auth/forgot-password"),
+    url: generateSiteUrl(locale, "auth/forgot-password"),
     type: "website",
   });
 }
@@ -46,11 +47,12 @@ async function ForgotPasswordFallback({ locale }: { locale: string }) {
   );
 }
 
-export default function ForgotPasswordPage({
+export default async function ForgotPasswordPage({
   params,
 }: ForgotPasswordPageProps) {
+  const { locale } = await params;
   return (
-    <Suspense fallback={<ForgotPasswordFallback locale={params.locale} />}>
+    <Suspense fallback={<ForgotPasswordFallback locale={locale} />}>
       <ForgotPasswordForm />
     </Suspense>
   );

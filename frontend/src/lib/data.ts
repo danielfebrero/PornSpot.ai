@@ -147,10 +147,10 @@ export async function getMediaById(
   mediaId: string,
   options?: { injectHeadersCookie?: boolean }
 ) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const cookieHeader = cookieStore
     .getAll()
-    .map((c) => `${c.name}=${c.value}`)
+    .map((c: { name: string; value: string }) => `${c.name}=${c.value}`)
     .join("; ");
 
   try {

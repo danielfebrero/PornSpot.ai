@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { AuthSuccessClient } from "@/components/user/AuthSuccessClient";
 
 type AuthSuccessPageProps = {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
 // Enable ISR for this page - static generation with revalidation
@@ -21,8 +21,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: AuthSuccessPageProps): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({
-    locale: params.locale,
+    locale,
     namespace: "auth.success",
   });
 
@@ -63,9 +64,12 @@ async function AuthSuccessFallback({ locale }: { locale: string }) {
   );
 }
 
-export default function AuthSuccessPage({ params }: AuthSuccessPageProps) {
+export default async function AuthSuccessPage({
+  params,
+}: AuthSuccessPageProps) {
+  const { locale } = await params;
   return (
-    <Suspense fallback={<AuthSuccessFallback locale={params.locale} />}>
+    <Suspense fallback={<AuthSuccessFallback locale={locale} />}>
       <AuthSuccessClient />
     </Suspense>
   );

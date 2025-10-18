@@ -13,7 +13,7 @@ export async function generateStaticParams() {
 }
 
 // Enable ISR for this page - static generation with revalidation
-export const revalidate = 60 * 10; // Revalidate every 10 minutes
+export const revalidate = 600; // Revalidate every 10 minutes (60 * 10)
 export const dynamic = "force-static"; // Force static generation at build time
 export const dynamicParams = true; // Allow dynamic params (for tags)
 
@@ -21,30 +21,33 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: { locale: string };
-  searchParams: { tag?: string };
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ tag?: string }>;
 }): Promise<Metadata> {
-  return generateHomepageMetadata(params.locale, searchParams.tag);
+  const { locale } = await params;
+  const { tag } = await searchParams;
+  return generateHomepageMetadata(locale, tag);
 }
 
 export default async function DiscoverPage({
   params,
   searchParams,
 }: {
-  params: { locale: string };
-  searchParams: { tag?: string };
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ tag?: string }>;
 }) {
-  const t = await getTranslations({ locale: params.locale, namespace: "site" });
+  const { locale } = await params;
+  const { tag } = await searchParams;
+  const t = await getTranslations({ locale, namespace: "site" });
   const tCommon = await getTranslations({
-    locale: params.locale,
+    locale,
     namespace: "common",
   });
   const tPlaceholders = await getTranslations({
-    locale: params.locale,
+    locale,
     namespace: "placeholders",
   });
 
-  const tag = searchParams.tag;
   let items: (Album | Media)[] = [];
   let pagination: DiscoverCursors | null = null;
   let error: string | null = null;

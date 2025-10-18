@@ -26,7 +26,7 @@ module.exports = {
       testEnvironment: "jsdom",
       roots: ["<rootDir>/frontend"],
       setupFilesAfterEnv: ["<rootDir>/frontend/jest.setup.js"],
-      moduleNameMapping: {
+      moduleNameMapper: {
         "^@/(.*)$": "<rootDir>/frontend/src/$1",
         "^@/components/(.*)$": "<rootDir>/frontend/src/components/$1",
         "^@/lib/(.*)$": "<rootDir>/frontend/src/lib/$1",
@@ -46,8 +46,11 @@ module.exports = {
       transform: {
         "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { presets: ["next/babel"] }],
       },
+      testEnvironmentOptions: {
+        customExportConditions: ["react-server", "development"],
+      },
       transformIgnorePatterns: [
-        "/node_modules/",
+        "/node_modules/(?!next-intl|@tanstack)",
         "^.+\\.module\\.(css|sass|scss)$",
       ],
     },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLocaleRouter } from "@/lib/navigation";
 import { AlbumForm } from "@/components/admin/AlbumForm";
@@ -10,19 +10,20 @@ import {
 } from "@/hooks/queries/useAdminAlbumsQuery";
 
 interface EditAlbumPageProps {
-  params: {
+  params: Promise<{
     albumId: string;
-  };
+  }>;
 }
 
 export default function EditAlbumPage({ params }: EditAlbumPageProps) {
+  const { albumId } = use(params);
   const t = useTranslations("admin.albums");
   const router = useLocaleRouter();
   const {
     data: album,
     isLoading: fetchLoading,
     error: fetchError,
-  } = useAdminAlbum(params.albumId);
+  } = useAdminAlbum(albumId);
   const updateAlbumMutation = useUpdateAdminAlbum();
   const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +37,7 @@ export default function EditAlbumPage({ params }: EditAlbumPageProps) {
 
     try {
       await updateAlbumMutation.mutateAsync({
-        albumId: params.albumId,
+        albumId,
         updates: data,
       });
       router.push("/admin/albums");
@@ -178,7 +179,7 @@ export default function EditAlbumPage({ params }: EditAlbumPageProps) {
         onCancel={handleCancel}
         loading={updateAlbumMutation.isPending}
         submitText={t("updateAlbum")}
-        albumId={params.albumId}
+        albumId={albumId}
       />
     </div>
   );

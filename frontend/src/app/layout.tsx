@@ -8,13 +8,13 @@ import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   // Get locale from middleware header
-  const headersList = headers();
+  const headersList = await headers();
   const locale = headersList.get("x-locale") || defaultLocale;
 
   return (

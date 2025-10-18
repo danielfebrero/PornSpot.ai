@@ -9,7 +9,7 @@ export const useTemporaryTooltip = (
 ) => {
   const { duration = 1000 } = options;
   const [isVisible, setIsVisible] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const showTooltip = useCallback(() => {
     // Clear any existing timeout

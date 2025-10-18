@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import RegisterForm from "@/components/user/RegisterForm";
 
 type RegisterPageProps = {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
 // Enable ISR for this page - static generation with revalidation
@@ -21,8 +21,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: RegisterPageProps): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({
-    locale: params.locale,
+    locale,
     namespace: "auth.register",
   });
 
@@ -43,9 +44,10 @@ async function RegisterFallback({ locale }: { locale: string }) {
   );
 }
 
-export default function RegisterPage({ params }: RegisterPageProps) {
+export default async function RegisterPage({ params }: RegisterPageProps) {
+  const { locale } = await params;
   return (
-    <Suspense fallback={<RegisterFallback locale={params.locale} />}>
+    <Suspense fallback={<RegisterFallback locale={locale} />}>
       <RegisterForm />
     </Suspense>
   );

@@ -44,7 +44,7 @@ export function ScrollRestorationProvider({
   maxAge = 5 * 60 * 1000, // 5 minutes
 }: ScrollRestorationProviderProps) {
   const scrollPositionsRef = useRef<Map<string, ScrollPosition>>(new Map());
-  const cleanupTimeoutRef = useRef<NodeJS.Timeout>();
+  const cleanupTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   /**
    * Save scroll position in memory

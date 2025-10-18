@@ -66,7 +66,7 @@ export function useScrollRestoration({
   saveDebounceMs = 100,
 }: UseScrollRestorationOptions) {
   const pathname = usePathname();
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const lastSavedPositionRef = useRef<ScrollPosition | null>(null);
 
   // Create a unique storage key that includes pathname for context

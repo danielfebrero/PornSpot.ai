@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { AdminProvider } from "@/contexts/AdminContext";
@@ -22,13 +23,11 @@ import {
 
 interface AdminLayoutProps {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }
 
-export default function AdminLayout({
-  children,
-  params: { locale },
-}: AdminLayoutProps) {
+export default function AdminLayout({ children, params }: AdminLayoutProps) {
+  const { locale } = use(params);
   return (
     <PageErrorBoundary context={`Admin Layout (${locale})`}>
       <AdminProvider>

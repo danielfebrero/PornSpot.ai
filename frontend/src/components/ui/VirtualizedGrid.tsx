@@ -205,7 +205,7 @@ export function VirtualizedGrid<T extends GridItem>({
   }, [fullStorageKey, scrollContext]);
 
   // Debounced save function
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const lastSavedPositionRef = useRef<{
     scrollTop: number;
     topMostItemIndex: number;

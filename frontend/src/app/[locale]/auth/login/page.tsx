@@ -9,7 +9,7 @@ import { getTranslations } from "next-intl/server";
 import LoginForm from "@/components/user/LoginForm";
 
 type LoginPageProps = {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
 // Enable ISR for this page - static generation with revalidation
@@ -25,12 +25,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: LoginPageProps): Promise<Metadata> {
+  const { locale } = await params;
   return generateTranslatedOpenGraphMetadata({
-    locale: params.locale,
+    locale,
     titleKey: "meta.title",
     descriptionKey: "meta.description",
     namespace: "auth.login",
-    url: generateSiteUrl(params.locale, "auth/login"),
+    url: generateSiteUrl(locale, "auth/login"),
     type: "website",
   });
 }
@@ -46,9 +47,10 @@ async function LoginFallback({ locale }: { locale: string }) {
   );
 }
 
-export default function LoginPage({ params }: LoginPageProps) {
+export default async function LoginPage({ params }: LoginPageProps) {
+  const { locale } = await params;
   return (
-    <Suspense fallback={<LoginFallback locale={params.locale} />}>
+    <Suspense fallback={<LoginFallback locale={locale} />}>
       <LoginForm />
     </Suspense>
   );

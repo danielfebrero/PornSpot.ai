@@ -30,14 +30,15 @@ import {
 
 type Props = {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
 export async function generateMetadata({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "site" });
 
   return {
@@ -106,15 +107,13 @@ export async function generateMetadata({
   };
 }
 
-export default async function LocaleLayout({
-  children,
-  params: { locale },
-}: Props) {
+export default async function LocaleLayout({ children, params }: Props) {
+  const { locale } = await params;
   const messages = await getMessages({ locale });
   const t = await getTranslations({ locale, namespace: "site" });
 
   // Server-side device detection
-  const headersList = headers();
+  const headersList = await headers();
   const userAgent = headersList.get("user-agent");
   const deviceInfo = detectDevice(userAgent);
 

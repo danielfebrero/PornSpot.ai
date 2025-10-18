@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { use, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLocaleRouter } from "@/lib/navigation";
 import { MediaManager } from "@/components/admin/MediaManager";
@@ -11,21 +11,20 @@ import {
 import { useAlbumMedia } from "@/hooks/queries/useMediaQuery";
 
 interface MediaManagementPageProps {
-  params: {
+  params: Promise<{
     albumId: string;
-  };
+  }>;
 }
 
 export default function MediaManagementPage({
   params,
 }: MediaManagementPageProps) {
+  const { albumId } = use(params);
   const t = useTranslations("admin.media");
   const router = useLocaleRouter();
-  const { data: album, isLoading: albumLoading } = useAdminAlbum(
-    params.albumId
-  );
+  const { data: album, isLoading: albumLoading } = useAdminAlbum(albumId);
   const { data: mediaData, isLoading: mediaLoading } = useAlbumMedia({
-    albumId: params.albumId,
+    albumId,
   });
   const updateAlbumMutation = useUpdateAdminAlbum();
   const [error, setError] = useState<string | null>(null);
@@ -312,7 +311,7 @@ export default function MediaManagementPage({
       </div>
 
       <MediaManager
-        albumId={params.albumId}
+        albumId={albumId}
         albumTitle={album.title}
         media={allMedia}
         onMediaChange={() => {

@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { VerifyEmailClient } from "@/components/user/VerifyEmailClient";
 
 type VerifyEmailPageProps = {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
 // Enable ISR for this page - static generation with revalidation
@@ -21,8 +21,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: VerifyEmailPageProps): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({
-    locale: params.locale,
+    locale,
     namespace: "auth.verifyEmail",
   });
 
@@ -43,9 +44,12 @@ async function VerifyEmailFallback({ locale }: { locale: string }) {
   );
 }
 
-export default function VerifyEmailPage({ params }: VerifyEmailPageProps) {
+export default async function VerifyEmailPage({
+  params,
+}: VerifyEmailPageProps) {
+  const { locale } = await params;
   return (
-    <Suspense fallback={<VerifyEmailFallback locale={params.locale} />}>
+    <Suspense fallback={<VerifyEmailFallback locale={locale} />}>
       <VerifyEmailClient />
     </Suspense>
   );

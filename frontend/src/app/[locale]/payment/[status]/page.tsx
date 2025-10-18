@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, use, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -12,7 +12,7 @@ import { FinbyPaymentStatus } from "@/types";
 import { useTranslations } from "next-intl";
 
 type PaymentStatusPageProps = {
-  params: { locale: string; status: string };
+  params: Promise<{ locale: string; status: string }>;
 };
 
 type ViewState = "processing" | "completed" | "error" | "missingReference";
@@ -287,7 +287,8 @@ function PaymentStatusFallback({ status }: { status: NormalizedStatus }) {
 export const dynamic = "force-dynamic";
 
 export default function PaymentStatusPage({ params }: PaymentStatusPageProps) {
-  const normalizedStatus = normalizeStatus(params.status);
+  const { status } = use(params);
+  const normalizedStatus = normalizeStatus(status);
 
   return (
     <Suspense fallback={<PaymentStatusFallback status={normalizedStatus} />}>

@@ -7,7 +7,7 @@ import {
 } from "@/lib/opengraph";
 
 type PrivacyPageProps = {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
 // Generate static pages for all locales at build time
@@ -17,11 +17,12 @@ export async function generateStaticParams() {
 
 // Enable static generation with periodic revalidation
 export const revalidate = false; // No revalidation needed, static generation only
+export const dynamic = "force-static";
 
 export async function generateMetadata({
   params,
 }: PrivacyPageProps): Promise<Metadata> {
-  const { locale } = params;
+  const { locale } = await params;
 
   return generateTranslatedOpenGraphMetadata({
     locale,

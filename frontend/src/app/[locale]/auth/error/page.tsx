@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { AuthErrorClient } from "@/components/user/AuthErrorClient";
 
 type AuthErrorPageProps = {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
 // Enable ISR for this page - static generation with revalidation
@@ -21,8 +21,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: AuthErrorPageProps): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({
-    locale: params.locale,
+    locale,
     namespace: "auth.error",
   });
 
@@ -50,9 +51,10 @@ async function AuthErrorFallback({ locale }: { locale: string }) {
   );
 }
 
-export default function AuthErrorPage({ params }: AuthErrorPageProps) {
+export default async function AuthErrorPage({ params }: AuthErrorPageProps) {
+  const { locale } = await params;
   return (
-    <Suspense fallback={<AuthErrorFallback locale={params.locale} />}>
+    <Suspense fallback={<AuthErrorFallback locale={locale} />}>
       <AuthErrorClient />
     </Suspense>
   );

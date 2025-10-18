@@ -14,10 +14,10 @@ import {
 import { mediaApi } from "@/lib/api";
 
 type AlbumDetailPageProps = {
-  params: {
+  params: Promise<{
     locale: string;
     albumId: string;
-  };
+  }>;
 };
 
 // Force dynamic rendering - no static generation
@@ -26,7 +26,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: AlbumDetailPageProps): Promise<Metadata> {
-  const { locale, albumId } = params;
+  const { locale, albumId } = await params;
   const { data: album, error } = await getAlbumById(albumId);
 
   // Get localized translations for fallback
@@ -52,7 +52,7 @@ export async function generateMetadata({
 export default async function AlbumDetailPage({
   params,
 }: AlbumDetailPageProps) {
-  const { albumId, locale } = params;
+  const { albumId, locale } = await params;
   const albumResult = await getAlbumById(albumId);
 
   if (albumResult.error) {
