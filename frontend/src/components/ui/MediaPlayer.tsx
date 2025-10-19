@@ -11,6 +11,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { isMediaOwner } from "@/lib/userUtils";
 import { Globe, Lock, Edit } from "lucide-react";
 import { useUpdateMedia } from "@/hooks/queries/useMediaQuery";
+import { useTrackView } from "@/hooks/queries/useViewCountsQuery";
 
 interface MediaPlayerProps {
   media: Media;
@@ -41,6 +42,8 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
   const { user } = useUserContext();
   const isVideoMedia = isVideo(media);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const lastPlayTimestampRef = useRef<number>(0);
+  const allowImmediateReplayRef = useRef(false);
   // Track native controls visibility on mobile
   const [showMobileOverlay, setShowMobileOverlay] = useState(false);
   // Edit title dialog state
@@ -59,6 +62,7 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
   }, [media.originalFilename, media.filename, media.isPublic]);
 
   const updateMedia = useUpdateMedia();
+  const { mutate: trackView } = useTrackView();
 
   // Check if current user is the owner of this media
   const isOwner = isMediaOwner(user, media.createdBy);
@@ -127,6 +131,74 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
       setShowMobileOverlay(false);
     }
   }, [isPlaying]);
+
+  // Track native video play events to increment view counts
+  useEffect(() => {
+    if (!isVideoMedia || !isPlaying || !media.id) {
+      return;
+    }
+
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+
+    const MIN_PLAY_INTERVAL_MS = 1000;
+    const START_THRESHOLD_SECONDS = 0.5;
+
+    // Reset tracking state for this playback session
+    allowImmediateReplayRef.current = false;
+    lastPlayTimestampRef.current = 0;
+
+    const handlePlay = () => {
+      const videoElement = videoRef.current;
+      if (!videoElement) {
+        return;
+      }
+
+      const now = Date.now();
+      const isNearStart = videoElement.currentTime <= START_THRESHOLD_SECONDS;
+
+      if (!isNearStart && !allowImmediateReplayRef.current) {
+        return;
+      }
+
+      if (
+        !allowImmediateReplayRef.current &&
+        lastPlayTimestampRef.current &&
+        now - lastPlayTimestampRef.current < MIN_PLAY_INTERVAL_MS
+      ) {
+        return;
+      }
+
+      allowImmediateReplayRef.current = false;
+      lastPlayTimestampRef.current = now;
+
+      trackView({
+        targetType: "video",
+        targetId: media.id,
+      });
+    };
+
+    const handleEnded = () => {
+      allowImmediateReplayRef.current = true;
+      lastPlayTimestampRef.current = 0;
+    };
+
+    video.addEventListener("play", handlePlay);
+    video.addEventListener("ended", handleEnded);
+
+    if (!video.paused) {
+      handlePlay();
+    }
+
+    return () => {
+      video.removeEventListener("play", handlePlay);
+      video.removeEventListener("ended", handleEnded);
+      allowImmediateReplayRef.current = false;
+      lastPlayTimestampRef.current = 0;
+    };
+  }, [isVideoMedia, isPlaying, media.id, trackView]);
 
   // Handler for making media public/private
   const handleToggleVisibility = useCallback(async () => {
