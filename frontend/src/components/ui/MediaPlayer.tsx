@@ -43,7 +43,7 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
   const isVideoMedia = isVideo(media);
   const videoRef = useRef<HTMLVideoElement>(null);
   const lastPlayTimestampRef = useRef<number>(0);
-  const allowImmediateReplayRef = useRef(false);
+  const previousTimeRef = useRef<number>(0);
   // Track native controls visibility on mobile
   const [showMobileOverlay, setShowMobileOverlay] = useState(false);
   // Edit title dialog state
@@ -143,35 +143,23 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
       return;
     }
 
-    const MIN_PLAY_INTERVAL_MS = 1000;
-    const START_THRESHOLD_SECONDS = 0.5;
+    const MIN_PLAY_INTERVAL_MS = 500;
+    const START_THRESHOLD_SECONDS = 0.75;
+    const LOOP_END_THRESHOLD_SECONDS = 1;
 
-    // Reset tracking state for this playback session
-    allowImmediateReplayRef.current = false;
-    lastPlayTimestampRef.current = 0;
+  previousTimeRef.current = video.currentTime ?? 0;
+  lastPlayTimestampRef.current = 0;
 
-    const handlePlay = () => {
-      const videoElement = videoRef.current;
-      if (!videoElement) {
-        return;
-      }
-
+    const recordView = () => {
       const now = Date.now();
-      const isNearStart = videoElement.currentTime <= START_THRESHOLD_SECONDS;
-
-      if (!isNearStart && !allowImmediateReplayRef.current) {
-        return;
-      }
 
       if (
-        !allowImmediateReplayRef.current &&
         lastPlayTimestampRef.current &&
         now - lastPlayTimestampRef.current < MIN_PLAY_INTERVAL_MS
       ) {
         return;
       }
 
-      allowImmediateReplayRef.current = false;
       lastPlayTimestampRef.current = now;
 
       trackView({
@@ -180,12 +168,66 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
       });
     };
 
+    const handlePlay = () => {
+      const videoElement = videoRef.current;
+      if (!videoElement) {
+        return;
+      }
+
+      previousTimeRef.current = videoElement.currentTime;
+
+      if (videoElement.currentTime <= START_THRESHOLD_SECONDS) {
+        recordView();
+      }
+    };
+
+    const handleTimeUpdate = () => {
+      const videoElement = videoRef.current;
+      if (!videoElement) {
+        return;
+      }
+
+      const currentTime = videoElement.currentTime;
+      const duration = videoElement.duration || 0;
+      const previousTime = previousTimeRef.current;
+
+      const loopStartThreshold =
+        duration > 0
+          ? Math.min(START_THRESHOLD_SECONDS, duration * 0.4 + 0.1)
+          : START_THRESHOLD_SECONDS;
+      const loopEndThreshold =
+        duration > 0
+          ? Math.max(duration - LOOP_END_THRESHOLD_SECONDS, duration * 0.8)
+          : Number.POSITIVE_INFINITY;
+
+      if (
+        duration > 0 &&
+        previousTime >= loopEndThreshold &&
+        currentTime <= loopStartThreshold
+      ) {
+        recordView();
+      }
+
+      previousTimeRef.current = currentTime;
+    };
+
+    const handleSeeked = () => {
+      const videoElement = videoRef.current;
+      if (videoElement) {
+        previousTimeRef.current = videoElement.currentTime;
+      }
+    };
+
     const handleEnded = () => {
-      allowImmediateReplayRef.current = true;
-      lastPlayTimestampRef.current = 0;
+      const videoElement = videoRef.current;
+      if (videoElement && Number.isFinite(videoElement.duration)) {
+        previousTimeRef.current = videoElement.duration;
+      }
     };
 
     video.addEventListener("play", handlePlay);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("seeked", handleSeeked);
     video.addEventListener("ended", handleEnded);
 
     if (!video.paused) {
@@ -194,8 +236,10 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
 
     return () => {
       video.removeEventListener("play", handlePlay);
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("seeked", handleSeeked);
       video.removeEventListener("ended", handleEnded);
-      allowImmediateReplayRef.current = false;
+      previousTimeRef.current = 0;
       lastPlayTimestampRef.current = 0;
     };
   }, [isVideoMedia, isPlaying, media.id, trackView]);
