@@ -147,8 +147,8 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
     const START_THRESHOLD_SECONDS = 0.75;
     const LOOP_END_THRESHOLD_SECONDS = 1;
 
-  previousTimeRef.current = video.currentTime ?? 0;
-  lastPlayTimestampRef.current = 0;
+    previousTimeRef.current = video.currentTime ?? 0;
+    lastPlayTimestampRef.current = 0;
 
     const recordView = () => {
       const now = Date.now();

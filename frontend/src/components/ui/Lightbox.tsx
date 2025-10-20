@@ -59,6 +59,8 @@ export const Lightbox: React.FC<LightboxProps> = ({
   const [areControlsVisible, setAreControlsVisible] = useState(true);
   const hideControlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [hasAppliedPlayOnOpen, setHasAppliedPlayOnOpen] = useState(false);
+  const [trackedMedia, setTrackedMedia] = useState<Media | null>(null);
+  const lastTrackedMediaIdRef = useRef<string | null>(null);
 
   // Sleep prevention for slideshow
   const { enableSleepPrevention, disableSleepPrevention } =
@@ -257,6 +259,22 @@ export const Lightbox: React.FC<LightboxProps> = ({
     setIsMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!isOpen) {
+      lastTrackedMediaIdRef.current = null;
+      setTrackedMedia(null);
+      return;
+    }
+
+    if (!currentMedia || currentMedia.id === lastTrackedMediaIdRef.current) {
+      return;
+    }
+
+    // Only track when navigation surfaces a new media item
+    lastTrackedMediaIdRef.current = currentMedia.id;
+    setTrackedMedia(currentMedia);
+  }, [isOpen, currentMedia]);
+
   // Wrap onClose to handle history cleanup
   const handleClose = useCallback(() => {
     // If we have a lightbox history state, go back to remove it
@@ -450,12 +468,12 @@ export const Lightbox: React.FC<LightboxProps> = ({
       data-testid="lightbox"
     >
       {/* View Tracker - Track view when media is displayed */}
-      {currentMedia && (
+      {trackedMedia && (
         <ViewTracker
-          key={currentMedia.id}
-          targetType={currentMedia.type}
-          targetId={currentMedia.id}
-          initialViewCount={currentMedia.viewCount}
+          key={trackedMedia.id}
+          targetType={trackedMedia.type}
+          targetId={trackedMedia.id}
+          initialViewCount={trackedMedia.viewCount}
         />
       )}
 

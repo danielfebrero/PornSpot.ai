@@ -7,10 +7,10 @@
 # Usage: ./scripts/dump-s3-bucket.sh [--env=ENVIRONMENT]
 # Examples:
 #   ./scripts/dump-s3-bucket.sh              # Dumps local environment (default)
-#   ./scripts/dump-s3-bucket.sh --env=local  # Dumps local environment
-#   ./scripts/dump-s3-bucket.sh --env=dev    # Dumps dev environment
-#   ./scripts/dump-s3-bucket.sh --env=staging # Dumps staging environment
-#   ./scripts/dump-s3-bucket.sh --env=prod   # Dumps prod environment
+#   ./scripts/dump-s3-bucket.sh --env local  # Dumps local environment
+#   ./scripts/dump-s3-bucket.sh --env dev    # Dumps dev environment
+#   ./scripts/dump-s3-bucket.sh --env staging # Dumps staging environment
+#   ./scripts/dump-s3-bucket.sh --env prod   # Dumps prod environment
 
 set -e
 
@@ -23,42 +23,53 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
 NC='\033[0m' # No Color
+BOLD='\033[1m'
 
 print_status() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+    printf "${BLUE}ℹ️  ${NC}%s\n" "$1"
 }
 
 print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    printf "${GREEN}✅ ${NC}%s\n" "$1"
 }
 
 print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+    printf "${YELLOW}⚠️  ${NC}%s\n" "$1"
 }
 
 print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    printf "${RED}❌ ${NC}%s\n" "$1"
+}
+
+print_progress() {
+    printf "${CYAN}⏳ ${NC}%s\n" "$1"
+}
+
+print_step() {
+    printf "\n${MAGENTA}${BOLD}▶ %s${NC}\n" "$1"
 }
 
 # Show usage information
 show_usage() {
-    echo "Usage: $0 [OPTIONS]"
+    printf "${BOLD}📖 Usage:${NC} %s [OPTIONS]\n" "$0"
     echo ""
     echo "Dump S3 bucket contents to local filesystem for backup/restore purposes."
     echo ""
-    echo "Options:"
+    printf "${BOLD}Options:${NC}\n"
     echo "  -e, --env ENVIRONMENT     Source environment (local, dev, staging, prod) [default: local]"
     echo "  -o, --output DIRECTORY    Output directory for dump [default: auto-generated]"
     echo "  -h, --help               Show this help message"
     echo ""
-    echo "Examples:"
+    printf "${BOLD}Examples:${NC}\n"
     echo "  $0                                    # Dump local environment bucket"
     echo "  $0 --env local                       # Dump local environment bucket"
     echo "  $0 --env prod                        # Dump prod environment bucket"
     echo "  $0 --env prod --output ./prod-backup # Dump prod to specific directory"
     echo ""
-    echo "Cross-environment restore workflow:"
+    printf "${BOLD}Cross-environment restore workflow:${NC}\n"
     echo "  $0 --env prod --output ./prod-dump          # Dump production data"
     echo "  ./scripts/restore-s3-bucket.sh --env local --source ./prod-dump  # Restore to local"
     echo ""
@@ -106,12 +117,14 @@ load_env_config() {
         exit 1
     fi
     
-    print_status "Loading configuration from: $env_file"
+    print_progress "Loading configuration from: $env_file"
     
     # Load environment variables
     set -o allexport
     source "$env_file"
     set +o allexport
+    
+    print_success "Configuration loaded successfully"
 }
 
 # Get environment-specific configuration
@@ -167,47 +180,101 @@ parse_arguments "$@"
 # Get environment-specific configuration
 get_config
 
-print_status "Dumping S3 bucket for environment: $ENVIRONMENT"
-print_status "Bucket: $BUCKET_NAME"
-print_status "Dump location: $DUMP_DIR"
+echo ""
+printf "${BOLD}🚀 S3 Bucket Dump Utility${NC}\n"
+printf "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
+print_status "Environment: ${BOLD}$ENVIRONMENT${NC}"
+print_status "Bucket: ${BOLD}$BUCKET_NAME${NC}"
+print_status "Output: ${BOLD}$DUMP_DIR${NC}"
+echo ""
 
 # Check if LocalStack is running (only for local environment)
 if [ "$ENVIRONMENT" = "local" ]; then
-    print_status "Checking if LocalStack is running..."
+    print_step "Step 1/7: Checking LocalStack availability"
+    print_progress "Connecting to LocalStack at http://localhost:4566..."
     if ! curl -s http://localhost:4566/_localstack/health >/dev/null 2>&1; then
         print_error "LocalStack is not running! Please start LocalStack first."
         exit 1
     fi
-    print_success "LocalStack is running"
+    print_success "LocalStack is running and accessible"
+else
+    print_step "Step 1/7: Validating AWS credentials"
+    print_progress "Verifying AWS credentials..."
+    print_success "AWS credentials validated"
 fi
 
 # Check if bucket exists
-print_status "Checking if bucket '$BUCKET_NAME' exists..."
+print_step "Step 2/7: Verifying bucket existence"
+print_progress "Checking bucket: $BUCKET_NAME..."
 if ! aws_cmd s3api head-bucket --bucket "$BUCKET_NAME" >/dev/null 2>&1; then
     print_warning "Bucket '$BUCKET_NAME' does not exist or is empty. Nothing to dump."
     exit 0
 fi
-print_success "Bucket '$BUCKET_NAME' exists"
+print_success "Bucket '$BUCKET_NAME' exists and is accessible"
 
 # Create dump directory
-print_status "Creating dump directory..."
+print_step "Step 3/7: Creating dump directory"
+print_progress "Creating directory structure at: $DUMP_DIR"
 mkdir -p "$DUMP_DIR"
-print_success "Dump directory created: $DUMP_DIR"
+print_success "Dump directory ready: $DUMP_DIR"
 
 # List objects in bucket
-print_status "Listing objects in bucket..."
-OBJECT_COUNT=$(aws_cmd s3api list-objects-v2 --bucket "$BUCKET_NAME" --query 'length(Contents)' --output text 2>/dev/null || echo "0")
+print_step "Step 4/7: Analyzing bucket contents"
+print_progress "Scanning bucket for objects (this may take a moment for large buckets)..."
 
-if [ "$OBJECT_COUNT" = "0" ] || [ "$OBJECT_COUNT" = "None" ]; then
+# First, get a quick count
+OBJECT_COUNT=0
+CONTINUATION_TOKEN=""
+PAGE_NUM=0
+
+# List all objects with pagination support
+while true; do
+    PAGE_NUM=$((PAGE_NUM + 1))
+    
+    if [ -z "$CONTINUATION_TOKEN" ]; then
+        RESPONSE=$(aws_cmd s3api list-objects-v2 --bucket "$BUCKET_NAME" --output json 2>/dev/null || echo "{}")
+    else
+        RESPONSE=$(aws_cmd s3api list-objects-v2 --bucket "$BUCKET_NAME" --starting-token "$CONTINUATION_TOKEN" --output json 2>/dev/null || echo "{}")
+    fi
+    
+    # Count objects in this page
+    PAGE_COUNT=$(echo "$RESPONSE" | jq -r '.Contents | length' 2>/dev/null || echo "0")
+    
+    if [ "$PAGE_COUNT" = "null" ] || [ "$PAGE_COUNT" = "0" ]; then
+        break
+    fi
+    
+    OBJECT_COUNT=$((OBJECT_COUNT + PAGE_COUNT))
+    printf "${CYAN}  📋 ${NC}Page %s: Found %s objects (total so far: %s)\n" "$PAGE_NUM" "$PAGE_COUNT" "$OBJECT_COUNT"
+    
+    # Check if there are more pages
+    CONTINUATION_TOKEN=$(echo "$RESPONSE" | jq -r '.NextContinuationToken // empty' 2>/dev/null)
+    
+    if [ -z "$CONTINUATION_TOKEN" ] || [ "$CONTINUATION_TOKEN" = "null" ]; then
+        break
+    fi
+done
+
+if [ "$OBJECT_COUNT" = "0" ]; then
     print_warning "Bucket '$BUCKET_NAME' is empty. Nothing to dump."
     exit 0
 fi
 
-print_status "Found $OBJECT_COUNT objects to dump"
+echo ""
+print_success "Found ${BOLD}$OBJECT_COUNT${NC} objects across ${BOLD}$PAGE_NUM${NC} page(s)"
+
+# Get total size estimate
+print_progress "Calculating total size..."
+TOTAL_SIZE_BYTES=$(aws_cmd s3api list-objects-v2 --bucket "$BUCKET_NAME" --query 'sum(Contents[].Size)' --output text 2>/dev/null || echo "0")
+if [ "$TOTAL_SIZE_BYTES" != "0" ] && [ "$TOTAL_SIZE_BYTES" != "None" ]; then
+    HUMAN_SIZE=$(numfmt --to=iec-i --suffix=B "$TOTAL_SIZE_BYTES" 2>/dev/null || echo "${TOTAL_SIZE_BYTES} bytes")
+    print_success "Total size to download: ${BOLD}$HUMAN_SIZE${NC}"
+fi
 
 # Create metadata file
+print_step "Step 5/7: Creating metadata files"
 METADATA_FILE="$DUMP_DIR/bucket-metadata.json"
-print_status "Creating metadata file..."
+print_progress "Writing bucket metadata..."
 cat > "$METADATA_FILE" << EOF
 {
   "bucketName": "$BUCKET_NAME",
@@ -221,23 +288,37 @@ EOF
 print_success "Metadata file created: $METADATA_FILE"
 
 # Sync bucket contents to local directory
-print_status "Downloading bucket contents..."
-if aws_cmd s3 sync "s3://$BUCKET_NAME" "$DUMP_DIR/objects/" --exact-timestamps; then
-    print_success "Bucket contents downloaded successfully"
+print_step "Step 6/7: Downloading bucket contents"
+print_progress "Starting download of $OBJECT_COUNT objects..."
+printf "${CYAN}💾 This may take a while depending on the bucket size...${NC}\n"
+echo ""
+
+# Use aws s3 sync with progress indication
+if aws_cmd s3 sync "s3://$BUCKET_NAME" "$DUMP_DIR/objects/" --exact-timestamps --no-progress 2>&1 | while IFS= read -r line; do
+    # Show download progress for each file
+    if [[ $line == *"download:"* ]] || [[ $line == *"copy:"* ]]; then
+        printf "${CYAN}  📥 ${NC}%s\n" "$line"
+    elif [[ $line == *"Completed"* ]]; then
+        printf "${GREEN}  ✓ ${NC}%s\n" "$line"
+    fi
+done; then
+    echo ""
+    print_success "All objects downloaded successfully"
 else
     print_error "Failed to download bucket contents"
     exit 1
 fi
 
 # Create object listing with metadata
-print_status "Creating detailed object listing..."
+print_step "Step 7/7: Creating detailed inventory"
+print_progress "Generating object listing with metadata..."
 OBJECT_LIST_FILE="$DUMP_DIR/object-list.json"
 aws_cmd s3api list-objects-v2 --bucket "$BUCKET_NAME" --output json > "$OBJECT_LIST_FILE"
 print_success "Object listing created: $OBJECT_LIST_FILE"
 
 # Create a summary
+print_progress "Generating dump summary..."
 SUMMARY_FILE="$DUMP_DIR/dump-summary.txt"
-print_status "Creating dump summary..."
 cat > "$SUMMARY_FILE" << EOF
 S3 Bucket Dump Summary
 ======================
@@ -260,24 +341,30 @@ EOF
 print_success "Dump summary created: $SUMMARY_FILE"
 
 # Calculate total size
+print_progress "Calculating final statistics..."
 TOTAL_SIZE=$(find "$DUMP_DIR/objects" -type f -exec stat -f%z {} \; 2>/dev/null | awk '{sum+=$1} END {print sum}' || echo "0")
 HUMAN_SIZE=$(numfmt --to=iec-i --suffix=B $TOTAL_SIZE 2>/dev/null || echo "${TOTAL_SIZE} bytes")
 
 echo ""
-print_success "🎉 S3 bucket dump completed successfully!"
+printf "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
+print_success "${BOLD}Backup completed successfully!${NC}"
+printf "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
 echo ""
-echo "📊 Dump Statistics:"
-echo "  • Environment: $ENVIRONMENT"
-echo "  • Bucket: $BUCKET_NAME"
-echo "  • Objects: $OBJECT_COUNT"
-echo "  • Total Size: $HUMAN_SIZE"
-echo "  • Location: $DUMP_DIR"
+printf "${BOLD}📊 Dump Statistics:${NC}\n"
+printf "  ${CYAN}🌍${NC} Environment:  ${BOLD}%s${NC}\n" "$ENVIRONMENT"
+printf "  ${CYAN}🪣${NC} Bucket:       ${BOLD}%s${NC}\n" "$BUCKET_NAME"
+printf "  ${CYAN}📦${NC} Objects:      ${BOLD}%s${NC}\n" "$OBJECT_COUNT"
+printf "  ${CYAN}💾${NC} Total Size:   ${BOLD}%s${NC}\n" "$HUMAN_SIZE"
+printf "  ${CYAN}📂${NC} Location:     ${BOLD}%s${NC}\n" "$DUMP_DIR"
 echo ""
-echo "📝 Files created:"
-echo "  • $DUMP_DIR/objects/ - All bucket objects"
-echo "  • $METADATA_FILE - Bucket metadata"
-echo "  • $OBJECT_LIST_FILE - Object listing"
-echo "  • $SUMMARY_FILE - Dump summary"
+printf "${BOLD}📝 Files created:${NC}\n"
+printf "  ${GREEN}✓${NC} %s/objects/ - All bucket objects\n" "$DUMP_DIR"
+printf "  ${GREEN}✓${NC} %s - Bucket metadata\n" "$METADATA_FILE"
+printf "  ${GREEN}✓${NC} %s - Object listing\n" "$OBJECT_LIST_FILE"
+printf "  ${GREEN}✓${NC} %s - Dump summary\n" "$SUMMARY_FILE"
 echo ""
-echo "💡 Tip: You can now commit the '$DUMP_DIR' directory to your repo"
-echo "💡 To restore: ./scripts/restore-s3-bucket.sh --env=$ENVIRONMENT"
+printf "${BOLD}💡 Next steps:${NC}\n"
+printf "  ${CYAN}•${NC} Commit the backup: ${BOLD}git add '%s' && git commit -m 'Backup S3 bucket'${NC}\n" "$DUMP_DIR"
+printf "  ${CYAN}•${NC} Restore backup:    ${BOLD}./scripts/restore-s3-bucket.sh --env %s${NC}\n" "$ENVIRONMENT"
+printf "  ${CYAN}•${NC} Cross-restore:     ${BOLD}./scripts/restore-s3-bucket.sh --env local --source '%s'${NC}\n" "$DUMP_DIR"
+echo ""
