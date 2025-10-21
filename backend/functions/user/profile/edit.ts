@@ -130,7 +130,16 @@ const handleEditProfile = async (
           "Preferred language"
         );
         // Validate against supported locales (empty string is allowed for auto mode)
-        const supportedLanguages = ["", "de", "en", "es", "fr", "ru", "zh"];
+        const supportedLanguages = [
+          "",
+          "de",
+          "en",
+          "es",
+          "fr",
+          "hi",
+          "ru",
+          "zh",
+        ];
         if (!supportedLanguages.includes(updateData.preferredLanguage.trim())) {
           validationErrors.push(
             `Preferred language must be one of: ${supportedLanguages.join(
