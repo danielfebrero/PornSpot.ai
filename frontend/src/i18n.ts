@@ -2,7 +2,7 @@ import { getRequestConfig } from "next-intl/server";
 
 // Static list of available locales - update this when adding new translation files
 // This avoids using Node.js modules that aren't available in Edge Runtime
-export const locales = ["de", "en", "es", "fr", "ru", "zh"] as const;
+export const locales = ["de", "en", "es", "fr", , "hi", "ru", "zh"] as const;
 export const defaultLocale = "en" as const;
 
 export default getRequestConfig(async ({ locale }) => {
