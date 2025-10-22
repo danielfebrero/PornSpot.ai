@@ -3811,7 +3811,7 @@ Resources:
       ImageUri: !Ref ImageUri
       ImageConfig:
         Command: ["functions/analytics/aggregate-hourly.handler"]
-      MemorySize: 512
+      MemorySize: 1024
       Timeout: 900 # 15 minutes for complex aggregations
       Events:
         HourlySchedule:
@@ -3857,9 +3857,9 @@ Resources:
         DailySchedule:
           Type: Schedule
           Properties:
-            Schedule: "cron(5 0 * * ? *)" # Every day at 00:05 UTC
+            Schedule: "cron(10 0 * * ? *)" # Every day at 00:10 UTC
             Name: !Sub "${Environment}-pornspot-daily-analytics"
-            Description: "Runs daily analytics aggregation every day at 00:05 UTC"
+            Description: "Runs daily analytics aggregation every day at 00:10 UTC"
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
@@ -3897,9 +3897,9 @@ Resources:
         WeeklySchedule:
           Type: Schedule
           Properties:
-            Schedule: "cron(10 0 ? * MON *)" # Every Monday at 00:10 UTC
+            Schedule: "cron(15 0 ? * MON *)" # Every Monday at 00:15 UTC
             Name: !Sub "${Environment}-pornspot-weekly-analytics"
-            Description: "Runs weekly analytics aggregation every Monday at 00:10 UTC"
+            Description: "Runs weekly analytics aggregation every Monday at 00:15 UTC"
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
@@ -3931,9 +3931,9 @@ Resources:
         MonthlySchedule:
           Type: Schedule
           Properties:
-            Schedule: "cron(15 0 1 * ? *)" # 1st of each month at 00:15 UTC
+            Schedule: "cron(20 0 1 * ? *)" # 1st of each month at 00:20 UTC
             Name: !Sub "${Environment}-pornspot-monthly-analytics"
-            Description: "Runs monthly analytics aggregation on the 1st of each month at 00:15 UTC"
+            Description: "Runs monthly analytics aggregation on the 1st of each month at 00:20 UTC"
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
