@@ -394,6 +394,53 @@ export class ParameterStoreService {
   }
 
   /**
+   * Get the Finby payment notification recipient email with a sensible fallback
+   */
+  static async getFinbyNotificationRecipient(): Promise<string> {
+    const fallbackRecipient = "dani@fabularius.ai";
+
+    if (isLocal) {
+      const recipient = process.env["FINBY_NOTIFICATION_RECIPIENT"];
+      if (!recipient) {
+        console.warn(
+          "FINBY_NOTIFICATION_RECIPIENT not set locally, using fallback recipient"
+        );
+        return fallbackRecipient;
+      }
+      console.log(
+        "Using local FINBY_NOTIFICATION_RECIPIENT from environment variable"
+      );
+      return recipient;
+    }
+
+    const environment = process.env["ENVIRONMENT"] || "dev";
+
+    try {
+      const recipient = await this.getParameter(
+        `/${environment}/finby-notification-recipient`,
+        false
+      );
+
+      if (!recipient) {
+        console.warn(
+          "Finby notification recipient parameter empty, using fallback recipient"
+        );
+        return fallbackRecipient;
+      }
+
+      return recipient;
+    } catch (error) {
+      console.warn(
+        "Failed to load Finby notification recipient from Parameter Store, using fallback recipient",
+        {
+          message: error instanceof Error ? error.message : String(error),
+        }
+      );
+      return fallbackRecipient;
+    }
+  }
+
+  /**
    * Get the Active Promotions from Parameter Store or environment variable. They are stored as comma-separated string.
    */
   static async getActivePromotions(): Promise<string> {

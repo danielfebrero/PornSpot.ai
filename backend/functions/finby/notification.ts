@@ -4,10 +4,12 @@ import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ParameterStoreService } from "@shared/utils/parameters";
 // import { verifyFinbyNotificationSignature } from "@shared/utils/finby";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
+import { EmailService } from "@shared/utils/email";
 import { resolveOrderItem } from "@shared/utils/order-items";
 import type { OrderEntity, UserEntity } from "@shared/shared-types";
 // import type { FinbyNotificationSignatureParams } from "@shared/utils/finby";
 import type { UserPlan } from "@shared/shared-types/permissions";
+import type { ResolvedOrderItem } from "@shared/utils/order-items";
 
 const SUCCESS_RESULT_CODE = "0";
 const AUTHORIZED_RESULT_CODE = "3";
@@ -44,6 +46,182 @@ const resolvePlanFromItem = (itemId: string): UserPlan | null => {
   }
 
   return null;
+};
+
+type PaymentNotificationContext = {
+  order: OrderEntity;
+  user: UserEntity;
+  orderItem: ResolvedOrderItem;
+  paymentId?: string;
+  paymentRequestId?: string;
+  paymentType?: string;
+  resultCode?: string;
+  reportedAmount?: string;
+  reportedCurrency?: string;
+  subscriptionPlan?: UserPlan;
+  renewalFrequency?: "monthly" | "yearly";
+  videoCreditsSeconds?: number;
+};
+
+const notifyAdminOfSuccessfulPayment = async (
+  context: PaymentNotificationContext
+): Promise<void> => {
+  try {
+    const recipient =
+      await ParameterStoreService.getFinbyNotificationRecipient();
+
+    const buyerName = context.user.username || context.user.email;
+    const buyerEmail = context.user.email;
+    const userId = context.user.userId;
+    const subject = `[Finby] Payment completed - ${context.orderItem.name}`;
+    const orderAmount = `${context.order.amount} ${context.order.currency}`;
+    const catalogAmount = `${context.orderItem.amount.toFixed(2)} ${
+      context.orderItem.currency
+    }`;
+    const createdAt = context.order.createdAt;
+    const completedAt = context.order.completedAt;
+    const rows: string[] = [
+      `<tr><td style="padding:4px 8px;font-weight:600;">Buyer</td><td style="padding:4px 8px;">${buyerName}</td></tr>`,
+      `<tr><td style="padding:4px 8px;font-weight:600;">Buyer email</td><td style="padding:4px 8px;">${buyerEmail}</td></tr>`,
+      `<tr><td style="padding:4px 8px;font-weight:600;">User ID</td><td style="padding:4px 8px;">${userId}</td></tr>`,
+      `<tr><td style="padding:4px 8px;font-weight:600;">Item</td><td style="padding:4px 8px;">${context.orderItem.name}</td></tr>`,
+      `<tr><td style="padding:4px 8px;font-weight:600;">Order ID</td><td style="padding:4px 8px;">${context.order.orderId}</td></tr>`,
+      `<tr><td style="padding:4px 8px;font-weight:600;">Order amount</td><td style="padding:4px 8px;">${orderAmount}</td></tr>`,
+      `<tr><td style="padding:4px 8px;font-weight:600;">Catalog amount</td><td style="padding:4px 8px;">${catalogAmount}</td></tr>`,
+      `<tr><td style="padding:4px 8px;font-weight:600;">Order status</td><td style="padding:4px 8px;">${context.order.status}</td></tr>`,
+      `<tr><td style="padding:4px 8px;font-weight:600;">Created at</td><td style="padding:4px 8px;">${createdAt}</td></tr>`,
+    ];
+
+    if (completedAt) {
+      rows.push(
+        `<tr><td style="padding:4px 8px;font-weight:600;">Completed at</td><td style="padding:4px 8px;">${completedAt}</td></tr>`
+      );
+    }
+
+    if (context.subscriptionPlan) {
+      rows.push(
+        `<tr><td style="padding:4px 8px;font-weight:600;">Plan</td><td style="padding:4px 8px;">${context.subscriptionPlan}</td></tr>`
+      );
+    }
+
+    if (context.renewalFrequency) {
+      rows.push(
+        `<tr><td style="padding:4px 8px;font-weight:600;">Renewal frequency</td><td style="padding:4px 8px;">${context.renewalFrequency}</td></tr>`
+      );
+    }
+
+    if (typeof context.videoCreditsSeconds === "number") {
+      rows.push(
+        `<tr><td style="padding:4px 8px;font-weight:600;">Video credits</td><td style="padding:4px 8px;">${context.videoCreditsSeconds} seconds</td></tr>`
+      );
+    }
+
+    if (context.reportedAmount && context.reportedCurrency) {
+      rows.push(
+        `<tr><td style="padding:4px 8px;font-weight:600;">Reported amount</td><td style="padding:4px 8px;">${context.reportedAmount} ${context.reportedCurrency}</td></tr>`
+      );
+    }
+
+    if (context.paymentId) {
+      rows.push(
+        `<tr><td style="padding:4px 8px;font-weight:600;">Payment ID</td><td style="padding:4px 8px;">${context.paymentId}</td></tr>`
+      );
+    }
+
+    if (context.paymentRequestId) {
+      rows.push(
+        `<tr><td style="padding:4px 8px;font-weight:600;">Payment request ID</td><td style="padding:4px 8px;">${context.paymentRequestId}</td></tr>`
+      );
+    }
+
+    if (context.paymentType) {
+      rows.push(
+        `<tr><td style="padding:4px 8px;font-weight:600;">Payment type</td><td style="padding:4px 8px;">${context.paymentType}</td></tr>`
+      );
+    }
+
+    if (context.resultCode) {
+      rows.push(
+        `<tr><td style="padding:4px 8px;font-weight:600;">Result code</td><td style="padding:4px 8px;">${context.resultCode}</td></tr>`
+      );
+    }
+
+    const htmlBody = `
+      <h2 style="margin-bottom:16px;">Finby payment completed</h2>
+      <p style="margin-bottom:16px;">A payment has been processed successfully.</p>
+      <table style="border-collapse:collapse;background:#0f172a;color:#e2e8f0;border-radius:12px;overflow:hidden;">
+        <tbody>
+          ${rows.join("\n")}
+        </tbody>
+      </table>
+    `;
+
+    const textLines = [
+      "Finby payment completed.",
+      `Buyer: ${buyerName}`,
+      `Buyer email: ${buyerEmail}`,
+      `User ID: ${userId}`,
+      `Item: ${context.orderItem.name}`,
+      `Order ID: ${context.order.orderId}`,
+      `Order amount: ${orderAmount}`,
+      `Catalog amount: ${catalogAmount}`,
+      `Order status: ${context.order.status}`,
+      `Created at: ${createdAt}`,
+    ];
+
+    if (completedAt) {
+      textLines.push(`Completed at: ${completedAt}`);
+    }
+
+    if (context.subscriptionPlan) {
+      textLines.push(`Plan: ${context.subscriptionPlan}`);
+    }
+
+    if (context.renewalFrequency) {
+      textLines.push(`Renewal frequency: ${context.renewalFrequency}`);
+    }
+
+    if (typeof context.videoCreditsSeconds === "number") {
+      textLines.push(`Video credits: ${context.videoCreditsSeconds} seconds`);
+    }
+
+    if (context.reportedAmount && context.reportedCurrency) {
+      textLines.push(
+        `Reported amount: ${context.reportedAmount} ${context.reportedCurrency}`
+      );
+    }
+
+    if (context.paymentId) {
+      textLines.push(`Payment ID: ${context.paymentId}`);
+    }
+
+    if (context.paymentRequestId) {
+      textLines.push(`Payment request ID: ${context.paymentRequestId}`);
+    }
+
+    if (context.paymentType) {
+      textLines.push(`Payment type: ${context.paymentType}`);
+    }
+
+    if (context.resultCode) {
+      textLines.push(`Result code: ${context.resultCode}`);
+    }
+
+    const textBody = textLines.join("\n");
+
+    await EmailService.sendEmail({
+      to: recipient,
+      template: {
+        subject,
+        htmlBody,
+        textBody,
+      },
+    });
+  } catch (error) {
+    console.error("[Finby] Failed to send payment notification email", {
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
 };
 
 // const buildSignatureParams = (
@@ -155,6 +333,15 @@ const handleFinbyNotification = async (
     return ResponseUtil.unauthorized(event, "Account identifier mismatch");
   }
 
+  const paymentId = queryParams["PaymentId"]?.trim();
+  const paymentRequestId = queryParams["PaymentRequestId"]?.trim();
+  const paymentType = (
+    queryParams["Type"] ?? queryParams["PaymentType"]
+  )?.trim();
+  const reportedAmount = queryParams["Amount"]?.trim();
+  const reportedCurrency = queryParams["Currency"]?.trim();
+  const resultCode = queryParams["ResultCode"];
+
   // const signatureParams = buildSignatureParams(queryParams);
   // const providedSignature = queryParams["Signature"]!.trim().toUpperCase();
   // const signatureValid = verifyFinbyNotificationSignature(
@@ -201,24 +388,26 @@ const handleFinbyNotification = async (
     GSI2SK: `${nowISO}#${orderId}`,
   };
 
-  if (isNonEmpty(queryParams["PaymentRequestId"])) {
-    orderUpdates.paymentRequestId = queryParams["PaymentRequestId"];
+  if (paymentRequestId) {
+    orderUpdates.paymentRequestId = paymentRequestId;
   }
 
   if (isSuccess) {
     orderUpdates.completedAt = nowISO;
   }
 
-  if (isNonEmpty(queryParams["PaymentId"])) {
+  if (paymentId) {
     orderUpdates.metadata = {
       ...(order.metadata ?? {}),
-      paymentId: queryParams["PaymentId"],
+      paymentId,
     };
   }
 
   console.log("[Finby] Updating order", { orderId, orderUpdates });
 
   await DynamoDBService.updateOrder(orderId, orderUpdates);
+
+  const updatedOrder: OrderEntity = { ...order, ...orderUpdates };
 
   if (!isSuccess) {
     return ResponseUtil.success(event, {
@@ -260,7 +449,20 @@ const handleFinbyNotification = async (
     }
 
     console.log("[Finby] Adding video credits to user", { orderId, seconds });
-    await updateUserForVideoCredits(order, user, seconds);
+    await updateUserForVideoCredits(updatedOrder, user, seconds);
+
+    await notifyAdminOfSuccessfulPayment({
+      order: updatedOrder,
+      user,
+      orderItem,
+      paymentId,
+      paymentRequestId,
+      paymentType,
+      resultCode,
+      reportedAmount,
+      reportedCurrency,
+      videoCreditsSeconds: seconds,
+    });
 
     return ResponseUtil.success(event, {
       status: "completed",
@@ -281,11 +483,25 @@ const handleFinbyNotification = async (
   }
 
   await updateUserForSubscription(
-    order,
+    updatedOrder,
     plan,
     orderItem.renewalFrequency,
     nowISO
   );
+
+  await notifyAdminOfSuccessfulPayment({
+    order: updatedOrder,
+    user,
+    orderItem,
+    paymentId,
+    paymentRequestId,
+    paymentType,
+    resultCode,
+    reportedAmount,
+    reportedCurrency,
+    subscriptionPlan: plan,
+    renewalFrequency: orderItem.renewalFrequency,
+  });
 
   return ResponseUtil.success(event, {
     status: "completed",
