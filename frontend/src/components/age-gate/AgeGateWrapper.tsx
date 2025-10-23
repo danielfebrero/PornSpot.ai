@@ -11,22 +11,16 @@ interface AgeGateWrapperProps {
   children: React.ReactNode;
 }
 
-// Minimal wrapper: shows modal until accepted; if denied, shows KidView for current session only.
 export function AgeGateWrapper({ children }: AgeGateWrapperProps) {
-  const [isVerified, setIsVerified] = useState<boolean | null>(null); // null = unknown
+  const [isVerified, setIsVerified] = useState(true); // Default TRUE pour SSR : bots voient tout
   const [denied, setDenied] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Ensure runs only client-side
-    const cookieVal =
-      typeof document !== "undefined" ? getCookie(AGE_GATE_COOKIE) : undefined;
-    if (cookieVal === "1") {
-      setIsVerified(true);
-    } else {
-      setIsVerified(false);
-    }
+    // Client-only : check cookie post-mount
     setMounted(true);
+    const cookieVal = getCookie(AGE_GATE_COOKIE);
+    setIsVerified(cookieVal === "1");
   }, []);
 
   const handleAccept = () => {
@@ -35,24 +29,34 @@ export function AgeGateWrapper({ children }: AgeGateWrapperProps) {
   };
 
   const handleDeny = () => {
-    // No cookie written; show kid view until reload
-    setDenied(true);
+    setDenied(true); // Switch to KidView pour la session
   };
 
-  if (!mounted) return null; // avoid hydration mismatch
-
-  if (isVerified) {
+  // SSR fallback (mounted false) : rend children direct, sans modal
+  if (!mounted) {
     return <>{children}</>;
   }
 
+  // Si denied : KidView remplace (post-interaction client-side)
   if (denied) {
     return <KidView onBack={() => setDenied(false)} />;
   }
 
-  return <AgeGateModal onAccept={handleAccept} onDeny={handleDeny} />;
+  // Si pas verified : children + overlay modal (bloque visuellement/interactivement)
+  if (!isVerified) {
+    return (
+      <>
+        {children}
+        <AgeGateModal onAccept={handleAccept} onDeny={handleDeny} />
+      </>
+    );
+  }
+
+  // Verified : children pur
+  return <>{children}</>;
 }
 
-// Minimal cookie helpers (avoid adding new dependency)
+// Tes helpers cookie inchangés (bravo, minimalistes)
 function setCookie(name: string, value: string, days: number) {
   try {
     const date = new Date();
