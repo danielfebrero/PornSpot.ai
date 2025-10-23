@@ -221,94 +221,96 @@ const handleLikeInteraction = async (
         console.warn(`⚠️ Failed to create like notification:`, error);
       }
 
-      try {
-        const targetUser = await DynamoDBService.getUserById(targetCreatorId);
-        if (
-          targetUser?.email &&
-          targetUser.emailPreferences?.unreadNotifications === "always"
-        ) {
-          const sourceUser = await DynamoDBService.getUserById(userId);
-          const actorName = getUserDisplayName(sourceUser as MaybeUser);
-          const locale = (targetUser.preferredLanguage || "en").toLowerCase();
+      if (targetCreatorId !== userId) {
+        try {
+          const targetUser = await DynamoDBService.getUserById(targetCreatorId);
+          if (
+            targetUser?.email &&
+            targetUser.emailPreferences?.unreadNotifications === "always"
+          ) {
+            const sourceUser = await DynamoDBService.getUserById(userId);
+            const actorName = getUserDisplayName(sourceUser as MaybeUser);
+            const locale = (targetUser.preferredLanguage || "en").toLowerCase();
 
-          let emailTargetType: "album" | "image" | "video" | "comment" =
-            targetType === "album"
-              ? "album"
-              : targetType === "image" || targetType === "video"
-              ? (targetType as "image" | "video")
-              : "comment";
-          let emailTargetId = targetId;
-          let emailTargetTitle: string | undefined;
-          let emailThumbnailUrl: string | undefined;
-          let emailCommentContent: string | undefined;
-          let emailTargetPath: string | undefined;
+            let emailTargetType: "album" | "image" | "video" | "comment" =
+              targetType === "album"
+                ? "album"
+                : targetType === "image" || targetType === "video"
+                ? (targetType as "image" | "video")
+                : "comment";
+            let emailTargetId = targetId;
+            let emailTargetTitle: string | undefined;
+            let emailThumbnailUrl: string | undefined;
+            let emailCommentContent: string | undefined;
+            let emailTargetPath: string | undefined;
 
-          if (targetType === "album") {
-            emailTargetTitle =
-              (album as MaybeAlbum | undefined)?.title || undefined;
-            emailThumbnailUrl = getAlbumThumbnailUrl(album as MaybeAlbum);
-          } else if (targetType === "image" || targetType === "video") {
-            emailTargetTitle = getMediaTitle(media as MaybeMedia);
-            emailThumbnailUrl = getMediaThumbnailUrl(media as MaybeMedia);
-          } else if (targetType === "comment") {
-            emailTargetType = "comment";
-            emailCommentContent = comment?.content || undefined;
-            emailTargetTitle = getCommentSnippet(comment as MaybeComment);
+            if (targetType === "album") {
+              emailTargetTitle =
+                (album as MaybeAlbum | undefined)?.title || undefined;
+              emailThumbnailUrl = getAlbumThumbnailUrl(album as MaybeAlbum);
+            } else if (targetType === "image" || targetType === "video") {
+              emailTargetTitle = getMediaTitle(media as MaybeMedia);
+              emailThumbnailUrl = getMediaThumbnailUrl(media as MaybeMedia);
+            } else if (targetType === "comment") {
+              emailTargetType = "comment";
+              emailCommentContent = comment?.content || undefined;
+              emailTargetTitle = getCommentSnippet(comment as MaybeComment);
 
-            if (comment?.targetType && comment?.targetId) {
-              emailTargetId = comment.targetId;
-              emailTargetPath =
-                comment.targetType === "album"
-                  ? `albums/${comment.targetId}`
-                  : `media/${comment.targetId}`;
+              if (comment?.targetType && comment?.targetId) {
+                emailTargetId = comment.targetId;
+                emailTargetPath =
+                  comment.targetType === "album"
+                    ? `albums/${comment.targetId}`
+                    : `media/${comment.targetId}`;
+              }
+            }
+
+            if (!emailTargetTitle) {
+              emailTargetTitle =
+                emailTargetType === "album"
+                  ? "your album"
+                  : emailTargetType === "image"
+                  ? "your image"
+                  : emailTargetType === "video"
+                  ? "your video"
+                  : emailCommentContent
+                  ? getCommentSnippet(comment as MaybeComment) || "your comment"
+                  : "your comment";
+            }
+
+            const emailResult = await EmailService.sendLikeNotificationEmail({
+              to: targetUser.email,
+              username: targetUser.username,
+              actorName,
+              locale,
+              targetType: emailTargetType,
+              targetId: emailTargetId,
+              targetTitle: emailTargetTitle,
+              targetThumbnailUrl: emailThumbnailUrl,
+              commentContent: emailCommentContent,
+              targetPath: emailTargetPath,
+            });
+
+            if (emailResult.success) {
+              console.log("📧 Sent like notification email", {
+                targetCreatorId,
+                targetId,
+              });
+            } else {
+              console.warn("⚠️ Like notification email send failed", {
+                targetCreatorId,
+                targetId,
+                error: emailResult.error,
+              });
             }
           }
-
-          if (!emailTargetTitle) {
-            emailTargetTitle =
-              emailTargetType === "album"
-                ? "your album"
-                : emailTargetType === "image"
-                ? "your image"
-                : emailTargetType === "video"
-                ? "your video"
-                : emailCommentContent
-                ? getCommentSnippet(comment as MaybeComment) || "your comment"
-                : "your comment";
-          }
-
-          const emailResult = await EmailService.sendLikeNotificationEmail({
-            to: targetUser.email,
-            username: targetUser.username,
-            actorName,
-            locale,
-            targetType: emailTargetType,
-            targetId: emailTargetId,
-            targetTitle: emailTargetTitle,
-            targetThumbnailUrl: emailThumbnailUrl,
-            commentContent: emailCommentContent,
-            targetPath: emailTargetPath,
+        } catch (error) {
+          console.warn("⚠️ Failed to send like notification email", {
+            targetCreatorId,
+            targetId,
+            error,
           });
-
-          if (emailResult.success) {
-            console.log("📧 Sent like notification email", {
-              targetCreatorId,
-              targetId,
-            });
-          } else {
-            console.warn("⚠️ Like notification email send failed", {
-              targetCreatorId,
-              targetId,
-              error: emailResult.error,
-            });
-          }
         }
-      } catch (error) {
-        console.warn("⚠️ Failed to send like notification email", {
-          targetCreatorId,
-          targetId,
-          error,
-        });
       }
     }
 

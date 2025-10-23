@@ -163,71 +163,74 @@ const handleBookmarkInteraction = async (
         console.warn(`⚠️ Failed to create bookmark notification:`, error);
       }
 
-      try {
-        const targetUser = await DynamoDBService.getUserById(targetCreatorId);
-        if (
-          targetUser?.email &&
-          targetUser.emailPreferences?.unreadNotifications === "always"
-        ) {
-          const sourceUser = await DynamoDBService.getUserById(userId);
-          const actorName = getUserDisplayName(sourceUser as MaybeUser);
-          const locale = (targetUser.preferredLanguage || "en").toLowerCase();
+      if (targetCreatorId !== userId) {
+        try {
+          const targetUser = await DynamoDBService.getUserById(targetCreatorId);
+          if (
+            targetUser?.email &&
+            targetUser.emailPreferences?.unreadNotifications === "always"
+          ) {
+            const sourceUser = await DynamoDBService.getUserById(userId);
+            const actorName = getUserDisplayName(sourceUser as MaybeUser);
+            const locale = (targetUser.preferredLanguage || "en").toLowerCase();
 
-          const emailTargetType: "album" | "image" | "video" =
-            targetType === "album"
-              ? "album"
-              : (media?.type as "image" | "video") ||
-                (targetType as "image" | "video");
+            const emailTargetType: "album" | "image" | "video" =
+              targetType === "album"
+                ? "album"
+                : (media?.type as "image" | "video") ||
+                  (targetType as "image" | "video");
 
-          let emailTargetTitle: string | undefined =
-            targetType === "album"
-              ? (album as MaybeAlbum | undefined)?.title || undefined
-              : getMediaTitle(media as MaybeMedia);
+            let emailTargetTitle: string | undefined =
+              targetType === "album"
+                ? (album as MaybeAlbum | undefined)?.title || undefined
+                : getMediaTitle(media as MaybeMedia);
 
-          const emailThumbnailUrl =
-            targetType === "album"
-              ? getAlbumThumbnailUrl(album as MaybeAlbum)
-              : getMediaThumbnailUrl(media as MaybeMedia);
+            const emailThumbnailUrl =
+              targetType === "album"
+                ? getAlbumThumbnailUrl(album as MaybeAlbum)
+                : getMediaThumbnailUrl(media as MaybeMedia);
 
-          if (!emailTargetTitle) {
-            emailTargetTitle =
-              emailTargetType === "album"
-                ? "your album"
-                : emailTargetType === "image"
-                ? "your image"
-                : "your video";
+            if (!emailTargetTitle) {
+              emailTargetTitle =
+                emailTargetType === "album"
+                  ? "your album"
+                  : emailTargetType === "image"
+                  ? "your image"
+                  : "your video";
+            }
+
+            const emailResult =
+              await EmailService.sendBookmarkNotificationEmail({
+                to: targetUser.email,
+                username: targetUser.username,
+                actorName,
+                locale,
+                targetType: emailTargetType,
+                targetId,
+                targetTitle: emailTargetTitle,
+                targetThumbnailUrl: emailThumbnailUrl,
+              });
+
+            if (emailResult.success) {
+              console.log("📧 Sent bookmark notification email", {
+                targetCreatorId,
+                targetId,
+              });
+            } else {
+              console.warn("⚠️ Bookmark notification email send failed", {
+                targetCreatorId,
+                targetId,
+                error: emailResult.error,
+              });
+            }
           }
-
-          const emailResult = await EmailService.sendBookmarkNotificationEmail({
-            to: targetUser.email,
-            username: targetUser.username,
-            actorName,
-            locale,
-            targetType: emailTargetType,
+        } catch (error) {
+          console.warn("⚠️ Failed to send bookmark notification email", {
+            targetCreatorId,
             targetId,
-            targetTitle: emailTargetTitle,
-            targetThumbnailUrl: emailThumbnailUrl,
+            error,
           });
-
-          if (emailResult.success) {
-            console.log("📧 Sent bookmark notification email", {
-              targetCreatorId,
-              targetId,
-            });
-          } else {
-            console.warn("⚠️ Bookmark notification email send failed", {
-              targetCreatorId,
-              targetId,
-              error: emailResult.error,
-            });
-          }
         }
-      } catch (error) {
-        console.warn("⚠️ Failed to send bookmark notification email", {
-          targetCreatorId,
-          targetId,
-          error,
-        });
       }
 
       // PSC Payout Integration for bookmarks (immediate payout)
