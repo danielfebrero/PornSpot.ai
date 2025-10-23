@@ -54,6 +54,10 @@ import {
   ComfyUIRetryHandler,
 } from "@shared/services/comfyui-error-handler";
 import { PromptProcessingService } from "@shared/services/prompt-processing";
+import {
+  formatSettingsForPrompt,
+  generatePromptSettings,
+} from "@shared/utils/prompt-settings-generator";
 
 // ====================================
 // Performance Monitoring
@@ -306,9 +310,15 @@ class AIService {
     const timer = new PerformanceTimer("Random Prompt Generation");
 
     try {
+      // Generate weighted random settings
+      const settings = generatePromptSettings();
+      const settingsMessage = formatSettingsForPrompt(settings);
+
+      console.log("🎲 Generated random settings:", settingsMessage);
+
       const content = await this.chatCompletion(
         "generate-random-image-prompt",
-        "random prompt",
+        settingsMessage,
         CONFIG.AI_PARAMS.temperature.randomPrompt,
         CONFIG.AI_PARAMS.maxTokens.randomPrompt
       );
