@@ -122,7 +122,7 @@ const CONFIG = {
       optimization: 0.7,
       loraSelection: 0.1,
       titleGeneration: 0.7,
-      randomPrompt: 0.9,
+      randomPrompt: 1.1,
     },
     maxTokens: {
       moderation: 256,
