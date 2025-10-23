@@ -137,6 +137,7 @@ const handleEditProfile = async (
           "es",
           "fr",
           "hi",
+          "pt",
           "ru",
           "zh",
         ];

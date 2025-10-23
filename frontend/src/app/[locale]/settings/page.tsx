@@ -51,6 +51,7 @@ const languageOptions: LanguageOption[] = [
   { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷" },
   { code: "de", name: "German", nativeName: "Deutsch", flag: "🇩🇪" },
   { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸" },
+  { code: "pt", name: "Portuguese", nativeName: "Português", flag: "🇵🇹" },
   { code: "hi", name: "Hindi", nativeName: "हिन्दी", flag: "🇮🇳" },
   { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺" },
   { code: "zh", name: "Chinese", nativeName: "中文", flag: "🇨🇳" },

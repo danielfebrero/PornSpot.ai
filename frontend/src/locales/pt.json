@@ -1,0 +1,2678 @@
+{
+  "common": {
+    "discover": "Descobrir",
+    "generate": "Gerar",
+    "pricing": "Preços",
+    "login": "Entrar",
+    "register": "Registrar",
+    "logout": "Sair",
+    "home": "Início",
+    "admin": "Administração",
+    "user": "Usuário",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "back": "Voltar",
+    "previous": "Anterior",
+    "search": "Pesquisar",
+    "filter": "Filtrar",
+    "sort": "Ordenar",
+    "like": "Curtir",
+    "follow": "Seguir",
+    "following": "Seguindo",
+    "unfollow": "Deixar de seguir",
+    "bookmark": "Marcar",
+    "download": "Baixar",
+    "loadMore": "Carregar Mais",
+    "goBack": "Voltar",
+    "share": "Compartilhar",
+    "close": "Fechar",
+    "open": "Abrir",
+    "view": "Ver",
+    "create": "Criar",
+    "update": "Atualizar",
+    "submit": "Enviar",
+    "confirm": "Confirmar",
+    "retry": "Tentar novamente",
+    "refresh": "Atualizar",
+    "upload": "Enviar",
+    "remove": "Remover",
+    "add": "Adicionar",
+    "done": "Concluído",
+    "ok": "OK",
+    "yes": "Sim",
+    "no": "Não",
+    "select": "Selecionar",
+    "all": "Todos",
+    "none": "Nenhum",
+    "followerCount": "{count, number} {count, plural, =0 {seguidores} =1 {seguidor} other {seguidores}}",
+    "itemsCount": "{count, number} {count, plural, =0 {itens} =1 {item} other {itens}}",
+    "toggle": "Alternar",
+    "expand": "Expandir",
+    "collapse": "Recolher",
+    "copy": "Copiar",
+    "paste": "Colar",
+    "cut": "Cortar",
+    "clear": "Limpar",
+    "reset": "Redefinir",
+    "apply": "Aplicar",
+    "preview": "Visualizar",
+    "fullscreen": "Tela Cheia",
+    "minimize": "Minimizar",
+    "anErrorOccurred": "Ocorreu um erro",
+    "maximize": "Maximizar",
+    "viewAll": "Ver Todos",
+    "failedToUpdate": "Falha ao atualizar",
+    "filteredBy": "Filtrado por",
+    "noMoreMediaToLoad": "Não há mais mídia para carregar",
+    "title": "Título",
+    "editTitle": "Editar Título",
+    "characters": "caracteres",
+    "saving": "Salvando...",
+    "errors": {
+      "loadingAlbums": "Erro ao carregar álbuns",
+      "refreshPage": "Por favor, tente atualizar a página",
+      "failedToUpdate": "Falha ao atualizar",
+      "unexpected": "Ocorreu um erro inesperado",
+      "checkConnection": "Verifique sua conexão com a internet",
+      "failedToLoad": "Falha ao carregar",
+      "networkResponse": "A resposta da rede não foi ok",
+      "contentPrivate": "Este conteúdo é privado.",
+      "contentPrivateDescription": "Apenas o criador ou visualizadores autorizados podem acessá-lo."
+    },
+    "dateTime": {
+      "justNow": "agora mesmo",
+      "minutesAgo": "{count}m atrás",
+      "hoursAgo": "{count}h atrás",
+      "daysAgo": "{count}d atrás"
+    },
+    "noMediaFound": "Nenhuma mídia encontrada",
+    "albumDoesntContainMediaFiles": "Este álbum ainda não contém arquivos de mídia.",
+    "loadingMoreMedia": "Carregando mais mídia...",
+    "failedToLoadMoreMedia": "Falha ao carregar mais mídia",
+    "selectMany": "Selecionar vários",
+    "confirmDeleteTitle": "Excluir selecionados?",
+    "confirmDeleteMessage": "Tem certeza de que deseja excluir {count, plural, =1 {# item selecionado} other {# itens selecionados}}? Esta ação não pode ser desfeita.",
+    "pornspotcoin": "PornSpotCoin",
+    "likes": "Curtidas",
+    "bookmarks": "Marcadores",
+    "albums": "Álbuns",
+    "signIn": "Entrar",
+    "confirmDialog": {
+      "deleteContent": {
+        "title": "Excluir Conteúdo",
+        "message": "Tem certeza de que deseja excluir este {type}? Esta ação não pode ser desfeita."
+      },
+      "removeMedia": {
+        "title": "Remover Mídia",
+        "message": "Tem certeza de que deseja remover esta mídia do álbum? Esta ação não pode ser desfeita."
+      }
+    }
+  },
+  "cookieBanner": {
+    "message": "Este site usa cookies para fornecer uma melhor experiência de navegação. Ao navegar nos sites PornSpot, você concorda com o uso de cookies. Saiba mais sobre como usamos cookies <link>aqui</link>.",
+    "accept": "OK"
+  },
+  "profile": {
+    "username": "Nome de Usuário",
+    "bio": "Biografia",
+    "location": "Localização",
+    "website": "Site",
+    "enterUsername": "Digite o nome de usuário",
+    "tellUsAboutYourself": "Conte-nos sobre você",
+    "cityCountry": "Cidade, País",
+    "websitePlaceholder": "https://seu-site.com",
+    "pleaseSelectImageFile": "Por favor, selecione um arquivo de imagem",
+    "fileSizeMustBeLessThan10MB": "O tamanho do arquivo deve ser inferior a 10MB",
+    "invalidFileProvided": "Arquivo inválido fornecido",
+    "usernameAlreadyTaken": "Nome de usuário já está em uso",
+    "stillCheckingUsernameAvailability": "Ainda verificando a disponibilidade do nome de usuário",
+    "joined": "Entrou em",
+    "lastActive": "Última atividade",
+    "noBioYetAddOne": "Nenhuma biografia ainda. Adicione uma editando seu perfil!",
+    "userHasntAddedBio": "Este usuário ainda não adicionou uma biografia.",
+    "savingProfileAndAvatar": "Salvando perfil e avatar...",
+    "saving": "Salvando...",
+    "uploadingAvatar": "Enviando avatar...",
+    "checkingUsername": "Verificando nome de usuário...",
+    "usernameTaken": "Nome de usuário em uso",
+    "likesReceived": "Curtidas Recebidas",
+    "contentBookmarked": "Marcadores Recebidos",
+    "totalMediaViews": "Visualizações Totais de Mídia",
+    "profileViews": "Visualizações de Perfil",
+    "totalMedias": "Mídias Geradas",
+    "totalAlbums": "Álbuns Criados",
+    "lastLikedContent": "Último Conteúdo Curtido",
+    "youHaventLikedContent": "Você ainda não curtiu nenhum conteúdo.",
+    "userHaventLikedContent": "Este usuário ainda não curtiu nenhum conteúdo.",
+    "viewAllLikedContent": "Ver Todo Conteúdo Curtido",
+    "lastGeneratedMedias": "Últimas Mídias Geradas",
+    "youHaventGeneratedMedia": "Você ainda não gerou nenhuma mídia.",
+    "userHaventGeneratedMedia": "Este usuário ainda não gerou nenhuma mídia.",
+    "viewAllGeneratedMedias": "Ver Todas as Mídias Geradas",
+    "lastCreatedAlbums": "Últimos Álbuns Criados",
+    "youHaventCreatedAlbums": "Você ainda não criou nenhum álbum.",
+    "userHaventCreatedAlbums": "Este usuário ainda não criou nenhum álbum.",
+    "viewAllAlbums": "Ver Todos os Álbuns",
+    "lastComments": "Últimos Comentários",
+    "failedToLoadComments": "Falha ao carregar comentários",
+    "noCommentsYet": "Nenhum comentário ainda",
+    "viewAllComments": "Ver Todos os Comentários",
+    "albums": {
+      "albumsNotFound": "Álbuns não encontrados",
+      "userAlbumsTitle": "Álbuns de {username}",
+      "albumCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {álbuns} =1 {álbum} other {álbuns}}",
+      "noAlbumsYet": "Nenhum álbum ainda",
+      "noPublicAlbumsDescription": "{username} ainda não criou nenhum álbum público.",
+      "loadingMoreAlbums": "Carregando mais álbuns...",
+      "noMoreAlbums": "Não há mais álbuns para carregar"
+    },
+    "likes": {
+      "error": {
+        "title": "Erro ao Carregar Curtidas",
+        "message": "Falha ao carregar conteúdo curtido"
+      },
+      "title": "Conteúdo Curtido de {username}",
+      "count": "{count, plural, =0 {Nenhuma curtida ainda} =1 {1 curtida} other {# curtidas}}",
+      "empty": {
+        "title": "Nenhum conteúdo curtido ainda",
+        "description": "{username} ainda não curtiu nenhum conteúdo."
+      },
+      "loading": {
+        "loadingMore": "Carregando mais curtidas...",
+        "noMore": "Não há mais curtidas para carregar"
+      }
+    },
+    "comments": {
+      "failedToLoadComments": "Falha ao carregar comentários",
+      "errorOccurred": "Ocorreu um erro",
+      "tryAgain": "Tentar Novamente",
+      "userCommentsTitle": "Comentários de {username}",
+      "commentsMade": "{count, plural, =0 {Nenhum comentário} =1 {1 comentário feito} other {# comentários feitos}}",
+      "commentsLoaded": "{count, plural, =0 {Nenhum comentário carregado} =1 {1 comentário carregado} other {# comentários carregados}}",
+      "noCommentsYet": "Nenhum comentário ainda"
+    },
+    "media": {
+      "title": "Mídia de {username}",
+      "count": "{count, plural, =0 {Nenhuma mídia} =1 {1 mídia} other {# mídias}}",
+      "noMediaYet": "Nenhuma mídia ainda",
+      "empty": {
+        "title": "Nenhuma mídia ainda",
+        "description": "{username} ainda não gerou nenhuma mídia.",
+        "unavailable": "Mídia indisponível"
+      },
+      "loading": {
+        "loadingMore": "Carregando mais mídia...",
+        "noMore": "Não há mais mídia para carregar"
+      }
+    },
+    "followers": {
+      "title": "Seguidores de {username}",
+      "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {seguidores} =1 {seguidor} other {seguidores}}",
+      "empty": {
+        "title": "Nenhum seguidor ainda",
+        "description": "{username} ainda não tem seguidores."
+      },
+      "loading": {
+        "noMore": "Não há mais seguidores para carregar"
+      }
+    }
+  },
+  "ui": {
+    "virtualizedGrid": {
+      "noContentFound": "Nenhum conteúdo encontrado",
+      "noContentToDisplay": "Nenhum conteúdo para exibir.",
+      "errorLoading": "Erro ao carregar",
+      "tryAgain": "Tentar Novamente",
+      "loadingMoreContent": "Carregando mais conteúdo...",
+      "noMoreContentToLoad": "Não há mais conteúdo para carregar"
+    },
+    "generationProgressCard": {
+      "generationFailed": "Geração Falhou",
+      "pleaseTryAgain": "Por favor, tente novamente",
+      "queuedForGeneration": "Na fila para Geração",
+      "waitingToStart": "Aguardando para iniciar",
+      "retryingGeneration": "Tentando Gerar Novamente",
+      "attemptWithAI": "Tentativa {retryCount}/{maxRetries} - IA está trabalhando...",
+      "generationComplete": "Geração Concluída",
+      "yourImageIsReady": "Sua imagem está pronta",
+      "creatingYourMasterpiece": "Criando Sua Obra-Prima",
+      "aiIsWorkingItsMagic": "IA está fazendo sua mágica...",
+      "readyToGenerate": "Pronto para Gerar",
+      "startWhenYouReReady": "Inicie quando estiver pronto",
+      "failed": "Falhou",
+      "processing": "Processando",
+      "waiting": "Aguardando",
+      "generationStoppedDueToError": "Geração interrompida devido a erro",
+      "waitingInQueueToStart": "Aguardando na fila para iniciar...",
+      "allNodesCompletedSuccessfully": "Todos os nós concluídos com sucesso",
+      "readyToBeginProcessing": "Pronto para iniciar o processamento",
+      "workflowProgress": "Progresso do Fluxo de Trabalho",
+      "step": "Etapa",
+      "of": "de",
+      "initializing": "Inicializando..."
+    },
+    "lightbox": {
+      "close": "Fechar",
+      "previousMedia": "Mídia anterior",
+      "nextMedia": "Próxima mídia",
+      "swipeToNavigate": "Deslize para navegar",
+      "play": "Reproduzir",
+      "stop": "Parar",
+      "playSlideshow": "Reproduzir slideshow",
+      "stopSlideshow": "Parar slideshow",
+      "slideshowInterval": "Intervalo do slideshow",
+      "loop": "Loop",
+      "enableLoop": "Ativar loop",
+      "disableLoop": "Desativar loop"
+    },
+    "virtualizedCommentsList": {
+      "noCommentsYet": "Nenhum comentário ainda",
+      "userHasntMadeComments": "Este usuário ainda não fez nenhum comentário. Verifique mais tarde!",
+      "errorLoading": "Erro ao carregar",
+      "tryAgain": "Tentar Novamente",
+      "loadingMoreComments": "Carregando mais comentários...",
+      "noMoreCommentsToLoad": "Não há mais comentários para carregar"
+    }
+  },
+  "permissionComponents": {
+    "upgradeRequired": "Atualização Necessária",
+    "featureRequiresUpgrade": "Este recurso requer um plano {planType}. Você está atualmente no {currentPlan}.",
+    "proPlan": "Pro",
+    "higherPlan": "superior",
+    "upgradePlan": "Atualizar Plano",
+    "yourPlan": "Seu Plano: {planName}",
+    "upgrade": "Atualizar",
+    "imagesThisMonth": "Imagens este mês",
+    "unlimited": "ilimitado",
+    "remaining": "restante",
+    "imagesToday": "Imagens hoje",
+    "features": {
+      "bulk-generation": "Geração em Massa",
+      "lora-models": "Modelos LoRA",
+      "negative-prompt": "Prompt Negativo",
+      "private-content": "Conteúdo Privado"
+    },
+    "paidPlan": "Plano Pago",
+    "generationLimitReached": "Limite de Geração Atingido",
+    "reachedGenerationLimit": "Você atingiu seu limite de geração para hoje.",
+    "upgradeForUnlimited": "Atualize para gerações ilimitadas.",
+    "upgradeNow": "Atualizar Agora",
+    "generationsRemaining": "Você tem {count} geração{pluralSuffix} restante hoje."
+  },
+  "navigation": {
+    "medias": "Mídias",
+    "images": "Imagens",
+    "videos": "Vídeos",
+    "bookmarks": "Marcadores",
+    "likes": "Curtidas",
+    "albums": "Álbuns",
+    "profile": "Perfil",
+    "pornspotcoin": "PornSpotCoin",
+    "following": "Seguindo",
+    "menu": "Menu",
+    "sidebar": "Barra Lateral",
+    "header": "Cabeçalho",
+    "footer": "Rodapé",
+    "breadcrumb": "Navegação",
+    "pagination": "Paginação"
+  },
+  "comments": {
+    "anonymousUser": "Usuário Anônimo",
+    "edited": "editado",
+    "writeComment": "Escreva um comentário...",
+    "editComment": "Editar comentário",
+    "deleteComment": "Excluir comentário",
+    "justNow": "agora mesmo",
+    "minAgo": "{count}m atrás",
+    "hourAgo": "{count}h atrás",
+    "dayAgo": "{count}d atrás",
+    "loading": "Carregando...",
+    "loadMoreComments": "Carregar mais comentários",
+    "noCommentsYet": "Nenhum comentário ainda.",
+    "beFirstToComment": "Nenhum comentário ainda. Seja o primeiro a comentar!",
+    "submitShortcut": "Pressione Cmd+Enter para enviar",
+    "noMediaFound": "Nenhuma mídia encontrada",
+    "albumDoesntContainMediaFiles": "Este álbum ainda não contém arquivos de mídia.",
+    "loadingMoreMedia": "Carregando mais mídia...",
+    "noMoreMediaToLoad": "Não há mais mídia para carregar",
+    "failedToLoadMoreMedia": "Falha ao carregar mais mídia"
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "signUp": "Inscrever-se",
+    "forgotPasswordLink": "Esqueceu a Senha?",
+    "alreadyHaveAccount": "Já tem uma conta?",
+    "dontHaveAccount": "Não tem uma conta?",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirmar Senha",
+    "username": "Nome de Usuário",
+    "rememberMe": "Lembrar-me",
+    "createAccount": "Criar Conta",
+    "loginToAccount": "Entrar na Conta",
+    "welcomeBack": "Bem-vindo de volta! Por favor, insira seus detalhes.",
+    "signInToAccount": "Entrar na sua conta",
+    "labels": {
+      "email": "Endereço de e-mail",
+      "password": "Senha",
+      "confirmPassword": "Confirmar senha",
+      "username": "Nome de usuário"
+    },
+    "placeholders": {
+      "enterEmail": "Digite seu e-mail",
+      "enterPassword": "Digite sua senha",
+      "createPassword": "Crie uma senha forte",
+      "confirmPassword": "Confirme sua senha",
+      "chooseUsername": "Escolha um nome de usuário"
+    },
+    "login": {
+      "meta": {
+        "title": "Entrar - PornSpot.ai",
+        "description": "Entrar na sua conta PornSpot.ai"
+      }
+    },
+    "messages": {
+      "orContinueWith": "Ou continue com",
+      "createYourAccount": "Crie sua conta",
+      "joinMessage": "Junte-se ao PornSpot.ai e comece a criar conteúdo incrível.",
+      "registrationSuccessful": "Registro Bem-sucedido!",
+      "welcomeMessage": "Bem-vindo ao PornSpot.ai! Por favor, verifique seu e-mail em",
+      "toVerifyAccount": "para verificar sua conta.",
+      "goToSignIn": "Ir para Entrar",
+      "backToRegistration": "Voltar para Registro",
+      "passwordRequirements": "A senha deve ter pelo menos 8 caracteres com maiúscula, minúscula e número.",
+      "usernameRequirements": "O nome de usuário deve ter 3-30 caracteres (apenas letras, números, sublinhados e hifens).",
+      "checkingAvailability": "Verificando disponibilidade...",
+      "usernameAvailable": "Nome de usuário disponível",
+      "usernameAlreadyTaken": "Nome de usuário já está em uso",
+      "usernameInvalidChars": "O nome de usuário só pode conter letras, números, sublinhados e hifens",
+      "usernameTooLong": "O nome de usuário não pode exceder 30 caracteres",
+      "waitForUsernameCheck": "Por favor, aguarde a verificação de disponibilidade do nome de usuário ser concluída",
+      "byCreatingAccount": "Ao criar uma conta, você concorda com nossos"
+    },
+    "validation": {
+      "emailRequired": "E-mail é obrigatório",
+      "emailInvalid": "Por favor, insira um endereço de e-mail válido",
+      "passwordRequired": "Senha é obrigatória",
+      "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
+      "confirmPasswordRequired": "Por favor, confirme sua senha",
+      "passwordsDoNotMatch": "As senhas não coincidem",
+      "usernameRequired": "Nome de usuário é obrigatório",
+      "usernameTooShort": "O nome de usuário deve ter pelo menos 3 caracteres",
+      "usernameInvalid": "O nome de usuário só pode conter letras, números e sublinhados"
+    },
+    "verification": {
+      "emailSent": "E-mail de verificação enviado",
+      "emailVerified": "E-mail verificado com sucesso",
+      "checkEmail": "Por favor, verifique seu e-mail para o link de verificação",
+      "resendEmail": "Reenviar e-mail de verificação",
+      "verifyEmail": "Verificar E-mail",
+      "codeRequired": "Código de verificação é obrigatório",
+      "codeLabel": "Código de Verificação",
+      "codePlaceholder": "Digite o código",
+      "verify": "Verificar",
+      "invalidCode": "Código de verificação inválido.",
+      "resendFailed": "Falha ao reenviar e-mail de verificação.",
+      "emailVerificationRequired": "Verificação de E-mail Necessária",
+      "verificationMessage": "Por favor, verifique seu endereço de e-mail para acessar todos os recursos. Enviamos um link de verificação para",
+      "emailSentSuccess": "✓ E-mail de verificação enviado com sucesso! Por favor, verifique sua caixa de entrada.",
+      "dismiss": "Descartar",
+      "troubleshootMessage": "Não vê o e-mail? Verifique a pasta de spam ou tente novamente em alguns minutos."
+    },
+    "oauth": {
+      "continueWith": "Continuar com",
+      "signInWith": "Entrar com",
+      "or": "ou",
+      "callback": {
+        "completingSignIn": "Completando entrada...",
+        "pleaseWaitGoogle": "Por favor, aguarde enquanto completamos sua entrada no Google.",
+        "processingAuthentication": "Processando autenticação...",
+        "pleaseWaitProcess": "Por favor, aguarde enquanto processamos sua solicitação.",
+        "welcomeBack": "🎉 Bem-vindo de volta!",
+        "successfullySignedIn": "Entrada com sucesso com Google!",
+        "redirectingDashboard": "Redirecionando você para o painel...",
+        "authenticationFailed": "Autenticação Falhou",
+        "missingAuthCode": "Código de autorização ausente do provedor OAuth. Por favor, tente entrar novamente.",
+        "oauthFailed": "Autenticação OAuth falhou.",
+        "unexpectedError": "Ocorreu um erro inesperado durante a autenticação OAuth.",
+        "whatCanYouDo": "O que você pode fazer?",
+        "trySignInAgain": "Tente entrar novamente com Google",
+        "allowPermissions": "Certifique-se de permitir permissões quando solicitado",
+        "checkBlockedPopups": "Verifique se seu navegador está bloqueando pop-ups",
+        "clearCookies": "Limpe os cookies do seu navegador e tente novamente",
+        "tryAgain": "Tentar Novamente",
+        "goToDiscover": "Ir para Descobrir"
+      }
+    },
+    "google": {
+      "signIn": "Entrar com Google",
+      "signUp": "Inscrever-se com Google",
+      "continueWith": "Continuar com Google",
+      "connecting": "Conectando..."
+    },
+    "errors": {
+      "invalidCredentials": "Credenciais inválidas",
+      "userNotFound": "Usuário não encontrado",
+      "emailAlreadyExists": "E-mail já existe",
+      "usernameAlreadyExists": "Nome de usuário já existe",
+      "loginFailed": "Falha no login",
+      "registrationFailed": "Falha no registro",
+      "verificationFailed": "Falha na verificação",
+      "sessionExpired": "Sessão expirada",
+      "failedToCheckUsernameAvailability": "Falha ao verificar disponibilidade do nome de usuário",
+      "registrationFailedTryAgain": "Falha no registro. Por favor, tente novamente.",
+      "unexpectedErrorOccurred": "Ocorreu um erro inesperado"
+    },
+    "actions": {
+      "signOut": "Sair",
+      "deleteAccount": "Excluir Conta",
+      "changePassword": "Alterar Senha",
+      "updateProfile": "Atualizar Perfil"
+    },
+    "error": {
+      "meta": {
+        "title": "Erro de Autenticação - PornSpot.ai",
+        "description": "Ocorreu um erro durante a autenticação"
+      },
+      "processingTitle": "Processando erro...",
+      "processingMessage": "Por favor, aguarde enquanto processamos seu erro de autenticação.",
+      "unknownError": "Ocorreu um erro de autenticação desconhecido.",
+      "authCancelled": "Autenticação Cancelada",
+      "authFailed": "Autenticação Falhou",
+      "authError": "Erro de Autenticação",
+      "somethingWentWrong": "Algo Deu Errado",
+      "whatCanYouDo": "O que você pode fazer?",
+      "tryDifferentMethod": "Tente entrar novamente com um método diferente",
+      "allowPermissions": "Certifique-se de permitir permissões quando solicitado",
+      "checkBlockedPopups": "Verifique se seu navegador está bloqueando pop-ups",
+      "clearCookies": "Limpe os cookies do seu navegador e tente novamente",
+      "tryAgain": "Tentar Novamente",
+      "createNewAccount": "Criar Nova Conta",
+      "backToDiscover": "Voltar para Descobrir",
+      "stillTrouble": "Ainda com problemas?",
+      "contactSupport": "Contato com Suporte"
+    },
+    "register": {
+      "meta": {
+        "title": "Registrar - PornSpot.ai",
+        "description": "Criar uma nova conta no PornSpot.ai"
+      }
+    },
+    "success": {
+      "meta": {
+        "title": "Sucesso - PornSpot.ai",
+        "description": "Autenticação bem-sucedida"
+      },
+      "loading": "Carregando...",
+      "processingAuth": "Por favor, aguarde enquanto completamos sua autenticação.",
+      "welcomeNew": "🎉 Bem-vindo ao PornSpot.ai!",
+      "welcomeBack": "🎉 Bem-vindo de volta!",
+      "accountCreated": "Sua conta foi criada com sucesso e você agora está logado.",
+      "signedInSuccess": "Você entrou com sucesso na sua conta.",
+      "gettingStarted": "Começando",
+      "exploreDescription": "Explore conteúdo gerado por IA, crie seus próprios álbuns e descubra o que o PornSpot.ai tem a oferecer!",
+      "exploreButton": "Explorar PornSpot.ai",
+      "completeProfile": "Completar Seu Perfil",
+      "autoRedirect": "Redirecionando automaticamente para descobrir em",
+      "second": "segundo",
+      "seconds": "segundos",
+      "goNow": "Ir agora"
+    },
+    "forgotPassword": {
+      "meta": {
+        "title": "Esqueceu a Senha - PornSpot.ai",
+        "description": "Redefinir sua senha"
+      },
+      "title": "Esqueceu a Senha?",
+      "subtitle": "Digite seu endereço de e-mail e enviaremos um link para redefinir sua senha.",
+      "emailSent": "E-mail de redefinição enviado",
+      "emailSentMessage": "Se uma conta existir com este endereço de e-mail, você receberá um link de redefinição de senha.",
+      "sendResetLink": "Enviar Link de Redefinição",
+      "backToLogin": "Voltar para Entrar",
+      "checkEmail": "Verifique seu e-mail para o link de redefinição"
+    },
+    "resetPassword": {
+      "meta": {
+        "title": "Redefinir Senha - PornSpot.ai",
+        "description": "Criar uma nova senha"
+      },
+      "title": "Redefinir Sua Senha",
+      "subtitle": "Digite sua nova senha abaixo.",
+      "newPassword": "Nova Senha",
+      "confirmNewPassword": "Confirmar Nova Senha",
+      "resetSuccess": "Senha redefinida com sucesso",
+      "resetSuccessMessage": "Sua senha foi redefinida e você agora está logado.",
+      "invalidToken": "Token inválido ou expirado",
+      "invalidTokenMessage": "O link de redefinição é inválido ou expirou. Por favor, solicite um novo link.",
+      "resetPassword": "Redefinir Senha",
+      "requestNewLink": "Solicitar Novo Link"
+    },
+    "verifyEmail": {
+      "meta": {
+        "title": "Verificar E-mail - PornSpot.ai",
+        "description": "Verificar seu endereço de e-mail"
+      },
+      "loadingVerification": "Carregando verificação..."
+    },
+    "whyRegister": {
+      "title": "Por Que se Registrar?",
+      "subtitle": "Descubra todos os benefícios de se juntar à nossa comunidade",
+      "benefits": {
+        "freeGenerations": {
+          "title": "3 Gerações Gratuitas",
+          "description": "Crie suas primeiras imagens e vídeos de IA sem compromisso"
+        },
+        "saveImages": {
+          "title": "Salvar Suas Imagens",
+          "description": "Mantenha uma lista personalizada de suas criações"
+        },
+        "createAlbums": {
+          "title": "Criar Álbuns",
+          "description": "Organize suas imagens por temas e coleções"
+        },
+        "community": {
+          "title": "Interagir com a Comunidade",
+          "description": "Comente, curta e gerencie seus favoritos"
+        }
+      },
+      "gallery": {
+        "title": "Exemplos de Criação",
+        "description": "Aqui estão alguns exemplos do que você pode criar"
+      }
+    }
+  },
+  "site": {
+    "name": "PornSpot.ai",
+    "title": "PornSpot.ai - Gerador de Imagens e Vídeos Realistas NSFW com IA",
+    "description": "Gerador de Imagens e Vídeos NSFW com IA para imagens e vídeos realistas. Descubra e crie conteúdo adulto gerado por IA. Gere imagens e vídeos personalizados com prompts, seleções LoRA e mais.",
+    "tagline": "Conteúdo Gerado por IA",
+    "meta": {
+      "title": "PornSpot.ai - Descubra Pornô Gerado por IA",
+      "description": "Gerador de Imagens e Vídeos NSFW com IA para imagens e vídeos realistas. Navegue e gere imagens e vídeos pornô com IA. Gratuito para começar, com planos premium para criação ilimitada. Explore conteúdo adulto gerado por IA: imagens, vídeos e mais."
+    },
+    "welcomeTitle": "Bem-vindo ao PornSpot.ai - Conteúdo Adulto Gerado por IA",
+    "welcomeDescription": "Explore e crie conteúdo adulto gerado por IA: imagens, vídeos e mais.",
+    "welcome": "Bem-vindo ao PornSpot.ai",
+    "subtitle": "Crie conteúdo adulto impressionante gerado por IA",
+    "getStarted": "Começar",
+    "learnMore": "Saiba Mais",
+    "features": "Recursos",
+    "about": "Sobre",
+    "contact": "Contato",
+    "terms": "Termos de Serviço",
+    "ourFriends": "Nossos Amigos",
+    "faq": "FAQ",
+    "privacy": "Política de Privacidade",
+    "copyright": "Direitos Autorais",
+    "allRightsReserved": "Todos os direitos reservados",
+    "keywords": {
+      "aiPorn": "Pornô com IA",
+      "aiGeneratedContent": "Conteúdo gerado por IA",
+      "adultContent": "conteúdo adulto",
+      "aiImages": "Imagens e vídeos com IA",
+      "generatedPorn": "Pornô gerado"
+    }
+  },
+  "admin": {
+    "title": "Painel de Administração",
+    "manageAlbums": "Gerenciar Álbuns",
+    "manageMedia": "Gerenciar Mídia",
+    "createAlbum": "Criar Álbum",
+    "users": "Usuários",
+    "settings": "Configurações",
+    "dashboard": {
+      "totalAlbums": "Total de Álbuns",
+      "totalMedia": "Total de Mídia",
+      "publicAlbums": "Álbuns Públicos",
+      "storageUsed": "Armazenamento Usado",
+      "failedToLoad": "Falha ao carregar",
+      "updatedJustNow": "Atualizado agora mesmo",
+      "welcomeBack": "Bem-vindo de volta, {username}!",
+      "manageGalleryContent": "Gerencie o conteúdo da sua galeria a partir deste painel de administração."
+    },
+    "stats": {
+      "totalUsers": "Total de Usuários",
+      "totalAlbums": "Total de Álbuns",
+      "totalMedia": "Total de Mídia",
+      "activeUsers": "Usuários Ativos",
+      "recentActivity": "Atividade Recente",
+      "systemHealth": "Saúde do Sistema",
+      "overview": "Visão Geral",
+      "analytics": "Análises"
+    },
+    "navigation": {
+      "dashboard": "Painel",
+      "analytics": "Análises",
+      "users": "Usuários",
+      "albums": "Álbuns",
+      "media": "Mídia",
+      "pornspotcoin": "PornSpotCoin",
+      "settings": "Configurações"
+    },
+    "analytics": {
+      "title": "Painel de Análises",
+      "subtitle": "Métricas e insights abrangentes da plataforma",
+      "userGrowth": "Crescimento de Usuários",
+      "mediaUploads": "Envios de Mídia",
+      "albumCreation": "Criação de Álbuns",
+      "userEngagement": "Engajamento de Usuários",
+      "platformOverview": "Visão Geral da Plataforma",
+      "totalUsers": "Total de Usuários",
+      "totalMedia": "Total de Mídia",
+      "totalAlbums": "Total de Álbuns",
+      "totalInteractions": "Total de Interações",
+      "newUsers": "Novos Usuários",
+      "newMedia": "Nova Mídia",
+      "newAlbums": "Novos Álbuns",
+      "newLikes": "Novas Curtidas",
+      "activeUsers": "Usuários Ativos",
+      "granularity": {
+        "hourly": "Horário",
+        "daily": "Diário",
+        "weekly": "Semanal",
+        "monthly": "Mensal"
+      },
+      "lastUpdated": "Última atualização",
+      "dataPoints": "pontos de dados",
+      "noDataAvailable": "Nenhum dado disponível para este período",
+      "failedToLoad": "Falha ao carregar análises",
+      "refresh": "Atualizar",
+      "logs": "Logs",
+      "reports": "Relatórios"
+    },
+    "roles": {
+      "admin": "Admin",
+      "moderator": "Moderador",
+      "user": "Usuário",
+      "guest": "Convidado",
+      "banned": "Banido"
+    },
+    "media": {
+      "media": "Mídia",
+      "manageAndReviewAllMediaContent": "Gerenciar e revisar todo o conteúdo de mídia",
+      "noMediaFound": "Nenhuma mídia encontrada",
+      "mediaContentWillAppearHere": "O conteúdo de mídia aparecerá aqui assim que for enviado para a plataforma.",
+      "loadingMedia": "Carregando mídia...",
+      "allMediaLoaded": "Toda a mídia carregada",
+      "approve": "Aprovar",
+      "reject": "Rejeitar",
+      "pending": "Pendente",
+      "approved": "Aprovado",
+      "rejected": "Rejeitado",
+      "moderate": "Moderar",
+      "flag": "Sinalizar",
+      "unflag": "Remover sinalização",
+      "manageMedia": "Gerenciar Mídia",
+      "uploadAndManageAlbumMedia": "Enviar e gerenciar mídia de álbuns",
+      "uploadAndManageMediaFor": "Enviar e gerenciar mídia para",
+      "backToAlbums": "Voltar para Álbuns",
+      "albumNotFound": "Álbum não encontrado",
+      "failedToUpdateCoverImage": "Falha ao atualizar imagem de capa",
+      "mediaCount": "Contagem de Mídia:",
+      "albumId": "ID do Álbum:",
+      "status": "Status:",
+      "public": "Público",
+      "private": "Privado",
+      "items": "itens"
+    },
+    "albums": {
+      "publish": "Publicar",
+      "unpublish": "Despublicar",
+      "feature": "Destacar",
+      "unfeature": "Remover destaque",
+      "archive": "Arquivar",
+      "unarchive": "Desarquivar",
+      "editAlbum": "Editar Álbum",
+      "updateAlbumDetailsAndSettings": "Atualizar detalhes e configurações do álbum",
+      "albumNotFound": "Álbum não encontrado",
+      "loadingAlbum": "Carregando álbum...",
+      "updateAlbum": "Atualizar Álbum",
+      "failedToUpdateAlbum": "Falha ao atualizar álbum",
+      "createNewAlbum": "Criar Novo Álbum",
+      "createBeautifulPhotoAlbum": "Crie um belo álbum de fotos para exibir sua arte",
+      "createAlbum": "Criar Álbum",
+      "failedToCreateAlbum": "Falha ao criar álbum",
+      "albums": "Álbuns",
+      "manageYourPhotoAlbums": "Gerencie seus álbuns e coleções de fotos",
+      "manageMedia": "Gerenciar Mídia",
+      "deleteAlbum": "Excluir Álbum",
+      "noAlbumsFound": "Nenhum álbum encontrado",
+      "createFirstAlbumToGetStarted": "Crie seu primeiro álbum para começar a organizar conteúdo.",
+      "loadingAlbums": "Carregando álbuns...",
+      "allAlbumsLoaded": "Todos os álbuns carregados",
+      "deleteAlbumConfirmTitle": "Excluir Álbum",
+      "deleteAlbumConfirmMessage": "Tem certeza de que deseja excluir \"{albumTitle}\"? Esta ação não pode ser desfeita e também excluirá toda a mídia neste álbum.",
+      "delete": "Excluir"
+    },
+    "albumForm": {
+      "albumTitle": "Título do Álbum",
+      "titlePlaceholder": "Digite um título atraente para o álbum",
+      "tags": "Tags",
+      "tagsPlaceholder": "Adicionar tags descritivas",
+      "tagsHelpText": "Ajude os usuários a descobrir seu álbum com tags relevantes",
+      "makePublic": "Tornar este álbum público",
+      "publicDescription": "Álbuns públicos são visíveis para todos os visitantes. Álbuns privados são acessíveis apenas para você.",
+      "cancel": "Cancelar",
+      "saving": "Salvando...",
+      "validation": {
+        "titleRequired": "Título é obrigatório",
+        "titleMinLength": "Título deve ter pelo menos 2 caracteres",
+        "titleMaxLength": "Título deve ter menos de 100 caracteres",
+        "maxTags": "Máximo de 20 tags permitidas",
+        "tagMaxLength": "Cada tag deve ter menos de 50 caracteres"
+      }
+    },
+    "fileUpload": {
+      "selectFiles": "Selecionar Arquivos",
+      "dragAndDrop": "Arraste e solte arquivos aqui",
+      "uploading": "Enviando...",
+      "uploadComplete": "Envio Concluído",
+      "uploadFailed": "Envio Falhou",
+      "maxFileSize": "Tamanho máximo do arquivo",
+      "allowedFormats": "Formatos permitidos",
+      "uploadFiles": "Enviar arquivos",
+      "dropFilesHere": "Solte arquivos aqui",
+      "clickToSelect": "Arraste e solte arquivos aqui, ou clique para selecionar",
+      "acceptedTypes": "Tipos aceitos",
+      "chooseFiles": "Escolher Arquivos",
+      "uploadProgress": "Progresso do Envio",
+      "uploadErrors": "Erros de Envio:",
+      "unsupportedFileType": "não é um tipo de arquivo suportado"
+    },
+    "coverImage": {
+      "select": "Selecionar Imagem de Capa",
+      "change": "Alterar Imagem de Capa",
+      "remove": "Remover Imagem de Capa",
+      "upload": "Enviar Imagem de Capa"
+    },
+    "userManagementPage": {
+      "userManagement": "Gerenciamento de Usuários",
+      "userManagementDescription": "Gerencie contas de usuários, visualize perfis e desative contas se necessário",
+      "usersLabel": "Usuários",
+      "partial": "parcial",
+      "usersList": "Lista de Usuários",
+      "noUsersFound": "Nenhum usuário encontrado",
+      "disabled": "Desabilitado",
+      "lastActive": "Última atividade",
+      "view": "Ver",
+      "disable": "Desabilitar",
+      "enable": "Habilitar",
+      "disabling": "Desabilitando...",
+      "enabling": "Habilitando...",
+      "loadMore": "Carregar Mais",
+      "loadingError": "Erro de Carregamento",
+      "loadingErrorDescription": "Ocorreu um erro ao carregar a lista de usuários. Por favor, tente novamente mais tarde.",
+      "failedToDisableUser": "Erro ao desabilitar o usuário.",
+      "failedToEnableUser": "Erro ao habilitar o usuário.",
+      "disableUserConfirmTitle": "Desabilitar Usuário",
+      "disableUserConfirmMessage": "Tem certeza de que deseja desabilitar este usuário? Esta ação também removerá todas as sessões ativas dele.",
+      "enableUserConfirmTitle": "Habilitar Usuário",
+      "enableUserConfirmMessage": "Tem certeza de que deseja habilitar este usuário?"
+    },
+    "albumTable": {
+      "loadingAlbums": "Carregando álbuns...",
+      "noAlbumsFound": "Nenhum álbum encontrado",
+      "createFirstAlbum": "Crie seu primeiro álbum para começar",
+      "headers": {
+        "album": "Álbum",
+        "status": "Status",
+        "mediaCount": "Contagem de Mídia",
+        "created": "Criado",
+        "actions": "Ações"
+      },
+      "status": {
+        "public": "Público",
+        "private": "Privado"
+      },
+      "items": "itens",
+      "moreTagsCount": "+{count} mais",
+      "actions": {
+        "media": "Mídia"
+      }
+    },
+    "mediaManager": {
+      "uploadMedia": "Enviar Mídia",
+      "albumCover": "Capa do Álbum",
+      "selectCoverDescription": "Selecione uma imagem de capa para este álbum a partir da mídia enviada",
+      "updatingCover": "Atualizando imagem de capa...",
+      "mediaLibrary": "Biblioteca de Mídia",
+      "deleteSelected": "Excluir Selecionados",
+      "selectAllMedia": "Selecionar toda a mídia",
+      "noMediaUploaded": "Nenhuma mídia enviada ainda",
+      "uploadFirstMedia": "Envie seus primeiros arquivos de mídia para começar",
+      "view": "Ver",
+      "remove": "Remover",
+      "delete": "Excluir",
+      "deleteMedia": "Excluir Mídia",
+      "deleteSelectedConfirm": "Tem certeza de que deseja excluir {count} itens de mídia selecionados? Esta ação não pode ser desfeita.",
+      "deleteItemConfirm": "Tem certeza de que deseja excluir \"{filename}\"? Esta ação não pode ser desfeita."
+    },
+    "coverImageSelector": {
+      "coverImage": "Imagem de Capa",
+      "currentCover": "Capa Atual",
+      "noCoverSelected": "Nenhuma capa selecionada",
+      "changeCover": "Alterar Capa",
+      "selectCover": "Selecionar Capa",
+      "removeCover": "Remover Capa",
+      "selectFromAlbumImages": "Selecionar de imagens do álbum ({count})",
+      "loadingImages": "Carregando imagens...",
+      "noImagesAvailable": "Nenhuma imagem disponível",
+      "uploadImagesFirst": "Envie imagens primeiro para selecionar uma capa",
+      "coverImageSelected": "Imagem de capa selecionada",
+      "clearSelection": "Limpar Seleção"
+    }
+  },
+  "user": {
+    "imagesPage": {
+      "meta": {
+        "title": "Minhas Imagens - {siteName}",
+        "description": "Visualize e gerencie sua galeria pessoal de imagens e vídeos gerados por IA. Envie, organize e compartilhe seu conteúdo criativo."
+      },
+      "images": "Imagens",
+      "personalMediaGallery": "Sua galeria pessoal de imagens",
+      "imagesCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {imagens} =1 {imagem} other {imagens}}",
+      "generate": "Gerar",
+      "generateMedia": "Gerar Imagem",
+      "selectMany": "Selecionar vários",
+      "noImagesYet": "Nenhuma imagem ainda",
+      "startCreatingImages": "Comece a criar imagens e vídeos gerados por IA para vê-los aqui!",
+      "loadingMoreImages": "Carregando mais imagens...",
+      "noMoreImagesToLoad": "Não há mais imagens para carregar",
+      "confirmDeleteTitle": "Excluir Imagem",
+      "confirmDeleteMessage": "Tem certeza de que deseja excluir {count, plural, =1 {# imagem selecionada} other {# imagens selecionadas}}? Esta ação não pode ser desfeita.",
+      "delete": "Excluir",
+      "cancel": "Cancelar",
+      "album": "Álbum",
+      "download": "Baixar"
+    },
+    "videosPage": {
+      "meta": {
+        "title": "Meus Vídeos - {siteName}",
+        "description": "Visualize e gerencie sua galeria pessoal de vídeos gerados por IA. Envie, organize e compartilhe seu conteúdo de vídeo criativo."
+      },
+      "videos": "Vídeos",
+      "personalVideoGallery": "Sua galeria pessoal de vídeos",
+      "videosCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {vídeos} =1 {vídeo} other {vídeos}}",
+      "inProgressTitle": "Em andamento",
+      "failedSectionTitle": "Tentativas falhadas",
+      "failedSectionSubtitle": "Essas gerações de vídeo não foram concluídas. Limpe-as para remover os jobs da sua lista.",
+      "failedSectionLoading": "Carregando tentativas falhadas...",
+      "failedBadge": "Falhou",
+      "failedCardDescription": "Não pudemos finalizar a geração deste vídeo. Limpe-o para remover o job.",
+      "clearButton": "Limpar job",
+      "clearingButton": "Limpando...",
+      "generate": "Gerar",
+      "generateMedia": "Gerar Vídeo",
+      "selectMany": "Selecionar vários",
+      "noVideosYet": "Nenhum vídeo ainda",
+      "startCreatingVideos": "Comece a criar vídeos gerados por IA para vê-los aqui!",
+      "loadingMoreVideos": "Carregando mais vídeos...",
+      "noMoreVideosToLoad": "Não há mais vídeos para carregar",
+      "confirmDeleteTitle": "Excluir Vídeo",
+      "confirmDeleteMessage": "Tem certeza de que deseja excluir {count, plural, =1 {# vídeo selecionado} other {# vídeos selecionados}}? Esta ação não pode ser desfeita.",
+      "delete": "Excluir",
+      "cancel": "Cancelar",
+      "album": "Álbum",
+      "download": "Baixar",
+      "comingSoon": "Disponível para pro e em 7 de outubro para todos os usuários",
+      "convertHintMobile": "Para converter uma imagem em vídeo, toque neste <btn></btn> botão em qualquer imagem.",
+      "convertHintDesktop": "Para converter uma imagem em vídeo, clique neste <btn></btn> botão em qualquer imagem."
+    },
+    "albums": {
+      "meta": {
+        "title": "Meus Álbuns - {siteName}",
+        "description": "Gerencie suas coleções pessoais de conteúdo gerado por IA e organize sua mídia em álbuns bonitos."
+      },
+      "myAlbums": "Meus Álbuns",
+      "albums": "Álbuns",
+      "personalCollections": "Suas coleções pessoais",
+      "personalPhotoCollections": "Suas coleções pessoais de mídia",
+      "albumsCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {álbuns} =1 {álbum} other {álbuns}}",
+      "create": "Criar",
+      "createAlbum": "Criar Álbum",
+      "editAlbum": "Editar Álbum",
+      "deleteAlbum": "Excluir Álbum",
+      "noAlbums": "Você ainda não criou nenhum álbum",
+      "noAlbumsYet": "Nenhum álbum ainda",
+      "createFirstAlbum": "Crie seu primeiro álbum para organizar seu conteúdo e começar a construir sua coleção!",
+      "unableToLoad": "Não foi possível carregar álbuns",
+      "errorMessage": "{error}. Por favor, tente atualizar a página ou contate o suporte se o problema persistir.",
+      "refreshPage": "Atualizar Página",
+      "loadingAlbums": "Carregando álbuns...",
+      "allAlbumsLoaded": "Todos os álbuns carregados",
+      "albumCreated": "Álbum criado com sucesso",
+      "albumUpdated": "Álbum atualizado com sucesso",
+      "albumDeleted": "Álbum excluído com sucesso",
+      "failedToCreateAlbum": "Falha ao criar álbum",
+      "createNewAlbum": "Criar Novo Álbum",
+      "createBeautifulPhotoAlbum": "Crie um belo álbum de fotos para organizar suas imagens e compartilhar sua coleção"
+    },
+    "userAlbumForm": {
+      "meta": {
+        "title": "Criar Álbum - {siteName}",
+        "description": "Crie um belo álbum de fotos para organizar seu conteúdo gerado por IA e compartilhar sua coleção com a comunidade."
+      },
+      "title": "Título do Álbum",
+      "titleRequired": "Título é obrigatório",
+      "titleTooShort": "Título deve ter pelo menos 2 caracteres",
+      "titleTooLong": "Título deve ter menos de 100 caracteres",
+      "titlePlaceholder": "Digite o título do álbum",
+      "tags": "Tags",
+      "tagsPlaceholder": "Adicionar tags descritivas",
+      "addTag": "Adicionar Tag",
+      "maxTagsReached": "Máximo de 20 tags permitidas",
+      "tagsHelpText": "Ajude os usuários a descobrir seu álbum com tags relevantes",
+      "tagsCount": "{count}/20",
+      "makePublic": "Tornar este álbum público",
+      "makePrivate": "Tornar este álbum privado",
+      "proOnly": "Apenas Pro",
+      "privateContentDescription": "Atualize para Pro para criar álbuns privados que apenas você pode ver",
+      "selectImages": "Selecionar Imagens ({count} selecionadas)",
+      "loadingImages": "Carregando suas imagens...",
+      "noImages": "Nenhuma imagem encontrada. Envie algumas imagens primeiro para adicioná-las ao seu álbum.",
+      "failedToFetchImages": "Falha ao buscar mídia do usuário",
+      "createAlbum": "Criar Álbum",
+      "creating": "Criando...",
+      "loadingMore": "Carregando mais...",
+      "allImagesLoaded": "Todas as imagens carregadas",
+      "scrollToLoadMore": "Role para carregar mais"
+    },
+    "images": {
+      "myImages": "Minhas Imagens",
+      "uploadImage": "Enviar Imagem",
+      "noImages": "Você ainda não enviou nenhuma imagem",
+      "imageUploaded": "Imagem enviada com sucesso",
+      "imageDeleted": "Imagem excluída com sucesso",
+      "generateImage": "Gerar Imagem"
+    },
+    "bookmarks": {
+      "meta": {
+        "title": "Meus Marcadores - {siteName}",
+        "description": "Acesse seus favoritos salvos e conteúdo marcado da comunidade de conteúdo adulto gerado por IA."
+      },
+      "myBookmarks": "Meus Marcadores",
+      "noBookmarks": "Você ainda não marcou nada",
+      "bookmarkAdded": "Adicionado aos marcadores",
+      "bookmarkRemoved": "Removido dos marcadores",
+      "removeBookmark": "Remover Marcador",
+      "loginToBookmark": "Entre para marcar",
+      "bookmarks": "Marcadores",
+      "yourSavedFavorites": "Seus favoritos salvos",
+      "bookmarksCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {marcadores} =1 {marcador} other {marcadores}}",
+      "failedToLoadBookmarks": "Falha ao carregar marcadores",
+      "noBookmarksYet": "Nenhum marcador ainda",
+      "startExploringContent": "Comece a explorar conteúdo e marque o que quiser salvar para depois!",
+      "loadingMoreBookmarks": "Carregando mais marcadores...",
+      "noMoreBookmarksToLoad": "Não há mais marcadores para carregar"
+    },
+    "likes": {
+      "meta": {
+        "title": "Minhas Curtidas - {siteName}",
+        "description": "Visualize todo o conteúdo que você curtiu na plataforma de conteúdo adulto gerado por IA. Descubra e revisite seus álbuns e mídia favoritos."
+      },
+      "myLikes": "Minhas Curtidas",
+      "noLikes": "Você ainda não curtiu nada",
+      "likeAdded": "Curtido",
+      "likeRemoved": "Curtida removida",
+      "removeLike": "Remover Curtida",
+      "loginToLike": "Entre para curtir",
+      "likes": "Curtidas",
+      "yourLikedContent": "Seu conteúdo curtido",
+      "likesCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {curtidas} =1 {curtida} other {curtidas}}",
+      "failedToLoadLikes": "Falha ao carregar curtidas",
+      "noLikesYet": "Nenhuma curtida ainda",
+      "startExploringContent": "Comece a explorar conteúdo e curta o que você gosta! Descubra álbuns e mídia incríveis da nossa comunidade.",
+      "loadingMoreLikes": "Carregando mais curtidas...",
+      "allLikesLoaded": "Todas as suas curtidas carregadas"
+    },
+    "menu": {
+      "account": "Conta",
+      "preferences": "Preferências",
+      "subscription": "Assinatura",
+      "billing": "Cobrança",
+      "support": "Suporte",
+      "logout": "Sair"
+    },
+    "following": {
+      "meta": {
+        "title": "Seguindo - {siteName}",
+        "description": "Gerencie os usuários que você segue e descubra seu conteúdo gerado por IA mais recente, álbuns e envios de mídia."
+      },
+      "following": "Seguindo",
+      "usersYouFollow": "Usuários que você segue",
+      "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {usuários} =1 {usuário} other {usuários}}",
+      "empty": {
+        "title": "Não seguindo ninguém ainda",
+        "description": "Descubra e siga outros usuários para ver seu conteúdo no seu feed!"
+      },
+      "loading": {
+        "noMore": "Não há mais usuários para carregar"
+      }
+    },
+    "profile": {
+      "meta": {
+        "title": "Meu Perfil - {siteName}",
+        "description": "Gerencie as configurações do seu perfil, visualize as informações da sua conta e personalize suas preferências de criação de conteúdo IA."
+      },
+      "profile": "Perfil",
+      "settings": "Configurações",
+      "unverified": "Não Verificado",
+      "emailNotVerified": "E-mail não verificado",
+      "signingOut": "Saindo...",
+      "signOut": "Sair",
+      "notAuthenticated": "Não Autenticado",
+      "pleaseLogin": "Por favor, faça login para visualizar seu perfil.",
+      "albums": {
+        "albumsNotFound": "Álbuns não encontrados",
+        "userAlbumsTitle": "Álbuns de {username}",
+        "albumCount": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {álbuns} =1 {álbum} other {álbuns}}",
+        "noAlbumsYet": "Nenhum álbum ainda",
+        "noPublicAlbumsDescription": "{username} ainda não criou nenhum álbum público.",
+        "loadingMoreAlbums": "Carregando mais álbuns...",
+        "noMoreAlbums": "Não há mais álbuns"
+      },
+      "comments": {
+        "failedToLoadComments": "Falha ao carregar comentários",
+        "errorOccurred": "Ocorreu um erro",
+        "tryAgain": "Tentar Novamente",
+        "userCommentsTitle": "Comentários de {username}",
+        "commentsMade": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {comentários feitos} =1 {comentário feito} other {comentários feitos}}",
+        "commentsLoaded": "{count, plural, =0 {0 comentários carregados} =1 {1 comentário carregado} other {# comentários carregados}}",
+        "noCommentsYet": "Nenhum comentário ainda"
+      },
+      "likes": {
+        "title": "Curtidas de {username}",
+        "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {curtidas} =1 {curtida} other {curtidas}}",
+        "error": {
+          "title": "Erro ao carregar curtidas",
+          "message": "Falha ao carregar curtidas"
+        },
+        "empty": {
+          "title": "Nenhuma curtida ainda",
+          "description": "{username} ainda não curtiu nenhum conteúdo."
+        },
+        "loading": {
+          "loadingMore": "Carregando mais curtidas...",
+          "noMore": "Não há mais curtidas"
+        }
+      },
+
+      "media": {
+        "title": "Mídia de {username}",
+        "count": "{count, number} {hasNextPage, plural, =1 {+ } other {}}{count, plural, =0 {itens} =1 {item} other {itens}}",
+        "noMediaYet": "Nenhuma mídia ainda",
+        "error": {
+          "title": "Não foi possível carregar mídia",
+          "message": "Falha ao carregar mídia do usuário"
+        },
+        "empty": {
+          "title": "Nenhuma mídia encontrada",
+          "description": "{username} ainda não gerou nenhuma mídia.",
+          "unavailable": "A mídia deste usuário não está disponível."
+        },
+        "loading": {
+          "loadingMore": "Carregando mídia...",
+          "noMore": "Não há mais mídia"
+        }
+      },
+      "public": {
+        "authRequired": {
+          "title": "Autenticação Necessária",
+          "message": "Você deve estar logado para visualizar este perfil."
+        },
+        "notFound": {
+          "title": "Perfil não encontrado",
+          "message": "O perfil do usuário que você está procurando não existe ou foi tornado privado."
+        }
+      }
+    },
+    "notifications": {
+      "meta": {
+        "title": "Notificações - {siteName}",
+        "description": "Mantenha-se atualizado com suas atividades mais recentes, interações e engajamento comunitário na plataforma de conteúdo gerado por IA."
+      },
+      "title": "Notificações",
+      "description": "Mantenha-se atualizado com suas atividades e interações mais recentes",
+      "count": "{count, plural, =0 {0 notificações} =1 {1 notificação} other {# notificações}}",
+      "like": "<userLink>{username}</userLink> curtiu seu {type}: <contentLink>{title}</contentLink>",
+      "likeNoTitle": "<userLink>{username}</userLink> curtiu seu <contentLink>{type}</contentLink>",
+      "comment": "<userLink>{username}</userLink> comentou em seu {type}: <contentLink>{title}</contentLink>",
+      "commentNoTitle": "<userLink>{username}</userLink> comentou em seu <contentLink>{type}</contentLink>",
+      "bookmark": "<userLink>{username}</userLink> marcou seu {type}: <contentLink>{title}</contentLink>",
+      "bookmarkNoTitle": "<userLink>{username}</userLink> marcou seu <contentLink>{type}</contentLink>",
+      "followNoTitle": "<userLink>{username}</userLink> seguiu você",
+      "types": {
+        "album": "álbum",
+        "media": "mídia",
+        "comment": "comentário",
+        "video": "vídeo",
+        "image": "imagem"
+      },
+      "unknownUser": "Usuário desconhecido",
+      "error": {
+        "title": "Erro ao carregar notificações",
+        "message": "Falha ao carregar notificações. Por favor, tente novamente."
+      },
+      "empty": {
+        "title": "Nenhuma notificação ainda",
+        "description": "Você verá notificações aqui quando as pessoas interagirem com seu conteúdo."
+      },
+      "loading": {
+        "loadingMore": "Carregando mais notificações...",
+        "noMore": "Não há mais notificações"
+      }
+    },
+    "settings": {
+      "title": "Configurações",
+      "description": "Gerencie as preferências e configurações da sua conta",
+      "overview": {
+        "title": "Visão Geral"
+      },
+      "sections": {
+        "language": "Idioma",
+        "subscription": "Assinatura",
+        "account": "Conta",
+        "security": "Segurança",
+        "usage": "Uso & Cotas"
+      },
+      "language": {
+        "title": "Configurações de Idioma",
+        "description": "Escolha seu idioma preferido para a interface",
+        "current": "Idioma Atual",
+        "automatic": "Automático (Idioma do Navegador)",
+        "selectLanguage": "Selecionar Idioma",
+        "languages": {
+          "en": "Inglês",
+          "fr": "Français",
+          "de": "Deutsch",
+          "es": "Español",
+          "ru": "Русский",
+          "zh": "中文"
+        },
+        "updated": "Idioma atualizado com sucesso"
+      },
+      "subscription": {
+        "title": "Assinatura & Plano",
+        "description": "Gerencie seu plano de assinatura e cobrança",
+        "currentPlan": "Plano Atual",
+        "billing": "Cobrança",
+        "upgrade": "Atualizar Plano",
+        "downgrade": "Rebaixar Plano",
+        "cancel": "Cancelar Assinatura",
+        "plans": {
+          "free": "Plano Gratuito",
+          "starter": "Plano Inicial",
+          "unlimited": "Plano Ilimitado",
+          "pro": "Plano Pro"
+        },
+        "status": {
+          "active": "Ativo",
+          "canceled": "Cancelado",
+          "expired": "Expirado",
+          "trial": "Teste"
+        },
+        "actions": {
+          "upgradeTo": "Atualizar para {plan}",
+          "downgradeTo": "Rebaixar para {plan}",
+          "cancelSubscription": "Cancelar Assinatura",
+          "reactivate": "Reativar Assinatura",
+          "manageBilling": "Gerenciar Cobrança"
+        },
+        "statusMessages": {
+          "activeWithDate": "Seu plano renova em {date}.",
+          "active": "Seu plano está ativo.",
+          "canceledWithDate": "Assinatura cancelada. Você pode continuar usando os benefícios até {date}.",
+          "canceled": "Assinatura cancelada. Você pode continuar usando os benefícios até o final deste ciclo de cobrança."
+        },
+        "confirmCancel": {
+          "title": "Cancelar Assinatura",
+          "message": "Tem certeza de que deseja cancelar sua assinatura? Você perderá acesso aos recursos premium no final do seu período de cobrança.",
+          "confirm": "Sim, Cancelar",
+          "keep": "Manter Assinatura"
+        },
+        "nextBilling": "Próxima data de cobrança: {date}",
+        "renewsOn": "Renova em {date}",
+        "expiresOn": "Expira em {date}"
+      },
+      "account": {
+        "title": "Configurações de Conta",
+        "description": "Gerencie as informações e preferências da sua conta",
+        "deleteAccount": {
+          "title": "Excluir Conta",
+          "description": "Excluir permanentemente sua conta",
+          "button": "Excluir Minha Conta",
+          "warning": "Esta ação não pode ser desfeita. Sua conta será excluída permanentemente.",
+          "confirmation": {
+            "title": "Confirmar Exclusão de Conta",
+            "message": "Tem certeza de que deseja excluir sua conta? Isso removerá permanentemente o acesso à sua conta. Esta ação não pode ser desfeita.",
+            "type": "Digite 'DELETE' para confirmar",
+            "placeholder": "Digite DELETE",
+            "confirm": "Excluir Conta",
+            "cancel": "Cancelar"
+          }
+        }
+      },
+      "security": {
+        "title": "Configurações de Segurança",
+        "description": "Gerencie sua senha e preferências de segurança",
+        "changePassword": {
+          "title": "Alterar Senha",
+          "description": "Atualize sua senha para melhor segurança",
+          "currentPassword": "Senha Atual",
+          "newPassword": "Nova Senha",
+          "confirmPassword": "Confirmar Nova Senha",
+          "button": "Alterar Senha",
+          "success": "Senha alterada com sucesso",
+          "requirements": "A senha deve ter pelo menos 8 caracteres com maiúscula, minúscula e número"
+        },
+        "unavailable": {
+          "title": "Configurações de Senha Indisponíveis",
+          "message": "Você entrou com Google. As configurações de senha são gerenciadas através da sua conta Google.",
+          "action": "Gerenciar Conta Google"
+        }
+      },
+      "usage": {
+        "title": "Uso & Cotas",
+        "description": "Monitore seu uso e limites do plano",
+        "period": "Período de Cobrança Atual",
+        "images": {
+          "title": "Geração de Imagens",
+          "daily": "Uso Diário",
+          "monthly": "Uso Mensal",
+          "total": "Total Gerado",
+          "remaining": "Restante"
+        },
+        "quotas": {
+          "imagesGenerated": "Imagens Geradas",
+          "imagesPerDay": "por dia",
+          "imagesPerMonth": "por mês",
+          "unlimited": "Ilimitado",
+          "of": "de"
+        },
+        "resetInfo": {
+          "daily": "Cota diária redefine à meia-noite",
+          "monthly": "Cota mensal redefine em {date}",
+          "billingCycle": "Baseado no seu ciclo de cobrança"
+        },
+        "video": {
+          "title": "Créditos de Geração de Vídeo",
+          "description": "Acompanhe seus créditos de imagem-para-vídeo em segundos",
+          "purchased": "Créditos comprados",
+          "plan": "Créditos do plano"
+        }
+      },
+      "notifications": {
+        "title": "Notificações por E-mail",
+        "description": "Escolha com que frequência enviamos e-mails sobre atualizações importantes",
+        "pscBalance": {
+          "label": "Atualizações de saldo PornSpotCoin"
+        },
+        "newFollower": {
+          "label": "Alertas de novos seguidores",
+          "description": "Receba um e-mail quando alguém seguir você"
+        },
+        "unread": {
+          "label": "Resumo de notificações não lidas"
+        },
+        "options": {
+          "intelligently": "Inteligente",
+          "always": "Sempre",
+          "never": "Nunca"
+        }
+      },
+      "messages": {
+        "saveSuccess": "Configurações salvas com sucesso",
+        "saveError": "Falha ao salvar configurações",
+        "updateSuccess": "Atualizado com sucesso",
+        "updateError": "Falha ao atualizar",
+        "confirmAction": "Tem certeza?",
+        "actionCannotBeUndone": "Esta ação não pode ser desfeita"
+      }
+    },
+    "coverImageSelector": {
+      "coverImage": "Imagem de Capa",
+      "hideImages": "Ocultar Imagens",
+      "chooseFromSelected": "Escolher dos Selecionados ({count})",
+      "currentCover": "Capa Atual",
+      "noImagesSelected": "Nenhuma imagem selecionada",
+      "coverImageSelected": "Imagem de capa selecionada",
+      "noCoverSelected": "Nenhuma capa selecionada",
+      "clearSelection": "Limpar Seleção",
+      "done": "Concluído"
+    },
+    "verifyEmail": {
+      "emailVerificationFailed": "Falha na verificação de e-mail. O link pode ter expirado ou ser inválido.",
+      "emailVerifiedSuccessfully": "Seu e-mail foi verificado com sucesso e você agora está logado!",
+      "unexpectedErrorOccurred": "Ocorreu um erro inesperado durante a verificação.",
+      "invalidVerificationLink": "Link de verificação inválido. Nenhum token fornecido.",
+      "verifyingEmail": "Verificando seu e-mail...",
+      "pleaseWaitVerification": "Por favor, aguarde enquanto verificamos seu endereço de e-mail.",
+      "emailVerified": "E-mail Verificado!",
+      "accountFullyActivated": "Sua conta agora está totalmente ativada e você está automaticamente logado. Você agora pode acessar todos os recursos.",
+      "goToHomepage": "Ir para Página Inicial",
+      "loginToAccount": "Entrar na Sua Conta",
+      "verificationFailed": "Verificação Falhou",
+      "tryRequestingNewEmail": "Por favor, tente solicitar um novo e-mail de verificação ou contate o suporte se o problema persistir.",
+      "backToLogin": "Voltar para Login",
+      "invalidLink": "Link Inválido",
+      "makeSureCompleteLink": "Por favor, certifique-se de usar o link de verificação completo do seu e-mail."
+    }
+  },
+  "media": {
+    "details": {
+      "title": "Título",
+      "description": "Descrição",
+      "tags": "Tags",
+      "createdAt": "Criado",
+      "updatedAt": "Atualizado",
+      "size": "Tamanho",
+      "format": "Formato",
+      "resolution": "Resolução",
+      "duration": "Duração",
+      "views": "Visualizações",
+      "likes": "Curtidas",
+      "bookmarks": "Marcadores"
+    },
+    "errors": {
+      "loadFailed": "Falha ao carregar mídia",
+      "uploadFailed": "Envio falhou",
+      "deleteFailed": "Exclusão falhou",
+      "notFound": "Mídia não encontrada",
+      "accessDenied": "Acesso negado",
+      "invalidFormat": "Formato inválido",
+      "fileTooLarge": "Arquivo muito grande"
+    },
+    "loading": {
+      "uploading": "Enviando...",
+      "processing": "Processando...",
+      "generating": "Gerando...",
+      "loading": "Carregando mídia...",
+      "saving": "Salvando..."
+    },
+    "actions": {
+      "view": "Ver",
+      "download": "Baixar",
+      "share": "Compartilhar",
+      "like": "Curtir",
+      "bookmark": "Marcar",
+      "report": "Reportar",
+      "delete": "Excluir",
+      "edit": "Editar",
+      "duplicate": "Duplicar"
+    }
+  },
+  "albums": {
+    "errors": {
+      "loadFailed": "Falha ao carregar álbuns",
+      "createFailed": "Falha ao criar álbum",
+      "updateFailed": "Falha ao atualizar álbum",
+      "deleteFailed": "Falha ao excluir álbum",
+      "notFound": "Álbum não encontrado",
+      "accessDenied": "Acesso negado"
+    },
+    "loading": {
+      "loading": "Carregando álbuns...",
+      "creating": "Criando álbum...",
+      "updating": "Atualizando álbum...",
+      "deleting": "Excluindo álbum..."
+    },
+    "status": {
+      "draft": "Rascunho",
+      "published": "Publicado",
+      "private": "Privado",
+      "public": "Público",
+      "featured": "Destacado",
+      "archived": "Arquivado"
+    },
+    "actions": {
+      "create": "Criar Álbum",
+      "edit": "Editar Álbum",
+      "delete": "Excluir Álbum",
+      "publish": "Publicar",
+      "unpublish": "Despublicar",
+      "addToAlbum": "Adicionar ao Álbum",
+      "removeFromAlbum": "Remover do Álbum"
+    },
+    "deleteDialog": {
+      "title": "Excluir Álbum",
+      "confirmMessage": "Tem certeza de que deseja excluir o álbum",
+      "warningMessage": "Esta ação não pode ser desfeita. Toda a mídia neste álbum também será excluída.",
+      "deleting": "Excluindo..."
+    },
+    "coverImageSelector": {
+      "coverImage": "Imagem de Capa",
+      "errorLoading": "Erro ao carregar mídia do álbum",
+      "unknownError": "Erro desconhecido",
+      "hideImages": "Ocultar Imagens",
+      "chooseFromAlbum": "Escolher do Álbum",
+      "currentCover": "Capa Atual",
+      "loadingImages": "Carregando imagens do álbum...",
+      "noImagesFound": "Nenhuma imagem encontrada neste álbum",
+      "coverSelected": "Imagem de capa selecionada",
+      "noCoverSelected": "Nenhuma capa selecionada",
+      "clearSelection": "Limpar Seleção",
+      "done": "Concluído"
+    },
+    "editAlbumDialog": {
+      "editAlbum": "Editar Álbum",
+      "title": "Título",
+      "titlePlaceholder": "Digite o título do álbum...",
+      "tags": "Tags",
+      "tagsPlaceholder": "Adicionar uma tag...",
+      "tagsHelpText": "Adicione tags para ajudar os usuários a descobrir seu álbum",
+      "privateAlbum": "Álbum Privado",
+      "proOnly": "Apenas Pro",
+      "privateDescription": "Tornar este álbum visível apenas para você",
+      "proPrivateDescription": "Álbuns privados estão disponíveis para usuários Pro",
+      "albumImages": "Imagens do Álbum",
+      "selectImagesDescription": "Selecione imagens para incluir neste álbum. Você pode selecionar de suas próprias imagens e imagens que adicionou.",
+      "noMediaAvailable": "Nenhuma mídia disponível",
+      "allMediaLoaded": "Toda a mídia carregada",
+      "cancel": "Cancelar",
+      "saving": "Salvando...",
+      "saveChanges": "Salvar Alterações"
+    }
+  },
+  "generate": {
+    "metaTitle": "Gerador de Imagens e Vídeos com IA - {siteName}",
+    "metaDescription": "Gere conteúdo adulto com IA com nossas ferramentas avançadas de geração de imagens e vídeos. Escolha entre múltiplos modelos, estilos e parâmetros.",
+    "keywords": {
+      "aiGeneration": "Geração de imagens e vídeos com IA",
+      "adultCreation": "criação de conteúdo adulto",
+      "customParameters": "parâmetros personalizados",
+      "loraModels": "Modelos LoRA",
+      "bulkGeneration": "geração em massa"
+    },
+    "labels": {
+      "prompt": "Prompt",
+      "negativePrompt": "Prompt Negativo",
+      "style": "Estilo",
+      "model": "Modelo",
+      "steps": "Passos",
+      "seed": "Semente",
+      "width": "Largura",
+      "height": "Altura",
+      "guidance": "Escala de Orientação",
+      "strength": "Força",
+      "scheduler": "Agendador",
+      "lora": "LoRA",
+      "controlnet": "ControlNet"
+    },
+    "actions": {
+      "generate": "Gerar",
+      "regenerate": "Regenerar",
+      "upscale": "Aumentar Escala",
+      "enhance": "Melhorar",
+      "variations": "Variações",
+      "randomize": "Aleatorizar",
+      "reset": "Redefinir",
+      "resetParameters": "Redefinir Parâmetros",
+      "presets": "Predefinições"
+    },
+    "features": {
+      "highResolution": "Alta Resolução",
+      "faceRestore": "Restauração de Rosto",
+      "backgroundRemoval": "Remoção de Fundo",
+      "stylization": "Estilização",
+      "inpainting": "Inpainting",
+      "outpainting": "Outpainting"
+    },
+    "example": {
+      "prompt": "Mulher bonita com cabelo longo",
+      "negativePrompt": "borrado, baixa qualidade, distorcido"
+    },
+    "status": {
+      "idle": "Pronto para gerar",
+      "queued": "Na fila",
+      "generating": "Gerando...",
+      "completed": "Concluído",
+      "failed": "Geração falhou",
+      "cancelled": "Cancelado"
+    },
+    "imageSizes": {
+      "square": "Quadrado (1024x1024)",
+      "landscape": "Paisagem (1536x1024)",
+      "portrait": "Retrato (1024x1536)",
+      "wide": "Largo (1792x1024)",
+      "tall": "Alto (1024x1792)",
+      "custom": "Tamanho Personalizado"
+    },
+    "loraModels": {
+      "leakedAmateur": "Estilo amador realista com iluminação natural",
+      "addDetailXL": "Detalhes aprimorados e nitidez para imagens de alta qualidade",
+      "harnessStraps": "Acessórios de couro incluindo harnesses, tiras e ligas",
+      "piercedNipples": "Joias corporais e piercings com efeitos metálicos realistas",
+      "bdsm": "Acessórios e cenários temáticos de bondage e BDSM",
+      "bodyTattoo": "Tatuagens corporais realistas e arte em tinta na pele",
+      "doggystyleAnal": "Posição anal doggystyle com realismo aprimorado",
+      "orgasmFace": "Expressões faciais realistas durante clímax e prazer",
+      "realDownblouse": "Downblouse natural e ângulos de visualização candid",
+      "sextoyDildo": "Brinquedos adultos e dildos com texturas realistas",
+      "bread": "Personagens antropomórficos com características híbridas animal-humano",
+      "nudify": "Melhores corpos nus frontais com anatomia aprimorada",
+      "dynaPose": "Poses estilo Instagram e aprimoramento de fotografia de modelo"
+    },
+    "promptPlaceholder": "4 garotas bonitas, 21, rosto detalhado, sem camisa em uma banheira de hidromassagem, magras, champanhe, chalé, nos Alpes franceses, neve, dia ensolarado, paisagem com outros chalés e montanhas",
+    "optimizePrompt": "Otimizar prompt",
+    "viewingOriginalPrompt": "Visualizando original",
+    "promptOptimized": "Prompt otimizado",
+    "stopOptimization": "Parar otimização",
+    "stopGeneration": "Parar geração",
+    "preparingGeneration": "Preparando geração...",
+    "image": "imagem",
+    "images": "imagens",
+    "loraSelection": "Seleção LoRA",
+    "automatic": "Automático",
+    "manual": "Manual",
+    "public": "Público",
+    "private": "Privado",
+    "generatedImagesPublic": "Imagens geradas serão públicas",
+    "generatedImagesPrivate": "Imagens geradas serão privadas",
+    "cfgScale": "Escala CFG",
+    "advancedControls": "Controles Avançados",
+    "fineTuneGeneration": "Ajuste fino da sua geração com parâmetros profissionais",
+    "imageSize": "Tamanho da Imagem",
+    "chooseDimensions": "Escolher dimensões",
+    "width": "Largura",
+    "height": "Altura",
+    "batchCount": "Contagem de Lote",
+    "generateMultiple": "Gerar múltiplas",
+    "visibility": "Visibilidade",
+    "publicOrPrivateContent": "Conteúdo público ou privado",
+    "advancedQualityDescription": "com personalização avançada e qualidade profissional",
+    "generationsRemaining": "gerações restantes",
+    "generationComplete": "Geração Concluída",
+    "generationLimitReached": "Limite de geração atingido",
+    "recentGenerations": "Gerações Recentes",
+    "detailedDescriptionTip": "Quanto mais detalhada sua descrição, melhores os resultados",
+    "steps": "Passos",
+    "inferenceSteps": "Passos de inferência",
+    "generationQuality": "Qualidade de geração",
+    "seed": "Semente",
+    "reproducibility": "Reprodutibilidade",
+    "useRandomSeed": "Use 0 para semente aleatória",
+    "loraModelsSection": "Modelos LoRA",
+    "enhanceYourStyle": "Aprimore seu estilo",
+    "automaticLoraDescription": "Selecione automaticamente modelos LoRA com base no seu prompt",
+    "manuallySelectLora": "Selecione e configure manualmente modelos LoRA",
+    "strength": "Força",
+    "value": "Valor",
+    "strengthAutoDescription": "A força será definida automaticamente com base em",
+    "modelsStrengths": "forças dos modelos",
+    "availableLoraModels": "Modelos LoRA Disponíveis",
+    "loraClickTip": "💡 Clique em qualquer modelo LoRA para alternar para seleção manual e configurá-lo",
+    "negativePrompt": "Prompt Negativo",
+    "whatToAvoid": "O que evitar",
+    "descriptiveTip": "Seja descritivo para melhores resultados",
+    "deletePrompt": "Limpar prompt",
+    "pro": "Pro",
+    "noImagesGenerated": "Nenhuma imagem gerada ainda",
+    "enterPromptToGenerate": "Digite um prompt e clique em gerar para criar imagens e vídeos incríveis com IA",
+    "generatedImages": "Imagens Geradas",
+    "quickSettings": "Configurações Rápidas",
+    "advancedSettings": "Configurações Avançadas",
+    "proFeature": "Recurso Pro",
+    "bulkGenerationProFeature": "Geração em massa é um recurso Pro",
+    "privateContentProFeature": "Conteúdo privado é um recurso Pro",
+    "upgradeToProForLora": "Atualize para Pro para usar modelos LoRA",
+    "plan": "Plano",
+    "customDimensions": "Dimensões Personalizadas",
+    "aspectRatio": "Proporção de Aspecto",
+    "presets": "Predefinições",
+    "square": "Quadrado",
+    "complete": "Concluído",
+    "total": "total",
+    "moreImagesInHistory": "mais imagens no histórico",
+    "enhanceWithAi": "Melhorar com IA",
+    "clear": "Limpar",
+    "reset": "Redefinir",
+    "randomSeed": "Semente Aleatória",
+    "generateImages": "Gerar {count} Imagens",
+    "generateSingle": "Gerar",
+    "aiImageGenerator": "Gerador de Imagens com IA",
+    "transformImagination": "Transforme sua imaginação em arte impressionante gerada por IA",
+    "imagesGenerated": "Imagens Geradas",
+    "describeVision": "Descreva Sua Visão",
+    "revertToOriginal": "Reverter para original",
+    "previous": "Anterior",
+    "thePrompt": "o prompt",
+    "upgradeToSelectLora": "Atualize para Pro para selecionar e configurar LoRA manualmente",
+    "upgradeToPro": "Atualizar para Pro",
+    "upgradeForBulk": "Atualize para gerar múltiplas imagens de uma vez",
+    "selected": "selecionado",
+    "auto": "Auto",
+    "randomSeedPlaceholder": "Digite semente (use 0 para aleatória)",
+    "negativePromptPlaceholder": "borrado, baixa qualidade, distorcido, anatomia ruim...",
+    "upgradeToSelectLoraModels": "Atualize para Pro para selecionar e configurar manualmente forças de modelos LoRA",
+    "strengthAutoDescriptionComplete": "A força será definida automaticamente com base no prompt",
+    "promptAdherence": "Adesão ao prompt",
+    "hidden": "Oculto",
+    "shown": "Mostrado",
+    "maintenanceModal": {
+      "title": "Aviso de Manutenção",
+      "message": "Nosso serviço de geração de imagens está passando por manutenção programada e voltará online em algumas horas. Pedimos desculpas pelo inconveniente e agradecemos sua paciência."
+    }
+  },
+  "pricing": {
+    "metaTitle": "Preços - {siteName} | Planos para Imagens e Vídeos Gerados por IA",
+    "metaDescription": "Escolha o plano perfeito para suas necessidades de geração de imagens e vídeos com IA. De inicial a ilimitado com recursos avançados como conteúdo privado e personalização.",
+    "keywords": {
+      "aiPricing": "Preços com IA",
+      "generatedPlans": "planos de conteúdo gerado",
+      "adultSubscription": "assinatura de conteúdo adulto com IA",
+      "generationPricing": "preços de geração de conteúdo",
+      "membership": "membresia com IA",
+      "adultPlans": "planos de IA adulta"
+    },
+    "title": "Escolha Seu Plano",
+    "subtitle": "Obtenha acesso ilimitado a conteúdo gerado por IA de alta qualidade",
+    "monthly": "Mensal",
+    "yearly": "Anual",
+    "saveUpTo": "Economize até 17%",
+    "year": "ano",
+    "month": "mês",
+    "saveVsMonthly": "Economize {percentage}% vs mensal",
+    "toggleBilling": "Alternar intervalo de cobrança",
+    "videoCredits": {
+      "badge": "Créditos de Vídeo",
+      "title": "Adicione créditos de vídeo extras quando precisar",
+      "description": "Esses são segundos que você compra para gerar vídeos. Ajuste o controle deslizante para escolher a quantidade exata que precisa.",
+      "sliderLabel": "Selecionar segundos",
+      "selectedSeconds": "{seconds} segundos",
+      "priceBreakdown": "Preço é {price} a cada {step} segundos",
+      "total": "Total {amount}",
+      "payButton": "Pagar {amount}",
+      "sliderAriaLabel": "Controle deslizante de créditos de vídeo",
+      "helper": "Use esses créditos para gerar vídeos premium com IA a qualquer momento."
+    },
+    "pay": "Pagar",
+    "processing": "Processando...",
+    "currentPlanMessage": "Este é o seu plano ativo atual.",
+    "plans": {
+      "free": "Gratuito",
+      "starter": "Inicial",
+      "pro": "Pro",
+      "unlimited": "Ilimitado",
+      "enterprise": "Empresarial"
+    },
+    "planDetails": {
+      "starter": {
+        "name": "Inicial",
+        "description": "Perfeito para usuários casuais explorando conteúdo gerado por IA",
+        "features": ["200 imagens por mês"]
+      },
+      "unlimited": {
+        "name": "Ilimitado",
+        "description": "Ideal para criadores de conteúdo regulares e entusiastas",
+        "badge": "Mais Popular",
+        "features": [
+          "Geração de imagens ilimitada",
+          "20 segundos de créditos de vídeo por mês"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Recursos avançados para usuários avançados e profissionais",
+        "badge": "Pro",
+        "features": [
+          "Geração de imagens ilimitada",
+          "Criação de conteúdo privado",
+          "Prompts negativos para melhor controle",
+          "Geração em massa de imagens",
+          "Tamanhos de imagem personalizados",
+          "Ativar e desativar modelos LoRA",
+          "Controle de escala CFG personalizado",
+          "Passos de inferência personalizados",
+          "Escolha sua própria semente",
+          "100 segundos de créditos de vídeo por mês"
+        ]
+      },
+      "lifetime": {
+        "name": "Vitalício",
+        "description": "Pagamento único para acesso eterno",
+        "badge": "Melhor Valor",
+        "features": [
+          "Todos os recursos Pro para sempre",
+          "Todas as atualizações futuras incluídas",
+          "Suporte prioritário",
+          "Acesso antecipado a novos recursos",
+          "Sem pagamentos recorrentes"
+        ]
+      }
+    },
+    "features": {
+      "generations": "Gerações",
+      "upscaling": "Aumento de Escala",
+      "privateAlbums": "Álbuns Privados",
+      "priorityQueue": "Fila Prioritária",
+      "commercialUse": "Uso Comercial",
+      "apiAccess": "Acesso à API",
+      "support": "Suporte",
+      "customModels": "Modelos Personalizados"
+    },
+    "badges": {
+      "popular": "Mais Popular",
+      "recommended": "Recomendado",
+      "bestValue": "Melhor Valor",
+      "new": "Novo",
+      "limited": "Tempo Limitado"
+    },
+    "descriptions": {
+      "perMonth": "por mês",
+      "perYear": "por ano",
+      "oneTime": "único",
+      "forever": "para sempre",
+      "included": "incluído",
+      "unlimited": "ilimitado",
+      "priority": "prioridade"
+    },
+    "faq": {
+      "title": "Perguntas Frequentes",
+      "questions": {
+        "changePlan": {
+          "question": "Posso alterar meu plano a qualquer momento?",
+          "answer": "Sim, você pode atualizar ou rebaixar seu plano a qualquer momento. As alterações serão prorrateadas e refletidas no seu próximo ciclo de cobrança."
+        },
+        "paymentMethods": {
+          "question": "Quais métodos de pagamento você aceita?",
+          "answer": "Atualmente aceitamos cartões de crédito e débito Visa e Mastercard para todos os planos de assinatura."
+        },
+        "freeTrial": {
+          "question": "Há um teste gratuito disponível?",
+          "answer": "Sim! Todos os usuários recebem 3 gerações de imagens gratuitas ao se registrar, mais uma imagem gratuita adicional todos os dias para explorar nossa plataforma."
+        },
+        "proFeatures": {
+          "question": "Quais recursos avançados o plano Pro oferece?",
+          "answer": "Usuários Pro desbloqueiam geração de imagens ilimitada, criação de conteúdo privado, prompts negativos para melhor controle, geração em massa de imagens, tamanhos de imagem personalizados, alternância de modelos LoRA, controle de escala CFG personalizado, passos de inferência personalizados, a capacidade de escolher sua própria semente e 100 segundos de créditos de vídeo por mês."
+        },
+        "contentAfterCancel": {
+          "question": "O que acontece com meu conteúdo se eu cancelar?",
+          "answer": "Seu conteúdo gerado permanecerá na sua conta. Você pode gerenciar e excluir seu conteúdo a qualquer momento, ou solicitar exclusão completa da conta através da nossa equipe de suporte."
+        },
+        "refunds": {
+          "question": "Você oferece reembolsos?",
+          "answer": "Não oferecemos reembolsos em planos de assinatura. No entanto, você pode cancelar sua assinatura a qualquer momento para evitar cobranças futuras."
+        },
+        "commercialUse": {
+          "question": "Posso usar conteúdo gerado comercialmente?",
+          "answer": "Sim, você tem direitos completos de uso comercial para todo o conteúdo gerado através da nossa plataforma em todos os planos de assinatura."
+        }
+      }
+    },
+    "cta": {
+      "title": "Pronto para Começar a Criar?",
+      "subtitle": "Junte-se a milhares de criadores que já estão usando o PornSpot.ai para dar vida à sua imaginação.",
+      "button": "Inicie Sua Jornada"
+    },
+    "loginRequiredTitle": "Login Necessário",
+    "loginRequiredMessage": "Você deve estar logado para comprar um plano ou créditos de vídeo. Por favor, entre ou crie uma conta.",
+    "comingSoon": {
+      "title": "Tempo Limitado: Recursos Pro para Todos!",
+      "message": "Por tempo limitado, todos os usuários registrados recebem recursos pro! Usuários que compraram planos pro anteriormente também podem gerar vídeos. Volte mais tarde para comprar créditos de vídeo ou um plano.",
+      "note": "Aproveite acesso ilimitado enquanto esta promoção durar."
+    }
+  },
+  "usage": {
+    "thisMonth": "este mês",
+    "today": "hoje",
+    "imagesGenerated": "Imagens geradas {period}",
+    "unlimitedUsage": "✨ Uso ilimitado",
+    "usage": "Uso",
+    "plan": "Plano {plan}",
+    "dailyLimitText": "Limite diário",
+    "monthlyLimitText": "Limite mensal",
+    "dailyLimit": {
+      "title": "Limite Diário",
+      "remaining": "Restante hoje",
+      "used": "Usado hoje",
+      "resets": "Redefine em",
+      "exceeded": "Limite diário excedido"
+    },
+    "monthlyLimit": {
+      "title": "Limite Mensal",
+      "remaining": "Restante este mês",
+      "used": "Usado este mês",
+      "resets": "Redefine em",
+      "exceeded": "Limite mensal excedido"
+    }
+  },
+  "permissions": {
+    "imagesToday": {
+      "canGenerate": "Você pode gerar {count} imagens a mais hoje",
+      "limitReached": "Você atingiu seu limite diário de geração",
+      "upgradePrompt": "Atualize seu plano para mais gerações"
+    }
+  },
+  "placeholders": {
+    "noResults": "Nenhum resultado encontrado",
+    "noAlbums": "Nenhum álbum encontrado",
+    "noImages": "Nenhuma imagem encontrada",
+    "createFirstAlbum": "Crie seu primeiro álbum para começar!",
+    "noBookmarks": "Nenhum marcador ainda",
+    "noLikes": "Nenhuma curtida ainda",
+    "noMedia": "Nenhuma mídia encontrada",
+    "noUsers": "Nenhum usuário encontrado",
+    "noActivity": "Nenhuma atividade recente",
+    "emptyState": "Nada aqui ainda",
+    "comingSoon": "Em breve",
+    "underMaintenance": "Em manutenção",
+    "searchPlaceholder": "Pesquisar...",
+    "enterPrompt": "Digite seu prompt aqui...",
+    "selectOption": "Selecionar uma opção",
+    "chooseFile": "Escolher um arquivo",
+    "noDataAvailable": "Nenhum dado disponível",
+    "noItems": "Nenhum item"
+  },
+  "contentGrid": {
+    "noContentsTitle": "Nenhum conteúdo encontrado",
+    "noContentsDescription": "Não há conteúdo público para exibir no momento.",
+    "loadingMore": "Carregando mais conteúdo...",
+    "noMoreToLoad": "Não há mais conteúdo para carregar",
+    "errorLoading": "Erro ao carregar mais conteúdo:",
+    "tryAgain": "Tentar Novamente"
+  },
+  "album": {
+    "notFound": "Álbum Não Encontrado",
+    "defaultDescription": "Explore este álbum gerado por IA: {title}",
+    "metaTitle": "{title} - Álbum Gerado por IA no {siteName}",
+    "metaDescription": "{description}. Crie suas próprias imagens e vídeos adultos personalizados com {siteName}.",
+    "addToAlbum": "Adicionar ao Álbum",
+    "createAlbum": "Criar Álbum",
+    "createNewAlbum": "Criar Novo Álbum",
+    "createAndAdd": "Criar & Adicionar",
+    "addToSelected": "Adicionar aos Selecionados",
+    "addAllToSelected": "Adicionar Todos aos Selecionados",
+    "selectExistingAlbums": "Selecionar álbuns existentes",
+    "noAlbumsYet": "Nenhum álbum criado ainda",
+    "alreadyAdded": "Já adicionado",
+    "partiallyAdded": "Parcialmente adicionado",
+    "title": "Título",
+    "enterTitle": "Digite o título do álbum",
+    "tags": "Tags",
+    "enterTags": "Digite tags",
+    "separateWithCommas": "Separe tags com vírgulas",
+    "makePublic": "Tornar Público",
+    "useAsCover": "Usar como Imagem de Capa",
+    "useFirstAsCover": "Usar a Primeira como Imagem de Capa",
+    "private": "Privado",
+    "image": "imagem",
+    "images": "imagens",
+    "keywords": {
+      "aiAlbum": "Álbum com IA",
+      "generatedContent": "conteúdo adulto gerado",
+      "images": "Imagens e vídeos com IA",
+      "videos": "Vídeos com IA"
+    }
+  },
+  "terms": {
+    "metaTitle": "Termos de Serviço - {siteName}",
+    "metaDescription": "Leia nossos termos de serviço e condições para usar a plataforma de conteúdo adulto gerado por IA do PornSpot.ai.",
+    "title": "Termos de Serviço",
+    "lastUpdated": "Última atualização: {date}",
+    "introduction": {
+      "title": "Introdução",
+      "content": "Bem-vindo ao PornSpot.ai, operado pela Fabularius AI SAS, uma empresa francesa registrada em Annecy, França (Reg number: 943 919 423 R.C.S. Annecy), localizada em 2 avenue gambetta, 74000, Annecy, França. Estes Termos de Serviço (\"Termos\") regem o uso do nosso site e serviços. Ao acessar ou usar nossa plataforma, você concorda em estar vinculado a estes Termos."
+    },
+    "acceptance": {
+      "title": "Aceitação dos Termos",
+      "content": "Ao criar uma conta ou usar nossos serviços, você confirma que tem pelo menos 18 anos e tem capacidade legal para entrar nestes Termos. Você concorda em cumprir todas as leis e regulamentos aplicáveis."
+    },
+    "services": {
+      "title": "Nossos Serviços",
+      "content": "O PornSpot.ai fornece serviços de geração de conteúdo com IA para entretenimento adulto. Nossa plataforma permite que os usuários criem, visualizem e gerenciem conteúdo adulto gerado por IA com base em seu plano de assinatura."
+    },
+    "userAccounts": {
+      "title": "Contas de Usuário",
+      "content": "Você é responsável por manter a confidencialidade das credenciais da sua conta. Você concorda em nos notificar imediatamente sobre qualquer uso não autorizado da sua conta. Reservamo-nos o direito de suspender ou encerrar contas que violem estes Termos."
+    },
+    "subscriptions": {
+      "title": "Assinaturas e Pagamentos",
+      "content": "Nossos serviços estão disponíveis através de vários planos de assinatura. O pagamento é processado de forma segura através dos nossos provedores de pagamento. As assinaturas renovam automaticamente, a menos que canceladas. Reembolsos são fornecidos de acordo com nossa política de reembolso."
+    },
+    "automatedUsage": {
+      "title": "Restrições de Uso Automatizado",
+      "content": "O uso de software, bots, scripts ou qualquer forma de automação para gerar imagens ou acessar nossos serviços de geração de IA é estritamente proibido. Nossos planos de assinatura são projetados apenas para uso humano razoável. Qualquer tentativa de automatizar a geração de imagens, processamento em massa ou contornar limitações de uso resultará em suspensão ou encerramento imediato da conta. Os usuários devem interagir com nossa plataforma manualmente e dentro dos padrões de uso pretendidos de seu plano de assinatura."
+    },
+    "commercialUse": {
+      "title": "Restrições de Uso Comercial",
+      "content": "Apenas imagens geradas pelo próprio usuário através de sua própria conta podem ser usadas para fins comerciais. É estritamente proibido aos usuários usar, distribuir, vender ou explorar comercialmente imagens geradas por outros usuários na plataforma. Cada usuário retém direitos comerciais exclusivamente para seu próprio conteúdo gerado. Violação desta política pode resultar em ação legal e encerramento imediato da conta."
+    },
+    "websiteScraping": {
+      "title": "Proibição de Scraping de Site e Descoberta Automatizada",
+      "content": "Scraping, crawling ou extração automatizada de qualquer conteúdo, dados ou informação do nosso site é estritamente proibida. Isso inclui, mas não se limita a: download automatizado de imagens, coleta sistemática de dados de usuários, descoberta ou indexação automatizada de conteúdo do site e qualquer forma de interação automatizada com nosso site além do uso normal do navegador. Tais atividades podem resultar em bloqueio imediato de IP, ação legal e encerramento de conta."
+    },
+    "contentPolicy": {
+      "title": "Política de Conteúdo",
+      "content": "Todo o conteúdo gerado através da nossa plataforma deve cumprir as leis aplicáveis. É proibido aos usuários criar conteúdo envolvendo menores, não consentimento ou atividades ilegais. Reservamo-nos o direito de remover conteúdo que viole nossas políticas."
+    },
+    "intellectualProperty": {
+      "title": "Propriedade Intelectual",
+      "content": "Os usuários retêm direitos sobre o conteúdo que geram através da nossa plataforma. No entanto, ao usar nossos serviços, você nos concede uma licença para exibir, armazenar e processar seu conteúdo conforme necessário para fornecer nossos serviços."
+    },
+    "privacy": {
+      "title": "Privacidade e Proteção de Dados",
+      "content": "Sua privacidade é importante para nós. Por favor, revise nossa Política de Privacidade para entender como coletamos, usamos e protegemos suas informações pessoais. Cumprimos as leis aplicáveis de proteção de dados."
+    },
+    "prohibited": {
+      "title": "Usos Proibidos",
+      "content": "Você não pode usar nossos serviços para fins ilegais, assediar outros, distribuir malware ou violar direitos de outros. Violação dessas restrições pode resultar em encerramento de conta."
+    },
+    "termination": {
+      "title": "Encerramento",
+      "content": "Podemos encerrar ou suspender sua conta a qualquer momento por violação destes Termos. Ao encerrar, seu direito de usar nossos serviços cessa imediatamente. A retenção de dados é regida pela nossa Política de Privacidade."
+    },
+    "disclaimer": {
+      "title": "Isenção de Garantias",
+      "content": "Nossos serviços são fornecidos \"como estão\" sem garantias de qualquer tipo. Não garantimos serviço ininterrupto, operação sem erros ou resultados específicos da nossa tecnologia de geração de IA."
+    },
+    "limitation": {
+      "title": "Limitação de Responsabilidade",
+      "content": "Na medida máxima permitida por lei, não seremos responsáveis por quaisquer danos indiretos, incidentais, especiais ou consequenciais decorrentes do uso dos nossos serviços."
+    },
+    "governing": {
+      "title": "Lei Aplicável",
+      "content": "Estes Termos são regidos e interpretados de acordo com as leis aplicáveis. Qualquer disputa será resolvida por arbitragem vinculante ou em tribunais de jurisdição competente."
+    },
+    "changes": {
+      "title": "Alterações nos Termos",
+      "content": "Reservamo-nos o direito de modificar estes Termos a qualquer momento. Notificaremos os usuários de alterações materiais via e-mail ou notificações da plataforma. O uso continuado após alterações constitui aceitação dos novos Termos."
+    },
+    "contact": {
+      "title": "Informações de Contato",
+      "content": "Se você tiver perguntas sobre estes Termos, por favor, contate-nos através dos nossos canais de suporte ou nas informações de contato fornecidas em nosso site. Você pode alcançar a Fabularius AI SAS em: 2 avenue gambetta, 74000, Annecy, França. Reg number: 943 919 423 R.C.S. Annecy."
+    },
+    "ui": {
+      "tableOfContents": "Índice",
+      "questionsTitle": "Perguntas sobre nossos Termos?",
+      "questionsDescription": "Se você tiver alguma pergunta sobre estes Termos de Serviço, não hesite em nos contatar.",
+      "contactSupport": "Contato com Suporte",
+      "privacyPolicy": "Política de Privacidade"
+    }
+  },
+  "privacy": {
+    "metaTitle": "Política de Privacidade - {siteName}",
+    "metaDescription": "Leia nossa política de privacidade para entender como o PornSpot.ai coleta, usa e protege suas informações pessoais.",
+    "title": "Política de Privacidade",
+    "lastUpdated": "Última atualização: {date}",
+    "introduction": {
+      "title": "Introdução",
+      "content": "No PornSpot.ai, operado pela Fabularius AI SAS, uma empresa francesa registrada em Annecy, França (Reg number: 943 919 423 R.C.S. Annecy), localizada em 2 avenue gambetta, 74000, Annecy, França, levamos sua privacidade a sério. Esta Política de Privacidade explica como coletamos, usamos, divulgamos e protegemos suas informações ao usar nossa plataforma de geração de conteúdo adulto com IA."
+    },
+    "informationWe": {
+      "title": "Informações que Coletamos",
+      "content": "Coletamos informações diretamente de você quando você se registra ou usa nossos formulários de geração em nossos servidores. Isso inclui: endereço de e-mail, nome de usuário, informações de assinatura, preferências de geração de conteúdo, prompts de IA que você envia e informações de pagamento (processadas de forma segura por provedores terceiros). Não usamos rastreadores avançados além da funcionalidade essencial. A coleta de dados ocorre diretamente em nossos servidores AWS quando você se registra ou usa nossos recursos de geração de imagens."
+    },
+    "howWe": {
+      "title": "Como Usamos Suas Informações",
+      "content": "Usamos as informações que coletamos para fornecer, manter e melhorar nossos serviços, processar transações, enviar avisos técnicos e mensagens de suporte e comunicar com você sobre produtos, serviços e ofertas promocionais."
+    },
+    "informationSharing": {
+      "title": "Compartilhamento e Divulgação de Informações",
+      "content": "Não vendemos, trocamos ou compartilhamos suas informações pessoais com terceiros. Nosso único serviço terceirizado é o SendGrid para entrega de e-mails, ao qual enviamos apenas endereços de e-mail e nomes de usuário - nenhum outro dado pessoal é compartilhado. O SendGrid pode reter logs de endereços de e-mail usados para fins de entrega. Seu conteúdo gerado, prompts e outras informações pessoais permanecem estritamente confidenciais dentro da nossa infraestrutura AWS."
+    },
+    "dataStorage": {
+      "title": "Armazenamento e Segurança de Dados",
+      "content": "Seus dados são armazenados de forma segura em servidores AWS us-east-1 com criptografia TLS 1.3 para todos os dados em trânsito. Usamos criptografia bcrypt para senhas de usuários (mínimo 12 rodadas com sal único) para usuários que se registram diretamente. Usuários que entram via Login do Google não compartilham senhas conosco. Todo o conteúdo NSFW sensível e prompts são armazenados de forma segura dentro da nossa infraestrutura AWS. Implementamos moderação baseada em IA automatizada (LLM-as-a-judge) e revisão manual de conteúdo para todos os prompts de usuários e imagens geradas."
+    },
+    "cookies": {
+      "title": "Cookies e Tecnologias de Rastreamento",
+      "content": "Usamos dois tipos de cookies: (1) Cookies essenciais para manter sua configuração de idioma preferida para exibir conteúdo adequadamente, e (2) Cookies de análise via Google Analytics para entender padrões de uso do site. Não usamos cookies de publicidade ou rastreamento além dessas funções essenciais. Você pode gerenciar preferências de cookies nas configurações do seu navegador, embora desabilitar cookies essenciais possa afetar a funcionalidade do site."
+    },
+    "dataRetention": {
+      "title": "Retenção de Dados",
+      "content": "Imagens não salvas pelos usuários são excluídas instantaneamente e permanentemente, juntamente com seus prompts e metadados associados. Para conteúdo salvo, retemos seus dados indefinidamente para garantir qualidade e continuidade do serviço. Isso inclui: prompts de usuários (mantidos indefinidamente para melhorar nossos serviços), imagens e álbuns gerados (preservados para manter sua biblioteca), estatísticas de uso (para análises internas) e informações de conta (para fornecer serviço contínuo). Os dados são retidos para garantir que sua biblioteca de imagens e prompts nunca sejam perdidos. Você pode solicitar exclusão de conta contatando support@pornspot.ai, embora isso resulte em perda permanente de todo o conteúdo gerado."
+    },
+    "yourRights": {
+      "title": "Seus Direitos de Privacidade",
+      "content": "Dependendo da sua localização, você pode ter certos direitos em relação às suas informações pessoais, incluindo o direito de acessar, atualizar ou excluir suas informações. Você também pode ter o direito de restringir ou opor-se a certos processamentos de seus dados. Fornecemos ferramentas de painel na sua conta de usuário que permitem acessar, visualizar e excluir permanentemente seus dados instantaneamente a seu critério."
+    },
+    "childrenPrivacy": {
+      "title": "Privacidade Infantil",
+      "content": "Nosso serviço não é direcionado a indivíduos menores de 18 anos. Não coletamos conscientemente informações pessoais de crianças menores de 18 anos. Se nos tornarmos cientes de que coletamos informações pessoais de uma criança menor de 18 anos, tomaremos medidas para excluir tais informações."
+    },
+    "internationalTransfers": {
+      "title": "Transferências Internacionais de Dados",
+      "content": "Somos uma empresa francesa que armazena todos os dados diretamente em servidores AWS us-east-1 nos Estados Unidos. Seus dados não saem da infraestrutura dos Estados Unidos. Não há transferências internacionais adicionais além do hospedagem inicial em regiões AWS dos EUA. Este arranjo garante padrões consistentes de proteção de dados sob protocolos de segurança AWS."
+    },
+    "gdprCompliance": {
+      "title": "Conformidade com GDPR",
+      "content": "Se você for residente da Área Econômica Europeia (EEA), você tem certos direitos de proteção de dados. Nosso objetivo é tomar medidas razoáveis para permitir que você corrija, emende, exclua ou limite o uso de suas informações pessoais."
+    },
+    "californiaCcpa": {
+      "title": "Direitos de Privacidade da Califórnia (CCPA)",
+      "content": "Se você for residente da Califórnia, você tem direitos específicos em relação às suas informações pessoais, incluindo o direito de saber quais informações pessoais coletamos, usamos, divulgamos e vendemos, e o direito de excluir suas informações pessoais."
+    },
+    "thirdPartyLinks": {
+      "title": "Links de Terceiros",
+      "content": "Nosso serviço pode conter links para sites ou serviços de terceiros. Não somos responsáveis pelas práticas de privacidade desses terceiros. Encorajamos você a ler suas políticas de privacidade antes de fornecer qualquer informação. Você pode revisar as políticas de privacidade de nossos serviços de terceiros: Política de Privacidade do SendGrid (https://www.twilio.com/en-us/legal/privacy) e Política de Privacidade do Login do Google (https://policies.google.com/privacy)."
+    },
+    "policyChanges": {
+      "title": "Alterações nesta Política de Privacidade",
+      "content": "Podemos atualizar esta Política de Privacidade de tempos em tempos. Notificaremos você de quaisquer alterações publicando a nova Política de Privacidade nesta página e atualizando a data 'Última atualização'. As alterações entram em vigor imediatamente após a publicação."
+    },
+    "contact": {
+      "title": "Contate-nos",
+      "content": "Se você tiver alguma pergunta sobre esta Política de Privacidade, solicitações GDPR ou preocupações com proteção de dados, por favor, contate-nos em support@pornspot.ai ou através dos nossos canais de suporte. Você pode alcançar a Fabularius AI SAS em: 2 avenue gambetta, 74000, Annecy, França. Reg number: 943 919 423 R.C.S. Annecy. Para assuntos de GDPR e proteção de dados, nosso Oficial de Proteção de Dados (DPO) é Daniel Febrero, 2 avenue Gambetta, 74000 Annecy, França. Para reclamações e solicitações do tipo GDPR, envie um e-mail diretamente para support@pornspot.ai."
+    },
+    "aiEthics": {
+      "title": "IA e Ética",
+      "content": "De acordo com padrões emergentes (UNESCO, AI Act, ISO/IEC 42001): Transparência - Documentamos processos de IA que afetam seus dados, acessíveis sob solicitação. Não discriminação - Nossos algoritmos são auditados para minimizar viés (ex.: viés de gênero ou cultural na geração de conteúdo). Conteúdo sensível - Prompts NSFW e imagens são isolados e nunca reutilizados sem consentimento explícito. Proteção de dados - Não treinamos modelos de IA com dados de usuários. Riscos específicos NSFW do AI Act: Prevenimos reprodução de celebridades e criação de deepfakes proibindo envios de imagens e filtrando prompts para qualquer referência a celebridades."
+    },
+    "ukGdpr": {
+      "title": "Conformidade com UK GDPR",
+      "content": "Para residentes do Reino Unido, cumprimos a implementação do GDPR do Reino Unido (Data Protection Act 2018). Você tem o direito de acessar, retificar, apagar, restringir o processamento, portabilidade de dados e opor-se ao processamento de seus dados pessoais. Você também pode retirar o consentimento a qualquer momento. Para exercer esses direitos ou registrar uma reclamação, contate-nos em support@pornspot.ai ou registre uma reclamação com o Escritório do Comissário de Informação do Reino Unido (ICO)."
+    },
+    "ui": {
+      "tableOfContents": "Índice",
+      "questionsTitle": "Perguntas sobre nossa Política de Privacidade?",
+      "questionsDescription": "Se você tiver alguma pergunta sobre como lidamos com seus dados, não hesite em nos contatar.",
+      "contactSupport": "Contato com Suporte",
+      "termsOfService": "Termos de Serviço"
+    }
+  },
+  "albumDetail": {
+    "goBack": "Voltar",
+    "item": "item",
+    "items": "itens",
+    "share": "Compartilhar",
+    "copyLink": "Copiar link",
+    "comments": "Comentários",
+    "downloadAlbum": "Baixar Álbum"
+  },
+  "discover": {
+    "filteringByTag": "Filtrando por tag:",
+    "clearFilter": "Limpar filtro",
+    "discover": "Descobrir",
+    "popular": "Popular",
+    "following": "Seguindo"
+  },
+  "mediaDetail": {
+    "goBack": "Voltar",
+    "share": "Compartilhar",
+    "copyLink": "Copiar link",
+    "mediaDetails": "Detalhes da Mídia",
+    "prompts": "Prompts",
+    "prompt": "Prompt",
+    "negativePrompt": "Prompt Negativo",
+    "loraModels": "Modelos LoRA",
+    "loraHighNoise": "Ruído Alto",
+    "loraLowNoise": "Ruído Baixo",
+    "otherControls": "Outros Controles",
+    "relatedImages": "Imagens Relacionadas",
+    "inAlbums": "Em Álbuns",
+    "comments": "Comentários",
+    "originalMedia": "Mídia Original",
+    "viewOriginal": "Ver Original"
+  },
+  "userPlan": {
+    "anonymous": "Anônimo",
+    "free": "Gratuito",
+    "starter": "Inicial",
+    "unlimited": "Ilimitado",
+    "pro": "Pro"
+  },
+  "errorBoundary": {
+    "appLevel": {
+      "title": "Algo deu errado",
+      "description": "Encontramos um erro inesperado. Por favor, tente atualizar a página ou volte para a página inicial.",
+      "tryAgain": "Tentar Novamente",
+      "goToHomepage": "Ir para Página Inicial"
+    },
+    "pageLevel": {
+      "title": "Erro de Página",
+      "description": "Esta página encontrou um erro e não pôde carregar corretamente.",
+      "retry": "Tentar Novamente",
+      "goBack": "Voltar"
+    },
+    "sectionLevel": {
+      "title": "Erro de Seção",
+      "description": "Esta seção não pôde carregar corretamente.",
+      "retrySection": "Tentar Seção Novamente"
+    },
+    "componentLevel": {
+      "title": "Erro de Componente",
+      "description": "Este componente falhou ao renderizar.",
+      "retry": "Tentar Novamente"
+    }
+  },
+  "invitationWall": {
+    "title": "Acesso à Beta Privada",
+    "betaUntilDate": "🌟 Até 30 de setembro, o PornSpot está em beta privada",
+    "allUsersGetPro": "✨ Todos os usuários registrados recebem",
+    "fullProFeatures": "recursos Pro completos",
+    "includingUnlimited": "🚀 Incluindo",
+    "unlimitedImageGeneration": "geração de imagens ilimitada",
+    "enterCodeLabel": "Digite seu código de convite",
+    "codePlaceholder": "Seu código mágico...",
+    "codeRequired": "Código de convite é obrigatório",
+    "invalidCodeError": "Código de convite inválido",
+    "validationError": "Não foi possível validar o código de convite. Por favor, tente novamente.",
+    "validatingButton": "Validando...",
+    "enterPortalButton": "✨ Entrar no Portal Mágico",
+    "needCodeText": "Precisa de um código de convite? Junte-se ao nosso Fabularius.ai",
+    "discordLink": "Discord",
+    "orText": "ou",
+    "redditLink": "Reddit"
+  },
+  "pornspotcoin": {
+    "meta": {
+      "title": "PornSpotCoin - {siteName}",
+      "description": "Acompanhe seus ganhos PSC, taxas de câmbio e gerencie suas recompensas da plataforma de conteúdo gerado por IA."
+    },
+    "page": {
+      "yourBalance": "Seu Saldo",
+      "earnedToday": "Ganho Hoje",
+      "live": "Ao Vivo",
+      "earnPscRates": "Taxas de Ganho PSC",
+      "earnPscRatesSubtitle": "Ganhe PSC enquanto seu conteúdo recebe visualizações, curtidas, comentários e marcadores",
+      "upgradeWithPsc": "Atualizar com PSC",
+      "upgradeDescription": "Use suas moedas ganhas para desbloquear recursos premium",
+      "view": "Visualização",
+      "like": "Curtida",
+      "comment": "Comentário",
+      "save": "Salvar",
+      "profile": "Perfil",
+      "pscAction": "PSC/ação",
+      "oneTime": "Único",
+      "perMonth": "Por {duration}",
+      "usdValue": "Valor USD",
+      "moreFeatures": "+ {count} mais recursos",
+      "upgradeTo": "Atualizar para {planName}",
+      "yourCurrentPlan": "Seu Plano Atual",
+      "needMorePsc": "Precisa de {amount} PSC a mais",
+      "totalEarned": "Total Ganho",
+      "today": "Hoje",
+      "totalSpent": "Total Gasto",
+      "pscLifetime": "PSC vitalício",
+      "pscToday": "PSC hoje",
+      "pscInvested": "PSC investido",
+      "currentPlan": "Plano Atual",
+      "oneTimePayment": "🎯 Pagamento único",
+      "perMonthSchedule": "📅 Por {duration}",
+      "confirmPurchaseTitle": "Confirmar Compra",
+      "confirmPurchaseMessage": "Comprar plano {planName} por {price} PSC? Isso desbloqueará todos os recursos do plano imediatamente.",
+      "completePurchase": "Completar Compra"
+    },
+    "dashboard": {
+      "title": "Painel PornSpotCoin",
+      "description": "Acompanhe seus ganhos PSC, taxas de pagamento e oportunidades de câmbio",
+      "liveData": "Dados Ao Vivo",
+      "loadingData": "Carregando dados PSC...",
+      "errorTitle": "Erro ao Carregar Dados PSC",
+      "unknownError": "Erro desconhecido ocorreu",
+      "tryAgain": "Tentar Novamente"
+    },
+    "public": {
+      "title": "PornSpotCoin",
+      "tokenDescription": "É um token recompensado por conteúdo popular e visualizações de perfil.",
+      "membershipDescription": "Use-o para comprar membresias no pornspot.ai.",
+      "starterMembership": "Membresia inicial: 9 PSC por 1 mês.",
+      "exploreMemberships": "Explorar membresias",
+      "howItWorks": {
+        "create": {
+          "title": "Criar",
+          "description": "Gere conteúdo de alta qualidade que os usuários amam."
+        },
+        "earn": {
+          "title": "Ganhar",
+          "description": "Ganhe PSC enquanto seu conteúdo recebe visualizações, curtidas, comentários e marcadores."
+        },
+        "use": {
+          "title": "Usar",
+          "description": "Resgate PSC por membresias. Inicial é apenas 9 PSC/mês."
+        }
+      },
+      "exchange": {
+        "membershipExchange": "Preços de Membresia PSC",
+        "starterRate": "Membresia inicial = 9 PSC / mês",
+        "seePlans": "Ver planos"
+      }
+    },
+    "balance": {
+      "currentBalance": "Saldo Atual",
+      "totalEarned": "Total Ganho",
+      "todayEarnings": "Ganhos de Hoje",
+      "recentActivity": "Atividade recente",
+      "vsYesterday": "vs ontem",
+      "usd": "USD"
+    },
+    "rates": {
+      "title": "Taxas de Pagamento Ao Vivo",
+      "description": "Recompensas PSC atuais por ação",
+      "views": "Visualizações",
+      "likes": "Curtidas",
+      "comments": "Comentários",
+      "bookmarks": "Marcadores",
+      "profileViews": "Visualizações de Perfil",
+      "perAction": "por ação"
+    },
+    "exchange": {
+      "title": "Taxas de Câmbio PSC",
+      "description": "Taxas de câmbio atuais para assinaturas premium",
+      "affordable": "Acessível",
+      "purchase": "Comprar",
+      "insufficientPsc": "PSC insuficiente",
+      "plans": {
+        "starter": "inicial",
+        "unlimited": "ilimitado",
+        "pro": "pro",
+        "lifetime": "vitalício"
+      },
+      "duration": {
+        "month": "1 mês",
+        "lifetime": "Vitalício"
+      }
+    },
+    "purchase": {
+      "currentPlan": "Plano atual",
+      "autoRenewSuffix": " Renovação automática está atualmente ativada.",
+      "titles": {
+        "extend": "Renovar seu plano {plan}?",
+        "upgrade": "Atualizar para o plano {plan}?",
+        "downgrade": "Mudar para o plano {plan}?",
+        "activate": "Ativar o plano {plan}?"
+      },
+      "messages": {
+        "extend": "Você está renovando seu plano {plan} por {cost} PSC.{autoRenewSuffix} Seus benefícios atuais continuarão sem interrupção.",
+        "upgrade": "Você está atualizando de {currentPlan} para {plan} por {cost} PSC.{autoRenewSuffix} O novo plano ativa imediatamente.",
+        "downgrade": "Você está mudando de {currentPlan} para {plan} por {cost} PSC.{autoRenewSuffix} Seu plano atual terminará imediatamente.",
+        "activate": "Você está ativando o plano {plan} por {cost} PSC.{autoRenewSuffix} Sua membresia começa imediatamente."
+      }
+    },
+    "insights": {
+      "title": "Insights de Desempenho Semanal",
+      "weeklyPayoutGrowth": "Crescimento Semanal de Pagamentos",
+      "earningTips": "Dicas de Ganho",
+      "tip1": "Publique conteúdo durante horas de baixa atividade para taxas de pagamento mais altas",
+      "tip2": "Engaje cedo no dia quando os orçamentos diários estão cheios",
+      "tip3": "Conteúdo de qualidade recebe mais engajamento e recompensas"
+    },
+    "transactions": {
+      "meta": {
+        "title": "Transações PornSpotCoin - {siteName}",
+        "description": "Visualize seu histórico detalhado de transações PSC, divisão de ganhos e registros de pagamento da plataforma de conteúdo IA."
+      },
+      "title": "Transações Recentes",
+      "viewAll": "Ver Todas",
+      "noTransactions": "Nenhuma transação recente",
+      "page": {
+        "title": "Histórico de Transações",
+        "description": "Visualize todas as suas transações e ganhos PornSpotCoin",
+        "backToPornSpotCoin": "Voltar para PornSpotCoin",
+        "loadingMore": "Carregando mais transações...",
+        "loadMore": "Carregar Mais",
+        "tryAgain": "Tentar Novamente",
+        "errorLoading": "Erro ao carregar transações:",
+        "unknownError": "Erro desconhecido"
+      },
+      "summary": {
+        "totalEarned": "Total Ganho",
+        "totalTransactions": "Total de Transações",
+        "avgPerTransaction": "Média por Transação",
+        "completed": "Concluído"
+      },
+      "filters": {
+        "title": "Filtros",
+        "clear": "Limpar",
+        "transactionType": "Tipo de Transação",
+        "status": "Status",
+        "fromDate": "De Data",
+        "toDate": "Para Data",
+        "allTypes": "Todos os Tipos",
+        "allStatuses": "Todos os Status"
+      },
+      "status": {
+        "completed": "Concluído",
+        "pending": "Pendente",
+        "failed": "Falhou",
+        "cancelled": "Cancelado"
+      },
+      "types": {
+        "reward_view": "Visualização",
+        "reward_like": "Curtida",
+        "reward_comment": "Comentário",
+        "reward_bookmark": "Marcador",
+        "reward_profile_view": "Visualização de Perfil"
+      },
+      "list": {
+        "transactionsCount": "Transações ({count})",
+        "rate": "Taxa:",
+        "noTransactionsFound": "Nenhuma transação encontrada",
+        "noTransactionsWithFilters": "Tente ajustar seus filtros para ver mais transações.",
+        "noTransactionsGeneral": "Comece a interagir com conteúdo para ganhar PornSpotCoin!",
+        "clearFilters": "Limpar Filtros"
+      }
+    }
+  },
+  "ourFriends": {
+    "metaTitle": "Nossos Amigos - {siteName}",
+    "metaDescription": "Descubra nossas plataformas e serviços parceiros recomendados para geração e entretenimento de conteúdo adulto.",
+    "title": "Nossos Amigos",
+    "subtitle": "Explore nossos parceiros confiáveis e descubra plataformas incríveis que compartilham nosso compromisso com conteúdo adulto de qualidade.",
+    "friends": {
+      "fabularius": {
+        "description": "Crie personagens NSFW, gere imagens, faça histórias e jogue jogos no Fabularius!"
+      },
+      "slykiwi": {
+        "description": "Criadores do Fansly usam nossa análise de tags para aumentar visualizações, alcance e gorjetas"
+      },
+      "byof": {
+        "description": "Gerador Premium de Imagens e Vídeos NSFW com IA Fotorrealista"
+      }
+    },
+    "additionalInfo": "Essas são plataformas que recomendamos e confiamos. Alguns links podem conter códigos de afiliado que ajudam a apoiar nossa plataforma."
+  },
+  "ageGate": {
+    "modal": {
+      "title": "Verificação de Idade",
+      "description": "Este site contém conteúdo adulto. Você deve ter pelo menos 18 anos (ou a maioridade em sua jurisdição) para entrar. Ao clicar em Continuar, você confirma que tem 18+.",
+      "continueButton": "Tenho 18+ Continuar",
+      "denyButton": "Tenho menos de 18",
+      "disclaimer": "Ao continuar, você também concorda com nossos Termos e reconhece este aviso. Sua confirmação é armazenada em um cookie por 1 ano."
+    },
+    "kidView": {
+      "title": "Volte Mais Tarde!",
+      "description": "Este conteúdo é apenas para adultos. Por favor, volte quando for velho o suficiente.",
+      "backButton": "Voltar"
+    }
+  },
+  "i2v": {
+    "meta": {
+      "title": "Imagem para Vídeo - PornSpot.ai",
+      "description": "Transforme suas imagens estáticas em vídeos dinâmicos com nossa tecnologia avançada de IA. Converta fotos em vídeos animados de alta qualidade com configurações personalizáveis, efeitos de movimento e capacidades profissionais de geração de vídeo."
+    },
+    "creditsDisplay": {
+      "availableCredits": "Créditos Disponíveis",
+      "useCreditsToGenerate": "Use créditos para gerar vídeos",
+      "buyCredits": "Comprar Créditos"
+    },
+    "pageContent": {
+      "errors": {
+        "noMediaId": "Nenhum ID de mídia fornecido",
+        "failedToLoadMedia": "Falha ao carregar mídia",
+        "videoToVideoNotSupported": "Conversão vídeo-para-vídeo não suportada",
+        "mediaNotFound": "Mídia não encontrada"
+      },
+      "titles": {
+        "convertToVideo": "Converter para Vídeo",
+        "convertImageToVideo": "Converter Imagem para Vídeo",
+        "sourceImage": "Imagem de Origem",
+        "generatedVideo": "Vídeo Gerado",
+        "generatingVideo": "Gerando Vídeo",
+        "generateVideo": "Gerar Vídeo",
+        "error": "Erro"
+      },
+      "descriptions": {
+        "transformYourImage": "Transforme sua imagem",
+        "transformImageToVideo": "Transforme sua imagem em um vídeo animado"
+      },
+      "actions": {
+        "back": "Voltar",
+        "goBack": "Voltar",
+        "generating": "Gerando...",
+        "generateVideoWithDuration": "Gerar Vídeo ({duration}s)"
+      },
+      "status": {
+        "processing": "Processando...",
+        "loadingMedia": "Carregando mídia...",
+        "remainingTime": "~{seconds}s restante (estimado)"
+      },
+      "credits": {
+        "creditsNeeded": "Créditos necessários:",
+        "availableCredits": "Créditos disponíveis:",
+        "insufficientCredits": "Você precisa de {needed} segundos a mais para gerar este vídeo."
+      }
+    },
+    "settings": {
+      "title": "Configurações de Geração de Vídeo",
+      "videoLength": "Duração do Vídeo",
+      "durations": {
+        "fiveSeconds": "5 segundos",
+        "eightSeconds": "8 segundos",
+        "tenSeconds": "10 segundos",
+        "fifteenSeconds": "15 segundos"
+      },
+      "loras": {
+        "label": "Aprimoramentos LoRA",
+        "description": "Modelos LoRA aprimoram movimento e detalhes no seu vídeo.",
+        "enabled": "LoRAs ativados: Duração do vídeo limitada a 5s para melhores resultados.",
+        "disabled": "LoRAs desativados: Gere vídeos de até 30s com movimento padrão."
+      },
+      "advanced": {
+        "title": "Configurações Avançadas",
+        "prompt": "Prompt (Opcional)",
+        "promptPlaceholder": "Descreva o movimento ou estilo do vídeo...",
+        "negativePrompt": "Prompt Negativo (Opcional)",
+        "negativePromptPlaceholder": "O que evitar no vídeo...",
+        "seed": "Semente (Opcional)",
+        "seedPlaceholder": "Semente aleatória para reprodutibilidade",
+        "flowShift": "Mudança de Fluxo:",
+        "inferenceSteps": "Passos de Inferência:",
+        "cfgScale": "Escala CFG:",
+        "optimizePrompt": "Otimização de Prompt com IA",
+        "optimizePromptHint": "Aprimore seu prompt automaticamente para melhor movimento e detalhes."
+      }
+    }
+  },
+  "paymentStatus": {
+    "processing": {
+      "success": {
+        "title": "Processando sua compra...",
+        "description": "Aguarde enquanto confirmamos seu pagamento. Isso geralmente leva apenas alguns momentos."
+      },
+      "cancel": {
+        "title": "Processando seu cancelamento...",
+        "description": "Estamos confirmando que seu pedido foi cancelado corretamente."
+      },
+      "error": {
+        "title": "Processando status de pagamento...",
+        "description": "Estamos verificando duas vezes o status da sua compra para garantir que tudo esteja claro."
+      },
+      "default": {
+        "title": "Verificando status de pagamento...",
+        "description": "Estamos verificando as informações mais recentes sobre seu pedido."
+      }
+    },
+    "completed": {
+      "success": {
+        "title": "Obrigado pela sua compra.",
+        "description": "Seu pagamento foi confirmado e seus benefícios agora estão disponíveis.",
+        "actionLabel": "Explorar sua conta"
+      },
+      "cancel": {
+        "title": "Seu pedido foi cancelado com sucesso.",
+        "description": "Nenhuma cobrança foi feita e sua conta permanece inalterada.",
+        "actionLabel": "Navegar planos"
+      },
+      "error": {
+        "title": "Não pudemos processar sua compra.",
+        "description": "Você pode tentar novamente a partir da página de preços ou entrar em contato se continuar vendo esta mensagem.",
+        "actionLabel": "Tentar novamente"
+      },
+      "default": {
+        "title": "Status de pagamento atualizado.",
+        "description": "Você pode retornar com segurança à página de preços.",
+        "actionLabel": "Voltar para preços"
+      }
+    },
+    "missingReference": {
+      "title": "Referência de pagamento ausente.",
+      "description": "Por favor, retorne à página de preços e inicie a compra novamente.",
+      "actionLabel": "Retornar para preços"
+    },
+    "errors": {
+      "genericTitle": "Não pudemos verificar seu pagamento.",
+      "genericDescription": "Por favor, atualize a página ou retorne à página de preços para começar novamente. Contate o suporte se o problema persistir.",
+      "invalidStatus": "Status de pagamento inválido recebido.",
+      "missingReference": "Uma referência de pagamento não foi fornecida. Por favor, contate o suporte se isso continuar acontecendo."
+    },
+    "actions": {
+      "backToPricing": "Voltar para preços"
+    }
+  },
+  "faqPage": {
+    "metaTitle": "FAQ - {siteName}",
+    "metaDescription": "Obtenha respostas sobre geração de pornô com IA do PornSpot.ai, modelos LoRA, assinaturas e políticas de segurança.",
+    "hero": {
+      "tagline": "Tudo o que você precisa saber",
+      "title": "Perguntas Frequentes do PornSpot.ai",
+      "subtitle": "Aprenda como gerar imagens e vídeos NSFW hiper-realistas, explore nosso catálogo LoRA e fique por dentro de segurança, privacidade e políticas de cobrança.",
+      "ctaGenerate": "Começar a gerar",
+      "ctaPricing": "Ver preços"
+    },
+    "cta": {
+      "title": "Pronto para criar sua fantasia?",
+      "subtitle": "Mergulhe no gerador ou navegue criações em tendência para se inspirar no que a comunidade está produzindo.",
+      "primary": "Gerar agora",
+      "secondary": "Descobrir conteúdo popular"
+    },
+    "loras": {
+      "image": {
+        "intro": "Combinamos um conjunto curado de modelos LoRA para aprimorar estéticas específicas, fetiches e estilos de fotografia para geração de imagens.",
+        "outro": "Você pode misturar múltiplos LoRAs em um prompt — nosso motor equilibra automaticamente os pesos para saídas coerentes e polidas.",
+        "items": {
+          "leakedNudes": "Base principal para fotografia amadora, candid, estilo vazado.",
+          "piercedNipples": "Adiciona piercings realistas de mamilo com barra e detalhes de pele ao redor.",
+          "addDetail": "Aumenta micro-detalhes como texturas, tecidos e renderização de pele.",
+          "harnessStraps": "Destaca harnesses de couro, tiras, ligas e acessórios de lingerie semelhantes.",
+          "bdsm": "Ajusta engrenagens de bondage, dominação/submissão e ambiente BDSM.",
+          "bodyTattoo": "Aplica tatuagens corporais extensas com trabalho de linha nítido.",
+          "doggystyleAnal": "Otimiza anatomia e ângulos para cenas anal doggystyle.",
+          "realDownblouse": "Perfeito para composições voyeurísticas downblouse.",
+          "sextoyDildo": "Aprimora realismo quando brinquedos ou dildos são inseridos vaginalmente.",
+          "bread": "Adiciona traços antropomórficos ou furry como orelhas, caudas e pelagem.",
+          "nudify": "Melhora precisão anatômica para fotos de nudez completa.",
+          "dynaPose": "Guia poses estilosas, prontas para redes sociais e enquadramento de câmera."
+        }
+      },
+      "video": {
+        "intro": "Nossa pilha WAN2.2 I2V inclui LoRAs e palavras-chave para impulsionar movimentos e ações específicas em vídeos adultos curtos com IA.",
+        "outro": "Combine palavras-chave em seus prompts para travar a IA no movimento exato que você quer enquanto mantém rostos e corpos estáveis.",
+        "items": {
+          "dr34ml4y": "Sequências de missionário, boquete, boquete duplo, cowgirl ou doggystyle. Palavras-chave: m15510n4ry, bl0wj0b, d0ubl3_bj, c0wg1rl, d0gg1e.",
+          "bouncingBoobs": "Adiciona quique cinético e balanço aos seios.",
+          "oralInsertion": "Foca em penetração na boca e movimentos de sucção.",
+          "f4c3spl4sh": "Alvo em ejaculações faciais com a palavra-chave f4c3spl4sh.",
+          "penisPlay": "Ótimo para adoração de pênis, lambidas e brincadeiras com a língua (gatilho: penis worshipping).",
+          "posingNude": "Ajustes sutis de pose para fotos de glamour nu.",
+          "deepthroat": "Impulsiona visuais de penetração oral mais profunda.",
+          "boobjob": "Especializado em penetração baseada em seios e titjobs.",
+          "fingering": "Foca em auto-prazer e dedilhamento (gatilho: sensual_fingering).",
+          "middleDrooling": "Adiciona baba, ahegao ou gestos de dedo do meio travesso.",
+          "orgasm": "Enfatiza expressões de clímax e reações corporais.",
+          "facedownAssup": "Trava poses em enquadramento face-down, ass-up."
+        }
+      }
+    },
+    "sections": {
+      "general": {
+        "title": "Perguntas gerais sobre a plataforma",
+        "description": "Visão geral rápida do que o PornSpot.ai oferece e como tudo funciona.",
+        "items": {
+          "whatIs": {
+            "question": "O que é o PornSpot.ai?",
+            "answer": "O PornSpot.ai é um gerador de imagens e vídeos NSFW com IA que cria conteúdo adulto realista. Navegue galerias de IA existentes ou produza cenas totalmente personalizadas. Você pode experimentar gratuitamente e desbloquear tiers premium para criações ilimitadas e fidelidade aprimorada."
+          },
+          "howWorks": {
+            "question": "Como funciona a geração de IA no PornSpot.ai?",
+            "answer": "Orquestramos modelos de difusão de ponta treinados para visuais adultos. Descreva sua fantasia com prompts, estilos, personagens ou cenários, e nosso motor compõe imagens de alta resolução ou vídeos curtos com iluminação natural, pele e movimento."
+          },
+          "isFree": {
+            "question": "O PornSpot.ai é gratuito para usar?",
+            "answer": "Sim, é gratuito para usar com limites diários: 1 geração de imagem por dia. Planos premium removem limites, desbloqueiam configurações de geração e incluem créditos gratuitos de geração de vídeo."
+          },
+          "ageRestrictions": {
+            "question": "Quais restrições de idade se aplicam?",
+            "answer": "O PornSpot.ai é estritamente 18+. Todo usuário deve confirmar sua idade antes de acessar material NSFW, garantindo conformidade legal e uma comunidade responsável."
+          }
+        }
+      },
+      "usage": {
+        "title": "Usando o gerador",
+        "description": "Dicas para ajustar prompts, movimento e obter os melhores resultados.",
+        "items": {
+          "customizeContent": {
+            "question": "Como posso personalizar conteúdo adulto gerado por IA?",
+            "answer": "Seja o mais descritivo que quiser—detalhe tipos de corpo, vestuário, ângulos de câmera, humores ou fetiches. Inclua tags como hentai, fetiche ou temas de roleplay, misture LoRAs e adicione prompts negativos para qualquer coisa a evitar."
+          },
+          "videoSupport": {
+            "question": "O PornSpot.ai suporta geração de vídeo?",
+            "answer": "Sim. Crie vídeos adultos curtos com controles de movimento para ações, iluminação e ritmo. Use os gatilhos LoRA I2V para manter o movimento coerente e imersivo."
+          },
+          "unhappyOutput": {
+            "question": "E se a IA gerar algo que eu não gosto?",
+            "answer": "Ajuste seu prompt com detalhes mais claros ou palavras-chave negativas. Regere quantas vezes precisar."
+          },
+          "platformUpdates": {
+            "question": "Com que frequência a plataforma é atualizada?",
+            "answer": "Lançamos modelos frescos, LoRAs e melhorias de UX regularmente. Espere atualizações frequentes na qualidade de vídeo, controles de movimento e personalização de fantasia."
+          }
+        }
+      },
+      "safety": {
+        "title": "Segurança, ética e privacidade",
+        "description": "Entenda como mantemos a plataforma ética e seus dados seguros.",
+        "items": {
+          "ethicalContent": {
+            "question": "O conteúdo é seguro e ético?",
+            "answer": "Tudo é ficção gerada por IA—nenhuma pessoa real envolvida. Rejeitamos prompts prejudiciais ou ilegais e moderamos ativamente para manter a experiência consensual e respeitosa."
+          },
+          "dataPrivacy": {
+            "question": "Como é privada minha data?",
+            "answer": "Prompts e renders são processados de forma segura sem armazenar informações pessoalmente identificáveis. Priorizamos anonimato, especialmente para fantasias sensíveis, e não compartilhamos dados com terceiros."
+          },
+          "prohibitedContent": {
+            "question": "Há tipos de conteúdo proibidos?",
+            "answer": "Sim. Qualquer coisa envolvendo indivíduos reais, representações de menores, temas não consensuais ou violência é banida. Manter-se dentro de fantasias fictícias consensuais mantém a comunidade segura."
+          }
+        }
+      },
+      "content": {
+        "title": "Gerenciando criações",
+        "description": "Propriedade, downloads e diretrizes de compartilhamento.",
+        "items": {
+          "downloadsSharing": {
+            "question": "Posso baixar ou compartilhar conteúdo gerado?",
+            "answer": "Downloads são sem marca d'água em todos os planos. Compartilhamento pessoal é bem-vindo, mas não redistribua comercialmente criações de outros usuários sem permissão explícita."
+          }
+        }
+      },
+      "billing": {
+        "title": "Cobrança e planos",
+        "description": "Pagamentos, atualizações e perks premium.",
+        "items": {
+          "paymentMethods": {
+            "question": "Quais métodos de pagamento são aceitos?",
+            "answer": "<p>Processamos pagamentos através de gateways seguros com forte prevenção de fraude. As seguintes opções são suportadas:</p><list><item><strong>Visa & Mastercard</strong> — cobertura global com autenticação 3D Secure.</item><item><strong>PornSpotCoin</strong> — resgate tokens PSC ganhos na plataforma por membresias.</item></list><p>Precisa de uma opção diferente? <link>Verifique nossa página de preços</link> ou mande mensagem para o suporte e ajudaremos.</p>"
+          }
+        }
+      },
+      "lorasImage": {
+        "title": "Catálogo LoRA de Imagens",
+        "description": "Todo fine-tune LoRA que usamos para direcionar renders SDXL.",
+        "items": {
+          "imageLoras": {
+            "question": "Quais LoRAs alimentam a geração de imagens?"
+          }
+        }
+      },
+      "lorasVideo": {
+        "title": "Catálogo LoRA de Vídeo",
+        "description": "LoRAs focados em movimento e palavras-chave para pipelines WAN2.2 imagem-para-vídeo.",
+        "items": {
+          "videoLoras": {
+            "question": "Quais LoRAs alimentam a geração de vídeo?"
+          },
+          "doubleBlowjobVideo": {
+            "question": "Posso gerar um vídeo de boquete duplo?",
+            "answer": "<p>Absolutamente. Use o LoRA <code>DR34ML4Y</code> junto com a palavra-chave <code>d0ubl3_bj</code> para travar em ação oral dupla. Para foco em garganta profunda, adicione <code>DEEPTHROAT</code>, e mantenha rostos expressivos com <code>ORGASM</code> ou <code>MIDDLE_DROOLING</code> se quiser ahegao brincalhão. Comece de uma imagem no gerador, mude para modo vídeo, ative LoRAs e <link>inicie um render</link> para ver em movimento.</p>"
+          }
+        }
+      }
+    }
+  }
+}
