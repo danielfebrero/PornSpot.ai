@@ -1596,6 +1596,7 @@
     "generateSingle": "Generieren",
     "aiImageGenerator": "NSFW KI-Bildgenerator",
     "randomImageGenerator": "NSFW Zufälliger KI-Bildgenerator",
+    "randomGenerationsFree": "Zufällige Generierungen sind kostenlos!",
     "linkToCustomGenerate": "Generieren Sie Bilder mit benutzerdefinierten Einstellungen und Prompt!",
     "linkToRandomGenerate": "Generieren Sie unbegrenzt Bilder kostenlos mit zufälligem Prompt!",
     "transformImagination": "Verwandeln Sie Ihre Vorstellungskraft in atemberaubende KI-generierte Kunstwerke",

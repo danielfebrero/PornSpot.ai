@@ -1606,6 +1606,7 @@
     "generateSingle": "生成",
     "aiImageGenerator": "NSFW AI图像生成器",
     "randomImageGenerator": "NSFW 随机AI图像生成器",
+    "randomGenerationsFree": "随机生成是免费的！",
     "linkToCustomGenerate": "使用自定义设置和提示生成图像！",
     "linkToRandomGenerate": "使用随机提示免费生成无限图像！",
     "transformImagination": "将您的想象力转化为令人惊叹的AI生成艺术作品",

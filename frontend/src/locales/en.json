@@ -1637,6 +1637,7 @@
     "generateSingle": "Generate",
     "aiImageGenerator": "NSFW AI Image Generator",
     "randomImageGenerator": "NSFW Random AI Image Generator",
+    "randomGenerationsFree": "Random generations are free!",
     "linkToCustomGenerate": "Generate images with custom settings and prompt!",
     "linkToRandomGenerate": "Generate unlimited images for free with Random prompt!",
     "transformImagination": "Transform your imagination into stunning AI-generated artwork",

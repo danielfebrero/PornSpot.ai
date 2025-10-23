@@ -13,7 +13,6 @@ import { useDevice } from "@/contexts/DeviceContext";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import LocaleLink from "@/components/ui/LocaleLink";
 
 export function RandomClient() {
   const t = useTranslations("generate");
@@ -23,6 +22,7 @@ export function RandomClient() {
     resetSettings,
     clearResults,
     generateImages,
+    stopGeneration,
     uiState: {
       allGeneratedImages,
       deletedImageIds,
@@ -55,6 +55,12 @@ export function RandomClient() {
     setShowProgressCard(false);
   }, [resetSettings, clearResults, setShowProgressCard]);
 
+  useEffect(() => {
+    if (generatedImages.length > 0) {
+      setShowProgressCard(false);
+    }
+  }, [generatedImages, setShowProgressCard]);
+
   const filteredGeneratedImages = useMemo(
     () => generatedImages.filter((media) => !deletedImageIds.has(media.id)),
     [generatedImages, deletedImageIds]
@@ -69,6 +75,7 @@ export function RandomClient() {
 
   const hasActiveQueueId = Boolean(queueStatus?.queueId);
   const isInPreparingState = isGenerating && !hasActiveQueueId;
+  const isInStopState = isGenerating && hasActiveQueueId;
 
   const handleGenerate = async () => {
     clearResults();
@@ -82,6 +89,10 @@ export function RandomClient() {
       selectedLoras: [],
       loraStrengths: {},
     });
+  };
+
+  const handleStopGeneration = () => {
+    stopGeneration();
   };
 
   const handleOptimisticDelete = (mediaId: string) => {
@@ -120,6 +131,9 @@ export function RandomClient() {
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-purple-400 to-pink-400 bg-clip-text text-transparent">
             {t("randomImageGenerator")}
           </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {t("randomGenerationsFree")}
+          </p>
         </div>
 
         <div className="space-y-6">
@@ -193,43 +207,39 @@ export function RandomClient() {
 
           {/* Recent Generations */}
           {filteredAllGeneratedImages.length > 0 && (
-            <Card className="mt-6">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4" />
-                    {t("recentGenerations")}
-                  </h3>
-                  <Badge variant="outline">
-                    {filteredAllGeneratedImages.length}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-4 gap-2">
-                  {filteredAllGeneratedImages.map((image, index) => (
-                    <button
-                      key={index}
-                      onClick={() => openThumbnailLightbox(image.url || "")}
-                      className="group relative aspect-square rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-all hover:scale-105"
-                    >
-                      <img
-                        src={composeMediaUrl(image.url)}
-                        alt={`${t("previous")} ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                            <Eye className="h-4 w-4 text-white" />
-                          </div>
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-medium flex items-center gap-2 text-sm">
+                  <ImageIcon className="h-4 w-4" />
+                  {t("recentGenerations")}
+                </h3>
+                <Badge variant="outline" className="text-xs">
+                  {filteredAllGeneratedImages.length}
+                </Badge>
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {filteredAllGeneratedImages.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => openThumbnailLightbox(image.url || "")}
+                    className="group relative aspect-square rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-all hover:scale-105"
+                  >
+                    <img
+                      src={composeMediaUrl(image.url)}
+                      alt={`${t("previous")} ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-7 h-7 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                          <Eye className="h-4 w-4 text-white" />
                         </div>
                       </div>
-                    </button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* Lightbox */}
@@ -249,14 +259,21 @@ export function RandomClient() {
         {/* Fixed Generate Button at Bottom - Mobile */}
         <div className="fixed bottom-[61px] left-0 right-0 px-3 py-2 bg-background/95 backdrop-blur-lg border-t z-50">
           <Button
-            onClick={handleGenerate}
+            onClick={isInStopState ? handleStopGeneration : handleGenerate}
             disabled={isInPreparingState}
             className={cn(
               "w-full h-10 text-xs font-semibold rounded-lg shadow-lg",
-              "bg-gradient-to-r from-primary to-purple-600"
+              isInStopState
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-gradient-to-r from-primary to-purple-600"
             )}
           >
-            {isInPreparingState ? (
+            {isInStopState ? (
+              <div className="flex items-center gap-2">
+                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>{t("stopGeneration")}</span>
+              </div>
+            ) : isInPreparingState ? (
               <div className="flex items-center gap-2">
                 <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 <span>{t("preparingGeneration")}</span>
@@ -281,20 +298,30 @@ export function RandomClient() {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-purple-400 to-pink-400 bg-clip-text text-transparent">
           {t("randomImageGenerator")}
         </h1>
+        <p className="text-muted-foreground mt-2">
+          {t("randomGenerationsFree")}
+        </p>
       </div>
 
       <div className="space-y-6">
         {/* Generate Button - Normal positioning for desktop */}
         <Button
           size="lg"
-          onClick={handleGenerate}
+          onClick={isInStopState ? handleStopGeneration : handleGenerate}
           disabled={isInPreparingState}
           className={cn(
             "w-full h-16 text-lg font-semibold rounded-xl shadow-lg transition-all",
-            "bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+            isInStopState
+              ? "bg-red-500 hover:bg-red-600"
+              : "bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
           )}
         >
-          {isInPreparingState ? (
+          {isInStopState ? (
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+              <span>{t("stopGeneration")}</span>
+            </div>
+          ) : isInPreparingState ? (
             <div className="flex items-center gap-3">
               <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
               <span>{t("preparingGeneration")}</span>

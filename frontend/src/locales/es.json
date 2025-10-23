@@ -1612,6 +1612,7 @@
     "generateSingle": "Generar",
     "aiImageGenerator": "Generador de Imágenes IA NSFW",
     "randomImageGenerator": "Generador de Imágenes IA Aleatorias NSFW",
+    "randomGenerationsFree": "¡Las generaciones aleatorias son gratis!",
     "linkToCustomGenerate": "¡Genera imágenes con configuración personalizada y prompt!",
     "linkToRandomGenerate": "¡Genera imágenes ilimitadas gratis con prompt aleatorio!",
     "transformImagination": "Transforma tu imaginación en obras de arte impresionantes generadas por IA",
