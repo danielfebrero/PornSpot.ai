@@ -17,7 +17,7 @@ import { generateApi } from "@/lib/api/generate";
 import { useUserContext } from "./UserContext";
 
 // Default generation settings following the pattern from GenerateClient
-const DEFAULT_SETTINGS: GenerationSettings = {
+export const DEFAULT_SETTINGS: GenerationSettings = {
   prompt: "",
   negativePrompt:
     "ugly, distorted bad teeth, bad hands, distorted face, missing fingers, multiple limbs, distorted arms, distorted legs, low quality, distorted fingers, weird legs, distorted eyes, pixelated, extra fingers, watermark",

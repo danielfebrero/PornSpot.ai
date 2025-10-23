@@ -308,7 +308,7 @@ class AIService {
     try {
       const content = await this.chatCompletion(
         "generate-random-image-prompt",
-        "1",
+        "random prompt",
         CONFIG.AI_PARAMS.temperature.randomPrompt,
         CONFIG.AI_PARAMS.maxTokens.randomPrompt
       );
@@ -1246,7 +1246,7 @@ const handleGenerate = async (
   }
 
   // Save generation settings for authenticated users
-  if (auth.userId) {
+  if (auth.userId && promptProvided) {
     try {
       await DynamoDBService.createGenerationSettingsFromRequest(
         auth.userId,
@@ -1260,6 +1260,10 @@ const handleGenerate = async (
       );
       // Don't fail the generation if settings save fails
     }
+  } else if (auth.userId) {
+    console.log(
+      `ℹ️ Skipped saving generation settings for user ${auth.userId}: prompt not provided`
+    );
   }
 
   // Get WebSocket connection (only for authenticated users)

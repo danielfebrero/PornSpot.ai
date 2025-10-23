@@ -8,7 +8,10 @@ import { ContentCard } from "@/components/ui/ContentCard";
 import { Lightbox } from "@/components/ui/Lightbox";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { useGenerationContext } from "@/contexts/GenerationContext";
+import {
+  useGenerationContext,
+  DEFAULT_SETTINGS,
+} from "@/contexts/GenerationContext";
 import { useDevice } from "@/contexts/DeviceContext";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { useTranslations } from "next-intl";
@@ -18,7 +21,6 @@ export function RandomClient() {
   const t = useTranslations("generate");
   const { isMobileInterface } = useDevice();
   const {
-    settings,
     resetSettings,
     clearResults,
     generateImages,
@@ -82,7 +84,7 @@ export function RandomClient() {
     setShowProgressCard(true);
 
     await generateImages({
-      ...settings,
+      ...DEFAULT_SETTINGS,
       prompt: "",
       optimizePrompt: false,
       batchCount: 1,
