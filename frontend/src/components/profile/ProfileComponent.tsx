@@ -857,8 +857,8 @@ export default function ProfileComponent({
                 <div className="p-2">
                   {profileDataLoading ? (
                     <HorizontalScroll
-                      itemWidth="140px"
-                      gap="small"
+                      itemWidth="200px"
+                      gap="medium"
                       showArrows={false}
                     >
                       {[1, 2, 3].map((i) => (
@@ -869,8 +869,8 @@ export default function ProfileComponent({
                     </HorizontalScroll>
                   ) : recentLikes.length > 0 ? (
                     <HorizontalScroll
-                      itemWidth="140px"
-                      gap="small"
+                      itemWidth="200px"
+                      gap="medium"
                       showArrows={false}
                     >
                       {recentLikes
@@ -924,8 +924,8 @@ export default function ProfileComponent({
                 <div className="p-2">
                   {userMediaLoading ? (
                     <HorizontalScroll
-                      itemWidth="140px"
-                      gap="small"
+                      itemWidth="200px"
+                      gap="medium"
                       showArrows={false}
                     >
                       {[1, 2, 3].map((i) => (
@@ -936,8 +936,8 @@ export default function ProfileComponent({
                     </HorizontalScroll>
                   ) : recentMedia.length > 0 ? (
                     <HorizontalScroll
-                      itemWidth="140px"
-                      gap="small"
+                      itemWidth="200px"
+                      gap="medium"
                       showArrows={false}
                     >
                       {recentMedia
@@ -986,8 +986,8 @@ export default function ProfileComponent({
                 <div className="p-2">
                   {albumsLoading ? (
                     <HorizontalScroll
-                      itemWidth="140px"
-                      gap="small"
+                      itemWidth="200px"
+                      gap="medium"
                       showArrows={false}
                     >
                       {[1, 2, 3].map((i) => (
@@ -998,8 +998,8 @@ export default function ProfileComponent({
                     </HorizontalScroll>
                   ) : recentAlbums.length > 0 ? (
                     <HorizontalScroll
-                      itemWidth="140px"
-                      gap="small"
+                      itemWidth="200px"
+                      gap="medium"
                       showArrows={false}
                     >
                       {recentAlbums

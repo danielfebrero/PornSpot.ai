@@ -158,17 +158,11 @@ export function RandomClient() {
                 <h3 className="text-lg font-semibold">
                   {t("generatedImages")}
                 </h3>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">
-                    {filteredGeneratedImages.length}{" "}
-                    {filteredGeneratedImages.length === 1 ? "image" : "images"}
-                  </Badge>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    <span className="text-xs text-muted-foreground">
-                      {t("complete")}
-                    </span>
-                  </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <span className="text-xs text-muted-foreground">
+                    {t("complete")}
+                  </span>
                 </div>
               </div>
               <ContentCard
@@ -353,17 +347,11 @@ export function RandomClient() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold">{t("generatedImages")}</h3>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary">
-                  {filteredGeneratedImages.length}{" "}
-                  {filteredGeneratedImages.length === 1 ? "image" : "images"}
-                </Badge>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-xs text-muted-foreground">
-                    {t("complete")}
-                  </span>
-                </div>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-xs text-muted-foreground">
+                  {t("complete")}
+                </span>
               </div>
             </div>
             <ContentCard
