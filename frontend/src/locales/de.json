@@ -1437,7 +1437,7 @@
     }
   },
   "generate": {
-    "metaTitle": "KI-Bild- und Videogenerator - {siteName}",
+    "metaTitle": "NSFW KI-Bild- und Videogenerator - {siteName}",
     "metaDescription": "Generieren Sie KI-gestützte Inhalte für Erwachsene mit unseren fortschrittlichen Bild- und Videogenerierungstools. Wählen Sie aus mehreren Modellen, Stilen und Parametern.",
     "keywords": {
       "aiGeneration": "KI-Bildgenerierung",
@@ -1592,7 +1592,7 @@
     "randomSeed": "Zufälliger Seed",
     "generateImages": "{count} Bilder generieren",
     "generateSingle": "Generieren",
-    "aiImageGenerator": "KI-Bildgenerator",
+    "aiImageGenerator": "NSFW KI-Bildgenerator",
     "transformImagination": "Verwandeln Sie Ihre Vorstellungskraft in atemberaubende KI-generierte Kunstwerke",
     "imagesGenerated": "Bilder Generiert",
     "describeVision": "Beschreiben Sie Ihre Vision",

@@ -1501,7 +1501,7 @@
     }
   },
   "generate": {
-    "metaTitle": "Générateur d'Images et Vidéos IA - {siteName}",
+    "metaTitle": "Générateur d'Images et Vidéos IA NSFW - {siteName}",
     "metaDescription": "Générez du contenu adulte alimenté par l'IA avec nos outils avancés de génération d'images et vidéos. Choisissez parmi plusieurs modèles, styles et paramètres.",
     "keywords": {
       "aiGeneration": "génération d'images et vidéos IA",
@@ -1656,7 +1656,7 @@
     "randomSeed": "Graine aléatoire",
     "generateImages": "Générer {count} images",
     "generateSingle": "Générer",
-    "aiImageGenerator": "Générateur d'Images IA",
+    "aiImageGenerator": "Générateur d'Images IA NSFW",
     "transformImagination": "Transformez votre imagination en œuvres d'art époustouflantes générées par IA",
     "imagesGenerated": "Images Générées",
     "describeVision": "Décrivez Votre Vision",

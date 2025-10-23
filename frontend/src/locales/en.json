@@ -1478,7 +1478,7 @@
     }
   },
   "generate": {
-    "metaTitle": "AI Image and Video Generator - {siteName}",
+    "metaTitle": "NSFW AI Image and Video Generator - {siteName}",
     "metaDescription": "Generate AI-powered adult content with our advanced image and video generation tools. Choose from multiple models, styles, and parameters.",
     "keywords": {
       "aiGeneration": "AI image and video generation",
@@ -1633,7 +1633,7 @@
     "randomSeed": "Random seed",
     "generateImages": "Generate {count} Images",
     "generateSingle": "Generate",
-    "aiImageGenerator": "AI Image Generator",
+    "aiImageGenerator": "NSFW AI Image Generator",
     "transformImagination": "Transform your imagination into stunning AI-generated artwork",
     "imagesGenerated": "Images Generated",
     "describeVision": "Describe Your Vision",

@@ -1467,7 +1467,7 @@
     }
   },
   "generate": {
-    "metaTitle": "AI图像和视频生成器 - {siteName}",
+    "metaTitle": "NSFW AI图像和视频生成器 - {siteName}",
     "metaDescription": "使用我们先进的图像和视频生成工具创建AI驱动的成人内容。从多种模型、风格和参数中选择。",
     "keywords": {
       "aiGeneration": "AI图像生成",
@@ -1602,7 +1602,7 @@
     "randomSeed": "随机种子",
     "generateImages": "生成{count}张图片",
     "generateSingle": "生成",
-    "aiImageGenerator": "AI图像生成器",
+    "aiImageGenerator": "NSFW AI图像生成器",
     "transformImagination": "将您的想象力转化为令人惊叹的AI生成艺术作品",
     "imagesGenerated": "已生成图像",
     "describeVision": "描述您的愿景",

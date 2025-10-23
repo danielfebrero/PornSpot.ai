@@ -1477,7 +1477,7 @@
     }
   },
   "generate": {
-    "metaTitle": "एआई छवि और वीडियो जनरेटर - {siteName}",
+    "metaTitle": "NSFW एआई छवि और वीडियो जनरेटर - {siteName}",
     "metaDescription": "हमारे उन्नत छवि और वीडियो जनरेशन टूल्स के साथ एआई-संचालित वयस्क सामग्री जनरेट करें। कई मॉडल, शैलियों और पैरामीटर्स से चुनें।",
     "keywords": {
       "aiGeneration": "एआई छवि और वीडियो जनरेशन",
@@ -1632,7 +1632,7 @@
     "randomSeed": "रैंडम सीड",
     "generateImages": "{count} छवियाँ जनरेट करें",
     "generateSingle": "जनरेट करें",
-    "aiImageGenerator": "एआई छवि जनरेटर",
+    "aiImageGenerator": "NSFW एआई छवि जनरेटर",
     "transformImagination": "अपनी कल्पना को शानदार एआई-जनरेटेड कला में बदलें",
     "imagesGenerated": "जनरेटेड छवियाँ",
     "describeVision": "अपनी दृष्टि वर्णन करें",
