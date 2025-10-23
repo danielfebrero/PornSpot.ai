@@ -319,7 +319,8 @@
     "header": "Kopfzeile",
     "footer": "Fußzeile",
     "breadcrumb": "Brotkrümel",
-    "pagination": "Seitennummerierung"
+    "pagination": "Seitennummerierung",
+    "random": "Zufällig"
   },
   "comments": {
     "anonymousUser": "Anonymer Benutzer",
@@ -1571,6 +1572,7 @@
     "pro": "Pro",
     "noImagesGenerated": "Noch keine Bilder generiert",
     "enterPromptToGenerate": "Geben Sie einen Prompt ein und klicken Sie auf Generieren, um erstaunliche KI-Bilder zu erstellen",
+    "clickOnRandomize": "Klicken Sie auf Zufällig, um erstaunliche KI-Bilder zu erstellen",
     "generatedImages": "Generierte Bilder",
     "quickSettings": "Schnelleinstellungen",
     "advancedSettings": "Erweiterte Einstellungen",
@@ -1593,6 +1595,9 @@
     "generateImages": "{count} Bilder generieren",
     "generateSingle": "Generieren",
     "aiImageGenerator": "NSFW KI-Bildgenerator",
+    "randomImageGenerator": "NSFW Zufälliger KI-Bildgenerator",
+    "linkToCustomGenerate": "Generieren Sie Bilder mit benutzerdefinierten Einstellungen und Prompt!",
+    "linkToRandomGenerate": "Generieren Sie unbegrenzt Bilder kostenlos mit zufälligem Prompt!",
     "transformImagination": "Verwandeln Sie Ihre Vorstellungskraft in atemberaubende KI-generierte Kunstwerke",
     "imagesGenerated": "Bilder Generiert",
     "describeVision": "Beschreiben Sie Ihre Vision",

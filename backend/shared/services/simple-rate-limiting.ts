@@ -292,7 +292,7 @@ export class SimplifiedRateLimitingService {
       const limits = {
         anonymous: { daily: 1, monthly: 30 },
         free: { daily: 1, monthly: 30 },
-        starter: { daily: 50, monthly: 300 },
+        starter: { daily: 200, monthly: 200 },
       };
 
       const planLimits = limits[plan];
@@ -383,7 +383,7 @@ export class SimplifiedRateLimitingService {
       const ipLimits = {
         anonymous: { daily: 1, monthly: 30 },
         free: { daily: 1, monthly: 30 },
-        starter: { daily: 50, monthly: 300 },
+        starter: { daily: 200, monthly: 200 },
       };
 
       const planLimits = ipLimits[plan];

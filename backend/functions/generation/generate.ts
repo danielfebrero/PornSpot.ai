@@ -114,6 +114,7 @@ const CONFIG = {
     moderation: "mistralai/mistral-medium-3.1",
     optimization: "mistralai/mistral-medium-3.1",
     loraSelection: "mistralai/mistral-medium-3.1",
+    randomPrompt: "mistralai/mistral-medium-3.1",
   },
   AI_PARAMS: {
     temperature: {
@@ -121,12 +122,14 @@ const CONFIG = {
       optimization: 0.7,
       loraSelection: 0.1,
       titleGeneration: 0.7,
+      randomPrompt: 0.9,
     },
     maxTokens: {
       moderation: 256,
       optimization: 1024,
       loraSelection: 512,
       titleGeneration: 128,
+      randomPrompt: 512,
     },
   },
   LORAS: {
@@ -299,6 +302,26 @@ class AIService {
     }
   }
 
+  static async generateRandomPrompt(): Promise<string> {
+    const timer = new PerformanceTimer("Random Prompt Generation");
+
+    try {
+      const content = await this.chatCompletion(
+        "generate-random-image-prompt",
+        "1",
+        CONFIG.AI_PARAMS.temperature.randomPrompt,
+        CONFIG.AI_PARAMS.maxTokens.randomPrompt
+      );
+
+      return content.trim();
+    } catch (error) {
+      console.error("❌ Random prompt generation failed:", error);
+      throw new Error("Failed to generate random prompt");
+    } finally {
+      timer.end();
+    }
+  }
+
   static async performModeration(
     prompt: string,
     controller?: ProcessingController
@@ -424,19 +447,24 @@ class ValidationService {
   ): ValidationError | null {
     const { prompt } = requestBody;
 
-    try {
-      const validatedPrompt = ValidationUtil.validateRequiredString(
-        prompt,
-        "Prompt"
-      );
-      if (validatedPrompt.length > CONFIG.VALIDATION_LIMITS.prompt.maxLength) {
-        return {
-          message: `Prompt is too long (max ${CONFIG.VALIDATION_LIMITS.prompt.maxLength} characters)`,
-          field: "prompt",
-        };
-      }
-    } catch (error) {
-      return { message: "Prompt is required", field: "prompt" };
+    if (prompt === undefined || prompt === null) {
+      return null;
+    }
+
+    if (typeof prompt !== "string") {
+      return { message: "Prompt must be a string", field: "prompt" };
+    }
+
+    const trimmedPrompt = prompt.trim();
+    if (trimmedPrompt.length === 0) {
+      return null;
+    }
+
+    if (trimmedPrompt.length > CONFIG.VALIDATION_LIMITS.prompt.maxLength) {
+      return {
+        message: `Prompt is too long (max ${CONFIG.VALIDATION_LIMITS.prompt.maxLength} characters)`,
+        field: "prompt",
+      };
     }
 
     return null;
@@ -906,14 +934,17 @@ class PromptProcessor {
     requestBody: GenerationRequest,
     connectionId: string | null,
     queueId: string,
-    queueEntry: QueueEntry
+    queueEntry: QueueEntry,
+    options: { skipModeration?: boolean; skipOptimization?: boolean } = {}
   ): Promise<ProcessingResult<GenerationResponse>> {
     const timer = new PerformanceTimer("Unified Prompt Processing");
     const queueService = GenerationQueueService.getInstance();
+    const skipModeration = options.skipModeration ?? false;
+    const skipOptimization = options.skipOptimization ?? false;
 
     try {
       // Initialize optimization state
-      if (requestBody.optimizePrompt && connectionId) {
+      if (!skipOptimization && requestBody.optimizePrompt && connectionId) {
         await WebSocketService.sendOptimizationMessage(connectionId, {
           type: "optimization_start",
           optimizationData: {
@@ -935,8 +966,10 @@ class PromptProcessor {
       // Perform all operations in parallel
       const [moderationResult, selectedLoras, optimizedPrompt] =
         await Promise.all([
-          // Always perform moderation
-          AIService.performModeration(validatedPrompt, controller),
+          // Conditionally perform moderation
+          skipModeration
+            ? Promise.resolve<ProcessingResult<void>>({ success: true })
+            : AIService.performModeration(validatedPrompt, controller),
 
           // Conditionally perform LoRA selection
           requestBody.loraSelectionMode === "auto"
@@ -946,7 +979,7 @@ class PromptProcessor {
             : Promise.resolve(requestBody.selectedLoras || []),
 
           // Conditionally perform optimization
-          requestBody.optimizePrompt && connectionId
+          !skipOptimization && requestBody.optimizePrompt && connectionId
             ? this.streamOptimization(validatedPrompt, connectionId, controller)
             : Promise.resolve(null),
         ]);
@@ -1137,6 +1170,26 @@ const handleGenerate = async (
   // Parse request and fetch user
   const requestBody: GenerationRequest = LambdaHandlerUtil.parseJsonBody(event);
 
+  const promptProvided =
+    typeof requestBody.prompt === "string" &&
+    requestBody.prompt.trim().length > 0;
+  let usedGeneratedPrompt = false;
+
+  if (!promptProvided) {
+    try {
+      const generatedPrompt = await AIService.generateRandomPrompt();
+      requestBody.prompt = generatedPrompt;
+      requestBody.originalPrompt = generatedPrompt;
+      usedGeneratedPrompt = true;
+    } catch (error) {
+      console.error("❌ Failed to generate random prompt:", error);
+      return ResponseUtil.internalError(
+        event,
+        "Failed to generate random prompt"
+      );
+    }
+  }
+
   // Replace seed of 0 with a random number
   if (requestBody.seed === 0) {
     requestBody.seed = Math.floor(Math.random() * 2147483647);
@@ -1168,15 +1221,17 @@ const handleGenerate = async (
   // Check simplified rate limits (single image at a time + usage stats + IP limit for anonymous)
   const simplifiedRateLimitingService =
     SimplifiedRateLimitingService.getInstance();
-  const rateLimitResult = await simplifiedRateLimitingService.checkRateLimit(
-    event,
-    enhancedUser ?? undefined
-  );
-  if (!rateLimitResult.allowed) {
-    return ResponseUtil.forbidden(
+  if (!usedGeneratedPrompt) {
+    const rateLimitResult = await simplifiedRateLimitingService.checkRateLimit(
       event,
-      rateLimitResult.reason || "Rate limit exceeded"
+      enhancedUser ?? undefined
     );
+    if (!rateLimitResult.allowed) {
+      return ResponseUtil.forbidden(
+        event,
+        rateLimitResult.reason || "Rate limit exceeded"
+      );
+    }
   }
 
   // Anonymous users can only generate 1 image at a time (already enforced by rate limiting)
@@ -1261,23 +1316,27 @@ const handleGenerate = async (
 
   // Record IP generation for both authenticated and anonymous users
   try {
-    await simplifiedRateLimitingService.recordGeneration(
-      event,
-      enhancedUser
-        ? {
-            userId: enhancedUser.userId,
-            plan: enhancedUser.planInfo.plan,
-            bonusGenerationCredits:
-              enhancedUser.usageStats.bonusGenerationCredits,
-          }
-        : undefined,
-      requestBody.batchCount ?? 1
-    );
-    console.log(
-      `✅ Recorded IP generation for ${
-        enhancedUser ? "authenticated" : "anonymous"
-      } user`
-    );
+    if (!usedGeneratedPrompt) {
+      await simplifiedRateLimitingService.recordGeneration(
+        event,
+        enhancedUser
+          ? {
+              userId: enhancedUser.userId,
+              plan: enhancedUser.planInfo.plan,
+              bonusGenerationCredits:
+                enhancedUser.usageStats.bonusGenerationCredits,
+            }
+          : undefined,
+        requestBody.batchCount ?? 1
+      );
+      console.log(
+        `✅ Recorded IP generation for ${
+          enhancedUser ? "authenticated" : "anonymous"
+        } user`
+      );
+    } else {
+      console.log("ℹ️ Skipped rate limiting record for auto-generated prompt");
+    }
   } catch (error) {
     console.error("❌ Failed to record IP generation:", error);
     // Don't fail the generation if IP recording fails
@@ -1289,7 +1348,11 @@ const handleGenerate = async (
     requestBody,
     connectionId,
     queueEntry.queueId,
-    queueEntry
+    queueEntry,
+    {
+      skipModeration: usedGeneratedPrompt,
+      skipOptimization: usedGeneratedPrompt,
+    }
   );
 
   timer.end();

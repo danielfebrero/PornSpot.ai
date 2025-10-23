@@ -318,7 +318,8 @@
     "header": "Header",
     "footer": "Footer",
     "breadcrumb": "Breadcrumb",
-    "pagination": "Pagination"
+    "pagination": "Pagination",
+    "random": "Random"
   },
   "comments": {
     "anonymousUser": "Anonymous User",
@@ -1612,6 +1613,7 @@
     "pro": "Pro",
     "noImagesGenerated": "No images generated yet",
     "enterPromptToGenerate": "Enter a prompt and click generate to create amazing AI images and videos",
+    "clickOnRandomize": "Click on Randomize to generate amazing AI images",
     "generatedImages": "Generated Images",
     "quickSettings": "Quick Settings",
     "advancedSettings": "Advanced Settings",
@@ -1634,6 +1636,9 @@
     "generateImages": "Generate {count} Images",
     "generateSingle": "Generate",
     "aiImageGenerator": "NSFW AI Image Generator",
+    "randomImageGenerator": "NSFW Random AI Image Generator",
+    "linkToCustomGenerate": "Generate images with custom settings and prompt!",
+    "linkToRandomGenerate": "Generate unlimited images for free with Random prompt!",
     "transformImagination": "Transform your imagination into stunning AI-generated artwork",
     "imagesGenerated": "Images Generated",
     "describeVision": "Describe Your Vision",

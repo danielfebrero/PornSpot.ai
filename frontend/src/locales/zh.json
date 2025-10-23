@@ -335,7 +335,8 @@
     "header": "页头",
     "footer": "页脚",
     "breadcrumb": "面包屑",
-    "pagination": "分页"
+    "pagination": "分页",
+    "random": "随机"
   },
   "comments": {
     "anonymousUser": "匿名用户",
@@ -1581,6 +1582,7 @@
     "pro": "专业版",
     "noImagesGenerated": "尚未生成图像",
     "enterPromptToGenerate": "输入提示并点击生成来创建令人惊叹的AI图像",
+    "clickOnRandomize": "点击随机生成令人惊叹的AI图像",
     "generatedImages": "已生成的图像",
     "quickSettings": "快速设置",
     "advancedSettings": "高级设置",
@@ -1603,6 +1605,9 @@
     "generateImages": "生成{count}张图片",
     "generateSingle": "生成",
     "aiImageGenerator": "NSFW AI图像生成器",
+    "randomImageGenerator": "NSFW 随机AI图像生成器",
+    "linkToCustomGenerate": "使用自定义设置和提示生成图像！",
+    "linkToRandomGenerate": "使用随机提示免费生成无限图像！",
     "transformImagination": "将您的想象力转化为令人惊叹的AI生成艺术作品",
     "imagesGenerated": "已生成图像",
     "describeVision": "描述您的愿景",

@@ -318,7 +318,8 @@
     "header": "Cabeçalho",
     "footer": "Rodapé",
     "breadcrumb": "Navegação",
-    "pagination": "Paginação"
+    "pagination": "Paginação",
+    "random": "Aleatório"
   },
   "comments": {
     "anonymousUser": "Usuário Anônimo",
@@ -1612,6 +1613,7 @@
     "pro": "Pro",
     "noImagesGenerated": "Nenhuma imagem gerada ainda",
     "enterPromptToGenerate": "Digite um prompt e clique em gerar para criar imagens e vídeos incríveis com IA",
+    "clickOnRandomize": "Clique em Aleatorizar para gerar imagens incríveis com IA",
     "generatedImages": "Imagens Geradas",
     "quickSettings": "Configurações Rápidas",
     "advancedSettings": "Configurações Avançadas",
@@ -1634,6 +1636,9 @@
     "generateImages": "Gerar {count} Imagens",
     "generateSingle": "Gerar",
     "aiImageGenerator": "Gerador de Imagens com IA NSFW",
+    "randomImageGenerator": "Gerador de Imagens IA Aleatórias NSFW",
+    "linkToCustomGenerate": "Gere imagens com configurações e prompt personalizados!",
+    "linkToRandomGenerate": "Gere imagens ilimitadas gratuitamente com prompt aleatório!",
     "transformImagination": "Transforme sua imaginação em arte impressionante gerada por IA",
     "imagesGenerated": "Imagens Geradas",
     "describeVision": "Descreva Sua Visão",

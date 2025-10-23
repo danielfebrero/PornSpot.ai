@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 // import { useLocaleRouter } from "@/lib/navigation";
+import LocaleLink from "@/components/ui/LocaleLink";
 import { GenerationProgressCard } from "./ui/GenerationProgressCard";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { useWebSocket } from "@/contexts/WebSocketContext";
@@ -604,9 +605,11 @@ export function GenerateClient() {
                 <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center flex-shrink-0">
                   <Wand2 className="h-3.5 w-3.5 text-white" />
                 </div>
-                <h1 className="font-bold text-base truncate">
-                  {t("aiImageGenerator")}
-                </h1>
+                <div>
+                  <h1 className="font-bold text-base truncate">
+                    {t("aiImageGenerator")}
+                  </h1>
+                </div>
               </div>
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 {remaining !== "unlimited" && (

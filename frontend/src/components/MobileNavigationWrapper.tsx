@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { MobileNavigation } from "@/components/ui/MobileNavigation";
-import { Compass, Zap, Image, Coins, Video } from "lucide-react";
+import { Compass, Zap, Image, Coins, Video, Shuffle } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 
 export function MobileNavigationWrapper() {
@@ -37,6 +37,11 @@ export function MobileNavigationWrapper() {
           icon: Zap,
         },
         {
+          href: "/random",
+          label: tNav("random"),
+          icon: Shuffle,
+        },
+        {
           href: "/user/videos",
           label: tNav("videos"),
           icon: Video,
@@ -58,6 +63,11 @@ export function MobileNavigationWrapper() {
           href: "/generate",
           label: t("generate"),
           icon: Zap,
+        },
+        {
+          href: "/random",
+          label: tNav("random"),
+          icon: Shuffle,
         },
         {
           href: "/pornspotcoin",

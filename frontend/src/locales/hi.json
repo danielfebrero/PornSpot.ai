@@ -318,7 +318,8 @@
     "header": "हेडर",
     "footer": "फ़ुटर",
     "breadcrumb": "ब्रेडक्रंब",
-    "pagination": "पेजिनेशन"
+    "pagination": "पेजिनेशन",
+    "random": "यादृच्छिक"
   },
   "comments": {
     "anonymousUser": "अनाम उपयोगकर्ता",
@@ -1611,6 +1612,7 @@
     "pro": "प्रो",
     "noImagesGenerated": "अभी तक कोई छवियाँ जनरेट नहीं की गईं",
     "enterPromptToGenerate": "शानदार एआई छवियाँ और वीडियो बनाने के लिए एक प्रॉम्प्ट दर्ज करें और जनरेट पर क्लिक करें",
+    "clickOnRandomize": "शानदार एआई छवियाँ उत्पन्न करने के लिए रैंडमाइज़ पर क्लिक करें",
     "generatedImages": "जनरेटेड छवियाँ",
     "quickSettings": "त्वरित सेटिंग्स",
     "advancedSettings": "उन्नत सेटिंग्स",
@@ -1633,6 +1635,9 @@
     "generateImages": "{count} छवियाँ जनरेट करें",
     "generateSingle": "जनरेट करें",
     "aiImageGenerator": "NSFW एआई छवि जनरेटर",
+    "randomImageGenerator": "NSFW रैंडम एआई छवि जनरेटर",
+    "linkToCustomGenerate": "कस्टम सेटिंग्स और प्रॉम्प्ट के साथ छवियाँ जनरेट करें!",
+    "linkToRandomGenerate": "रैंडम प्रॉम्प्ट के साथ मुफ्त में असीमित छवियाँ जनरेट करें!",
     "transformImagination": "अपनी कल्पना को शानदार एआई-जनरेटेड कला में बदलें",
     "imagesGenerated": "जनरेटेड छवियाँ",
     "describeVision": "अपनी दृष्टि वर्णन करें",

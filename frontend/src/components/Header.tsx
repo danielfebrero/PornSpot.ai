@@ -16,6 +16,7 @@ import {
   Image as ImageIcon,
   Video as VideoIcon,
   Coins,
+  Shuffle,
 } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 import { useUnreadNotificationCount } from "@/hooks/queries/useUserQuery";
@@ -129,6 +130,17 @@ export function Header() {
                 >
                   <Sparkles className="h-3.5 w-3.5" />
                   <span>{t("generate")}</span>
+                </LocaleLink>
+                <LocaleLink
+                  href="/random"
+                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:bg-accent/80 hover:scale-105 ${
+                    isActivePath(pathname, "/random")
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  <Shuffle className="h-3.5 w-3.5" />
+                  <span>{tNav("random")}</span>
                 </LocaleLink>
                 <LocaleLink
                   href="/pricing"
@@ -260,6 +272,16 @@ export function Header() {
                 }`}
               >
                 <span>{t("generate")}</span>
+              </LocaleLink>
+              <LocaleLink
+                href="/random"
+                className={`flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ${
+                  isActivePath(pathname, "/random")
+                    ? "border-b-2 border-foreground"
+                    : ""
+                }`}
+              >
+                <span>{tNav("random")}</span>
               </LocaleLink>
               <LocaleLink
                 href="/pricing"
