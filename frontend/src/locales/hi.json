@@ -1563,6 +1563,7 @@
     "stopOptimization": "अनुकूलन रोकें",
     "stopGeneration": "जनरेशन रोकें",
     "preparingGeneration": "जनरेशन तैयार कर रहे हैं...",
+    "randomizingPrompt": "Randomizing prompt...",
     "image": "छवि",
     "images": "छवियाँ",
     "loraSelection": "लोरा चयन",

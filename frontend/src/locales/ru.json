@@ -1634,6 +1634,7 @@
     "stopOptimization": "Остановить оптимизацию",
     "stopGeneration": "Остановить генерацию",
     "preparingGeneration": "Подготовка генерации...",
+    "randomizingPrompt": "Randomizing prompt...",
     "viewingOriginalPrompt": "Просмотр оригинального промпта",
     "promptOptimized": "Промпт оптимизирован",
     "image": "Изображение",

@@ -1539,6 +1539,7 @@
     "stopOptimization": "Detener optimización",
     "stopGeneration": "Detener generación",
     "preparingGeneration": "Preparando la generación...",
+    "randomizingPrompt": "Randomizing prompt...",
     "image": "imagen",
     "images": "imágenes",
     "loraSelection": "Selección LoRA",

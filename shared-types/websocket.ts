@@ -36,7 +36,8 @@ export interface GenerationWebSocketMessage {
     | "optimization_token"
     | "optimization_complete"
     | "optimization_error"
-    | "prompt-moderation";
+    | "prompt-moderation"
+    | "randomizing_prompt";
   connectionId?: string; // Added connectionId to track the connection
   queueId?: string;
   queuePosition?: number;
@@ -80,7 +81,7 @@ export interface GenerationWebSocketMessage {
   status?: "refused";
   reason?: string;
 
-  workflowData: WorkflowData;
+  workflowData?: WorkflowData;
 }
 
 export interface ConnectionEntity {

@@ -1185,8 +1185,47 @@ const handleGenerate = async (
     requestBody.prompt.trim().length > 0;
   let usedGeneratedPrompt = false;
 
+  let connectionId: string | null = null;
+  if (auth.userId) {
+    try {
+      if (
+        requestBody.connectionId &&
+        (await DynamoDBService.isValidUserConnectionId(
+          auth.userId,
+          requestBody.connectionId
+        ))
+      ) {
+        connectionId = requestBody.connectionId;
+      } else {
+        connectionId = await DynamoDBService.getActiveConnectionIdForUser(
+          auth.userId
+        );
+      }
+
+      if (!connectionId) {
+        console.warn("No active WebSocket connection for user:", auth.userId);
+      }
+    } catch (error) {
+      console.error(
+        `❌ Failed to resolve WebSocket connection for user ${auth.userId}:`,
+        error
+      );
+    }
+  } else {
+    connectionId = requestBody.connectionId || null;
+    if (!connectionId) {
+      console.log("Anonymous user - no WebSocket connection available");
+    }
+  }
+
   if (!promptProvided) {
     try {
+      if (connectionId) {
+        await WebSocketService.sendMessage(connectionId, "randomizing_prompt", {
+          message: "Randomizing prompt...",
+        });
+      }
+
       const generatedPrompt = await AIService.generateRandomPrompt();
       requestBody.prompt = generatedPrompt;
       requestBody.originalPrompt = generatedPrompt;
@@ -1277,24 +1316,7 @@ const handleGenerate = async (
   }
 
   // Get WebSocket connection (only for authenticated users)
-  let connectionId: string | null = null;
-  if (auth.userId) {
-    connectionId =
-      requestBody.connectionId &&
-      (await DynamoDBService.isValidUserConnectionId(
-        auth.userId,
-        requestBody.connectionId
-      ))
-        ? requestBody.connectionId
-        : await DynamoDBService.getActiveConnectionIdForUser(auth.userId);
-
-    if (!connectionId) {
-      console.warn("No active WebSocket connection for user:", auth.userId);
-    }
-  } else {
-    console.log("Anonymous user - no WebSocket connection available");
-    connectionId = requestBody.connectionId || null;
-  }
+  // connectionId has been resolved earlier; retain for downstream logic
 
   // Initialize queue
   const priority = GenerationService.calculateUserPriority(userPlan);

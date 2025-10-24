@@ -1587,6 +1587,7 @@
     "stopOptimization": "Arrêter l'optimisation",
     "stopGeneration": "Arrêter la génération",
     "preparingGeneration": "Préparation de la génération...",
+    "randomizingPrompt": "Randomizing prompt...",
     "image": "image",
     "images": "images",
     "loraSelection": "Sélection LoRA",
