@@ -1266,6 +1266,10 @@
         "unread": {
           "label": "未读通知摘要"
         },
+        "communications": {
+          "label": "平台通讯",
+          "description": "获取关于新功能和精彩公告的通知"
+        },
         "options": {
           "intelligently": "智能",
           "always": "总是",

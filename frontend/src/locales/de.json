@@ -1246,6 +1246,10 @@
         "unread": {
           "label": "Zusammenfassung ungelesener Benachrichtigungen"
         },
+        "communications": {
+          "label": "Plattform-Kommunikation",
+          "description": "Erhalten Sie Benachrichtigungen über neue Funktionen und interessante Ankündigungen"
+        },
         "options": {
           "intelligently": "Intelligent",
           "always": "Immer",

@@ -1,0 +1,29 @@
+PornSpot.ai Random is live!
+
+Hello {{displayName}},
+
+We just launched PornSpot.ai Random — a new free feature that serves up
+unlimited NSFW images with a single click. No prompts, no credits, just pure
+discovery whenever you need inspiration.
+
+Why you'll love it:
+- Unlimited spins with fresh results every time
+- Totally free for every PornSpot.ai user
+- Curated by our AI for bold, high-quality surprises
+- Save favorites instantly to your albums
+
+Launch it now and see what the AI sends your way:
+{{featureUrl}}
+
+Whether you're relaxing or exploring new ideas, PornSpot.ai Random keeps the
+fantasy flowing.
+
+Available now — enjoy the ride!
+
+Want to control which emails you receive? Update your preferences anytime:
+{{settingsUrl}}
+
+— The PornSpot.ai Team
+
+Manage or opt-out of these emails in your settings: {{settingsUrl}}
+You are receiving this email because you have a PornSpot.ai account.

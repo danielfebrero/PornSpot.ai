@@ -1319,6 +1319,10 @@
         "unread": {
           "label": "Unread notifications summary"
         },
+        "communications": {
+          "label": "Platform communications",
+          "description": "Get notified about new features and cool announcements"
+        },
         "options": {
           "intelligently": "Intelligently",
           "always": "Always",

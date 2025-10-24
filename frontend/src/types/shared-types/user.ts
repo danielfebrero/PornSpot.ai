@@ -23,6 +23,7 @@ export interface EmailPreferences {
   pscBalance?: EmailPreferenceMode;
   unreadNotifications?: EmailPreferenceMode;
   newFollowers?: EmailPreferenceMode;
+  communications?: EmailPreferenceMode;
 }
 
 export interface User {

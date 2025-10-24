@@ -3,7 +3,7 @@
 /**
  * Script to update user email preferences in bulk
  *
- * This script updates users' emailPreferences.unreadNotifications from "intelligently" to "always"
+ * This script backfills users' emailPreferences.communications to "always"
  *
  * Usage: node scripts/update-email-preferences.js --env=<environment> [--dry-run] [--limit=N]
  *
@@ -98,8 +98,8 @@ function displayUsage() {
   console.log(`
 📋 Update Email Preferences Script
 
-This script updates users' emailPreferences.unreadNotifications 
-from "intelligently" to "always" in DynamoDB.
+This script backfills users' emailPreferences.communications 
+to "always" in DynamoDB.
 
 Usage:
   node scripts/update-email-preferences.js --env=<environment> [--dry-run] [--limit=N]
@@ -178,9 +178,9 @@ async function updateEmailPreferences(environment, options = {}) {
           const email = user.email;
           const username = user.username || "N/A";
 
-          // Check if user has emailPreferences.unreadNotifications
-          // Update to "always" unless current value is "never"
-          const currentPreference = user.emailPreferences?.unreadNotifications;
+          // Check if user has emailPreferences.communications
+          // Backfill to "always" unless current value is "never"
+          const currentPreference = user.emailPreferences?.communications;
 
           // Skip only if explicitly set to "never" or already "always"
           if (currentPreference === "never") {
@@ -203,13 +203,11 @@ async function updateEmailPreferences(environment, options = {}) {
               `\n[${totalProcessed}] 📧 User: ${username} (${email})`
             );
             console.log(
-              `   Current: emailPreferences.unreadNotifications = ${
+              `   Current: emailPreferences.communications = ${
                 currentPreference ? `"${currentPreference}"` : "not set"
               }`
             );
-            console.log(
-              `   New: emailPreferences.unreadNotifications = "always"`
-            );
+            console.log(`   New: emailPreferences.communications = "always"`);
 
             if (!isDryRun) {
               // Update the user's email preferences
@@ -231,12 +229,13 @@ async function updateEmailPreferences(environment, options = {}) {
                     pscBalance: "intelligently",
                     unreadNotifications: "always",
                     newFollowers: "intelligently",
+                    communications: "always",
                   },
                 };
               } else {
                 // If it exists, just update the nested property
                 updateParams.UpdateExpression =
-                  "SET emailPreferences.unreadNotifications = :always";
+                  "SET emailPreferences.communications = :always";
                 updateParams.ExpressionAttributeValues = {
                   ":always": "always",
                 };

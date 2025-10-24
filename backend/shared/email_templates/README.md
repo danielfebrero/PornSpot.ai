@@ -67,6 +67,15 @@ Each email template consists of two files:
   - `{{profileUrl}}` - Direct link to the follower's profile page
   - `{{settingsUrl}}` - Link for the user to manage their email notification preferences
 
+### random-feature
+
+- **Purpose**: Announce the PornSpot.ai Random feature with unlimited free NSFW image discovery
+- **Variables**:
+  - `{{subject}}` - Email subject line
+  - `{{displayName}}` - Recipient's display name (first name, username, or email)
+  - `{{featureUrl}}` - Direct link to PornSpot.ai Random feature page
+  - `{{settingsUrl}}` - Link to user's email notification settings page
+
 ## Template Variables
 
 Templates use the `{{variableName}}` syntax for variable substitution. All variables are replaced during template processing.

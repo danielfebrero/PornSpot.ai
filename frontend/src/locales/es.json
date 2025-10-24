@@ -1262,6 +1262,10 @@
         "unread": {
           "label": "Resumen de notificaciones no leídas"
         },
+        "communications": {
+          "label": "Comunicaciones de la plataforma",
+          "description": "Recibe notificaciones sobre nuevas funciones y anuncios interesantes"
+        },
         "options": {
           "intelligently": "Inteligentemente",
           "always": "Siempre",

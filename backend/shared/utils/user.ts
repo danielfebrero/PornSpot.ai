@@ -76,6 +76,7 @@ export class UserUtil {
         pscBalance: "intelligently",
         unreadNotifications: "always",
         newFollowers: "intelligently",
+        communications: "always",
       },
     };
 
