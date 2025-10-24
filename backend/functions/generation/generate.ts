@@ -306,15 +306,19 @@ class AIService {
     }
   }
 
-  static async generateRandomPrompt(): Promise<string> {
+  static async generateRandomPrompt(): Promise<{
+    prompt: string;
+    loras: string[];
+  }> {
     const timer = new PerformanceTimer("Random Prompt Generation");
 
     try {
-      // Generate weighted random settings
+      // Generate weighted random settings with automatic LoRA selection
       const settings = generatePromptSettings();
       const settingsMessage = formatSettingsForPrompt(settings);
 
       console.log("🎲 Generated random settings:", settingsMessage);
+      console.log("🔧 Auto-selected LoRAs:", settings.selectedLoras.join(", "));
 
       const content = await this.chatCompletion(
         "generate-random-image-prompt",
@@ -323,7 +327,10 @@ class AIService {
         CONFIG.AI_PARAMS.maxTokens.randomPrompt
       );
 
-      return content.trim();
+      return {
+        prompt: content.trim(),
+        loras: settings.selectedLoras,
+      };
     } catch (error) {
       console.error("❌ Random prompt generation failed:", error);
       throw new Error("Failed to generate random prompt");
@@ -973,7 +980,12 @@ class PromptProcessor {
         },
       };
 
-      if (connectionId && requestBody.loraSelectionMode === "auto") {
+      // Notify WebSocket about LoRA selection (unless already selected from random prompt)
+      if (
+        connectionId &&
+        requestBody.loraSelectionMode === "auto" &&
+        !requestBody.selectedLoras?.length
+      ) {
         await WebSocketService.sendMessage(connectionId, "selecting_loras", {
           queueId,
           message: "Selecting LoRAs...",
@@ -988,8 +1000,9 @@ class PromptProcessor {
             ? Promise.resolve<ProcessingResult<void>>({ success: true })
             : AIService.performModeration(validatedPrompt, controller),
 
-          // Conditionally perform LoRA selection
-          requestBody.loraSelectionMode === "auto"
+          // Conditionally perform LoRA selection (skip if already selected from random prompt)
+          requestBody.loraSelectionMode === "auto" &&
+          !requestBody.selectedLoras?.length
             ? AIService.selectLoras(
                 requestBody.originalPrompt || validatedPrompt
               )
@@ -1244,9 +1257,13 @@ const handleGenerate = async (
         });
       }
 
-      const generatedPrompt = await AIService.generateRandomPrompt();
+      const { prompt: generatedPrompt, loras: generatedLoras } =
+        await AIService.generateRandomPrompt();
       requestBody.prompt = generatedPrompt;
       requestBody.originalPrompt = generatedPrompt;
+      // Use the LoRAs from settings generator instead of AI selection
+      requestBody.selectedLoras = generatedLoras;
+      requestBody.loraSelectionMode = "auto"; // Mark as auto-selected
       usedGeneratedPrompt = true;
     } catch (error) {
       console.error("❌ Failed to generate random prompt:", error);

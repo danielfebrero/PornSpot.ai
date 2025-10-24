@@ -12,6 +12,9 @@ export interface PromptSettings {
   pose: string; // Body-breaking to beauty-pageant bends: Instagram arches, yacht yawns, tripled twists
   clothingState: string; // From lace teases to topless tans, dripping details, tripled drapes
   wildcard: string | null; // 40% spike, quirks from cum-glints to confetti cascades, tripled tricks
+  bodyModifications: string | null; // Piercings, tattoos, and other body mods for LoRA triggers
+  photographyStyle: string; // Amateur vs professional photography aesthetic
+  selectedLoras: string[]; // Programmatically selected LoRAs based on settings
 }
 
 interface WeightedOption<T> {
@@ -270,15 +273,26 @@ function generateTheme(numChars: number): string {
             "solo wardrobe whirl (dress try-on twirl, mirror-mulled in lace layers)",
           weight: 1,
         },
-        // Explicit Edge: 60% – 18 options
+        // Explicit Edge: 60% – 20 options with LoRA triggers
         {
           value: "solo fingering (fingers delving deep into slick folds)",
           weight: 3,
         },
+        // Triggers Sextoy_Dildo_Pussy_v2_XL LoRA
         {
           value:
             "solo dildo thrust (vibrating silicone stretching tight entrance)",
           weight: 3,
+        },
+        {
+          value:
+            "solo sextoy masturbation (realistic dildo plunging into wet pussy)",
+          weight: 2.5,
+        },
+        {
+          value:
+            "solo vibrator orgasm (toy buzzing against clit to squirting climax)",
+          weight: 2,
         },
         {
           value: "solo clitoral rub (hooded pearl circled to quivering peak)",
@@ -359,7 +373,7 @@ function generateTheme(numChars: number): string {
 
     case 2: // Couples: Duet daggers, tripled to 30+ (40% romantic ripple, 60% raw ride)
       themeOptions = [
-        // Soft Erotic: 40% – 12 options
+        // Soft Erotic: 40% – 13 options with downblouse trigger
         {
           value: "couple cuddle (spooned on silk, hands tracing lace edges)",
           weight: 4,
@@ -372,9 +386,10 @@ function generateTheme(numChars: number): string {
           value: "couple photoshoot (posed embrace, lips brushing collarbones)",
           weight: 3.5,
         },
+        // Triggers RealDownblouseXLv3 LoRA
         {
           value:
-            "couple wine share (sipping from shared glass, droplets trailing décolletage)",
+            "couple wine share (sipping from shared glass, downblouse view of cleavage)",
           weight: 3,
         },
         {
@@ -416,7 +431,13 @@ function generateTheme(numChars: number): string {
             "couple drive-in dusk (car-seat shift, screen-glow on thigh-high trails)",
           weight: 1,
         },
-        // Explicit Edge: 60% – 18 options
+        // Triggers RealDownblouseXLv3 LoRA
+        {
+          value:
+            "couple dinner date (leaning forward, downblouse revealing lace bra)",
+          weight: 1,
+        },
+        // Explicit Edge: 60% – 19 options with anal trigger
         {
           value:
             "missionary penetration (veiny shaft plunging into welcoming labia)",
@@ -426,6 +447,17 @@ function generateTheme(numChars: number): string {
           value:
             "doggy style pounding (hips slamming against quivering ass cheeks)",
           weight: 3,
+        },
+        // Triggers Doggystyle anal XL LoRA
+        {
+          value:
+            "doggystyle anal sex (cock stretching tight ass, doggy position)",
+          weight: 2.5,
+        },
+        {
+          value:
+            "anal doggy fuck (rear entry anal penetration, doggystyle pose)",
+          weight: 2,
         },
         {
           value: "cowgirl ride (straddled grind milking rigid length)",
@@ -1330,6 +1362,7 @@ function generatePose(): string {
 /**
  * Generate clothing state
  * Partial (40%), Nude (30%), Kinky (30%)
+ * Triggers LoRAs: Harness_Straps_sdxl, bdsm_SDXL_1_, nudify_xl_lite
  */
 function generateClothingState(): string {
   const clothingOptions: WeightedOption<string>[] = [
@@ -1384,6 +1417,7 @@ function generateClothingState(): string {
       weight: 0.6,
     },
     // Full Nude/Topless: 30% – 9 options (representative of 31)
+    // Triggers nudify_xl_lite LoRA
     {
       value: "completely nude (every inch exposed, glistening in gloss)",
       weight: 0.9,
@@ -1417,7 +1451,8 @@ function generateClothingState(): string {
       value: "veil vanish (gossamer gone, ghost-gauzed in graceful gone)",
       weight: 0.5,
     },
-    // Kinky Layer: 30% – 9 options (representative of 32)
+    // Kinky Layer: 30% – 12 options (representative of 32)
+    // Triggers Harness_Straps_sdxl and bdsm_SDXL_1_ LoRAs
     {
       value: "leather harness crisscross (straps biting into bound breasts)",
       weight: 0.9,
@@ -1427,32 +1462,44 @@ function generateClothingState(): string {
       weight: 0.9,
     },
     {
-      value: "collar and cuffs only (velvet choker, wristlets for the yank)",
+      value: "cupless bra (breasts framed and exposed by underwire)",
+      weight: 0.85,
+    },
+    {
+      value: "garter belt straps (clips stretching down thighs)",
       weight: 0.8,
+    },
+    {
+      value: "body harness straps (leather bands crisscrossing torso)",
+      weight: 0.8,
+    },
+    {
+      value: "rope bondage ties (intricate shibari binding breasts)",
+      weight: 0.75,
+    },
+    {
+      value: "collar and cuffs only (velvet choker, wristlets for the yank)",
+      weight: 0.7,
     },
     {
       value: "oil-slicked transparency (body paint posing as second skin)",
-      weight: 0.8,
+      weight: 0.7,
     },
     {
       value: "chainmail chemise (link-laced, clink-clashed in metal mesh)",
-      weight: 0.7,
+      weight: 0.6,
     },
     {
       value: "corset cinch (waist-whittled, lace-laced in breath-bound bind)",
-      weight: 0.7,
+      weight: 0.6,
     },
     {
       value: "garter grip (stocking-snapped, thigh-throttled in tension tease)",
-      weight: 0.6,
+      weight: 0.5,
     },
     {
       value: "hologram harness (digital drapes dissolving in data)",
-      weight: 0.6,
-    },
-    {
-      value: "feather boa bind (plume-plucked, tickle-tied in avian allure)",
-      weight: 0.5,
+      weight: 0.4,
     },
   ];
 
@@ -1586,12 +1633,209 @@ function generateWildcard(): string | null {
 }
 
 /**
+ * Generate body modifications (piercings, tattoos)
+ * Triggers LoRAs: Pierced_Nipples_XL_Barbell_Edition-000013, Body Tattoo_alpha1.0_rank4_noxattn_last
+ * 30% chance of piercings, 25% chance of tattoos, 45% no modifications
+ */
+function generateBodyModifications(): string | null {
+  const modOptions: WeightedOption<string | null>[] = [
+    { value: null, weight: 45 }, // No modifications
+    // Piercings - 30% total (triggers Pierced_Nipples_XL_Barbell_Edition-000013)
+    {
+      value: "nipple piercings (barbell studs piercing erect peaks)",
+      weight: 8,
+    },
+    { value: "nipple piercings (silver rings adorning rosy tips)", weight: 6 },
+    { value: "nipple chain (connected piercings linking breasts)", weight: 5 },
+    { value: "belly button piercing (jeweled navel ring)", weight: 4 },
+    {
+      value: "clit hood piercing (delicate ring on sensitive pearl)",
+      weight: 3,
+    },
+    { value: "tongue piercing (metal stud for enhanced oral)", weight: 2 },
+    { value: "multiple piercings (nipples, navel, and more)", weight: 2 },
+    // Tattoos - 25% total (triggers Body Tattoo_alpha1.0_rank4_noxattn_last)
+    { value: "full body tattoo (intricate ink covering curves)", weight: 5 },
+    { value: "sleeve tattoos (elaborate designs wrapping arms)", weight: 4 },
+    { value: "back piece tattoo (sprawling art across spine)", weight: 4 },
+    { value: "thigh tattoos (sensual patterns framing legs)", weight: 3 },
+    { value: "breast tattoos (delicate ink adorning cleavage)", weight: 3 },
+    { value: "tribal tattoos (bold patterns across shoulders)", weight: 2 },
+    { value: "lower back tattoo (decorative design above curves)", weight: 2 },
+    { value: "rib cage tattoos (intricate art along torso)", weight: 2 },
+  ];
+
+  return selectWeighted(modOptions);
+}
+
+/**
+ * Generate photography style
+ * Triggers LoRAs: leaked_nudes_style_v1_fixed (amateur), DynaPoseV1 (professional/Instagram)
+ * 60% amateur (leaked_nudes_style), 40% professional (DynaPoseV1)
+ */
+function generatePhotographyStyle(): string {
+  const styleOptions: WeightedOption<string>[] = [
+    // Amateur/Candid - 60% (triggers leaked_nudes_style_v1_fixed)
+    {
+      value: "amateur selfie (casual phone camera in natural setting)",
+      weight: 15,
+    },
+    {
+      value: "candid snapshot (spontaneous capture, authentic moment)",
+      weight: 12,
+    },
+    {
+      value: "leaked nudes aesthetic (intimate private photography)",
+      weight: 10,
+    },
+    { value: "bathroom mirror selfie (steamy glass, phone-framed)", weight: 8 },
+    {
+      value: "bedroom amateur (soft natural light, personal space)",
+      weight: 7,
+    },
+    { value: "vacation candid (casual travel photography vibe)", weight: 5 },
+    { value: "homemade video still (authentic amateur capture)", weight: 3 },
+    // Professional/Instagram - 40% (triggers DynaPoseV1)
+    {
+      value:
+        "instagram model pose (professional composition, curated aesthetic)",
+      weight: 12,
+    },
+    {
+      value: "fashion photography (studio lighting, editorial pose)",
+      weight: 10,
+    },
+    { value: "professional boudoir (soft focus, artistic framing)", weight: 8 },
+    { value: "glamour photography (polished, magazine-quality)", weight: 5 },
+    {
+      value: "influencer content (social media ready, perfect angles)",
+      weight: 5,
+    },
+  ];
+
+  return selectWeighted(styleOptions);
+}
+
+/**
+ * Select LoRAs based on generated settings
+ * Analyzes all settings to determine which LoRAs should be applied
+ * @param settings The complete prompt settings
+ * @returns Array of LoRA names to apply
+ */
+function selectLorasFromSettings(settings: PromptSettings): string[] {
+  const loras = new Set<string>();
+
+  // Always add detail enhancement
+  loras.add("add-detail-xl");
+
+  // Photography style triggers
+  if (
+    settings.photographyStyle.includes("amateur") ||
+    settings.photographyStyle.includes("candid") ||
+    settings.photographyStyle.includes("leaked") ||
+    settings.photographyStyle.includes("selfie") ||
+    settings.photographyStyle.includes("homemade")
+  ) {
+    loras.add("leaked_nudes_style_v1_fixed");
+  }
+
+  if (
+    settings.photographyStyle.includes("instagram") ||
+    settings.photographyStyle.includes("fashion") ||
+    settings.photographyStyle.includes("professional") ||
+    settings.photographyStyle.includes("glamour") ||
+    settings.photographyStyle.includes("influencer") ||
+    settings.pose.includes("instagram")
+  ) {
+    loras.add("DynaPoseV1");
+  }
+
+  // Body modifications triggers
+  if (settings.bodyModifications) {
+    if (settings.bodyModifications.includes("nipple piercing")) {
+      loras.add("Pierced_Nipples_XL_Barbell_Edition-000013");
+    }
+    if (
+      settings.bodyModifications.includes("tattoo") ||
+      settings.bodyModifications.includes("ink")
+    ) {
+      loras.add("Body Tattoo_alpha1.0_rank4_noxattn_last");
+    }
+  }
+
+  // Clothing state triggers
+  if (
+    settings.clothingState.includes("harness") ||
+    settings.clothingState.includes("straps") ||
+    settings.clothingState.includes("garter") ||
+    settings.clothingState.includes("cupless bra")
+  ) {
+    loras.add("Harness_Straps_sdxl");
+  }
+
+  if (
+    settings.clothingState.includes("rope bondage") ||
+    settings.clothingState.includes("collar") ||
+    settings.theme.includes("tied") ||
+    settings.theme.includes("restraint") ||
+    settings.theme.includes("bind")
+  ) {
+    loras.add("bdsm_SDXL_1_");
+  }
+
+  if (
+    settings.clothingState.includes("nude") ||
+    settings.clothingState.includes("topless") ||
+    settings.clothingState.includes("bare") ||
+    settings.clothingState.includes("naked")
+  ) {
+    loras.add("nudify_xl_lite");
+  }
+
+  // Theme-based triggers
+  if (
+    settings.theme.includes("dildo") ||
+    settings.theme.includes("sextoy") ||
+    settings.theme.includes("vibrator") ||
+    settings.theme.includes("toy")
+  ) {
+    loras.add("Sextoy_Dildo_Pussy_v2_XL");
+  }
+
+  if (
+    settings.theme.includes("doggystyle anal") ||
+    settings.theme.includes("anal doggy")
+  ) {
+    loras.add("Doggystyle anal XL");
+  }
+
+  if (settings.theme.includes("downblouse")) {
+    loras.add("RealDownblouseXLv3");
+  }
+
+  // Anthropomorphic character detection (bread LoRA)
+  // Note: Current settings don't generate furry/anthro content, but we keep the logic for future expansion
+  const combinedText =
+    `${settings.theme} ${settings.characterAge}`.toLowerCase();
+  if (
+    combinedText.includes("cat girl") ||
+    combinedText.includes("fox woman") ||
+    combinedText.includes("furry") ||
+    combinedText.includes("anthro")
+  ) {
+    loras.add("bread");
+  }
+
+  return Array.from(loras);
+}
+
+/**
  * Generate complete set of randomized NSFW settings for prompt generation
- * @returns PromptSettings object with all randomized parameters
+ * @returns PromptSettings object with all randomized parameters and selected LoRAs
  */
 export function generatePromptSettings(): PromptSettings {
   const numChars = generateNumCharacters();
-  return {
+  const baseSettings = {
     characterAge: generateCharacterAge(),
     numCharacters: numChars,
     theme: generateTheme(numChars),
@@ -1600,7 +1844,15 @@ export function generatePromptSettings(): PromptSettings {
     pose: generatePose(),
     clothingState: generateClothingState(),
     wildcard: generateWildcard(),
+    bodyModifications: generateBodyModifications(),
+    photographyStyle: generatePhotographyStyle(),
+    selectedLoras: [] as string[], // Will be populated below
   };
+
+  // Select LoRAs based on the generated settings
+  baseSettings.selectedLoras = selectLorasFromSettings(baseSettings);
+
+  return baseSettings;
 }
 
 /**
@@ -1610,6 +1862,7 @@ export function generatePromptSettings(): PromptSettings {
  */
 export function formatSettingsForPrompt(settings: PromptSettings): string {
   const parts = [
+    settings.photographyStyle,
     settings.characterAge,
     `${settings.numCharacters} character${
       settings.numCharacters > 1 ? "s" : ""
@@ -1620,6 +1873,10 @@ export function formatSettingsForPrompt(settings: PromptSettings): string {
     settings.pose,
     settings.clothingState,
   ];
+
+  if (settings.bodyModifications) {
+    parts.push(settings.bodyModifications);
+  }
 
   if (settings.wildcard) {
     parts.push(settings.wildcard);
