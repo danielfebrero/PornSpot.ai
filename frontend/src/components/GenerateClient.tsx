@@ -435,7 +435,8 @@ export function GenerateClient() {
             !allowed ||
             !settings.prompt.trim() ||
             isInPreparingState ||
-            isSelectingLorasState
+            isSelectingLorasState ||
+            !isConnected
           }
           className={cn(
             "flex-1 py-2 px-3 text-sm rounded-lg border transition-all",
@@ -1922,7 +1923,8 @@ export function GenerateClient() {
                 !allowed ||
                 !settings.prompt.trim() ||
                 isInPreparingState ||
-                isSelectingLorasState
+                isSelectingLorasState ||
+                !isConnected
               }
               className={cn(
                 "w-full h-16 text-lg font-semibold rounded-xl shadow-lg mb-6 transition-all",

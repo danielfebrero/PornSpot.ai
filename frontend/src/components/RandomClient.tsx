@@ -16,10 +16,13 @@ import { useDevice } from "@/contexts/DeviceContext";
 import { composeMediaUrl } from "@/lib/urlUtils";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { useWebSocket } from "@/contexts/WebSocketContext";
 
 export function RandomClient() {
   const t = useTranslations("generate");
   const { isMobileInterface } = useDevice();
+  const { isConnected } = useWebSocket();
+
   const {
     resetSettings,
     clearResults,
@@ -267,7 +270,8 @@ export function RandomClient() {
             disabled={
               isInPreparingState ||
               isRandomizingPromptState ||
-              isSelectingLorasState
+              isSelectingLorasState ||
+              !isConnected
             }
             className={cn(
               "w-full h-10 text-xs font-semibold rounded-lg shadow-lg",
@@ -329,7 +333,8 @@ export function RandomClient() {
           disabled={
             isInPreparingState ||
             isRandomizingPromptState ||
-            isSelectingLorasState
+            isSelectingLorasState ||
+            !isConnected
           }
           className={cn(
             "w-full h-16 text-lg font-semibold rounded-xl shadow-lg transition-all",
