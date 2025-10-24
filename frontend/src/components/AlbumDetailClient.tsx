@@ -34,6 +34,7 @@ import { useCallback } from "react";
 import Avatar from "./ui/Avatar";
 import { useGetMinimalUser } from "@/hooks/queries/useUserQuery";
 import { useDateUtils } from "@/hooks/useDateUtils";
+import { removeLocaleFromPathname } from "@/lib/navigation";
 
 interface AlbumDetailClientProps {
   album: Album;
@@ -98,7 +99,12 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
                   <button
                     className="flex items-center w-full px-4 py-2.5 text-sm hover:bg-accent transition-colors"
                     onClick={() => {
-                      navigator.clipboard.writeText(window.location.href);
+                      const urlWithoutLocale =
+                        window.location.origin +
+                        removeLocaleFromPathname(window.location.pathname) +
+                        window.location.search +
+                        window.location.hash;
+                      navigator.clipboard.writeText(urlWithoutLocale);
                       close();
                     }}
                   >

@@ -9,7 +9,7 @@ import {
   useRef,
   useCallback,
 } from "react";
-import { useLocaleRouter } from "@/lib/navigation";
+import { useLocaleRouter, removeLocaleFromPathname } from "@/lib/navigation";
 import {
   primeViewCountCache,
   useBulkViewCounts,
@@ -390,7 +390,12 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                 <button
                   className="flex items-center w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
                   onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
+                    const urlWithoutLocale =
+                      window.location.origin +
+                      removeLocaleFromPathname(window.location.pathname) +
+                      window.location.search +
+                      window.location.hash;
+                    navigator.clipboard.writeText(urlWithoutLocale);
                     close();
                   }}
                 >
