@@ -181,6 +181,9 @@ const handleEditProfile = async (
       if (prefs.newFollowers && !validModes.includes(prefs.newFollowers)) {
         validationErrors.push("Invalid email preference for new followers");
       }
+      if (prefs.communications && !validModes.includes(prefs.communications)) {
+        validationErrors.push("Invalid email preference for communications");
+      }
     } catch (error) {
       validationErrors.push(
         error instanceof Error
