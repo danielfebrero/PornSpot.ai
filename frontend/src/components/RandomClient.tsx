@@ -24,7 +24,6 @@ export function RandomClient() {
   const { isConnected } = useWebSocket();
 
   const {
-    resetSettings,
     clearResults,
     generateImages,
     stopGeneration,
@@ -55,12 +54,6 @@ export function RandomClient() {
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-
-  useEffect(() => {
-    resetSettings();
-    clearResults();
-    setShowProgressCard(false);
-  }, [resetSettings, clearResults, setShowProgressCard]);
 
   useEffect(() => {
     if (generatedImages.length > 0) {
