@@ -34,7 +34,13 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
 
         const rawValue = min + (percentage / 100) * (max - min);
         const steppedValue = Math.round(rawValue / step) * step;
-        const clampedValue = Math.max(min, Math.min(max, steppedValue));
+
+        // Fix floating-point precision issues by rounding to the step's decimal places
+        const decimalPlaces = step.toString().split(".")[1]?.length || 0;
+        const clampedValue = Math.max(
+          min,
+          Math.min(max, parseFloat(steppedValue.toFixed(decimalPlaces)))
+        );
 
         onValueChange([clampedValue]);
       },
