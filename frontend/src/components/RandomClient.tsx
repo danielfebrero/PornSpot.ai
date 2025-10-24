@@ -21,7 +21,7 @@ import { useWebSocket } from "@/contexts/WebSocketContext";
 export function RandomClient() {
   const t = useTranslations("generate");
   const { isMobileInterface } = useDevice();
-  const { isConnected } = useWebSocket();
+  const { fetchConnectionId, isConnected } = useWebSocket();
 
   const {
     clearResults,
@@ -127,6 +127,11 @@ export function RandomClient() {
   const handleLightboxPrevious = () => {
     setLightboxIndex(Math.max(lightboxIndex - 1, 0));
   };
+
+  useEffect(() => {
+    if (!isConnected) return;
+    fetchConnectionId();
+  }, [fetchConnectionId, isConnected]);
 
   // Mobile view with fixed button at bottom
   if (isMobileInterface) {
