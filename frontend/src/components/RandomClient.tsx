@@ -43,6 +43,7 @@ export function RandomClient() {
       workflowNodes,
       currentNodeIndex,
       isRandomizingPrompt,
+      isSelectingLoras,
     },
     setShowProgressCard,
     setDeletedImageIds,
@@ -78,8 +79,12 @@ export function RandomClient() {
 
   const hasActiveQueueId = Boolean(queueStatus?.queueId);
   const isRandomizingPromptState = isGenerating && isRandomizingPrompt;
+  const isSelectingLorasState = isGenerating && isSelectingLoras;
   const isInPreparingState =
-    isGenerating && !hasActiveQueueId && !isRandomizingPromptState;
+    isGenerating &&
+    !hasActiveQueueId &&
+    !isRandomizingPromptState &&
+    !isSelectingLorasState;
   const isInStopState = isGenerating && hasActiveQueueId;
 
   const handleGenerate = async () => {
@@ -259,7 +264,11 @@ export function RandomClient() {
         <div className="fixed bottom-[61px] left-0 right-0 px-3 py-2 bg-background/95 backdrop-blur-lg border-t z-50">
           <Button
             onClick={isInStopState ? handleStopGeneration : handleGenerate}
-            disabled={isInPreparingState || isRandomizingPromptState}
+            disabled={
+              isInPreparingState ||
+              isRandomizingPromptState ||
+              isSelectingLorasState
+            }
             className={cn(
               "w-full h-10 text-xs font-semibold rounded-lg shadow-lg",
               isInStopState
@@ -276,6 +285,11 @@ export function RandomClient() {
               <div className="flex items-center gap-2">
                 <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 <span>{t("randomizingPrompt")}</span>
+              </div>
+            ) : isSelectingLorasState ? (
+              <div className="flex items-center gap-2">
+                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>{t("selectingLoras")}</span>
               </div>
             ) : isInPreparingState ? (
               <div className="flex items-center gap-2">
@@ -312,7 +326,11 @@ export function RandomClient() {
         <Button
           size="lg"
           onClick={isInStopState ? handleStopGeneration : handleGenerate}
-          disabled={isInPreparingState || isRandomizingPromptState}
+          disabled={
+            isInPreparingState ||
+            isRandomizingPromptState ||
+            isSelectingLorasState
+          }
           className={cn(
             "w-full h-16 text-lg font-semibold rounded-xl shadow-lg transition-all",
             isInStopState
@@ -329,6 +347,11 @@ export function RandomClient() {
             <div className="flex items-center gap-3">
               <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
               <span>{t("randomizingPrompt")}</span>
+            </div>
+          ) : isSelectingLorasState ? (
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+              <span>{t("selectingLoras")}</span>
             </div>
           ) : isInPreparingState ? (
             <div className="flex items-center gap-3">

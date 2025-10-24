@@ -185,6 +185,30 @@ Once subscribed to a queue, clients will receive real-time updates:
 }
 ```
 
+### LoRA Selection Messages
+
+#### Selection Started
+
+```json
+{
+  "type": "selecting_loras",
+  "queueId": "uuid-of-queue-entry",
+  "timestamp": "2025-08-12T10:30:00.000Z",
+  "message": "Selecting LoRAs..."
+}
+```
+
+#### Selection Completed
+
+```json
+{
+  "type": "selecting_loras_complete",
+  "queueId": "uuid-of-queue-entry",
+  "timestamp": "2025-08-12T10:30:01.000Z",
+  "message": "LoRA selection completed"
+}
+```
+
 ### Prompt Optimization Messages
 
 #### Optimization Start

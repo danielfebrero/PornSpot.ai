@@ -154,6 +154,7 @@ export function GenerateClient() {
       originalPromptBeforeOptimization,
       isGenerating,
       isOptimizing,
+      isSelectingLoras,
     },
     setAllGeneratedImages,
     setDeletedImageIds,
@@ -220,8 +221,10 @@ export function GenerateClient() {
   const hasActiveQueueId = Boolean(queueStatus?.queueId);
 
   // Button states
+  const isSelectingLorasState = isGenerating && isSelectingLoras;
   const isInPreparingState =
-    isOptimizing || (isGenerating && !hasActiveQueueId);
+    (isOptimizing && !isSelectingLorasState) ||
+    (isGenerating && !hasActiveQueueId && !isSelectingLorasState);
   const isInStopState = isGenerating && hasActiveQueueId;
 
   // Device detection with better breakpoints
@@ -428,7 +431,12 @@ export function GenerateClient() {
         </button>
         <button
           onClick={() => updateLoraSelectionMode("manual")}
-          disabled={!canUseLoras}
+          disabled={
+            !allowed ||
+            !settings.prompt.trim() ||
+            isInPreparingState ||
+            isSelectingLorasState
+          }
           className={cn(
             "flex-1 py-2 px-3 text-sm rounded-lg border transition-all",
             settings.loraSelectionMode === "manual"
@@ -1450,7 +1458,12 @@ export function GenerateClient() {
           )}
           <Button
             onClick={isInStopState ? handleStopGeneration : handleGenerate}
-            disabled={!allowed || !settings.prompt.trim() || isInPreparingState}
+            disabled={
+              !allowed ||
+              !settings.prompt.trim() ||
+              isInPreparingState ||
+              isSelectingLorasState
+            }
             className={cn(
               "w-full h-10 text-xs font-semibold rounded-lg shadow-lg",
               isInStopState
@@ -1462,6 +1475,11 @@ export function GenerateClient() {
               <div className="flex items-center gap-2">
                 <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 <span>{t("stopGeneration")}</span>
+              </div>
+            ) : isSelectingLorasState ? (
+              <div className="flex items-center gap-2">
+                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>{t("selectingLoras")}</span>
               </div>
             ) : isInPreparingState ? (
               <div className="flex items-center gap-2">
@@ -1901,7 +1919,10 @@ export function GenerateClient() {
             <Button
               onClick={isInStopState ? handleStopGeneration : handleGenerate}
               disabled={
-                !allowed || !settings.prompt.trim() || isInPreparingState
+                !allowed ||
+                !settings.prompt.trim() ||
+                isInPreparingState ||
+                isSelectingLorasState
               }
               className={cn(
                 "w-full h-16 text-lg font-semibold rounded-xl shadow-lg mb-6 transition-all",
@@ -1914,6 +1935,11 @@ export function GenerateClient() {
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                   <span>{t("stopGeneration")}</span>
+                </div>
+              ) : isSelectingLorasState ? (
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>{t("selectingLoras")}</span>
                 </div>
               ) : isInPreparingState ? (
                 <div className="flex items-center gap-3">

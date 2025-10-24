@@ -973,6 +973,13 @@ class PromptProcessor {
         },
       };
 
+      if (connectionId && requestBody.loraSelectionMode === "auto") {
+        await WebSocketService.sendMessage(connectionId, "selecting_loras", {
+          queueId,
+          message: "Selecting LoRAs...",
+        });
+      }
+
       // Perform all operations in parallel
       const [moderationResult, selectedLoras, optimizedPrompt] =
         await Promise.all([
@@ -1009,6 +1016,17 @@ class PromptProcessor {
 
       // Update request with selected LoRAs
       requestBody.selectedLoras = selectedLoras;
+
+      if (connectionId && requestBody.loraSelectionMode === "auto") {
+        await WebSocketService.sendMessage(
+          connectionId,
+          "selecting_loras_complete",
+          {
+            queueId,
+            message: "LoRA selection completed",
+          }
+        );
+      }
 
       // Determine final prompt
       const finalPrompt = optimizedPrompt || validatedPrompt.trim();

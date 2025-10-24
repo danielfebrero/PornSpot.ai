@@ -37,7 +37,9 @@ export interface GenerationWebSocketMessage {
     | "optimization_complete"
     | "optimization_error"
     | "prompt-moderation"
-    | "randomizing_prompt";
+  | "randomizing_prompt"
+  | "selecting_loras"
+  | "selecting_loras_complete";
   connectionId?: string; // Added connectionId to track the connection
   queueId?: string;
   queuePosition?: number;

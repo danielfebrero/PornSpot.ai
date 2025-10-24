@@ -1588,6 +1588,7 @@
     "stopGeneration": "Arrêter la génération",
     "preparingGeneration": "Préparation de la génération...",
     "randomizingPrompt": "Randomizing prompt...",
+    "selectingLoras": "Sélection des LoRAs...",
     "image": "image",
     "images": "images",
     "loraSelection": "Sélection LoRA",

@@ -1565,6 +1565,7 @@
     "stopGeneration": "Parar geração",
     "preparingGeneration": "Preparando geração...",
     "randomizingPrompt": "Randomizing prompt...",
+    "selectingLoras": "Selecionando LoRAs...",
     "image": "imagem",
     "images": "imagens",
     "loraSelection": "Seleção LoRA",

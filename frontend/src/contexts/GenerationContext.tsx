@@ -49,6 +49,7 @@ interface GenerationUIState {
   isGenerating: boolean;
   isOptimizing: boolean;
   isRandomizingPrompt: boolean;
+  isSelectingLoras: boolean;
 
   // Generation WebSocket state (moved from useGeneration)
   queueStatus: GenerationQueueStatus | null;
@@ -81,6 +82,7 @@ const DEFAULT_UI_STATE: GenerationUIState = {
   isGenerating: false,
   isOptimizing: false,
   isRandomizingPrompt: false,
+  isSelectingLoras: false,
 
   // Generation WebSocket state defaults
   queueStatus: null,
@@ -296,7 +298,23 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
           setUiState((prev) => ({
             ...prev,
             isRandomizingPrompt: true,
+            isSelectingLoras: false,
             currentMessage: message.message || "Randomizing prompt...",
+          }));
+          break;
+        case "selecting_loras":
+          setUiState((prev) => ({
+            ...prev,
+            isSelectingLoras: true,
+            isRandomizingPrompt: false,
+            currentMessage: message.message || "Selecting LoRAs...",
+          }));
+          break;
+        case "selecting_loras_complete":
+          setUiState((prev) => ({
+            ...prev,
+            isSelectingLoras: false,
+            currentMessage: message.message ?? prev.currentMessage,
           }));
           break;
 
@@ -317,6 +335,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
           setUiState((prev) => ({
             ...prev,
             isRandomizingPrompt: false,
+            isSelectingLoras: false,
             queueStatus: {
               queueId: message.queueId!,
               queuePosition: message.queuePosition || 0,
@@ -334,6 +353,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
             ...prev,
             isRetrying: false, // Clear retry state when processing starts
             isRandomizingPrompt: false,
+            isSelectingLoras: false,
             queueStatus: prev.queueStatus
               ? {
                   ...prev.queueStatus,
@@ -386,6 +406,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
               setUiState((prev) => ({
                 ...prev,
                 isRandomizingPrompt: false,
+                isSelectingLoras: false,
                 progress: overallProgress,
                 maxProgress: overallMaxProgress,
                 currentNode: nodeTitle,
@@ -428,6 +449,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
               message.message || "Generation completed successfully!",
             isGenerating: false,
             isRandomizingPrompt: false,
+            isSelectingLoras: false,
             progress: 100,
           }));
 
@@ -446,6 +468,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
             isRetrying: true,
             error: null, // Clear previous error on retry
             isRandomizingPrompt: false,
+            isSelectingLoras: false,
             queueStatus: prev.queueStatus
               ? {
                   ...prev.queueStatus,
@@ -508,6 +531,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
             isOptimizing: false,
             isGenerating: false,
             isRandomizingPrompt: false,
+            isSelectingLoras: false,
           }));
           if (message.status === "refused") {
             const reason = message.reason || "Content violates platform rules";
@@ -551,6 +575,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
                 ? "Generation failed, but will be retried automatically"
                 : "Generation failed"),
             isRandomizingPrompt: false,
+            isSelectingLoras: false,
           }));
 
           // Only stop generating if this is a final failure
@@ -595,6 +620,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
           currentMessage: "Submitting request...",
           queueStatus: null,
           isRandomizingPrompt: false,
+          isSelectingLoras: false,
         }));
 
         // Subscribe to WebSocket updates for this generation
@@ -621,6 +647,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
             message: result.message,
           },
           isRandomizingPrompt: false,
+          isSelectingLoras: false,
           currentMessage: result.message,
         }));
 
@@ -646,7 +673,14 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
         }
       }
     },
-    [isConnected, handleWebSocketMessage, subscribe, unsubscribe, connectionId]
+    [
+      isConnected,
+      handleWebSocketMessage,
+      subscribe,
+      unsubscribe,
+      connectionId,
+      uiState.originalPromptBeforeOptimization,
+    ]
   );
 
   const clearResults = useCallback(() => {
@@ -669,6 +703,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
       optimizationStream: null,
       optimizationToken: "",
       isRandomizingPrompt: false,
+      isSelectingLoras: false,
     }));
 
     // Unsubscribe from any active subscriptions
@@ -690,6 +725,7 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
       currentMessage: "Generation stopped by user",
       showProgressCard: false,
       isRandomizingPrompt: false,
+      isSelectingLoras: false,
     }));
 
     if (messageCallbackRef.current) {

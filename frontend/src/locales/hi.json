@@ -1564,6 +1564,7 @@
     "stopGeneration": "जनरेशन रोकें",
     "preparingGeneration": "जनरेशन तैयार कर रहे हैं...",
     "randomizingPrompt": "Randomizing prompt...",
+    "selectingLoras": "LoRA चयन हो रहा है...",
     "image": "छवि",
     "images": "छवियाँ",
     "loraSelection": "लोरा चयन",
