@@ -160,7 +160,7 @@ export function RandomClient() {
             />
           ) : latestImage ? (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between max-w-[450px] mx-auto">
                 <h3 className="text-lg font-semibold">
                   {t("generatedImages")}
                 </h3>
@@ -171,19 +171,21 @@ export function RandomClient() {
                   </span>
                 </div>
               </div>
-              <ContentCard
-                item={latestImage}
-                aspectRatio="square"
-                canLike={true}
-                canBookmark={true}
-                canFullscreen={true}
-                canAddToAlbum={true}
-                canDownload={true}
-                canDelete={true}
-                mediaList={filteredGeneratedImages}
-                currentIndex={filteredGeneratedImages.length - 1}
-                onDelete={handleOptimisticDelete}
-              />
+              <div className="max-w-[450px] mx-auto">
+                <ContentCard
+                  item={latestImage}
+                  aspectRatio="square"
+                  canLike={true}
+                  canBookmark={true}
+                  canFullscreen={true}
+                  canAddToAlbum={true}
+                  canDownload={true}
+                  canDelete={true}
+                  mediaList={filteredGeneratedImages}
+                  currentIndex={filteredGeneratedImages.length - 1}
+                  onDelete={handleOptimisticDelete}
+                />
+              </div>
             </div>
           ) : (
             <Card className="border-dashed border-2">
@@ -381,7 +383,7 @@ export function RandomClient() {
           />
         ) : latestImage ? (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between max-w-[450px] mx-auto">
               <h3 className="text-lg font-semibold">{t("generatedImages")}</h3>
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
@@ -390,19 +392,21 @@ export function RandomClient() {
                 </span>
               </div>
             </div>
-            <ContentCard
-              item={latestImage}
-              aspectRatio="square"
-              canLike={true}
-              canBookmark={true}
-              canFullscreen={true}
-              canAddToAlbum={true}
-              canDownload={true}
-              canDelete={true}
-              mediaList={filteredGeneratedImages}
-              currentIndex={filteredGeneratedImages.length - 1}
-              onDelete={handleOptimisticDelete}
-            />
+            <div className="max-w-[450px] mx-auto">
+              <ContentCard
+                item={latestImage}
+                aspectRatio="square"
+                canLike={true}
+                canBookmark={true}
+                canFullscreen={true}
+                canAddToAlbum={true}
+                canDownload={true}
+                canDelete={true}
+                mediaList={filteredGeneratedImages}
+                currentIndex={filteredGeneratedImages.length - 1}
+                onDelete={handleOptimisticDelete}
+              />
+            </div>
           </div>
         ) : (
           <Card className="border-dashed border-2">
