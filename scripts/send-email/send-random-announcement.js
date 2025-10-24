@@ -324,6 +324,16 @@ async function main() {
         continue;
       }
 
+      // Skip users who have opted out of communications
+      if (
+        user.emailPreferences?.communications === "never" ||
+        user.emailPreferences?.communications === false
+      ) {
+        stats.skipped += 1;
+        renderProgress();
+        continue;
+      }
+
       stats.processed += 1;
       renderProgress();
 
