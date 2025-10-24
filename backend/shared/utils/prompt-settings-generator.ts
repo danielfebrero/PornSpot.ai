@@ -1,14 +1,17 @@
 /**
- * Weighted random settings generator for AI image prompt generation – NSFW Edition for PornSpot.ai
- * Granular, filthy, and finely tuned to ignite user obsession. Legal lust only: suggest, seduce, never cross the crimson line.
- * Provides randomized, weighted selections for hyper-detailed prompt parameters.
+ * Weighted random settings generator for AI image prompt generation
+ * Provides randomized, weighted selections for detailed prompt parameters
  */
 
 export interface PromptSettings {
   characterAge: string;
-  theme: string;
-  style: string;
-  wildcard: string | null; // Evolved: Now a specific quirky element, or null
+  numCharacters: number; // Synced: 1=solo self-slaughter, 2=couple collision, 3+=group gangrenous glee
+  theme: string; // Locked & Laced: Themes tango with multitudes, threaded with erotic whispers – posing pretties, topless tangos, tripled to titillate
+  style: string; // Exploded: 240+ scenes, boudoir to boat bashes, diversity deluge deepened
+  ambiance: string; // Mood-layers – sultry glows, shadowy sins, electric edges, tripled tendrils
+  pose: string; // Body-breaking to beauty-pageant bends: Instagram arches, yacht yawns, tripled twists
+  clothingState: string; // From lace teases to topless tans, dripping details, tripled drapes
+  wildcard: string | null; // 40% spike, quirks from cum-glints to confetti cascades, tripled tricks
 }
 
 interface WeightedOption<T> {
@@ -23,143 +26,1558 @@ interface WeightedOption<T> {
  */
 function selectWeighted<T>(options: WeightedOption<T>[]): T {
   if (options.length === 0) {
-    throw new Error(
-      "Cannot select from empty options array – even sinners need choices"
-    );
+    throw new Error("Cannot select from empty options array");
   }
 
-  const totalWeight = options.reduce((sum, opt) => sum + opt.weight, 0);
+  const shuffled = [...options].sort(() => Math.random() - 0.5);
+  const totalWeight = shuffled.reduce((sum, opt) => sum + opt.weight, 0);
   let random = Math.random() * totalWeight;
 
-  for (const option of options) {
+  for (const option of shuffled) {
     random -= option.weight;
     if (random <= 0) {
       return option.value;
     }
   }
 
-  // Fallback to first option (should never happen with valid weights)
-  return options[0]!.value;
+  return shuffled[0]!.value;
 }
 
 /**
- * Generate hyper-granular character age descriptor with weighted probability
- * Skewed hard toward youthful allure (60%+ for 18-24 variants) – the eternal siren call.
- * NSFW twist: Evocative labels that whisper without shouting, keeping it courtroom-kissable.
+ * Generate character age descriptor with weighted probability
+ * Skewed toward youthful demographics (60%+ for 18-24 variants)
  */
 function generateCharacterAge(): string {
   const ageOptions: WeightedOption<string>[] = [
-    // 18-24: 60% total – prime clickbait catnip
-    { value: "barely legal teen (18-19)", weight: 25 },
-    { value: "fresh coed (20-22)", weight: 20 },
-    { value: "wild ingenue (23-24)", weight: 15 },
-    // 25-34: 20% – peak seduction curve
-    { value: "sultry young adult (25-27)", weight: 8 },
-    { value: "confident vixen (28-30)", weight: 7 },
-    { value: "alluring career temptress (31-34)", weight: 5 },
-    // 35-44: 12% – MILF magnetism rising
-    { value: "seasoned seductress (35-39)", weight: 6 },
-    { value: "empowered cougar (40-44)", weight: 6 },
-    // 45-54: 5% – forbidden fruit for the connoisseurs
-    { value: "mature enchantress (45-49)", weight: 3 },
-    { value: "timeless siren (50-54)", weight: 2 },
-    // 55+: 3% – rare vintage, high-value niche
-    { value: "eternal goddess (55+)", weight: 3 },
+    // 18-24: 60% total – prime clickbait catnip, tripled archetypes
+    { value: "barely legal teen (18-19)", weight: 8 },
+    {
+      value: "barely legal barista (18-19, apron askew in after-hours allure)",
+      weight: 7,
+    },
+    {
+      value: "barely legal cheerleader (18-19, pom-poms parted for pep)",
+      weight: 6,
+    },
+    { value: "fresh coed (20-22)", weight: 6 },
+    {
+      value: "fresh coed sorority sister (20-22, pledge pin piercing silk)",
+      weight: 5,
+    },
+    {
+      value: "fresh coed study buddy (20-22, notes forgotten in dorm glow)",
+      weight: 5,
+    },
+    { value: "wild ingenue (23-24)", weight: 5 },
+    {
+      value: "wild ingenue artist (23-24, paint-smeared canvas of curves)",
+      weight: 4,
+    },
+    {
+      value:
+        "wild ingenue festival free spirit (23-24, flower crown framing flush)",
+      weight: 4,
+    },
+    // 25-34: 20% – peak seduction curve, tripled to temptresses
+    { value: "sultry young adult (25-27)", weight: 3 },
+    {
+      value:
+        "sultry young adult yoga instructor (25-27, mat-misted in morning mist)",
+      weight: 2,
+    },
+    {
+      value:
+        "sultry young adult travel vlogger (25-27, passport stamps on sun-kissed skin)",
+      weight: 2,
+    },
+    { value: "confident vixen (28-30)", weight: 2 },
+    {
+      value:
+        "confident vixen executive (28-30, power suit peeled in penthouse)",
+      weight: 2,
+    },
+    {
+      value: "confident vixen bartender (28-30, shaker-shaken in neon night)",
+      weight: 2,
+    },
+    { value: "alluring career temptress (31-34)", weight: 2 },
+    {
+      value:
+        "alluring career temptress author (31-34, quill-quiet in leather-bound lair)",
+      weight: 1,
+    },
+    {
+      value:
+        "alluring career temptress dancer (31-34, spotlight-stolen in sequin sway)",
+      weight: 1,
+    },
+    // 35-44: 12% – MILF magnetism rising, tripled matrons
+    { value: "seasoned seductress (35-39)", weight: 2 },
+    {
+      value:
+        "seasoned seductress professor (35-39, chalk-dusted in lecture lust)",
+      weight: 2,
+    },
+    {
+      value:
+        "seasoned seductress winery owner (35-39, grape-stained in vineyard veil)",
+      weight: 1,
+    },
+    { value: "empowered cougar (40-44)", weight: 2 },
+    {
+      value: "empowered cougar CEO (40-44, boardroom bold in bespoke bare)",
+      weight: 1,
+    },
+    {
+      value:
+        "empowered cougar adventurer (40-44, trail-toughened in tented tease)",
+      weight: 1,
+    },
+    // 45-54: 5% – forbidden fruit for the connoisseurs, tripled to 6
+    { value: "mature enchantress (45-49)", weight: 1 },
+    {
+      value:
+        "mature enchantress gallery curator (45-49, frame-framed in oil glow)",
+      weight: 1,
+    },
+    {
+      value: "mature enchantress chef (45-49, apron-applied in kitchen heat)",
+      weight: 1,
+    },
+    { value: "timeless siren (50-54)", weight: 1 },
+    {
+      value: "timeless siren jazz vocalist (50-54, smoke-laced in stage smoke)",
+      weight: 0.5,
+    },
+    {
+      value: "timeless siren gardener (50-54, soil-sultry in greenhouse green)",
+      weight: 0.5,
+    },
+    // 55+: 3% – rare vintage, tripled to 6 elixirs
+    { value: "eternal goddess (55+)", weight: 1 },
+    {
+      value:
+        "eternal goddess retired actress (55+, spotlight-scarred in silk scarves)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "eternal goddess bookstore owner (55+, page-perfumed in leather tomes)",
+      weight: 0.5,
+    },
+    {
+      value: "eternal goddess yogi elder (55+, mat-mastered in mountain mist)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "eternal goddess philanthropist (55+, gala-gowned in gemstone grace)",
+      weight: 0.25,
+    },
+    {
+      value:
+        "eternal goddess beachcomber (55+, shell-strung in seaside serenity)",
+      weight: 0.25,
+    },
   ];
 
   return selectWeighted(ageOptions);
 }
 
 /**
- * Generate granular NSFW theme with weighted probability
- * Exploded into 50+ variants: Solo dominates at 45% for easy entry, escalating to group/fetish for the addicts.
- * Themes tease the psyche – from soft whispers to shadowed cravings, all primed for prompt perfection.
+ * Generate number of characters
+ * Weighted toward solo (50%), couples (30%), groups (20%)
  */
-function generateTheme(): string {
-  const themeOptions: WeightedOption<string>[] = [
-    // Solo: 45% total – the gateway drug, self-indulgent sparks
-    { value: "solo tease (slow striptease)", weight: 15 },
-    { value: "solo ecstasy (intimate self-pleasure)", weight: 15 },
-    { value: "solo fantasy (mirror gazing seduction)", weight: 10 },
-    { value: "solo power play (dominant self-bondage)", weight: 5 },
-    // Couples: 25% – intimate duets, chemistry on fire
-    { value: "passionate lovers (gentle missionary)", weight: 8 },
-    { value: "fiery rivals (rough against-the-wall)", weight: 7 },
-    { value: "sensual massage (oiled bodies entwining)", weight: 5 },
-    { value: "oral devotion (kneeling adoration)", weight: 5 },
-    // Threesomes: 15% – tangled triads for thrill-seekers
-    { value: "MMF sandwich (double delight)", weight: 6 },
-    { value: "FFM harmony (lesbian-bi exploration)", weight: 5 },
-    { value: "threesome chain (linked ecstasy)", weight: 4 },
-    // Group: 10% – orgiastic overload, crowd-sourced climaxes
-    { value: "small orgy (4-5 entangled)", weight: 4 },
-    { value: "bukkake circle (shared surrender)", weight: 3 },
-    { value: "group worship (one center, many devotees)", weight: 3 },
-    // Fetish: 5% – edge-walking kinks, whispered taboos
-    { value: "light BDSM (silk restraints tease)", weight: 2 },
-    { value: "latex fetish (shiny second skin)", weight: 1 },
-    { value: "roleplay nurse (healing with heat)", weight: 1 },
-    { value: "foot worship (pedal indulgence)", weight: 1 },
+function generateNumCharacters(): number {
+  const numOptions: WeightedOption<number>[] = [
+    { value: 1, weight: 50 }, // Solo supremacy
+    { value: 2, weight: 30 }, // Couple chemistry
+    { value: 3, weight: 15 }, // Threesome tangle
+    { value: 4, weight: 5 }, // Group graze
   ];
+
+  return selectWeighted(numOptions);
+}
+
+/**
+ * Generate theme based on number of characters
+ * 40% soft erotic themes, 60% explicit content
+ */
+function generateTheme(numChars: number): string {
+  let themeOptions: WeightedOption<string>[];
+
+  switch (numChars) {
+    case 1: // Solo: Self-indulgent inferno, tripled to 30+ (40% posing poise, 60% explicit edge)
+      themeOptions = [
+        // Soft Erotic: 40% – 12 options
+        {
+          value:
+            "solo instagram pose (standing model hand-on-hip, sultry gaze over shoulder)",
+          weight: 4,
+        },
+        {
+          value:
+            "solo mirror selfie (bikini bottom low, arched back accentuating assets)",
+          weight: 3.5,
+        },
+        {
+          value:
+            "solo yoga stretch (downward dog, fabric straining over curves)",
+          weight: 3.5,
+        },
+        {
+          value:
+            "solo beach read (topless lounging, book forgotten in sun-warmed cleavage)",
+          weight: 3,
+        },
+        {
+          value:
+            "solo latte linger (café curve in cropped top, steam rising slow)",
+          weight: 3,
+        },
+        {
+          value:
+            "solo library lean (skirt-hiked study, pages proxy for parted thighs)",
+          weight: 2.5,
+        },
+        {
+          value:
+            "solo rooftop recline (cityscape backdrop, robe-robed in breeze bite)",
+          weight: 2.5,
+        },
+        {
+          value:
+            "solo kitchen tease (apron-only bake, flour-dusted décolletage)",
+          weight: 2,
+        },
+        {
+          value:
+            "solo park picnic (blanket bare, fruit-fingered in dappled shade)",
+          weight: 2,
+        },
+        {
+          value:
+            "solo art studio stroke (easel-edged, paintbrush proxy for pleasure)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "solo bubble bath scroll (phone-glow on soapy swells, suds slipping sly)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "solo wardrobe whirl (dress try-on twirl, mirror-mulled in lace layers)",
+          weight: 1,
+        },
+        // Explicit Edge: 60% – 18 options
+        {
+          value: "solo fingering (fingers delving deep into slick folds)",
+          weight: 3,
+        },
+        {
+          value:
+            "solo dildo thrust (vibrating silicone stretching tight entrance)",
+          weight: 3,
+        },
+        {
+          value: "solo clitoral rub (hooded pearl circled to quivering peak)",
+          weight: 2.5,
+        },
+        {
+          value: "solo breast knead (nipples pinched to erect crimson tips)",
+          weight: 2.5,
+        },
+        {
+          value: "solo anal probe (beaded toy teasing puckered ring)",
+          weight: 2,
+        },
+        {
+          value:
+            "solo squirting climax (gushing release arcs from spasming core)",
+          weight: 2,
+        },
+        {
+          value:
+            "solo nipple clamp tease (chain-tugged peaks in pain-pleasure pinch)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "solo vibe wand wave (buzzing head humming against hooded heat)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "solo mirror masturbation (reflected rub, eyes locked on own ecstasy)",
+          weight: 1.5,
+        },
+        {
+          value: "solo ice play (chilled cube trail from neck to navel notch)",
+          weight: 1,
+        },
+        {
+          value:
+            "solo feather tickle (plume-light torment tracing thigh to treasure)",
+          weight: 1,
+        },
+        {
+          value:
+            "solo lotion glide (oiled palms parting petals in slow spiral)",
+          weight: 1,
+        },
+        {
+          value: "solo candle wax drip (hot beads beading on breastbone bare)",
+          weight: 0.8,
+        },
+        {
+          value:
+            "solo blindfold bind (sight stolen, senses sharpened to self-touch)",
+          weight: 0.8,
+        },
+        {
+          value:
+            "solo edging exhale (build to brink, breath held in hovering heat)",
+          weight: 0.8,
+        },
+        {
+          value: "solo toy tandem (dual delights delving front and rear)",
+          weight: 0.7,
+        },
+        {
+          value:
+            "solo orgasmic arch (back bowed, toes curled in climactic curve)",
+          weight: 0.7,
+        },
+        {
+          value:
+            "solo post-climax glow (flushed form framed in afterglow haze)",
+          weight: 0.7,
+        },
+      ];
+      break;
+
+    case 2: // Couples: Duet daggers, tripled to 30+ (40% romantic ripple, 60% raw ride)
+      themeOptions = [
+        // Soft Erotic: 40% – 12 options
+        {
+          value: "couple cuddle (spooned on silk, hands tracing lace edges)",
+          weight: 4,
+        },
+        {
+          value: "couple dance (close tango, hips swaying in syncopated tease)",
+          weight: 3.5,
+        },
+        {
+          value: "couple photoshoot (posed embrace, lips brushing collarbones)",
+          weight: 3.5,
+        },
+        {
+          value:
+            "couple wine share (sipping from shared glass, droplets trailing décolletage)",
+          weight: 3,
+        },
+        {
+          value:
+            "couple stargaze (blanket-bound, fingers laced in lunar light)",
+          weight: 3,
+        },
+        {
+          value:
+            "couple kitchen cook (aproned assist, flour fights turning flirt)",
+          weight: 2.5,
+        },
+        {
+          value:
+            "couple movie night (couch-curled, popcorn proxy for parted lips)",
+          weight: 2.5,
+        },
+        {
+          value:
+            "couple hike halt (trail-treed, back-to-bark in whispered want)",
+          weight: 2,
+        },
+        {
+          value:
+            "couple bookstore browse (shelf-squeezed, spines proxy for spine-tinglers)",
+          weight: 2,
+        },
+        {
+          value: "couple spa soak (steam-shrouded, toes teasing under towel)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "couple garden groom (pruned paths, petal-pressed in private plot)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "couple drive-in dusk (car-seat shift, screen-glow on thigh-high trails)",
+          weight: 1,
+        },
+        // Explicit Edge: 60% – 18 options
+        {
+          value:
+            "missionary penetration (veiny shaft plunging into welcoming labia)",
+          weight: 3,
+        },
+        {
+          value:
+            "doggy style pounding (hips slamming against quivering ass cheeks)",
+          weight: 3,
+        },
+        {
+          value: "cowgirl ride (straddled grind milking rigid length)",
+          weight: 2.5,
+        },
+        {
+          value: "spooning insertion (slow slide into heated velvet grip)",
+          weight: 2.5,
+        },
+        {
+          value: "oral deepthroat (lips stretched around throbbing glans)",
+          weight: 2,
+        },
+        {
+          value: "mutual massage (oiled thumbs circling sensitive swells)",
+          weight: 2,
+        },
+        {
+          value: "standing kiss (wall-pinned, thighs parting in prelude)",
+          weight: 1.5,
+        },
+        {
+          value: "bathtub soak (bubbles bursting around intertwined limbs)",
+          weight: 1.5,
+        },
+        { value: "69 mutual oral (heads buried in mutual munch)", weight: 1.5 },
+        {
+          value:
+            "shower steam (water-walled, soapy slides into slick surrender)",
+          weight: 1,
+        },
+        {
+          value: "bedroom blindfold (one veiled, other voyeur in velvet void)",
+          weight: 1,
+        },
+        {
+          value:
+            "kitchen counter claim (lifted legs, produce proxy for pleasure)",
+          weight: 1,
+        },
+        {
+          value:
+            "balcony brink (railing-gripped, city chorus to coupled cries)",
+          weight: 0.8,
+        },
+        {
+          value: "couch conquest (reclined ravish, cushions crushed in climax)",
+          weight: 0.8,
+        },
+        {
+          value:
+            "forest floor fornicate (moss-muffled moans in leaf-littered lust)",
+          weight: 0.8,
+        },
+        {
+          value:
+            "car backseat tangle (windows fogged, gears grinding in tandem)",
+          weight: 0.7,
+        },
+        {
+          value: "elevator edge (halted halt, hands hasty in humming halt)",
+          weight: 0.7,
+        },
+        {
+          value:
+            "post-dinner dessert (table-topped, wine-warmed in wicked wait)",
+          weight: 0.7,
+        },
+      ];
+      break;
+
+    case 3: // Threesomes: Triad torment, tripled to 30+ (50% group glow, 50% tangle)
+      themeOptions = [
+        // Soft Group Erotic: 50% – 15 options
+        {
+          value:
+            "threesome pillow fight (topless tussle, feathers flying over flushed forms)",
+          weight: 3.5,
+        },
+        {
+          value:
+            "threesome spa day (steamy sauna, towels slipping in shared steam)",
+          weight: 3,
+        },
+        {
+          value:
+            "threesome cocktail hour (lounging in lingerie, glasses clinking over cleavage)",
+          weight: 3,
+        },
+        {
+          value:
+            "threesome photobooth (squeezed squeeze, hands wandering in frame)",
+          weight: 2.5,
+        },
+        {
+          value:
+            "threesome board game (strip stakes, dice-rolled in draped defeat)",
+          weight: 2.5,
+        },
+        {
+          value:
+            "threesome beach bonfire (sand-sitting circle, sparks skipping on skin)",
+          weight: 2,
+        },
+        {
+          value:
+            "threesome cooking class (aproned antics, spills sultry on swells)",
+          weight: 2,
+        },
+        {
+          value:
+            "threesome karaoke croon (mic-shared, harmony hushed in hip sway)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "threesome art jam (canvas chaos, paint-smeared in playful pat)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "threesome picnic prank (blanket-bound, fruit fights fruitless in flirt)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "threesome yoga flow (mat-mingled, poses proxy for parted peace)",
+          weight: 1,
+        },
+        {
+          value:
+            "threesome movie marathon (couch-crowded, popcorn paths to thigh trails)",
+          weight: 1,
+        },
+        {
+          value:
+            "threesome garden party (floral-frolic, petals proxy for private peeks)",
+          weight: 1,
+        },
+        {
+          value:
+            "threesome trivia night (team-tied, buzzers buzzing with body brush)",
+          weight: 0.8,
+        },
+        {
+          value:
+            "threesome stargaze share (telescope-tilted, constellations connecting curves)",
+          weight: 0.8,
+        },
+        // Explicit Edge: 50% – 15 options
+        {
+          value:
+            "MMF double vaginal (two cocks stretching shared slick channel)",
+          weight: 3,
+        },
+        {
+          value: "FFM strap-on peg (harnessed dildo claiming eager rear)",
+          weight: 3,
+        },
+        {
+          value: "threesome daisy chain (mouth-to-genital oral relay)",
+          weight: 2.5,
+        },
+        {
+          value:
+            "threesome oil wrestle (slippery slides turning to shared shudders)",
+          weight: 2.5,
+        },
+        {
+          value:
+            "threesome truth or dare (dared disrobes revealing rouged readiness)",
+          weight: 2,
+        },
+        {
+          value: "threesome jacuzzi jet (bubbles buzzing against bare bottoms)",
+          weight: 2,
+        },
+        {
+          value: "threesome blindfold pass (veiled voyeur, hands hazy in heat)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "threesome ice bucket tease (chilled chains circling coupled cores)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "threesome feather chain (plume-passed, tickles trailing to torment)",
+          weight: 1.5,
+        },
+        {
+          value: "threesome vibe share (toy-tandem, buzz bridged in body bond)",
+          weight: 1,
+        },
+        {
+          value:
+            "threesome wax ritual (drips daisy-chained down dauntless skin)",
+          weight: 1,
+        },
+        {
+          value:
+            "threesome mirror maze (reflected ravish, echoes endless in ecstasy)",
+          weight: 1,
+        },
+        {
+          value:
+            "threesome silk bind (scarves shared, limbs laced in light restraint)",
+          weight: 0.8,
+        },
+        {
+          value:
+            "threesome edible explore (body-buffet, licks linking in lust loop)",
+          weight: 0.8,
+        },
+        {
+          value:
+            "threesome post-climax cuddle (glow-grouped, breaths blending in bliss)",
+          weight: 0.8,
+        },
+      ];
+      break;
+
+    case 4: // Group: Orgy oblivion, tripled to 30+ (60% social sin, 40% swarm)
+      themeOptions = [
+        // Soft Group Erotic: 60% – 18 options
+        {
+          value:
+            "group yacht party (topless sunbathing on deck, champagne sprays on swells)",
+          weight: 4,
+        },
+        {
+          value:
+            "group beach volleyball (bikini malfunctions mid-spike, sand-stuck skin)",
+          weight: 3.5,
+        },
+        {
+          value:
+            "group pool float (lounging links, limbs draping in lazy laps)",
+          weight: 3.5,
+        },
+        {
+          value:
+            "group rooftop BBQ (apron-only grilling, smoke curling around curves)",
+          weight: 3,
+        },
+        {
+          value:
+            "group art class (nude models posing, brushes tracing taboo lines)",
+          weight: 3,
+        },
+        {
+          value:
+            "group glamping glow (tent-topless in firefly flicker, s'mores sticky on skin)",
+          weight: 2.5,
+        },
+        {
+          value:
+            "group wine tasting (vintage veiled, sips spilling on silk shifts)",
+          weight: 2.5,
+        },
+        {
+          value: "group book club bare (page-turns proxy for parted poses)",
+          weight: 2,
+        },
+        {
+          value:
+            "group festival frolic (mud-masked, body paint blooming in bass beat)",
+          weight: 2,
+        },
+        {
+          value:
+            "group spa retreat (steam-shared, robes robed in relaxed reveal)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "group cooking contest (apron antics, spills sultry on shared swells)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "group karaoke chaos (mic-mingled, harmony hushed in hip-hop heat)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "group hike high (trail-topped, water breaks with waist-deep dips)",
+          weight: 1,
+        },
+        {
+          value:
+            "group movie night mingle (couch-crammed, blankets bridging bare)",
+          weight: 1,
+        },
+        {
+          value:
+            "group garden gala (floral-frolic, petals proxy for private parades)",
+          weight: 1,
+        },
+        {
+          value:
+            "group trivia tournament (team-tied, buzzers buzzing body-brush)",
+          weight: 0.8,
+        },
+        {
+          value:
+            "group stargaze symposium (blanket-bound, telescopes tilting to thigh trails)",
+          weight: 0.8,
+        },
+        {
+          value:
+            "group craft circle (yarn-yanked, needles proxy for nipple nips)",
+          weight: 0.8,
+        },
+        // Explicit Edge: 40% – 12 options
+        {
+          value:
+            "gangbang rotation (one filled, others queued in veiny anticipation)",
+          weight: 2.5,
+        },
+        {
+          value: "bukkake finale (ropes of cum glazing flushed skin)",
+          weight: 2.5,
+        },
+        {
+          value: "group hot tub (entwined under eddies, hands hidden in haze)",
+          weight: 2,
+        },
+        {
+          value:
+            "group masquerade (masks on, inhibitions off in velvet vortex)",
+          weight: 2,
+        },
+        {
+          value:
+            "group blindfold bazaar (veiled voyeurs, passes pulsing in dark)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "group oil olympics (slippery sprints turning to shared slides)",
+          weight: 1.5,
+        },
+        {
+          value:
+            "group feather frenzy (plume-passed, tickles to torment in tandem)",
+          weight: 1.5,
+        },
+        {
+          value: "group vibe village (toy-tribal, buzz bridged in body bazaar)",
+          weight: 1,
+        },
+        {
+          value:
+            "group wax waterfall (drips daisy-chained down dauntless dunes)",
+          weight: 1,
+        },
+        {
+          value:
+            "group mirror melee (reflected ravish, echoes endless in ecstasy excess)",
+          weight: 1,
+        },
+        {
+          value:
+            "group silk symphony (scarves shared, limbs laced in light to loose)",
+          weight: 0.8,
+        },
+        {
+          value:
+            "group edible empire (body-buffet, licks linking in lust labyrinth)",
+          weight: 0.8,
+        },
+      ];
+      break;
+
+    default:
+      themeOptions = [
+        {
+          value: "solo default (fingers delving deep into slick folds)",
+          weight: 100,
+        },
+      ];
+  }
 
   return selectWeighted(themeOptions);
 }
 
 /**
- * Generate detailed NSFW style/setting with weighted probability
- * 40+ backdrops: Indoor intimacy leads (50%+), but we've injected exotic escapes and surreal sins for variety.
- * Settings that set the scene – dim-lit desires to neon-noir naughtiness, fueling endless regenerations.
+ * Generate style/setting with weighted probability
+ * Indoor (40%), Outdoor (25%), Exotic (15%), Surreal (10%), Public (10%)
  */
 function generateStyle(): string {
   const styleOptions: WeightedOption<string>[] = [
-    // Indoor: 50% total – cozy confines, where walls witness whispers
-    { value: "steamy bedroom (silk sheets rumpled)", weight: 15 },
-    { value: "luxury bathroom (fogged mirrors, cascading water)", weight: 12 },
-    { value: "modern kitchen (countertop confessions)", weight: 10 },
-    { value: "dim office (desk-draped debauchery)", weight: 8 },
-    { value: "velvet lounge (candlelit chaise)", weight: 5 },
-    // Outdoor: 25% – nature's naughty nudge, risk-reward rush
-    { value: "secluded beach (waves lapping bare skin)", weight: 8 },
-    { value: "midnight forest (moonlit mossy tryst)", weight: 7 },
-    { value: "urban alley (graffiti-shadowed thrill)", weight: 6 },
-    { value: "rooftop escape (city lights below)", weight: 4 },
-    // Exotic: 15% – far-flung fantasies, passport to pleasure
-    { value: "tropical cabana (hammock-hung heat)", weight: 5 },
-    { value: "ancient ruin (vine-veiled vice)", weight: 5 },
-    { value: "desert oasis (silk tents, starlit sin)", weight: 3 },
-    { value: "yacht deck (salty spray seduction)", weight: 2 },
-    // Surreal/Abstract: 10% – dreamscape distortions, mind-melting moods
-    { value: "ethereal mist (floating forms entwine)", weight: 3 },
-    { value: "neon cyber (glitchy glow orgasms)", weight: 3 },
-    { value: "art deco haze (geometric gilded lust)", weight: 2 },
-    { value: "shadow puppet (silhouetted silhouettes)", weight: 2 },
+    // Indoor: 40% total – 24 options (representative of 96)
+    {
+      value: "steamy shower (water cascading over arched, soapy curves)",
+      weight: 3,
+    },
+    {
+      value: "four-poster bed (canopy-draped, sweat-slicked sheets)",
+      weight: 3,
+    },
+    {
+      value: "mirrored gym (reflected flexes in post-workout glow)",
+      weight: 2.5,
+    },
+    {
+      value: "leather armchair (reclined spread in firelit flicker)",
+      weight: 2.5,
+    },
+    {
+      value: "industrial loft (exposed beams framing chained limbs)",
+      weight: 2,
+    },
+    {
+      value: "marble bathtub (bubbles parting for submerged strokes)",
+      weight: 2,
+    },
+    {
+      value: "vintage vinyl den (record-spin sultry in scratchy static)",
+      weight: 1.5,
+    },
+    {
+      value: "cozy cabin nook (fire-crackled, quilt-quilted in quiet quiver)",
+      weight: 1.5,
+    },
+    {
+      value: "modern minimalism (white-walled, shadow-sharp in stark sin)",
+      weight: 1.5,
+    },
+    {
+      value: "bohemian boudoir (tapestry-tented, incense-infused in haze)",
+      weight: 1.2,
+    },
+    {
+      value:
+        "library ladder lean (book-bound, spine-shelved in silent seduction)",
+      weight: 1.2,
+    },
+    {
+      value:
+        "kitchen island idle (granite-grazed, utensil-utensiled in utensil tease)",
+      weight: 1.2,
+    },
+    {
+      value:
+        "attic antique allure (dust-draped, trunk-treasured in twilight tease)",
+      weight: 1,
+    },
+    {
+      value: "basement bar banter (neon-nipped, bottle-brushed in dim dive)",
+      weight: 1,
+    },
+    {
+      value:
+        "chandelier chase (crystal-caressed, light-lanced in lavish lounge)",
+      weight: 1,
+    },
+    {
+      value:
+        "walk-in wardrobe whisper (mirror-mazed, silk-sorted in secret swap)",
+      weight: 0.8,
+    },
+    {
+      value:
+        "home office overtime (desk-draped, screen-glow on thigh-high tease)",
+      weight: 0.8,
+    },
+    {
+      value: "laundry room linger (dryer-drummed, hamper-hid in humid heat)",
+      weight: 0.8,
+    },
+    {
+      value: "balcony boudoir (curtain-caught, city-chorus to coupled calls)",
+      weight: 0.6,
+    },
+    {
+      value: "fire escape flirt (rail-rimmed, starlit in urban underbelly)",
+      weight: 0.6,
+    },
+    {
+      value: "guest room ghost (bed-borrowed, sheet-shrouded in stranger sin)",
+      weight: 0.6,
+    },
+    {
+      value: "pantry passion (shelf-stacked, jar-jostled in jammed joy)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "stairwell stall (step-straddled, banister-bound in breathless break)",
+      weight: 0.5,
+    },
+    {
+      value: "garage glow (hood-humped, tool-tinkled in oily overture)",
+      weight: 0.5,
+    },
+    // Outdoor: 25% – 15 options (representative of 60)
+    {
+      value: "secluded yacht deck (topless tanning, waves whispering secrets)",
+      weight: 2.5,
+    },
+    {
+      value: "moonlit meadow (grass tickling bare soles mid-thrust)",
+      weight: 2,
+    },
+    {
+      value: "hiking trail bend (tree-trunk leaned, skirt hiked high)",
+      weight: 2,
+    },
+    {
+      value: "private jacuzzi (jets pulsing against sensitive swells)",
+      weight: 1.5,
+    },
+    {
+      value: "festival field (mud-smeared skin in bonfire blaze)",
+      weight: 1.5,
+    },
+    {
+      value: "snowy cabin porch (fur rug muffling moans in frost-kissed air)",
+      weight: 1.2,
+    },
+    {
+      value: "desert dune drift (sand-sifted, star-sprinkled in silk shift)",
+      weight: 1.2,
+    },
+    {
+      value: "urban park pavilion (bench-bound, breeze-bitten in public peek)",
+      weight: 1,
+    },
+    {
+      value: "rainforest ripple (vine-veiled, mist-misted in tropical tangle)",
+      weight: 1,
+    },
+    {
+      value: "cliffside cove (rock-rimmed, wave-washed in wild whisper)",
+      weight: 1,
+    },
+    {
+      value: "vineyard vine (grape-groped, sun-soaked in harvest heat)",
+      weight: 0.8,
+    },
+    {
+      value: "lakeside lounge (dock-draped, ripple-reflected in lazy lap)",
+      weight: 0.8,
+    },
+    {
+      value: "mountain mist (peak-perched, cloud-caressed in crisp caress)",
+      weight: 0.8,
+    },
+    {
+      value: "orchard orchard (apple-angled, branch-brushed in fruity flirt)",
+      weight: 0.6,
+    },
+    {
+      value: "campsite crackle (tent-tied, fire-flicked in forest frolic)",
+      weight: 0.6,
+    },
+    // Exotic: 15% – 9 options (representative of 36)
+    {
+      value: "silk-sheeted harem (cushions cradling oiled, entwined forms)",
+      weight: 1.5,
+    },
+    {
+      value: "volcanic hot spring (steam-shrouded, mineral-slicked skin)",
+      weight: 1.5,
+    },
+    {
+      value: "bamboo jungle hut (lantern glow on sweat-beaded brows)",
+      weight: 1.2,
+    },
+    {
+      value: "private jet cabin (turbulence-timed, mile-high mile)",
+      weight: 1.2,
+    },
+    {
+      value: "ancient temple tryst (stone-silent, idol-eyed in incense idol)",
+      weight: 1,
+    },
+    {
+      value: "sahara silk (dune-draped, nomad-nuzzled in night nomad)",
+      weight: 1,
+    },
+    {
+      value: "tokyo tub (onsen-overflow, steam-silent in city soak)",
+      weight: 1,
+    },
+    {
+      value: "parisian patio (eiffel-edged, bistro-buzzed in boulevard bare)",
+      weight: 0.8,
+    },
+    {
+      value: "rio rooftop (carnival-caught, samba-swayed in salty sin)",
+      weight: 0.8,
+    },
+    // Surreal/Abstract: 10% – 6 options (representative of 24)
+    {
+      value: "liquid mirror pool (reflections rippling with every ripple)",
+      weight: 1,
+    },
+    {
+      value: "crystal cavern (faceted walls amplifying echoed gasps)",
+      weight: 1,
+    },
+    {
+      value: "floating orb chamber (zero-g twirls in velvet void)",
+      weight: 0.8,
+    },
+    {
+      value: "ink-blot dreamscape (shapes shifting from tease to torrent)",
+      weight: 0.8,
+    },
+    {
+      value: "quantum quilt (parallel poses pulsing in probabilistic play)",
+      weight: 0.6,
+    },
+    {
+      value: "nebula nest (star-strewn, cosmic-caressed in galaxy glow)",
+      weight: 0.6,
+    },
+    // Public Risk: 10% – 6 options (representative of 24)
+    {
+      value: "crowded elevator (hands wandering under hem in descent)",
+      weight: 1,
+    },
+    {
+      value: "beach cabana flap (half-hidden humps in sea-spray haze)",
+      weight: 1,
+    },
+    {
+      value: "library stacks (whispered whimpers between dusty tomes)",
+      weight: 0.8,
+    },
+    {
+      value: "coffee shop corner (skirt up under table, steam rising double)",
+      weight: 0.8,
+    },
+    {
+      value: "subway sway (straphang sultry, jolt-jostled in jostle tease)",
+      weight: 0.6,
+    },
+    {
+      value: "gallery gaze (art-angled, frame-framed in cultured caress)",
+      weight: 0.6,
+    },
   ];
 
   return selectWeighted(styleOptions);
 }
 
 /**
- * Generate a specific wildcard element – now 30% chance, pulling from a naughty novelty pool
- * Quirky injections to spike uniqueness: tentacles? Feathers? A dash of the absurd to addict and share.
+ * Generate ambiance/lighting
+ * Warm (55%), Dramatic (20%), Frenzied (15%), Ethereal (10%)
+ */
+function generateAmbiance(): string {
+  const ambianceOptions: WeightedOption<string>[] = [
+    // Warm Intimate: 55% – 16 options (representative of 74)
+    {
+      value: "candlelit haze (flickering shadows dancing on dewy skin)",
+      weight: 2,
+    },
+    {
+      value: "golden hour filter (sunset rays gilding arched hips)",
+      weight: 1.8,
+    },
+    {
+      value: "fireplace ember glow (orange warmth pooling in cleavage)",
+      weight: 1.6,
+    },
+    {
+      value: "moonbeam silver (lunar lace tracing thigh-high trails)",
+      weight: 1.4,
+    },
+    {
+      value: "lantern amber (soft orbs illuminating parted lips)",
+      weight: 1.2,
+    },
+    { value: "harvest moon honey (amber arcs on autumn ache)", weight: 1 },
+    {
+      value: "dawn blush (rosy fingers fingering first light on flesh)",
+      weight: 1,
+    },
+    { value: "twilight teal (dusky blues bruising bare bone)", weight: 0.9 },
+    {
+      value: "hearth honey (fire-forged, honey-hued in hearth heat)",
+      weight: 0.9,
+    },
+    {
+      value: "star candle (twinkling tapers tracing tender touch)",
+      weight: 0.8,
+    },
+    {
+      value: "silk sunrise (fabric-filtered, dawn-dyed in delicate drape)",
+      weight: 0.8,
+    },
+    {
+      value: "velvet vesper (evening velvet veiling voluptuous veil)",
+      weight: 0.7,
+    },
+    {
+      value: "amber alert (warm warning, glow-gilded in guarded grace)",
+      weight: 0.7,
+    },
+    { value: "copper caress (rust-red rays rubbing ribcage raw)", weight: 0.6 },
+    {
+      value: "ivory incandescence (pearl-pale, light-laced in luminous lust)",
+      weight: 0.6,
+    },
+    {
+      value: "rose reverie (floral flush, petal-pink in passionate pulse)",
+      weight: 0.5,
+    },
+    // Dramatic Edge: 20% – 8 options (representative of 27)
+    {
+      value: "spotlight isolation (beam carving curves from inky black)",
+      weight: 0.8,
+    },
+    {
+      value: "thunderstorm flash (lightning cracks etching tensed torsos)",
+      weight: 0.8,
+    },
+    {
+      value: "neon underglow (pink-blue veins pulsing in cyber sin)",
+      weight: 0.7,
+    },
+    {
+      value: "silhouette backlit (outlines teasing hidden swells)",
+      weight: 0.7,
+    },
+    {
+      value: "eclipse edge (shadow-sharpened, corona-caressed in crisis crown)",
+      weight: 0.6,
+    },
+    {
+      value: "lava line (molten margin, red-rimmed in rage ripple)",
+      weight: 0.6,
+    },
+    {
+      value: "storm surge (gale-gouged, wind-whipped in wild white)",
+      weight: 0.5,
+    },
+    {
+      value: "forge fire (anvil-amber, hammer-hued in hot hammer)",
+      weight: 0.5,
+    },
+    // Frenzied High: 15% – 4 options (representative of 20)
+    {
+      value: "disco strobe stutter (frozen frames of mid-moan frenzy)",
+      weight: 0.6,
+    },
+    {
+      value: "lava lamp swirl (molten colors licking lithe limbs)",
+      weight: 0.6,
+    },
+    {
+      value: "hologram flicker (glitch-trails on thrusting forms)",
+      weight: 0.5,
+    },
+    {
+      value: "firework burst (spark showers on sweat-sheened skin)",
+      weight: 0.5,
+    },
+    // Ethereal Whisper: 10% – 2 options (representative of 14)
+    {
+      value: "fog machine veil (smoke curling around coupled cores)",
+      weight: 0.5,
+    },
+    {
+      value: "aurora borealis shimmer (northern lights draping nude north)",
+      weight: 0.5,
+    },
+  ];
+
+  return selectWeighted(ambianceOptions);
+}
+
+/**
+ * Generate pose
+ * Model poses (50%), Receiving (20%), Dominant (15%), Interactive (15%)
+ */
+function generatePose(): string {
+  const poseOptions: WeightedOption<string>[] = [
+    // Model Erotic: 50% – 15 options (representative of 90)
+    {
+      value:
+        "standing instagram model (hand on hip, sultry gaze, hip cocked to curve cascade)",
+      weight: 1.5,
+    },
+    {
+      value: "seated lounge (legs crossed, décolletage dipped in shadow play)",
+      weight: 1.3,
+    },
+    {
+      value: "over-shoulder glance (hair flipped, lips parted in promise)",
+      weight: 1.2,
+    },
+    {
+      value: "yoga warrior (lunged low, fabric taut over taut glutes)",
+      weight: 1.1,
+    },
+    {
+      value: "beach recline (propped on elbows, sun-kissed cleavage arched)",
+      weight: 1,
+    },
+    {
+      value: "poolside perch (towel-tossed, legs languid in lounge line)",
+      weight: 0.9,
+    },
+    {
+      value: "city strut (street-sashay, heel-clicked in urban undulate)",
+      weight: 0.9,
+    },
+    {
+      value: "forest frame (tree-trunked, leaf-laced in natural nook)",
+      weight: 0.8,
+    },
+    {
+      value: "mirror mimic (self-shadowed, pose-played in reflective ruse)",
+      weight: 0.8,
+    },
+    {
+      value: "sofa slouch (cushion-curled, knee-knocked in casual crook)",
+      weight: 0.7,
+    },
+    {
+      value: "stair sulk (step-sprawled, rail-rubbed in descending desire)",
+      weight: 0.7,
+    },
+    {
+      value: "window wist (glass-gazed, light-limned in silhouette sin)",
+      weight: 0.6,
+    },
+    {
+      value: "bed bend (pillow-propped, sheet-shifted in sleepy stretch)",
+      weight: 0.6,
+    },
+    {
+      value: "chair char (perched pretty, leg-lifted in lace lift)",
+      weight: 0.5,
+    },
+    {
+      value: "floor flop (rug-rolled, arm-arched in abandon arc)",
+      weight: 0.5,
+    },
+    // Receiving: 20% – 5 options (representative of 36)
+    {
+      value: "spread eagle (thighs parted wide, labia inviting inspection)",
+      weight: 0.8,
+    },
+    { value: "on all fours (ass up, back arched for rear entry)", weight: 0.7 },
+    {
+      value: "legs over shoulders (folded deep for cervical kiss)",
+      weight: 0.7,
+    },
+    {
+      value: "lotus wrap (entwined straddle, grinding to the hilt)",
+      weight: 0.6,
+    },
+    {
+      value: "prone bone (flat press, cheeks spread by thrusting weight)",
+      weight: 0.6,
+    },
+    // Dominant: 15% – 5 options (representative of 27)
+    { value: "reverse cowgirl (back-turned bounce on rigid rod)", weight: 0.6 },
+    {
+      value: "standing wheelbarrow (lifted legs, pounded from behind)",
+      weight: 0.5,
+    },
+    {
+      value: "amazon position (pinned beneath, sheathing with savage sway)",
+      weight: 0.5,
+    },
+    {
+      value: "face-sit smother (throne of thighs, tongue-tied tribute)",
+      weight: 0.4,
+    },
+    {
+      value: "peg power (strapped strong, rear-ravished in role reverse)",
+      weight: 0.4,
+    },
+    // Interactive/Exotic: 15% – 5 options (representative of 27)
+    { value: "69 mutual oral (heads buried in mutual munch)", weight: 0.6 },
+    { value: "scissoring shear (labia locked in slippery slide)", weight: 0.5 },
+    {
+      value: "tribadism grind (clit-to-clit clash in heated hover)",
+      weight: 0.5,
+    },
+    {
+      value: "handjob tease (fisted shaft stroked to spurting salute)",
+      weight: 0.4,
+    },
+    {
+      value: "bridge arch (hips hoisted high, core exposed in curve)",
+      weight: 0.4,
+    },
+  ];
+
+  return selectWeighted(poseOptions);
+}
+
+/**
+ * Generate clothing state
+ * Partial (40%), Nude (30%), Kinky (30%)
+ */
+function generateClothingState(): string {
+  const clothingOptions: WeightedOption<string>[] = [
+    // Partial Tease: 40% – 12 options (representative of 42)
+    {
+      value: "sheer lace lingerie (nipples tenting translucent veil)",
+      weight: 1.2,
+    },
+    {
+      value: "open blouse unbuttoned (breasts spilling from silk confines)",
+      weight: 1.1,
+    },
+    {
+      value: "thigh-high stockings (garters snapping against bare mound)",
+      weight: 1,
+    },
+    {
+      value: "crotchless panties (access slit framing swollen folds)",
+      weight: 1,
+    },
+    {
+      value: "half-unzipped dress (cleavage canyon to navel notch)",
+      weight: 0.9,
+    },
+    {
+      value: "sheer robe slip (silk-sheer, shoulder-slid in subtle show)",
+      weight: 0.9,
+    },
+    {
+      value: "crop top ride-up (underboob flash in casual crook)",
+      weight: 0.8,
+    },
+    {
+      value: "side-slit skirt (thigh-thieved, stride-straddled in slit sin)",
+      weight: 0.8,
+    },
+    {
+      value: "lace bralette peek (cup-caught, strap-snapped in lace lure)",
+      weight: 0.7,
+    },
+    {
+      value: "fishnet arm warmers (sleeve-sheathed, elbow-edged in net naught)",
+      weight: 0.7,
+    },
+    {
+      value:
+        "choker chain tease (neck-nipped, pendant-pendulous in pulse point)",
+      weight: 0.6,
+    },
+    {
+      value: "glove graze (elbow-length, finger-fingered in fabric flirt)",
+      weight: 0.6,
+    },
+    // Full Nude/Topless: 30% – 9 options (representative of 31)
+    {
+      value: "completely nude (every inch exposed, glistening in gloss)",
+      weight: 0.9,
+    },
+    {
+      value: "topless only (bottoms low, breasts basking in breeze)",
+      weight: 0.9,
+    },
+    {
+      value: "post-strip pile (discarded denim at ankle, free for the feast)",
+      weight: 0.8,
+    },
+    {
+      value: "shower-fresh bare (water droplets beading on unshaven bush)",
+      weight: 0.8,
+    },
+    { value: "bikini slip (string untied, teasing tan lines)", weight: 0.7 },
+    {
+      value: "sarong slip (tied loose, parting at thigh for sea-spray peek)",
+      weight: 0.7,
+    },
+    {
+      value: "thong tan (backstring vanishing into sun-sunk cheeks)",
+      weight: 0.6,
+    },
+    {
+      value: "wrap unravel (fabric-freed, wind-whipped in wild unwrap)",
+      weight: 0.6,
+    },
+    {
+      value: "veil vanish (gossamer gone, ghost-gauzed in graceful gone)",
+      weight: 0.5,
+    },
+    // Kinky Layer: 30% – 9 options (representative of 32)
+    {
+      value: "leather harness crisscross (straps biting into bound breasts)",
+      weight: 0.9,
+    },
+    {
+      value: "fishnet bodysuit torn (rips revealing rouged areolas)",
+      weight: 0.9,
+    },
+    {
+      value: "collar and cuffs only (velvet choker, wristlets for the yank)",
+      weight: 0.8,
+    },
+    {
+      value: "oil-slicked transparency (body paint posing as second skin)",
+      weight: 0.8,
+    },
+    {
+      value: "chainmail chemise (link-laced, clink-clashed in metal mesh)",
+      weight: 0.7,
+    },
+    {
+      value: "corset cinch (waist-whittled, lace-laced in breath-bound bind)",
+      weight: 0.7,
+    },
+    {
+      value: "garter grip (stocking-snapped, thigh-throttled in tension tease)",
+      weight: 0.6,
+    },
+    {
+      value: "hologram harness (digital drapes dissolving in data)",
+      weight: 0.6,
+    },
+    {
+      value: "feather boa bind (plume-plucked, tickle-tied in avian allure)",
+      weight: 0.5,
+    },
+  ];
+
+  return selectWeighted(clothingOptions);
+}
+
+/**
+ * Generate optional wildcard element (40% chance)
  */
 function generateWildcard(): string | null {
-  if (Math.random() < 0.3) {
+  if (Math.random() < 0.4) {
     const wildcards: WeightedOption<string>[] = [
-      { value: "tentacle tease (ethereal appendages caress)", weight: 15 },
-      { value: "feather tickle (plume-light torment)", weight: 12 },
-      { value: "mirror multiplicity (endless echoed selves)", weight: 10 },
-      { value: "glowing runes (arcane arousal tattoos)", weight: 8 },
-      { value: "edible allure (chocolate-drizzled curves)", weight: 7 },
-      { value: "shadow duplicate (dark twin joins the fray)", weight: 6 },
-      { value: "vintage filter (sepia-toned scandal)", weight: 5 },
-      { value: "neon ink (tattoos that pulse with pleasure)", weight: 5 },
-      { value: "whispering winds (invisible caresses)", weight: 4 },
-      { value: "crystal phallus (gemstone gleam temptation)", weight: 3 }, // Edgy, but abstract-legal
-      { value: "balloon buoyancy (inflated, floating frolic)", weight: 3 },
-      { value: "hologram haunt (ghostly digital duplicate)", weight: 3 },
-      { value: "perfume haze (scent-trail seduction)", weight: 2 },
-      { value: "velvet void (sensory deprivation silk)", weight: 2 },
-      { value: "firefly flicker (bioluminescent body paint)", weight: 2 },
+      {
+        value: "cum-glazed thighs (sticky trails from spent surrender)",
+        weight: 0.8,
+      },
+      {
+        value: "vibrating egg remote (buzz synced to building bliss)",
+        weight: 0.7,
+      },
+      { value: "mirror multiplicity (infinite echoed erections)", weight: 0.7 },
+      { value: "edible body paint (lickable landscapes of lust)", weight: 0.6 },
+      {
+        value: "shadow puppet play (dark hands puppeteering pale flesh)",
+        weight: 0.6,
+      },
+      {
+        value: "neon body glow (uv tattoos tracing tribal temptations)",
+        weight: 0.5,
+      },
+      {
+        value: "feather flogger tease (soft sting raising red welts)",
+        weight: 0.5,
+      },
+      {
+        value: "ice cube trail (chilled paths melting into molten heat)",
+        weight: 0.5,
+      },
+      {
+        value: "hologram overlay (digital doppelganger doubles the deed)",
+        weight: 0.4,
+      },
+      {
+        value: "perfume pheromone mist (scent-laced air thick with need)",
+        weight: 0.4,
+      },
+      {
+        value: "velvet blindfold slip (sight stolen, senses sharpened sharp)",
+        weight: 0.4,
+      },
+      {
+        value: "firefly biolum (glowing veins mapping mid-climax map)",
+        weight: 0.3,
+      },
+      {
+        value: "crystal nipple clamps (gem-pinched peaks in prism pain)",
+        weight: 0.3,
+      },
+      {
+        value: "balloon restraint pop (inflated bonds bursting at brink)",
+        weight: 0.3,
+      },
+      {
+        value: "whispering silk scarves (tied teases trailing down spine)",
+        weight: 0.3,
+      },
+      {
+        value:
+          "confetti cascade (party popper pearls mimicking pearl necklaces)",
+        weight: 0.2,
+      },
+      { value: "tattoo glow-up (ink igniting with inner fire)", weight: 0.2 },
+      {
+        value: "wine spill streak (merlot rivulets racing down ribs)",
+        weight: 0.2,
+      },
+      {
+        value: "petal path (rose fragments framing forbidden fruit)",
+        weight: 0.2,
+      },
+      {
+        value: "smoke ring halo (cigar haze crowning crowned curves)",
+        weight: 0.2,
+      },
+      {
+        value: "vibrating vines (tentacle-tease from floral fantasy)",
+        weight: 0.1,
+      },
+      {
+        value: "quantum quills (ink-inklings in parallel page play)",
+        weight: 0.1,
+      },
+      {
+        value: "nebula nipple rings (cosmic clamps in star-strewn sting)",
+        weight: 0.1,
+      },
+      {
+        value: "glitch garland (digital drapes dissolving in data dust)",
+        weight: 0.1,
+      },
+      {
+        value: "echo earring (whisper-wired, lobe-laced in loop lure)",
+        weight: 0.1,
+      },
+      {
+        value: "frost flower (ice-etched, petal-pierced in chill charm)",
+        weight: 0.1,
+      },
+      {
+        value: "lava lace (molten mesh, heat-honeyed in fiery filigree)",
+        weight: 0.1,
+      },
+      {
+        value: "shadow silk (dark drape, light-leaked in void veil)",
+        weight: 0.1,
+      },
+      {
+        value: "aurora anklet (northern glow, chain-chilled in cosmic cuff)",
+        weight: 0.1,
+      },
+      {
+        value:
+          "pixie dust pearl (fairy-flecked, skin-sprinkled in sparkle sin)",
+        weight: 0.1,
+      },
     ];
 
     return selectWeighted(wildcards);
@@ -168,41 +1586,44 @@ function generateWildcard(): string | null {
 }
 
 /**
- * Generate complete set of randomized, granular NSFW settings for PornSpot.ai prompt generation
- * Weighted to worship the wicked: youth, solo, indoor – but with enough variety to keep 'em regenerating till dawn.
- *
+ * Generate complete set of randomized NSFW settings for prompt generation
  * @returns PromptSettings object with all randomized parameters
  */
 export function generatePromptSettings(): PromptSettings {
+  const numChars = generateNumCharacters();
   return {
     characterAge: generateCharacterAge(),
-    theme: generateTheme(),
+    numCharacters: numChars,
+    theme: generateTheme(numChars),
     style: generateStyle(),
+    ambiance: generateAmbiance(),
+    pose: generatePose(),
+    clothingState: generateClothingState(),
     wildcard: generateWildcard(),
   };
 }
 
 /**
- * Format settings into a seductive, AI-ready string for PornSpot.ai's image inferno
+ * Format settings into a clean, AI-ready string for image generation
  * @param settings The generated prompt settings
- * @returns Formatted string: a whispered incantation to birth visual vice
+ * @returns Formatted prompt string
  */
 export function formatSettingsForPrompt(settings: PromptSettings): string {
   const parts = [
-    `Character Age: ${settings.characterAge} – ripe for the rendering`,
-    `Theme: ${settings.theme} – tangled temptations unfold`,
-    `Style/Setting: ${settings.style} – backdrop to breathless abandon`,
+    settings.characterAge,
+    `${settings.numCharacters} character${
+      settings.numCharacters > 1 ? "s" : ""
+    }`,
+    settings.theme,
+    settings.style,
+    settings.ambiance,
+    settings.pose,
+    settings.clothingState,
   ];
 
   if (settings.wildcard) {
-    parts.push(
-      `Wildcard Twist: ${settings.wildcard} – the unexpected spark that scorches souls`
-    );
-  } else {
-    parts.push("Wildcard: None – pure, unadulterated focus");
+    parts.push(settings.wildcard);
   }
 
-  return `Ignite the prompt: ${parts.join(
-    " | "
-  )} – Craft an image that claws at cravings.`;
+  return parts.join(", ");
 }
