@@ -1244,6 +1244,29 @@ const handleGenerate = async (
     }
   }
 
+  // Replace seed of 0 with a random number
+  if (requestBody.seed === 0) {
+    requestBody.seed = Math.floor(Math.random() * 2147483647);
+  }
+
+  let enhancedUser: User | null = null;
+  if (auth.userId) {
+    const userEntity = await DynamoDBService.getUserById(auth.userId);
+    enhancedUser = await PlanUtil.enhanceUser(userEntity!);
+  }
+
+  const userPlan = enhancedUser?.planInfo.plan || "anonymous";
+  const permissions = await getGenerationPermissions(userPlan);
+
+  // Validate request
+  const validationError = ValidationService.validateRequest(
+    requestBody,
+    permissions
+  );
+  if (validationError) {
+    return ResponseUtil.badRequest(event, validationError.message);
+  }
+
   if (!promptProvided) {
     try {
       if (connectionId) {
@@ -1267,29 +1290,6 @@ const handleGenerate = async (
         "Failed to generate random prompt"
       );
     }
-  }
-
-  // Replace seed of 0 with a random number
-  if (requestBody.seed === 0) {
-    requestBody.seed = Math.floor(Math.random() * 2147483647);
-  }
-
-  let enhancedUser: User | null = null;
-  if (auth.userId) {
-    const userEntity = await DynamoDBService.getUserById(auth.userId);
-    enhancedUser = await PlanUtil.enhanceUser(userEntity!);
-  }
-
-  const userPlan = enhancedUser?.planInfo.plan || "anonymous";
-  const permissions = await getGenerationPermissions(userPlan);
-
-  // Validate request
-  const validationError = ValidationService.validateRequest(
-    requestBody,
-    permissions
-  );
-  if (validationError) {
-    return ResponseUtil.badRequest(event, validationError.message);
   }
 
   const validatedPrompt = ValidationUtil.validateRequiredString(
