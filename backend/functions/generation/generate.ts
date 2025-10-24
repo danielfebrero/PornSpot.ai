@@ -55,8 +55,8 @@ import {
 } from "@shared/services/comfyui-error-handler";
 import { PromptProcessingService } from "@shared/services/prompt-processing";
 import {
-  formatSettingsForPrompt,
   generatePromptSettings,
+  generateSDXLPrompt,
 } from "@shared/utils/prompt-settings-generator";
 
 // ====================================
@@ -315,20 +315,15 @@ class AIService {
     try {
       // Generate weighted random settings with automatic LoRA selection
       const settings = generatePromptSettings();
-      const settingsMessage = formatSettingsForPrompt(settings);
 
-      console.log("🎲 Generated random settings:", settingsMessage);
+      // Generate the complete SDXL prompt with all characteristics
+      const sdxlPrompt = generateSDXLPrompt(settings);
+
+      console.log("🎲 Generated random SDXL prompt:", sdxlPrompt);
       console.log("🔧 Auto-selected LoRAs:", settings.selectedLoras.join(", "));
 
-      const content = await this.chatCompletion(
-        "generate-random-image-prompt",
-        settingsMessage,
-        CONFIG.AI_PARAMS.temperature.randomPrompt,
-        CONFIG.AI_PARAMS.maxTokens.randomPrompt
-      );
-
       return {
-        prompt: content.trim(),
+        prompt: sdxlPrompt,
         loras: settings.selectedLoras,
       };
     } catch (error) {

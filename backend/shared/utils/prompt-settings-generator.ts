@@ -15,6 +15,18 @@ export interface PromptSettings {
   bodyModifications: string | null; // Piercings, tattoos, and other body mods for LoRA triggers
   photographyStyle: string; // Amateur vs professional photography aesthetic
   selectedLoras: string[]; // Programmatically selected LoRAs based on settings
+  // New diverse characteristics for maximum prompt variation
+  hairColor: string;
+  hairStyle: string;
+  ethnicity: string;
+  eyeColor: string;
+  bodyType: string;
+  location: string;
+  timeOfDay: string;
+  weather: string | null; // For outdoor scenes
+  accessories: string | null;
+  makeup: string;
+  expressions: string;
 }
 
 interface WeightedOption<T> {
@@ -1717,6 +1729,404 @@ function generatePhotographyStyle(): string {
 }
 
 /**
+ * Generate hair color with diverse options
+ * Wide variety to ensure maximum prompt variation
+ */
+function generateHairColor(): string {
+  const hairColorOptions: WeightedOption<string>[] = [
+    // Natural colors - 60%
+    { value: "platinum blonde", weight: 8 },
+    { value: "golden blonde", weight: 7 },
+    { value: "dirty blonde", weight: 6 },
+    { value: "honey blonde", weight: 5 },
+    { value: "ash blonde", weight: 4 },
+    { value: "light brown", weight: 6 },
+    { value: "chestnut brown", weight: 6 },
+    { value: "chocolate brown", weight: 5 },
+    { value: "dark brown", weight: 5 },
+    { value: "auburn", weight: 4 },
+    { value: "copper red", weight: 4 },
+    { value: "ginger", weight: 3 },
+    { value: "strawberry blonde", weight: 3 },
+    { value: "jet black", weight: 5 },
+    { value: "raven black", weight: 4 },
+    { value: "natural gray", weight: 1 },
+    { value: "silver gray", weight: 1 },
+    // Fantasy/dyed colors - 40%
+    { value: "pastel pink", weight: 4 },
+    { value: "hot pink", weight: 3 },
+    { value: "rose gold", weight: 3 },
+    { value: "lavender purple", weight: 3 },
+    { value: "violet", weight: 2 },
+    { value: "electric blue", weight: 2 },
+    { value: "teal", weight: 2 },
+    { value: "mint green", weight: 2 },
+    { value: "peach", weight: 2 },
+    { value: "burgundy", weight: 2 },
+    { value: "ombre blonde to pink", weight: 2 },
+    { value: "balayage highlights", weight: 3 },
+    { value: "rainbow highlights", weight: 1 },
+    { value: "two-tone split dye", weight: 1 },
+  ];
+
+  return selectWeighted(hairColorOptions);
+}
+
+/**
+ * Generate hair style with extensive variety
+ */
+function generateHairStyle(): string {
+  const hairStyleOptions: WeightedOption<string>[] = [
+    // Long styles - 35%
+    { value: "long straight flowing hair", weight: 6 },
+    { value: "long wavy cascading hair", weight: 6 },
+    { value: "long curly voluminous hair", weight: 5 },
+    { value: "waist-length hair", weight: 3 },
+    { value: "mermaid waves", weight: 3 },
+    { value: "beach waves", weight: 4 },
+    { value: "sleek straight hair", weight: 3 },
+    { value: "tousled bedhead hair", weight: 3 },
+    // Medium styles - 30%
+    { value: "shoulder-length layered hair", weight: 5 },
+    { value: "lob (long bob)", weight: 4 },
+    { value: "shaggy medium cut", weight: 3 },
+    { value: "wavy bob", weight: 4 },
+    { value: "textured medium hair", weight: 3 },
+    { value: "side-swept medium hair", weight: 3 },
+    { value: "blunt cut shoulder-length", weight: 3 },
+    // Short styles - 20%
+    { value: "pixie cut", weight: 3 },
+    { value: "short bob", weight: 4 },
+    { value: "asymmetrical bob", weight: 2 },
+    { value: "cropped hair", weight: 2 },
+    { value: "undercut short hair", weight: 2 },
+    { value: "buzzed sides with long top", weight: 1 },
+    // Updos and styles - 15%
+    { value: "messy bun", weight: 3 },
+    { value: "high ponytail", weight: 3 },
+    { value: "braided crown", weight: 2 },
+    { value: "french braid", weight: 2 },
+    { value: "fishtail braid", weight: 2 },
+    { value: "half-up half-down", weight: 2 },
+    { value: "space buns", weight: 1 },
+    { value: "low chignon", weight: 1 },
+    { value: "side braid", weight: 1 },
+  ];
+
+  return selectWeighted(hairStyleOptions);
+}
+
+/**
+ * Generate ethnicity/race with global diversity
+ */
+function generateEthnicity(): string {
+  const ethnicityOptions: WeightedOption<string>[] = [
+    // European descent - 30%
+    { value: "caucasian", weight: 8 },
+    { value: "northern european", weight: 4 },
+    { value: "mediterranean", weight: 4 },
+    { value: "eastern european", weight: 3 },
+    { value: "scandinavian", weight: 3 },
+    { value: "irish", weight: 2 },
+    { value: "italian", weight: 2 },
+    { value: "spanish", weight: 2 },
+    // East Asian - 20%
+    { value: "japanese", weight: 6 },
+    { value: "korean", weight: 5 },
+    { value: "chinese", weight: 4 },
+    { value: "taiwanese", weight: 2 },
+    { value: "vietnamese", weight: 2 },
+    { value: "thai", weight: 2 },
+    // South Asian - 10%
+    { value: "indian", weight: 4 },
+    { value: "pakistani", weight: 2 },
+    { value: "bangladeshi", weight: 1 },
+    { value: "sri lankan", weight: 1 },
+    // Latin American - 15%
+    { value: "latina", weight: 5 },
+    { value: "brazilian", weight: 4 },
+    { value: "mexican", weight: 3 },
+    { value: "colombian", weight: 2 },
+    { value: "argentinian", weight: 1 },
+    // Middle Eastern - 10%
+    { value: "middle eastern", weight: 4 },
+    { value: "arabic", weight: 3 },
+    { value: "persian", weight: 2 },
+    { value: "turkish", weight: 2 },
+    // African descent - 10%
+    { value: "african american", weight: 4 },
+    { value: "afro-caribbean", weight: 2 },
+    { value: "east african", weight: 1 },
+    { value: "west african", weight: 1 },
+    { value: "north african", weight: 1 },
+    // Mixed/Other - 5%
+    { value: "mixed race", weight: 2 },
+    { value: "eurasian", weight: 1 },
+    { value: "polynesian", weight: 1 },
+    { value: "native american", weight: 0.5 },
+  ];
+
+  return selectWeighted(ethnicityOptions);
+}
+
+/**
+ * Generate eye color with natural and rare options
+ */
+function generateEyeColor(): string {
+  const eyeColorOptions: WeightedOption<string>[] = [
+    // Common - 70%
+    { value: "brown eyes", weight: 20 },
+    { value: "dark brown eyes", weight: 15 },
+    { value: "hazel eyes", weight: 12 },
+    { value: "blue eyes", weight: 10 },
+    { value: "green eyes", weight: 8 },
+    { value: "light blue eyes", weight: 5 },
+    { value: "gray eyes", weight: 3 },
+    { value: "amber eyes", weight: 2 },
+    // Rare/descriptive - 30%
+    { value: "honey-colored eyes", weight: 3 },
+    { value: "golden brown eyes", weight: 3 },
+    { value: "deep blue eyes", weight: 3 },
+    { value: "emerald green eyes", weight: 2 },
+    { value: "gray-blue eyes", weight: 2 },
+    { value: "heterochromatic eyes", weight: 1 },
+    { value: "violet-tinted eyes", weight: 0.5 },
+    { value: "steel gray eyes", weight: 2 },
+    { value: "olive green eyes", weight: 2 },
+    { value: "bright blue eyes", weight: 2 },
+  ];
+
+  return selectWeighted(eyeColorOptions);
+}
+
+/**
+ * Generate body type with realistic diversity
+ */
+function generateBodyType(): string {
+  const bodyTypeOptions: WeightedOption<string>[] = [
+    // Slim/Athletic - 40%
+    { value: "slim athletic build", weight: 8 },
+    { value: "toned physique", weight: 7 },
+    { value: "petite frame", weight: 6 },
+    { value: "lean athletic body", weight: 5 },
+    { value: "slender build", weight: 4 },
+    { value: "fit yoga body", weight: 4 },
+    { value: "dancer's physique", weight: 2 },
+    // Curvy - 30%
+    { value: "curvy hourglass figure", weight: 8 },
+    { value: "voluptuous curves", weight: 6 },
+    { value: "thick thighs and hips", weight: 5 },
+    { value: "pear-shaped body", weight: 4 },
+    { value: "full-figured", weight: 3 },
+    { value: "busty curvy build", weight: 4 },
+    // Average/Medium - 20%
+    { value: "average build", weight: 6 },
+    { value: "medium frame", weight: 5 },
+    { value: "natural body type", weight: 4 },
+    { value: "soft curves", weight: 3 },
+    { value: "balanced proportions", weight: 2 },
+    // Plus size - 10%
+    { value: "plus size voluptuous", weight: 4 },
+    { value: "BBW (big beautiful woman)", weight: 3 },
+    { value: "chubby soft body", weight: 2 },
+    { value: "thick curvy build", weight: 2 },
+  ];
+
+  return selectWeighted(bodyTypeOptions);
+}
+
+/**
+ * Generate location/setting with extensive variety
+ */
+function generateLocation(): string {
+  const locationOptions: WeightedOption<string>[] = [
+    // Indoor private - 35%
+    { value: "luxury bedroom", weight: 6 },
+    { value: "cozy bedroom", weight: 5 },
+    { value: "modern bathroom", weight: 5 },
+    { value: "walk-in shower", weight: 4 },
+    { value: "marble bathroom", weight: 3 },
+    { value: "living room couch", weight: 4 },
+    { value: "home office", weight: 2 },
+    { value: "walk-in closet", weight: 2 },
+    { value: "private gym", weight: 2 },
+    { value: "home library", weight: 1 },
+    { value: "kitchen counter", weight: 3 },
+    // Indoor public/semi-public - 20%
+    { value: "hotel room", weight: 5 },
+    { value: "luxury penthouse", weight: 4 },
+    { value: "spa changing room", weight: 3 },
+    { value: "boutique fitting room", weight: 3 },
+    { value: "nightclub VIP area", weight: 2 },
+    { value: "rooftop lounge", weight: 2 },
+    { value: "art gallery", weight: 1 },
+    { value: "upscale restaurant", weight: 1 },
+    { value: "yoga studio", weight: 2 },
+    { value: "dance studio", weight: 2 },
+    // Outdoor nature - 25%
+    { value: "tropical beach", weight: 6 },
+    { value: "secluded beach cove", weight: 4 },
+    { value: "infinity pool", weight: 5 },
+    { value: "private pool", weight: 4 },
+    { value: "forest clearing", weight: 2 },
+    { value: "mountain cabin", weight: 2 },
+    { value: "lakeside dock", weight: 2 },
+    { value: "desert landscape", weight: 1 },
+    { value: "waterfall grotto", weight: 2 },
+    { value: "private garden", weight: 3 },
+    { value: "hot spring", weight: 2 },
+    // Outdoor urban - 15%
+    { value: "city rooftop", weight: 4 },
+    { value: "urban alleyway", weight: 2 },
+    { value: "balcony overlooking city", weight: 3 },
+    { value: "parking garage", weight: 1 },
+    { value: "abandoned warehouse", weight: 2 },
+    { value: "neon-lit street", weight: 2 },
+    { value: "graffiti wall backdrop", weight: 1 },
+    // Vehicles - 5%
+    { value: "luxury car interior", weight: 2 },
+    { value: "yacht cabin", weight: 2 },
+    { value: "private jet", weight: 1 },
+  ];
+
+  return selectWeighted(locationOptions);
+}
+
+/**
+ * Generate time of day for lighting context
+ */
+function generateTimeOfDay(): string {
+  const timeOptions: WeightedOption<string>[] = [
+    { value: "golden hour", weight: 8 },
+    { value: "late afternoon", weight: 6 },
+    { value: "early morning", weight: 5 },
+    { value: "midday bright light", weight: 4 },
+    { value: "sunset", weight: 7 },
+    { value: "blue hour twilight", weight: 5 },
+    { value: "nighttime", weight: 8 },
+    { value: "late night", weight: 4 },
+    { value: "dawn light", weight: 3 },
+    { value: "overcast day", weight: 2 },
+  ];
+
+  return selectWeighted(timeOptions);
+}
+
+/**
+ * Generate weather conditions (for outdoor scenes)
+ * Returns null 50% of the time for indoor scenes
+ */
+function generateWeather(): string | null {
+  // 50% chance of no weather descriptor (indoor scenes)
+  if (Math.random() < 0.5) {
+    return null;
+  }
+
+  const weatherOptions: WeightedOption<string>[] = [
+    { value: "clear sunny day", weight: 8 },
+    { value: "partly cloudy", weight: 5 },
+    { value: "light rain", weight: 3 },
+    { value: "misty fog", weight: 3 },
+    { value: "light snow", weight: 2 },
+    { value: "warm humid air", weight: 4 },
+    { value: "windy", weight: 3 },
+    { value: "dramatic storm clouds", weight: 2 },
+    { value: "hazy atmosphere", weight: 2 },
+  ];
+
+  return selectWeighted(weatherOptions);
+}
+
+/**
+ * Generate accessories to add detail
+ * Returns null 40% of the time
+ */
+function generateAccessories(): string | null {
+  // 40% chance of no accessories
+  if (Math.random() < 0.4) {
+    return null;
+  }
+
+  const accessoryOptions: WeightedOption<string>[] = [
+    { value: "delicate necklace", weight: 6 },
+    { value: "choker", weight: 5 },
+    { value: "hoop earrings", weight: 4 },
+    { value: "dangling earrings", weight: 4 },
+    { value: "stud earrings", weight: 3 },
+    { value: "bracelet stack", weight: 3 },
+    { value: "anklet", weight: 3 },
+    { value: "belly chain", weight: 2 },
+    { value: "sunglasses on head", weight: 3 },
+    { value: "cat-eye sunglasses", weight: 2 },
+    { value: "statement ring", weight: 2 },
+    { value: "headband", weight: 2 },
+    { value: "hair clips", weight: 2 },
+    { value: "scrunchie", weight: 2 },
+    { value: "watch", weight: 2 },
+    { value: "body chain", weight: 1 },
+    { value: "temporary tattoos", weight: 1 },
+    { value: "flower in hair", weight: 2 },
+  ];
+
+  return selectWeighted(accessoryOptions);
+}
+
+/**
+ * Generate makeup style
+ */
+function generateMakeup(): string {
+  const makeupOptions: WeightedOption<string>[] = [
+    { value: "natural makeup", weight: 10 },
+    { value: "minimal makeup", weight: 8 },
+    { value: "no makeup natural beauty", weight: 6 },
+    { value: "glossy lips", weight: 7 },
+    { value: "matte red lips", weight: 5 },
+    { value: "nude lips", weight: 6 },
+    { value: "smokey eye makeup", weight: 6 },
+    { value: "winged eyeliner", weight: 5 },
+    { value: "dramatic eye makeup", weight: 4 },
+    { value: "glowing skin", weight: 7 },
+    { value: "dewy makeup", weight: 5 },
+    { value: "contoured cheekbones", weight: 4 },
+    { value: "highlighted cheekbones", weight: 4 },
+    { value: "flushed cheeks", weight: 3 },
+    { value: "glitter accents", weight: 2 },
+    { value: "bold eyebrows", weight: 3 },
+    { value: "natural brows", weight: 4 },
+  ];
+
+  return selectWeighted(makeupOptions);
+}
+
+/**
+ * Generate facial expression
+ */
+function generateExpression(): string {
+  const expressionOptions: WeightedOption<string>[] = [
+    { value: "seductive gaze", weight: 10 },
+    { value: "playful smile", weight: 8 },
+    { value: "sultry expression", weight: 8 },
+    { value: "confident smirk", weight: 6 },
+    { value: "shy smile", weight: 5 },
+    { value: "intense eye contact", weight: 7 },
+    { value: "bedroom eyes", weight: 7 },
+    { value: "lip bite", weight: 6 },
+    { value: "mouth slightly open", weight: 6 },
+    { value: "flirty glance", weight: 5 },
+    { value: "provocative look", weight: 5 },
+    { value: "dreamy expression", weight: 4 },
+    { value: "playful tongue out", weight: 3 },
+    { value: "laughing", weight: 4 },
+    { value: "sensual expression", weight: 6 },
+    { value: "mysterious smile", weight: 3 },
+    { value: "looking away coyly", weight: 3 },
+    { value: "direct confident gaze", weight: 5 },
+  ];
+
+  return selectWeighted(expressionOptions);
+}
+
+/**
  * Select LoRAs based on generated settings
  * Analyzes all settings to determine which LoRAs should be applied
  * @param settings The complete prompt settings
@@ -1847,6 +2257,18 @@ export function generatePromptSettings(): PromptSettings {
     bodyModifications: generateBodyModifications(),
     photographyStyle: generatePhotographyStyle(),
     selectedLoras: [] as string[], // Will be populated below
+    // New diverse characteristics
+    hairColor: generateHairColor(),
+    hairStyle: generateHairStyle(),
+    ethnicity: generateEthnicity(),
+    eyeColor: generateEyeColor(),
+    bodyType: generateBodyType(),
+    location: generateLocation(),
+    timeOfDay: generateTimeOfDay(),
+    weather: generateWeather(),
+    accessories: generateAccessories(),
+    makeup: generateMakeup(),
+    expressions: generateExpression(),
   };
 
   // Select LoRAs based on the generated settings
@@ -1856,23 +2278,60 @@ export function generatePromptSettings(): PromptSettings {
 }
 
 /**
- * Format settings into a clean, AI-ready string for image generation
+ * Format settings into a complete SDXL-ready prompt string
+ * Combines all characteristics into a detailed, varied prompt for image generation
  * @param settings The generated prompt settings
- * @returns Formatted prompt string
+ * @returns Formatted SDXL prompt string with all details
  */
 export function formatSettingsForPrompt(settings: PromptSettings): string {
-  const parts = [
-    settings.photographyStyle,
-    settings.characterAge,
+  const parts: string[] = [];
+
+  // Photography style and technical quality
+  parts.push(settings.photographyStyle);
+
+  // Physical characteristics - core description
+  parts.push(
+    `${settings.ethnicity} woman with ${settings.hairColor} ${settings.hairStyle}`
+  );
+  parts.push(settings.eyeColor);
+  parts.push(settings.bodyType);
+
+  // Character count and age
+  parts.push(
     `${settings.numCharacters} character${
       settings.numCharacters > 1 ? "s" : ""
-    }`,
-    settings.theme,
-    settings.style,
-    settings.ambiance,
-    settings.pose,
-    settings.clothingState,
-  ];
+    }`
+  );
+  parts.push(settings.characterAge);
+
+  // Facial features and expression
+  parts.push(settings.expressions);
+  parts.push(settings.makeup);
+
+  // Main theme and action
+  parts.push(settings.theme);
+
+  // Location and environment
+  parts.push(`in ${settings.location}`);
+  parts.push(settings.timeOfDay);
+  if (settings.weather) {
+    parts.push(settings.weather);
+  }
+
+  // Style and ambiance
+  parts.push(settings.style);
+  parts.push(settings.ambiance);
+
+  // Pose and body language
+  parts.push(settings.pose);
+
+  // Clothing state
+  parts.push(settings.clothingState);
+
+  // Optional details
+  if (settings.accessories) {
+    parts.push(`wearing ${settings.accessories}`);
+  }
 
   if (settings.bodyModifications) {
     parts.push(settings.bodyModifications);
@@ -1882,5 +2341,21 @@ export function formatSettingsForPrompt(settings: PromptSettings): string {
     parts.push(settings.wildcard);
   }
 
+  // Quality and technical tags for SDXL
+  parts.push(
+    "masterpiece, best quality, highly detailed, 8k uhd, professional photography"
+  );
+
   return parts.join(", ");
+}
+
+/**
+ * Generate a complete SDXL prompt
+ * @param settings The generated prompt settings
+ * @returns Complete SDXL prompt
+ */
+export function generateSDXLPrompt(settings: PromptSettings): string {
+  const basePrompt = formatSettingsForPrompt(settings);
+
+  return basePrompt;
 }
