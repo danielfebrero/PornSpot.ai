@@ -19,6 +19,6 @@
   <!-- Right: text group with main text and tagline -->
   <g id="text-group" transform="translate(140,100)">
     <text x="0" y="0" fill="url(#brandGradient)" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="48" letter-spacing="1">PornSpot.ai</text>
-    <text x="0" y="30" fill="url(#brandGradient)" font-family="Helvetica, Arial, sans-serif" font-weight="400" font-size="24" letter-spacing="0.5">AI-Generated Content</text>
+    <text x="0" y="30" fill="url(#brandGradient)" font-family="Helvetica, Arial, sans-serif" font-weight="400" font-size="24" letter-spacing="0.5">AI-Generated Porn</text>
   </g>
 </svg>
