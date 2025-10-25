@@ -18,15 +18,21 @@ export type GetPSCLeaderboardResponse = ApiKeyedPaginatedResponse<
   LeaderboardUserEntry
 >;
 
+// Extended request type to support SSG/ISR fetch options
+export interface GetPSCLeaderboardRequestWithOptions
+  extends GetPSCLeaderboardRequest {
+  fetchOptions?: RequestInit;
+}
+
 // Leaderboard API Functions
 export const leaderboardApi = {
   /**
    * Get PSC leaderboard - top users by total PSC earned
-   * @param params - limit and cursor for pagination
+   * @param params - limit and cursor for pagination, plus optional fetchOptions for ISR
    * @returns Paginated list of top PSC earners
    */
   getPSCLeaderboard: async (
-    params?: GetPSCLeaderboardRequest
+    params?: GetPSCLeaderboardRequestWithOptions
   ): Promise<UnifiedLeaderboardResponse> => {
     const queryParams: Record<string, string> = {};
 
@@ -40,7 +46,8 @@ export const leaderboardApi = {
 
     const response = await ApiUtil.get<UnifiedLeaderboardResponse>(
       "/leaderboard/psc",
-      queryParams
+      queryParams,
+      params?.fetchOptions
     );
 
     return ApiUtil.extractData(response);
