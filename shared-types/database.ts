@@ -228,6 +228,7 @@ export interface UserEntity extends BaseEntity {
   lastGenerationAt?: string; // Last generation timestamp
   bonusGenerationCredits?: number; // Remaining bonus credits granted on signup
   daysStreakGeneration?: number; // Consecutive days of generation activity (images or videos)
+  currentStreak?: number; // Current consecutive days streak
 
   // Real-time profile insights/metrics
   profileInsights?: UserProfileInsights;
@@ -243,6 +244,7 @@ export interface UserEntity extends BaseEntity {
   // emails
   lastSentUnreadNotificationsEmailAt?: string; // when the last unread notifications email was sent
   lastSentPscBalanceEmailAt?: string; // when the last PSC balance email was sent
+  lastSentDayStreakReminderEmailAt?: string; // when the last day streak reminder email was sent
 
   // email notification preferences
   emailPreferences: EmailPreferences; // per-user email notification preferences

@@ -255,6 +255,38 @@ export class EmailService {
   }
 
   /**
+   * Send day streak reminder email
+   */
+  static async sendDayStreakReminderEmail(options: {
+    to: string;
+    username?: string;
+    rewardsUrl: string;
+    generateUrl: string;
+    settingsUrl: string;
+  }): Promise<EmailSendResult> {
+    const { to, username, rewardsUrl, generateUrl, settingsUrl } = options;
+    const displayName = username ? username : to;
+
+    const subject = `🔥 You have 4 hours left for a 2-day streak!`;
+
+    const { htmlBody, textBody } = await EmailTemplateService.loadTemplate(
+      "day-streak-reminder",
+      {
+        subject,
+        displayName,
+        rewardsUrl,
+        generateUrl,
+        settingsUrl,
+      }
+    );
+
+    return this.sendEmail({
+      to,
+      template: { subject, htmlBody, textBody },
+    });
+  }
+
+  /**
    * Send new follower notification email
    */
   static async sendNewFollowerEmail(options: {

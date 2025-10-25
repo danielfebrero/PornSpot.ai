@@ -1248,6 +1248,10 @@
         "unread": {
           "label": "Zusammenfassung ungelesener Benachrichtigungen"
         },
+        "dayStreakReminder": {
+          "label": "Tägliche Streak-Erinnerungen",
+          "description": "Erhalten Sie eine Erinnerung, um Ihre tägliche Serie aufrechtzuerhalten"
+        },
         "communications": {
           "label": "Plattform-Kommunikation",
           "description": "Erhalten Sie Benachrichtigungen über neue Funktionen und interessante Ankündigungen"

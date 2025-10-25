@@ -24,6 +24,7 @@ export interface EmailPreferences {
   unreadNotifications?: EmailPreferenceMode;
   newFollowers?: EmailPreferenceMode;
   communications?: EmailPreferenceMode;
+  dayStreakReminder?: EmailPreferenceMode;
 }
 
 export interface User {

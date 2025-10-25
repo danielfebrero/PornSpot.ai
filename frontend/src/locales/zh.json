@@ -1268,6 +1268,10 @@
         "unread": {
           "label": "未读通知摘要"
         },
+        "dayStreakReminder": {
+          "label": "每日连续打卡提醒",
+          "description": "接收提醒以保持每日连续打卡"
+        },
         "communications": {
           "label": "平台通讯",
           "description": "获取关于新功能和精彩公告的通知"

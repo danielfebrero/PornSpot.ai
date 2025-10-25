@@ -1,0 +1,36 @@
+/*
+ * @fileoverview Day Streak Reminder Email Template (Text)
+ * @description Plain text version reminding users to maintain their daily streak.
+ * @variables
+ * - {{displayName}}
+ * - {{rewardsUrl}}
+ * - {{generateUrl}}
+ * - {{settingsUrl}}
+ */
+Hey {{displayName}},
+
+🔥 You're So Close to a 2-Day Streak!
+
+You're just 3 hours away from achieving an awesome 2-day streak! 🎉
+
+Don't break the chain! 💪
+
+Generate images or videos on PornSpot.ai right now to keep your streak alive and unlock amazing rewards! 🚀
+
+🎨 Generate Now:
+{{generateUrl}}
+
+Want to know what you can earn with streaks? Check out all the exciting rewards waiting for you:
+
+🏆 View All Rewards:
+{{rewardsUrl}}
+
+Keep up the momentum and watch your rewards grow! 🌟
+
+---
+
+Email preferences:
+{{settingsUrl}}
+
+© 2025 PornSpot.ai. All rights reserved.
+This is an automated email. Please do not reply to this message.

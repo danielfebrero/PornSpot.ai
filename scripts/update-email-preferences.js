@@ -3,7 +3,7 @@
 /**
  * Script to update user email preferences in bulk
  *
- * This script backfills users' emailPreferences.communications to "always"
+ * This script backfills users' emailPreferences.dayStreakReminder to "always"
  *
  * Usage: node scripts/update-email-preferences.js --env=<environment> [--dry-run] [--limit=N]
  *
@@ -98,7 +98,7 @@ function displayUsage() {
   console.log(`
 📋 Update Email Preferences Script
 
-This script backfills users' emailPreferences.communications 
+This script backfills users' emailPreferences.dayStreakReminder 
 to "always" in DynamoDB.
 
 Usage:
@@ -178,9 +178,9 @@ async function updateEmailPreferences(environment, options = {}) {
           const email = user.email;
           const username = user.username || "N/A";
 
-          // Check if user has emailPreferences.communications
+          // Check if user has emailPreferences.dayStreakReminder
           // Backfill to "always" unless current value is "never"
-          const currentPreference = user.emailPreferences?.communications;
+          const currentPreference = user.emailPreferences?.dayStreakReminder;
 
           // Skip only if explicitly set to "never" or already "always"
           if (currentPreference === "never") {
@@ -198,16 +198,18 @@ async function updateEmailPreferences(environment, options = {}) {
               );
             }
           } else {
-            // Update: "intelligently", undefined, or not set
+            // Update: undefined or not set
             console.log(
               `\n[${totalProcessed}] 📧 User: ${username} (${email})`
             );
             console.log(
-              `   Current: emailPreferences.communications = ${
+              `   Current: emailPreferences.dayStreakReminder = ${
                 currentPreference ? `"${currentPreference}"` : "not set"
               }`
             );
-            console.log(`   New: emailPreferences.communications = "always"`);
+            console.log(
+              `   New: emailPreferences.dayStreakReminder = "always"`
+            );
 
             if (!isDryRun) {
               // Update the user's email preferences
@@ -230,12 +232,13 @@ async function updateEmailPreferences(environment, options = {}) {
                     unreadNotifications: "always",
                     newFollowers: "intelligently",
                     communications: "always",
+                    dayStreakReminder: "always",
                   },
                 };
               } else {
                 // If it exists, just update the nested property
                 updateParams.UpdateExpression =
-                  "SET emailPreferences.communications = :always";
+                  "SET emailPreferences.dayStreakReminder = :always";
                 updateParams.ExpressionAttributeValues = {
                   ":always": "always",
                 };

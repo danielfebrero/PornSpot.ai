@@ -1321,6 +1321,10 @@
         "unread": {
           "label": "Unread notifications summary"
         },
+        "dayStreakReminder": {
+          "label": "Day streak reminders",
+          "description": "Get reminded to maintain your daily streak"
+        },
         "communications": {
           "label": "Platform communications",
           "description": "Get notified about new features and cool announcements"

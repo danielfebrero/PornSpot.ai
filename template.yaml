@@ -4104,6 +4104,48 @@ Resources:
                 - ssm:GetParameter
               Resource:
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/sendgrid-api-key"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/frontend-url"
+
+  # Daily Day Streak Reminder Email
+  DayStreakReminderFunction:
+    Type: AWS::Serverless::Function
+    Condition: IsProd
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-day-streak-reminder"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/scheduled-emails/day-streak-reminder.handler"]
+      MemorySize: 512
+      Timeout: 900
+      Events:
+        Daily:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(0 21 * * ? *)" # Every day at 21:00 UTC (9pm UTC)
+            Name: !Sub "${Environment}-pornspot-day-streak-reminder-21utc"
+            Description: "Sends day streak reminder emails daily at 21:00 UTC"
+            Enabled: !If [IsProd, true, false]
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:Scan
+                - dynamodb:UpdateItem
+              Resource:
+                - !GetAtt MediaTable.Arn
+                - !Sub "${MediaTable.Arn}/index/*"
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/sendgrid-api-key"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/frontend-url"
 
   # Monthly I2V Credits Reset for Pro and Unlimited Users
   GrantI2vCreditsToPlansFunction:

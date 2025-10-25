@@ -1264,6 +1264,10 @@
         "unread": {
           "label": "Resumen de notificaciones no leídas"
         },
+        "dayStreakReminder": {
+          "label": "Recordatorios de racha diaria",
+          "description": "Recibe un recordatorio para mantener tu racha diaria"
+        },
         "communications": {
           "label": "Comunicaciones de la plataforma",
           "description": "Recibe notificaciones sobre nuevas funciones y anuncios interesantes"

@@ -131,6 +131,8 @@ export default function SettingsPage() {
     useState<EmailPreferenceMode>("always");
   const [communicationsEmailPref, setCommunicationsEmailPref] =
     useState<EmailPreferenceMode>("intelligently");
+  const [dayStreakReminderEmailPref, setDayStreakReminderEmailPref] =
+    useState<EmailPreferenceMode>("always");
   const [isSavingEmailPrefs, setIsSavingEmailPrefs] = useState(false);
 
   // Alert Dialog states
@@ -259,6 +261,9 @@ export default function SettingsPage() {
       if (user.emailPreferences.communications) {
         setCommunicationsEmailPref(user.emailPreferences.communications);
       }
+      if (user.emailPreferences.dayStreakReminder) {
+        setDayStreakReminderEmailPref(user.emailPreferences.dayStreakReminder);
+      }
     }
   }, [user?.emailPreferences]);
 
@@ -279,7 +284,8 @@ export default function SettingsPage() {
       | "pscBalance"
       | "unreadNotifications"
       | "newFollowers"
-      | "communications",
+      | "communications"
+      | "dayStreakReminder",
     value: EmailPreferenceMode,
     prevValue: EmailPreferenceMode
   ) => {
@@ -294,6 +300,8 @@ export default function SettingsPage() {
       if (field === "pscBalance") setPscEmailPref(prevValue);
       else if (field === "unreadNotifications") setUnreadEmailPref(prevValue);
       else if (field === "newFollowers") setNewFollowerEmailPref(prevValue);
+      else if (field === "dayStreakReminder")
+        setDayStreakReminderEmailPref(prevValue);
       else setCommunicationsEmailPref(prevValue);
       const errorMessage =
         error instanceof Error
@@ -897,6 +905,35 @@ export default function SettingsPage() {
               <option value="intelligently">
                 {tSettings("notifications.options.intelligently")}
               </option>
+              <option value="always">
+                {tSettings("notifications.options.always")}
+              </option>
+              <option value="never">
+                {tSettings("notifications.options.never")}
+              </option>
+            </select>
+          </div>
+
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+            <div>
+              <p className="font-medium text-sm">
+                {tSettings("notifications.dayStreakReminder.label")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {tSettings("notifications.dayStreakReminder.description")}
+              </p>
+            </div>
+            <select
+              value={dayStreakReminderEmailPref}
+              onChange={(e) => {
+                const next = e.target.value as EmailPreferenceMode;
+                const prev = dayStreakReminderEmailPref;
+                setDayStreakReminderEmailPref(next);
+                updateEmailPreference("dayStreakReminder", next, prev);
+              }}
+              disabled={isSavingEmailPrefs}
+              className="px-3 py-1.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
               <option value="always">
                 {tSettings("notifications.options.always")}
               </option>
@@ -1522,6 +1559,41 @@ export default function SettingsPage() {
                 <option value="intelligently">
                   {tSettings("notifications.options.intelligently")}
                 </option>
+                <option value="always">
+                  {tSettings("notifications.options.always")}
+                </option>
+                <option value="never">
+                  {tSettings("notifications.options.never")}
+                </option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        {/* Day Streak Reminder Notifications */}
+        <div className="bg-card rounded-xl border p-4">
+          <div className="space-y-3">
+            <div>
+              <p className="font-medium text-sm mb-1">
+                {tSettings("notifications.dayStreakReminder.label")}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {tSettings("notifications.dayStreakReminder.description")}
+              </p>
+            </div>
+            <div className="relative">
+              <select
+                value={dayStreakReminderEmailPref}
+                onChange={(e) => {
+                  const next = e.target.value as EmailPreferenceMode;
+                  const prev = dayStreakReminderEmailPref;
+                  setDayStreakReminderEmailPref(next);
+                  updateEmailPreference("dayStreakReminder", next, prev);
+                }}
+                disabled={isSavingEmailPrefs}
+                className="w-full px-4 py-2.5 pr-10 rounded-lg border bg-background text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+              >
                 <option value="always">
                   {tSettings("notifications.options.always")}
                 </option>

@@ -1338,6 +1338,10 @@
         "unread": {
           "label": "Résumé des notifications non lues"
         },
+        "dayStreakReminder": {
+          "label": "Rappels de série quotidienne",
+          "description": "Recevez un rappel pour maintenir votre série quotidienne"
+        },
         "communications": {
           "label": "Communications de la plateforme",
           "description": "Soyez informé des nouvelles fonctionnalités et annonces intéressantes"
