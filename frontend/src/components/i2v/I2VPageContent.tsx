@@ -81,7 +81,7 @@ export function I2VPageContent() {
     flowShift: 5.0,
     inferenceSteps: 30,
     cfgScale: 5.0,
-    optimizePrompt: true,
+    optimizePrompt: false,
     isPublic: true,
     enableLoras: true,
   });
