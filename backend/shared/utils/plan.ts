@@ -8,6 +8,55 @@ import {
   UserRole,
 } from "@shared/shared-types";
 
+// Streak milestone rewards configuration
+interface StreakReward {
+  type: "images" | "video";
+  amount: number;
+  unit: "credits" | "seconds";
+}
+
+interface MilestoneRewards {
+  free: StreakReward;
+  starter: StreakReward;
+  unlimited: StreakReward;
+  pro: StreakReward;
+}
+
+interface StreakMilestone {
+  day: number;
+  rewards: MilestoneRewards;
+}
+
+const MILESTONES: StreakMilestone[] = [
+  {
+    day: 7,
+    rewards: {
+      free: { type: "images", amount: 10, unit: "credits" },
+      starter: { type: "images", amount: 10, unit: "credits" },
+      unlimited: { type: "video", amount: 5, unit: "seconds" },
+      pro: { type: "video", amount: 10, unit: "seconds" },
+    },
+  },
+  {
+    day: 30,
+    rewards: {
+      free: { type: "images", amount: 50, unit: "credits" },
+      starter: { type: "images", amount: 50, unit: "credits" },
+      unlimited: { type: "video", amount: 20, unit: "seconds" },
+      pro: { type: "video", amount: 30, unit: "seconds" },
+    },
+  },
+  {
+    day: 90,
+    rewards: {
+      free: { type: "images", amount: 500, unit: "credits" },
+      starter: { type: "images", amount: 500, unit: "credits" },
+      unlimited: { type: "video", amount: 80, unit: "seconds" },
+      pro: { type: "video", amount: 100, unit: "seconds" },
+    },
+  },
+];
+
 export interface UserPlanInfo {
   plan: UserPlan;
   isActive: boolean;
@@ -268,6 +317,70 @@ export class PlanUtil {
   }
 
   /**
+   * Check if a milestone was reached and award rewards
+   * @private
+   */
+  private static async awardMilestoneRewards(
+    userId: string,
+    previousStreak: number,
+    newStreak: number,
+    userPlan: UserPlan
+  ): Promise<void> {
+    // Skip rewards for anonymous users
+    if (userPlan === "anonymous") {
+      return;
+    }
+
+    // Check if we crossed any milestone thresholds
+    for (const milestone of MILESTONES) {
+      // Award if we just reached this milestone day (crossed from below to at/above)
+      if (previousStreak < milestone.day && newStreak >= milestone.day) {
+        const reward = milestone.rewards[userPlan];
+        if (!reward) {
+          console.warn(
+            `No reward defined for plan ${userPlan} at day ${milestone.day}`
+          );
+          continue;
+        }
+
+        console.log(
+          `🎉 User ${userId} reached ${milestone.day}-day streak! Awarding ${reward.amount} ${reward.type} ${reward.unit}`
+        );
+
+        try {
+          // Prepare update based on reward type
+          const updateFields: Partial<UserEntity> = {};
+
+          if (reward.type === "images") {
+            // Get current bonus credits
+            const user = await DynamoDBService.getUserById(userId);
+            const currentBonus = user?.bonusGenerationCredits || 0;
+            updateFields.bonusGenerationCredits = currentBonus + reward.amount;
+          } else if (reward.type === "video") {
+            // Get current video credits
+            const user = await DynamoDBService.getUserById(userId);
+            const currentVideoCredits = user?.i2vCreditsSecondsPurchased || 0;
+            updateFields.i2vCreditsSecondsPurchased =
+              currentVideoCredits + reward.amount;
+          }
+
+          // Update user with reward
+          await DynamoDBService.updateUser(userId, updateFields);
+
+          console.log(
+            `✅ Successfully awarded ${milestone.day}-day streak reward to user ${userId}`
+          );
+        } catch (error) {
+          console.error(
+            `Failed to award milestone reward to user ${userId}:`,
+            error
+          );
+        }
+      }
+    }
+  }
+
+  /**
    * Update user usage statistics in database
    */
   static async updateUserUsageStats(
@@ -304,8 +417,9 @@ export class PlanUtil {
       }
 
       // Calculate days streak generation
+      const previousStreak = user.daysStreakGeneration || 0;
       const daysStreak = PlanUtil.calculateDaysStreak(
-        user.daysStreakGeneration || 0,
+        previousStreak,
         user.lastGenerationAt,
         now
       );
@@ -321,6 +435,14 @@ export class PlanUtil {
         lastGenerationAt: now.toISOString(),
         daysStreakGeneration: daysStreak,
       });
+
+      // Award milestone rewards if applicable
+      await PlanUtil.awardMilestoneRewards(
+        userId,
+        previousStreak,
+        daysStreak,
+        user.plan
+      );
 
       console.log(
         `Updated usage stats for user ${userId}: monthly=${monthlyCount}, daily=${dailyCount}, streak=${daysStreak}`
@@ -345,8 +467,9 @@ export class PlanUtil {
       const now = new Date();
 
       // Calculate days streak generation
+      const previousStreak = user.daysStreakGeneration || 0;
       const daysStreak = PlanUtil.calculateDaysStreak(
-        user.daysStreakGeneration || 0,
+        previousStreak,
         user.lastGenerationAt,
         now
       );
@@ -356,6 +479,14 @@ export class PlanUtil {
         lastGenerationAt: now.toISOString(),
         daysStreakGeneration: daysStreak,
       });
+
+      // Award milestone rewards if applicable
+      await PlanUtil.awardMilestoneRewards(
+        userId,
+        previousStreak,
+        daysStreak,
+        user.plan
+      );
 
       console.log(
         `Updated video generation for user ${userId}: lastGenerationAt=${now.toISOString()}, streak=${daysStreak}`
