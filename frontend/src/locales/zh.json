@@ -2083,6 +2083,11 @@
     "comments": "评论",
     "downloadAlbum": "下载相册"
   },
+  "shareDropdown": {
+    "copyLink": "复制链接",
+    "shareToReddit": "分享到 Reddit",
+    "shareToX": "分享到 X"
+  },
   "discover": {
     "filteringByTag": "按标签过滤:",
     "clearFilter": "清除过滤器",

@@ -8,7 +8,6 @@ import {
   Calendar,
   Download,
   Loader2,
-  Heart,
   Eye,
   User,
 } from "lucide-react";
@@ -34,7 +33,6 @@ import { useCallback } from "react";
 import Avatar from "./ui/Avatar";
 import { useGetMinimalUser } from "@/hooks/queries/useUserQuery";
 import { useDateUtils } from "@/hooks/useDateUtils";
-import { removeLocaleFromPathname } from "@/lib/navigation";
 
 interface AlbumDetailClientProps {
   album: Album;
@@ -81,6 +79,8 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
             </button>
 
             <ShareDropdown
+              title={album.title}
+              useDefaultMenu={true}
               trigger={({ toggle }: { toggle: () => void }) => (
                 <button
                   onClick={toggle}
@@ -93,48 +93,7 @@ export function AlbumDetailClient({ album }: AlbumDetailClientProps) {
                   </span>
                 </button>
               )}
-            >
-              {({ close }: { close: () => void }) => (
-                <>
-                  <button
-                    className="flex items-center w-full px-4 py-2.5 text-sm hover:bg-accent transition-colors"
-                    onClick={() => {
-                      const urlWithoutLocale =
-                        window.location.origin +
-                        removeLocaleFromPathname(window.location.pathname) +
-                        window.location.search +
-                        window.location.hash;
-                      navigator.clipboard.writeText(urlWithoutLocale);
-                      close();
-                    }}
-                  >
-                    {t("copyLink")}
-                  </button>
-                  <a
-                    className="flex items-center w-full px-4 py-2.5 text-sm hover:bg-accent transition-colors"
-                    href={`https://www.reddit.com/submit?url=${encodeURIComponent(
-                      window.location.href
-                    )}&title=${encodeURIComponent(album.title)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={close}
-                  >
-                    Share to Reddit
-                  </a>
-                  <a
-                    className="flex items-center w-full px-4 py-2.5 text-sm hover:bg-accent transition-colors"
-                    href={`https://x.com/intent/tweet?url=${encodeURIComponent(
-                      window.location.href
-                    )}&text=${encodeURIComponent(album.title)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={close}
-                  >
-                    Share to X
-                  </a>
-                </>
-              )}
-            </ShareDropdown>
+            />
           </div>
 
           {/* Album Title */}

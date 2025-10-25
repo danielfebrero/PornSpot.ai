@@ -2055,6 +2055,11 @@
     "comments": "Kommentare",
     "downloadAlbum": "Album herunterladen"
   },
+  "shareDropdown": {
+    "copyLink": "Link kopieren",
+    "shareToReddit": "Auf Reddit teilen",
+    "shareToX": "Auf X teilen"
+  },
   "discover": {
     "filteringByTag": "Filtern nach Tag:",
     "clearFilter": "Filter löschen",

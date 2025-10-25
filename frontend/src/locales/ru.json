@@ -2088,6 +2088,11 @@
     "comments": "Комментарии",
     "downloadAlbum": "Скачать альбом"
   },
+  "shareDropdown": {
+    "copyLink": "Копировать ссылку",
+    "shareToReddit": "Поделиться в Reddit",
+    "shareToX": "Поделиться в X"
+  },
   "discover": {
     "filteringByTag": "Фильтрация по тегу:",
     "clearFilter": "Очистить фильтр",

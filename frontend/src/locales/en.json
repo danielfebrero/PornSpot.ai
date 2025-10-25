@@ -2096,6 +2096,11 @@
     "comments": "Comments",
     "downloadAlbum": "Download Album"
   },
+  "shareDropdown": {
+    "copyLink": "Copy link",
+    "shareToReddit": "Share to Reddit",
+    "shareToX": "Share to X"
+  },
   "discover": {
     "filteringByTag": "Filtering by tag:",
     "clearFilter": "Clear filter",

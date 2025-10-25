@@ -2092,6 +2092,11 @@
     "comments": "टिप्पणियाँ",
     "downloadAlbum": "एलबम डाउनलोड करें"
   },
+  "shareDropdown": {
+    "copyLink": "लिंक कॉपी करें",
+    "shareToReddit": "Reddit पर शेयर करें",
+    "shareToX": "X पर शेयर करें"
+  },
   "discover": {
     "filteringByTag": "टैग द्वारा फ़िल्टरिंग:",
     "clearFilter": "फ़िल्टर साफ़ करें",

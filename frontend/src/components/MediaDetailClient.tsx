@@ -9,7 +9,7 @@ import {
   useRef,
   useCallback,
 } from "react";
-import { useLocaleRouter, removeLocaleFromPathname } from "@/lib/navigation";
+import { useLocaleRouter } from "@/lib/navigation";
 import {
   primeViewCountCache,
   useBulkViewCounts,
@@ -374,6 +374,8 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
             </div>
           </div>
           <ShareDropdown
+            title={localMedia.originalFilename || localMedia.filename}
+            useDefaultMenu={true}
             trigger={({ toggle }: { toggle: () => void }) => (
               <Tooltip content={t("share")} side="bottom">
                 <button
@@ -384,52 +386,7 @@ export function MediaDetailClient({ media }: MediaDetailClientProps) {
                 </button>
               </Tooltip>
             )}
-          >
-            {({ close }: { close: () => void }) => (
-              <>
-                <button
-                  className="flex items-center w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
-                  onClick={() => {
-                    const urlWithoutLocale =
-                      window.location.origin +
-                      removeLocaleFromPathname(window.location.pathname) +
-                      window.location.search +
-                      window.location.hash;
-                    navigator.clipboard.writeText(urlWithoutLocale);
-                    close();
-                  }}
-                >
-                  {t("copyLink")}
-                </button>
-                <a
-                  className="flex items-center w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
-                  href={`https://www.reddit.com/submit?url=${encodeURIComponent(
-                    window.location.href
-                  )}&title=${encodeURIComponent(
-                    localMedia.originalFilename || localMedia.filename
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={close}
-                >
-                  Reddit
-                </a>
-                <a
-                  className="flex items-center w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
-                  href={`https://x.com/intent/tweet?url=${encodeURIComponent(
-                    window.location.href
-                  )}&text=${encodeURIComponent(
-                    localMedia.originalFilename || localMedia.filename
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={close}
-                >
-                  X (Twitter)
-                </a>
-              </>
-            )}
-          </ShareDropdown>
+          />
         </div>
       </header>
 

@@ -1,10 +1,18 @@
 import React, { useState, useRef, useEffect, ReactNode } from "react";
+import { removeLocaleFromPathname } from "@/lib/navigation";
+import { useTranslations } from "next-intl";
 
 interface ShareDropdownProps {
   /** Render prop for the trigger button/icon, gets 'toggleOpen' function */
-  trigger: (opts: { open: boolean; toggle: () => void }) => ReactNode;
+  trigger: ({
+    open,
+    toggle,
+  }: {
+    open: boolean;
+    toggle: () => void;
+  }) => ReactNode;
   /** Dropdown menu: rendered when open, receives 'close' handler */
-  children: (opts: { close: () => void }) => ReactNode;
+  children?: ({ close }: { close: () => void }) => ReactNode;
   /**
    * Optional: additional className for outer container
    */
@@ -13,7 +21,79 @@ interface ShareDropdownProps {
    * Optional: control alignment (e.g. 'right', 'left')
    */
   align?: "right" | "left";
+  /**
+   * Optional: title for share links (used in Reddit/X share)
+   */
+  title?: string;
+  /**
+   * Optional: use default share menu (copy link, Reddit, X)
+   * If true, renders default menu. If false or children provided, uses children.
+   */
+  useDefaultMenu?: boolean;
 }
+
+interface ShareMenuItemsProps {
+  close: () => void;
+  title?: string;
+}
+
+/**
+ * Default share menu items (copy link, Reddit, X)
+ */
+export const ShareMenuItems: React.FC<ShareMenuItemsProps> = ({
+  close,
+  title = "",
+}) => {
+  const t = useTranslations("shareDropdown");
+
+  const handleCopyLink = () => {
+    const urlWithoutLocale = getShareUrl();
+    navigator.clipboard.writeText(urlWithoutLocale);
+    close();
+  };
+
+  const getShareUrl = () => {
+    return (
+      window.location.origin +
+      removeLocaleFromPathname(window.location.pathname) +
+      window.location.search +
+      window.location.hash
+    );
+  };
+
+  return (
+    <>
+      <button
+        className="flex items-center w-full px-4 py-2.5 text-sm hover:bg-accent transition-colors"
+        onClick={handleCopyLink}
+      >
+        {t("copyLink")}
+      </button>
+      <a
+        className="flex items-center w-full px-4 py-2.5 text-sm hover:bg-accent transition-colors"
+        href={`https://www.reddit.com/submit?url=${encodeURIComponent(
+          getShareUrl()
+        )}&title=${encodeURIComponent(title)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={close}
+      >
+        {t("shareToReddit")}
+      </a>
+      <a
+        className="flex items-center w-full px-4 py-2.5 text-sm hover:bg-accent transition-colors"
+        href={`https://x.com/intent/tweet?url=${encodeURIComponent(
+          getShareUrl()
+        )}&text=${encodeURIComponent(title)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={close}
+      >
+        {t("shareToX")}
+      </a>
+    </>
+  );
+};
 
 /**
  * A wrapper for share dropdown buttons/menus, with outside click handling and open state.
@@ -23,6 +103,8 @@ export const ShareDropdown: React.FC<ShareDropdownProps> = ({
   children,
   className = "",
   align = "right",
+  title = "",
+  useDefaultMenu = false,
 }) => {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,6 +128,8 @@ export const ShareDropdown: React.FC<ShareDropdownProps> = ({
     };
   }, [open]);
 
+  const closeDropdown = () => setOpen(false);
+
   return (
     <div ref={containerRef} className={`relative inline-block ${className}`}>
       {trigger({ open, toggle: () => setOpen((v) => !v) })}
@@ -55,7 +139,15 @@ export const ShareDropdown: React.FC<ShareDropdownProps> = ({
             align === "right" ? "right-0" : "left-0"
           } mt-2 w-max bg-card border border-border rounded-lg shadow-lg z-50`}
         >
-          <div className="p-2">{children({ close: () => setOpen(false) })}</div>
+          <div className="p-2">
+            {useDefaultMenu ? (
+              <ShareMenuItems close={closeDropdown} title={title} />
+            ) : children ? (
+              children({ close: closeDropdown })
+            ) : (
+              <ShareMenuItems close={closeDropdown} title={title} />
+            )}
+          </div>
         </div>
       )}
     </div>
