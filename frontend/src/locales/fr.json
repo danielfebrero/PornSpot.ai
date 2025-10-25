@@ -329,6 +329,7 @@
     "likes": "J'aime",
     "albums": "Albums",
     "profile": "Profil",
+    "rewards": "Récompenses",
     "pornspotcoin": "PornSpotCoin",
     "following": "Abonnements",
     "menu": "Menu",
@@ -1354,6 +1355,42 @@
         "updateError": "Échec de la mise à jour",
         "confirmAction": "Êtes-vous sûr ?",
         "actionCannotBeUndone": "Cette action ne peut pas être annulée"
+      }
+    },
+    "rewards": {
+      "meta": {
+        "title": "Récompenses - {siteName}",
+        "description": "Gagnez des récompenses pour votre participation quotidienne sur la plateforme. Générez des images ou des vidéos pour construire votre série et débloquer des bonus exclusifs."
+      },
+      "title": "Récompenses de séries quotidiennes",
+      "description": "Gagnez des récompenses pour une participation régulière sur la plateforme. Générez des images ou des vidéos quotidiennement pour construire votre série !",
+      "currentStreak": "Série actuelle",
+      "days": "{count, plural, =0 {jours} =1 {jour} other {jours}}",
+      "day": "Jour {day}",
+      "milestones": {
+        "title": "Progression des jalons",
+        "completed": "Complété",
+        "inProgress": "En cours"
+      },
+      "rewards": {
+        "title": "Récompenses de jalons",
+        "milestone": "Récompense du jour {day}",
+        "claimed": "Réclamé",
+        "imageCredits": "Crédits d'images",
+        "videoSeconds": "Secondes vidéo",
+        "images": "images",
+        "videoSec": "sec vidéo",
+        "allPlans": "Tous les plans",
+        "planType": {
+          "free": "Plan gratuit",
+          "starter": "Plan débutant",
+          "unlimited": "Plan illimité",
+          "pro": "Plan Pro"
+        }
+      },
+      "info": {
+        "title": "Comment ça marche",
+        "description": "Générez au moins une image ou une vidéo chaque jour pour maintenir votre série. Atteignez des jalons à 7, 30 et 90 jours pour débloquer des récompenses adaptées à votre plan d'abonnement. Les récompenses sont automatiquement créditées sur votre compte lorsque vous atteignez chaque jalon."
       }
     },
     "coverImageSelector": {

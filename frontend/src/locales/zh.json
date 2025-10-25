@@ -328,6 +328,7 @@
     "likes": "点赞",
     "albums": "相册",
     "profile": "个人资料",
+    "rewards": "奖励",
     "pornspotcoin": "PornSpotCoin",
     "following": "关注",
     "menu": "菜单",
@@ -1288,6 +1289,42 @@
       "meta": {
         "title": "我的资料 - {siteName}",
         "description": "管理您的个人资料设置和偏好"
+      }
+    },
+    "rewards": {
+      "meta": {
+        "title": "奖励 - {siteName}",
+        "description": "通过每日参与平台赚取奖励。生成图片或视频来建立连胜并解锁独家奖励。"
+      },
+      "title": "每日连胜奖励",
+      "description": "通过持续参与平台赚取奖励。每天生成图片或视频来建立您的连胜！",
+      "currentStreak": "当前连胜",
+      "days": "{count, plural, =0 {天} other {天}}",
+      "day": "第 {day} 天",
+      "milestones": {
+        "title": "里程碑进度",
+        "completed": "已完成",
+        "inProgress": "进行中"
+      },
+      "rewards": {
+        "title": "里程碑奖励",
+        "milestone": "第 {day} 天奖励",
+        "claimed": "已领取",
+        "imageCredits": "图片积分",
+        "videoSeconds": "视频秒数",
+        "images": "张图片",
+        "videoSec": "秒视频",
+        "allPlans": "所有计划",
+        "planType": {
+          "free": "免费计划",
+          "starter": "入门计划",
+          "unlimited": "无限计划",
+          "pro": "专业计划"
+        }
+      },
+      "info": {
+        "title": "运作方式",
+        "description": "每天至少生成一张图片或视频以维持您的连胜。在第7天、第30天和第90天达到里程碑，解锁针对您订阅计划量身定制的奖励。当您达到每个里程碑时，奖励会自动存入您的账户。"
       }
     },
     "coverImageSelector": {

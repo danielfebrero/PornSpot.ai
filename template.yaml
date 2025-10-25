@@ -19,9 +19,15 @@ Parameters:
     Description: Docker image URI for Lambda functions
     Default: "688567299790.dkr.ecr.us-east-1.amazonaws.com/prod-pornspot-lambda:latest"
 
+  CdnCertificateArn:
+    Type: String
+    Description: ACM Certificate ARN for CloudFront custom domain (must be in us-east-1)
+    Default: ""
+
 # Conditions
 Conditions:
   IsProd: !Equals [!Ref Environment, "prod"]
+  HasCdnCertificate: !Not [!Equals [!Ref CdnCertificateArn, ""]]
 
 Globals:
   Function:
@@ -244,11 +250,45 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
 
+  # CloudFront Response Headers Policy for CORS
+  CloudFrontResponseHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub "${Environment}-pornspot-cors-policy"
+        CorsConfig:
+          AccessControlAllowCredentials: false
+          AccessControlAllowHeaders:
+            Items:
+              - "*"
+          AccessControlAllowMethods:
+            Items:
+              - GET
+              - HEAD
+              - OPTIONS
+          AccessControlAllowOrigins:
+            Items:
+              - http://localhost:3000
+              - !Sub "https://dev.${DomainName}"
+              - !Sub "https://stage.${DomainName}"
+              - !Sub "https://www.${DomainName}"
+              - !Sub "https://${DomainName}"
+              - "https://*.vercel.app"
+          AccessControlMaxAgeSec: 3600
+          OriginOverride: true
+
   # CloudFront Distribution
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
+        Aliases: !If
+          - HasCdnCertificate
+          - !If
+            - IsProd
+            - - !Sub "cdn.${DomainName}"
+            - - !Sub "${Environment}.cdn.${DomainName}"
+          - !Ref AWS::NoValue
         Origins:
           - Id: S3Origin
             DomainName: !GetAtt MediaBucket.RegionalDomainName
@@ -261,9 +301,14 @@ Resources:
           ViewerProtocolPolicy: redirect-to-https
           CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # CachingOptimized
           OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf # CORS-S3Origin
+          ResponseHeadersPolicyId: !Ref CloudFrontResponseHeadersPolicy # Add CORS headers
         PriceClass: PriceClass_100
-        ViewerCertificate:
-          CloudFrontDefaultCertificate: true
+        ViewerCertificate: !If
+          - HasCdnCertificate
+          - AcmCertificateArn: !Ref CdnCertificateArn
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2021
+          - CloudFrontDefaultCertificate: true
 
   # S3 Bucket Policy for CloudFront
   MediaBucketPolicy:

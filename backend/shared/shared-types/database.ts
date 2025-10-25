@@ -227,6 +227,7 @@ export interface UserEntity extends BaseEntity {
   imagesGeneratedToday?: number; // Today's usage
   lastGenerationAt?: string; // Last generation timestamp
   bonusGenerationCredits?: number; // Remaining bonus credits granted on signup
+  daysStreakGeneration?: number; // Consecutive days of generation activity (images or videos)
 
   // Real-time profile insights/metrics
   profileInsights?: UserProfileInsights;

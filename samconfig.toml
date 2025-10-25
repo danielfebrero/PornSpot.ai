@@ -68,6 +68,7 @@ region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 resolve_image_repos = true
+parameter_overrides = "Environment=stage CdnCertificateArn=arn:aws:acm:us-east-1:688567299790:certificate/3dd24826-cf6e-4719-9c93-6d95b87d897c"
 
 [stage.deploy]
 [stage.deploy.parameters]
@@ -75,6 +76,7 @@ capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 fail_on_empty_changeset = false
 stack_name = "pornspot-ai-stage"
+parameter_overrides = "Environment=stage CdnCertificateArn=arn:aws:acm:us-east-1:688567299790:certificate/3dd24826-cf6e-4719-9c93-6d95b87d897c"
 
 [prod]
 [prod.global]
@@ -86,6 +88,7 @@ region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 resolve_image_repos = true
+parameter_overrides = "Environment=prod CdnCertificateArn=arn:aws:acm:us-east-1:688567299790:certificate/89e05297-5b59-41c6-8d0e-e5774f1d09b7"
 
 [prod.deploy]
 [prod.deploy.parameters]
@@ -93,3 +96,4 @@ capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 fail_on_empty_changeset = false
 stack_name = "pornspot-ai-prod"
+parameter_overrides = "Environment=prod CdnCertificateArn=arn:aws:acm:us-east-1:688567299790:certificate/89e05297-5b59-41c6-8d0e-e5774f1d09b7"

@@ -167,6 +167,18 @@ export function UserMenu({ user }: UserMenuProps) {
 
             <button
               onClick={() =>
+                handleMenuItemClick(() => router.push("/user/rewards"))
+              }
+              className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
+            >
+              <div className="flex items-center space-x-2">
+                <Trophy className="w-4 h-4" />
+                <span>{tNav("rewards")}</span>
+              </div>
+            </button>
+
+            <button
+              onClick={() =>
                 handleMenuItemClick(() => router.push("/user/pornspotcoin"))
               }
               className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"

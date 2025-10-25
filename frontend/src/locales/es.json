@@ -328,6 +328,7 @@
     "likes": "Me gusta",
     "albums": "Álbumes",
     "profile": "Perfil",
+    "rewards": "Recompensas",
     "pornspotcoin": "PornSpotCoin",
     "following": "Siguiendo",
     "menu": "Menú",
@@ -1280,6 +1281,42 @@
         "updateError": "Error al actualizar",
         "confirmAction": "¿Estás seguro?",
         "actionCannotBeUndone": "Esta acción no se puede deshacer"
+      }
+    },
+    "rewards": {
+      "meta": {
+        "title": "Recompensas - {siteName}",
+        "description": "Gana recompensas por tu participación diaria en la plataforma. Genera imágenes o videos para construir tu racha y desbloquear bonos exclusivos."
+      },
+      "title": "Recompensas de racha diaria",
+      "description": "Gana recompensas por participación constante en la plataforma. ¡Genera imágenes o videos diariamente para construir tu racha!",
+      "currentStreak": "Racha actual",
+      "days": "{count, plural, =0 {días} =1 {día} other {días}}",
+      "day": "Día {day}",
+      "milestones": {
+        "title": "Progreso de hitos",
+        "completed": "Completado",
+        "inProgress": "En progreso"
+      },
+      "rewards": {
+        "title": "Recompensas de hitos",
+        "milestone": "Recompensa del día {day}",
+        "claimed": "Reclamado",
+        "imageCredits": "Créditos de imágenes",
+        "videoSeconds": "Segundos de video",
+        "images": "imágenes",
+        "videoSec": "seg video",
+        "allPlans": "Todos los planes",
+        "planType": {
+          "free": "Plan gratuito",
+          "starter": "Plan inicial",
+          "unlimited": "Plan ilimitado",
+          "pro": "Plan Pro"
+        }
+      },
+      "info": {
+        "title": "Cómo funciona",
+        "description": "Genera al menos una imagen o video cada día para mantener tu racha. Alcanza hitos en 7, 30 y 90 días para desbloquear recompensas adaptadas a tu plan de suscripción. Las recompensas se acreditan automáticamente en tu cuenta cuando alcanzas cada hito."
       }
     },
     "coverImageSelector": {

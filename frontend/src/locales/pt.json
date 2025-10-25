@@ -311,6 +311,7 @@
     "likes": "Curtidas",
     "albums": "Álbuns",
     "profile": "Perfil",
+    "rewards": "Recompensas",
     "pornspotcoin": "PornSpotCoin",
     "following": "Seguindo",
     "menu": "Menu",
@@ -1337,6 +1338,42 @@
         "updateError": "Falha ao atualizar",
         "confirmAction": "Tem certeza?",
         "actionCannotBeUndone": "Esta ação não pode ser desfeita"
+      }
+    },
+    "rewards": {
+      "meta": {
+        "title": "Recompensas - {siteName}",
+        "description": "Ganhe recompensas pela sua participação diária na plataforma. Gere imagens ou vídeos para construir sua sequência e desbloquear bônus exclusivos."
+      },
+      "title": "Recompensas de Sequência Diária",
+      "description": "Ganhe recompensas pela participação consistente na plataforma. Gere imagens ou vídeos diariamente para construir sua sequência!",
+      "currentStreak": "Sequência Atual",
+      "days": "{count, plural, =0 {dias} =1 {dia} other {dias}}",
+      "day": "Dia {day}",
+      "milestones": {
+        "title": "Progresso de Marcos",
+        "completed": "Concluído",
+        "inProgress": "Em Progresso"
+      },
+      "rewards": {
+        "title": "Recompensas de Marcos",
+        "milestone": "Recompensa do Dia {day}",
+        "claimed": "Reivindicado",
+        "imageCredits": "Créditos de Imagem",
+        "videoSeconds": "Segundos de Vídeo",
+        "images": "imagens",
+        "videoSec": "seg vídeo",
+        "allPlans": "Todos os Planos",
+        "planType": {
+          "free": "Plano Gratuito",
+          "starter": "Plano Inicial",
+          "unlimited": "Plano Ilimitado",
+          "pro": "Plano Pro"
+        }
+      },
+      "info": {
+        "title": "Como Funciona",
+        "description": "Gere pelo menos uma imagem ou vídeo por dia para manter sua sequência. Alcance marcos em 7, 30 e 90 dias para desbloquear recompensas adaptadas ao seu plano de assinatura. As recompensas são automaticamente creditadas em sua conta quando você atinge cada marco."
       }
     },
     "coverImageSelector": {

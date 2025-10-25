@@ -1425,49 +1425,6 @@ export default function SettingsPage() {
   // Mobile Section Components
   const MobileNotificationsSection = () => (
     <div className="p-4 space-y-4">
-      <div className="bg-card rounded-xl border p-4">
-        {/* Video Credits */}
-        <div className="bg-card rounded-xl border p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Video className="h-4 w-4 text-emerald-600" />
-              <h4 className="font-medium">{tSettings("usage.video.title")}</h4>
-            </div>
-            <Badge variant="outline">
-              {formatSeconds(totalVideoCreditsSeconds)}
-            </Badge>
-          </div>
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">
-                {tSettings("usage.video.plan")}
-              </span>
-              <span className="font-medium">
-                {formatSeconds(videoCreditsPlanSeconds)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">
-                {tSettings("usage.video.purchased")}
-              </span>
-              <span className="font-medium">
-                {formatSeconds(videoCreditsPurchasedSeconds)}
-              </span>
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground mt-3">
-            {tSettings("usage.video.description")}
-          </p>
-        </div>
-        <div className="flex items-center gap-3 mb-3">
-          <Bell className="h-5 w-5 text-blue-500" />
-          <h3 className="font-medium">{tSettings("notifications.title")}</h3>
-        </div>
-        <p className="text-sm text-muted-foreground mb-4">
-          {tSettings("notifications.description")}
-        </p>
-      </div>
-
       <div className="space-y-3">
         {/* PSC Balance Notifications */}
         <div className="bg-card rounded-xl border p-4">

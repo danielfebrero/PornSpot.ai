@@ -157,10 +157,28 @@ export class PlanUtil {
       }
     }
 
+    // Calculate streak: if last generation was before yesterday, return 1
+    let daysStreak = user.daysStreakGeneration || 0;
+    if (lastGeneration) {
+      const lastGenerationDate = lastGeneration.toISOString().split("T")[0]!;
+
+      // Get yesterday's date
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split("T")[0]!;
+
+      if (lastGenerationDate < yesterdayStr) {
+        // Last generation was before yesterday, return 1
+        daysStreak = 1;
+      }
+      // Otherwise, keep the current streak value from database
+    }
+
     const usageStats = {
       imagesGeneratedThisMonth: monthlyCount,
       imagesGeneratedToday: dailyCount,
       ...(user.lastGenerationAt && { lastGenerationAt: user.lastGenerationAt }),
+      daysStreakGeneration: daysStreak,
     } as UserUsageStats;
 
     if (typeof user.bonusGenerationCredits === "number") {
@@ -214,6 +232,42 @@ export class PlanUtil {
   }
 
   /**
+   * Calculate the new days streak based on last generation date
+   * @private
+   */
+  private static calculateDaysStreak(
+    currentStreak: number,
+    lastGenerationAt: string | undefined,
+    now: Date
+  ): number {
+    const today = now.toISOString().split("T")[0];
+
+    if (!lastGenerationAt) {
+      // First generation ever, start streak at 1
+      return 1;
+    }
+
+    const lastGeneration = new Date(lastGenerationAt);
+    const lastGenerationDate = lastGeneration.toISOString().split("T")[0];
+
+    // Get yesterday's date
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+    if (lastGenerationDate === yesterdayStr) {
+      // Last generation was yesterday, increment streak
+      return currentStreak + 1;
+    } else if (lastGenerationDate === today) {
+      // Already generated today, keep current streak
+      return currentStreak;
+    } else {
+      // Last generation was more than 1 day ago, reset streak to 1
+      return 1;
+    }
+  }
+
+  /**
    * Update user usage statistics in database
    */
   static async updateUserUsageStats(
@@ -241,13 +295,20 @@ export class PlanUtil {
       }
 
       // Check if we need to reset daily count (new day)
-      let dailyCount = user.imagesGeneratedToday || 0;
+      let dailyCount = user.imagesGeneratedToday || 1;
       if (lastGeneration) {
         const lastDay = lastGeneration.toISOString().split("T")[0];
         if (lastDay !== today) {
           dailyCount = 0; // Reset for new day
         }
       }
+
+      // Calculate days streak generation
+      const daysStreak = PlanUtil.calculateDaysStreak(
+        user.daysStreakGeneration || 0,
+        user.lastGenerationAt,
+        now
+      );
 
       // Increment counts
       monthlyCount += increment;
@@ -258,13 +319,52 @@ export class PlanUtil {
         imagesGeneratedThisMonth: monthlyCount,
         imagesGeneratedToday: dailyCount,
         lastGenerationAt: now.toISOString(),
+        daysStreakGeneration: daysStreak,
       });
 
       console.log(
-        `Updated usage stats for user ${userId}: monthly=${monthlyCount}, daily=${dailyCount}`
+        `Updated usage stats for user ${userId}: monthly=${monthlyCount}, daily=${dailyCount}, streak=${daysStreak}`
       );
     } catch (error) {
       console.error(`Failed to update usage stats for user ${userId}:`, error);
+    }
+  }
+
+  /**
+   * Update user's lastGenerationAt and streak for video generation
+   * Does NOT increment usage stats (videos don't count toward monthly/daily limits)
+   */
+  static async updateLastGenerationForVideo(userId: string): Promise<void> {
+    try {
+      const user = await DynamoDBService.getUserById(userId);
+      if (!user) {
+        console.error(`User not found for video generation update: ${userId}`);
+        return;
+      }
+
+      const now = new Date();
+
+      // Calculate days streak generation
+      const daysStreak = PlanUtil.calculateDaysStreak(
+        user.daysStreakGeneration || 0,
+        user.lastGenerationAt,
+        now
+      );
+
+      // Update only lastGenerationAt and daysStreakGeneration
+      await DynamoDBService.updateUser(userId, {
+        lastGenerationAt: now.toISOString(),
+        daysStreakGeneration: daysStreak,
+      });
+
+      console.log(
+        `Updated video generation for user ${userId}: lastGenerationAt=${now.toISOString()}, streak=${daysStreak}`
+      );
+    } catch (error) {
+      console.error(
+        `Failed to update video generation for user ${userId}:`,
+        error
+      );
     }
   }
 

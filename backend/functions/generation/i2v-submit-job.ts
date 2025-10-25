@@ -13,6 +13,7 @@ import { SQS } from "aws-sdk";
 import { PromptProcessingService } from "@shared/services/prompt-processing";
 import { loras as I2VLoraMap } from "@shared/utils/i2v-loras-selection";
 import { randomBytes } from "crypto";
+import { PlanUtil } from "@shared/utils/plan";
 
 const RUNPOD_MODEL = "wan-2-2-i2v-720";
 const RUNPOD_MODEL_LORA = "wan-2-2-t2v-720-lora";
@@ -389,6 +390,9 @@ export const handleSubmitI2VJob = async (
   };
 
   await DynamoDBService.createI2VJob(jobEntity);
+
+  // Update user's lastGenerationAt and streak (videos don't count toward image generation limits)
+  await PlanUtil.updateLastGenerationForVideo(auth.userId);
 
   // Send SQS delayed message to trigger polling around completion time
   try {

@@ -311,6 +311,7 @@
     "likes": "Likes",
     "albums": "Albums",
     "profile": "Profile",
+    "rewards": "Rewards",
     "pornspotcoin": "PornSpotCoin",
     "following": "Following",
     "menu": "Menu",
@@ -1337,6 +1338,42 @@
         "updateError": "Failed to update",
         "confirmAction": "Are you sure?",
         "actionCannotBeUndone": "This action cannot be undone"
+      }
+    },
+    "rewards": {
+      "meta": {
+        "title": "Rewards - {siteName}",
+        "description": "Earn rewards for your daily participation on the platform. Generate images or videos to build your streak and unlock exclusive bonuses."
+      },
+      "title": "Daily Streak Rewards",
+      "description": "Earn rewards for consistent participation on the platform. Generate images or videos daily to build your streak!",
+      "currentStreak": "Current Streak",
+      "days": "{count, plural, =0 {days} =1 {day} other {days}}",
+      "day": "Day {day}",
+      "milestones": {
+        "title": "Milestone Progress",
+        "completed": "Completed",
+        "inProgress": "In Progress"
+      },
+      "rewards": {
+        "title": "Milestone Rewards",
+        "milestone": "Day {day} Reward",
+        "claimed": "Claimed",
+        "imageCredits": "Image Credits",
+        "videoSeconds": "Video Seconds",
+        "images": "images",
+        "videoSec": "sec video",
+        "allPlans": "All Plans",
+        "planType": {
+          "free": "Free Plan",
+          "starter": "Starter Plan",
+          "unlimited": "Unlimited Plan",
+          "pro": "Pro Plan"
+        }
+      },
+      "info": {
+        "title": "How It Works",
+        "description": "Generate at least one image or video each day to maintain your streak. Reach milestones at 7, 30, and 90 days to unlock rewards tailored to your subscription plan. Rewards are automatically credited to your account when you reach each milestone."
       }
     },
     "coverImageSelector": {

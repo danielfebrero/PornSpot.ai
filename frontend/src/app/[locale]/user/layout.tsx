@@ -12,6 +12,7 @@ import {
   Users,
   Coins,
   Video,
+  Trophy,
 } from "lucide-react";
 import {
   Skeleton,
@@ -115,6 +116,11 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children, params }) => {
       href: `/user/profile`,
       label: t("profile"),
       icon: User,
+    },
+    {
+      href: `/user/rewards`,
+      label: t("rewards"),
+      icon: Trophy,
     },
     {
       href: `/user/pornspotcoin`,

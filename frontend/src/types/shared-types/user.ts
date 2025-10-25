@@ -63,6 +63,7 @@ export interface User {
     storageUsedGB?: number;
     lastGenerationAt?: string;
     bonusGenerationCredits?: number;
+    daysStreakGeneration?: number; // Consecutive days of generation activity (images or videos)
   };
   // Email notification preferences
   emailPreferences?: EmailPreferences;

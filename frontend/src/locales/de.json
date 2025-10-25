@@ -312,6 +312,7 @@
     "likes": "Gefällt mir",
     "albums": "Alben",
     "profile": "Profil",
+    "rewards": "Belohnungen",
     "pornspotcoin": "PornSpotCoin",
     "following": "Folge ich",
     "menu": "Menü",
@@ -1264,6 +1265,42 @@
         "updateError": "Fehler beim Aktualisieren",
         "confirmAction": "Sind Sie sicher?",
         "actionCannotBeUndone": "Diese Aktion kann nicht rückgängig gemacht werden"
+      }
+    },
+    "rewards": {
+      "meta": {
+        "title": "Belohnungen - {siteName}",
+        "description": "Verdienen Sie Belohnungen für Ihre tägliche Teilnahme auf der Plattform. Generieren Sie Bilder oder Videos, um Ihre Serie aufzubauen und exklusive Boni freizuschalten."
+      },
+      "title": "Tägliche Serien-Belohnungen",
+      "description": "Verdienen Sie Belohnungen für konsequente Teilnahme auf der Plattform. Generieren Sie täglich Bilder oder Videos, um Ihre Serie aufzubauen!",
+      "currentStreak": "Aktuelle Serie",
+      "days": "{count, plural, =0 {Tage} =1 {Tag} other {Tage}}",
+      "day": "Tag {day}",
+      "milestones": {
+        "title": "Meilenstein-Fortschritt",
+        "completed": "Abgeschlossen",
+        "inProgress": "In Bearbeitung"
+      },
+      "rewards": {
+        "title": "Meilenstein-Belohnungen",
+        "milestone": "Tag {day} Belohnung",
+        "claimed": "Eingefordert",
+        "imageCredits": "Bild-Credits",
+        "videoSeconds": "Video-Sekunden",
+        "images": "Bilder",
+        "videoSec": "Sek. Video",
+        "allPlans": "Alle Pläne",
+        "planType": {
+          "free": "Kostenloser Plan",
+          "starter": "Starter-Plan",
+          "unlimited": "Unbegrenzter Plan",
+          "pro": "Pro-Plan"
+        }
+      },
+      "info": {
+        "title": "Wie es funktioniert",
+        "description": "Generieren Sie mindestens ein Bild oder Video pro Tag, um Ihre Serie aufrechtzuerhalten. Erreichen Sie Meilensteine bei 7, 30 und 90 Tagen, um Belohnungen freizuschalten, die auf Ihren Abonnementplan zugeschnitten sind. Belohnungen werden automatisch Ihrem Konto gutgeschrieben, wenn Sie jeden Meilenstein erreichen."
       }
     },
     "coverImageSelector": {
