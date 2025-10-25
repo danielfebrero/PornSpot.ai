@@ -186,6 +186,8 @@ export interface UserEntity extends BaseEntity {
   GSI3SK: string; // {username}
   GSI4PK?: string; // USER_PLAN#{plan} (partition per plan for efficient querying)
   GSI4SK?: string; // {planEndDate || '9999-12-31T00:00:00.000Z'}#{userId} (date sorts; suffix ensures uniqueness)
+  GSI5PK?: string; // USER_PSC_TOTAL_EARNED (for PSC leaderboard)
+  GSI5SK?: string; // {pscTotalEarned}#{userId} (zero-padded for sorting)
   EntityType: "User";
   userId: string;
   email: string;

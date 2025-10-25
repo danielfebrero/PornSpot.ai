@@ -21,6 +21,69 @@ const EMAIL_VERIFICATION_EXPIRY_HOURS = 24;
 
 export class UserUtil {
   /**
+   * Build base user entity with common fields
+   * @private
+   */
+  private static buildBaseUserEntity(params: {
+    userId: string;
+    email: string;
+    username: string;
+    provider: "email" | "google";
+    isActive: boolean;
+    isEmailVerified: boolean;
+    createdAt: string;
+    passwordHash?: string;
+    salt?: string;
+    googleId?: string;
+  }): UserEntity {
+    const baseEntity: UserEntity = {
+      PK: `USER#${params.userId}`,
+      SK: "METADATA",
+      GSI1PK: "USER_EMAIL",
+      GSI1SK: params.email.toLowerCase(),
+      GSI3PK: "USER_USERNAME",
+      GSI3SK: params.username.toLowerCase(),
+      GSI4PK: `USER_PLAN#free`,
+      GSI4SK: `9999-12-31T00:00:00.000Z#${params.userId}`,
+      GSI5PK: "USER_PSC_TOTAL_EARNED",
+      GSI5SK: `00000000000000000000.00#${params.userId}`, // Initial PSC earned is 0
+      EntityType: "User",
+      userId: params.userId,
+      email: params.email.toLowerCase(),
+      username: params.username.trim(),
+      provider: params.provider,
+      createdAt: params.createdAt,
+      isActive: params.isActive,
+      isEmailVerified: params.isEmailVerified,
+      plan: "free",
+      role: "user",
+      bonusGenerationCredits: 3,
+      i2vCreditsSecondsPurchased: 0,
+      i2vCreditsSecondsFromPlan: 0,
+      emailPreferences: {
+        pscBalance: "intelligently",
+        unreadNotifications: "always",
+        newFollowers: "intelligently",
+        communications: "always",
+      },
+    };
+
+    // Add optional fields
+    if (params.passwordHash && params.salt) {
+      baseEntity.passwordHash = params.passwordHash;
+      baseEntity.salt = params.salt;
+    }
+
+    if (params.googleId) {
+      baseEntity.googleId = params.googleId;
+      baseEntity.GSI2PK = "USER_GOOGLE";
+      baseEntity.GSI2SK = params.googleId;
+    }
+
+    return baseEntity;
+  }
+
+  /**
    * Create a new user with hashed password
    */
   static async createUser(
@@ -48,37 +111,17 @@ export class UserUtil {
     const userId = uuidv4();
     const now = new Date().toISOString();
 
-    const userEntity: UserEntity = {
-      PK: `USER#${userId}`,
-      SK: "METADATA",
-      GSI1PK: "USER_EMAIL",
-      GSI1SK: email.toLowerCase(),
-      GSI3PK: "USER_USERNAME",
-      GSI3SK: username.toLowerCase(),
-      GSI4PK: `USER_PLAN#free`,
-      GSI4SK: `9999-12-31T00:00:00.000Z#${userId}`, // No plan end date yet
-      EntityType: "User",
+    const userEntity = UserUtil.buildBaseUserEntity({
       userId,
-      email: email.toLowerCase(),
-      username: username.trim(),
+      email,
+      username,
+      provider: "email",
+      isActive,
+      isEmailVerified: false,
+      createdAt: now,
       passwordHash,
       salt,
-      provider: "email",
-      createdAt: now,
-      isActive,
-      isEmailVerified: false, // Email verification will be Phase 2
-      plan: "free",
-      role: "user",
-      bonusGenerationCredits: 3,
-      i2vCreditsSecondsPurchased: 0,
-      i2vCreditsSecondsFromPlan: 0,
-      emailPreferences: {
-        pscBalance: "intelligently",
-        unreadNotifications: "always",
-        newFollowers: "intelligently",
-        communications: "always",
-      },
-    };
+    });
 
     await DynamoDBService.createUser(userEntity);
 
@@ -388,32 +431,18 @@ export class UserUtil {
     const userId = uuidv4();
     const now = new Date().toISOString();
 
-    const userEntity: Partial<UserEntity> = {
-      PK: `USER#${userId}`,
-      SK: "METADATA",
-      GSI1PK: "USER_EMAIL",
-      GSI1SK: email.toLowerCase(),
-      GSI2PK: "USER_GOOGLE",
-      GSI2SK: googleId,
-      GSI3PK: "USER_USERNAME",
-      GSI3SK: username.toLowerCase(),
-      GSI4PK: "USER_PLAN#free",
-      GSI4SK: `9999-12-31T00:00:00.000Z#${userId}`,
-      EntityType: "User",
+    const userEntity = UserUtil.buildBaseUserEntity({
       userId,
-      email: email.toLowerCase(),
+      email,
       username,
       provider: "google",
-      createdAt: now,
       isActive,
       isEmailVerified: true, // Google accounts are pre-verified
+      createdAt: now,
       googleId,
-      plan: "free",
-      role: "user",
-      bonusGenerationCredits: 3,
-    };
+    });
 
-    await DynamoDBService.createUser(userEntity as UserEntity);
+    await DynamoDBService.createUser(userEntity);
 
     return userId;
   }

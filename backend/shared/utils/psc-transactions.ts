@@ -188,7 +188,15 @@ export class PSCTransactionService {
 
       // Update earned/spent counters
       if (amount > 0) {
-        updateData["pscTotalEarned"] = (user.pscTotalEarned || 0) + amount;
+        const newTotalEarned = (user.pscTotalEarned || 0) + amount;
+        updateData["pscTotalEarned"] = newTotalEarned;
+
+        // Update GSI5 for PSC leaderboard
+        updateData["GSI5PK"] = "USER_PSC_TOTAL_EARNED";
+        updateData["GSI5SK"] = PSCTransactionService.formatGSI5SK(
+          newTotalEarned,
+          userId
+        );
       } else {
         updateData["pscTotalSpent"] =
           (user.pscTotalSpent || 0) + Math.abs(amount);
@@ -199,6 +207,17 @@ export class PSCTransactionService {
       console.error("Error updating user balance:", error);
       throw error;
     }
+  }
+
+  /**
+   * Format GSI5SK value for PSC leaderboard sorting
+   * Uses zero-padded format for proper lexicographic sorting
+   */
+  private static formatGSI5SK(pscTotalEarned: number, userId: string): string {
+    // Pad to 23 characters (20 digits + decimal point + 2 decimal places)
+    // Supports up to 99,999,999,999,999,999,999.99 PSC
+    const paddedAmount = pscTotalEarned.toFixed(2).padStart(23, "0");
+    return `${paddedAmount}#${userId}`;
   }
 
   /**
