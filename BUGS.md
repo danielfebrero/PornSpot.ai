@@ -207,3 +207,5 @@
 [ ] When I create album from Album page, it does not appears in the list until I refresh the page.
 
 [ ] In Edit Album, I cannot scroll image list when choosing a cover.
+
+[ ] Edit avatar do not update avatar optimistically.

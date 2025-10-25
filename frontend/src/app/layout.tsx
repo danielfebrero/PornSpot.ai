@@ -28,7 +28,10 @@ export default async function RootLayout({
         <meta name="theme-color" content="#000000" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body
+        className={`${inter.variable} font-sans antialiased`}
+        style={{ margin: 0, padding: 0 }}
+      >
         <Script
           src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
           strategy="beforeInteractive"
@@ -39,7 +42,19 @@ export default async function RootLayout({
         />
         <GoogleAnalytics gaId="G-PYFTNPNT0E" />
         <AppErrorBoundary context="Root Application">
-          <iframe id="TrustPayFrame" title="Finby payment frame"></iframe>
+          <iframe
+            id="TrustPayFrame"
+            title="Finby payment frame"
+            style={{
+              display: "none",
+              position: "absolute",
+              width: 0,
+              height: 0,
+              border: "none",
+              margin: 0,
+              padding: 0,
+            }}
+          ></iframe>
           {children}
         </AppErrorBoundary>
       </body>
