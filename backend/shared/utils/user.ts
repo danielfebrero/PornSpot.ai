@@ -65,6 +65,7 @@ export class UserUtil {
         unreadNotifications: "always",
         newFollowers: "intelligently",
         communications: "always",
+        dayStreakReminder: "always",
       },
     };
 
