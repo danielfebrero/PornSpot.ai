@@ -337,7 +337,8 @@
     "footer": "Pied de page",
     "breadcrumb": "Fil d'Ariane",
     "pagination": "Pagination",
-    "random": "Aléatoire"
+    "random": "Aléatoire",
+    "leaderboard": "Classement"
   },
   "comments": {
     "anonymousUser": "Utilisateur anonyme",
@@ -2686,6 +2687,30 @@
           }
         }
       }
+    }
+  },
+  "leaderboard": {
+    "meta": {
+      "title": "Classement - Meilleurs Créateurs | PornSpot.ai",
+      "description": "Découvrez les meilleurs créateurs de contenu sur PornSpot.ai classés par revenus totaux. Voyez qui mène la plateforme."
+    },
+    "title": "Meilleurs Créateurs",
+    "subtitle": "Découvrez les créateurs les plus performants sur PornSpot.ai",
+    "loading": "Chargement du classement...",
+    "loadingMore": "Chargement...",
+    "loadMore": "Charger Plus de Classements",
+    "rank": {
+      "champion": "🏆 Champion",
+      "runner_up": "🥈 Deuxième",
+      "third_place": "🥉 Troisième"
+    },
+    "error": {
+      "title": "Échec du Chargement du Classement",
+      "message": "Nous n'avons pas pu charger le classement. Veuillez réessayer plus tard."
+    },
+    "empty": {
+      "title": "Pas Encore de Classements",
+      "description": "Le classement est vide. Commencez à créer du contenu pour gagner votre place!"
     }
   }
 }

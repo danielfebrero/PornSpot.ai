@@ -1378,6 +1378,36 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
 
+  # Leaderboard Functions
+  GetPSCLeaderboardFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-get-psc-leaderboard-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/leaderboard/psc.handler"]
+      Events:
+        GetLeaderboard:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /leaderboard/psc
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        OptionsLeaderboard:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /leaderboard/psc
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
   UserPSCRatesFunction:
     Type: AWS::Serverless::Function
     Properties:

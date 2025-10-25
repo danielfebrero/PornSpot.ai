@@ -17,6 +17,7 @@ import {
   Video as VideoIcon,
   Coins,
   Shuffle,
+  Trophy,
 } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 import { useUnreadNotificationCount } from "@/hooks/queries/useUserQuery";
@@ -141,6 +142,17 @@ export function Header() {
                 >
                   <Shuffle className="h-3.5 w-3.5" />
                   <span>{tNav("random")}</span>
+                </LocaleLink>
+                <LocaleLink
+                  href="/leaderboard"
+                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:bg-accent/80 hover:scale-105 ${
+                    isActivePath(pathname, "/leaderboard")
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  <Trophy className="h-3.5 w-3.5" />
+                  <span>{tNav("leaderboard")}</span>
                 </LocaleLink>
                 <LocaleLink
                   href="/pricing"
@@ -284,6 +296,16 @@ export function Header() {
                 <span>{tNav("random")}</span>
               </LocaleLink>
               <LocaleLink
+                href="/leaderboard"
+                className={`flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ${
+                  isActivePath(pathname, "/leaderboard")
+                    ? "border-b-2 border-foreground"
+                    : ""
+                }`}
+              >
+                <span>{tNav("leaderboard")}</span>
+              </LocaleLink>
+              <LocaleLink
                 href="/pricing"
                 className={`flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ${
                   isActivePath(pathname, "/pricing")
@@ -389,6 +411,14 @@ export function Header() {
           {isMobileMenuOpen && !user && (
             <div className="sm:hidden border-t border-border">
               <nav className="py-4 space-y-2">
+                {/* Leaderboard Link */}
+                <LocaleLink
+                  href="/leaderboard"
+                  onClick={closeMobileMenu}
+                  className="block px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {tNav("leaderboard")}
+                </LocaleLink>
                 {/* Pricing Link */}
                 <LocaleLink
                   href="/pricing"

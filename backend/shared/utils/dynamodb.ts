@@ -2665,6 +2665,70 @@ export class DynamoDBService {
     };
   }
 
+  /**
+   * Get PSC leaderboard - top users by total PSC earned
+   * Uses GSI5 (USER_PSC_TOTAL_EARNED) in descending order
+   */
+  static async getPSCLeaderboard(
+    limit: number = 100,
+    lastEvaluatedKey?: any
+  ): Promise<{
+    users: UserEntity[];
+    lastEvaluatedKey?: any;
+  }> {
+    console.log("[DynamoDB] getPSCLeaderboard called with:", {
+      limit,
+      lastEvaluatedKey,
+    });
+
+    // Query GSI5 for users sorted by total PSC earned (descending)
+    const queryParams: any = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI5",
+      KeyConditionExpression: "GSI5PK = :gsi5pk",
+      ExpressionAttributeValues: {
+        ":gsi5pk": "USER_PSC_TOTAL_EARNED",
+      },
+      ProjectionExpression:
+        "userId, username, avatarUrl, avatarThumbnails, GSI5SK, pscTotalEarned",
+      ScanIndexForward: false, // Descending order (highest PSC first)
+      Limit: limit,
+    };
+
+    if (lastEvaluatedKey) {
+      queryParams.ExclusiveStartKey = lastEvaluatedKey;
+    }
+
+    const result = await docClient.send(new QueryCommand(queryParams));
+
+    // Filter out users with 0 PSC earned and stop pagination if we hit them
+    const allUsers = (result.Items || []) as UserEntity[];
+    const usersWithPSC = allUsers.filter((user) => {
+      // Parse PSC from GSI5SK format: {pscTotalEarned}#{userId}
+      const gsi5sk = user.GSI5SK || "";
+      const parts = gsi5sk.split("#");
+      const pscEarned = parseFloat(parts[0] || "0") || 0;
+      return pscEarned > 0;
+    });
+
+    // If we filtered out any users, it means we've reached users with 0 PSC
+    // Stop pagination by not returning lastEvaluatedKey
+    const shouldStopPagination = usersWithPSC.length < allUsers.length;
+
+    console.log("[DynamoDB] getPSCLeaderboard result:", {
+      itemsCount: usersWithPSC.length,
+      filteredOut: allUsers.length - usersWithPSC.length,
+      hasMorePages: !shouldStopPagination && !!result.LastEvaluatedKey,
+    });
+
+    return {
+      users: usersWithPSC,
+      lastEvaluatedKey: shouldStopPagination
+        ? undefined
+        : result.LastEvaluatedKey,
+    };
+  }
+
   // User session operations
   static async createUserSession(session: UserSessionEntity): Promise<void> {
     try {

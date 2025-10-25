@@ -319,7 +319,8 @@
     "footer": "Footer",
     "breadcrumb": "Breadcrumb",
     "pagination": "Pagination",
-    "random": "Random"
+    "random": "Random",
+    "leaderboard": "Leaderboard"
   },
   "comments": {
     "anonymousUser": "Anonymous User",
@@ -2685,6 +2686,30 @@
           }
         }
       }
+    }
+  },
+  "leaderboard": {
+    "meta": {
+      "title": "Leaderboard - Top Creators | PornSpot.ai",
+      "description": "Discover the top content creators on PornSpot.ai ranked by total earnings. See who's leading the platform."
+    },
+    "title": "Top Creators",
+    "subtitle": "Discover the most successful creators on PornSpot.ai",
+    "loading": "Loading leaderboard...",
+    "loadingMore": "Loading more...",
+    "loadMore": "Load More Rankings",
+    "rank": {
+      "champion": "🏆 Champion",
+      "runner_up": "🥈 Runner-up",
+      "third_place": "🥉 Third Place"
+    },
+    "error": {
+      "title": "Failed to Load Leaderboard",
+      "message": "We couldn't load the leaderboard. Please try again later."
+    },
+    "empty": {
+      "title": "No Rankings Yet",
+      "description": "The leaderboard is empty. Start creating content to earn your place!"
     }
   }
 }

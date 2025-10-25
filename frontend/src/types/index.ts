@@ -1,6 +1,7 @@
 import type {
   Album,
   ApiResponse,
+  LeaderboardUserEntry,
   Media,
   NotificationWithDetails,
 } from "@/types/shared-types";
@@ -35,6 +36,11 @@ export interface UnifiedMediaResponse {
 
 export interface UnifiedNotificationsResponse {
   notifications: NotificationWithDetails[];
+  pagination: UnifiedPaginationMeta;
+}
+
+export interface UnifiedLeaderboardResponse {
+  users: LeaderboardUserEntry[];
   pagination: UnifiedPaginationMeta;
 }
 

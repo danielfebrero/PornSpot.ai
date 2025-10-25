@@ -267,3 +267,18 @@ export interface ResetPasswordResponse {
   user?: User;
   sessionId?: string;
 }
+
+// Leaderboard types
+export interface LeaderboardUserEntry {
+  rank: number;
+  userId: string;
+  username: string;
+  avatarUrl?: string;
+  avatarThumbnails?: ThumbnailUrls;
+  score: number; // Total PSC earned
+}
+
+export interface GetPSCLeaderboardRequest {
+  limit?: number;
+  cursor?: string;
+}

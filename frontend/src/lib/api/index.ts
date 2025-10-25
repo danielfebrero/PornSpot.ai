@@ -13,6 +13,7 @@ export { contentApi } from "./content";
 export { discoverApi } from "./discover";
 export { trustpayApi } from "./trustpay";
 export { finbyApi } from "./finby";
+export { leaderboardApi } from "./leaderboard";
 
 // Export with fallback or non-null assertion
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.pornspot.ai";

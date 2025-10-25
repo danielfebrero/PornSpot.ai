@@ -164,6 +164,7 @@ export const DEFAULT_PAGINATION_LIMITS = {
   notifications: 20,
   follow: 20,
   pscTransactions: 100,
+  leaderboards: 25,
 } as const;
 
 /**
@@ -179,6 +180,7 @@ export const MAX_PAGINATION_LIMITS = {
   notifications: 100,
   follow: 100,
   pscTransactions: 500,
+  leaderboards: 100,
 } as const;
 
 /**

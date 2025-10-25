@@ -320,7 +320,8 @@
     "footer": "Fußzeile",
     "breadcrumb": "Brotkrümel",
     "pagination": "Seitennummerierung",
-    "random": "Zufällig"
+    "random": "Zufällig",
+    "leaderboard": "Bestenliste"
   },
   "comments": {
     "anonymousUser": "Anonymer Benutzer",
@@ -2638,6 +2639,30 @@
     },
     "actions": {
       "backToPricing": "Zur Tarifseite"
+    }
+  },
+  "leaderboard": {
+    "meta": {
+      "title": "Bestenliste - Top-Ersteller | PornSpot.ai",
+      "description": "Entdecken Sie die Top-Content-Ersteller auf PornSpot.ai, sortiert nach Gesamteinnahmen. Sehen Sie, wer die Plattform anführt."
+    },
+    "title": "Top-Ersteller",
+    "subtitle": "Entdecken Sie die erfolgreichsten Ersteller auf PornSpot.ai",
+    "loading": "Bestenliste wird geladen...",
+    "loadingMore": "Wird geladen...",
+    "loadMore": "Mehr Ranglisten Laden",
+    "rank": {
+      "champion": "🏆 Champion",
+      "runner_up": "🥈 Zweiter",
+      "third_place": "🥉 Dritter"
+    },
+    "error": {
+      "title": "Bestenliste Konnte Nicht Geladen Werden",
+      "message": "Wir konnten die Bestenliste nicht laden. Bitte versuchen Sie es später erneut."
+    },
+    "empty": {
+      "title": "Noch Keine Rankings",
+      "description": "Die Bestenliste ist leer. Beginnen Sie mit der Erstellung von Inhalten, um Ihren Platz zu verdienen!"
     }
   }
 }

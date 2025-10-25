@@ -246,6 +246,13 @@ export const queryKeys = {
     list: (params?: { limit?: number; tag?: string }) =>
       ["discover", "list", params] as const,
   },
+
+  // Leaderboard
+  leaderboard: {
+    all: () => ["leaderboard"] as const,
+    psc: (params?: { limit?: number }) =>
+      ["leaderboard", "psc", params] as const,
+  },
 } as const;
 
 // Utility functions for cache invalidation
