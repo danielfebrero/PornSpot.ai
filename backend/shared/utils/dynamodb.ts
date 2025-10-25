@@ -2704,6 +2704,11 @@ export class DynamoDBService {
     // Filter out users with 0 PSC earned and stop pagination if we hit them
     const allUsers = (result.Items || []) as UserEntity[];
     const usersWithPSC = allUsers.filter((user) => {
+      // Filter out deleted users
+      if (user.username === "[deleted]") {
+        return false;
+      }
+
       // Parse PSC from GSI5SK format: {pscTotalEarned}#{userId}
       const gsi5sk = user.GSI5SK || "";
       const parts = gsi5sk.split("#");

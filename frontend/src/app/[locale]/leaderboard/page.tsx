@@ -2,8 +2,7 @@
 
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Trophy, Medal, Crown, Coins, Loader2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Trophy, Medal, Crown, Loader2 } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import LocaleLink from "@/components/ui/LocaleLink";
 import { useDocumentHeadAndMeta } from "@/hooks/useDocumentHeadAndMeta";
@@ -18,7 +17,7 @@ import {
 
 export default function LeaderboardPage() {
   const t = useTranslations("leaderboard");
-  const { isMobile } = useDevice();
+  const { isMobileInterface } = useDevice();
 
   // Set document title and meta description
   useDocumentHeadAndMeta(t("meta.title"), t("meta.description"));
@@ -53,11 +52,11 @@ export default function LeaderboardPage() {
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Trophy className="w-6 h-6 md:w-8 md:h-8 text-yellow-500" />;
+        return <Trophy className="w-4 h-4 md:w-8 md:h-8 text-yellow-500" />;
       case 2:
-        return <Medal className="w-6 h-6 md:w-8 md:h-8 text-gray-400" />;
+        return <Medal className="w-4 h-4 md:w-8 md:h-8 text-gray-400" />;
       case 3:
-        return <Medal className="w-6 h-6 md:w-8 md:h-8 text-amber-600" />;
+        return <Medal className="w-4 h-4 md:w-8 md:h-8 text-amber-600" />;
       default:
         return null;
     }
@@ -125,7 +124,7 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Top 3 Podium - Desktop Only */}
-        {!isMobile && users.length >= 3 && (
+        {!isMobileInterface && users.length >= 3 && (
           <div className="grid grid-cols-3 gap-4 mb-8 items-end">
             {/* Second Place */}
             {users[1] && (
@@ -148,7 +147,6 @@ export default function LeaderboardPage() {
                     </p>
                   </LocaleLink>
                   <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
-                    <Coins className="w-4 h-4" />
                     <span className="font-mono">
                       {formatScore(users[1].score)}
                     </span>
@@ -179,7 +177,6 @@ export default function LeaderboardPage() {
                     </p>
                   </LocaleLink>
                   <div className="flex items-center justify-center gap-1 text-muted-foreground">
-                    <Coins className="w-5 h-5 text-yellow-500" />
                     <span className="font-mono text-lg font-semibold">
                       {formatScore(users[0].score)}
                     </span>
@@ -210,7 +207,6 @@ export default function LeaderboardPage() {
                     </p>
                   </LocaleLink>
                   <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
-                    <Coins className="w-4 h-4" />
                     <span className="font-mono">
                       {formatScore(users[2].score)}
                     </span>
@@ -223,8 +219,14 @@ export default function LeaderboardPage() {
         )}
 
         {/* Leaderboard List */}
-        <Card className="border-border/50 shadow-lg">
-          <CardContent className="p-0">
+        <div
+          className={cn(
+            isMobileInterface
+              ? ""
+              : "border border-border/50 shadow-lg rounded-lg"
+          )}
+        >
+          <div className={cn(isMobileInterface ? "" : "p-0")}>
             <div className="divide-y divide-border/50">
               {users.map((user: LeaderboardUserEntry) => (
                 <div
@@ -235,9 +237,9 @@ export default function LeaderboardPage() {
                   )}
                 >
                   {/* Rank */}
-                  <div className="flex items-center justify-center min-w-[3rem] md:min-w-[4rem]">
+                  <div className="flex items-center justify-center min-w-[2rem] md:min-w-[4rem]">
                     {getRankIcon(user.rank) || (
-                      <span className="text-lg md:text-xl font-bold text-muted-foreground">
+                      <span className="text-sm md:text-xl font-bold text-muted-foreground">
                         #{user.rank}
                       </span>
                     )}
@@ -248,7 +250,11 @@ export default function LeaderboardPage() {
                     href={`/profile/${user.username}`}
                     className="flex items-center gap-3 flex-1 min-w-0"
                   >
-                    <Avatar user={user} size="medium" className="shrink-0" />
+                    <Avatar
+                      user={user}
+                      size={isMobileInterface ? "small" : "medium"}
+                      className="shrink-0"
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-foreground truncate">
                         {user.username || "Anonymous"}
@@ -266,7 +272,6 @@ export default function LeaderboardPage() {
                   {/* Score */}
                   <div className="flex items-center gap-2 shrink-0">
                     <div className="flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-full">
-                      <Coins className="w-4 h-4 text-primary" />
                       <span className="font-mono font-semibold text-sm md:text-base text-foreground">
                         {formatScore(user.score)}
                       </span>
@@ -295,8 +300,8 @@ export default function LeaderboardPage() {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Empty State */}
         {!isLoading && users.length === 0 && (
