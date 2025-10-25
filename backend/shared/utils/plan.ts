@@ -310,6 +310,9 @@ export class PlanUtil {
     } else if (lastGenerationDate === today && currentStreak > 0) {
       // Already generated today, keep current streak
       return currentStreak;
+    } else if (lastGenerationDate === today && currentStreak === 0) {
+      // If current streak is 0 but last generation was today, set streak to 1
+      return 2;
     } else {
       // Last generation was more than 1 day ago, reset streak to 1
       return 1;
