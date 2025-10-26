@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1500px" height="500px" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs>
+    <linearGradient id="brandGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="hsl(262.1,83.3%,57.8%)" />
+      <stop offset="100%" stop-color="hsl(217.2,91.2%,59.8%)" />
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="hsl(0,0%,100%)" />
+      <stop offset="50%" stop-color="hsl(262.1,83.3%,85%)" />
+      <stop offset="100%" stop-color="hsl(217.2,91.2%,85%)" />
+    </linearGradient>
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/>
+      <feOffset in="blur" dx="0" dy="2" result="offsetBlur"/>
+      <feFlood flood-color="hsl(0,0%,0%)" flood-opacity="0.3" result="flood"/>
+      <feComposite in="flood" in2="offsetBlur" operator="in" result="composite"/>
+      <feMerge>
+        <feMergeNode in="composite"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="glow"/>
+      <feComposite in="glow" in2="SourceGraphic" operator="atop"/>
+    </filter>
+</defs>
+<rect x="0" y="0" width="1500" height="500" fill="url(#brandGradient)"/>
+<g filter="url(#glow)">
+  <text x="750" y="180" font-family="Arial Black, sans-serif" font-size="140px" font-weight="bold" fill="url(#textGradient)" text-anchor="middle" filter="url(#dropShadow)">PornSpot.ai</text>
+  <text x="750" y="250" font-family="Arial, sans-serif" font-size="45px" fill="url(#textGradient)" text-anchor="middle" font-style="italic" filter="url(#dropShadow)">AI-Generated Porn</text>
+</g>
+<path d="M 0,500 Q 750,300 1500,500" fill="none" stroke="url(#textGradient)" stroke-width="2" opacity="0.3"/>
+</svg>

@@ -544,8 +544,6 @@ export function GenerationProvider({ children }: GenerationProviderProps) {
               progress: 0,
               currentNode: "",
               nodeState: "",
-              optimizationStream: "",
-              optimizedPrompt: null,
             }));
           }
           break;
