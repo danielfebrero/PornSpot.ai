@@ -8,7 +8,7 @@ import { useLocaleRouter } from "@/lib/navigation";
 import { User } from "@/types";
 import { UserPlanBadge } from "@/components/UserPlanBadge";
 import Avatar from "@/components/ui/Avatar";
-import { DollarSign, Trophy } from "lucide-react";
+import { DollarSign, Gift, Trophy } from "lucide-react";
 import LocaleLink from "../ui/LocaleLink";
 
 interface UserMenuProps {
@@ -172,7 +172,7 @@ export function UserMenu({ user }: UserMenuProps) {
               className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
             >
               <div className="flex items-center space-x-2">
-                <Trophy className="w-4 h-4" />
+                <Gift className="w-4 h-4" />
                 <span>{tNav("rewards")}</span>
               </div>
             </button>

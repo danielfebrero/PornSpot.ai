@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import {
-  Trophy,
   Zap,
   Crown,
   Gift,
@@ -87,7 +86,7 @@ const RewardsPage: React.FC = () => {
       case 90:
         return Crown;
       default:
-        return Trophy;
+        return Zap;
     }
   };
 
@@ -96,7 +95,7 @@ const RewardsPage: React.FC = () => {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <Trophy className="h-8 w-8 text-yellow-500" />
+          <Gift className="h-8 w-8 text-yellow-500" />
           <h1 className="text-3xl font-bold">{t("title")}</h1>
         </div>
         <p className="text-muted-foreground">{t("description")}</p>
