@@ -33,8 +33,8 @@ const MILESTONES = [
     rewards: {
       free: { type: "images", amount: 50, unit: "credits" },
       starter: { type: "images", amount: 50, unit: "credits" },
-      unlimited: { type: "video", amount: 20, unit: "seconds" },
-      pro: { type: "video", amount: 30, unit: "seconds" },
+      unlimited: { type: "video", amount: 25, unit: "seconds" },
+      pro: { type: "video", amount: 50, unit: "seconds" },
     },
   },
   {
@@ -42,8 +42,8 @@ const MILESTONES = [
     rewards: {
       free: { type: "images", amount: 500, unit: "credits" },
       starter: { type: "images", amount: 500, unit: "credits" },
-      unlimited: { type: "video", amount: 80, unit: "seconds" },
-      pro: { type: "video", amount: 100, unit: "seconds" },
+      unlimited: { type: "video", amount: 100, unit: "seconds" },
+      pro: { type: "video", amount: 200, unit: "seconds" },
     },
   },
 ];
