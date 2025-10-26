@@ -864,7 +864,7 @@ function generateTheme(numChars: number): string {
  */
 function generateStyle(): string {
   const styleOptions: WeightedOption<string>[] = [
-    // Indoor: 40% total – 24 options (representative of 96)
+    // Indoor: 40% total – expanded with lifestyle, creative & recreational scenarios
     {
       value: "steamy shower (water cascading over arched, soapy curves)",
       weight: 3,
@@ -878,6 +878,16 @@ function generateStyle(): string {
       weight: 2.5,
     },
     {
+      value:
+        "yoga in tight attire (mat-misted, spandex-stretched in downward desire)",
+      weight: 1.5,
+    },
+    {
+      value:
+        "sensual boxing class (glove-grazed, ring-rimmed in combat caress)",
+      weight: 0.7,
+    },
+    {
       value: "leather armchair (reclined spread in firelit flicker)",
       weight: 2.5,
     },
@@ -888,6 +898,22 @@ function generateStyle(): string {
     {
       value: "marble bathtub (bubbles parting for submerged strokes)",
       weight: 2,
+    },
+    {
+      value: "aphrodisiac milk bath (cream-coated, petal-pooled in silky soak)",
+      weight: 0.8,
+    },
+    {
+      value: "flower petal bath (rose-rimmed, fragrant-floated in floral foam)",
+      weight: 0.7,
+    },
+    {
+      value: "golden honey bath (amber-adorned, sticky-sweet in liquid lust)",
+      weight: 0.6,
+    },
+    {
+      value: "red wine bath (burgundy-bathed, vintage-veiled in vinous vice)",
+      weight: 0.5,
     },
     {
       value: "vintage vinyl den (record-spin sultry in scratchy static)",
@@ -912,8 +938,32 @@ function generateStyle(): string {
     },
     {
       value:
+        "erotic reading aloud (voice-velvet, page-turned in literary lust)",
+      weight: 0.7,
+    },
+    {
+      value: "erotic story night (tales-told, candlelit in narrative need)",
+      weight: 0.5,
+    },
+    {
+      value:
         "kitchen island idle (granite-grazed, utensil-utensiled in utensil tease)",
       weight: 1.2,
+    },
+    {
+      value:
+        "aphrodisiac cooking class (spice-sparked, recipe-rimmed in culinary craving)",
+      weight: 0.9,
+    },
+    {
+      value:
+        "wine and chocolate evening (pairing-paired, tasting-teased in gourmet glow)",
+      weight: 0.7,
+    },
+    {
+      value:
+        "gardening in lingerie (soil-stained, bloom-brushed in greenhouse glee)",
+      weight: 0.6,
     },
     {
       value:
@@ -933,6 +983,21 @@ function generateStyle(): string {
       value:
         "walk-in wardrobe whisper (mirror-mazed, silk-sorted in secret swap)",
       weight: 0.8,
+    },
+    {
+      value:
+        "homemade fashion show (runway-rolled, costume-changed in private parade)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "victorian lingerie runway (corset-cinched, lace-laden in vintage vamp)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "fantasized costume runway (character-caught, fabric-freed in fantasy fashion)",
+      weight: 0.5,
     },
     {
       value:
@@ -968,22 +1033,208 @@ function generateStyle(): string {
       value: "garage glow (hood-humped, tool-tinkled in oily overture)",
       weight: 0.5,
     },
-    // Outdoor: 25% – 15 options (representative of 60)
+    {
+      value:
+        "body painting workshop (brush-blissed, canvas-carved in chromatic charm)",
+      weight: 0.8,
+    },
+    {
+      value:
+        "sensual pottery workshop (clay-coated, wheel-whirled in tactile trance)",
+      weight: 0.8,
+    },
+    {
+      value:
+        "erotic sculpture workshop (marble-molded, chisel-chased in artisan ardor)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "artistic nude photography workshop (lens-loved, light-laced in frame focus)",
+      weight: 0.7,
+    },
+    {
+      value:
+        "naughty fashion photoshoot (flash-fired, pose-perfect in editorial ecstasy)",
+      weight: 0.9,
+    },
+    {
+      value:
+        "steamy thai massage (oil-oiled, pressure-pointed in temple touch)",
+      weight: 1.0,
+    },
+    {
+      value:
+        "intimate medical consultation (exam-edged, doctor-draped in clinical caress)",
+      weight: 0.7,
+    },
+    {
+      value:
+        "private dance lesson (rhythm-rimmed, body-brushed in ballroom blush)",
+      weight: 0.9,
+    },
+    {
+      value:
+        "passionate tango lesson (step-stepped, embrace-entwined in argentine ardor)",
+      weight: 0.7,
+    },
+    {
+      value: "cuban salsa class (hip-hypnotic, spin-spun in caribbean heat)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "urban hip-hop class (beat-bounced, move-mirrored in street swagger)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "sensual breakdancing class (floor-frozen, spin-spiraled in athletic allure)",
+      weight: 0.4,
+    },
+    {
+      value:
+        "passionate flamenco class (dress-draped, heel-hammered in spanish spirit)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "brazilian capoeira class (kick-caught, flow-fluid in martial muse)",
+      weight: 0.4,
+    },
+    {
+      value: "private ballet class (tutu-teased, barre-bent in graceful grind)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "amateur pole dancing class (chrome-climbed, spin-spun in acrobatic ache)",
+      weight: 0.8,
+    },
+    {
+      value:
+        "pajama party among friends (pillow-piled, nightie-nested in sleepover sin)",
+      weight: 0.7,
+    },
+    {
+      value:
+        "theatrical role-playing evening (costume-caught, character-channeled in stage seduction)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "intimate karaoke night (mic-mingled, song-soaked in vocal vibration)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "burlesque cabaret night (feather-fanned, sequin-stripped in vintage vice)",
+      weight: 0.7,
+    },
+    {
+      value:
+        "private opera evening (aria-aroused, box-seat in operatic orgasm)",
+      weight: 0.4,
+    },
+    {
+      value:
+        "sensual opera finale evening (curtain-called, soprano-soared in crescendo climax)",
+      weight: 0.4,
+    },
+    {
+      value:
+        "erotic calligraphy workshop (ink-inked, brush-blessed in script seduction)",
+      weight: 0.4,
+    },
+    {
+      value:
+        "artistic bondage workshop (rope-raveled, knot-knowledge in shibari sin)",
+      weight: 0.7,
+    },
+    {
+      value:
+        "macramé bondage workshop (fiber-freaked, weave-wound in textile tease)",
+      weight: 0.4,
+    },
+    {
+      value:
+        "body jewelry workshop (pierce-prepped, adorn-aroused in metallic muse)",
+      weight: 0.4,
+    },
+    {
+      value:
+        "temporary tattoo workshop (henna-hued, design-draped in ink illusion)",
+      weight: 0.4,
+    },
+    {
+      value:
+        "aphrodisiac cosmetics workshop (cream-crafted, scent-sampled in beauty blend)",
+      weight: 0.4,
+    },
+    {
+      value:
+        "personalized perfume workshop (note-nosed, essence-explored in fragrant fantasy)",
+      weight: 0.4,
+    },
+    {
+      value:
+        "divinatory tarot session (card-caught, future-felt in mystic mood)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "erotic hypnosis session (trance-taken, suggestion-surrendered in mind melt)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "tantric meditation session (breath-bound, chakra-charged in spiritual sync)",
+      weight: 0.5,
+    },
+    // Outdoor: 25% – expanded with nature, adventure & recreational scenarios
     {
       value: "secluded yacht deck (topless tanning, waves whispering secrets)",
       weight: 2.5,
+    },
+    {
+      value:
+        "luxurious yacht stroll (champagne-soaked, deck-draped in maritime muse)",
+      weight: 1.2,
     },
     {
       value: "moonlit meadow (grass tickling bare soles mid-thrust)",
       weight: 2,
     },
     {
+      value:
+        "starlit romantic picnic (blanket-bound, wine-warmed in twilight tease)",
+      weight: 1.0,
+    },
+    {
       value: "hiking trail bend (tree-trunk leaned, skirt hiked high)",
       weight: 2,
     },
     {
+      value: "nude mountain hike (trail-traced, peak-peaked in bare bliss)",
+      weight: 1.2,
+    },
+    {
+      value:
+        "minimalist outfit hike (barely-clad, summit-soaked in alpine air)",
+      weight: 0.9,
+    },
+    {
       value: "private jacuzzi (jets pulsing against sensitive swells)",
       weight: 1.5,
+    },
+    {
+      value:
+        "cozy hot spring bath (mineral-misted, steam-stroked in thermal throb)",
+      weight: 1.3,
+    },
+    {
+      value: "volcanic mud bath (clay-coated, primal-pulsing in earth embrace)",
+      weight: 1.0,
     },
     {
       value: "festival field (mud-smeared skin in bonfire blaze)",
@@ -994,28 +1245,117 @@ function generateStyle(): string {
       weight: 1.2,
     },
     {
+      value: "playful snow bath (powder-plunged, frost-flushed in winter wild)",
+      weight: 0.8,
+    },
+    {
+      value:
+        "winter sleigh ride (blanket-bundled, bells-chimed in crisp caress)",
+      weight: 0.7,
+    },
+    {
+      value:
+        "skiing in lingerie (slope-stripped, powder-posed in alpine audacity)",
+      weight: 0.6,
+    },
+    {
       value: "desert dune drift (sand-sifted, star-sprinkled in silk shift)",
       weight: 1.2,
+    },
+    {
+      value: "desert camel trek (nomad-nude, dune-draped in saharan sin)",
+      weight: 0.7,
+    },
+    {
+      value:
+        "saharan buggy ride (sand-sprayed, throttle-thrilled in desert dash)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "desert quad biking (dune-dusted, engine-edged in arid adrenaline)",
+      weight: 0.5,
     },
     {
       value: "urban park pavilion (bench-bound, breeze-bitten in public peek)",
       weight: 1,
     },
     {
+      value:
+        "nighttime city walk (alley-arched, streetlight-stripped in urban urge)",
+      weight: 0.7,
+    },
+    {
       value: "rainforest ripple (vine-veiled, mist-misted in tropical tangle)",
       weight: 1,
+    },
+    {
+      value:
+        "erotic forest picnic (moss-mounded, canopy-caught in woodland want)",
+      weight: 0.9,
+    },
+    {
+      value: "enchanted forest walk (path-parted, fern-framed in fairy flush)",
+      weight: 0.7,
+    },
+    {
+      value: "wild berry picking (bush-bent, juice-jeweled in berry blush)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "naughty mushroom foraging (forest-floored, fungi-found in earthy ecstasy)",
+      weight: 0.5,
     },
     {
       value: "cliffside cove (rock-rimmed, wave-washed in wild whisper)",
       weight: 1,
     },
     {
+      value:
+        "twilight beach stroll (sand-swept, surf-stroked in sunset surrender)",
+      weight: 1.1,
+    },
+    {
+      value: "sunrise surfing (board-balanced, wave-wrapped in dawn drench)",
+      weight: 0.9,
+    },
+    {
+      value:
+        "midnight lake swim (water-whispered, moon-mirrored in liquid lust)",
+      weight: 0.9,
+    },
+    {
+      value:
+        "beach horseback ride (mane-mingled, tide-traced in coastal canter)",
+      weight: 0.7,
+    },
+    {
       value: "vineyard vine (grape-groped, sun-soaked in harvest heat)",
       weight: 0.8,
     },
     {
+      value:
+        "autumn vineyard picking (vine-veiled, grape-glistened in harvest haze)",
+      weight: 0.7,
+    },
+    {
+      value:
+        "provencal lavender picking (purple-plucked, scent-soaked in field flutter)",
+      weight: 0.6,
+    },
+    {
       value: "lakeside lounge (dock-draped, ripple-reflected in lazy lap)",
       weight: 0.8,
+    },
+    {
+      value: "lakeside fishing (rod-rimmed, bait-brushed in patient pleasure)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "kayak ride on river (paddle-pulsed, current-caught in liquid lane)",
+      weight: 0.6,
     },
     {
       value: "mountain mist (peak-perched, cloud-caressed in crisp caress)",
@@ -1026,10 +1366,52 @@ function generateStyle(): string {
       weight: 0.6,
     },
     {
+      value:
+        "forbidden fruit picking (tree-tempted, harvest-hushed in eden echo)",
+      weight: 0.6,
+    },
+    {
       value: "campsite crackle (tent-tied, fire-flicked in forest frolic)",
       weight: 0.6,
     },
-    // Exotic: 15% – 9 options (representative of 36)
+    {
+      value:
+        "moonlit wild camping (canvas-cradled, star-stitched in wilderness whisper)",
+      weight: 0.7,
+    },
+    {
+      value: "berber tent picnic (nomad-nested, silk-shrouded in desert dream)",
+      weight: 0.5,
+    },
+    {
+      value: "gothic picnic (cemetery-chic, lace-laden in macabre muse)",
+      weight: 0.4,
+    },
+    {
+      value: "nudist lawn lunch (grass-graced, sun-soaked in shameless spread)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "secret rose garden (petal-parted, thorn-teased in floral fantasy)",
+      weight: 0.7,
+    },
+    {
+      value:
+        "oriental spice garden (incense-infused, exotic-edged in aromatic ardor)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "japanese zen garden (stone-still, raked-ready in meditative moan)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "erotic zen garden (sand-swirled, stone-silenced in peaceful passion)",
+      weight: 0.5,
+    },
+    // Exotic: 15% – expanded with global adventures, transportation & unique experiences
     {
       value: "silk-sheeted harem (cushions cradling oiled, entwined forms)",
       weight: 1.5,
@@ -1045,6 +1427,26 @@ function generateStyle(): string {
     {
       value: "private jet cabin (turbulence-timed, mile-high mile)",
       weight: 1.2,
+    },
+    {
+      value:
+        "airplane piloting lesson (cockpit-commanded, altitude-aroused in aviation allure)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "helicopter ride (rotor-rumbled, skyline-soaked in aerial adventure)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "hot air balloon ride (basket-bound, horizon-high in floating fantasy)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "paragliding adventure (wind-whipped, cloud-caught in sky surrender)",
+      weight: 0.5,
     },
     {
       value: "ancient temple tryst (stone-silent, idol-eyed in incense idol)",
@@ -1065,6 +1467,79 @@ function generateStyle(): string {
     {
       value: "rio rooftop (carnival-caught, samba-swayed in salty sin)",
       weight: 0.8,
+    },
+    {
+      value:
+        "venetian gondola ride (canal-carved, serenade-soaked in lagoon lust)",
+      weight: 0.7,
+    },
+    {
+      value:
+        "victorian carriage stroll (cobble-clattered, curtain-caught in period passion)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "western horseback ride (saddle-straddled, prairie-posed in cowgirl charm)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "coastal motorcycle ride (throttle-thrilled, cliff-curved in leather lust)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "bike ride in short shorts (pedal-pushed, breeze-blessed in cycling sin)",
+      weight: 0.5,
+    },
+    {
+      value: "electric scooter ride (zip-zipped, city-streaked in urban ease)",
+      weight: 0.4,
+    },
+    {
+      value:
+        "private swimming lesson (pool-plunged, stroke-schooled in aquatic allure)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "hawaiian surf lesson (board-balanced, wave-washed in island intensity)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "erotic kitesurfing lesson (wind-wild, board-bound in wave-wind wedding)",
+      weight: 0.4,
+    },
+    {
+      value:
+        "private scuba diving lesson (depth-dove, wet-suited in underwater urge)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "intimate rock climbing lesson (cliff-clung, rope-rimmed in vertical vice)",
+      weight: 0.5,
+    },
+    {
+      value: "sensual archery lesson (bow-bent, arrow-aimed in target tease)",
+      weight: 0.5,
+    },
+    {
+      value:
+        "erotic bocce ball in bikini (ball-bounced, sand-sprayed in game glow)",
+      weight: 0.4,
+    },
+    {
+      value:
+        "sensual bank heist (vault-vexed, mask-mysterious in criminal caress)",
+      weight: 0.6,
+    },
+    {
+      value:
+        "steamy business lunch (boardroom-bold, deal-done in corporate coupling)",
+      weight: 0.6,
     },
     // Surreal/Abstract: 10% – 6 options (representative of 24)
     {
@@ -1647,34 +2122,34 @@ function generateWildcard(): string | null {
 /**
  * Generate body modifications (piercings, tattoos)
  * Triggers LoRAs: Pierced_Nipples_XL_Barbell_Edition-000013, Body Tattoo_alpha1.0_rank4_noxattn_last
- * 30% chance of piercings, 25% chance of tattoos, 45% no modifications
+ * 20% chance of piercings, 10% chance of tattoos, 70% no modifications
  */
 function generateBodyModifications(): string | null {
   const modOptions: WeightedOption<string | null>[] = [
-    { value: null, weight: 45 }, // No modifications
-    // Piercings - 30% total (triggers Pierced_Nipples_XL_Barbell_Edition-000013)
+    { value: null, weight: 70 }, // No modifications
+    // Piercings - 20% total (triggers Pierced_Nipples_XL_Barbell_Edition-000013)
     {
       value: "nipple piercings (barbell studs piercing erect peaks)",
-      weight: 8,
+      weight: 5,
     },
-    { value: "nipple piercings (silver rings adorning rosy tips)", weight: 6 },
-    { value: "nipple chain (connected piercings linking breasts)", weight: 5 },
-    { value: "belly button piercing (jeweled navel ring)", weight: 4 },
+    { value: "nipple piercings (silver rings adorning rosy tips)", weight: 4 },
+    { value: "nipple chain (connected piercings linking breasts)", weight: 3 },
+    { value: "belly button piercing (jeweled navel ring)", weight: 3 },
     {
       value: "clit hood piercing (delicate ring on sensitive pearl)",
-      weight: 3,
+      weight: 2,
     },
     { value: "tongue piercing (metal stud for enhanced oral)", weight: 2 },
-    { value: "multiple piercings (nipples, navel, and more)", weight: 2 },
-    // Tattoos - 25% total (triggers Body Tattoo_alpha1.0_rank4_noxattn_last)
-    { value: "full body tattoo (intricate ink covering curves)", weight: 5 },
-    { value: "sleeve tattoos (elaborate designs wrapping arms)", weight: 4 },
-    { value: "back piece tattoo (sprawling art across spine)", weight: 4 },
-    { value: "thigh tattoos (sensual patterns framing legs)", weight: 3 },
-    { value: "breast tattoos (delicate ink adorning cleavage)", weight: 3 },
-    { value: "tribal tattoos (bold patterns across shoulders)", weight: 2 },
-    { value: "lower back tattoo (decorative design above curves)", weight: 2 },
-    { value: "rib cage tattoos (intricate art along torso)", weight: 2 },
+    { value: "multiple piercings (nipples, navel, and more)", weight: 1 },
+    // Tattoos - 10% total (triggers Body Tattoo_alpha1.0_rank4_noxattn_last)
+    { value: "full body tattoo (intricate ink covering curves)", weight: 2 },
+    { value: "sleeve tattoos (elaborate designs wrapping arms)", weight: 2 },
+    { value: "back piece tattoo (sprawling art across spine)", weight: 2 },
+    { value: "thigh tattoos (sensual patterns framing legs)", weight: 1 },
+    { value: "breast tattoos (delicate ink adorning cleavage)", weight: 1 },
+    { value: "tribal tattoos (bold patterns across shoulders)", weight: 1 },
+    { value: "lower back tattoo (decorative design above curves)", weight: 1 },
+    { value: "rib cage tattoos (intricate art along torso)", weight: 0 },
   ];
 
   return selectWeighted(modOptions);
