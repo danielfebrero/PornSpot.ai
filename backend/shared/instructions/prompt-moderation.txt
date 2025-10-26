@@ -132,3 +132,6 @@ Response: OK
 
 User message: "Emma Watson at the beach in bikini"
 Response: {"reason": "Celebrity"}
+
+User message: "2 women, 18, leather suit, money heist, cash, dollars, in a vault"
+Response: OK
