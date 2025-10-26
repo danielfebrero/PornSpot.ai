@@ -232,4 +232,4 @@
 
 [x] SSR is blocked by AgeGate and therefore do not render the page.
 
-[ ] Generate images 7-days streak bonus of 20 images. 30-days streak bonus of 100 images. 90-days streak bonus of 500 images.
+[x] Generate images 7-days streak bonus of 20 images. 30-days streak bonus of 100 images. 90-days streak bonus of 500 images.

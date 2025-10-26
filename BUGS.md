@@ -202,7 +202,7 @@
 
 [ ] ValidateSeed does not work as expected in Generate function.
 
-[ ] Writing a comment on my own content send me an email, it shoudn't.
+[x] Writing a comment on my own content send me an email, it shoudn't.
 
 [ ] When I create album from Album page, it does not appears in the list until I refresh the page.
 
