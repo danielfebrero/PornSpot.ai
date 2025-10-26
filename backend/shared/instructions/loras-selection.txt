@@ -74,6 +74,7 @@ Use this LoRA when the user prompt involves Instagram-style poses, model photogr
 - "fashion model, 20, posing for camera, standing pose, studio lighting" → "['DynaPoseV1', 'add-detail-xl']"
 - "woman in bikini, beach pose, sitting on sand, modeling shot" → "['leaked_nudes_style_v1_fixed', 'DynaPoseV1', 'add-detail-xl']"
 - "influencer taking selfie, posing for social media, casual outfit" → "['DynaPoseV1', 'add-detail-xl']"
+- "woman, 18, arab beurette, in marseille, France, street with grafitti on the wall, downblouse, spoinstagram model pose (professional composition, curated aesthetic), irish woman with hot pink long wavy cascading hair, dark brown eyes, slender build, 1 character, sultry young adult (25-27), sultry expression, contoured cheekbones, solo fingering (fingers delving deep into slick folds), in city rooftop, late night, basement bar banter (neon-nipped, bottle-brushed in dim dive), silk sunrise (fabric-filtered, dawn-dyed in delicate drape), spread eagle (thighs parted wide, labia inviting inspection), side-slit skirt (thigh-thieved, stride-straddled in slit sin), wearing watch, masterpiece, best quality, highly detailed, 8k uhd, professional photographyrt clothes" → "['DynaPoseV1', 'add-detail-xl']"
 
 # Response format
 
