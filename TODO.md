@@ -233,3 +233,5 @@
 [x] SSR is blocked by AgeGate and therefore do not render the page.
 
 [x] Generate images 7-days streak bonus of 20 images. 30-days streak bonus of 100 images. 90-days streak bonus of 500 images.
+
+[ ] Make a sitemap for videos.

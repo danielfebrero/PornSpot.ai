@@ -1211,6 +1211,14 @@ const handleGenerate = async (
     requestBody.prompt.trim().length > 0;
   let usedGeneratedPrompt = false;
 
+  // Check for /no_mod token and remove it from prompt
+  let skipModerationFlag = false;
+  if (promptProvided && requestBody.prompt.includes("/no_mod")) {
+    skipModerationFlag = true;
+    requestBody.prompt = requestBody.prompt.replace(/\/no_mod/g, "").trim();
+    console.log("🔓 Moderation bypass requested via /no_mod token");
+  }
+
   let connectionId: string | null = null;
   if (auth.userId) {
     try {
@@ -1416,7 +1424,7 @@ const handleGenerate = async (
     queueEntry.queueId,
     queueEntry,
     {
-      skipModeration: usedGeneratedPrompt,
+      skipModeration: usedGeneratedPrompt || skipModerationFlag,
       skipOptimization: usedGeneratedPrompt,
     }
   );
