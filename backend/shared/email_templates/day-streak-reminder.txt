@@ -11,7 +11,7 @@ Hey {{displayName}},
 
 🔥 You're So Close to a 2-Day Streak!
 
-You're just 3 hours away from achieving an awesome 2-day streak! 🎉
+You're just {{hoursLeft}} {{hoursText}} away from achieving an awesome 2-day streak! 🎉
 
 Don't break the chain! 💪
 

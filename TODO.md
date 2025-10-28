@@ -235,3 +235,7 @@
 [x] Generate images 7-days streak bonus of 20 images. 30-days streak bonus of 100 images. 90-days streak bonus of 500 images.
 
 [ ] Make a sitemap for videos.
+
+[ ] On user profile page, section for most popular content.
+
+[ ] On user profile page, section for highlighted content.

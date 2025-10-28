@@ -263,11 +263,14 @@ export class EmailService {
     rewardsUrl: string;
     generateUrl: string;
     settingsUrl: string;
+    hoursLeft: number;
   }): Promise<EmailSendResult> {
-    const { to, username, rewardsUrl, generateUrl, settingsUrl } = options;
+    const { to, username, rewardsUrl, generateUrl, settingsUrl, hoursLeft } =
+      options;
     const displayName = username ? username : to;
 
-    const subject = `🔥 You have 4 hours left for a 2-day streak!`;
+    const hoursText = hoursLeft === 1 ? "hour" : "hours";
+    const subject = `🔥 You have ${hoursLeft} ${hoursText} left for a 2-day streak!`;
 
     const { htmlBody, textBody } = await EmailTemplateService.loadTemplate(
       "day-streak-reminder",
@@ -277,6 +280,8 @@ export class EmailService {
         rewardsUrl,
         generateUrl,
         settingsUrl,
+        hoursLeft: hoursLeft.toString(),
+        hoursText,
       }
     );
 
