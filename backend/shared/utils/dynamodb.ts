@@ -2235,8 +2235,18 @@ export class DynamoDBService {
     const relationships =
       (relationshipsResult.Items as AlbumMediaEntity[]) || [];
 
+    // Sort relationships by addedAt in descending order (most recent first)
+    const sortedRelationships = relationships.sort((a, b) => {
+      const aAdded = a.addedAt || "";
+      const bAdded = b.addedAt || "";
+      if (aAdded === bAdded) {
+        return 0;
+      }
+      return bAdded.localeCompare(aAdded);
+    });
+
     // Get the actual media records
-    const mediaPromises = relationships.map((rel) =>
+    const mediaPromises = sortedRelationships.map((rel) =>
       this.getMedia(rel.mediaId)
     );
 

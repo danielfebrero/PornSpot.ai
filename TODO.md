@@ -239,3 +239,5 @@
 [ ] On user profile page, section for most popular content.
 
 [ ] On user profile page, section for highlighted content.
+
+[x] Sort albums by most recent items added.
