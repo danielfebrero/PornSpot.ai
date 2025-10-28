@@ -20,6 +20,7 @@ const imageLoras = [
   { key: "bread", name: "bread" },
   { key: "nudify", name: "nudify_xl_lite" },
   { key: "dynaPose", name: "DynaPoseV1" },
+  { key: "povFootjob", name: "POVfootjobSDXL" },
 ] as const;
 
 const videoLoras = [
@@ -35,6 +36,7 @@ const videoLoras = [
   { key: "middleDrooling", name: "MIDDLE_DROOLING" },
   { key: "orgasm", name: "ORGASM" },
   { key: "facedownAssup", name: "FACEDOWNASSUP" },
+  { key: "footjob", name: "FOOTJOB" },
 ] as const;
 
 interface FaqSection {
