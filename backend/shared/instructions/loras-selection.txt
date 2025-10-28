@@ -53,7 +53,7 @@ Use this LoRA when the user prompt involves nude bodies, especially frontal nudi
 
 Use this LoRA when the user prompt involves Instagram-style poses, model photography, fashion poses, sitting poses, standing poses, or any general posing scenarios. This enhances the quality of poses for photos that focus on modeling, fashion, or social media aesthetics.
 
-# POVfootjobSDXL
+# footjob
 
 Use this LoRA when the user prompt involves footjob scenes, especially from a point-of-view (POV) perspective.
 
@@ -79,7 +79,7 @@ Use this LoRA when the user prompt involves footjob scenes, especially from a po
 - "woman in bikini, beach pose, sitting on sand, modeling shot" → "['leaked_nudes_style_v1_fixed', 'DynaPoseV1', 'add-detail-xl']"
 - "influencer taking selfie, posing for social media, casual outfit" → "['DynaPoseV1', 'add-detail-xl']"
 - "woman, 18, arab beurette, in marseille, France, street with grafitti on the wall, downblouse, spoinstagram model pose (professional composition, curated aesthetic), irish woman with hot pink long wavy cascading hair, dark brown eyes, slender build, 1 character, sultry young adult (25-27), sultry expression, contoured cheekbones, solo fingering (fingers delving deep into slick folds), in city rooftop, late night, basement bar banter (neon-nipped, bottle-brushed in dim dive), silk sunrise (fabric-filtered, dawn-dyed in delicate drape), spread eagle (thighs parted wide, labia inviting inspection), side-slit skirt (thigh-thieved, stride-straddled in slit sin), wearing watch, masterpiece, best quality, highly detailed, 8k uhd, professional photographyrt clothes" → "['DynaPoseV1', 'add-detail-xl']"
-- "woman, 18, pov footjob, giving footjob" → "['leaked_nudes_style_v1_fixed', 'POVfootjobSDXL', 'add-detail-xl']"
+- "woman, 18, pov footjob, giving footjob" → "['leaked_nudes_style_v1_fixed', 'footjob', 'add-detail-xl']"
 
 # Response format
 

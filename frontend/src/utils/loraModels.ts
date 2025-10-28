@@ -61,7 +61,7 @@ export const getLoraModels = (t: (key: string) => string) => [
     description: t("loraModels.dynaPose"),
   },
   {
-    id: "POVfootjobSDXL",
+    id: "footjob",
     name: "POV Footjob",
     description: t("loraModels.povFootjob"),
   },

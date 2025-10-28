@@ -20,7 +20,7 @@ const imageLoras = [
   { key: "bread", name: "bread" },
   { key: "nudify", name: "nudify_xl_lite" },
   { key: "dynaPose", name: "DynaPoseV1" },
-  { key: "povFootjob", name: "POVfootjobSDXL" },
+  { key: "povFootjob", name: "footjob" },
 ] as const;
 
 const videoLoras = [

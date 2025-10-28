@@ -74,11 +74,11 @@ export function createComfyUIWorkflow(
     },
 
     // LoRA chain (will be modified based on selectedLoras)
-    // Chain: 11 → 32 → 31 → 30 → 29 → 28 → 27 → 23 → 25 → 24 → 22 → 21 → 20 → 16 → 10
-    "32": {
+    // Chain: 11 → 33 → 31 → 30 → 29 → 28 → 27 → 23 → 25 → 24 → 22 → 21 → 20 → 16 → 10
+    "33": {
       class_type: "LoraLoader",
       inputs: {
-        lora_name: "POVfootjobSDXL.safetensors",
+        lora_name: "footjob.safetensors",
         strength_model: 0,
         strength_clip: 1,
         model: ["11", 0],
@@ -96,8 +96,8 @@ export function createComfyUIWorkflow(
         lora_name: "DynaPoseV1.safetensors",
         strength_model: 0,
         strength_clip: 1,
-        model: ["32", 0],
-        clip: ["32", 1],
+        model: ["33", 0],
+        clip: ["33", 1],
       },
       _meta: {
         title: "Load LoRA",
@@ -377,7 +377,7 @@ export function createComfyUIWorkflow(
   if (params.selectedLoras && params.selectedLoras.length > 0) {
     // Map LoRA names to node IDs based on the template structure
     const loraNodeMap: { [key: string]: string } = {
-      POVfootjobSDXL: "32",
+      footjob: "33",
       DynaPoseV1: "31",
       nudify_xl_lite: "30",
       bread: "29",
