@@ -83,4 +83,11 @@ export const loras = {
       "https://cdn.pornspot.ai/i2v_loras/WAN-2.2-I2V-FaceDownAssUp-LOW-v1.safetensors",
     scale: 1,
   },
+  FOOTJOB: {
+    lora_high_path:
+      "https://cdn.pornspot.ai/i2v_loras/wan2.2_i2v_highnoise_footjob_v1.0.safetensors",
+    lora_low_path:
+      "https://cdn.pornspot.ai/i2v_loras/wan2.2_i2v_lownoise_footjob_v1.0.safetensors",
+    scale: 1,
+  },
 };

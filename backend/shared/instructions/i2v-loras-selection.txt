@@ -65,6 +65,10 @@ No associated trigger words.
 Use this LoRA when the user prompt involves a woman face down ass up.
 No associated trigger words.
 
+## FOOTJOB
+
+Use this LoRA when the user prompt involves a woman giving a footjob from man POV.
+
 # Required output
 
 A valid JSON following this schema: { "loras": []string, "trigger_words": []string }
@@ -118,3 +122,6 @@ Response: { "loras": ["ORGASM"] }
 
 User message: "She is on her knees and goes face down ass up"
 Response: { "loras": ["FACEDOWNASSUP"] }
+
+User message: "A woman is giving a footjob"
+Response: { "loras": ["FOOTJOB"] }
