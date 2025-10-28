@@ -4123,14 +4123,12 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: "cron(0 12 * * ? *)" # Every day at 12:00 UTC (12pm UTC)
-            Name: !Sub "${Environment}-pornspot-day-streak-reminder-12utc"
             Description: "Sends day streak reminder emails daily at 12:00 UTC"
             Enabled: !If [IsProd, true, false]
         Evening:
           Type: Schedule
           Properties:
             Schedule: "cron(0 21 * * ? *)" # Every day at 21:00 UTC (9pm UTC)
-            Name: !Sub "${Environment}-pornspot-day-streak-reminder-21utc"
             Description: "Sends day streak reminder emails daily at 21:00 UTC"
             Enabled: !If [IsProd, true, false]
       Policies:
