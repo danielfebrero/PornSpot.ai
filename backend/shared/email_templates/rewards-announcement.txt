@@ -1,72 +1,60 @@
-🔥 STREAK REWARDS - Generate Daily, Earn Massive Bonuses!
+🔥 Daily Streak Rewards - Designed for Your Routine
 
 Hello {{displayName}},
 
-Exciting news! We've just launched Daily Streak Rewards on PornSpot.ai. 
-Starting today, your consistency pays off with massive bonus credits for 
-maintaining daily generation streaks.
+We've introduced Daily Streak Rewards to recognise consistent creators on 
+PornSpot.ai. When you keep your daily generation habit going, we add bonus 
+credits to your account at key milestones.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🎁 STREAK MILESTONE REWARDS
+STREAK MILESTONE REWARDS
 
-7-Day Streak:   Earn +10 bonus image credits
-30-Day Streak:  Earn +50 bonus image credits
-90-Day Streak:  Earn +500 bonus image credits
+7-Day Streak:   {{reward7Day}}
+30-Day Streak:  {{reward30Day}}
+90-Day Streak:  {{reward90Day}}
 
 Every milestone unlocks automatically when you reach it — just keep your 
 streak alive!
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-⚡ HOW IT WORKS
+HOW IT WORKS
 
-Building a streak is simple — just generate content daily to keep your 
-streak alive:
+To keep your streak active, create at least one image or video each day:
 
-• Generate images or videos daily to maintain your streak counter
-• Create at least one piece of content each day to count as activity
-• Hit milestones at 7, 30, and 90 days for massive bonuses
-• Track your progress on your dashboard with the streak counter
-
-The system tracks your consecutive generation days automatically. Miss a day 
-and your streak resets to zero, so consistency is key!
+• Generate at least one piece of content every day.
+• Watch the streak counter on your dashboard to see your progress.
+• Hit the milestones above to receive the matching credit bonus.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-💪 WHY STREAKS MATTER
+WHY WE BUILT THIS
 
-Consistency is key to unlocking your creative potential:
-
-• Build momentum: Daily creation makes you a better creator
-• Unlock rewards: Hundreds of bonus credits just for creating consistently
-• Stay motivated: Watch your streak grow and feel accomplished
-• Create more: Use bonus credits to generate even more content
-
-The longer your streak, the bigger the rewards. And the best part? You can 
-stack these bonuses with your regular plan credits!
+Consistent practice helps you build a library of work and understand what 
+resonates with your audience. The streak rewards are there to support that 
+routine and make it easier to experiment with new ideas.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-💡 PRO TIP
+REMINDER TIP
 
-Set a daily reminder to generate content on PornSpot.ai! You need to create 
-at least one image or video each day to keep your streak alive. When you hit 
-those milestone days, you'll unlock massive credit bonuses automatically!
+Need a reminder? Add a calendar note or enable dashboard reminders so you 
+never miss a day. Bonus credits are applied automatically when you reach the 
+milestones.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Start your streak today:
+View your dashboard:
 {{dashboardUrl}}
 
-Start your streak today and watch the bonus credits pile up! Your consistency 
-will be rewarded with hundreds of extra credits you can use to create amazing 
-AI-generated content.
+We hope this makes it easier to stay on track with your creative goals. If 
+you have feedback about the rewards system, reply to this email and let us 
+know.
 
-Check your dashboard to see your current streak counter and track your 
-progress towards the next milestone!
+You can view your current streak at any time from your dashboard.
 
-Happy creating,
+Thanks for creating with us,
 The PornSpot.ai Team
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

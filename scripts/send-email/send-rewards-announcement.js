@@ -9,7 +9,7 @@
  *   node scripts/send-email/send-rewards-announcement.js --env=prod --send
  *   node scripts/send-email/send-rewards-announcement.js --env=stage --limit=100 --send
  *   node scripts/send-email/send-rewards-announcement.js --env=prod --to=user@example.com --send
- *   node scripts/send-email/send-rewards-announcement.js --env=prod --feature-url=https://www.pornspot.ai/{locale}/dashboard --subject="Introducing Daily Streak Rewards!" --send
+ *   node scripts/send-email/send-rewards-announcement.js --env=prod --feature-url=https://www.pornspot.ai/user/rewards --subject="Introducing Daily Streak Rewards!" --send
  *
  * Important flags:
  *   --env=<environment>       Environment to target (local|dev|stage|prod) [required]
@@ -118,7 +118,7 @@ async function main() {
   );
   let featureUrlTemplate = getArg(
     "--feature-url",
-    "https://www.pornspot.ai/{locale}/dashboard"
+    "https://www.pornspot.ai/user/rewards"
   );
   const fromOverride = getArg("--from", "");
   const resumeAfter = getArg("--resume-after", "").toLowerCase();
@@ -166,7 +166,7 @@ async function main() {
         const normalized = frontendUrl.endsWith("/")
           ? frontendUrl.slice(0, -1)
           : frontendUrl;
-        featureUrlTemplate = `${normalized}/{locale}/dashboard`;
+        featureUrlTemplate = `${normalized}/user/rewards`;
         console.log(
           `🌐 Feature URL resolved from Parameter Store: ${featureUrlTemplate}`
         );
@@ -203,6 +203,55 @@ async function main() {
     failed: 0,
   };
 
+  // Define rewards milestones based on user plan
+  const MILESTONES = [
+    {
+      day: 7,
+      rewards: {
+        free: { type: "images", amount: 10, unit: "credits" },
+        starter: { type: "images", amount: 10, unit: "credits" },
+        unlimited: { type: "video", amount: 5, unit: "seconds" },
+        pro: { type: "video", amount: 10, unit: "seconds" },
+      },
+    },
+    {
+      day: 30,
+      rewards: {
+        free: { type: "images", amount: 50, unit: "credits" },
+        starter: { type: "images", amount: 50, unit: "credits" },
+        unlimited: { type: "video", amount: 25, unit: "seconds" },
+        pro: { type: "video", amount: 50, unit: "seconds" },
+      },
+    },
+    {
+      day: 90,
+      rewards: {
+        free: { type: "images", amount: 500, unit: "credits" },
+        starter: { type: "images", amount: 500, unit: "credits" },
+        unlimited: { type: "video", amount: 100, unit: "seconds" },
+        pro: { type: "video", amount: 200, unit: "seconds" },
+      },
+    },
+  ];
+
+  const formatReward = (reward) => {
+    if (reward.type === "images") {
+      return `+${reward.amount} bonus image ${reward.unit}`;
+    } else if (reward.type === "video") {
+      return `+${reward.amount} ${reward.unit} of video generation`;
+    }
+    return `+${reward.amount} ${reward.unit}`;
+  };
+
+  const getRewardsForPlan = (userPlan) => {
+    const plan = userPlan || "free";
+    return {
+      reward7Day: formatReward(MILESTONES[0].rewards[plan]),
+      reward30Day: formatReward(MILESTONES[1].rewards[plan]),
+      reward90Day: formatReward(MILESTONES[2].rewards[plan]),
+    };
+  };
+
   let lastProgressRender = 0;
   let progressLineLength = 0;
   const renderProgress = (force = false) => {
@@ -232,6 +281,8 @@ async function main() {
     console.log(`🎯 Single recipient mode: sending to ${singleRecipient}\n`);
 
     try {
+      const rewards = getRewardsForPlan("pro"); // Default to free plan for single test emails
+
       const { htmlBody, textBody } = await EmailTemplateService.loadTemplate(
         "rewards-announcement",
         {
@@ -239,6 +290,7 @@ async function main() {
           displayName: singleRecipient.split("@")[0],
           dashboardUrl: buildFeatureUrl("en"),
           settingsUrl: `https://www.pornspot.ai/en/settings`,
+          ...rewards,
         }
       );
 
@@ -353,6 +405,10 @@ async function main() {
         : frontendUrl;
       const settingsUrl = `${baseUrl}/${locale}/settings`;
 
+      // Get user's plan and personalized rewards
+      const userPlan = user.planInfo?.plan || user.plan || "free";
+      const rewards = getRewardsForPlan(userPlan);
+
       try {
         const { htmlBody, textBody } = await EmailTemplateService.loadTemplate(
           "rewards-announcement",
@@ -361,6 +417,7 @@ async function main() {
             displayName,
             dashboardUrl,
             settingsUrl,
+            ...rewards,
           }
         );
 
