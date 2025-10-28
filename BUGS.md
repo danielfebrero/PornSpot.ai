@@ -209,3 +209,5 @@
 [ ] In Edit Album, I cannot scroll image list when choosing a cover.
 
 [ ] Edit avatar do not update avatar optimistically.
+
+[ ] When changing tag albums, it recreates relation and therefore lose "addedAt" date.

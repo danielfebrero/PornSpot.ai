@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { useLocaleRouter } from "@/lib/navigation";
 import { Media } from "@/types/index";
 import { cn, isVideo } from "@/lib/utils";
 import { ContentCard } from "@/components/ui/ContentCard";
@@ -50,6 +51,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
   onDelete,
 }) => {
   const t = useTranslations("ui.lightbox");
+  const router = useLocaleRouter();
 
   const [isMounted, setIsMounted] = useState(false);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
@@ -285,6 +287,13 @@ export const Lightbox: React.FC<LightboxProps> = ({
     onClose();
   }, [onClose]);
 
+  // Navigate to media detail page
+  const handleNavigateToMedia = useCallback(() => {
+    if (currentMedia) {
+      router.push(`/media/${currentMedia.id}`);
+    }
+  }, [currentMedia, router]);
+
   // Keyboard navigation
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -478,7 +487,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
       )}
 
       {/* Content wrapper */}
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full" onClick={handleBackdropClick}>
         {/* Swipeable Media Content with deck-of-cards layered images and zoom support */}
         <div
           ref={containerRef}
@@ -486,6 +495,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
           style={{
             touchAction: isPinching ? "auto" : "pan-y pinch-zoom",
           }}
+          onClick={handleBackdropClick}
         >
           <div className="relative w-full h-full max-w-[100vw] max-h-[100vh] flex">
             {/* Background Card Stack - Multiple layers for depth */}
@@ -622,6 +632,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                 style={{
                   touchAction: "pinch-zoom",
                 }}
+                onClick={(e) => e.stopPropagation()}
               >
                 {isVideoMedia ? (
                   <MediaPlayer
@@ -652,7 +663,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                     disableHoverEffects={true}
                     preferredThumbnailSize="originalSize"
                     useAllAvailableSpace={true}
-                    onClick={() => {}}
+                    onClick={handleNavigateToMedia}
                   />
                 )}
               </div>
