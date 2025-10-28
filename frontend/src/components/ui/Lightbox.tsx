@@ -63,6 +63,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
   const [hasAppliedPlayOnOpen, setHasAppliedPlayOnOpen] = useState(false);
   const [trackedMedia, setTrackedMedia] = useState<Media | null>(null);
   const lastTrackedMediaIdRef = useRef<string | null>(null);
+  const lastPointerTypeRef = useRef<string | null>(null);
 
   // Sleep prevention for slideshow
   const { enableSleepPrevention, disableSleepPrevention } =
@@ -187,6 +188,9 @@ export const Lightbox: React.FC<LightboxProps> = ({
         handlePrevious();
       }
     },
+    onSwipeUp: () => {
+      handleClose();
+    },
     enablePreview: true,
   });
 
@@ -249,9 +253,28 @@ export const Lightbox: React.FC<LightboxProps> = ({
     setHasAppliedPlayOnOpen(true);
   }, [isOpen, playOnOpen, isVideoMedia, hasAppliedPlayOnOpen]);
 
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleBackdropClick = () => {
+    const pointerType = lastPointerTypeRef.current;
+    const isTouchInteraction = pointerType === "touch" || pointerType === "pen";
+    const isCoarseEnvironment =
+      typeof window !== "undefined" &&
+      window.matchMedia("(pointer: coarse)").matches;
+
+    if (isTouchInteraction || (!pointerType && isCoarseEnvironment)) {
+      lastPointerTypeRef.current = null;
+      return;
+    }
+
+    lastPointerTypeRef.current = null;
     handleClose();
   };
+
+  const handleBackdropPointerDown = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      lastPointerTypeRef.current = event.pointerType;
+    },
+    []
+  );
 
   // Initialize mounted state
   useEffect(() => {
@@ -276,6 +299,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
 
   // Wrap onClose to handle history cleanup
   const handleClose = useCallback(() => {
+    lastPointerTypeRef.current = null;
     // If we have a lightbox history state, go back to remove it
     if (window.history.state?.lightbox) {
       window.history.back();
@@ -471,6 +495,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
     <div
       className="fixed inset-0 z-50 bg-black"
       onClick={handleBackdropClick}
+      onPointerDown={handleBackdropPointerDown}
       data-testid="lightbox"
     >
       {/* View Tracker - Track view when media is displayed */}

@@ -211,3 +211,5 @@
 [ ] Edit avatar do not update avatar optimistically.
 
 [ ] When changing tag albums, it recreates relation and therefore lose "addedAt" date.
+
+[ ] It seems my purchased credits got consumed before my plan credits.

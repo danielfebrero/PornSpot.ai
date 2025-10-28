@@ -7,13 +7,15 @@ interface AdvancedGestureConfig {
   velocityThreshold?: number;
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
+  onSwipeUp?: () => void;
+  verticalSwipeThreshold?: number;
   enablePreview?: boolean;
 }
 
 interface GestureState {
   isDragging: boolean;
   dragOffset: number;
-  direction: "left" | "right" | null;
+  direction: "left" | "right" | "up" | null;
   isZooming: boolean;
   isPinching: boolean;
 }
@@ -35,6 +37,8 @@ export function useAdvancedGestures({
   velocityThreshold = 300,
   onSwipeLeft,
   onSwipeRight,
+  onSwipeUp,
+  verticalSwipeThreshold = 140,
   enablePreview = true,
 }: AdvancedGestureConfig) {
   const [gestureState, setGestureState] = useState<GestureState>({
@@ -100,35 +104,41 @@ export function useAdvancedGestures({
       touchData.current.currentX = touch.clientX;
       touchData.current.currentY = touch.clientY;
 
-      // Check if this is more of a vertical scroll than horizontal swipe
-      if (Math.abs(deltaY) > Math.abs(deltaX) * 1.5) {
-        // More vertical than horizontal - allow native scroll
-        setGestureState((prev) => ({
-          ...prev,
-          isDragging: false,
-          dragOffset: 0,
-          direction: null,
-        }));
-        return;
-      }
+      const absDeltaX = Math.abs(deltaX);
+      const absDeltaY = Math.abs(deltaY);
+      const isVerticalDominant = absDeltaY > absDeltaX * 1.2;
 
-      // Prevent default only for horizontal swipes
-      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // Prevent default when we intend to handle the gesture ourselves
+      if (isVerticalDominant) {
+        // Only prevent default when we're detecting a meaningful upward swipe
+        if (deltaY < 0 && absDeltaY > verticalSwipeThreshold * 0.3) {
+          event.preventDefault();
+        }
+      } else if (absDeltaX > absDeltaY) {
         event.preventDefault();
       }
 
-      let direction: "left" | "right" | null = null;
-      if (enablePreview && Math.abs(deltaX) > 50) {
+      let direction: "left" | "right" | "up" | null = null;
+
+      if (isVerticalDominant && deltaY < 0 && onSwipeUp) {
+        direction = absDeltaY > verticalSwipeThreshold * 0.3 ? "up" : null;
+      } else if (enablePreview && absDeltaX > 50) {
         direction = deltaX > 0 ? "right" : "left";
       }
 
       setGestureState((prev) => ({
         ...prev,
-        dragOffset: deltaX,
+        dragOffset: direction === "up" ? 0 : deltaX,
         direction,
       }));
     },
-    [gestureState.isDragging, gestureState.isPinching, enablePreview]
+    [
+      gestureState.isDragging,
+      gestureState.isPinching,
+      enablePreview,
+      onSwipeUp,
+      verticalSwipeThreshold,
+    ]
   );
 
   const handleTouchEnd = useCallback(() => {
@@ -148,13 +158,23 @@ export function useAdvancedGestures({
     if (!touchData.current || !gestureState.isDragging) return;
 
     const deltaX = touchData.current.currentX - touchData.current.startX;
+    const deltaY = touchData.current.currentY - touchData.current.startY;
     const deltaTime = Date.now() - touchData.current.startTime;
-    const velocity = (Math.abs(deltaX) / deltaTime) * 1000; // pixels per second
+    const horizontalVelocity = (Math.abs(deltaX) / deltaTime) * 1000;
+    const verticalVelocity = (Math.abs(deltaY) / deltaTime) * 1000;
 
-    const shouldTriggerSwipe =
-      Math.abs(deltaX) > swipeThreshold || velocity > velocityThreshold;
+    const shouldTriggerHorizontalSwipe =
+      Math.abs(deltaX) > swipeThreshold ||
+      horizontalVelocity > velocityThreshold;
 
-    if (shouldTriggerSwipe) {
+    const shouldTriggerVerticalSwipe =
+      deltaY < 0 &&
+      (Math.abs(deltaY) > verticalSwipeThreshold ||
+        verticalVelocity > velocityThreshold);
+
+    if (shouldTriggerVerticalSwipe && onSwipeUp) {
+      onSwipeUp();
+    } else if (shouldTriggerHorizontalSwipe) {
       if (deltaX > 0 && onSwipeRight) {
         onSwipeRight();
       } else if (deltaX < 0 && onSwipeLeft) {
@@ -178,6 +198,8 @@ export function useAdvancedGestures({
     velocityThreshold,
     onSwipeLeft,
     onSwipeRight,
+    onSwipeUp,
+    verticalSwipeThreshold,
   ]);
 
   // Attach event listeners
