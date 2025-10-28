@@ -60,6 +60,11 @@ export const getLoraModels = (t: (key: string) => string) => [
     name: "Dynamic Pose",
     description: t("loraModels.dynaPose"),
   },
+  {
+    id: "POVfootjobSDXL",
+    name: "POV Footjob",
+    description: t("loraModels.povFootjob"),
+  },
 ];
 
 // Helper function to get lora name by ID
