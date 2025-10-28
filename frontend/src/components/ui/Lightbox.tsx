@@ -250,10 +250,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
   }, [isOpen, playOnOpen, isVideoMedia, hasAppliedPlayOnOpen]);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Only close if the backdrop itself is clicked
-    if (e.target === e.currentTarget) {
-      handleClose();
-    }
+    handleClose();
   };
 
   // Initialize mounted state
@@ -487,7 +484,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
       )}
 
       {/* Content wrapper */}
-      <div className="relative w-full h-full" onClick={handleBackdropClick}>
+      <div className="relative w-full h-full">
         {/* Swipeable Media Content with deck-of-cards layered images and zoom support */}
         <div
           ref={containerRef}
@@ -495,7 +492,6 @@ export const Lightbox: React.FC<LightboxProps> = ({
           style={{
             touchAction: isPinching ? "auto" : "pan-y pinch-zoom",
           }}
-          onClick={handleBackdropClick}
         >
           <div className="relative w-full h-full max-w-[100vw] max-h-[100vh] flex">
             {/* Background Card Stack - Multiple layers for depth */}
@@ -525,7 +521,6 @@ export const Lightbox: React.FC<LightboxProps> = ({
                     disableHoverEffects={true}
                     preferredThumbnailSize="originalSize"
                     useAllAvailableSpace={true}
-                    onClick={() => {}}
                   />
                 </div>
               </div>
@@ -562,7 +557,6 @@ export const Lightbox: React.FC<LightboxProps> = ({
                     disableHoverEffects={true}
                     preferredThumbnailSize="originalSize"
                     useAllAvailableSpace={true}
-                    onClick={() => {}}
                   />
                 </div>
               </motion.div>
@@ -599,7 +593,6 @@ export const Lightbox: React.FC<LightboxProps> = ({
                     disableHoverEffects={true}
                     preferredThumbnailSize="originalSize"
                     useAllAvailableSpace={true}
-                    onClick={() => {}}
                   />
                 </div>
               </motion.div>
