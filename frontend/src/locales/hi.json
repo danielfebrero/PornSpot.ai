@@ -1409,6 +1409,38 @@
     }
   },
   "media": {
+    "types": {
+      "image": "छवि",
+      "video": "वीडियो"
+    },
+    "actions": {
+      "view": "देखें",
+      "watch": "देखें",
+      "download": "डाउनलोड",
+      "share": "शेयर करें",
+      "like": "पसंद",
+      "bookmark": "बुकमार्क",
+      "report": "रिपोर्ट करें",
+      "delete": "हटाएँ",
+      "edit": "संपादित करें",
+      "duplicate": "डुप्लिकेट"
+    },
+    "meta": {
+      "viewImage": "{siteName} पर यह छवि देखें",
+      "watchVideo": "{siteName} पर यह वीडियो देखें",
+      "aiGeneratedImage": "{siteName} पर AI-जनित वयस्क छवि",
+      "aiGeneratedVideo": "{siteName} पर AI-जनित वयस्क वीडियो"
+    },
+    "keywords": {
+      "aiGeneratedImage": "AI जनित छवि",
+      "aiGeneratedVideo": "AI जनित वीडियो",
+      "adultImage": "वयस्क छवि",
+      "adultVideo": "वयस्क वीडियो",
+      "pornImage": "पोर्न छवि",
+      "pornVideo": "पोर्न वीडियो",
+      "aiArt": "AI कला",
+      "aiNSFWVideo": "AI NSFW वीडियो"
+    },
     "details": {
       "title": "शीर्षक",
       "description": "विवरण",
@@ -1438,17 +1470,6 @@
       "generating": "जनरेट हो रहा है...",
       "loading": "मीडिया लोड हो रहा है...",
       "saving": "सेव हो रहा है..."
-    },
-    "actions": {
-      "view": "देखें",
-      "download": "डाउनलोड",
-      "share": "शेयर करें",
-      "like": "पसंद",
-      "bookmark": "बुकमार्क",
-      "report": "रिपोर्ट करें",
-      "delete": "हटाएँ",
-      "edit": "संपादित करें",
-      "duplicate": "डुप्लिकेट"
     }
   },
   "albums": {

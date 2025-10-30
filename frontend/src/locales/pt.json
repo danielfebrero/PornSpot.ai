@@ -1410,6 +1410,38 @@
     }
   },
   "media": {
+    "types": {
+      "image": "Imagem",
+      "video": "Vídeo"
+    },
+    "actions": {
+      "view": "Ver",
+      "watch": "Assistir",
+      "download": "Baixar",
+      "share": "Compartilhar",
+      "like": "Curtir",
+      "bookmark": "Marcar",
+      "report": "Reportar",
+      "delete": "Excluir",
+      "edit": "Editar",
+      "duplicate": "Duplicar"
+    },
+    "meta": {
+      "viewImage": "Ver esta imagem em {siteName}",
+      "watchVideo": "Assistir este vídeo em {siteName}",
+      "aiGeneratedImage": "Imagem adulta gerada por IA em {siteName}",
+      "aiGeneratedVideo": "Vídeo adulto gerado por IA em {siteName}"
+    },
+    "keywords": {
+      "aiGeneratedImage": "imagem gerada por IA",
+      "aiGeneratedVideo": "vídeo gerado por IA",
+      "adultImage": "imagem adulta",
+      "adultVideo": "vídeo adulto",
+      "pornImage": "imagem pornô",
+      "pornVideo": "vídeo pornô",
+      "aiArt": "arte IA",
+      "aiNSFWVideo": "vídeo IA NSFW"
+    },
     "details": {
       "title": "Título",
       "description": "Descrição",
@@ -1439,17 +1471,6 @@
       "generating": "Gerando...",
       "loading": "Carregando mídia...",
       "saving": "Salvando..."
-    },
-    "actions": {
-      "view": "Ver",
-      "download": "Baixar",
-      "share": "Compartilhar",
-      "like": "Curtir",
-      "bookmark": "Marcar",
-      "report": "Reportar",
-      "delete": "Excluir",
-      "edit": "Editar",
-      "duplicate": "Duplicar"
     }
   },
   "albums": {

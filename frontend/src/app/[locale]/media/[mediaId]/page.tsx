@@ -41,11 +41,13 @@ export async function generateMetadata({
     mimeType: media.mimeType || "",
     url: media.url || "",
     thumbnailUrls: media.thumbnailUrls || {},
+    type:
+      media.type || (media.mimeType?.startsWith("video/") ? "video" : "image"),
   };
 
   const displayImageUrl = composeMediaUrl(getMediaDisplayUrl(safeMedia));
 
-  return generateMediaMetadata(locale, mediaId, media, displayImageUrl);
+  return generateMediaMetadata(locale, mediaId, safeMedia, displayImageUrl);
 }
 
 // NO generateStaticParams when using force-dynamic

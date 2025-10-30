@@ -2345,6 +2345,51 @@ export class DynamoDBService {
     return response;
   }
 
+  static async getAllPublicVideos(
+    limit: number = 50,
+    lastEvaluatedKey?: Record<string, any>
+  ): Promise<{
+    media: Media[];
+    lastEvaluatedKey?: Record<string, any>;
+  }> {
+    const queryParams: QueryCommandInput = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI8",
+      KeyConditionExpression:
+        "GSI8PK = :gsi8pk AND begins_with(GSI8SK, :gsi8sk)",
+      ExpressionAttributeValues: {
+        ":gsi8pk": "MEDIA_BY_TYPE_AND_CREATOR",
+        ":gsi8sk": "video#",
+        ":isPublic": "true",
+      },
+      FilterExpression: "isPublic = :isPublic",
+      ScanIndexForward: false,
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey,
+    };
+
+    const result = await docClient.send(new QueryCommand(queryParams));
+
+    const mediaEntities = (result.Items as MediaEntity[]) || [];
+
+    const media: Media[] = mediaEntities.map((entity) =>
+      this.convertMediaEntityToMedia(entity)
+    );
+
+    const response: {
+      media: Media[];
+      lastEvaluatedKey?: Record<string, any>;
+    } = {
+      media,
+    };
+
+    if (result.LastEvaluatedKey) {
+      response.lastEvaluatedKey = result.LastEvaluatedKey;
+    }
+
+    return response;
+  }
+
   static async incrementAlbumMediaCount(albumId: string): Promise<void> {
     return CounterUtil.incrementAlbumMediaCount(albumId);
   }

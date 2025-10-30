@@ -1401,6 +1401,38 @@
     }
   },
   "media": {
+    "types": {
+      "image": "Изображение",
+      "video": "Видео"
+    },
+    "actions": {
+      "view": "Посмотреть",
+      "watch": "Посмотреть",
+      "download": "Скачать",
+      "share": "Поделиться",
+      "like": "Лайк",
+      "bookmark": "Закладка",
+      "report": "Пожаловаться",
+      "delete": "Удалить",
+      "edit": "Редактировать",
+      "duplicate": "Дублировать"
+    },
+    "meta": {
+      "viewImage": "Посмотреть это изображение на {siteName}",
+      "watchVideo": "Посмотреть это видео на {siteName}",
+      "aiGeneratedImage": "ИИ-сгенерированное изображение для взрослых на {siteName}",
+      "aiGeneratedVideo": "ИИ-сгенерированное видео для взрослых на {siteName}"
+    },
+    "keywords": {
+      "aiGeneratedImage": "изображение, сгенерированное ИИ",
+      "aiGeneratedVideo": "видео, сгенерированное ИИ",
+      "adultImage": "изображение для взрослых",
+      "adultVideo": "видео для взрослых",
+      "pornImage": "порно изображение",
+      "pornVideo": "порно видео",
+      "aiArt": "ИИ искусство",
+      "aiNSFWVideo": "ИИ NSFW видео"
+    },
     "details": {
       "title": "Название",
       "description": "Описание",
@@ -1436,17 +1468,6 @@
       "generating": "Генерация...",
       "loading": "Загрузка медиа...",
       "saving": "Сохранение..."
-    },
-    "actions": {
-      "view": "Посмотреть",
-      "download": "Скачать",
-      "share": "Поделиться",
-      "like": "Лайк",
-      "bookmark": "Закладка",
-      "report": "Пожаловаться",
-      "delete": "Удалить",
-      "edit": "Редактировать",
-      "duplicate": "Дублировать"
     }
   },
   "albums": {

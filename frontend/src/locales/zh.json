@@ -1405,6 +1405,38 @@
     }
   },
   "media": {
+    "types": {
+      "image": "图片",
+      "video": "视频"
+    },
+    "actions": {
+      "view": "查看",
+      "watch": "观看",
+      "download": "下载",
+      "share": "分享",
+      "like": "点赞",
+      "bookmark": "收藏",
+      "report": "举报",
+      "delete": "删除",
+      "edit": "编辑",
+      "duplicate": "复制"
+    },
+    "meta": {
+      "viewImage": "在 {siteName} 上查看此图片",
+      "watchVideo": "在 {siteName} 上观看此视频",
+      "aiGeneratedImage": "{siteName} 上的 AI 生成成人图片",
+      "aiGeneratedVideo": "{siteName} 上的 AI 生成成人视频"
+    },
+    "keywords": {
+      "aiGeneratedImage": "AI 生成图片",
+      "aiGeneratedVideo": "AI 生成视频",
+      "adultImage": "成人图片",
+      "adultVideo": "成人视频",
+      "pornImage": "色情图片",
+      "pornVideo": "色情视频",
+      "aiArt": "AI 艺术",
+      "aiNSFWVideo": "AI NSFW 视频"
+    },
     "details": {
       "title": "标题",
       "description": "描述",
@@ -1434,17 +1466,6 @@
       "generating": "生成中...",
       "loading": "媒体加载中...",
       "saving": "保存中..."
-    },
-    "actions": {
-      "view": "查看",
-      "download": "下载",
-      "share": "分享",
-      "like": "点赞",
-      "bookmark": "收藏",
-      "report": "举报",
-      "delete": "删除",
-      "edit": "编辑",
-      "duplicate": "复制"
     }
   },
   "albums": {

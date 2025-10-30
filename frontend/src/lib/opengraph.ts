@@ -8,7 +8,7 @@ export interface OpenGraphConfig {
   keywords?: string[];
   url?: string;
   image?: string;
-  type?: "website" | "article";
+  type?: "website" | "article" | "video.other";
   siteName?: string;
   additionalKeywords?: string[];
 }
@@ -228,6 +228,7 @@ export async function generateMediaMetadata(
   locale: string,
   mediaId: string,
   media: {
+    type?: "image" | "video";
     originalFilename?: string;
     filename: string;
     metadata?: {
@@ -238,30 +239,55 @@ export async function generateMediaMetadata(
   displayImageUrl?: string
 ): Promise<Metadata> {
   const tSite = await getTranslations({ locale, namespace: "site" });
+  const tMedia = await getTranslations({ locale, namespace: "media" });
 
+  const siteName = tSite("name");
   const mediaTitle = media.originalFilename || media.filename;
-  const mediaDescription =
-    media.metadata?.prompt || `View ${mediaTitle} on ${tSite("name")}`;
-  const metaTitle = `${mediaTitle} - ${tSite("name")}`;
-  const metaDescription = `${mediaDescription}. AI-generated adult content on ${tSite(
-    "name"
-  )}.`;
+  const isVideo = media.type === "video";
 
-  const mediaKeywords = [
-    "AI generated image",
-    "adult content",
-    "porn image",
-    "AI art",
-    ...(media.metadata?.tags || []),
-  ];
+  const typeLabel = isVideo ? tMedia("types.video") : tMedia("types.image");
+  const promptDescription = media.metadata?.prompt?.trim();
+  const fallbackDescription = isVideo
+    ? tMedia("meta.watchVideo", { siteName })
+    : tMedia("meta.viewImage", { siteName });
+
+  const metaDescription = promptDescription
+    ? `${promptDescription}. ${
+        isVideo
+          ? tMedia("meta.aiGeneratedVideo", { siteName })
+          : tMedia("meta.aiGeneratedImage", { siteName })
+      }`
+    : `${fallbackDescription}. ${
+        isVideo
+          ? tMedia("meta.aiGeneratedVideo", { siteName })
+          : tMedia("meta.aiGeneratedImage", { siteName })
+      }`;
+
+  const baseKeywords = isVideo
+    ? [
+        tMedia("keywords.aiGeneratedVideo"),
+        tMedia("keywords.adultVideo"),
+        tMedia("keywords.pornVideo"),
+        tMedia("keywords.aiNSFWVideo"),
+      ]
+    : [
+        tMedia("keywords.aiGeneratedImage"),
+        tMedia("keywords.adultImage"),
+        tMedia("keywords.pornImage"),
+        tMedia("keywords.aiArt"),
+      ];
+
+  const keywords = Array.from(
+    new Set([...baseKeywords, typeLabel, ...(media.metadata?.tags || [])])
+  ).filter(Boolean);
 
   return generateOpenGraphMetadata({
     locale,
-    title: metaTitle,
+    title: `${mediaTitle} (${typeLabel}) - ${siteName}`,
     description: metaDescription,
-    keywords: mediaKeywords,
+    keywords,
     url: generateSiteUrl(locale, `media/${mediaId}`),
     image: ensureAbsoluteUrl(displayImageUrl),
-    type: "article",
+    type: isVideo ? "video.other" : "article",
   });
 }

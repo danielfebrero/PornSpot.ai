@@ -241,3 +241,7 @@
 [ ] On user profile page, section for highlighted content.
 
 [x] Sort albums by most recent items added.
+
+[ ] Images and video page split by generation date.
+
+[ ] Current streak 90 + 1 = 1

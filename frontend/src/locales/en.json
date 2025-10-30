@@ -1410,6 +1410,38 @@
     }
   },
   "media": {
+    "types": {
+      "image": "Image",
+      "video": "Video"
+    },
+    "actions": {
+      "view": "View",
+      "watch": "Watch",
+      "download": "Download",
+      "share": "Share",
+      "like": "Like",
+      "bookmark": "Bookmark",
+      "report": "Report",
+      "delete": "Delete",
+      "edit": "Edit",
+      "duplicate": "Duplicate"
+    },
+    "meta": {
+      "viewImage": "View this image on {siteName}",
+      "watchVideo": "Watch this video on {siteName}",
+      "aiGeneratedImage": "AI-generated adult image on {siteName}",
+      "aiGeneratedVideo": "AI-generated adult video on {siteName}"
+    },
+    "keywords": {
+      "aiGeneratedImage": "AI generated image",
+      "aiGeneratedVideo": "AI generated video",
+      "adultImage": "adult image",
+      "adultVideo": "adult video",
+      "pornImage": "porn image",
+      "pornVideo": "porn video",
+      "aiArt": "AI art",
+      "aiNSFWVideo": "AI NSFW video"
+    },
     "details": {
       "title": "Title",
       "description": "Description",
@@ -1439,17 +1471,6 @@
       "generating": "Generating...",
       "loading": "Loading media...",
       "saving": "Saving..."
-    },
-    "actions": {
-      "view": "View",
-      "download": "Download",
-      "share": "Share",
-      "like": "Like",
-      "bookmark": "Bookmark",
-      "report": "Report",
-      "delete": "Delete",
-      "edit": "Edit",
-      "duplicate": "Duplicate"
     }
   },
   "albums": {

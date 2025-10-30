@@ -1015,6 +1015,29 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref MediaTable
 
+  GetPublicVideosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-get-public-videos-v1"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      ImageConfig:
+        Command: ["functions/media/get-public-videos.handler"]
+      Timeout: 60
+      MemorySize: 512
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /media/videos
+            Method: GET
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+
   DownloadMediaZipFunction:
     Type: AWS::Serverless::Function
     Properties:

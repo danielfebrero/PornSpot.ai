@@ -182,3 +182,16 @@ export async function fetchAllPublicMedia(): Promise<Media[]> {
   const result = await handleResponse<Media[]>(response);
   return result.data || [];
 }
+
+export async function fetchAllPublicVideos(): Promise<Media[]> {
+  try {
+    const response = await fetch(`${API_URL}/media/videos`, {
+      next: { tags: ["medias", "videos"] },
+    });
+    const result = await handleResponse<Media[]>(response);
+    return result.data?.filter((item) => item.type === "video") || [];
+  } catch (error) {
+    console.error("Failed to fetch public videos:", error);
+    return [];
+  }
+}
