@@ -59,15 +59,14 @@ const handleGetFailedI2VJobs = async (
     }
 
     const mediaIdSet = new Set(all.map((job) => job.mediaId).filter(Boolean));
+    const mediaIdsArray = Array.from(mediaIdSet);
 
     // Batch fetch all media at once instead of sequential lookups
-    const mediaList = await DynamoDBService.batchGetMediaByIds(
-      Array.from(mediaIdSet)
-    );
+    const mediaList = await DynamoDBService.batchGetMediaByIds(mediaIdsArray);
 
     // Create a map for quick lookup
     const mediaMap: Record<string, any> = {};
-    Array.from(mediaIdSet).forEach((mediaId, index) => {
+    mediaIdsArray.forEach((mediaId, index) => {
       if (mediaList[index]) {
         mediaMap[mediaId] = mediaList[index];
       }

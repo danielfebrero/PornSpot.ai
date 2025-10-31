@@ -65,15 +65,14 @@ const handleGetIncompleteI2VJobs = async (
 
     // Fetch distinct media entities (source images) in batch.
     const mediaIdSet = new Set(all.map((j) => j.mediaId).filter(Boolean));
+    const mediaIdsArray = Array.from(mediaIdSet);
 
     // Batch fetch all media at once instead of sequential lookups
-    const mediaList = await DynamoDBService.batchGetMediaByIds(
-      Array.from(mediaIdSet)
-    );
+    const mediaList = await DynamoDBService.batchGetMediaByIds(mediaIdsArray);
 
     // Create a map for quick lookup
     const mediaMap: Record<string, any> = {};
-    Array.from(mediaIdSet).forEach((mediaId, index) => {
+    mediaIdsArray.forEach((mediaId, index) => {
       if (mediaList[index]) {
         mediaMap[mediaId] = mediaList[index];
       }
