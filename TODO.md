@@ -245,3 +245,5 @@
 [ ] Images and video page split by generation date.
 
 [ ] Current streak 90 + 1 = 1
+
+[ ] Set up sales channel events for GA.
