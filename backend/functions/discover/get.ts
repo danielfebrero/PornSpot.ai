@@ -139,10 +139,10 @@ async function enrichAlbumsWithPreview(albums: Album[]): Promise<Album[]> {
     }))
   );
 
-  // Collect all unique media IDs across all albums
+  // Collect all unique media IDs across all albums and sort for deterministic ordering
   const allMediaIds = Array.from(
     new Set(albumMediaIds.flatMap((am) => am.mediaIds))
-  );
+  ).sort();
 
   // Batch fetch all media at once
   const allMedia = await DynamoDBService.batchGetMediaByIds(allMediaIds);

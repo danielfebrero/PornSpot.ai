@@ -6010,14 +6010,16 @@ export class DynamoDBService {
   > {
     if (transactions.length === 0) return [];
 
-    // Extract unique user IDs (excluding TREASURE)
+    // Extract unique user IDs (excluding TREASURE) and sort for deterministic ordering
     const userIds = Array.from(
       new Set(
         transactions.map((t) =>
           t.fromUserId === "TREASURE" ? t.toUserId : t.fromUserId
         )
       )
-    ).filter((id) => id !== "TREASURE");
+    )
+      .filter((id) => id !== "TREASURE")
+      .sort(); // Ensure deterministic ordering for consistent batch processing
 
     // Batch fetch all users at once
     const users = await this.batchGetUsersByIds(userIds);
