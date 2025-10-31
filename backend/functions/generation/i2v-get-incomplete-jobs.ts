@@ -63,21 +63,20 @@ const handleGetIncompleteI2VJobs = async (
       });
     }
 
-    // Fetch distinct media entities (source images) in parallel.
+    // Fetch distinct media entities (source images) in batch.
     const mediaIdSet = new Set(all.map((j) => j.mediaId).filter(Boolean));
+    const mediaIdsArray = Array.from(mediaIdSet);
+
+    // Batch fetch all media at once instead of sequential lookups
+    const mediaList = await DynamoDBService.batchGetMediaByIds(mediaIdsArray);
+
+    // Create a map for quick lookup
     const mediaMap: Record<string, any> = {};
-    await Promise.all(
-      Array.from(mediaIdSet).map(async (mid) => {
-        try {
-          const media = await DynamoDBService.getMedia(mid);
-          if (media) {
-            mediaMap[mid] = media;
-          }
-        } catch (err) {
-          console.error("Failed to load media for I2V job", mid, err);
-        }
-      })
-    );
+    mediaIdsArray.forEach((mediaId, index) => {
+      if (mediaList[index]) {
+        mediaMap[mediaId] = mediaList[index];
+      }
+    });
 
     // Shape response
     let responseItems: IncompleteJobResponseItem[] = all.map((job) => ({

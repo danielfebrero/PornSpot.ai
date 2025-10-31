@@ -17,7 +17,7 @@ import { ResponseUtil } from "@shared/utils/response";
 import { PaginationUtil } from "@shared/utils/pagination";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 import { UserAuthUtil } from "@shared/utils/user-auth";
-import { Album, DynamoDBService, Media } from "@shared";
+import { Album, DynamoDBService, Media, ThumbnailUrls } from "@shared";
 import {
   DynamoDBDiscoverService,
   ContentDiversificationUtil,
@@ -121,14 +121,55 @@ function parseDiscoverRequest(
  * Attach lightweight content previews to albums so the frontend can render cover media
  * without issuing additional round trips per album.
  */
+/**
+ * Efficiently enrich albums with content preview by batching all media fetches
+ * across all albums instead of processing each album independently
+ */
 async function enrichAlbumsWithPreview(albums: Album[]): Promise<Album[]> {
-  return Promise.all(
+  if (albums.length === 0) return [];
+
+  // Fetch all album-media relationships in parallel
+  const albumMediaIds = await Promise.all(
     albums.map(async (album) => ({
-      ...album,
-      contentPreview:
-        (await DynamoDBService.getContentPreviewForAlbum(album.id)) || null,
+      albumId: album.id,
+      mediaIds: (await DynamoDBService.getMediaIdsForAlbum(album.id)).slice(
+        0,
+        10
+      ),
     }))
   );
+
+  // Collect all unique media IDs across all albums and sort for deterministic ordering
+  const allMediaIds = Array.from(
+    new Set(albumMediaIds.flatMap((am) => am.mediaIds))
+  ).sort();
+
+  // Batch fetch all media at once
+  const allMedia = await DynamoDBService.batchGetMediaByIds(allMediaIds);
+
+  // Create a map for quick lookup
+  const mediaMap = new Map<string, Media>();
+  allMediaIds.forEach((mediaId, index) => {
+    if (allMedia[index]) {
+      mediaMap.set(mediaId, allMedia[index]!);
+    }
+  });
+
+  // Build enriched albums with previews
+  return albums.map((album, index) => {
+    const mediaIds = albumMediaIds[index]?.mediaIds || [];
+    const mediaItems = mediaIds
+      .map((id) => mediaMap.get(id))
+      .filter((m): m is Media => m !== undefined);
+    const thumbnails: ThumbnailUrls[] = mediaItems
+      .map((m) => m.thumbnailUrls)
+      .filter((t): t is ThumbnailUrls => t !== undefined);
+
+    return {
+      ...album,
+      contentPreview: thumbnails.length > 0 ? thumbnails : undefined,
+    };
+  });
 }
 
 /**

@@ -1423,6 +1423,54 @@ export class DynamoDBService {
     }
   }
 
+  /**
+   * Batch get media by IDs (public API)
+   * Returns media in the same order as input mediaIds, with null for missing media
+   */
+  static async batchGetMediaByIds(
+    mediaIds: string[]
+  ): Promise<(Media | null)[]> {
+    if (mediaIds.length === 0) return [];
+
+    const batchSize = 100; // DynamoDB BatchGet limit
+    const allMedia: (Media | null)[] = [];
+
+    for (let i = 0; i < mediaIds.length; i += batchSize) {
+      const batch = mediaIds.slice(i, i + batchSize);
+      const requestItems = batch.map((mediaId) => ({
+        PK: `MEDIA#${mediaId}`,
+        SK: "METADATA",
+      }));
+
+      const result = await docClient.send(
+        new BatchGetCommand({
+          RequestItems: {
+            [TABLE_NAME]: {
+              Keys: requestItems,
+            },
+          },
+        })
+      );
+
+      const batchMediaEntities = (result.Responses?.[TABLE_NAME] ||
+        []) as MediaEntity[];
+
+      // Maintain order and include nulls for missing media
+      batch.forEach((mediaId) => {
+        const mediaEntity = batchMediaEntities.find(
+          (m) => m.id === mediaId || m.PK === `MEDIA#${mediaId}`
+        );
+        if (mediaEntity) {
+          allMedia.push(this.convertMediaEntityToMedia(mediaEntity));
+        } else {
+          allMedia.push(null);
+        }
+      });
+    }
+
+    return allMedia;
+  }
+
   static async findMediaById(mediaId: string): Promise<MediaEntity | null> {
     // Use GSI2 for efficient direct media lookup by ID
     try {
@@ -2201,13 +2249,12 @@ export class DynamoDBService {
   ): Promise<ThumbnailUrls[]> {
     const mediaIds = await this.getMediaIdsForAlbum(albumId);
 
-    const mediaPromises = mediaIds.map((mediaId) => this.getMedia(mediaId));
+    // Use batch get instead of Promise.all with individual gets
+    const mediaResults = await this.batchGetMediaByIds(mediaIds.slice(0, 10));
 
-    const mediaResults = await Promise.all(mediaPromises);
     return mediaResults
-      .slice(0, 10) // Limit to first 10 media items for preview
       .filter((m) => m !== null)
-      .map((m) => m.thumbnailUrls) as ThumbnailUrls[];
+      .map((m) => m!.thumbnailUrls) as ThumbnailUrls[];
   }
 
   static async listAlbumMedia(
@@ -2245,12 +2292,9 @@ export class DynamoDBService {
       return bAdded.localeCompare(aAdded);
     });
 
-    // Get the actual media records
-    const mediaPromises = sortedRelationships.map((rel) =>
-      this.getMedia(rel.mediaId)
-    );
-
-    const mediaResults = await Promise.all(mediaPromises);
+    // Get the actual media records using batch get
+    const mediaIds = sortedRelationships.map((rel) => rel.mediaId);
+    const mediaResults = await this.batchGetMediaByIds(mediaIds);
     const media = mediaResults.filter((m) => m !== null) as Media[];
 
     const response: {
@@ -2501,6 +2545,47 @@ export class DynamoDBService {
     );
 
     return (result.Item as UserEntity) || null;
+  }
+
+  /**
+   * Batch get users by IDs (public API)
+   * Returns users in the same order as input userIds, with null for missing users
+   */
+  static async batchGetUsersByIds(
+    userIds: string[]
+  ): Promise<(UserEntity | null)[]> {
+    if (userIds.length === 0) return [];
+
+    const batchSize = 100; // DynamoDB BatchGet limit
+    const allUsers: (UserEntity | null)[] = [];
+
+    for (let i = 0; i < userIds.length; i += batchSize) {
+      const batch = userIds.slice(i, i + batchSize);
+      const requestItems = batch.map((userId) => ({
+        PK: `USER#${userId}`,
+        SK: "METADATA",
+      }));
+
+      const result = await docClient.send(
+        new BatchGetCommand({
+          RequestItems: {
+            [TABLE_NAME]: {
+              Keys: requestItems,
+            },
+          },
+        })
+      );
+
+      const batchUsers = (result.Responses?.[TABLE_NAME] || []) as UserEntity[];
+
+      // Maintain order and include nulls for missing users
+      batch.forEach((userId) => {
+        const user = batchUsers.find((u) => u.userId === userId);
+        allUsers.push(user || null);
+      });
+    }
+
+    return allUsers;
   }
 
   static async getUserByGoogleId(googleId: string): Promise<UserEntity | null> {
@@ -5903,6 +5988,77 @@ export class DynamoDBService {
       timestamp: transaction.createdAt,
       metadata: transaction.metadata,
     };
+  }
+
+  /**
+   * Batch convert TransactionEntities to admin API format with batched username lookup
+   * This is much more efficient than calling convertTransactionEntityToAdminFormat in a loop
+   */
+  static async batchConvertTransactionEntitiesToAdminFormat(
+    transactions: TransactionEntity[]
+  ): Promise<
+    {
+      id: string;
+      userId: string;
+      username: string;
+      type: string;
+      amount: number;
+      status: string;
+      timestamp: string;
+      metadata?: Record<string, any>;
+    }[]
+  > {
+    if (transactions.length === 0) return [];
+
+    // Extract unique user IDs (excluding TREASURE) and sort for deterministic ordering
+    const userIds = Array.from(
+      new Set(
+        transactions.map((t) =>
+          t.fromUserId === "TREASURE" ? t.toUserId : t.fromUserId
+        )
+      )
+    )
+      .filter((id) => id !== "TREASURE")
+      .sort(); // Ensure deterministic ordering for consistent batch processing
+
+    // Batch fetch all users at once
+    const users = await this.batchGetUsersByIds(userIds);
+
+    // Create a map for quick lookup
+    const userMap = new Map<string, UserEntity | null>();
+    userIds.forEach((userId, index) => {
+      const user = users[index];
+      if (user !== undefined) {
+        userMap.set(userId, user);
+      }
+    });
+
+    // Transform all transactions
+    return transactions.map((transaction) => {
+      const relevantUserId =
+        transaction.fromUserId === "TREASURE"
+          ? transaction.toUserId
+          : transaction.fromUserId;
+
+      let username = "Unknown";
+      if (relevantUserId === "TREASURE") {
+        username = "System";
+      } else {
+        const user = userMap.get(relevantUserId);
+        username = user?.username || "Unknown";
+      }
+
+      return {
+        id: transaction.transactionId,
+        userId: relevantUserId,
+        username,
+        type: transaction.transactionType,
+        amount: transaction.amount,
+        status: transaction.status,
+        timestamp: transaction.createdAt,
+        metadata: transaction.metadata,
+      };
+    });
   }
 
   // ===== PSC Configuration Methods =====

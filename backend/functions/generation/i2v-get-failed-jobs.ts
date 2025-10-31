@@ -59,24 +59,18 @@ const handleGetFailedI2VJobs = async (
     }
 
     const mediaIdSet = new Set(all.map((job) => job.mediaId).filter(Boolean));
-    const mediaMap: Record<string, any> = {};
+    const mediaIdsArray = Array.from(mediaIdSet);
 
-    await Promise.all(
-      Array.from(mediaIdSet).map(async (mediaId) => {
-        try {
-          const media = await DynamoDBService.getMedia(mediaId);
-          if (media) {
-            mediaMap[mediaId] = media;
-          }
-        } catch (error) {
-          console.error(
-            "Failed to load media for failed I2V job",
-            mediaId,
-            error
-          );
-        }
-      })
-    );
+    // Batch fetch all media at once instead of sequential lookups
+    const mediaList = await DynamoDBService.batchGetMediaByIds(mediaIdsArray);
+
+    // Create a map for quick lookup
+    const mediaMap: Record<string, any> = {};
+    mediaIdsArray.forEach((mediaId, index) => {
+      if (mediaList[index]) {
+        mediaMap[mediaId] = mediaList[index];
+      }
+    });
 
     let responseItems: FailedJobResponseItem[] = all.map((job) => ({
       jobId: job.jobId,
