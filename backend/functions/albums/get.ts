@@ -127,24 +127,71 @@ const handleGetAlbums = async (
 
   let albums: Album[];
 
-  albums = includeMediaIds
-    ? await Promise.all(
-        result.albums.map(async (album) => ({
-          ...album,
-          mediaIds: (await DynamoDBService.getMediaIdsForAlbum(album.id)) || [],
-        }))
+  // Efficiently fetch media IDs for all albums if requested
+  if (includeMediaIds) {
+    // Batch fetch media IDs for all albums
+    const albumMediaIdsResults = await Promise.all(
+      result.albums.map((album) =>
+        DynamoDBService.getMediaIdsForAlbum(album.id)
       )
-    : result.albums;
+    );
 
-  albums = includeContentPreview
-    ? await Promise.all(
-        albums.map(async (album) => ({
-          ...album,
-          contentPreview:
-            (await DynamoDBService.getContentPreviewForAlbum(album.id)) || null,
-        }))
-      )
-    : albums;
+    albums = result.albums.map((album, index) => ({
+      ...album,
+      mediaIds: albumMediaIdsResults[index] || [],
+    }));
+  } else {
+    albums = result.albums;
+  }
+
+  // Efficiently fetch content previews for all albums if requested
+  if (includeContentPreview) {
+    // Collect all album IDs
+    const albumIds = albums.map((album) => album.id);
+
+    // Fetch all media IDs for all albums in parallel
+    const allAlbumMediaIds = await Promise.all(
+      albumIds.map(async (albumId) => ({
+        albumId,
+        mediaIds: (await DynamoDBService.getMediaIdsForAlbum(albumId)).slice(
+          0,
+          10
+        ),
+      }))
+    );
+
+    // Collect all unique media IDs across all albums
+    const allMediaIds = Array.from(
+      new Set(allAlbumMediaIds.flatMap((am) => am.mediaIds))
+    ).sort();
+
+    // Batch fetch all media at once
+    const allMedia = await DynamoDBService.batchGetMediaByIds(allMediaIds);
+
+    // Create a map for quick lookup
+    const mediaMap = new Map<string, any>();
+    allMediaIds.forEach((mediaId, index) => {
+      if (allMedia[index]) {
+        mediaMap.set(mediaId, allMedia[index]);
+      }
+    });
+
+    // Enrich albums with content previews
+    albums = albums.map((album) => {
+      const albumMediaIds =
+        allAlbumMediaIds.find((am) => am.albumId === album.id)?.mediaIds || [];
+      const thumbnails = albumMediaIds
+        .map((id) => mediaMap.get(id))
+        .filter((m) => m !== undefined)
+        .map((m) => m.thumbnailUrls)
+        .filter((t) => t !== undefined);
+
+      return {
+        ...album,
+        contentPreview: thumbnails.length > 0 ? thumbnails : undefined,
+      };
+    });
+  }
 
   // Build typed paginated payload
   const payload = PaginationUtil.createPaginatedResponse(
