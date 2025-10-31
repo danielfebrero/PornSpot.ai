@@ -72,13 +72,10 @@ const handlePSCTransactions = async (
     });
 
     // Convert transaction entities to admin API format with username lookup
-    const transactionsWithUsernames = await Promise.all(
-      result.items.map(async (transaction) => {
-        return await DynamoDBService.convertTransactionEntityToAdminFormat(
-          transaction
-        );
-      })
-    );
+    const transactionsWithUsernames =
+      await DynamoDBService.batchConvertTransactionEntitiesToAdminFormat(
+        result.items
+      );
 
     // Build typed paginated payload
     const payload = PaginationUtil.createPaginatedResponse(

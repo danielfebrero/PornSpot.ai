@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseUtil } from "@shared/utils/response";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { PSCPayoutService } from "@shared/utils/psc-payout";
-import { DailyBudgetEntity } from "@shared/shared-types";
+import { DailyBudgetEntity, PSCSystemConfig } from "@shared/shared-types";
 import { LambdaHandlerUtil } from "@shared/utils/lambda-handler";
 
 /**
@@ -73,15 +73,22 @@ async function handleGetBudgets(
 
     console.log(`📅 Fetching budgets for ${limitedDates.length} dates`);
 
-    // Fetch budgets for each date
-    const budgets: DailyBudgetEntity[] = [];
-
-    // Get system config once for mock budgets
+    // Get system config once for all operations
     const systemConfig = await PSCPayoutService.getSystemConfig();
 
-    for (const dateString of limitedDates) {
-      // Try to get budget from database
-      const budget = await DynamoDBService.getBudgetByDate(dateString);
+    // Fetch all budgets in parallel instead of sequentially
+    const budgetResults = await Promise.all(
+      limitedDates.map((dateString) =>
+        DynamoDBService.getBudgetByDate(dateString)
+      )
+    );
+
+    const budgets: DailyBudgetEntity[] = [];
+
+    // Process results and create missing budgets
+    for (let i = 0; i < limitedDates.length; i++) {
+      const dateString = limitedDates[i]!;
+      const budget = budgetResults[i];
 
       if (budget) {
         budgets.push(budget);
@@ -123,29 +130,27 @@ async function handleGetBudgets(
       }
     }
 
-    // Transform to frontend format
-    const transformedBudgets = await Promise.all(
-      budgets.map(async (budget) => ({
-        date: budget.date,
-        totalBudget: budget.totalBudget,
-        remainingBudget: budget.remainingBudget,
-        distributedAmount: budget.totalBudget - budget.remainingBudget,
-        totalActivity:
-          (budget.totalViews || 0) +
-          (budget.totalLikes || 0) +
-          (budget.totalComments || 0) +
-          (budget.totalBookmarks || 0) +
-          (budget.totalProfileViews || 0),
-        weightedActivity: await calculateWeightedActivity(budget),
-        currentRates: {
-          viewRate: budget.currentRates?.viewRate || 0,
-          likeRate: budget.currentRates?.likeRate || 0,
-          commentRate: budget.currentRates?.commentRate || 0,
-          bookmarkRate: budget.currentRates?.bookmarkRate || 0,
-          profileViewRate: budget.currentRates?.profileViewRate || 0,
-        },
-      }))
-    );
+    // Transform to frontend format (no longer async since we have systemConfig)
+    const transformedBudgets = budgets.map((budget) => ({
+      date: budget.date,
+      totalBudget: budget.totalBudget,
+      remainingBudget: budget.remainingBudget,
+      distributedAmount: budget.totalBudget - budget.remainingBudget,
+      totalActivity:
+        (budget.totalViews || 0) +
+        (budget.totalLikes || 0) +
+        (budget.totalComments || 0) +
+        (budget.totalBookmarks || 0) +
+        (budget.totalProfileViews || 0),
+      weightedActivity: calculateWeightedActivitySync(budget, systemConfig),
+      currentRates: {
+        viewRate: budget.currentRates?.viewRate || 0,
+        likeRate: budget.currentRates?.likeRate || 0,
+        commentRate: budget.currentRates?.commentRate || 0,
+        bookmarkRate: budget.currentRates?.bookmarkRate || 0,
+        profileViewRate: budget.currentRates?.profileViewRate || 0,
+      },
+    }));
 
     console.log(`✅ Retrieved ${transformedBudgets.length} budget records`);
     return ResponseUtil.success(event, transformedBudgets);
@@ -327,13 +332,12 @@ async function handleDeleteBudget(
 }
 
 /**
- * Calculate weighted activity for a budget
+ * Calculate weighted activity for a budget (synchronous version when config is already available)
  */
-async function calculateWeightedActivity(
-  budget: DailyBudgetEntity
-): Promise<number> {
-  const config = await PSCPayoutService.getSystemConfig();
-
+function calculateWeightedActivitySync(
+  budget: DailyBudgetEntity,
+  config: PSCSystemConfig
+): number {
   return (
     (budget.totalViews || 0) * config.rateWeights.view +
     (budget.totalLikes || 0) * config.rateWeights.like +
@@ -341,6 +345,16 @@ async function calculateWeightedActivity(
     (budget.totalBookmarks || 0) * config.rateWeights.bookmark +
     (budget.totalProfileViews || 0) * config.rateWeights.profileView
   );
+}
+
+/**
+ * Calculate weighted activity for a budget (async version for backward compatibility)
+ */
+async function calculateWeightedActivity(
+  budget: DailyBudgetEntity
+): Promise<number> {
+  const config = await PSCPayoutService.getSystemConfig();
+  return calculateWeightedActivitySync(budget, config);
 }
 
 export const handler = LambdaHandlerUtil.withAdminAuth(handlePSCBudgets);
