@@ -45,7 +45,7 @@ import {
   Plus,
   Minus,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 import { useDevice } from "@/contexts/DeviceContext";
 import { useUserContext } from "@/contexts/UserContext";
 
@@ -822,9 +822,7 @@ export default function ProfileComponent({
                 >
                   <stat.icon className={cn("w-5 h-5 mb-1", stat.color)} />
                   <div className="text-lg font-bold text-foreground">
-                    {stat.value >= 1000
-                      ? `${(stat.value / 1000).toFixed(1)}k`
-                      : stat.value}
+                    {formatNumber(stat.value)}
                   </div>
                   <div className="text-[10px] text-muted-foreground leading-tight line-clamp-2">
                     {stat.label}
@@ -1530,7 +1528,7 @@ export default function ProfileComponent({
                       className={cn("w-8 h-8 mb-2", insight.color)}
                     />
                     <div className="text-2xl font-bold text-foreground mb-1">
-                      {insight.value.toLocaleString()}
+                      {formatNumber(insight.value)}
                     </div>
                     <div className="text-sm text-muted-foreground leading-tight">
                       {insight.label}

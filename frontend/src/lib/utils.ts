@@ -306,3 +306,20 @@ export function getThumbnailSizeName(
 
   return sizeNames[size];
 }
+
+/**
+ * Format large numbers with K notation for numbers > 1000
+ * Example: 22823 -> "22.8K", 950 -> "950"
+ */
+export function formatNumber(value: number | undefined | null): string {
+  if (value === null || value === undefined || value === 0) {
+    return "0";
+  }
+
+  if (value > 1000) {
+    const formatted = (value / 1000).toFixed(1);
+    return `${formatted}K`;
+  }
+
+  return value.toString();
+}

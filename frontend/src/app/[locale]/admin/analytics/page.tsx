@@ -33,6 +33,7 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { useAdminAnalyticsQuery } from "@/hooks/queries/useAdminAnalyticsQuery";
+import { formatNumber } from "@/lib/utils";
 
 // Register Chart.js components
 ChartJS.register(
@@ -872,14 +873,14 @@ function SummaryCard({
         <div className="flex-1">
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
           <p className="text-2xl font-bold text-foreground">
-            {value.toLocaleString()}
+            {formatNumber(value)}
           </p>
         </div>
       </div>
       <div className="mt-4 flex items-center gap-2 text-sm">
         <TrendingUp className="h-4 w-4 text-green-500" />
         <span className="font-medium text-foreground">
-          +{change.toLocaleString()}
+          +{formatNumber(change)}
         </span>
         <span className="text-muted-foreground">{changeLabel}</span>
       </div>
