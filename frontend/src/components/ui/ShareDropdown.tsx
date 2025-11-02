@@ -63,7 +63,8 @@ export const ShareMenuItems: React.FC<ShareMenuItemsProps> = ({
 
   const getShareUrlWithoutProtocol = () => {
     const fullUrl = getShareUrl();
-    return fullUrl.replace(/^https?:\/\//, "");
+    const withoutProtocol = fullUrl.replace(/^https?:\/\//, "");
+    return withoutProtocol.replace(/^www\.pornspot\.ai/i, "PornSpot.ai");
   };
 
   const getXShareText = () => {
