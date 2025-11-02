@@ -100,6 +100,10 @@ export function createMediaEntity(
     GSI8PK: "MEDIA_BY_TYPE_AND_CREATOR",
     GSI8SK: `${options.type}#${options.userId}#${now}#${options.mediaId}`,
 
+    // GSI9: Recent media by type
+    GSI9PK: "RECENT_MEDIA_BY_TYPE",
+    GSI9SK: `${options.type}#${now}#${options.mediaId}`,
+
     // Entity metadata
     EntityType: "Media" as const,
     id: options.mediaId,

@@ -90,6 +90,8 @@ export interface MediaEntity extends BaseEntity {
   GSI7SK: string; // {createdAt}
   GSI8PK?: string; // MEDIA_BY_TYPE_AND_CREATOR
   GSI8SK?: string; // {type}#{createdBy}#{createdAt}#{mediaId}
+  GSI9PK?: string; // RECENT_MEDIA_BY_TYPE
+  GSI9SK?: string; // {type}#{createdAt}#{mediaId}
   EntityType: "Media";
   id: string;
   filename: string;

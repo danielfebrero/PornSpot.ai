@@ -1769,12 +1769,12 @@ export class DynamoDBService {
   }> {
     const queryParams: any = {
       TableName: TABLE_NAME,
-      IndexName: "GSI8",
+      IndexName: "GSI9",
       KeyConditionExpression:
-        "GSI8PK = :gsi8pk AND begins_with(GSI8SK, :gsi8sk)",
+        "GSI9PK = :gsi9pk AND begins_with(GSI9SK, :gsi9sk)",
       ExpressionAttributeValues: {
-        ":gsi8pk": "MEDIA_BY_TYPE_AND_CREATOR",
-        ":gsi8sk": `${type}#`,
+        ":gsi9pk": "RECENT_MEDIA_BY_TYPE",
+        ":gsi9sk": `${type}#`,
       },
       Limit: limit,
       ScanIndexForward: false, // newest first (descending order by createdAt in SK)

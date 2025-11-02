@@ -97,6 +97,10 @@ Resources:
           AttributeType: S
         - AttributeName: GSI8SK
           AttributeType: S
+        - AttributeName: GSI9PK
+          AttributeType: S
+        - AttributeName: GSI9SK
+          AttributeType: S
         - AttributeName: isPublic
           AttributeType: S
         - AttributeName: createdAt
@@ -170,6 +174,14 @@ Resources:
             - AttributeName: GSI8PK
               KeyType: HASH
             - AttributeName: GSI8SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI9
+          KeySchema:
+            - AttributeName: GSI9PK
+              KeyType: HASH
+            - AttributeName: GSI9SK
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
