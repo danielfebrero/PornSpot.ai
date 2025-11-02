@@ -16,16 +16,22 @@ interface InfiniteAdminMediaData {
   pageParams: unknown[];
 }
 
+interface AdminMediaQueryParams {
+  limit?: number;
+  type?: "image" | "video";
+}
+
 // Hook for fetching all media with infinite scroll (admin view)
-export function useAdminMediaQuery(params: { limit?: number } = {}) {
-  const { limit = 20 } = params;
+export function useAdminMediaQuery(params: AdminMediaQueryParams = {}) {
+  const { limit = 20, type } = params;
 
   return useInfiniteQuery({
-    queryKey: queryKeys.admin.media.all(),
+    queryKey: queryKeys.admin.media.all(type ? { type } : undefined),
     queryFn: async ({ pageParam }): Promise<AdminMediaResponse> => {
       return await adminMediaApi.getMediaList({
         limit,
         cursor: pageParam,
+        ...(type && { type }),
       });
     },
     initialPageParam: undefined as string | undefined,
@@ -42,7 +48,7 @@ export function useAdminMediaQuery(params: { limit?: number } = {}) {
 }
 
 // Helper function to extract all media from infinite query
-export function useAdminMediaData(params: { limit?: number } = {}) {
+export function useAdminMediaData(params: AdminMediaQueryParams = {}) {
   const query = useAdminMediaQuery(params);
 
   const media = query.data?.pages.flatMap((page) => page.media) ?? [];

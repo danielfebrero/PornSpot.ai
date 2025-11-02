@@ -14,6 +14,11 @@ export default function AdminMediaPage() {
   const t = useTranslations("admin.media");
   const tCommon = useTranslations("common");
 
+  // Media type filter state
+  const [mediaTypeFilter, setMediaTypeFilter] = useState<
+    "all" | "image" | "video"
+  >("all");
+
   const {
     media,
     isLoading: loading,
@@ -21,7 +26,10 @@ export default function AdminMediaPage() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useAdminMediaData({ limit: 20 });
+  } = useAdminMediaData({
+    limit: 20,
+    type: mediaTypeFilter === "all" ? undefined : mediaTypeFilter,
+  });
 
   // Select-many state
   const [isSelecting, setIsSelecting] = useState(false);
@@ -200,6 +208,45 @@ export default function AdminMediaPage() {
             </ShareDropdown>
           </div>
         )}
+      </div>
+
+      {/* Media Type Filter */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium text-muted-foreground">
+          {tCommon("filter")}:
+        </span>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setMediaTypeFilter("all")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              mediaTypeFilter === "all"
+                ? "bg-admin-primary text-admin-accent-foreground shadow-md"
+                : "bg-card text-foreground hover:bg-muted border border-border"
+            }`}
+          >
+            {tCommon("all")}
+          </button>
+          <button
+            onClick={() => setMediaTypeFilter("image")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              mediaTypeFilter === "image"
+                ? "bg-admin-primary text-admin-accent-foreground shadow-md"
+                : "bg-card text-foreground hover:bg-muted border border-border"
+            }`}
+          >
+            {tCommon("images")}
+          </button>
+          <button
+            onClick={() => setMediaTypeFilter("video")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              mediaTypeFilter === "video"
+                ? "bg-admin-primary text-admin-accent-foreground shadow-md"
+                : "bg-card text-foreground hover:bg-muted border border-border"
+            }`}
+          >
+            {tCommon("videos")}
+          </button>
+        </div>
       </div>
 
       {error && (

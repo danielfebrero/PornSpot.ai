@@ -190,7 +190,8 @@ export const queryKeys = {
         ["admin", "albums", "list", params] as const,
     },
     media: {
-      all: () => ["admin", "media"] as const,
+      all: (params?: { type?: "image" | "video" }) =>
+        ["admin", "media", "all", params] as const,
       list: (albumIds: string[]) =>
         ["admin", "media", "list", albumIds] as const,
       album: (albumId: string, params?: Record<string, unknown>) =>

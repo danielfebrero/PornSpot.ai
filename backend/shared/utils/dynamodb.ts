@@ -1758,6 +1758,45 @@ export class DynamoDBService {
     };
   }
 
+  // Admin method to list all media filtered by type (image/video) using GSI8
+  static async listAllMediaByType(
+    type: "image" | "video",
+    limit: number = 50,
+    lastEvaluatedKey?: Record<string, any>
+  ): Promise<{
+    media: Media[];
+    nextKey?: Record<string, any>;
+  }> {
+    const queryParams: any = {
+      TableName: TABLE_NAME,
+      IndexName: "GSI8",
+      KeyConditionExpression:
+        "GSI8PK = :gsi8pk AND begins_with(GSI8SK, :gsi8sk)",
+      ExpressionAttributeValues: {
+        ":gsi8pk": "MEDIA_BY_TYPE_AND_CREATOR",
+        ":gsi8sk": `${type}#`,
+      },
+      Limit: limit,
+      ScanIndexForward: false, // newest first (descending order by createdAt in SK)
+    };
+
+    if (lastEvaluatedKey) {
+      queryParams.ExclusiveStartKey = lastEvaluatedKey;
+    }
+
+    const result = await docClient.send(new QueryCommand(queryParams));
+
+    const mediaEntities = (result.Items as MediaEntity[]) || [];
+    const media = mediaEntities.map((entity) =>
+      this.convertMediaEntityToMedia(entity)
+    );
+
+    return {
+      media,
+      ...(result.LastEvaluatedKey && { nextKey: result.LastEvaluatedKey }),
+    };
+  }
+
   // Album-Media relationship operations
   static async addMediaToAlbum(
     albumId: string,

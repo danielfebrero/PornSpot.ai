@@ -42,11 +42,25 @@ const handleListMedia = async (
 
   const { cursor: lastEvaluatedKey, limit } = paginationParams;
 
+  // Get optional type filter parameter
+  const type = event.queryStringParameters?.["type"] as
+    | "image"
+    | "video"
+    | undefined;
+
+  // Validate type parameter if provided
+  if (type && type !== "image" && type !== "video") {
+    return ResponseUtil.badRequest(
+      event,
+      "Invalid type parameter. Must be 'image' or 'video'"
+    );
+  }
+
   // Get all media across all users - admin view
-  const { media, nextKey } = await DynamoDBService.listAllMedia(
-    limit,
-    lastEvaluatedKey
-  );
+  // Use type-filtered query if type is specified, otherwise get all media
+  const { media, nextKey } = type
+    ? await DynamoDBService.listAllMediaByType(type, limit, lastEvaluatedKey)
+    : await DynamoDBService.listAllMedia(limit, lastEvaluatedKey);
 
   // Build typed paginated payload
   const payload = PaginationUtil.createPaginatedResponse(
@@ -56,7 +70,11 @@ const handleListMedia = async (
     limit
   );
 
-  console.log(`🔍 Admin ${auth.username} listed ${media.length} media items`);
+  console.log(
+    `🔍 Admin ${auth.username} listed ${media.length} media items${
+      type ? ` (type: ${type})` : ""
+    }`
+  );
 
   return ResponseUtil.success(event, payload);
 };

@@ -1,11 +1,16 @@
 import { ApiUtil, PaginationParams } from "../api-util";
 import { UnifiedMediaResponse, UploadMediaRequest } from "@/types";
 
+// Extend PaginationParams to include type filter
+export interface AdminMediaParams extends PaginationParams {
+  type?: "image" | "video";
+}
+
 // Admin Media API Functions
 export const adminMediaApi = {
   // Get all media items across all users (admin view)
   getMediaList: async (
-    params?: PaginationParams
+    params?: AdminMediaParams
   ): Promise<UnifiedMediaResponse> => {
     const response = await ApiUtil.get<UnifiedMediaResponse>(
       "/admin/media",
