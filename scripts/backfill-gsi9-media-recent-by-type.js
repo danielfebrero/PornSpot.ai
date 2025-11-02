@@ -109,10 +109,11 @@ async function main() {
   let skipped = 0;
   let errors = 0;
   let lastEvaluatedKey = undefined;
+  const PAGE_SIZE = 1000; // Increased for faster processing; ensure <1MB total per query based on item sizes
   const CONCURRENCY = parseInt(
-    process.env.GSI9_BACKFILL_CONCURRENCY || "20",
+    process.env.GSI9_BACKFILL_CONCURRENCY || "200",
     10
-  );
+  ); // Higher default for speed; adjust via env if throttling occurs
 
   do {
     let scanResult;
@@ -125,7 +126,7 @@ async function main() {
           KeyConditionExpression: "GSI4PK = :pk",
           ExpressionAttributeValues: { ":pk": "MEDIA" },
           ExclusiveStartKey: lastEvaluatedKey,
-          Limit: 200,
+          Limit: PAGE_SIZE,
           ScanIndexForward: true, // oldest → newest; order doesn't matter for backfill
         })
       );
@@ -135,7 +136,7 @@ async function main() {
     }
 
     const items = scanResult.Items || [];
-    // Process updates in parallel with a safe concurrency cap
+    // Process updates in parallel with high concurrency
     const processItem = async (item) => {
       try {
         const mediaId = item.id || (item.PK || "").split("#")[1] || "";
@@ -200,13 +201,14 @@ async function main() {
       }
     };
 
+    // Chunk into concurrent slices
     for (let i = 0; i < items.length; i += CONCURRENCY) {
       const slice = items.slice(i, i + CONCURRENCY);
       await Promise.all(slice.map((it) => processItem(it)));
     }
 
     lastEvaluatedKey = scanResult.LastEvaluatedKey;
-    if (lastEvaluatedKey) console.log("📄 Processed batch, continuing...");
+    if (lastEvaluatedKey) console.log("📄 Processed page, continuing...");
   } while (lastEvaluatedKey);
 
   console.log("");

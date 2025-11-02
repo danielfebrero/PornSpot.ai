@@ -61,6 +61,21 @@ export const ShareMenuItems: React.FC<ShareMenuItemsProps> = ({
     );
   };
 
+  const getShareUrlWithoutProtocol = () => {
+    const fullUrl = getShareUrl();
+    return fullUrl.replace(/^https?:\/\//, "");
+  };
+
+  const getXShareText = () => {
+    const urlWithoutProtocol = getShareUrlWithoutProtocol();
+    return `📛 ${title} 📛
+
+---- Made with PornSpot.ai ----
+NSFW Video & Image Generator
+
+${urlWithoutProtocol}`;
+  };
+
   return (
     <>
       <button
@@ -82,9 +97,9 @@ export const ShareMenuItems: React.FC<ShareMenuItemsProps> = ({
       </a>
       <a
         className="flex items-center w-full px-4 py-2.5 text-sm hover:bg-accent transition-colors"
-        href={`https://x.com/intent/tweet?url=${encodeURIComponent(
-          getShareUrl()
-        )}&text=${encodeURIComponent(title)}`}
+        href={`https://x.com/intent/tweet?text=${encodeURIComponent(
+          getXShareText()
+        )}`}
         target="_blank"
         rel="noopener noreferrer"
         onClick={close}
