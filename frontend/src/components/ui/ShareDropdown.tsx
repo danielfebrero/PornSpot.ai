@@ -69,7 +69,20 @@ export const ShareMenuItems: React.FC<ShareMenuItemsProps> = ({
 
   const getXShareText = () => {
     const urlWithoutProtocol = getShareUrlWithoutProtocol();
-    return `📛 ${title} 📛
+    const emojis = [
+      "🥵",
+      "😈",
+      "🍆",
+      "🔥",
+      "💥",
+      "🛑",
+      "❤️‍🔥",
+      "⛔️",
+      "📛",
+      "🔞",
+    ];
+    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+    return `${randomEmoji} ${title} ${randomEmoji}
 
 ---- Made with PornSpot.ai ----
 NSFW Video & Image Generator
