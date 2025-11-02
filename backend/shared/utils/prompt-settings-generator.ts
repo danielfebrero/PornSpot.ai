@@ -2817,9 +2817,7 @@ export function formatSettingsForPrompt(settings: PromptSettings): string {
   }
 
   // Quality and technical tags for SDXL
-  parts.push(
-    "masterpiece, best quality, highly detailed, 8k uhd, professional photography"
-  );
+  parts.push("masterpiece, best quality, highly detailed, 8k uhd");
 
   return parts.join(", ");
 }
