@@ -321,5 +321,7 @@ export function formatNumber(value: number | undefined | null): string {
     return `${formatted}K`;
   }
 
-  return value.toString();
+  // Round to 2 decimal places and remove trailing zeros
+  const rounded = Math.round(value * 100) / 100;
+  return rounded.toString();
 }
