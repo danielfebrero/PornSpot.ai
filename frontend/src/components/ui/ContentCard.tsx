@@ -68,6 +68,9 @@ interface ContentCardProps {
   // Show tags
   showTags?: boolean;
 
+  // Show public/private status indicator
+  showIsPublic?: boolean;
+
   // Disable hover effects
   disableHoverEffects?: boolean;
 
@@ -141,6 +144,7 @@ export function ContentCard({
   canI2V = true,
   showCounts = true,
   showTags = true,
+  showIsPublic = false,
   disableHoverEffects = false,
   useAllAvailableSpace = false,
   customActions,
@@ -837,6 +841,27 @@ export function ContentCard({
                 >
                   {isSelected && <Check className="h-4 w-4" />}
                 </div>
+              </div>
+            )}
+
+            {/* Public/Private status indicator (top-left) */}
+            {!isSelecting && showIsPublic && (
+              <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
+                <div
+                  className={cn(
+                    "w-3 h-3 rounded-full shadow-lg border-2 border-white/50",
+                    item.isPublic === true ||
+                      (item.isPublic as unknown) === "true"
+                      ? "bg-green-500"
+                      : "bg-red-500"
+                  )}
+                  title={
+                    item.isPublic === true ||
+                    (item.isPublic as unknown) === "true"
+                      ? "Public"
+                      : "Private"
+                  }
+                />
               </div>
             )}
 

@@ -56,6 +56,7 @@ interface VirtualizedGridProps<T extends GridItem> {
     canRemoveFromAlbum?: boolean;
     showCounts?: boolean;
     showTags?: boolean;
+    showIsPublic?: boolean;
     preferredThumbnailSize?:
       | "cover"
       | "small"

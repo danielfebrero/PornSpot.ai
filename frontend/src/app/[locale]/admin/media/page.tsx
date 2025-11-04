@@ -298,6 +298,7 @@ export default function AdminMediaPage() {
           canDelete: true,
           showTags: true,
           showCounts: true,
+          showIsPublic: true,
         }}
         emptyState={{
           icon: (

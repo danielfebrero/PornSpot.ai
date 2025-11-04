@@ -844,6 +844,7 @@ const UserVideosPage: React.FC = () => {
             canDelete: true,
             showCounts: true,
             showTags: false,
+            showIsPublic: true,
             customActions: getCustomActions,
             preferredThumbnailSize:
               viewMode === "grid" ? undefined : "originalSize",

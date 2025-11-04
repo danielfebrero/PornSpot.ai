@@ -209,6 +209,7 @@ export default function AdminAlbumsPage() {
           canDelete: false,
           showTags: true,
           showCounts: true,
+          showIsPublic: true,
           customActions: (item) => [
             {
               label: t("editAlbum"),
