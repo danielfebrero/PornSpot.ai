@@ -46,6 +46,7 @@ const UserMediasPage: React.FC = () => {
   const [selectedMedias, setSelectedMedias] = useState<Set<string>>(new Set());
   const [showAddToAlbumDialog, setShowAddToAlbumDialog] = useState(false);
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+  const [showPublicStatus, setShowPublicStatus] = useState(false);
   const [mobileExpandedAction, setMobileExpandedAction] = useState<
     string | null
   >(null);
@@ -460,15 +461,30 @@ const UserMediasPage: React.FC = () => {
                       )}
                     >
                       {({ close }) => (
-                        <button
-                          onClick={() => {
-                            handleSelectMany();
-                            close();
-                          }}
-                          className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
-                        >
-                          <span>{t("selectMany")}</span>
-                        </button>
+                        <>
+                          <button
+                            onClick={() => {
+                              handleSelectMany();
+                              close();
+                            }}
+                            className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
+                          >
+                            <span>{t("selectMany")}</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowPublicStatus(!showPublicStatus);
+                              close();
+                            }}
+                            className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
+                          >
+                            <span>
+                              {showPublicStatus
+                                ? t("hidePublicStatus")
+                                : t("showPublicStatus")}
+                            </span>
+                          </button>
+                        </>
                       )}
                     </ShareDropdown>
                     <LocaleLink href="/generate">
@@ -517,15 +533,30 @@ const UserMediasPage: React.FC = () => {
                     )}
                   >
                     {({ close }) => (
-                      <button
-                        onClick={() => {
-                          handleSelectMany();
-                          close();
-                        }}
-                        className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
-                      >
-                        <span>{t("selectMany")}</span>
-                      </button>
+                      <>
+                        <button
+                          onClick={() => {
+                            handleSelectMany();
+                            close();
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
+                        >
+                          <span>{t("selectMany")}</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowPublicStatus(!showPublicStatus);
+                            close();
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
+                        >
+                          <span>
+                            {showPublicStatus
+                              ? t("hidePublicStatus")
+                              : t("showPublicStatus")}
+                          </span>
+                        </button>
+                      </>
                     )}
                   </ShareDropdown>
                   <LocaleLink href="/generate">
@@ -586,7 +617,7 @@ const UserMediasPage: React.FC = () => {
               canDelete: true,
               showCounts: true,
               showTags: false,
-              showIsPublic: true,
+              showIsPublic: showPublicStatus,
               customActions: getCustomActions,
               preferredThumbnailSize:
                 viewMode === "grid" ? undefined : "originalSize",
