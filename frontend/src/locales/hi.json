@@ -26,6 +26,7 @@
     "unfollow": "अनफ़ॉलो करें",
     "bookmark": "बुकमार्क",
     "download": "डाउनलोड",
+    "extendVideo": "वीडियो बढ़ाएँ",
     "loadMore": "और लोड करें",
     "goBack": "पीछे जाएं",
     "share": "शेयर करें",
@@ -2476,7 +2477,8 @@
         "noMediaId": "कोई मीडिया आईडी प्रदान नहीं की गई",
         "failedToLoadMedia": "मीडिया लोड करने में विफल",
         "videoToVideoNotSupported": "वीडियो-से-वीडियो रूपांतरण समर्थित नहीं है",
-        "mediaNotFound": "मीडिया नहीं मिला"
+        "mediaNotFound": "मीडिया नहीं मिला",
+        "extendRequiresVideo": "वीडियो बढ़ाने के लिए वीडियो स्रोत आवश्यक है"
       },
       "titles": {
         "convertToVideo": "वीडियो में बदलें",
@@ -2511,6 +2513,10 @@
     "settings": {
       "title": "वीडियो जनरेशन सेटिंग्स",
       "videoLength": "वीडियो लंबाई",
+      "videoLengthAppend": "वीडियो अवधि जोड़ें",
+      "appendDescription": "चयनित वीडियो के अंत में {seconds} सेकंड जोड़ता है.",
+      "currentDuration": "वर्तमान वीडियो अवधि: {seconds} सेकंड",
+      "projectedDuration": "अनुमानित अंतिम अवधि: {seconds} सेकंड",
       "durations": {
         "fiveSeconds": "5 सेकंड",
         "eightSeconds": "8 सेकंड",

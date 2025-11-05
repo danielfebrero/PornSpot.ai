@@ -26,6 +26,7 @@
     "unfollow": "Unfollow",
     "bookmark": "Bookmark",
     "download": "Download",
+    "extendVideo": "Extend Video",
     "loadMore": "Load More",
     "goBack": "Go Back",
     "share": "Share",
@@ -2482,7 +2483,8 @@
         "noMediaId": "No media ID provided",
         "failedToLoadMedia": "Failed to load media",
         "videoToVideoNotSupported": "Video-to-video conversion is not supported",
-        "mediaNotFound": "Media not found"
+        "mediaNotFound": "Media not found",
+        "extendRequiresVideo": "Video extension requires a video source"
       },
       "titles": {
         "convertToVideo": "Convert to Video",
@@ -2517,6 +2519,10 @@
     "settings": {
       "title": "Video Generation Settings",
       "videoLength": "Video Length",
+      "videoLengthAppend": "Append Video Length",
+      "appendDescription": "Adds {seconds}s to the end of your selected video.",
+      "currentDuration": "Current video length: {seconds}s",
+      "projectedDuration": "Projected final length: {seconds}s",
       "durations": {
         "fiveSeconds": "5 seconds",
         "eightSeconds": "8 seconds",

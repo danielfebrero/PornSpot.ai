@@ -50,6 +50,11 @@ export function I2VPageContent() {
   const canMakePrivate = canCreatePrivateContent();
 
   const mediaId = searchParams.get("mediaId");
+  const requestedMode = searchParams.get("mode");
+  const isExtendMode = requestedMode === "extend";
+  const jobMode: I2VSettings["mode"] = isExtendMode
+    ? "video-extension"
+    : "image-to-video";
 
   // Mobile detection
   const [isMobile, setIsMobile] = useState(false);
@@ -86,6 +91,29 @@ export function I2VPageContent() {
     enableLoras: true,
   });
 
+  const isVideoMedia = useMemo(() => (media ? isVideo(media) : false), [media]);
+
+  const baseVideoSeconds = useMemo(() => {
+    if (!isVideoMedia || !media) {
+      return undefined;
+    }
+    const metadata = (media.metadata as Record<string, unknown>) || {};
+    const videoLengthSeconds = metadata["videoLengthSeconds"];
+    const numeric = Number(videoLengthSeconds);
+    if (Number.isFinite(numeric) && numeric > 0) {
+      return numeric;
+    }
+    return undefined;
+  }, [isVideoMedia, media]);
+
+  const projectedVideoSeconds = useMemo(() => {
+    if (!isVideoMedia) {
+      return undefined;
+    }
+    const baseSeconds = baseVideoSeconds ?? 0;
+    return baseSeconds + settings.videoLength;
+  }, [isVideoMedia, baseVideoSeconds, settings.videoLength]);
+
   const updateSetting = useCallback(
     <K extends keyof I2VSettings>(key: K, value: I2VSettings[K]) => {
       setSettings((prev) => ({
@@ -119,6 +147,10 @@ export function I2VPageContent() {
       settings.videoLength;
     const sliderStep = settings.enableLoras ? 1 : 5;
     const isSingleVideoLengthOption = allowedVideoLengths.length === 1;
+    const videoLengthLabel =
+      isExtendMode && isVideoMedia
+        ? ts("videoLengthAppend")
+        : ts("videoLength");
 
     return (
       <Card className="p-6">
@@ -138,8 +170,12 @@ export function I2VPageContent() {
               htmlFor="videoLength"
               className="text-sm font-medium flex justify-between"
             >
-              <span>{ts("videoLength")}</span>
-              <span className="font-semibold">{settings.videoLength}s</span>
+              <span>{videoLengthLabel}</span>
+              <span className="font-semibold">
+                {isVideoMedia
+                  ? `+${settings.videoLength}s`
+                  : `${settings.videoLength}s`}
+              </span>
             </Label>
             <Slider
               value={[settings.videoLength]}
@@ -168,6 +204,23 @@ export function I2VPageContent() {
                 <span key={v}>{v}s</span>
               ))}
             </div>
+            {isExtendMode && isVideoMedia && (
+              <div className="mt-2 text-xs text-muted-foreground space-y-1">
+                <p>
+                  {ts("appendDescription", { seconds: settings.videoLength })}
+                </p>
+                {baseVideoSeconds !== undefined && (
+                  <p>{ts("currentDuration", { seconds: baseVideoSeconds })}</p>
+                )}
+                {projectedVideoSeconds !== undefined && (
+                  <p>
+                    {ts("projectedDuration", {
+                      seconds: projectedVideoSeconds,
+                    })}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="rounded-lg border bg-card p-3">
@@ -378,6 +431,10 @@ export function I2VPageContent() {
     canMakePrivate,
     handleVisibilityChange,
     handleLorasToggle,
+    isVideoMedia,
+    isExtendMode,
+    baseVideoSeconds,
+    projectedVideoSeconds,
   ]);
 
   // Mobile detection
@@ -405,11 +462,14 @@ export function I2VPageContent() {
     if (queryError) {
       return t("errors.failedToLoadMedia");
     }
-    if (media && isVideo(media)) {
+    if (media && isVideo(media) && !isExtendMode) {
       return t("errors.videoToVideoNotSupported");
     }
+    if (media && !isVideoMedia && isExtendMode) {
+      return t("errors.extendRequiresVideo");
+    }
     return null;
-  }, [mediaId, queryError, media, t]);
+  }, [mediaId, queryError, media, t, isExtendMode, isVideoMedia]);
 
   const handleBuyCredits = useCallback(() => {
     // Navigate to pricing or credits purchase page
@@ -430,6 +490,7 @@ export function I2VPageContent() {
       const submitResp = await generateApi.submitI2VJob({
         ...settings,
         mediaId: media.id,
+        mode: jobMode,
         // Private output is reserved for Pro plans only
         isPublic: canCreatePrivateContent() ? settings.isPublic : true,
       });
@@ -454,6 +515,7 @@ export function I2VPageContent() {
     canCreatePrivateContent,
     router,
     refetch,
+    jobMode,
   ]);
 
   const canGenerate = useMemo(

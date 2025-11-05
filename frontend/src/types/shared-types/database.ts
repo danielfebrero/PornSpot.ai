@@ -444,6 +444,11 @@ export interface I2VJobEntity extends BaseEntity {
   jobId: string; // Runpod job ID
   userId: string; // Submitting user
   mediaId: string; // Source image media ID
+  mode: "image-to-video" | "video-extension"; // Track job intent for downstream processing
+  sourceMediaType: "image" | "video";
+  sourceVideoUrl?: string; // Only set for video-extension jobs
+  baseFrameKey?: string; // S3 key for extracted base frame image (video-extension)
+  baseFrameUrl?: string; // CDN URL for base frame fed to Runpod
   // Request parameters snapshot
   request: {
     videoLength: 5 | 8 | 10 | 15 | 20 | 25 | 30;
@@ -458,6 +463,7 @@ export interface I2VJobEntity extends BaseEntity {
     enableLoras?: boolean;
     width: number;
     height: number;
+    mode?: "image-to-video" | "video-extension";
     selectedLoras?: string[];
     loraTriggerWords?: string[];
     loraHighNoise?: Array<{

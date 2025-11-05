@@ -14,6 +14,7 @@ import { PromptProcessingService } from "@shared/services/prompt-processing";
 import { loras as I2VLoraMap } from "@shared/utils/i2v-loras-selection";
 import { randomBytes } from "crypto";
 import { PlanUtil } from "@shared/utils/plan";
+import { S3StorageService } from "@shared/services/s3-storage";
 
 const RUNPOD_MODEL = "wan-2-2-i2v-720";
 const RUNPOD_MODEL_LORA = "wan-2-2-t2v-720-lora";
@@ -89,11 +90,15 @@ export const handleSubmitI2VJob = async (
 
   // Get source media
   const media = await DynamoDBService.getMedia(mediaId);
-  if (!media || !media.url) {
-    return ResponseUtil.notFound(
-      event,
-      "Source media not found or missing URL"
-    );
+  if (!media) {
+    return ResponseUtil.notFound(event, "Source media not found");
+  }
+
+  const isVideoSource = media.type === "video";
+  const hasAccessibleUrl =
+    Boolean(media.url) || Boolean(media.optimizedVideoUrl);
+  if (!hasAccessibleUrl) {
+    return ResponseUtil.notFound(event, "Source media missing accessible URL");
   }
 
   // Check user I2V credits
@@ -112,15 +117,85 @@ export const handleSubmitI2VJob = async (
     );
   }
 
+  const jobMode: "image-to-video" | "video-extension" = isVideoSource
+    ? "video-extension"
+    : "image-to-video";
+  const cdnBaseUrl = "https://cdn.pornspot.ai";
+  const toAbsoluteUrl = (value?: string | null): string | null => {
+    if (!value) return null;
+    if (value.startsWith("http")) return value;
+    return value.startsWith("/")
+      ? `${cdnBaseUrl}${value}`
+      : `${cdnBaseUrl}/${value}`;
+  };
+
+  let runpodSourceImageUrl: string | undefined;
+  let baseFrameKey: string | undefined;
+  let baseFrameUrl: string | undefined;
+  let sourceVideoUrl: string | undefined;
+
+  if (isVideoSource) {
+    const resolvedVideoUrl =
+      toAbsoluteUrl(media.url) ?? toAbsoluteUrl(media.optimizedVideoUrl);
+    if (!resolvedVideoUrl) {
+      return ResponseUtil.internalError(
+        event,
+        "Unable to locate source video for extension"
+      );
+    }
+    sourceVideoUrl = resolvedVideoUrl;
+
+    try {
+      const frameKeySuffix = randomBytes(6).toString("hex");
+      const s3 = S3StorageService.getInstance();
+      const frameResult = await s3.extractVideoLastFrame({
+        videoUrl: sourceVideoUrl,
+        keyHint: `${media.id}-${frameKeySuffix}`,
+      });
+      runpodSourceImageUrl = frameResult.publicUrl;
+      baseFrameKey = frameResult.key;
+      baseFrameUrl = frameResult.publicUrl;
+    } catch (error) {
+      console.error("Failed to extract last frame for video extension", {
+        mediaId,
+        error,
+      });
+      const fallbackFrame =
+        toAbsoluteUrl(media.thumbnailUrl) ??
+        toAbsoluteUrl(media.thumbnailUrls?.medium) ??
+        toAbsoluteUrl(media.thumbnailUrls?.large);
+      if (!fallbackFrame) {
+        return ResponseUtil.internalError(
+          event,
+          "Unable to prepare base frame for video"
+        );
+      }
+      runpodSourceImageUrl = fallbackFrame;
+    }
+  } else {
+    const resolvedImageUrl = toAbsoluteUrl(media.url);
+    if (!resolvedImageUrl) {
+      return ResponseUtil.internalError(event, "Unable to locate source image");
+    }
+    runpodSourceImageUrl = resolvedImageUrl;
+  }
+
+  if (!runpodSourceImageUrl) {
+    return ResponseUtil.internalError(
+      event,
+      "Source media missing accessible URL"
+    );
+  }
+  if (!baseFrameUrl) {
+    baseFrameUrl = runpodSourceImageUrl;
+  }
+
   const finalPrompt =
     prompt.trim() === "" ? (media.metadata?.["prompt"] as string) : prompt;
   const trimmedFinalPrompt = (finalPrompt || "").trim();
   const promptBase = trimmedFinalPrompt || finalPrompt || "";
 
-  // Build full CDN URL (prepend as required)
-  const sourceImageUrl = media.url.startsWith("http")
-    ? media.url
-    : `https://cdn.pornspot.ai${media.url}`;
+  const sourceImageUrl = runpodSourceImageUrl;
 
   const moderationPromise =
     PromptProcessingService.moderatePrompt(trimmedFinalPrompt);
@@ -358,6 +433,11 @@ export const handleSubmitI2VJob = async (
     jobId,
     userId: auth.userId,
     mediaId,
+    mode: jobMode,
+    sourceMediaType: isVideoSource ? "video" : "image",
+    sourceVideoUrl,
+    baseFrameKey,
+    baseFrameUrl,
     request: {
       videoLength,
       prompt: promptWithTriggers,
@@ -371,6 +451,7 @@ export const handleSubmitI2VJob = async (
       enableLoras,
       width: outWidth,
       height: outHeight,
+      mode: jobMode,
       selectedLoras: hasValidLoras
         ? resolvedLoras.map(({ name }) => name)
         : undefined,

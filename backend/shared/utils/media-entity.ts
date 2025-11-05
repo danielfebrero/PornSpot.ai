@@ -184,6 +184,9 @@ export function createGenerationMetadata(options: {
   steps: number;
   seed: number;
   originalMediaId?: string;
+  videoLengthSeconds?: number;
+  extendedFromMediaId?: string;
+  extendedBySeconds?: number;
 }): Metadata {
   return {
     prompt: options.prompt.trim(),
@@ -218,5 +221,14 @@ export function createGenerationMetadata(options: {
       highLorasScales: options.highLorasScales,
     }),
     ...(options.lowLorasScales && { lowLorasScales: options.lowLorasScales }),
+    ...(options.videoLengthSeconds && {
+      videoLengthSeconds: options.videoLengthSeconds,
+    }),
+    ...(options.extendedFromMediaId && {
+      extendedFromMediaId: options.extendedFromMediaId,
+    }),
+    ...(options.extendedBySeconds && {
+      extendedBySeconds: options.extendedBySeconds,
+    }),
   };
 }

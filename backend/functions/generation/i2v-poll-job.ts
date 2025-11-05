@@ -8,7 +8,10 @@ import { ResponseUtil } from "@shared/utils/response";
 import { LambdaHandlerUtil, AuthResult } from "@shared/utils/lambda-handler";
 import { DynamoDBService } from "@shared/utils/dynamodb";
 import { ParameterStoreService } from "@shared/utils/parameters";
-import { S3StorageService } from "@shared/services/s3-storage";
+import {
+  S3StorageService,
+  UploadVideoPairResult,
+} from "@shared/services/s3-storage";
 import {
   createGenerationMetadata,
   createMediaEntity,
@@ -168,17 +171,61 @@ async function pollOnce(
 async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
   const s3 = S3StorageService.getInstance();
   const jobId = job.jobId;
-  const savedPair = await s3.saveI2VResultFromUrl(
-    jobId,
-    outputUrl,
-    "video/mp4"
-  );
+  const sourceMedia = await DynamoDBService.getMedia(job.mediaId);
+  const isVideoExtension =
+    job.mode === "video-extension" ||
+    job.sourceMediaType === "video" ||
+    sourceMedia?.type === "video";
+  const cdnBaseUrl = "https://cdn.pornspot.ai";
+  const toAbsoluteUrl = (value?: string | null): string | null => {
+    if (!value) return null;
+    if (value.startsWith("http")) return value;
+    return value.startsWith("/")
+      ? `${cdnBaseUrl}${value}`
+      : `${cdnBaseUrl}/${value}`;
+  };
+
+  let savedPair: UploadVideoPairResult;
+  if (isVideoExtension) {
+    const baseVideoUrl =
+      job.sourceVideoUrl ||
+      toAbsoluteUrl(sourceMedia?.url) ||
+      toAbsoluteUrl(sourceMedia?.optimizedVideoUrl);
+
+    if (!baseVideoUrl) {
+      console.error("Missing base video URL for concatenation", {
+        jobId,
+        mediaId: job.mediaId,
+      });
+      savedPair = await s3.saveI2VResultFromUrl(jobId, outputUrl, "video/mp4");
+    } else {
+      try {
+        savedPair = await s3.saveI2VConcatenatedVideo(
+          jobId,
+          baseVideoUrl,
+          outputUrl
+        );
+      } catch (error) {
+        console.error("Failed to concatenate videos; falling back", {
+          jobId,
+          mediaId: job.mediaId,
+          error,
+        });
+        savedPair = await s3.saveI2VResultFromUrl(
+          jobId,
+          outputUrl,
+          "video/mp4"
+        );
+      }
+    }
+  } else {
+    savedPair = await s3.saveI2VResultFromUrl(jobId, outputUrl, "video/mp4");
+  }
   const mediaId = jobId;
   const relativeUrl = `/${savedPair.mp4.key}`;
   const optimizedWebmRelative = savedPair.webm
     ? `/${savedPair.webm.key}`
     : undefined;
-  const sourceMedia = await DynamoDBService.getMedia(job.mediaId);
   const metaWidth =
     job.request?.width ??
     (sourceMedia?.metadata as any)?.width ??
@@ -228,6 +275,36 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
     (sourceMedia?.metadata as any)?.height ??
     sourceMedia?.height;
 
+  // Calculate video length for extensions
+  let videoLengthSeconds: number | undefined;
+  let extendedFromMediaId: string | undefined;
+  let extendedBySeconds: number | undefined;
+
+  if (isVideoExtension) {
+    const previousVideoLength = Number(
+      (sourceMedia?.metadata as any)?.videoLengthSeconds ?? 0
+    );
+    const extensionSeconds = Number(job.request?.videoLength ?? 0);
+    const totalDuration = Number.isFinite(previousVideoLength)
+      ? previousVideoLength +
+        (Number.isFinite(extensionSeconds) ? extensionSeconds : 0)
+      : Number.isFinite(extensionSeconds)
+      ? extensionSeconds
+      : undefined;
+
+    if (totalDuration && totalDuration > 0) {
+      videoLengthSeconds = totalDuration;
+      extendedFromMediaId = job.mediaId;
+      extendedBySeconds = extensionSeconds;
+    }
+  } else {
+    // For new I2V videos (not extensions), use the requested video length
+    const requestedLength = Number(job.request?.videoLength ?? 0);
+    if (Number.isFinite(requestedLength) && requestedLength > 0) {
+      videoLengthSeconds = requestedLength;
+    }
+  }
+
   const metadata = createGenerationMetadata({
     prompt: job.request?.prompt,
     negativePrompt: job.request?.negativePrompt,
@@ -242,6 +319,9 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
     steps: job.request?.inferenceSteps,
     seed: Number(job.request?.seed),
     originalMediaId: job.mediaId,
+    videoLengthSeconds,
+    extendedFromMediaId,
+    extendedBySeconds,
   });
 
   const mediaEntity = createMediaEntity({
@@ -262,6 +342,15 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
     optimizedVideoUrl: optimizedWebmRelative,
   });
   await DynamoDBService.createMedia(mediaEntity);
+  if (job.baseFrameKey) {
+    s3.deleteImage(job.baseFrameKey).catch((error) =>
+      console.warn("Failed to clean up base frame image", {
+        jobId,
+        key: job.baseFrameKey,
+        error,
+      })
+    );
+  }
   await DynamoDBService.updateI2VJob(jobId, {
     updatedAt: new Date().toISOString(),
     status: "COMPLETED",

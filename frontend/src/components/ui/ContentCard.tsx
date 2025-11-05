@@ -37,6 +37,7 @@ import {
   Folder,
   Check,
   Video,
+  Infinity as InfinityIcon,
 } from "lucide-react";
 import ResponsivePicture from "@/components/ui/ResponsivePicture";
 import { composeThumbnailUrls } from "@/lib/urlUtils";
@@ -59,6 +60,7 @@ interface ContentCardProps {
   canDownload?: boolean;
   canDelete?: boolean;
   canI2V?: boolean;
+  canExtendVideo?: boolean;
 
   // Show counts
   showLikeCount?: boolean;
@@ -142,6 +144,7 @@ export function ContentCard({
   canDownload = false,
   canDelete = false,
   canI2V = true,
+  canExtendVideo = true,
   showCounts = true,
   showTags = true,
   showIsPublic = false,
@@ -498,6 +501,13 @@ export function ContentCard({
   const handleI2V = useCallback(() => {
     if (isMedia && media) {
       router.push(`/i2v?mediaId=${media.id}`);
+    }
+  }, [isMedia, media, router]);
+
+  const handleExtendVideo = useCallback(() => {
+    if (isMedia && media) {
+      const params = new URLSearchParams({ mediaId: media.id, mode: "extend" });
+      router.push(`/i2v?${params.toString()}`);
     }
   }, [isMedia, media, router]);
 
@@ -916,6 +926,20 @@ export function ContentCard({
                       aria-label="Convert to video"
                     >
                       <Video className="h-4 w-4 sm:h-4 sm:w-4" />
+                    </button>
+                  </Tooltip>
+                )}
+                {canExtendVideo && isMedia && media && isVideoMedia && (
+                  <Tooltip content={t("extendVideo")} side="left">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleExtendVideo();
+                      }}
+                      className="p-2.5 sm:p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white transition-all shadow-lg hover:shadow-xl hover:scale-110 ring-2 ring-white/20"
+                      aria-label={t("extendVideo")}
+                    >
+                      <InfinityIcon className="h-4 w-4 sm:h-4 sm:w-4" />
                     </button>
                   </Tooltip>
                 )}

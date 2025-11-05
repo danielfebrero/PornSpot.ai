@@ -43,6 +43,7 @@
     "unfollow": "Ne plus suivre",
     "bookmark": "Favori",
     "download": "Télécharger",
+    "extendVideo": "Étendre la vidéo",
     "loadMore": "Charger plus",
     "goBack": "Retour",
     "share": "Partager",
@@ -1476,7 +1477,7 @@
         "label": "Améliorations LoRA",
         "description": "Les modèles LoRA améliorent le mouvement et les détails de votre vidéo.",
         "enabled": "LoRAs activées : durée limitée à 5 s pour des résultats optimaux.",
-        "disabled": "LoRAs désactivées : générez des vidéos jusqu'à 30 s avec un mouvement standard."
+        "disabled": "LoRA désactivés : générez des vidéos jusqu'à 30 s avec un mouvement standard."
       },
       "duration": "Durée",
       "views": "Vues",
@@ -2487,7 +2488,8 @@
         "noMediaId": "Aucun ID de média fourni",
         "failedToLoadMedia": "Échec du chargement du média",
         "videoToVideoNotSupported": "La conversion vidéo vers vidéo n'est pas prise en charge",
-        "mediaNotFound": "Média introuvable"
+        "mediaNotFound": "Média introuvable",
+        "extendRequiresVideo": "L'extension de vidéo nécessite une source vidéo"
       },
       "titles": {
         "convertToVideo": "Convertir en vidéo",
@@ -2522,6 +2524,10 @@
     "settings": {
       "title": "Paramètres de génération vidéo",
       "videoLength": "Durée de la vidéo",
+      "videoLengthAppend": "Ajouter de la durée",
+      "appendDescription": "Ajoute {seconds}s à la fin de la vidéo sélectionnée.",
+      "currentDuration": "Durée actuelle de la vidéo : {seconds}s",
+      "projectedDuration": "Durée finale estimée : {seconds}s",
       "durations": {
         "fiveSeconds": "5 secondes",
         "eightSeconds": "8 secondes",

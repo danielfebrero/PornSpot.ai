@@ -65,6 +65,196 @@ export class S3StorageService {
     return S3StorageService.instance;
   }
 
+  private sanitizeKeySegment(input: string): string {
+    return input.replace(/[^a-zA-Z0-9-_]/g, "-");
+  }
+
+  private async downloadUrlToTmp(
+    url: string,
+    destPath: string
+  ): Promise<Buffer> {
+    const res = await fetch(url);
+    if (!res.ok) {
+      const txt = await res.text().catch(() => "");
+      throw new Error(`Download failed ${res.status}: ${txt}`);
+    }
+    const arrayBuf = await res.arrayBuffer();
+    const buffer = Buffer.from(arrayBuf);
+    await fs.writeFile(destPath, buffer);
+    return buffer;
+  }
+
+  private async runFfmpeg(args: string[]): Promise<void> {
+    if (!ffmpegPath) {
+      throw new Error("ffmpeg-static not available");
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      const cp = spawn(ffmpegPath as string, args);
+      let stderr = "";
+      cp.stderr.on("data", (d) => (stderr += d.toString()));
+      cp.on("error", reject);
+      cp.on("close", (code, signal) => {
+        if (code === 0) {
+          resolve();
+          return;
+        }
+        reject(
+          new Error(
+            `ffmpeg exited with code ${
+              code ?? "null"
+            } signal ${signal}: ${stderr}`
+          )
+        );
+      });
+    });
+  }
+
+  private shouldDisableWebmConversion(): boolean {
+    const lambdaMemMb = Number(
+      process.env["AWS_LAMBDA_FUNCTION_MEMORY_SIZE"] || "0"
+    );
+    const disableWebmEnv = (
+      process.env["I2V_DISABLE_WEBM"] || ""
+    ).toLowerCase();
+    return (
+      disableWebmEnv === "1" ||
+      disableWebmEnv === "true" ||
+      (lambdaMemMb > 0 && lambdaMemMb < 1024)
+    );
+  }
+
+  private async uploadI2VVideoFromTmp(
+    jobId: string,
+    tmpMp4: string,
+    options?: { contentType?: string; existingMp4Buffer?: Buffer }
+  ): Promise<UploadVideoPairResult> {
+    const contentType = options?.contentType ?? "video/mp4";
+    const mp4Key = `generated/i2v/${jobId}.mp4`;
+    const webmKey = `generated/i2v/${jobId}.webm`;
+    const tmpWebm = pathJoin(tmpdir(), `${jobId}.webm`);
+    let mp4Buffer = options?.existingMp4Buffer;
+    let mp4Size: number | undefined;
+    let webmBuffer: Buffer | undefined;
+
+    try {
+      if (!mp4Buffer) {
+        mp4Buffer = await fs.readFile(tmpMp4);
+      }
+      mp4Size = mp4Buffer.byteLength;
+
+      const disableWebm = this.shouldDisableWebmConversion();
+
+      if (ffmpegPath && !disableWebm) {
+        try {
+          const crf = process.env["I2V_WEBM_CRF"] || "36";
+          const threads = process.env["I2V_WEBM_THREADS"] || "2";
+
+          await this.runFfmpeg([
+            "-hide_banner",
+            "-loglevel",
+            "warning",
+            "-y",
+            "-i",
+            tmpMp4,
+            "-c:v",
+            "libvpx-vp9",
+            "-b:v",
+            "0",
+            "-crf",
+            crf,
+            "-row-mt",
+            "1",
+            "-deadline",
+            "realtime",
+            "-cpu-used",
+            "8",
+            "-pix_fmt",
+            "yuv420p",
+            "-threads",
+            threads,
+            "-an",
+            tmpWebm,
+          ]);
+          webmBuffer = await fs.readFile(tmpWebm);
+        } catch (err) {
+          console.warn("WebM conversion failed; proceeding with MP4 only", err);
+        }
+      } else if (!ffmpegPath) {
+        console.warn("ffmpeg-static not available; skipping WebM conversion");
+      } else {
+        console.warn(
+          `Skipping WebM conversion (disabled=${disableWebm} env=${process.env["I2V_DISABLE_WEBM"]})`
+        );
+      }
+
+      await this.s3Client.send(
+        new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: mp4Key,
+          Body: mp4Buffer,
+          ContentType: contentType,
+          CacheControl: "public, max-age=31536000",
+          Metadata: {
+            uploadedAt: new Date().toISOString(),
+            source: "runpod",
+            jobId,
+            format: "mp4",
+          },
+        })
+      );
+
+      let webmResult: UploadImageResult | undefined;
+      if (webmBuffer) {
+        await this.s3Client.send(
+          new PutObjectCommand({
+            Bucket: this.bucketName,
+            Key: webmKey,
+            Body: webmBuffer,
+            ContentType: "video/webm",
+            CacheControl: "public, max-age=31536000",
+            Metadata: {
+              uploadedAt: new Date().toISOString(),
+              source: "runpod",
+              jobId,
+              format: "webm",
+            },
+          })
+        );
+        const webmS3Url = `https://${this.bucketName}.s3.amazonaws.com/${webmKey}`;
+        const webmPublicUrl = this.cloudFrontDomain
+          ? `https://${this.cloudFrontDomain}/${webmKey}`
+          : webmS3Url;
+        webmResult = {
+          key: webmKey,
+          url: webmS3Url,
+          publicUrl: webmPublicUrl,
+          size: webmBuffer.byteLength,
+        };
+        console.log(`✅ I2V WebM saved to S3: ${webmKey}`);
+      }
+
+      const mp4S3Url = `https://${this.bucketName}.s3.amazonaws.com/${mp4Key}`;
+      const mp4PublicUrl = this.cloudFrontDomain
+        ? `https://${this.cloudFrontDomain}/${mp4Key}`
+        : mp4S3Url;
+
+      console.log(`✅ I2V MP4 saved to S3: ${mp4Key}`);
+
+      return {
+        mp4: {
+          key: mp4Key,
+          url: mp4S3Url,
+          publicUrl: mp4PublicUrl,
+          size: mp4Size,
+        },
+        webm: webmResult,
+      };
+    } finally {
+      await fs.unlink(tmpWebm).catch(() => undefined);
+    }
+  }
+
   /**
    * Upload an image buffer to S3
    */
@@ -286,175 +476,175 @@ export class S3StorageService {
     fileUrl: string,
     contentType: string = "video/mp4"
   ): Promise<UploadVideoPairResult> {
-    const mp4Key = `generated/i2v/${jobId}.mp4`;
-    const webmKey = `generated/i2v/${jobId}.webm`;
     const tmpMp4 = pathJoin(tmpdir(), `${jobId}.mp4`);
-    const tmpWebm = pathJoin(tmpdir(), `${jobId}.webm`);
-    let mp4Size: number | undefined;
-    let webmBuffer: Buffer | undefined;
+    let mp4Buffer: Buffer | undefined;
     try {
-      const res = await fetch(fileUrl);
-      if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        throw new Error(`Download failed ${res.status}: ${txt}`);
-      }
-      const arrayBuf = await res.arrayBuffer();
-      const mp4Buffer = Buffer.from(arrayBuf);
-      mp4Size = mp4Buffer.byteLength;
-
-      // Persist source MP4 to /tmp for conversion
-      await fs.writeFile(tmpMp4, mp4Buffer);
-
-      // Attempt MP4 -> WebM conversion using ffmpeg-static if available
-      // Use Lambda-friendly defaults and allow opt-out via env or low memory
-      const lambdaMemMb = Number(
-        process.env["AWS_LAMBDA_FUNCTION_MEMORY_SIZE"] || "0"
-      );
-      const disableWebmEnv = (
-        process.env["I2V_DISABLE_WEBM"] || ""
-      ).toLowerCase();
-      const disableWebm =
-        disableWebmEnv === "1" ||
-        disableWebmEnv === "true" ||
-        (lambdaMemMb > 0 && lambdaMemMb < 1024);
-
-      if (ffmpegPath && !disableWebm) {
-        await new Promise<void>((resolve, reject) => {
-          // Prefer faster, lower-CPU settings to avoid Lambda OOM/timeouts
-          // Tunables via env (optional): I2V_WEBM_CRF, I2V_WEBM_THREADS
-          const crf = process.env["I2V_WEBM_CRF"] || "36"; // higher=faster/smaller CPU
-          const threads = process.env["I2V_WEBM_THREADS"] || "2";
-
-          const args = [
-            "-hide_banner",
-            "-loglevel",
-            "warning",
-            "-y",
-            "-i",
-            tmpMp4,
-            // VP9 realtime: prioritize speed; ensure 4:2:0 for broad compatibility
-            "-c:v",
-            "libvpx-vp9",
-            "-b:v",
-            "0",
-            "-crf",
-            crf,
-            "-row-mt",
-            "1",
-            "-deadline",
-            "realtime",
-            "-cpu-used",
-            "8",
-            "-pix_fmt",
-            "yuv420p",
-            "-threads",
-            threads,
-            // no audio
-            "-an",
-            tmpWebm,
-          ];
-          const cp = spawn(ffmpegPath as string, args);
-          let stderr = "";
-          cp.stderr.on("data", (d) => (stderr += d.toString()));
-          cp.on("error", reject);
-          cp.on("close", (code, signal) => {
-            if (code === 0) return resolve();
-            console.warn(
-              `ffmpeg exited with code ${code} signal ${signal}: ${stderr}`
-            );
-            reject(new Error(`ffmpeg code ${code ?? "null"} signal ${signal}`));
-          });
-        })
-          .then(async () => {
-            webmBuffer = await fs.readFile(tmpWebm);
-          })
-          .catch((err) => {
-            console.warn(
-              "WebM conversion failed; proceeding with MP4 only",
-              err
-            );
-          });
-      } else if (!ffmpegPath) {
-        console.warn("ffmpeg-static not available; skipping WebM conversion");
-      } else {
-        console.warn(
-          `Skipping WebM conversion (disabled=${
-            disableWebmEnv || disableWebm
-          } memory=${lambdaMemMb}MB)`
-        );
-      }
-
-      // Upload MP4
-      await this.s3Client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: mp4Key,
-          Body: await fs.readFile(tmpMp4),
-          ContentType: contentType,
-          CacheControl: "public, max-age=31536000",
-          Metadata: {
-            uploadedAt: new Date().toISOString(),
-            source: "runpod",
-            jobId,
-            format: "mp4",
-          },
-        })
-      );
-
-      // Upload WebM (if converted)
-      let webmResult: UploadImageResult | undefined;
-      if (webmBuffer) {
-        await this.s3Client.send(
-          new PutObjectCommand({
-            Bucket: this.bucketName,
-            Key: webmKey,
-            Body: webmBuffer,
-            ContentType: "video/webm",
-            CacheControl: "public, max-age=31536000",
-            Metadata: {
-              uploadedAt: new Date().toISOString(),
-              source: "runpod",
-              jobId,
-              format: "webm",
-            },
-          })
-        );
-        const webmS3Url = `https://${this.bucketName}.s3.amazonaws.com/${webmKey}`;
-        const webmPublicUrl = this.cloudFrontDomain
-          ? `https://${this.cloudFrontDomain}/${webmKey}`
-          : webmS3Url;
-        webmResult = {
-          key: webmKey,
-          url: webmS3Url,
-          publicUrl: webmPublicUrl,
-          size: webmBuffer.byteLength,
-        };
-        console.log(`✅ I2V WebM saved to S3: ${webmKey}`);
-      }
-
-      const mp4S3Url = `https://${this.bucketName}.s3.amazonaws.com/${mp4Key}`;
-      const mp4PublicUrl = this.cloudFrontDomain
-        ? `https://${this.cloudFrontDomain}/${mp4Key}`
-        : mp4S3Url;
-
-      console.log(`✅ I2V MP4 saved to S3: ${mp4Key}`);
-
-      return {
-        mp4: {
-          key: mp4Key,
-          url: mp4S3Url,
-          publicUrl: mp4PublicUrl,
-          size: mp4Size,
-        },
-        webm: webmResult,
-      };
+      mp4Buffer = await this.downloadUrlToTmp(fileUrl, tmpMp4);
+      return await this.uploadI2VVideoFromTmp(jobId, tmpMp4, {
+        contentType,
+        existingMp4Buffer: mp4Buffer,
+      });
     } catch (error) {
       console.error("❌ Failed to save I2V result to S3:", error);
       throw error;
     } finally {
-      // Cleanup tmp files (ignore errors)
       await fs.unlink(tmpMp4).catch(() => undefined);
-      await fs.unlink(tmpWebm).catch(() => undefined);
+    }
+  }
+
+  async extractVideoLastFrame(params: {
+    videoUrl: string;
+    keyHint?: string;
+    format?: "jpg" | "png";
+  }): Promise<UploadImageResult> {
+    if (!ffmpegPath) {
+      throw new Error("ffmpeg-static not available; cannot extract frames");
+    }
+
+    const format = params.format ?? "jpg";
+    const safeHint = params.keyHint
+      ? this.sanitizeKeySegment(params.keyHint)
+      : uuidv4();
+    const key = `generated/i2v/base-frames/${safeHint}.${format}`;
+    const tmpVideo = pathJoin(tmpdir(), `${safeHint}-src.mp4`);
+    const tmpFrame = pathJoin(tmpdir(), `${safeHint}-frame.${format}`);
+
+    try {
+      await this.downloadUrlToTmp(params.videoUrl, tmpVideo);
+      await this.runFfmpeg([
+        "-hide_banner",
+        "-loglevel",
+        "warning",
+        "-y",
+        "-sseof",
+        "-0.25",
+        "-i",
+        tmpVideo,
+        "-frames:v",
+        "1",
+        "-q:v",
+        format === "png" ? "1" : "2",
+        tmpFrame,
+      ]);
+
+      const frameBuffer = await fs.readFile(tmpFrame);
+
+      await this.s3Client.send(
+        new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+          Body: frameBuffer,
+          ContentType: format === "png" ? "image/png" : "image/jpeg",
+          CacheControl: "public, max-age=31536000",
+          Metadata: {
+            uploadedAt: new Date().toISOString(),
+            source: "video-last-frame",
+          },
+        })
+      );
+
+      const s3Url = `https://${this.bucketName}.s3.amazonaws.com/${key}`;
+      const publicUrl = this.cloudFrontDomain
+        ? `https://${this.cloudFrontDomain}/${key}`
+        : s3Url;
+
+      console.log(`✅ Extracted last frame and uploaded to S3: ${key}`);
+
+      return {
+        key,
+        url: s3Url,
+        publicUrl,
+        size: frameBuffer.byteLength,
+      };
+    } finally {
+      await fs.unlink(tmpVideo).catch(() => undefined);
+      await fs.unlink(tmpFrame).catch(() => undefined);
+    }
+  }
+
+  async saveI2VConcatenatedVideo(
+    jobId: string,
+    baseVideoUrl: string,
+    appendedVideoUrl: string
+  ): Promise<UploadVideoPairResult> {
+    if (!ffmpegPath) {
+      throw new Error("ffmpeg-static not available; cannot concatenate videos");
+    }
+
+    const tmpBase = pathJoin(tmpdir(), `${jobId}-base.mp4`);
+    const tmpAppended = pathJoin(tmpdir(), `${jobId}-append.mp4`);
+    const tmpConcat = pathJoin(tmpdir(), `${jobId}-concat.mp4`);
+    const tmpConcatList = pathJoin(tmpdir(), `${jobId}-concat.txt`);
+
+    let concatCompleted = false;
+
+    try {
+      await this.downloadUrlToTmp(baseVideoUrl, tmpBase);
+      await this.downloadUrlToTmp(appendedVideoUrl, tmpAppended);
+
+      const listContent = [tmpBase, tmpAppended]
+        .map((path) => `file '${path.replace(/'/g, "'\\''")}'`)
+        .join("\n");
+      await fs.writeFile(tmpConcatList, `${listContent}\n`);
+
+      try {
+        await this.runFfmpeg([
+          "-hide_banner",
+          "-loglevel",
+          "warning",
+          "-y",
+          "-f",
+          "concat",
+          "-safe",
+          "0",
+          "-i",
+          tmpConcatList,
+          "-c",
+          "copy",
+          tmpConcat,
+        ]);
+        concatCompleted = true;
+      } catch (error) {
+        console.warn(
+          "Direct concat failed; falling back to re-encoding",
+          error
+        );
+      }
+
+      if (!concatCompleted) {
+        await this.runFfmpeg([
+          "-hide_banner",
+          "-loglevel",
+          "warning",
+          "-y",
+          "-i",
+          tmpBase,
+          "-i",
+          tmpAppended,
+          "-filter_complex",
+          "[0:v]fps=30,format=yuv420p[v0];[1:v]fps=30,format=yuv420p[v1];[v0][v1]concat=n=2:v=1[outv]",
+          "-map",
+          "[outv]",
+          "-c:v",
+          "libx264",
+          "-preset",
+          "veryfast",
+          "-crf",
+          "18",
+          "-pix_fmt",
+          "yuv420p",
+          "-movflags",
+          "+faststart",
+          tmpConcat,
+        ]);
+      }
+
+      return await this.uploadI2VVideoFromTmp(jobId, tmpConcat);
+    } finally {
+      await fs.unlink(tmpBase).catch(() => undefined);
+      await fs.unlink(tmpAppended).catch(() => undefined);
+      await fs.unlink(tmpConcatList).catch(() => undefined);
+      await fs.unlink(tmpConcat).catch(() => undefined);
     }
   }
 }

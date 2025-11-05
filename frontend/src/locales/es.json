@@ -43,6 +43,7 @@
     "unfollow": "Dejar de seguir",
     "bookmark": "Marcador",
     "download": "Descargar",
+    "extendVideo": "Extender video",
     "loadMore": "Cargar más",
     "goBack": "Volver",
     "share": "Compartir",
@@ -2439,7 +2440,8 @@
         "noMediaId": "No se proporcionó ID de media",
         "failedToLoadMedia": "Error al cargar el media",
         "videoToVideoNotSupported": "La conversión de video a video no está soportada",
-        "mediaNotFound": "Media no encontrado"
+        "mediaNotFound": "Media no encontrado",
+        "extendRequiresVideo": "La extensión de video requiere un video de origen"
       },
       "titles": {
         "convertToVideo": "Convertir a video",
@@ -2474,6 +2476,10 @@
     "settings": {
       "title": "Configuración de generación de video",
       "videoLength": "Duración del video",
+      "videoLengthAppend": "Añadir duración al video",
+      "appendDescription": "Agrega {seconds}s al final del video seleccionado.",
+      "currentDuration": "Duración actual del video: {seconds}s",
+      "projectedDuration": "Duración final estimada: {seconds}s",
       "durations": {
         "fiveSeconds": "5 segundos",
         "eightSeconds": "8 segundos",

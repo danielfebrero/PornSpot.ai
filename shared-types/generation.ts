@@ -84,6 +84,7 @@ export interface I2VSettings {
   optimizePrompt: boolean;
   isPublic: boolean;
   enableLoras: boolean;
+  mode?: "image-to-video" | "video-extension"; // Optional hint for backend to differentiate flows
 }
 
 export interface I2VSubmitJobRequest extends I2VSettings {

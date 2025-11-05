@@ -43,6 +43,7 @@
     "unfollow": "取消关注",
     "bookmark": "收藏",
     "download": "下载",
+    "extendVideo": "延长视频",
     "loadMore": "加载更多",
     "goBack": "返回",
     "share": "分享",
@@ -2451,7 +2452,8 @@
         "noMediaId": "未提供媒体ID",
         "failedToLoadMedia": "加载媒体失败",
         "videoToVideoNotSupported": "不支持视频转视频转换",
-        "mediaNotFound": "媒体未找到"
+        "mediaNotFound": "媒体未找到",
+        "extendRequiresVideo": "视频延长功能需要选择一个视频源"
       },
       "titles": {
         "convertToVideo": "转换为视频",
@@ -2486,6 +2488,10 @@
     "settings": {
       "title": "视频生成设置",
       "videoLength": "视频长度",
+      "videoLengthAppend": "追加视频时长",
+      "appendDescription": "在所选视频末尾追加 {seconds} 秒。",
+      "currentDuration": "当前视频时长：{seconds} 秒",
+      "projectedDuration": "预计最终时长：{seconds} 秒",
       "durations": {
         "fiveSeconds": "5秒",
         "eightSeconds": "8秒",
