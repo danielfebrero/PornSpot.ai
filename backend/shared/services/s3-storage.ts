@@ -612,6 +612,8 @@ export class S3StorageService {
       }
 
       if (!concatCompleted) {
+        // Use framerate-agnostic concat with pixel format normalization only
+        // Both videos should already have matching fps from Runpod
         await this.runFfmpeg([
           "-hide_banner",
           "-loglevel",
@@ -622,7 +624,7 @@ export class S3StorageService {
           "-i",
           tmpAppended,
           "-filter_complex",
-          "[0:v]fps=30,format=yuv420p[v0];[1:v]fps=30,format=yuv420p[v1];[v0][v1]concat=n=2:v=1[outv]",
+          "[0:v]format=yuv420p[v0];[1:v]format=yuv420p[v1];[v0][v1]concat=n=2:v=1[outv]",
           "-map",
           "[outv]",
           "-c:v",
