@@ -69,6 +69,7 @@ export function FaqClient() {
         items: [
           "customizeContent",
           "videoSupport",
+          "videoExtension",
           "unhappyOutput",
           "platformUpdates",
         ],

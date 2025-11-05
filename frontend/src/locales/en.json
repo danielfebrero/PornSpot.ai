@@ -2698,6 +2698,10 @@
             "question": "Does PornSpot.ai support video generation?",
             "answer": "Yes. Create short AI adult videos with motion controls for actions, lighting, and pacing. Use the I2V LoRA triggers to keep movement coherent and immersive."
           },
+          "videoExtension": {
+            "question": "Can I extend video length indefinitely?",
+            "answer": "Absolutely. You can extend any generated video by adding 5 to 30 seconds at a time, with no maximum iteration limit. Keep chaining extensions to create longer sequences—perfect for building complete scenes from multiple connected clips."
+          },
           "unhappyOutput": {
             "question": "What if the AI generates something I don't like?",
             "answer": "Adjust your prompt with clearer details or negative keywords. Regenerate as often as needed."

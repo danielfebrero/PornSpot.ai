@@ -2484,6 +2484,10 @@
             "question": "Unterstützt PornSpot.ai Videos?",
             "answer": "Ja. Erzeugen Sie kurze AI-Videos mit Bewegungssteuerungen für Aktionen, Licht und Tempo. Die I2V-LoRAs sorgen für stimmige Übergänge."
           },
+          "videoExtension": {
+            "question": "Kann ich die Videolänge unbegrenzt erweitern?",
+            "answer": "Absolut. Sie können jedes generierte Video erweitern, indem Sie jeweils 5 bis 30 Sekunden hinzufügen, ohne maximale Iterationsbegrenzung. Verketten Sie weiter Erweiterungen, um längere Sequenzen zu erstellen – perfekt zum Aufbau vollständiger Szenen aus mehreren verbundenen Clips."
+          },
           "unhappyOutput": {
             "question": "Was, wenn mir ein Ergebnis nicht gefällt?",
             "answer": "Verfeinern Sie den Prompt mit klareren Details oder negativen Schlagworten. Generieren Sie erneut."

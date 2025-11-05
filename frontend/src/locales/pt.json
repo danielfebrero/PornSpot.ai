@@ -2696,6 +2696,10 @@
             "question": "O PornSpot.ai suporta geração de vídeo?",
             "answer": "Sim. Crie vídeos adultos curtos com controles de movimento para ações, iluminação e ritmo. Use os gatilhos LoRA I2V para manter o movimento coerente e imersivo."
           },
+          "videoExtension": {
+            "question": "Posso estender a duração do vídeo indefinidamente?",
+            "answer": "Absolutamente. Você pode estender qualquer vídeo gerado adicionando de 5 a 30 segundos de cada vez, sem limite máximo de iterações. Continue encadeando extensões para criar sequências mais longas—perfeito para construir cenas completas a partir de vários clipes conectados."
+          },
           "unhappyOutput": {
             "question": "E se a IA gerar algo que eu não gosto?",
             "answer": "Ajuste seu prompt com detalhes mais claros ou palavras-chave negativas. Regere quantas vezes precisar."

@@ -2649,6 +2649,10 @@
             "question": "¿El sitio admite generación de video?",
             "answer": "Sí. Crea videos cortos con IA controlando movimiento, iluminación y ritmo. Usa los triggers de LoRA I2V para mantener movimientos coherentes e inmersivos."
           },
+          "videoExtension": {
+            "question": "¿Puedo extender la duración del video indefinidamente?",
+            "answer": "Absolutamente. Puedes extender cualquier video generado agregando de 5 a 30 segundos a la vez, sin límite máximo de iteraciones. Sigue encadenando extensiones para crear secuencias más largas, perfecto para construir escenas completas a partir de múltiples clips conectados."
+          },
           "unhappyOutput": {
             "question": "¿Qué hago si no me gusta el resultado?",
             "answer": "Ajusta el prompt con más detalles o palabras negativas. Regenera tantas veces como quieras."
