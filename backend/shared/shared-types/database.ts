@@ -441,7 +441,8 @@ export interface I2VJobEntity extends BaseEntity {
   GSI4SK: string; // {createdAt}#{jobId}
   EntityType: "I2VJob";
   // Core identifiers
-  jobId: string; // Runpod job ID
+  jobId: string; // User-facing UUID (primary identifier)
+  runpodJobId?: string; // RunPod's actual job ID (set after successful submission)
   userId: string; // Submitting user
   mediaId: string; // Source image media ID
   mode: "image-to-video" | "video-extension"; // Track job intent for downstream processing
@@ -478,7 +479,15 @@ export interface I2VJobEntity extends BaseEntity {
     }>;
   };
   // Submission and status
-  status: "IN_QUEUE" | "IN_PROGRESS" | "COMPLETED" | "FAILED" | string; // store Runpod-like statuses
+  status:
+    | "SUBMITTING"
+    | "IN_QUEUE"
+    | "IN_PROGRESS"
+    | "COMPLETED"
+    | "FAILED"
+    | string; // SUBMITTING = created but not yet submitted to RunPod
+  submissionAttempts?: number; // Number of submission retry attempts
+  submissionError?: string; // Error message if submission failed
   submittedAt: string; // ISO
   updatedAt: string; // ISO
   completedAt?: string; // ISO

@@ -487,6 +487,7 @@ export function I2VPageContent() {
     }
     setIsGenerating(true);
     try {
+      // Submit job - now returns instantly with jobId
       const submitResp = await generateApi.submitI2VJob({
         ...settings,
         mediaId: media.id,
@@ -494,9 +495,16 @@ export function I2VPageContent() {
         // Private output is reserved for Pro plans only
         isPublic: canCreatePrivateContent() ? settings.isPublic : true,
       });
-      // On successful job start, redirect to videos page
-      if (submitResp) {
+
+      // Navigate IMMEDIATELY after getting jobId (instant response)
+      if (submitResp?.jobId) {
+        // Job created successfully, navigate to videos page
+        // The polling on that page will show the job in "SUBMITTING" status
         router.push("/user/videos");
+      } else {
+        // Unexpected: no jobId in response
+        setIsGenerating(false);
+        setSubmitError("Failed to create job. Please try again.");
       }
     } catch (err) {
       console.error("Generation failed:", err);

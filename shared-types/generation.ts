@@ -91,6 +91,32 @@ export interface I2VSubmitJobRequest extends I2VSettings {
   mediaId: string;
 }
 
+export type I2VJobStatus =
+  | "SUBMITTING"
+  | "IN_QUEUE"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "FAILED";
+
+export interface I2VJob {
+  jobId: string;
+  userId: string;
+  mediaId: string;
+  status: I2VJobStatus;
+  runpodJobId?: string;
+  submissionAttempts?: number;
+  submissionError?: string;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
+  mode: "image-to-video" | "video-extension";
+  request: I2VSettings & {
+    width: number;
+    height: number;
+  };
+  resultMediaId?: string;
+}
+
 export interface I2VPollJobRequest {
   jobId: string;
 }

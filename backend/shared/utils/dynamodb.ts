@@ -52,6 +52,7 @@ import {
   UserInteractionEntity,
   UserInteraction,
 } from "@shared/shared-types";
+import { I2VJob } from "../shared-types/generation";
 import { ConnectionEntity } from "@shared/shared-types/websocket";
 import { CounterUtil } from "./counter";
 import { v4 as uuidv4 } from "uuid";
@@ -271,6 +272,117 @@ export class DynamoDBService {
         ConditionExpression: "attribute_exists(PK)",
       })
     );
+  }
+
+  static async updateI2VJobWithRunpodId(
+    jobId: string,
+    runpodJobId: string,
+    status: string
+  ): Promise<void> {
+    const now = new Date().toISOString();
+
+    // First get the job to retrieve userId for GSI4PK
+    const existingJob = await this.getI2VJob(jobId);
+    if (!existingJob) {
+      throw new Error(`I2V job ${jobId} not found`);
+    }
+
+    await docClient.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `I2VJOB#${jobId}`,
+          SK: "METADATA",
+        },
+        UpdateExpression:
+          "SET runpodJobId = :runpodJobId, #status = :status, updatedAt = :updatedAt, GSI3PK = :gsi3pk, GSI4PK = :gsi4pk",
+        ExpressionAttributeNames: {
+          "#status": "status",
+        },
+        ExpressionAttributeValues: {
+          ":runpodJobId": runpodJobId,
+          ":status": status,
+          ":updatedAt": now,
+          ":gsi3pk": `I2VJOB_STATUS#${status}`,
+          ":gsi4pk": `I2VJOB_STATUS_USER#${existingJob.userId}#${status}`,
+          ":submitting": "SUBMITTING",
+        },
+        // Condition to ensure we only update jobs in SUBMITTING status
+        ConditionExpression: "#status = :submitting",
+      })
+    );
+  }
+
+  static async incrementSubmissionAttempts(
+    jobId: string,
+    error?: string
+  ): Promise<number> {
+    const now = new Date().toISOString();
+    const updateExpression = error
+      ? "SET submissionError = :error, updatedAt = :updatedAt ADD submissionAttempts :inc"
+      : "SET updatedAt = :updatedAt ADD submissionAttempts :inc";
+
+    const expressionAttributeValues: Record<string, any> = {
+      ":inc": 1,
+      ":updatedAt": now,
+    };
+
+    if (error) {
+      expressionAttributeValues[":error"] = error;
+    }
+
+    const result = await docClient.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          PK: `I2VJOB#${jobId}`,
+          SK: "METADATA",
+        },
+        UpdateExpression: updateExpression,
+        ExpressionAttributeValues: expressionAttributeValues,
+        ReturnValues: "ALL_NEW",
+      })
+    );
+
+    const updatedJob = result.Attributes as I2VJobEntity;
+    return updatedJob.submissionAttempts || 1;
+  }
+
+  // Helper method to convert I2VJobEntity to I2VJob
+  static convertI2VJobEntityToI2VJob(entity: I2VJobEntity): I2VJob {
+    const job: I2VJob = {
+      jobId: entity.jobId,
+      userId: entity.userId,
+      mediaId: entity.mediaId,
+      status: entity.status as any, // Type assertion for status
+      createdAt: entity.submittedAt,
+      updatedAt: entity.updatedAt,
+      mode: entity.mode,
+      request: entity.request as any, // Type assertion to handle optional fields
+    };
+
+    // Add optional fields if they exist
+    if (entity.runpodJobId !== undefined) {
+      job.runpodJobId = entity.runpodJobId;
+    }
+
+    if (entity.submissionAttempts !== undefined) {
+      job.submissionAttempts = entity.submissionAttempts;
+    }
+
+    if (entity.submissionError !== undefined) {
+      job.submissionError = entity.submissionError;
+    }
+
+    if (entity.completedAt !== undefined) {
+      job.completedAt = entity.completedAt;
+    }
+
+    if (entity.resultMediaId !== undefined) {
+      job.resultMediaId = entity.resultMediaId;
+    }
+
+    return job;
   }
 
   static async refundI2VJobCredits(

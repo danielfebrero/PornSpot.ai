@@ -37,6 +37,15 @@ const handlePollI2VJob = async (
   if (job.userId !== auth.userId)
     return ResponseUtil.forbidden(event, "Not allowed to access this job");
 
+  // Handle jobs still in SUBMITTING phase
+  if (job.status === "SUBMITTING") {
+    return ResponseUtil.success(event, {
+      status: "SUBMITTING",
+      message: "Job is being submitted to processing queue",
+      submissionAttempts: job.submissionAttempts || 0,
+    });
+  }
+
   if (job.status === "FAILED") {
     await refundCreditsForFailedJob(job);
   }

@@ -3629,6 +3629,7 @@ Resources:
       Environment:
         Variables:
           I2V_POLL_QUEUE_URL: !Ref I2VPollQueue
+          I2V_PROCESS_RUNPOD_QUEUE_URL: !Ref I2VProcessRunpodQueue
       Events:
         PostI2VSubmit:
           Type: Api
@@ -3669,6 +3670,7 @@ Resources:
                 - sqs:SendMessage
               Resource:
                 - !GetAtt I2VPollQueue.Arn
+                - !GetAtt I2VProcessRunpodQueue.Arn
 
   # Image-to-Video Poll Job Function
   I2VPollJobFunction:
@@ -3862,6 +3864,65 @@ Resources:
       VisibilityTimeout: 60
       MessageRetentionPeriod: 1209600 # 14 days
       DelaySeconds: 0
+
+  # SQS queue for async RunPod processing
+  I2VProcessRunpodQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${AWS::StackName}-i2v-process-runpod"
+      VisibilityTimeout: 300 # 5 minutes for RunPod submission
+      MessageRetentionPeriod: 1209600 # 14 days
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt I2VProcessRunpodDLQ.Arn
+        maxReceiveCount: 3
+
+  I2VProcessRunpodDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${AWS::StackName}-i2v-process-runpod-dlq"
+      MessageRetentionPeriod: 1209600 # 14 days
+
+  # Lambda function for async RunPod job submission
+  I2VProcessRunpodFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Environment}-pornspot-generate-i2v-process-runpod-v2"
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      Timeout: 300 # 5 minutes
+      MemorySize: 512
+      ImageConfig:
+        Command: ["functions/generation/i2v-process-runpod.handler"]
+      Environment:
+        Variables:
+          I2V_POLL_QUEUE_URL: !Ref I2VPollQueue
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt I2VProcessRunpodQueue.Arn
+            BatchSize: 1
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MediaTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref MediaTable
+        - S3ReadPolicy:
+            BucketName: !Ref MediaBucket
+        - S3WritePolicy:
+            BucketName: !Ref MediaBucket
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/runpod-api-key"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/openrouter-api-key"
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource:
+                - !GetAtt I2VPollQueue.Arn
 
   # ============================================================================
   # Analytics Functions - Admin Analytics System
