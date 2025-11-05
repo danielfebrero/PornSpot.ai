@@ -152,7 +152,7 @@ export const handleSubmitI2VJob = async (
         videoUrl: sourceVideoUrl,
         keyHint: `${media.id}-${frameKeySuffix}`,
       });
-      runpodSourceImageUrl = frameResult.publicUrl;
+      runpodSourceImageUrl = `${cdnBaseUrl}/${frameResult.key}`;
       baseFrameKey = frameResult.key;
       baseFrameUrl = frameResult.publicUrl;
     } catch (error) {
