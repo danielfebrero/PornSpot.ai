@@ -2613,6 +2613,8 @@
       "titles": {
         "convertToVideo": "In Video konvertieren",
         "convertImageToVideo": "Bild in Video konvertieren",
+        "extendVideo": "Video verlängern",
+        "extendVideoLength": "Videolänge verlängern",
         "sourceImage": "Quellbild",
         "generatedVideo": "Generiertes Video",
         "generatingVideo": "Video wird generiert",
@@ -2621,7 +2623,9 @@
       },
       "descriptions": {
         "transformYourImage": "Transformieren Sie Ihr Bild",
-        "transformImageToVideo": "Verwandeln Sie Ihr Bild in ein animiertes Video"
+        "transformImageToVideo": "Verwandeln Sie Ihr Bild in ein animiertes Video",
+        "extendYourVideo": "Verlängern Sie Ihr Video",
+        "extendVideoByAdding": "Fügen Sie bis zu 30 Sekunden zu Ihrem Video hinzu"
       },
       "actions": {
         "back": "Zurück",

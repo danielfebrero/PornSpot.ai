@@ -2458,6 +2458,8 @@
       "titles": {
         "convertToVideo": "转换为视频",
         "convertImageToVideo": "图片转视频",
+        "extendVideo": "延长视频",
+        "extendVideoLength": "延长视频时长",
         "sourceImage": "源图片",
         "generatedVideo": "生成的视频",
         "generatingVideo": "正在生成视频",
@@ -2466,7 +2468,9 @@
       },
       "descriptions": {
         "transformYourImage": "转换您的图片",
-        "transformImageToVideo": "将您的图片转换为动画视频"
+        "transformImageToVideo": "将您的图片转换为动画视频",
+        "extendYourVideo": "延长您的视频",
+        "extendVideoByAdding": "为您的视频添加最多30秒"
       },
       "actions": {
         "back": "返回",

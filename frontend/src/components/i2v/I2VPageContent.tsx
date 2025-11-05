@@ -601,10 +601,14 @@ export function I2VPageContent() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h1 className="text-lg font-bold text-foreground truncate">
-                    {t("titles.convertToVideo")}
+                    {isExtendMode
+                      ? t("titles.extendVideo")
+                      : t("titles.convertToVideo")}
                   </h1>
                   <p className="text-sm text-muted-foreground truncate">
-                    {t("descriptions.transformYourImage")}
+                    {isExtendMode
+                      ? t("descriptions.extendYourVideo")
+                      : t("descriptions.transformYourImage")}
                   </p>
                 </div>
               </div>
@@ -733,10 +737,14 @@ export function I2VPageContent() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">
-              {t("titles.convertImageToVideo")}
+              {isExtendMode
+                ? t("titles.extendVideoLength")
+                : t("titles.convertImageToVideo")}
             </h1>
             <p className="text-muted-foreground">
-              {t("descriptions.transformImageToVideo")}
+              {isExtendMode
+                ? t("descriptions.extendVideoByAdding")
+                : t("descriptions.transformImageToVideo")}
             </p>
           </div>
         </div>

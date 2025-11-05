@@ -2483,6 +2483,8 @@
       "titles": {
         "convertToVideo": "वीडियो में बदलें",
         "convertImageToVideo": "छवि को वीडियो में बदलें",
+        "extendVideo": "वीडियो बढ़ाएं",
+        "extendVideoLength": "वीडियो की लंबाई बढ़ाएं",
         "sourceImage": "स्रोत छवि",
         "generatedVideo": "जनरेटेड वीडियो",
         "generatingVideo": "वीडियो जनरेट हो रहा है",
@@ -2491,7 +2493,9 @@
       },
       "descriptions": {
         "transformYourImage": "अपनी छवि को बदलें",
-        "transformImageToVideo": "अपनी छवि को एनिमेटेड वीडियो में बदलें"
+        "transformImageToVideo": "अपनी छवि को एनिमेटेड वीडियो में बदलें",
+        "extendYourVideo": "अपना वीडियो बढ़ाएं",
+        "extendVideoByAdding": "अपने वीडियो में 30 सेकंड तक जोड़ें"
       },
       "actions": {
         "back": "पीछे",

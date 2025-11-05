@@ -2489,6 +2489,8 @@
       "titles": {
         "convertToVideo": "Convert to Video",
         "convertImageToVideo": "Convert Image to Video",
+        "extendVideo": "Extend Video",
+        "extendVideoLength": "Extend Video Length",
         "sourceImage": "Source Image",
         "generatedVideo": "Generated Video",
         "generatingVideo": "Generating Video",
@@ -2497,7 +2499,9 @@
       },
       "descriptions": {
         "transformYourImage": "Transform your image",
-        "transformImageToVideo": "Transform your image into an animated video"
+        "transformImageToVideo": "Transform your image into an animated video",
+        "extendYourVideo": "Extend your video",
+        "extendVideoByAdding": "Add up to 30 seconds to your video"
       },
       "actions": {
         "back": "Back",

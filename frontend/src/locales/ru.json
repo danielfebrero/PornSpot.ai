@@ -2463,6 +2463,8 @@
       "titles": {
         "convertToVideo": "Конвертировать в видео",
         "convertImageToVideo": "Конвертировать изображение в видео",
+        "extendVideo": "Продлить видео",
+        "extendVideoLength": "Продлить длительность видео",
         "sourceImage": "Исходное изображение",
         "generatedVideo": "Сгенерированное видео",
         "generatingVideo": "Генерация видео",
@@ -2471,7 +2473,9 @@
       },
       "descriptions": {
         "transformYourImage": "Преобразуйте ваше изображение",
-        "transformImageToVideo": "Превратите ваше изображение в анимированное видео"
+        "transformImageToVideo": "Превратите ваше изображение в анимированное видео",
+        "extendYourVideo": "Продлите ваше видео",
+        "extendVideoByAdding": "Добавьте до 30 секунд к вашему видео"
       },
       "actions": {
         "back": "Назад",
