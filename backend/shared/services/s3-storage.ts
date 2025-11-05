@@ -574,78 +574,43 @@ export class S3StorageService {
     const tmpBase = pathJoin(tmpdir(), `${jobId}-base.mp4`);
     const tmpAppended = pathJoin(tmpdir(), `${jobId}-append.mp4`);
     const tmpConcat = pathJoin(tmpdir(), `${jobId}-concat.mp4`);
-    const tmpConcatList = pathJoin(tmpdir(), `${jobId}-concat.txt`);
-
-    let concatCompleted = false;
 
     try {
       await this.downloadUrlToTmp(baseVideoUrl, tmpBase);
       await this.downloadUrlToTmp(appendedVideoUrl, tmpAppended);
 
-      const listContent = [tmpBase, tmpAppended]
-        .map((path) => `file '${path.replace(/'/g, "'\\''")}'`)
-        .join("\n");
-      await fs.writeFile(tmpConcatList, `${listContent}\n`);
-
-      try {
-        await this.runFfmpeg([
-          "-hide_banner",
-          "-loglevel",
-          "warning",
-          "-y",
-          "-f",
-          "concat",
-          "-safe",
-          "0",
-          "-i",
-          tmpConcatList,
-          "-c",
-          "copy",
-          tmpConcat,
-        ]);
-        concatCompleted = true;
-      } catch (error) {
-        console.warn(
-          "Direct concat failed; falling back to re-encoding",
-          error
-        );
-      }
-
-      if (!concatCompleted) {
-        // Use framerate-agnostic concat with pixel format normalization only
-        // Both videos should already have matching fps from Runpod
-        await this.runFfmpeg([
-          "-hide_banner",
-          "-loglevel",
-          "warning",
-          "-y",
-          "-i",
-          tmpBase,
-          "-i",
-          tmpAppended,
-          "-filter_complex",
-          "[0:v]format=yuv420p[v0];[1:v]format=yuv420p[v1];[v0][v1]concat=n=2:v=1[outv]",
-          "-map",
-          "[outv]",
-          "-c:v",
-          "libx264",
-          "-preset",
-          "veryfast",
-          "-crf",
-          "18",
-          "-pix_fmt",
-          "yuv420p",
-          "-movflags",
-          "+faststart",
-          tmpConcat,
-        ]);
-      }
+      // Concatenate videos, but trim the last frame of base video to avoid duplication
+      // The filter removes 1 frame from the end of the base video before concatenating
+      await this.runFfmpeg([
+        "-hide_banner",
+        "-loglevel",
+        "warning",
+        "-y",
+        "-i",
+        tmpBase,
+        "-i",
+        tmpAppended,
+        "-filter_complex",
+        "[0:v]format=yuv420p,trim=end_frame=-1,setpts=PTS-STARTPTS[v0];[1:v]format=yuv420p,setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1[outv]",
+        "-map",
+        "[outv]",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "18",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        tmpConcat,
+      ]);
 
       return await this.uploadI2VVideoFromTmp(jobId, tmpConcat);
     } finally {
       await fs.unlink(tmpBase).catch(() => undefined);
       await fs.unlink(tmpAppended).catch(() => undefined);
-      await fs.unlink(tmpConcatList).catch(() => undefined);
       await fs.unlink(tmpConcat).catch(() => undefined);
     }
   }

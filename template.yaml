@@ -3660,6 +3660,11 @@ Resources:
                 - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/pornspot-ai/${Environment}/openrouter-api-key"
             - Effect: Allow
               Action:
+                - s3:PutObject
+              Resource:
+                - !Sub "${MediaBucket.Arn}/*"
+            - Effect: Allow
+              Action:
                 - sqs:SendMessage
               Resource:
                 - !GetAtt I2VPollQueue.Arn
