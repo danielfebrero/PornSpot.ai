@@ -579,8 +579,7 @@ export class S3StorageService {
       await this.downloadUrlToTmp(baseVideoUrl, tmpBase);
       await this.downloadUrlToTmp(appendedVideoUrl, tmpAppended);
 
-      // Concatenate videos, but trim the last frame of base video to avoid duplication
-      // The filter removes 1 frame from the end of the base video before concatenating
+      // Concatenate videos, dropping the first frame of the appended clip to avoid duplicate frame overlap
       await this.runFfmpeg([
         "-hide_banner",
         "-loglevel",
@@ -591,7 +590,7 @@ export class S3StorageService {
         "-i",
         tmpAppended,
         "-filter_complex",
-        "[0:v]format=yuv420p,trim=end_frame=-1,setpts=PTS-STARTPTS[v0];[1:v]format=yuv420p,setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1[outv]",
+        "[0:v]format=yuv420p,setpts=PTS-STARTPTS[v0];[1:v]format=yuv420p,trim=start_frame=1,setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1[outv]",
         "-map",
         "[outv]",
         "-c:v",
