@@ -201,6 +201,28 @@ export function ContentCard({
 
   const isVideoMedia = isMedia && media ? isVideo(media) : false;
 
+  // Format video duration from seconds to MM:SS or HH:MM:SS
+  const formatDuration = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${secs
+        .toString()
+        .padStart(2, "0")}`;
+    }
+    return `${minutes}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  // Get video duration from metadata
+  const videoDuration = useMemo(() => {
+    if (isVideoMedia && media?.metadata?.videoLengthSeconds) {
+      return formatDuration(media.metadata.videoLengthSeconds as number);
+    }
+    return null;
+  }, [isVideoMedia, media?.metadata?.videoLengthSeconds]);
+
   // Memoize composed thumbnail URLs to avoid new object references on each render
   const composedMediaThumbnails = useMemo(
     () =>
@@ -1006,8 +1028,25 @@ export function ContentCard({
             {/* Bottom content for media - exactly like albums */}
             <div className="absolute bottom-0 left-0 right-0 p-4">
               <div className="flex items-center justify-between">
-                {/* Empty space for alignment - could add media title here if needed */}
-                <div></div>
+                {/* Video duration display (bottom-left) */}
+                {isVideoMedia && videoDuration && (
+                  <div
+                    className={cn(
+                      "px-2 py-1 rounded bg-black/80 text-white text-xs font-semibold transition-opacity duration-200",
+                      isMobileInterface
+                        ? showMobileActions
+                          ? "opacity-100"
+                          : "opacity-0"
+                        : isHovered || isDropdownHovered
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  >
+                    {videoDuration}
+                  </div>
+                )}
+                {/* Empty space for alignment when no video duration */}
+                {!isVideoMedia && <div></div>}
 
                 {/* Like, Bookmark, View count */}
                 {showCounts && !isSelecting && (
