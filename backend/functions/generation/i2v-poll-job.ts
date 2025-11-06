@@ -185,12 +185,13 @@ async function pollOnce(job: I2VJobEntity): Promise<{
     (baseUpdates as any).delayTime = rpJson.delayTime;
   if (rpJson.executionTime !== undefined)
     (baseUpdates as any).executionTime = rpJson.executionTime;
-  await DynamoDBService.updateI2VJob(jobId, baseUpdates);
   if (rpJson.status !== "COMPLETED") {
+    await DynamoDBService.updateI2VJob(jobId, baseUpdates);
     return { status: rpJson.status, completed: false };
+  } else {
+    const outputUrl = rpJson.output?.result;
+    return { status: "COMPLETED", completed: true, resultUrl: outputUrl };
   }
-  const outputUrl = rpJson.output?.result;
-  return { status: "COMPLETED", completed: true, resultUrl: outputUrl };
 }
 
 async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
