@@ -2446,7 +2446,19 @@ export class DynamoDBService {
     // Get the actual media records using batch get
     const mediaIds = sortedRelationships.map((rel) => rel.mediaId);
     const mediaResults = await this.batchGetMediaByIds(mediaIds);
-    const media = mediaResults.filter((m) => m !== null) as Media[];
+
+    // Preserve the sorted order by mapping mediaIds to their corresponding Media objects
+    const mediaMap = new Map<string, Media>();
+    mediaResults.forEach((m) => {
+      if (m !== null) {
+        mediaMap.set(m.id, m);
+      }
+    });
+
+    // Rebuild media array in the same order as sortedRelationships
+    const media = mediaIds
+      .map((mediaId) => mediaMap.get(mediaId))
+      .filter((m) => m !== undefined) as Media[];
 
     const response: {
       media: Media[];
