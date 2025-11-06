@@ -96,7 +96,8 @@ export type I2VJobStatus =
   | "IN_QUEUE"
   | "IN_PROGRESS"
   | "COMPLETED"
-  | "FAILED";
+  | "FAILED"
+  | "FINALIZING";
 
 export interface I2VJob {
   jobId: string;

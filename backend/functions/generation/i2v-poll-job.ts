@@ -61,6 +61,14 @@ const handlePollI2VJob = async (
     }
   }
 
+  // Job is completed but not yet finalized
+  if (job.status === "COMPLETED" && !job.resultMediaId) {
+    return ResponseUtil.success(event, {
+      status: "FINALIZING",
+      message: "Job completed, finalizing media creation",
+    });
+  }
+
   if (job.executionTime) {
     console.log(
       `Job ${jobId} has executionTime ${job.executionTime}s but not downloaded yet.`
@@ -88,6 +96,7 @@ const handlePollI2VJob = async (
       console.error("Completed job missing output URL");
       return ResponseUtil.internalError(event, "Missing output result URL");
     }
+
     await finalizeCompletedJob(job, res.resultUrl);
     await DynamoDBService.incrementUserProfileMetric(
       job.userId,
@@ -156,17 +165,6 @@ async function pollOnce(job: I2VJobEntity): Promise<{
   const now = new Date().toISOString();
   if (rpRes.status === 404) {
     const txt = await rpRes.text().catch(() => "");
-    if (txt.toLowerCase().includes("redis err")) {
-      console.warn(
-        `Runpod transient 404 for job ${runpodJobId}; treating as pending: ${txt}`
-      );
-      await DynamoDBService.updateI2VJob(jobId, {
-        status: "PENDING",
-        updatedAt: now,
-        GSI3PK: "I2VJOB_STATUS#PENDING",
-      } as Partial<I2VJobEntity>);
-      return { status: "PENDING", completed: false };
-    }
     throw new Error(
       `Runpod status error: ${rpRes.status} ${txt || ""} (job ${runpodJobId})`
     );
