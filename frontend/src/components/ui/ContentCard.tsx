@@ -1028,20 +1028,9 @@ export function ContentCard({
             {/* Bottom content for media - exactly like albums */}
             <div className="absolute bottom-0 left-0 right-0 p-4">
               <div className="flex items-center justify-between">
-                {/* Video duration display (bottom-left) */}
+                {/* Video duration display (bottom-left) - always visible */}
                 {isVideoMedia && videoDuration && (
-                  <div
-                    className={cn(
-                      "px-2 py-1 rounded bg-black/80 text-white text-xs font-semibold transition-opacity duration-200",
-                      isMobileInterface
-                        ? showMobileActions
-                          ? "opacity-100"
-                          : "opacity-0"
-                        : isHovered || isDropdownHovered
-                        ? "opacity-100"
-                        : "opacity-0"
-                    )}
-                  >
+                  <div className="px-2 py-1 rounded bg-black/80 text-white text-xs font-semibold">
                     {videoDuration}
                   </div>
                 )}
