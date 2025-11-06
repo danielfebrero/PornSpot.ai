@@ -30,6 +30,17 @@ const ffmpegPath: string | null = (() => {
     return null;
   }
 })();
+// Use require for ffprobe-static to avoid type dependency; optional at runtime
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const ffprobePath: string | null = (() => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const p = require("ffprobe-static");
+    return p?.path || null;
+  } catch (_err) {
+    return null;
+  }
+})();
 import { v4 as uuidv4 } from "uuid";
 
 export interface UploadImageResult {
@@ -579,7 +590,10 @@ export class S3StorageService {
       await this.downloadUrlToTmp(baseVideoUrl, tmpBase);
       await this.downloadUrlToTmp(appendedVideoUrl, tmpAppended);
 
-      // Concatenate videos, dropping the first frame of the appended clip to avoid duplicate frame overlap
+      // Get the frame rate of the base video to ensure consistent timing
+      const frameRate = await this.getVideoFrameRate(tmpBase);
+
+      // Concatenate videos with proper frame handling
       await this.runFfmpeg([
         "-hide_banner",
         "-loglevel",
@@ -590,19 +604,32 @@ export class S3StorageService {
         "-i",
         tmpAppended,
         "-filter_complex",
-        "[0:v]format=yuv420p,setpts=PTS-STARTPTS[v0];[1:v]format=yuv420p,trim=start_frame=1,setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1[outv]",
+        // Process first video: normalize format and timestamps
+        `[0:v]fps=${frameRate},format=yuv420p,setpts=PTS-STARTPTS[v0];` +
+          // Process second video: skip first frame (duplicate of last frame from first video)
+          // and adjust timestamps to continue from where first video ends
+          `[1:v]fps=${frameRate},format=yuv420p,trim=start_frame=1,setpts=PTS-STARTPTS[v1];` +
+          // Concatenate the two processed videos
+          `[v0][v1]concat=n=2:v=1:a=0[outv]`,
         "-map",
         "[outv]",
+        // Use high-quality encoding settings
         "-c:v",
         "libx264",
         "-preset",
-        "veryfast",
+        "medium",
         "-crf",
         "18",
         "-pix_fmt",
         "yuv420p",
+        // Ensure proper keyframe intervals for smooth playback
+        "-g",
+        String(Math.floor(frameRate * 2)), // keyframe every 2 seconds
         "-movflags",
         "+faststart",
+        // Explicitly set output frame rate
+        "-r",
+        String(frameRate),
         tmpConcat,
       ]);
 
@@ -612,5 +639,45 @@ export class S3StorageService {
       await fs.unlink(tmpAppended).catch(() => undefined);
       await fs.unlink(tmpConcat).catch(() => undefined);
     }
+  }
+
+  // Helper function to get video frame rate
+  async getVideoFrameRate(videoPath: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const ffprobe = spawn(ffprobePath || "ffprobe", [
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_entries",
+        "stream=r_frame_rate",
+        "-of",
+        "default=noprint_wrappers=1:nokey=1",
+        videoPath,
+      ]);
+
+      let output = "";
+      ffprobe.stdout.on("data", (data) => {
+        output += data.toString();
+      });
+
+      ffprobe.on("close", (code) => {
+        if (code !== 0) {
+          reject(new Error("Failed to get video frame rate"));
+          return;
+        }
+
+        // Parse frame rate (e.g., "30/1" or "25/1")
+        const parts = output.trim().split("/");
+        const num = Number(parts[0]);
+        const den = Number(parts[1] || 1);
+        const frameRate = num / den;
+
+        // Default to 30 fps if unable to detect
+        resolve(frameRate || 30);
+      });
+
+      ffprobe.on("error", reject);
+    });
   }
 }
