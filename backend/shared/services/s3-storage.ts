@@ -503,6 +503,41 @@ export class S3StorageService {
     }
   }
 
+  async getVideoNbFrames(videoPath: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const ffprobe = spawn(ffprobePath || "ffprobe", [
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_entries",
+        "stream=nb_frames",
+        "-of",
+        "default=noprint_wrappers=1:nokey=1",
+        videoPath,
+      ]);
+
+      let output = "";
+      ffprobe.stdout.on("data", (data) => {
+        output += data.toString();
+      });
+
+      ffprobe.on("close", (code) => {
+        if (code !== 0) {
+          reject(new Error("Failed to get video frame count"));
+          return;
+        }
+
+        const nbFrames = Number(output.trim());
+
+        // Default to 0 if unable to detect (though unlikely)
+        resolve(nbFrames || 0);
+      });
+
+      ffprobe.on("error", reject);
+    });
+  }
+
   async extractVideoLastFrame(params: {
     videoUrl: string;
     keyHint?: string;
@@ -522,15 +557,22 @@ export class S3StorageService {
 
     try {
       await this.downloadUrlToTmp(params.videoUrl, tmpVideo);
+
+      // Probe the exact number of frames
+      const nbFrames = await this.getVideoNbFrames(tmpVideo);
+      if (nbFrames <= 0) {
+        throw new Error("Unable to determine video frame count");
+      }
+
       await this.runFfmpeg([
         "-hide_banner",
         "-loglevel",
         "warning",
         "-y",
-        "-sseof",
-        "-0.25",
         "-i",
         tmpVideo,
+        "-vf",
+        `select=eq(n\\,${nbFrames - 1})`,
         "-frames:v",
         "1",
         "-q:v",
@@ -593,6 +635,16 @@ export class S3StorageService {
       // Get the frame rate of the base video to ensure consistent timing
       const frameRate = await this.getVideoFrameRate(tmpBase);
 
+      // Probe frame counts for precise trimming (to handle +1 frame extras without forcing fixed durations)
+      const baseNbFrames = await this.getVideoNbFrames(tmpBase);
+      const appendedNbFrames = await this.getVideoNbFrames(tmpAppended);
+      if (baseNbFrames <= 0 || appendedNbFrames <= 0) {
+        throw new Error("Unable to determine video frame counts");
+      }
+
+      // Calculate end frame for total trim: full base + (appended -1 for duplicate skip) -1 for overall extra frame
+      const totalEndFrame = baseNbFrames + appendedNbFrames - 2;
+
       // Concatenate videos with proper frame handling
       await this.runFfmpeg([
         "-hide_banner",
@@ -610,9 +662,11 @@ export class S3StorageService {
           // and adjust timestamps to continue from where first video ends
           `[1:v]fps=${frameRate},format=yuv420p,trim=start_frame=1,setpts=PTS-STARTPTS[v1];` +
           // Concatenate the two processed videos
-          `[v0][v1]concat=n=2:v=1:a=0[outv]`,
+          `[v0][v1]concat=n=2:v=1:a=0[outv];` +
+          // Trim total to drop the extra frame at end for exact intended length
+          `[outv]trim=end_frame=${totalEndFrame},setpts=PTS-STARTPTS[finalv]`,
         "-map",
-        "[outv]",
+        "[finalv]",
         // Use high-quality encoding settings
         "-c:v",
         "libx264",
