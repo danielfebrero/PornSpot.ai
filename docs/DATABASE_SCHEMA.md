@@ -177,6 +177,8 @@ Represents a single media item that can belong to multiple albums (many-to-many 
 - **GSI1SK**: `ALBUM#{albumId}#{addedAt}`
 - **GSI2PK**: `ALBUM_MEDIA_BY_DATE`
 - **GSI2SK**: `{addedAt}#{albumId}#{mediaId}`
+- **GSI3PK**: `ALBUM#{albumId}`
+- **GSI3SK**: `{addedAt}#{mediaId}`
 - **EntityType**: `AlbumMedia`
 
 | Attribute | Type      | Description                                  |
@@ -185,6 +187,11 @@ Represents a single media item that can belong to multiple albums (many-to-many 
 | `mediaId` | `string`  | The ID of the media item.                    |
 | `addedAt` | `string`  | The ISO 8601 timestamp when media was added. |
 | `addedBy` | `string?` | Who added it to this album.                  |
+
+**Access Patterns**:
+
+- Query all media in an album sorted by addedAt (descending): GSI3 query with `GSI3PK = ALBUM#{albumId}`, `ScanIndexForward = false`
+- Query all albums containing a specific media: GSI1 query with `GSI1PK = MEDIA#{mediaId}`
 
 **Note**: Prevents duplicates with condition `attribute_not_exists(PK) AND attribute_not_exists(SK)`.
 

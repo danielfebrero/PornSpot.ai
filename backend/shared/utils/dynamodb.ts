@@ -1937,6 +1937,8 @@ export class DynamoDBService {
       GSI1SK: `ALBUM#${albumId}#${now}`,
       GSI2PK: "ALBUM_MEDIA_BY_DATE",
       GSI2SK: `${now}#${albumId}#${mediaId}`,
+      GSI3PK: `ALBUM#${albumId}`,
+      GSI3SK: `${now}#${mediaId}`,
       EntityType: "AlbumMedia",
       albumId,
       mediaId,
@@ -2416,15 +2418,17 @@ export class DynamoDBService {
     media: Media[];
     lastEvaluatedKey?: Record<string, any>;
   }> {
-    // First, get album-media relationships
+    // Use GSI3 to get album-media relationships sorted by addedAt (descending)
+    // GSI3PK = "ALBUM#<albumId>", GSI3SK = "<addedAt>#<mediaId>"
     const relationshipsResult = await docClient.send(
       new QueryCommand({
         TableName: TABLE_NAME,
-        KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk_prefix)",
+        IndexName: "GSI3",
+        KeyConditionExpression: "GSI3PK = :gsi3pk",
         ExpressionAttributeValues: {
-          ":pk": `ALBUM#${albumId}`,
-          ":sk_prefix": "MEDIA#",
+          ":gsi3pk": `ALBUM#${albumId}`,
         },
+        ScanIndexForward: false, // Sort by addedAt descending (most recent first)
         Limit: limit,
         ExclusiveStartKey: lastEvaluatedKey,
       })
@@ -2433,18 +2437,8 @@ export class DynamoDBService {
     const relationships =
       (relationshipsResult.Items as AlbumMediaEntity[]) || [];
 
-    // Sort relationships by addedAt in descending order (most recent first)
-    const sortedRelationships = relationships.sort((a, b) => {
-      const aAdded = a.addedAt || "";
-      const bAdded = b.addedAt || "";
-      if (aAdded === bAdded) {
-        return 0;
-      }
-      return bAdded.localeCompare(aAdded);
-    });
-
     // Get the actual media records using batch get
-    const mediaIds = sortedRelationships.map((rel) => rel.mediaId);
+    const mediaIds = relationships.map((rel) => rel.mediaId);
     const mediaResults = await this.batchGetMediaByIds(mediaIds);
 
     // Preserve the sorted order by mapping mediaIds to their corresponding Media objects
@@ -2455,7 +2449,7 @@ export class DynamoDBService {
       }
     });
 
-    // Rebuild media array in the same order as sortedRelationships
+    // Rebuild media array in the same order as relationships (already sorted by GSI3SK)
     const media = mediaIds
       .map((mediaId) => mediaMap.get(mediaId))
       .filter((m) => m !== undefined) as Media[];

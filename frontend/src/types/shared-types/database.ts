@@ -127,6 +127,8 @@ export interface AlbumMediaEntity extends BaseEntity {
   GSI1SK: string; // ALBUM#{albumId}#{addedAt}
   GSI2PK: string; // ALBUM_MEDIA_BY_DATE
   GSI2SK: string; // {addedAt}#{albumId}#{mediaId}
+  GSI3PK: string; // ALBUM#{albumId}
+  GSI3SK: string; // {addedAt}#{mediaId}
   EntityType: "AlbumMedia";
   albumId: string;
   mediaId: string;
