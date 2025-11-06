@@ -61,8 +61,8 @@ const handlePollI2VJob = async (
     }
   }
 
-  // Job is completed but not yet finalized
-  if (job.status === "COMPLETED" && !job.resultMediaId) {
+  // Job is in finalizing state
+  if (job.status === "FINALIZING") {
     return ResponseUtil.success(event, {
       status: "FINALIZING",
       message: "Job completed, finalizing media creation",
@@ -96,6 +96,13 @@ const handlePollI2VJob = async (
       console.error("Completed job missing output URL");
       return ResponseUtil.internalError(event, "Missing output result URL");
     }
+
+    // Update status to FINALIZING before starting finalization
+    await DynamoDBService.updateI2VJob(jobId, {
+      status: "FINALIZING",
+      updatedAt: new Date().toISOString(),
+      GSI3PK: "I2VJOB_STATUS#FINALIZING",
+    } as any);
 
     await finalizeCompletedJob(job, res.resultUrl);
     await DynamoDBService.incrementUserProfileMetric(
@@ -176,22 +183,37 @@ async function pollOnce(job: I2VJobEntity): Promise<{
     );
   }
   const rpJson = (await rpRes.json()) as any;
-  const baseUpdates: Partial<I2VJobEntity> = {
-    status: rpJson.status,
-    updatedAt: now,
-    GSI3PK: `I2VJOB_STATUS#${rpJson.status}`,
-  } as any;
-  if (rpJson.delayTime !== undefined)
-    (baseUpdates as any).delayTime = rpJson.delayTime;
-  if (rpJson.executionTime !== undefined)
-    (baseUpdates as any).executionTime = rpJson.executionTime;
+
+  // Don't update to COMPLETED here - let the caller set FINALIZING first
   if (rpJson.status !== "COMPLETED") {
+    const baseUpdates: Partial<I2VJobEntity> = {
+      status: rpJson.status,
+      updatedAt: now,
+      GSI3PK: `I2VJOB_STATUS#${rpJson.status}`,
+    } as any;
+    if (rpJson.delayTime !== undefined)
+      (baseUpdates as any).delayTime = rpJson.delayTime;
+    if (rpJson.executionTime !== undefined)
+      (baseUpdates as any).executionTime = rpJson.executionTime;
     await DynamoDBService.updateI2VJob(jobId, baseUpdates);
     return { status: rpJson.status, completed: false };
-  } else {
-    const outputUrl = rpJson.output?.result;
-    return { status: "COMPLETED", completed: true, resultUrl: outputUrl };
   }
+
+  // Job is complete on RunPod side - just update execution metadata
+  const metadataUpdates: Partial<I2VJobEntity> = {
+    updatedAt: now,
+  } as any;
+  if (rpJson.delayTime !== undefined)
+    (metadataUpdates as any).delayTime = rpJson.delayTime;
+  if (rpJson.executionTime !== undefined)
+    (metadataUpdates as any).executionTime = rpJson.executionTime;
+  if (Object.keys(metadataUpdates).length > 1) {
+    // More than just updatedAt
+    await DynamoDBService.updateI2VJob(jobId, metadataUpdates);
+  }
+
+  const outputUrl = rpJson.output?.result;
+  return { status: "COMPLETED", completed: true, resultUrl: outputUrl };
 }
 
 async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
@@ -420,6 +442,10 @@ const handleSqsEvent = async (event: SQSEvent) => {
       if (job.status === "COMPLETED" && job.resultMediaId) {
         continue; // nothing to do
       }
+      if (job.status === "FINALIZING") {
+        console.log("I2V job already finalizing; skipping", jobId);
+        continue;
+      }
       const res = await pollOnce(job);
       if (!res.completed) {
         if (res.status === "FAILED") {
@@ -463,6 +489,14 @@ const handleSqsEvent = async (event: SQSEvent) => {
         console.error("COMPLETED job missing resultUrl", jobId);
         continue;
       }
+
+      // Update status to FINALIZING before starting finalization
+      await DynamoDBService.updateI2VJob(jobId, {
+        status: "FINALIZING",
+        updatedAt: new Date().toISOString(),
+        GSI3PK: "I2VJOB_STATUS#FINALIZING",
+      } as any);
+
       await finalizeCompletedJob(job, res.resultUrl);
     } catch (err) {
       console.error("Error processing I2V SQS record:", err);

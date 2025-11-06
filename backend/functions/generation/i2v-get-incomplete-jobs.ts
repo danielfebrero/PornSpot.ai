@@ -12,7 +12,12 @@ const client = new DynamoDBClient({});
 const TABLE_NAME = process.env["DYNAMODB_TABLE"]!;
 
 // Incomplete statuses we care about (anything not COMPLETED). FAILED jobs are excluded per requirement wording "not COMPLETED".
-const INCOMPLETE_STATUSES = ["SUBMITTING", "IN_QUEUE", "IN_PROGRESS"] as const;
+const INCOMPLETE_STATUSES = [
+  "SUBMITTING",
+  "IN_QUEUE",
+  "IN_PROGRESS",
+  "FINALIZING",
+] as const;
 
 interface IncompleteJobResponseItem {
   jobId: string;
