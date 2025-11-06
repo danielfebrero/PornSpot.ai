@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useLocaleRouter } from "@/lib/navigation";
 import { Button } from "@/components/ui/Button";
@@ -33,8 +34,10 @@ import { generateApi } from "@/lib/api/generate";
 import { useTranslations } from "next-intl";
 import { usePermissions } from "@/contexts/PermissionsContext";
 import { ApiUtil } from "@/lib/api-util";
+import { queryKeys } from "@/lib/queryClient";
 
 export function I2VPageContent() {
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const router = useLocaleRouter();
   const {
@@ -498,6 +501,9 @@ export function I2VPageContent() {
 
       // Navigate IMMEDIATELY after getting jobId (instant response)
       if (submitResp?.jobId) {
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.generation.incompleteI2VJobs(),
+        });
         // Job created successfully, navigate to videos page
         // The polling on that page will show the job in "SUBMITTING" status
         router.push("/user/videos");
@@ -524,6 +530,7 @@ export function I2VPageContent() {
     router,
     refetch,
     jobMode,
+    queryClient,
   ]);
 
   const canGenerate = useMemo(

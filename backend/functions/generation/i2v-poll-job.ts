@@ -74,7 +74,7 @@ const handlePollI2VJob = async (
 
   // Reuse shared polling logic (single poll only for GET)
   try {
-    const res = await pollOnce(jobId, job.runpodModel);
+    const res = await pollOnce(job);
     if (!res.completed) {
       if (res.status === "FAILED") {
         await refundCreditsForFailedJob({ ...job, status: "FAILED" });
@@ -135,18 +135,17 @@ export const handler = async (
 // Backoff sequence 3/6/9/6/3/6/9... repeated
 const BACKOFF = [3, 6, 9, 6, 3, 6, 9];
 
-async function pollOnce(
-  jobId: string,
-  runpodModel?: string
-): Promise<{
+async function pollOnce(job: I2VJobEntity): Promise<{
   status: string;
   completed: boolean;
   resultUrl?: string;
 }> {
   const runpodApiKey = await ParameterStoreService.getRunpodApiKey();
-  const resolvedModel = runpodModel?.trim() || RUNPOD_MODEL;
+  const resolvedModel = job.runpodModel?.trim() || RUNPOD_MODEL;
+  const jobId = job.jobId;
+  const runpodJobId = job.runpodJobId?.trim() || job.jobId;
   const statusUrl = `https://api.runpod.ai/v2/${resolvedModel}/status/${encodeURIComponent(
-    jobId
+    runpodJobId
   )}`;
   const rpRes = await fetch(statusUrl, {
     method: "GET",
@@ -154,12 +153,31 @@ async function pollOnce(
       Authorization: `Bearer ${runpodApiKey}`,
     },
   });
+  const now = new Date().toISOString();
+  if (rpRes.status === 404) {
+    const txt = await rpRes.text().catch(() => "");
+    if (txt.toLowerCase().includes("redis err")) {
+      console.warn(
+        `Runpod transient 404 for job ${runpodJobId}; treating as pending: ${txt}`
+      );
+      await DynamoDBService.updateI2VJob(jobId, {
+        status: "PENDING",
+        updatedAt: now,
+        GSI3PK: "I2VJOB_STATUS#PENDING",
+      } as Partial<I2VJobEntity>);
+      return { status: "PENDING", completed: false };
+    }
+    throw new Error(
+      `Runpod status error: ${rpRes.status} ${txt || ""} (job ${runpodJobId})`
+    );
+  }
   if (!rpRes.ok) {
     const txt = await rpRes.text().catch(() => "");
-    throw new Error(`Runpod status error: ${rpRes.status} ${txt}`);
+    throw new Error(
+      `Runpod status error: ${rpRes.status} ${txt || ""} (job ${runpodJobId})`
+    );
   }
   const rpJson = (await rpRes.json()) as any;
-  const now = new Date().toISOString();
   const baseUpdates: Partial<I2VJobEntity> = {
     status: rpJson.status,
     updatedAt: now,
@@ -400,7 +418,7 @@ const handleSqsEvent = async (event: SQSEvent) => {
       if (job.status === "COMPLETED" && job.resultMediaId) {
         continue; // nothing to do
       }
-      const res = await pollOnce(jobId, job.runpodModel);
+      const res = await pollOnce(job);
       if (!res.completed) {
         if (res.status === "FAILED") {
           await refundCreditsForFailedJob({ ...job, status: "FAILED" });
