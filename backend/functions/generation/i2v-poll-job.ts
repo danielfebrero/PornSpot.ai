@@ -302,6 +302,9 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
     (sourceMedia?.metadata as any)?.height ??
     sourceMedia?.height;
 
+  // Determine the original media ID - preserve from job entity
+  const originalMediaId = job.originalMediaId ?? job.mediaId;
+
   // Calculate video length for extensions
   let videoLengthSeconds: number | undefined;
   let extendedFromMediaId: string | undefined;
@@ -321,7 +324,7 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
 
     if (totalDuration && totalDuration > 0) {
       videoLengthSeconds = totalDuration;
-      extendedFromMediaId = job.mediaId;
+      extendedFromMediaId = job.mediaId; // The immediate source video being extended
       extendedBySeconds = extensionSeconds;
     }
   } else {
@@ -345,9 +348,9 @@ async function finalizeCompletedJob(job: I2VJobEntity, outputUrl: string) {
     cfgScale: job.request?.cfgScale,
     steps: job.request?.inferenceSteps,
     seed: Number(job.request?.seed),
-    originalMediaId: job.mediaId,
+    originalMediaId, // Preserved original image ID from the chain
     videoLengthSeconds,
-    extendedFromMediaId,
+    extendedFromMediaId, // Immediate source video if extension
     extendedBySeconds,
   });
 

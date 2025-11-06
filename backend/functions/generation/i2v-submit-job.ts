@@ -110,6 +110,22 @@ export const handleSubmitI2VJob = async (
     ? "video-extension"
     : "image-to-video";
 
+  // Determine the original media ID (preserve from chain or use current for new I2V)
+  let originalMediaId: string | undefined;
+  if (isVideoSource) {
+    // For video extensions, preserve the originalMediaId from the source video's metadata
+    originalMediaId = (media.metadata as any)?.originalMediaId;
+    if (!originalMediaId) {
+      console.warn(
+        `Video ${mediaId} missing originalMediaId in metadata; using mediaId as fallback`
+      );
+      originalMediaId = mediaId;
+    }
+  } else {
+    // For new image-to-video, the original media is the image itself
+    originalMediaId = mediaId;
+  }
+
   // Decrement user's credits by requested duration BEFORE creating job
   const creditsToUpdate =
     videoLength > userEntity.i2vCreditsSecondsPurchased!
@@ -149,6 +165,7 @@ export const handleSubmitI2VJob = async (
     jobId,
     userId: auth.userId,
     mediaId,
+    originalMediaId,
     mode: jobMode,
     sourceMediaType: isVideoSource ? "video" : "image",
     request: {

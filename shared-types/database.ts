@@ -442,8 +442,10 @@ export interface I2VJobEntity extends BaseEntity {
   EntityType: "I2VJob";
   // Core identifiers
   jobId: string; // Runpod job ID
+  runpodJobId?: string; // Actual RunPod job ID if different from jobId
   userId: string; // Submitting user
   mediaId: string; // Source image media ID
+  originalMediaId?: string; // Original image ID from first I2V generation (preserved in extensions)
   mode: "image-to-video" | "video-extension"; // Track job intent for downstream processing
   sourceMediaType: "image" | "video";
   sourceVideoUrl?: string; // Only set for video-extension jobs
@@ -495,6 +497,8 @@ export interface I2VJobEntity extends BaseEntity {
   refundedSeconds?: number; // Number of seconds refunded to the user
   retryJobId?: string; // Newly created job id when this job is retried
   retryOfJobId?: string; // Original job id if this job is created via retry
+  submissionAttempts?: number; // Number of times submission was attempted
+  submissionError?: string; // Error message if submission failed
 }
 
 export interface OrderEntity extends BaseEntity {
