@@ -609,8 +609,8 @@ export function GenerateClient() {
       >
         <div className="sticky top-0 z-40 bg-card/95 backdrop-blur-lg border-b shadow-sm">
           <div className="px-3 py-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+              <div className="flex min-w-0 items-center gap-2">
                 <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center flex-shrink-0">
                   <Wand2 className="h-3.5 w-3.5 text-white" />
                 </div>
@@ -620,7 +620,7 @@ export function GenerateClient() {
                   </h1>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 flex-shrink-0">
+              <div className="flex flex-wrap items-center gap-1.5 whitespace-nowrap sm:ml-auto">
                 {remaining !== "unlimited" && (
                   <Badge
                     variant="secondary"
