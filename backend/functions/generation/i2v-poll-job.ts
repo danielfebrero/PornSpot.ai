@@ -450,7 +450,11 @@ const handleSqsEvent = async (event: SQSEvent) => {
       if (!res.completed) {
         if (res.status === "FAILED") {
           await refundCreditsForFailedJob({ ...job, status: "FAILED" });
-          console.log("I2V job failed during polling; refund processed", jobId);
+          console.log(
+            `I2V job ${jobId} failed during polling; refund processed; result: ${JSON.stringify(
+              res
+            )}`
+          );
           continue;
         }
         if (res.status === "CANCELLED") {

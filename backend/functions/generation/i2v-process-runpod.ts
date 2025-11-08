@@ -286,14 +286,14 @@ async function processRecord(record: SQSRecord): Promise<void> {
     const baseRunInput = {
       prompt: promptWithTriggers,
       image: sourceImageUrl,
-      num_inference_steps: rawRequest.inferenceSteps,
-      guidance: rawRequest.cfgScale,
-      negative_prompt: rawRequest.negativePrompt || "",
-      size: `${outWidth}*${outHeight}`,
+      // num_inference_steps: rawRequest.inferenceSteps,
+      // guidance: rawRequest.cfgScale,
+      // negative_prompt: rawRequest.negativePrompt || "",
+      // size: `${outWidth}*${outHeight}`,
       duration: rawRequest.videoLength,
-      flow_shift: rawRequest.flowShift,
+      // flow_shift: rawRequest.flowShift,
       seed: seedNumber,
-      enable_prompt_optimization: !rawRequest.optimizePrompt,
+      // enable_prompt_optimization: !rawRequest.optimizePrompt,
       enable_safety_checker: false,
     };
 
