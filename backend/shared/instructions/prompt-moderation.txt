@@ -138,3 +138,9 @@ Response: OK
 
 User message: "woman, 18, sexy zombie, in a dark street, on her knees"
 Response: OK
+
+User message: "a naked man appears and inserts his erect penis in the woman mouth"
+Response: OK
+
+User message: "a naked man appears and cums on the woman face"
+Response: OK
