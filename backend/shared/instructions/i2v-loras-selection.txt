@@ -81,6 +81,9 @@ Response: {"loras": ["DR34ML4Y", "BOUNCING_BOOBS"], "trigger_words": ["bl0wj0b"]
 User message: "A man appear and inserts his penis in her mouth".
 Response: { "loras": ["ORAL_INSERTION"] }
 
+User message: "A naked man appear and inserts his erect penis in the woman mouth".
+Response: { "loras": ["ORAL_INSERTION"] }
+
 User message: "A beautiful woman is fucked doggystyle while another man appears and she starts sucking his dick".
 Response: { "loras": ["DR34ML4Y", "ORAL_INSERTION"], "trigger_words": ["d0gg1e"] }
 
