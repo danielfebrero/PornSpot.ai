@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Script from "next/script";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -190,6 +191,11 @@ export function PricingClient() {
     return window.location.pathname + window.location.search;
   }, []);
 
+  const siteUrl = useMemo(() => {
+    const raw = process.env.NEXT_PUBLIC_SITE_URL ?? PRODUCTION_SITE_URL;
+    return raw.replace(/\/$/, "");
+  }, []);
+
   const handleTrustpayPopup = async (item: string) => {
     const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
     const isComingSoonLocked =
@@ -237,63 +243,110 @@ export function PricingClient() {
   };
 
   // Dynamic plans data using translations
-  const plans: PricingPlan[] = [
-    {
-      id: "starter",
-      name: t("planDetails.starter.name"),
-      description: t("planDetails.starter.description"),
-      monthlyPrice: 9,
-      yearlyPrice: 90,
-      icon: Star,
-      popular: false,
-      features: [{ text: t("planDetails.starter.features.0") }],
-      color: "from-blue-500 to-cyan-500",
-      borderColor: "border-blue-500/20",
-      bgGradient: "from-blue-500/5 to-cyan-500/5",
-    },
-    {
-      id: "unlimited",
-      name: t("planDetails.unlimited.name"),
-      description: t("planDetails.unlimited.description"),
-      monthlyPrice: 20,
-      yearlyPrice: 200,
-      icon: Zap,
-      popular: true,
-      badge: t("planDetails.unlimited.badge"),
-      features: [
-        { text: t("planDetails.unlimited.features.0"), highlight: true },
-        { text: t("planDetails.unlimited.features.1") },
+  const plans: PricingPlan[] = useMemo(
+    () => [
+      {
+        id: "starter",
+        name: t("planDetails.starter.name"),
+        description: t("planDetails.starter.description"),
+        monthlyPrice: 9,
+        yearlyPrice: 90,
+        icon: Star,
+        popular: false,
+        features: [{ text: t("planDetails.starter.features.0") }],
+        color: "from-blue-500 to-cyan-500",
+        borderColor: "border-blue-500/20",
+        bgGradient: "from-blue-500/5 to-cyan-500/5",
+      },
+      {
+        id: "unlimited",
+        name: t("planDetails.unlimited.name"),
+        description: t("planDetails.unlimited.description"),
+        monthlyPrice: 20,
+        yearlyPrice: 200,
+        icon: Zap,
+        popular: true,
+        badge: t("planDetails.unlimited.badge"),
+        features: [
+          { text: t("planDetails.unlimited.features.0"), highlight: true },
+          { text: t("planDetails.unlimited.features.1") },
+        ],
+        color: "from-purple-500 to-pink-500",
+        borderColor: "border-purple-500/20",
+        bgGradient: "from-purple-500/5 to-pink-500/5",
+      },
+      {
+        id: "pro",
+        name: t("planDetails.pro.name"),
+        description: t("planDetails.pro.description"),
+        monthlyPrice: 30,
+        yearlyPrice: 300,
+        icon: Crown,
+        popular: false,
+        badge: t("planDetails.pro.badge"),
+        features: [
+          { text: t("planDetails.pro.features.0"), highlight: true },
+          { text: t("planDetails.pro.features.9"), highlight: true },
+          { text: t("planDetails.pro.features.1") },
+          { text: t("planDetails.pro.features.2") },
+          { text: t("planDetails.pro.features.3") },
+          { text: t("planDetails.pro.features.4") },
+          { text: t("planDetails.pro.features.5") },
+          { text: t("planDetails.pro.features.6") },
+          { text: t("planDetails.pro.features.7") },
+          { text: t("planDetails.pro.features.8") },
+        ],
+        color: "from-orange-500 to-red-500",
+        borderColor: "border-orange-500/20",
+        bgGradient: "from-orange-500/5 to-red-500/5",
+      },
+    ],
+    [t]
+  );
+
+  const productsJsonLd = useMemo(() => {
+    const graph = plans.map((plan) => ({
+      "@type": "Product",
+      "@id": `${siteUrl}/pricing#${plan.id}`,
+      name: plan.name,
+      description: plan.description,
+      sku: plan.id,
+      brand: {
+        "@type": "Organization",
+        name: "PornSpot.ai",
+        url: siteUrl,
+      },
+      category: "Digital Goods > Subscriptions",
+      url: `${siteUrl}/pricing?plan=${plan.id}`,
+      offers: [
+        {
+          "@type": "Offer",
+          priceCurrency: "USD",
+          price: plan.monthlyPrice,
+          url: `${siteUrl}/pricing?plan=${plan.id}&interval=monthly`,
+          availability: "https://schema.org/InStock",
+          description: `${plan.name} monthly membership`,
+        },
+        {
+          "@type": "Offer",
+          priceCurrency: "USD",
+          price: plan.yearlyPrice,
+          url: `${siteUrl}/pricing?plan=${plan.id}&interval=yearly`,
+          availability: "https://schema.org/InStock",
+          description: `${plan.name} yearly membership`,
+        },
       ],
-      color: "from-purple-500 to-pink-500",
-      borderColor: "border-purple-500/20",
-      bgGradient: "from-purple-500/5 to-pink-500/5",
-    },
-    {
-      id: "pro",
-      name: t("planDetails.pro.name"),
-      description: t("planDetails.pro.description"),
-      monthlyPrice: 30,
-      yearlyPrice: 300,
-      icon: Crown,
-      popular: false,
-      badge: t("planDetails.pro.badge"),
-      features: [
-        { text: t("planDetails.pro.features.0"), highlight: true },
-        { text: t("planDetails.pro.features.9"), highlight: true },
-        { text: t("planDetails.pro.features.1") },
-        { text: t("planDetails.pro.features.2") },
-        { text: t("planDetails.pro.features.3") },
-        { text: t("planDetails.pro.features.4") },
-        { text: t("planDetails.pro.features.5") },
-        { text: t("planDetails.pro.features.6") },
-        { text: t("planDetails.pro.features.7") },
-        { text: t("planDetails.pro.features.8") },
-      ],
-      color: "from-orange-500 to-red-500",
-      borderColor: "border-orange-500/20",
-      bgGradient: "from-orange-500/5 to-red-500/5",
-    },
-  ];
+    }));
+
+    return JSON.stringify(
+      {
+        "@context": "https://schema.org",
+        "@graph": graph,
+      },
+      null,
+      2
+    );
+  }, [plans, siteUrl]);
 
   const getPrice = (plan: PricingPlan) => {
     return isYearly ? plan.yearlyPrice : plan.monthlyPrice;
@@ -320,644 +373,654 @@ export function PricingClient() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 sm:py-12 lg:py-16">
-        <div className="mx-auto flex max-w-7xl flex-col gap-8 lg:gap-12">
-          {/* Video Credits Section */}
-          <Card className="overflow-hidden border-yellow-500/20 shadow-lg shadow-yellow-500/10 transition-all duration-300 hover:shadow-2xl">
-            {/* Gradient Header */}
-            <div className="h-2 bg-gradient-to-r from-yellow-500 to-orange-500" />
+    <>
+      <Script
+        id="pricing-memberships-jsonld"
+        strategy="afterInteractive"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: productsJsonLd }}
+      />
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8 sm:py-12 lg:py-16">
+          <div className="mx-auto flex max-w-7xl flex-col gap-8 lg:gap-12">
+            {/* Video Credits Section */}
+            <Card className="overflow-hidden border-yellow-500/20 shadow-lg shadow-yellow-500/10 transition-all duration-300 hover:shadow-2xl">
+              {/* Gradient Header */}
+              <div className="h-2 bg-gradient-to-r from-yellow-500 to-orange-500" />
 
-            <div className="bg-gradient-to-br from-yellow-500/5 to-orange-500/5 p-6 sm:p-8">
-              <div className="inline-flex items-center gap-2 mb-4">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg">
-                  <Clapperboard className="h-5 w-5 text-white" />
+              <div className="bg-gradient-to-br from-yellow-500/5 to-orange-500/5 p-6 sm:p-8">
+                <div className="inline-flex items-center gap-2 mb-4">
+                  <div className="p-2 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg">
+                    <Clapperboard className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-sm font-semibold uppercase tracking-widest bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                    {t("videoCredits.badge", {
+                      fallback: "Video Credits",
+                    } as any)}
+                  </span>
                 </div>
-                <span className="text-sm font-semibold uppercase tracking-widest bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-                  {t("videoCredits.badge", {
-                    fallback: "Video Credits",
-                  } as any)}
-                </span>
-              </div>
 
-              <div className="flex flex-col gap-3 mb-6">
-                <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
-                  {t("videoCredits.title", {
-                    fallback: "Add extra video credits whenever you need",
-                  } as any)}
-                </h2>
-                <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  {t("videoCredits.description", {
-                    fallback:
-                      "Those are seconds you buy to generate videos. Adjust the slider to pick the exact amount you need.",
-                  } as any)}
-                </p>
-              </div>
+                <div className="flex flex-col gap-3 mb-6">
+                  <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
+                    {t("videoCredits.title", {
+                      fallback: "Add extra video credits whenever you need",
+                    } as any)}
+                  </h2>
+                  <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
+                    {t("videoCredits.description", {
+                      fallback:
+                        "Those are seconds you buy to generate videos. Adjust the slider to pick the exact amount you need.",
+                    } as any)}
+                  </p>
+                </div>
 
-              <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:gap-8">
-                <div className="flex-1 space-y-6">
-                  <div className="bg-card/50 rounded-xl p-5 border border-border/50">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
-                          {t("videoCredits.sliderLabel", {
-                            fallback: "Select seconds",
-                          } as any)}
-                        </p>
-                        <p className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-                          {t("videoCredits.selectedSeconds", {
-                            seconds: videoSeconds,
-                            fallback: `${videoSeconds} seconds`,
-                          } as any)}
-                        </p>
+                <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:gap-8">
+                  <div className="flex-1 space-y-6">
+                    <div className="bg-card/50 rounded-xl p-5 border border-border/50">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-4">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                            {t("videoCredits.sliderLabel", {
+                              fallback: "Select seconds",
+                            } as any)}
+                          </p>
+                          <p className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                            {t("videoCredits.selectedSeconds", {
+                              seconds: videoSeconds,
+                              fallback: `${videoSeconds} seconds`,
+                            } as any)}
+                          </p>
+                        </div>
+                        <div className="text-left sm:text-right">
+                          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">
+                            💵{" "}
+                            {t("videoCredits.total", {
+                              amount: formattedVideoPrice,
+                              fallback: "Total",
+                            } as any)}
+                          </p>
+                          <p className="text-2xl font-bold text-green-600">
+                            {formattedVideoPrice}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-left sm:text-right">
-                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">
-                          💵{" "}
-                          {t("videoCredits.total", {
-                            amount: formattedVideoPrice,
-                            fallback: "Total",
-                          } as any)}
-                        </p>
-                        <p className="text-2xl font-bold text-green-600">
-                          {formattedVideoPrice}
-                        </p>
-                      </div>
+                      <Slider
+                        value={[videoSeconds]}
+                        onValueChange={handleVideoSliderChange}
+                        min={VIDEO_SECONDS_MIN}
+                        max={VIDEO_SECONDS_MAX}
+                        step={VIDEO_SECONDS_STEP}
+                        aria-label={t("videoCredits.sliderAriaLabel", {
+                          fallback: "Video credits slider",
+                        } as any)}
+                      />
+                      <p className="text-xs text-muted-foreground mt-3 text-center">
+                        {t("videoCredits.priceBreakdown", {
+                          price: formattedPricePerStep,
+                          step: VIDEO_SECONDS_STEP,
+                          fallback: `${formattedPricePerStep} per ${VIDEO_SECONDS_STEP} seconds`,
+                        } as any)}
+                      </p>
                     </div>
-                    <Slider
-                      value={[videoSeconds]}
-                      onValueChange={handleVideoSliderChange}
-                      min={VIDEO_SECONDS_MIN}
-                      max={VIDEO_SECONDS_MAX}
-                      step={VIDEO_SECONDS_STEP}
-                      aria-label={t("videoCredits.sliderAriaLabel", {
-                        fallback: "Video credits slider",
-                      } as any)}
-                    />
-                    <p className="text-xs text-muted-foreground mt-3 text-center">
-                      {t("videoCredits.priceBreakdown", {
-                        price: formattedPricePerStep,
-                        step: VIDEO_SECONDS_STEP,
-                        fallback: `${formattedPricePerStep} per ${VIDEO_SECONDS_STEP} seconds`,
+                  </div>
+
+                  <div className="sm:w-56">
+                    <Button
+                      size="lg"
+                      className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg hover:shadow-2xl transition-all duration-300"
+                      disabled={Boolean(processingItem)}
+                      onClick={handleVideoCreditsPurchase}
+                    >
+                      <div className="flex flex-nowrap items-center justify-center gap-2 sm:gap-3">
+                        {processingItem?.startsWith("video-credits") ? (
+                          <>
+                            <Loader2 className="h-5 w-5 animate-spin flex-shrink-0" />
+                            <span className="font-semibold whitespace-nowrap">
+                              {t("processing")}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-semibold whitespace-nowrap">
+                              {t("videoCredits.payButton", {
+                                amount: formattedVideoPrice,
+                                fallback: `Pay ${formattedVideoPrice}`,
+                              } as any)}
+                            </span>
+                            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                              <MastercardLogo className="h-5 w-auto sm:h-6" />
+                              <VisaLogo className="h-5 w-auto sm:h-6" />
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </Button>
+                    <p className="mt-3 text-center text-xs text-muted-foreground">
+                      {t("videoCredits.helper", {
+                        fallback:
+                          "Use these credits to generate premium AI videos anytime.",
                       } as any)}
                     </p>
                   </div>
                 </div>
-
-                <div className="sm:w-56">
-                  <Button
-                    size="lg"
-                    className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg hover:shadow-2xl transition-all duration-300"
-                    disabled={Boolean(processingItem)}
-                    onClick={handleVideoCreditsPurchase}
-                  >
-                    <div className="flex flex-nowrap items-center justify-center gap-2 sm:gap-3">
-                      {processingItem?.startsWith("video-credits") ? (
-                        <>
-                          <Loader2 className="h-5 w-5 animate-spin flex-shrink-0" />
-                          <span className="font-semibold whitespace-nowrap">
-                            {t("processing")}
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="font-semibold whitespace-nowrap">
-                            {t("videoCredits.payButton", {
-                              amount: formattedVideoPrice,
-                              fallback: `Pay ${formattedVideoPrice}`,
-                            } as any)}
-                          </span>
-                          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                            <MastercardLogo className="h-5 w-auto sm:h-6" />
-                            <VisaLogo className="h-5 w-auto sm:h-6" />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </Button>
-                  <p className="mt-3 text-center text-xs text-muted-foreground">
-                    {t("videoCredits.helper", {
-                      fallback:
-                        "Use these credits to generate premium AI videos anytime.",
-                    } as any)}
-                  </p>
-                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
 
-          {/* Divider */}
-          <div className="border-t border-border/60" />
+            {/* Divider */}
+            <div className="border-t border-border/60" />
 
-          {/* Title Section */}
-          <section className="flex flex-col items-center gap-6 text-center">
-            <h1 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-              {t("title")}
-            </h1>
-            <p className="max-w-2xl text-base text-muted-foreground sm:text-lg">
-              {t("subtitle")}
-            </p>
-          </section>
+            {/* Title Section */}
+            <section className="flex flex-col items-center gap-6 text-center">
+              <h1 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                {t("title")}
+              </h1>
+              <p className="max-w-2xl text-base text-muted-foreground sm:text-lg">
+                {t("subtitle")}
+              </p>
+            </section>
 
-          {/* Billing Toggle Section */}
-          <section className="flex w-full flex-col items-center">
-            <Card className="w-full max-w-md border-border/70 bg-card/90 backdrop-blur shadow-md transition-all duration-300 hover:shadow-lg">
-              <div className="p-5">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="flex items-center gap-4">
-                    <span
-                      className={cn(
-                        "text-sm font-semibold transition-all duration-300",
-                        !isYearly
-                          ? "text-foreground scale-110"
-                          : "text-muted-foreground"
-                      )}
-                    >
-                      {t("monthly")}
-                    </span>
-                    <button
-                      onClick={() => setIsYearly(!isYearly)}
-                      className={cn(
-                        "relative inline-flex h-7 w-14 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                        isYearly
-                          ? "bg-gradient-to-r from-primary to-purple-500"
-                          : "bg-muted"
-                      )}
-                      aria-label={t("toggleBilling", {
-                        fallback: "Toggle billing interval",
-                      } as any)}
-                    >
+            {/* Billing Toggle Section */}
+            <section className="flex w-full flex-col items-center">
+              <Card className="w-full max-w-md border-border/70 bg-card/90 backdrop-blur shadow-md transition-all duration-300 hover:shadow-lg">
+                <div className="p-5">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="flex items-center gap-4">
                       <span
                         className={cn(
-                          "inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-transform duration-300",
-                          isYearly ? "translate-x-8" : "translate-x-1"
+                          "text-sm font-semibold transition-all duration-300",
+                          !isYearly
+                            ? "text-foreground scale-110"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        {t("monthly")}
+                      </span>
+                      <button
+                        onClick={() => setIsYearly(!isYearly)}
+                        className={cn(
+                          "relative inline-flex h-7 w-14 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                          isYearly
+                            ? "bg-gradient-to-r from-primary to-purple-500"
+                            : "bg-muted"
+                        )}
+                        aria-label={t("toggleBilling", {
+                          fallback: "Toggle billing interval",
+                        } as any)}
+                      >
+                        <span
+                          className={cn(
+                            "inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-transform duration-300",
+                            isYearly ? "translate-x-8" : "translate-x-1"
+                          )}
+                        />
+                      </button>
+                      <span
+                        className={cn(
+                          "text-sm font-semibold transition-all duration-300",
+                          isYearly
+                            ? "text-foreground scale-110"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        {t("yearly")}
+                      </span>
+                    </div>
+                    {isYearly && (
+                      <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
+                        ✨ {t("saveUpTo")}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            </section>
+
+            {/* Pricing Plans Section */}
+            <section id="pricing-plans" className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                {plans.map((plan) => {
+                  const planItem = isYearly
+                    ? `${plan.id}-yearly`
+                    : `${plan.id}-monthly`;
+                  const isProcessing = processingItem === planItem;
+                  const isCurrentPlanActive =
+                    user?.planInfo?.plan === plan.id &&
+                    user?.planInfo?.isActive;
+                  const Icon = plan.icon;
+
+                  return (
+                    <Card
+                      key={plan.id}
+                      className={cn(
+                        "relative overflow-hidden transition-all duration-300 group",
+                        isCurrentPlanActive
+                          ? "ring-2 ring-primary shadow-xl"
+                          : "hover:-translate-y-1 hover:shadow-2xl",
+                        plan.popular ? "shadow-lg scale-[1.02]" : ""
+                      )}
+                    >
+                      {/* Animated Gradient Header */}
+                      <div
+                        className={cn(
+                          "h-2 bg-gradient-to-r transition-all duration-300",
+                          plan.color,
+                          !isCurrentPlanActive ? "group-hover:h-3" : ""
                         )}
                       />
-                    </button>
-                    <span
-                      className={cn(
-                        "text-sm font-semibold transition-all duration-300",
-                        isYearly
-                          ? "text-foreground scale-110"
-                          : "text-muted-foreground"
-                      )}
-                    >
-                      {t("yearly")}
-                    </span>
-                  </div>
-                  {isYearly && (
-                    <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
-                      ✨ {t("saveUpTo")}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </Card>
-          </section>
 
-          {/* Pricing Plans Section */}
-          <section id="pricing-plans" className="space-y-6">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {plans.map((plan) => {
-                const planItem = isYearly
-                  ? `${plan.id}-yearly`
-                  : `${plan.id}-monthly`;
-                const isProcessing = processingItem === planItem;
-                const isCurrentPlanActive =
-                  user?.planInfo?.plan === plan.id && user?.planInfo?.isActive;
-                const Icon = plan.icon;
-
-                return (
-                  <Card
-                    key={plan.id}
-                    className={cn(
-                      "relative overflow-hidden transition-all duration-300 group",
-                      isCurrentPlanActive
-                        ? "ring-2 ring-primary shadow-xl"
-                        : "hover:-translate-y-1 hover:shadow-2xl",
-                      plan.popular ? "shadow-lg scale-[1.02]" : ""
-                    )}
-                  >
-                    {/* Animated Gradient Header */}
-                    <div
-                      className={cn(
-                        "h-2 bg-gradient-to-r transition-all duration-300",
-                        plan.color,
-                        !isCurrentPlanActive ? "group-hover:h-3" : ""
-                      )}
-                    />
-
-                    {/* Badges */}
-                    <div className="absolute top-4 right-4 flex flex-col gap-2 items-end z-10">
-                      {plan.badge && (
-                        <Badge
-                          className={cn(
-                            "text-xs font-semibold border-0 bg-gradient-to-r text-white shadow-lg",
-                            plan.color
-                          )}
-                        >
-                          ✨ {plan.badge}
-                        </Badge>
-                      )}
-                      {isCurrentPlanActive && (
-                        <Badge
-                          variant="outline"
-                          className="text-xs font-semibold bg-primary/10 border-primary"
-                        >
-                          ✓ Current Plan
-                        </Badge>
-                      )}
-                    </div>
-
-                    <div
-                      className={cn("p-6 bg-gradient-to-br", plan.bgGradient)}
-                    >
-                      {/* Plan Header */}
-                      <div className="flex items-start gap-4 mb-6">
-                        <div
-                          className={cn(
-                            "p-3 rounded-2xl bg-gradient-to-br shadow-xl transition-transform duration-300",
-                            plan.color,
-                            !isCurrentPlanActive
-                              ? "group-hover:scale-110 group-hover:rotate-6"
-                              : ""
-                          )}
-                        >
-                          <Icon className="h-6 w-6 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-xl sm:text-2xl font-bold mb-1">
-                            {plan.name}
-                          </h3>
-                          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                            {plan.description}
-                          </p>
-                        </div>
+                      {/* Badges */}
+                      <div className="absolute top-4 right-4 flex flex-col gap-2 items-end z-10">
+                        {plan.badge && (
+                          <Badge
+                            className={cn(
+                              "text-xs font-semibold border-0 bg-gradient-to-r text-white shadow-lg",
+                              plan.color
+                            )}
+                          >
+                            ✨ {plan.badge}
+                          </Badge>
+                        )}
+                        {isCurrentPlanActive && (
+                          <Badge
+                            variant="outline"
+                            className="text-xs font-semibold bg-primary/10 border-primary"
+                          >
+                            ✓ Current Plan
+                          </Badge>
+                        )}
                       </div>
 
-                      {/* Pricing */}
-                      <div className="bg-card/50 rounded-xl p-4 sm:p-5 mb-6 border border-border/50">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="flex items-baseline gap-2 mb-1">
-                              <span
-                                className={cn(
-                                  "text-3xl sm:text-4xl font-bold bg-gradient-to-r bg-clip-text text-transparent",
-                                  plan.color
-                                )}
-                              >
-                                ${getPrice(plan)}
-                              </span>
-                              <span className="text-sm text-muted-foreground">
-                                /{isYearly ? t("year") : t("month")}
-                              </span>
+                      <div
+                        className={cn("p-6 bg-gradient-to-br", plan.bgGradient)}
+                      >
+                        {/* Plan Header */}
+                        <div className="flex items-start gap-4 mb-6">
+                          <div
+                            className={cn(
+                              "p-3 rounded-2xl bg-gradient-to-br shadow-xl transition-transform duration-300",
+                              plan.color,
+                              !isCurrentPlanActive
+                                ? "group-hover:scale-110 group-hover:rotate-6"
+                                : ""
+                            )}
+                          >
+                            <Icon className="h-6 w-6 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-xl sm:text-2xl font-bold mb-1">
+                              {plan.name}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                              {plan.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Pricing */}
+                        <div className="bg-card/50 rounded-xl p-4 sm:p-5 mb-6 border border-border/50">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="flex items-baseline gap-2 mb-1">
+                                <span
+                                  className={cn(
+                                    "text-3xl sm:text-4xl font-bold bg-gradient-to-r bg-clip-text text-transparent",
+                                    plan.color
+                                  )}
+                                >
+                                  ${getPrice(plan)}
+                                </span>
+                                <span className="text-sm text-muted-foreground">
+                                  /{isYearly ? t("year") : t("month")}
+                                </span>
+                              </div>
+                              {isYearly && (
+                                <p className="text-xs sm:text-sm font-medium text-primary">
+                                  {t("saveVsMonthly", {
+                                    percentage: getDiscountPercentage(plan),
+                                  })}
+                                </p>
+                              )}
                             </div>
                             {isYearly && (
-                              <p className="text-xs sm:text-sm font-medium text-primary">
-                                {t("saveVsMonthly", {
-                                  percentage: getDiscountPercentage(plan),
-                                })}
-                              </p>
+                              <div className="text-right bg-gradient-to-br from-green-500/10 to-emerald-500/10 px-3 py-2 rounded-lg border border-green-500/20">
+                                <p className="text-[10px] text-muted-foreground font-medium mb-0.5">
+                                  💰 SAVE
+                                </p>
+                                <p className="text-base sm:text-lg font-bold text-green-600">
+                                  {getDiscountPercentage(plan)}%
+                                </p>
+                              </div>
                             )}
                           </div>
-                          {isYearly && (
-                            <div className="text-right bg-gradient-to-br from-green-500/10 to-emerald-500/10 px-3 py-2 rounded-lg border border-green-500/20">
-                              <p className="text-[10px] text-muted-foreground font-medium mb-0.5">
-                                💰 SAVE
-                              </p>
-                              <p className="text-base sm:text-lg font-bold text-green-600">
-                                {getDiscountPercentage(plan)}%
-                              </p>
-                            </div>
-                          )}
                         </div>
-                      </div>
 
-                      {/* Features List */}
-                      <div className="space-y-2.5 mb-6 min-h-[120px]">
-                        {plan.features.map((feature, i) => (
-                          <div
-                            key={i}
-                            className="flex items-start gap-3 group/feature"
-                          >
+                        {/* Features List */}
+                        <div className="space-y-2.5 mb-6 min-h-[120px]">
+                          {plan.features.map((feature, i) => (
                             <div
-                              className={cn(
-                                "mt-0.5 rounded-full p-0.5 bg-gradient-to-br from-green-500 to-emerald-500 shadow-md transition-transform duration-200 group-hover/feature:scale-110"
-                              )}
+                              key={i}
+                              className="flex items-start gap-3 group/feature"
                             >
-                              <Check className="h-3.5 w-3.5 text-white" />
+                              <div
+                                className={cn(
+                                  "mt-0.5 rounded-full p-0.5 bg-gradient-to-br from-green-500 to-emerald-500 shadow-md transition-transform duration-200 group-hover/feature:scale-110"
+                                )}
+                              >
+                                <Check className="h-3.5 w-3.5 text-white" />
+                              </div>
+                              <span
+                                className={cn(
+                                  "text-sm leading-relaxed",
+                                  feature.highlight
+                                    ? "font-semibold text-foreground"
+                                    : "text-muted-foreground"
+                                )}
+                              >
+                                {feature.text}
+                              </span>
                             </div>
-                            <span
-                              className={cn(
-                                "text-sm leading-relaxed",
-                                feature.highlight
-                                  ? "font-semibold text-foreground"
-                                  : "text-muted-foreground"
-                              )}
-                            >
-                              {feature.text}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Action Button */}
-                      {isCurrentPlanActive ? (
-                        <div className="w-full rounded-lg border border-border/70 bg-gradient-to-br from-primary/5 to-primary/10 px-4 py-3 text-sm font-medium text-foreground text-center flex items-center justify-center gap-2">
-                          <Shield className="h-4 w-4 text-primary" />
-                          {t("currentPlanMessage", {
-                            fallback: "Your current active plan",
-                          } as any)}
+                          ))}
                         </div>
-                      ) : (
-                        <Button
-                          variant={plan.popular ? "default" : "outline"}
-                          size="lg"
-                          className={cn(
-                            "w-full transition-all duration-300",
-                            plan.popular
-                              ? cn(
-                                  "bg-gradient-to-r text-white shadow-lg hover:shadow-2xl",
-                                  plan.color
-                                )
-                              : ""
-                          )}
-                          disabled={Boolean(processingItem)}
-                          onClick={() => handleTrustpayPopup(planItem)}
-                        >
-                          <div className="flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap sm:gap-3">
-                            {isProcessing ? (
-                              <>
-                                <Loader2 className="h-5 w-5 animate-spin" />
-                                <span className="font-semibold whitespace-nowrap">
-                                  {t("processing")}
-                                </span>
-                              </>
-                            ) : (
-                              <>
-                                <span className="font-semibold whitespace-nowrap">
-                                  {t("pay")}
-                                </span>
-                                <div className="flex items-center gap-2 shrink-0">
-                                  <MastercardLogo className="h-6 w-auto" />
-                                  <VisaLogo className="h-6 w-auto" />
-                                </div>
-                              </>
-                            )}
+
+                        {/* Action Button */}
+                        {isCurrentPlanActive ? (
+                          <div className="w-full rounded-lg border border-border/70 bg-gradient-to-br from-primary/5 to-primary/10 px-4 py-3 text-sm font-medium text-foreground text-center flex items-center justify-center gap-2">
+                            <Shield className="h-4 w-4 text-primary" />
+                            {t("currentPlanMessage", {
+                              fallback: "Your current active plan",
+                            } as any)}
                           </div>
-                        </Button>
-                      )}
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          </section>
-        </div>
-
-        {/* FAQ Section */}
-        <div className="mt-16 lg:mt-24">
-          <div className="text-center mb-10 lg:mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent mb-3">
-              {t("faq.title")}
-            </h2>
-            <p className="text-muted-foreground">
-              Common questions about our plans and features
-            </p>
+                        ) : (
+                          <Button
+                            variant={plan.popular ? "default" : "outline"}
+                            size="lg"
+                            className={cn(
+                              "w-full transition-all duration-300",
+                              plan.popular
+                                ? cn(
+                                    "bg-gradient-to-r text-white shadow-lg hover:shadow-2xl",
+                                    plan.color
+                                  )
+                                : ""
+                            )}
+                            disabled={Boolean(processingItem)}
+                            onClick={() => handleTrustpayPopup(planItem)}
+                          >
+                            <div className="flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap sm:gap-3">
+                              {isProcessing ? (
+                                <>
+                                  <Loader2 className="h-5 w-5 animate-spin" />
+                                  <span className="font-semibold whitespace-nowrap">
+                                    {t("processing")}
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="font-semibold whitespace-nowrap">
+                                    {t("pay")}
+                                  </span>
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    <MastercardLogo className="h-6 w-auto" />
+                                    <VisaLogo className="h-6 w-auto" />
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </Button>
+                        )}
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </section>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card className="border-border/70 bg-card/50 backdrop-blur transition-all duration-300 hover:shadow-lg hover:border-primary/30 group">
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-3 flex items-start gap-2 group-hover:text-primary transition-colors">
-                  <span className="text-primary mt-0.5">💳</span>
-                  {t("faq.questions.paymentMethods.question")}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {t("faq.questions.paymentMethods.answer")}
-                </p>
-              </div>
-            </Card>
-
-            <Card className="border-border/70 bg-card/50 backdrop-blur transition-all duration-300 hover:shadow-lg hover:border-primary/30 group">
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-3 flex items-start gap-2 group-hover:text-primary transition-colors">
-                  <span className="text-primary mt-0.5">🎁</span>
-                  {t("faq.questions.freeTrial.question")}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {t("faq.questions.freeTrial.answer")}
-                </p>
-              </div>
-            </Card>
-
-            <Card className="border-border/70 bg-card/50 backdrop-blur transition-all duration-300 hover:shadow-lg hover:border-primary/30 group">
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-3 flex items-start gap-2 group-hover:text-primary transition-colors">
-                  <span className="text-primary mt-0.5">💼</span>
-                  {t("faq.questions.commercialUse.question")}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {t("faq.questions.commercialUse.answer")}
-                </p>
-              </div>
-            </Card>
-
-            <Card className="border-border/70 bg-card/50 backdrop-blur transition-all duration-300 hover:shadow-lg hover:border-primary/30 group">
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-3 flex items-start gap-2 group-hover:text-primary transition-colors">
-                  <span className="text-primary mt-0.5">⭐</span>
-                  {t("faq.questions.proFeatures.question")}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {t("faq.questions.proFeatures.answer")}
-                </p>
-              </div>
-            </Card>
-
-            <Card className="border-border/70 bg-card/50 backdrop-blur transition-all duration-300 hover:shadow-lg hover:border-primary/30 group">
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-3 flex items-start gap-2 group-hover:text-primary transition-colors">
-                  <span className="text-primary mt-0.5">📁</span>
-                  {t("faq.questions.contentAfterCancel.question")}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {t("faq.questions.contentAfterCancel.answer")}
-                </p>
-              </div>
-            </Card>
-
-            <Card className="border-border/70 bg-card/50 backdrop-blur transition-all duration-300 hover:shadow-lg hover:border-primary/30 group">
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-3 flex items-start gap-2 group-hover:text-primary transition-colors">
-                  <span className="text-primary mt-0.5">💰</span>
-                  {t("faq.questions.refunds.question")}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {t("faq.questions.refunds.answer")}
-                </p>
-              </div>
-            </Card>
-          </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className="mt-16 lg:mt-24">
-          <Card className="overflow-hidden border-primary/20 shadow-xl shadow-primary/10">
-            <div className="h-2 bg-gradient-to-r from-primary via-purple-500 to-pink-500" />
-            <div className="bg-gradient-to-br from-primary/10 via-purple-500/10 to-pink-500/10 p-12 sm:p-16 text-center">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                {t("cta.title")}
+          {/* FAQ Section */}
+          <div className="mt-16 lg:mt-24">
+            <div className="text-center mb-10 lg:mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent mb-3">
+                {t("faq.title")}
               </h2>
-              <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                {t("cta.subtitle")}
+              <p className="text-muted-foreground">
+                Common questions about our plans and features
               </p>
-              <Button
-                size="lg"
-                className="text-lg px-10 py-6 bg-gradient-to-r from-primary via-purple-500 to-pink-500 text-white shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
-                onClick={scrollToPricing}
-              >
-                {t("cta.button")}
-              </Button>
             </div>
-          </Card>
-        </div>
-      </div>
 
-      {/* Auth Required Modal */}
-      {showAuthModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
-            <div
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-              onClick={() => setShowAuthModal(false)}
-            />
-            <div className="relative w-full max-w-md transform overflow-hidden rounded-xl bg-card border border-border p-6 shadow-2xl transition-all">
-              <div className="flex items-center gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-yellow-100 border border-yellow-200">
-                  <svg
-                    className="w-6 h-6 text-yellow-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="border-border/70 bg-card/50 backdrop-blur transition-all duration-300 hover:shadow-lg hover:border-primary/30 group">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-3 flex items-start gap-2 group-hover:text-primary transition-colors">
+                    <span className="text-primary mt-0.5">💳</span>
+                    {t("faq.questions.paymentMethods.question")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {t("faq.questions.paymentMethods.answer")}
+                  </p>
+                </div>
+              </Card>
+
+              <Card className="border-border/70 bg-card/50 backdrop-blur transition-all duration-300 hover:shadow-lg hover:border-primary/30 group">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-3 flex items-start gap-2 group-hover:text-primary transition-colors">
+                    <span className="text-primary mt-0.5">🎁</span>
+                    {t("faq.questions.freeTrial.question")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {t("faq.questions.freeTrial.answer")}
+                  </p>
+                </div>
+              </Card>
+
+              <Card className="border-border/70 bg-card/50 backdrop-blur transition-all duration-300 hover:shadow-lg hover:border-primary/30 group">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-3 flex items-start gap-2 group-hover:text-primary transition-colors">
+                    <span className="text-primary mt-0.5">💼</span>
+                    {t("faq.questions.commercialUse.question")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {t("faq.questions.commercialUse.answer")}
+                  </p>
+                </div>
+              </Card>
+
+              <Card className="border-border/70 bg-card/50 backdrop-blur transition-all duration-300 hover:shadow-lg hover:border-primary/30 group">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-3 flex items-start gap-2 group-hover:text-primary transition-colors">
+                    <span className="text-primary mt-0.5">⭐</span>
+                    {t("faq.questions.proFeatures.question")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {t("faq.questions.proFeatures.answer")}
+                  </p>
+                </div>
+              </Card>
+
+              <Card className="border-border/70 bg-card/50 backdrop-blur transition-all duration-300 hover:shadow-lg hover:border-primary/30 group">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-3 flex items-start gap-2 group-hover:text-primary transition-colors">
+                    <span className="text-primary mt-0.5">📁</span>
+                    {t("faq.questions.contentAfterCancel.question")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {t("faq.questions.contentAfterCancel.answer")}
+                  </p>
+                </div>
+              </Card>
+
+              <Card className="border-border/70 bg-card/50 backdrop-blur transition-all duration-300 hover:shadow-lg hover:border-primary/30 group">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-3 flex items-start gap-2 group-hover:text-primary transition-colors">
+                    <span className="text-primary mt-0.5">💰</span>
+                    {t("faq.questions.refunds.question")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {t("faq.questions.refunds.answer")}
+                  </p>
+                </div>
+              </Card>
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="mt-16 lg:mt-24">
+            <Card className="overflow-hidden border-primary/20 shadow-xl shadow-primary/10">
+              <div className="h-2 bg-gradient-to-r from-primary via-purple-500 to-pink-500" />
+              <div className="bg-gradient-to-br from-primary/10 via-purple-500/10 to-pink-500/10 p-12 sm:p-16 text-center">
+                <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                  {t("cta.title")}
+                </h2>
+                <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+                  {t("cta.subtitle")}
+                </p>
+                <Button
+                  size="lg"
+                  className="text-lg px-10 py-6 bg-gradient-to-r from-primary via-purple-500 to-pink-500 text-white shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                  onClick={scrollToPricing}
+                >
+                  {t("cta.button")}
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </div>
+
+        {/* Auth Required Modal */}
+        {showAuthModal && (
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <div
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+                onClick={() => setShowAuthModal(false)}
+              />
+              <div className="relative w-full max-w-md transform overflow-hidden rounded-xl bg-card border border-border p-6 shadow-2xl transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-yellow-100 border border-yellow-200">
+                    <svg
+                      className="w-6 h-6 text-yellow-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold leading-6 text-foreground">
+                      {t("loginRequiredTitle", {
+                        fallback: "Login required",
+                      } as any) || "Login required"}
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <p className="text-muted-foreground leading-relaxed">
+                    {t("loginRequiredMessage", {
+                      fallback:
+                        "You must be logged in to purchase a plan. Please sign in or create an account.",
+                    } as any) ||
+                      "You must be logged in to purchase a plan. Please sign in or create an account."}
+                  </p>
+                </div>
+
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Button
+                    onClick={() => {
+                      setShowAuthModal(false);
+                      redirectToLogin(currentPathWithQuery);
+                    }}
+                    className="w-full"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-                    />
-                  </svg>
+                    {tCommon("signIn", { fallback: "Sign In" } as any) ||
+                      "Sign In"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowAuthModal(false);
+                      const returnTo = encodeURIComponent(currentPathWithQuery);
+                      router.push(`/auth/register?returnTo=${returnTo}`);
+                    }}
+                    className="w-full"
+                  >
+                    {tCommon("register", { fallback: "Register" } as any) ||
+                      "Register"}
+                  </Button>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold leading-6 text-foreground">
-                    {t("loginRequiredTitle", {
-                      fallback: "Login required",
-                    } as any) || "Login required"}
-                  </h3>
+
+                <div className="mt-4 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowAuthModal(false)}
+                    className="text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    {tCommon("cancel", { fallback: "Cancel" } as any) ||
+                      "Cancel"}
+                  </button>
                 </div>
-              </div>
-
-              <div className="mt-4">
-                <p className="text-muted-foreground leading-relaxed">
-                  {t("loginRequiredMessage", {
-                    fallback:
-                      "You must be logged in to purchase a plan. Please sign in or create an account.",
-                  } as any) ||
-                    "You must be logged in to purchase a plan. Please sign in or create an account."}
-                </p>
-              </div>
-
-              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Button
-                  onClick={() => {
-                    setShowAuthModal(false);
-                    redirectToLogin(currentPathWithQuery);
-                  }}
-                  className="w-full"
-                >
-                  {tCommon("signIn", { fallback: "Sign In" } as any) ||
-                    "Sign In"}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowAuthModal(false);
-                    const returnTo = encodeURIComponent(currentPathWithQuery);
-                    router.push(`/auth/register?returnTo=${returnTo}`);
-                  }}
-                  className="w-full"
-                >
-                  {tCommon("register", { fallback: "Register" } as any) ||
-                    "Register"}
-                </Button>
-              </div>
-
-              <div className="mt-4 text-center">
-                <button
-                  type="button"
-                  onClick={() => setShowAuthModal(false)}
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                  {tCommon("cancel", { fallback: "Cancel" } as any) || "Cancel"}
-                </button>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Coming Soon Modal */}
-      {showComingSoonModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
-            <div
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-              onClick={() => setShowComingSoonModal(false)}
-            />
-            <div className="relative w-full max-w-md transform overflow-hidden rounded-xl bg-card border border-border p-6 shadow-2xl transition-all">
-              <div className="flex items-center gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-primary/10 border border-primary/30">
-                  <Crown className="w-6 h-6 text-primary" />
+        {/* Coming Soon Modal */}
+        {showComingSoonModal && (
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <div
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+                onClick={() => setShowComingSoonModal(false)}
+              />
+              <div className="relative w-full max-w-md transform overflow-hidden rounded-xl bg-card border border-border p-6 shadow-2xl transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-primary/10 border border-primary/30">
+                    <Crown className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold leading-6 text-foreground">
+                      {t("comingSoon.title", {
+                        fallback: "New payments launch October 1st",
+                      } as any) || "New payments launch October 1st"}
+                    </h3>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold leading-6 text-foreground">
-                    {t("comingSoon.title", {
-                      fallback: "New payments launch October 1st",
-                    } as any) || "New payments launch October 1st"}
-                  </h3>
+
+                <div className="mt-4 space-y-3">
+                  <p className="text-muted-foreground leading-relaxed">
+                    {t("comingSoon.message", {
+                      fallback:
+                        "We're putting the finishing touches on our upgraded checkout. Please check back on October 1st to complete your purchase.",
+                    } as any) ||
+                      "We're putting the finishing touches on our upgraded checkout. Please check back on October 1st to complete your purchase."}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("comingSoon.note", {
+                      fallback:
+                        "Thanks for your patience while we finalize this feature.",
+                    } as any) ||
+                      "Thanks for your patience while we finalize this feature."}
+                  </p>
                 </div>
-              </div>
 
-              <div className="mt-4 space-y-3">
-                <p className="text-muted-foreground leading-relaxed">
-                  {t("comingSoon.message", {
-                    fallback:
-                      "We're putting the finishing touches on our upgraded checkout. Please check back on October 1st to complete your purchase.",
-                  } as any) ||
-                    "We're putting the finishing touches on our upgraded checkout. Please check back on October 1st to complete your purchase."}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {t("comingSoon.note", {
-                    fallback:
-                      "Thanks for your patience while we finalize this feature.",
-                  } as any) ||
-                    "Thanks for your patience while we finalize this feature."}
-                </p>
-              </div>
-
-              <div className="mt-8 flex justify-center">
-                <Button
-                  onClick={() => setShowComingSoonModal(false)}
-                  className="px-6"
-                >
-                  {tCommon("close", { fallback: "Close" } as any) || "Close"}
-                </Button>
+                <div className="mt-8 flex justify-center">
+                  <Button
+                    onClick={() => setShowComingSoonModal(false)}
+                    className="px-6"
+                  >
+                    {tCommon("close", { fallback: "Close" } as any) || "Close"}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
