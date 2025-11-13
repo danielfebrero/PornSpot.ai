@@ -103,6 +103,7 @@ interface PricingPlan {
   color: string;
   borderColor: string;
   bgGradient: string;
+  image: string;
 }
 
 const VIDEO_SECONDS_MIN = 30;
@@ -257,6 +258,7 @@ export function PricingClient() {
         color: "from-blue-500 to-cyan-500",
         borderColor: "border-blue-500/20",
         bgGradient: "from-blue-500/5 to-cyan-500/5",
+        image: "/starter.png",
       },
       {
         id: "unlimited",
@@ -274,6 +276,7 @@ export function PricingClient() {
         color: "from-purple-500 to-pink-500",
         borderColor: "border-purple-500/20",
         bgGradient: "from-purple-500/5 to-pink-500/5",
+        image: "/unlimited.png",
       },
       {
         id: "pro",
@@ -299,6 +302,7 @@ export function PricingClient() {
         color: "from-orange-500 to-red-500",
         borderColor: "border-orange-500/20",
         bgGradient: "from-orange-500/5 to-red-500/5",
+        image: "/pro.png",
       },
     ],
     [t]
@@ -336,6 +340,7 @@ export function PricingClient() {
           description: `${plan.name} yearly membership`,
         },
       ],
+      image: `${siteUrl}${plan.image}`,
     }));
 
     return JSON.stringify(
