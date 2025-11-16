@@ -65,7 +65,7 @@ export function createComfyUIWorkflow(
     "11": {
       class_type: "CheckpointLoaderSimple",
       inputs: {
-        ckpt_name: "mopMixtureOfPerverts_v40.safetensors",
+        ckpt_name: "mopMixtureOfPerverts_v51Flexible.safetensors",
       },
       _meta: {
         title: "Load Checkpoint",
@@ -486,10 +486,10 @@ export const DEFAULT_WORKFLOW_PARAMS: Partial<WorkflowParameters> = {
   width: 1024,
   height: 1024,
   batchSize: 1,
-  steps: 6,
-  cfgScale: 1,
+  steps: 8,
+  cfgScale: 2,
   seed: 0,
-  sampler: "lcm",
+  sampler: "dpmpp_sde",
   scheduler: "exponential",
   negativePrompt:
     "ugly, distorted bad teeth, bad hands, distorted face, missing fingers, multiple limbs, distorted arms, distorted legs, low quality, distorted fingers, weird legs, distorted eyes, pixelated, extra fingers, watermark",

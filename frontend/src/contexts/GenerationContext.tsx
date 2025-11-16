@@ -30,8 +30,8 @@ export const DEFAULT_SETTINGS: GenerationSettings = {
   loraSelectionMode: "auto",
   optimizePrompt: true,
   isPublic: true,
-  cfgScale: 1,
-  steps: 6,
+  cfgScale: 2,
+  steps: 8,
   seed: 0,
 };
 
