@@ -419,13 +419,15 @@ export class DynamoDBDiscoverService {
     lastEvaluatedKey?: Record<string, unknown>;
   }> {
     const collectedMedia: Media[] = [];
+    const collectedEntities: MediaEntity[] = [];
     let currentLastKey = lastEvaluatedKey;
     let iterations = 0;
     const batchSize = 100;
     const maxIterations = Math.ceil(10000 / batchSize); // Scan up to 10,000 items
+    let hasMoreData = true;
 
     // Keep fetching until we have enough items or run out of data
-    while (collectedMedia.length < limit && iterations < maxIterations) {
+    while (collectedMedia.length < limit && iterations < maxIterations && hasMoreData) {
       iterations++;
 
       const queryParams: QueryCommandInput = {
@@ -447,21 +449,33 @@ export class DynamoDBDiscoverService {
       const result = await docClient.send(new QueryCommand(queryParams));
       const mediaEntities = (result.Items as MediaEntity[]) || [];
 
-      // Convert and add to collected items
+      // Convert and add to collected items, tracking the entity
       for (const entity of mediaEntities) {
         if (collectedMedia.length >= limit) break;
         collectedMedia.push(DynamoDBService.convertMediaEntityToMedia(entity));
+        collectedEntities.push(entity);
       }
 
       currentLastKey = result.LastEvaluatedKey;
+      hasMoreData = !!currentLastKey;
+    }
 
-      // No more data to fetch
-      if (!currentLastKey) break;
+    // Build cursor from the last included entity (not the DynamoDB cursor)
+    let nextCursor: Record<string, unknown> | undefined;
+    if (collectedEntities.length > 0 && hasMoreData) {
+      const lastEntity = collectedEntities[collectedEntities.length - 1]!;
+      // GSI9 cursor needs: PK, SK (table keys) + GSI9PK, GSI9SK (index keys)
+      nextCursor = {
+        PK: lastEntity.PK,
+        SK: lastEntity.SK,
+        GSI9PK: lastEntity.GSI9PK,
+        GSI9SK: lastEntity.GSI9SK,
+      };
     }
 
     return {
       media: collectedMedia.slice(0, limit),
-      lastEvaluatedKey: currentLastKey,
+      lastEvaluatedKey: nextCursor,
     };
   }
 
@@ -480,13 +494,15 @@ export class DynamoDBDiscoverService {
     lastEvaluatedKey?: Record<string, unknown>;
   }> {
     const collectedMedia: Media[] = [];
+    const collectedEntities: MediaEntity[] = [];
     let currentLastKey = lastEvaluatedKey;
     let iterations = 0;
     const batchSize = 100;
     const maxIterations = Math.ceil(10000 / batchSize); // Scan up to 10,000 items
+    let hasMoreData = true;
 
     // Keep fetching until we have enough items or run out of data
-    while (collectedMedia.length < limit && iterations < maxIterations) {
+    while (collectedMedia.length < limit && iterations < maxIterations && hasMoreData) {
       iterations++;
       
       const queryParams: QueryCommandInput = {
@@ -511,21 +527,33 @@ export class DynamoDBDiscoverService {
       const result = await docClient.send(new QueryCommand(queryParams));
       const mediaEntities = (result.Items as MediaEntity[]) || [];
 
-      // Convert and add to collected items
+      // Convert and add to collected items, tracking the entity
       for (const entity of mediaEntities) {
         if (collectedMedia.length >= limit) break;
         collectedMedia.push(DynamoDBService.convertMediaEntityToMedia(entity));
+        collectedEntities.push(entity);
       }
 
       currentLastKey = result.LastEvaluatedKey;
-      
-      // No more data to fetch
-      if (!currentLastKey) break;
+      hasMoreData = !!currentLastKey;
+    }
+
+    // Build cursor from the last included entity (not the DynamoDB cursor)
+    let nextCursor: Record<string, unknown> | undefined;
+    if (collectedEntities.length > 0 && hasMoreData) {
+      const lastEntity = collectedEntities[collectedEntities.length - 1]!;
+      // GSI6 cursor needs: PK, SK (table keys) + GSI6PK, GSI6SK (index keys)
+      nextCursor = {
+        PK: lastEntity.PK,
+        SK: lastEntity.SK,
+        GSI6PK: lastEntity.GSI6PK,
+        GSI6SK: lastEntity.GSI6SK,
+      };
     }
 
     return {
       media: collectedMedia.slice(0, limit),
-      lastEvaluatedKey: currentLastKey,
+      lastEvaluatedKey: nextCursor,
     };
   }
 }
