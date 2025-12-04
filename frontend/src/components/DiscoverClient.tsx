@@ -91,6 +91,20 @@ export function DiscoverClient({
     return (videosData?.pages.flatMap((page) => page.items || []) || []) as Media[];
   }, [videosData]);
 
+  // Auto-fetch more videos if we have less than 4 but there's more data available
+  // This ensures the video row is always filled on initial load
+  const MIN_VIDEOS_FOR_ROW = 4;
+  useEffect(() => {
+    if (
+      !isLoadingVideos &&
+      !isFetchingNextVideos &&
+      videos.length < MIN_VIDEOS_FOR_ROW &&
+      hasNextVideos
+    ) {
+      fetchNextVideos();
+    }
+  }, [videos.length, isLoadingVideos, isFetchingNextVideos, hasNextVideos, fetchNextVideos]);
+
   // Separate albums from the main items for the AlbumRow
   const albums = useMemo(() => {
     return items.filter((item): item is Album => item.type === "album");
