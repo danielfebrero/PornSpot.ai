@@ -96,20 +96,18 @@ export function DiscoverClient({
     return items.filter((item): item is Album => item.type === "album");
   }, [items]);
 
-  // Filter items to get only images (exclude videos and albums that are shown in their own rows)
+  // Filter items to get only images (exclude ALL videos and albums)
   const images = useMemo(() => {
-    // Get video IDs that are shown in the VideoRow
-    const videoIds = new Set(videos.map((v) => v.id));
     // Filter to keep only images (not videos, not albums)
     return items.filter((item): item is Media => {
       // Exclude albums (they have their own row)
       if (item.type === "album") return false;
-      // Exclude videos that are in the VideoRow
-      if (item.type === "video") return !videoIds.has(item.id);
+      // Exclude ALL videos (they have their own row)
+      if (item.type === "video") return false;
       // Keep images
       return item.type === "image";
     });
-  }, [items, videos]);
+  }, [items]);
 
   // Bulk prefetch view counts for all items (for SSG pages)
   const viewCountTargets = useMemo(() => {
@@ -176,7 +174,8 @@ export function DiscoverClient({
     return `discover-content-grid-${tagKey}-${sortKey}`;
   }, [tag, sort]);
 
-  // Determine if we should show the video section (not when filtering by tag)
+  // Determine if we should show the video/album sections
+  // - Not when filtering by tag (tags are album-specific)
   const showVideoSection = !tag;
 
   return (

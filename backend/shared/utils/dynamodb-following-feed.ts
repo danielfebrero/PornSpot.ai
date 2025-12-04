@@ -636,4 +636,187 @@ export class FollowingFeedService {
 
     return result;
   }
+
+  /**
+   * Generate the following feed filtered by media type (video or image only)
+   * Used for the separate VideoRow in the discover page
+   */
+  static async generateFollowingFeedByMediaType(
+    currentUserId: string,
+    mediaType: "video" | "image",
+    limit: number = 10,
+    cursor?: string
+  ): Promise<{
+    items: Media[];
+    cursor: string | null;
+    metadata: {
+      totalItems: number;
+      followedUsersProcessed: number;
+      timeWindow: string;
+    };
+  }> {
+    console.log(
+      `[FollowingFeed] Generating ${mediaType} feed for user: ${currentUserId}, limit: ${limit}`
+    );
+
+    // Parse cursor if provided
+    let lastContentDate: string | null = null;
+    if (cursor) {
+      try {
+        const decodedCursor = JSON.parse(
+          Buffer.from(cursor, "base64").toString()
+        ) as FollowingFeedCursor;
+        lastContentDate = decodedCursor.lastContentDate;
+        console.log(
+          `[FollowingFeed] Continuing from cursor date: ${lastContentDate}`
+        );
+      } catch (error) {
+        console.warn(
+          "[FollowingFeed] Invalid cursor, starting from beginning:",
+          error
+        );
+      }
+    }
+
+    // Step 1: Get all users followed by the current user
+    const followingResult = await DynamoDBService.getUserFollowing(
+      currentUserId,
+      1000
+    );
+
+    if (followingResult.follows.length === 0) {
+      console.log(`[FollowingFeed] User follows no one, returning empty ${mediaType} feed`);
+      return {
+        items: [],
+        cursor: null,
+        metadata: {
+          totalItems: 0,
+          followedUsersProcessed: 0,
+          timeWindow: "empty",
+        },
+      };
+    }
+
+    // Step 2: Get most recent media dates for each followed user
+    const followedUsersActivity: FollowedUserActivity[] = [];
+
+    for (const follow of followingResult.follows) {
+      const contentDates = await this.getUserMostRecentContentDate(
+        follow.followedId,
+        lastContentDate ?? undefined
+      );
+
+      followedUsersActivity.push({
+        userId: follow.followedId,
+        mostRecentContentDate: contentDates.mostRecentMediaDate, // Only look at media, not albums
+        mostRecentAlbumDate: null,
+        mostRecentMediaDate: contentDates.mostRecentMediaDate,
+      });
+    }
+
+    // Step 3: Sort by most recent media activity
+    const activeFollowedUsers = followedUsersActivity
+      .filter((user) => user.mostRecentContentDate !== null)
+      .sort((a, b) => {
+        return b.mostRecentContentDate!.localeCompare(a.mostRecentContentDate!);
+      });
+
+    if (activeFollowedUsers.length === 0) {
+      console.log(
+        `[FollowingFeed] No followed users have ${mediaType} content`
+      );
+      return {
+        items: [],
+        cursor: null,
+        metadata: {
+          totalItems: 0,
+          followedUsersProcessed: 0,
+          timeWindow: "no-content",
+        },
+      };
+    }
+
+    // Step 4: Aggregate media content filtered by type
+    const aggregatedItems: Media[] = [];
+    let processedUsers = 0;
+    let currentItemDate: string | null = null;
+
+    let startIndex = 0;
+    if (lastContentDate) {
+      startIndex = activeFollowedUsers.findIndex(
+        (user) => user.mostRecentContentDate! <= lastContentDate!
+      );
+      if (startIndex === -1) {
+        startIndex = activeFollowedUsers.length;
+      }
+    }
+
+    for (
+      let i = startIndex;
+      i < activeFollowedUsers.length && aggregatedItems.length < limit;
+      i++
+    ) {
+      const currentUser = activeFollowedUsers[i];
+      if (!currentUser) continue;
+      processedUsers++;
+
+      // Build time window for this user
+      const toDate =
+        currentUser.mostRecentContentDate || new Date().toISOString();
+      const fromDate = new Date(0).toISOString(); // Epoch, will be limited by query
+
+      // Get media in this time window
+      const timeWindowContent = await this.getContentInTimeWindow(
+        currentUser.userId,
+        fromDate,
+        toDate,
+        (limit - aggregatedItems.length) * 3 // Fetch extra to filter by type
+      );
+
+      // Filter by media type
+      const filteredMedia = timeWindowContent.media.filter(
+        (m) => m.type === mediaType
+      );
+
+      // Sort by creation date
+      const sortedMedia = filteredMedia.sort((a, b) =>
+        b.createdAt.localeCompare(a.createdAt)
+      );
+
+      // Add items until we reach the limit
+      for (const item of sortedMedia) {
+        if (aggregatedItems.length >= limit) {
+          break;
+        }
+        aggregatedItems.push(item);
+        currentItemDate = item.createdAt;
+      }
+    }
+
+    // Step 5: Create cursor for next page
+    let nextCursor: string | null = null;
+    if (aggregatedItems.length === limit && currentItemDate) {
+      const cursorData: FollowingFeedCursor = {
+        lastContentDate: currentItemDate,
+        type: "following",
+      };
+      nextCursor = Buffer.from(JSON.stringify(cursorData)).toString("base64");
+    }
+
+    console.log(`[FollowingFeed] Generated ${mediaType} feed:`, {
+      totalItems: aggregatedItems.length,
+      followedUsersProcessed: processedUsers,
+      hasMorePages: !!nextCursor,
+    });
+
+    return {
+      items: aggregatedItems,
+      cursor: nextCursor,
+      metadata: {
+        totalItems: aggregatedItems.length,
+        followedUsersProcessed: processedUsers,
+        timeWindow: lastContentDate ? `since-${lastContentDate}` : "recent",
+      },
+    };
+  }
 }

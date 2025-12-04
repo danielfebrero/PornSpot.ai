@@ -360,7 +360,7 @@ const handleGetDiscover = async (
 
   // Handle mediaType-specific queries (returns only media, no albums)
   if (request.mediaType) {
-    return handleMediaTypeDiscover(event, request);
+    return handleMediaTypeDiscover(event, request, currentUserId);
   }
 
   if (request.sort === "popular") {
@@ -454,14 +454,55 @@ async function handlePopularSort(
 /**
  * Handle media-type specific discovery (video or image only).
  * Returns only media items of the specified type, no albums.
- * Supports both default (recent) and popular sorting.
+ * Supports default (recent), popular, and following sorting.
  */
 async function handleMediaTypeDiscover(
   event: APIGatewayProxyEvent,
-  request: DiscoverRequestParams
+  request: DiscoverRequestParams,
+  currentUserId: string | null
 ): Promise<APIGatewayProxyResult> {
   const mediaType = request.mediaType!;
   console.log(`[Discover API] Media type discovery: ${mediaType}`);
+
+  // Handle "following" sort - requires authentication
+  if (request.sort === "following") {
+    if (!currentUserId) {
+      console.log(`[Discover API] ${mediaType} following feed requires authentication`);
+      return ResponseUtil.unauthorized(
+        event,
+        "Following feed requires authentication"
+      );
+    }
+
+    console.log(`[Discover API] Fetching ${mediaType} from following feed for user: ${currentUserId}`);
+    const followingResult = await FollowingFeedService.generateFollowingFeedByMediaType(
+      currentUserId,
+      mediaType,
+      request.limit,
+      request.followingCursor
+    );
+
+    const response: DiscoverContent = {
+      items: followingResult.items,
+      cursors: {
+        albums: null,
+        media: followingResult.cursor,
+      },
+      metadata: {
+        totalItems: followingResult.metadata.totalItems,
+        albumCount: 0,
+        mediaCount: followingResult.metadata.totalItems,
+        diversificationApplied: false,
+        timeWindow: followingResult.metadata.timeWindow,
+      },
+    };
+
+    console.log(`[Discover API] ${mediaType} following feed response:`, {
+      totalItems: response.metadata.totalItems,
+    });
+
+    return ResponseUtil.success(event, response);
+  }
 
   let mediaResult: {
     media: Media[];
