@@ -2197,7 +2197,12 @@
     "clearFilter": "Effacer le filtre",
     "discover": "Découvrir",
     "popular": "Populaire",
-    "following": "Suivi"
+    "following": "Suivi",
+    "videos": "Vidéos",
+    "albums": "Albums",
+    "images": "Images",
+    "viewAll": "Voir tout",
+    "collapse": "Réduire"
   },
   "mediaDetail": {
     "goBack": "Retour",

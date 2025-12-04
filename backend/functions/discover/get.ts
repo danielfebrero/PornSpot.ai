@@ -58,6 +58,7 @@ interface DiscoverRequestParams {
   limit: number;
   tag?: string;
   sort?: string | null;
+  mediaType?: "video" | "image"; // Filter by media type (returns only media, no albums)
   maxPerUser: number;
   shuffleContent: boolean;
   randomSeed: number;
@@ -91,6 +92,8 @@ function parseDiscoverRequest(
   );
   const sort = queryParams["sort"];
   const tag = queryParams["tag"] ?? undefined;
+  const mediaTypeParam = queryParams["mediaType"];
+  const mediaType = mediaTypeParam === "video" || mediaTypeParam === "image" ? mediaTypeParam : undefined;
 
   const {
     albums: albumCursor,
@@ -102,6 +105,7 @@ function parseDiscoverRequest(
     limit,
     tag,
     sort,
+    mediaType,
     maxPerUser,
     shuffleContent: true,
     randomSeed: Math.random(),
@@ -346,12 +350,18 @@ const handleGetDiscover = async (
     randomSeed: request.randomSeed,
     tag: request.tag ?? "none",
     sort: request.sort ?? "default",
+    mediaType: request.mediaType ?? "all",
     itemsPerDayTarget: DISCOVER_CONFIG.selection.itemsPerDayTarget,
     hasCursors: {
       albums: !!request.albumCursor,
       media: !!request.mediaCursor,
     },
   });
+
+  // Handle mediaType-specific queries (returns only media, no albums)
+  if (request.mediaType) {
+    return handleMediaTypeDiscover(event, request);
+  }
 
   if (request.sort === "popular") {
     return handlePopularSort(event, request);
@@ -436,6 +446,74 @@ async function handlePopularSort(
     albumCount: response.metadata.albumCount,
     mediaCount: response.metadata.mediaCount,
     tag: request.tag ?? "none",
+  });
+
+  return ResponseUtil.success(event, response);
+}
+
+/**
+ * Handle media-type specific discovery (video or image only).
+ * Returns only media items of the specified type, no albums.
+ * Supports both default (recent) and popular sorting.
+ */
+async function handleMediaTypeDiscover(
+  event: APIGatewayProxyEvent,
+  request: DiscoverRequestParams
+): Promise<APIGatewayProxyResult> {
+  const mediaType = request.mediaType!;
+  console.log(`[Discover API] Media type discovery: ${mediaType}`);
+
+  let mediaResult: {
+    media: Media[];
+    lastEvaluatedKey?: Record<string, unknown>;
+  };
+
+  if (request.sort === "popular") {
+    // Use popularity-based query with type filter
+    mediaResult = await DynamoDBDiscoverService.queryPopularMediaByType(
+      mediaType,
+      request.limit,
+      request.mediaCursor
+    );
+  } else {
+    // Use recent-first query with type filter (GSI9)
+    mediaResult = await DynamoDBDiscoverService.queryPublicMediaByType(
+      mediaType,
+      request.limit,
+      request.mediaCursor
+    );
+  }
+
+  console.log(`[Discover API] ${mediaType} results:`, {
+    count: mediaResult.media.length,
+    sort: request.sort ?? "recent",
+  });
+
+  // Apply user diversification if needed
+  const diversifiedMedia = ContentDiversificationUtil.diversifyByUser(
+    mediaResult.media,
+    request.maxPerUser
+  );
+
+  const response: DiscoverContent = {
+    items: diversifiedMedia.slice(0, request.limit),
+    cursors: {
+      albums: null, // No albums for media-type queries
+      media: PaginationUtil.encodeCursor(mediaResult.lastEvaluatedKey),
+    },
+    metadata: {
+      totalItems: Math.min(diversifiedMedia.length, request.limit),
+      albumCount: 0,
+      mediaCount: Math.min(diversifiedMedia.length, request.limit),
+      diversificationApplied: true,
+      timeWindow: request.sort === "popular" ? "popular" : `${mediaType}-recent`,
+    },
+  };
+
+  console.log(`[Discover API] ${mediaType} response:`, {
+    totalItems: response.metadata.totalItems,
+    mediaCount: response.metadata.mediaCount,
+    sort: request.sort ?? "recent",
   });
 
   return ResponseUtil.success(event, response);

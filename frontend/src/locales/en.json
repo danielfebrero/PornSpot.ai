@@ -2176,7 +2176,12 @@
     "clearFilter": "Clear filter",
     "discover": "Discover",
     "popular": "Popular",
-    "following": "Following"
+    "following": "Following",
+    "videos": "Videos",
+    "albums": "Albums",
+    "images": "Images",
+    "viewAll": "View all",
+    "collapse": "Collapse"
   },
   "mediaDetail": {
     "goBack": "Go Back",

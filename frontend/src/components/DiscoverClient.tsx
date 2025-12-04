@@ -1,16 +1,20 @@
 "use client";
 
 import { ContentGrid } from "./ContentGrid";
+import { VideoRow } from "./ui/VideoRow";
+import { AlbumRow } from "./ui/AlbumRow";
 import { useBulkViewCounts } from "@/hooks/queries/useViewCountsQuery";
 import { Album, DiscoverCursors, Media } from "@/types";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   SectionErrorBoundary,
   ComponentErrorBoundary,
 } from "./ErrorBoundaries";
-import { useDiscover } from "@/hooks/queries/useDiscoverQuery";
+import { useDiscover, useDiscoverVideos } from "@/hooks/queries/useDiscoverQuery";
 import { SortTabs, SortMode } from "./ui/SortTabs";
+import { Image as ImageIcon } from "lucide-react";
 
 interface DiscoverClientProps {
   initialContent: (Album | Media)[];
@@ -25,6 +29,7 @@ export function DiscoverClient({
   initialError,
   initialTag,
 }: DiscoverClientProps) {
+  const t = useTranslations("discover");
   const searchParams = useSearchParams();
   const tag = searchParams.get("tag") || initialTag || undefined;
   const sort = (searchParams.get("sort") as SortMode) || "discover";
@@ -62,18 +67,58 @@ export function DiscoverClient({
     }),
   });
 
+  // Fetch videos separately for the video row
+  const {
+    data: videosData,
+    isLoading: isLoadingVideos,
+    fetchNextPage: fetchNextVideos,
+    hasNextPage: hasNextVideos,
+    isFetchingNextPage: isFetchingNextVideos,
+    refetch: refetchVideos,
+  } = useDiscoverVideos({
+    limit: 10,
+    sort: sort === "discover" ? undefined : sort,
+    enabled: !tag, // Only fetch videos when not filtering by tag
+  });
+
   // Flatten all pages into a single items array
   const items = useMemo(() => {
     return data?.pages.flatMap((page) => page.items || []) || [];
   }, [data]);
 
+  // Flatten videos from all pages
+  const videos = useMemo(() => {
+    return (videosData?.pages.flatMap((page) => page.items || []) || []) as Media[];
+  }, [videosData]);
+
+  // Separate albums from the main items for the AlbumRow
+  const albums = useMemo(() => {
+    return items.filter((item): item is Album => item.type === "album");
+  }, [items]);
+
+  // Filter items to get only images (exclude videos and albums that are shown in their own rows)
+  const images = useMemo(() => {
+    // Get video IDs that are shown in the VideoRow
+    const videoIds = new Set(videos.map((v) => v.id));
+    // Filter to keep only images (not videos, not albums)
+    return items.filter((item): item is Media => {
+      // Exclude albums (they have their own row)
+      if (item.type === "album") return false;
+      // Exclude videos that are in the VideoRow
+      if (item.type === "video") return !videoIds.has(item.id);
+      // Keep images
+      return item.type === "image";
+    });
+  }, [items, videos]);
+
   // Bulk prefetch view counts for all items (for SSG pages)
   const viewCountTargets = useMemo(() => {
-    return items.map((item) => ({
+    const allItems = [...items, ...videos];
+    return allItems.map((item) => ({
       targetType: item.type,
       targetId: item.id,
     }));
-  }, [items]);
+  }, [items, videos]);
 
   // Prefetch view counts in the background
   useBulkViewCounts(viewCountTargets, { enabled: viewCountTargets.length > 0 });
@@ -84,16 +129,26 @@ export function DiscoverClient({
       // Only refetch if this isn't the initial render
       if (prevTag.current !== undefined || prevSort.current !== undefined) {
         refetch();
+        if (!tag) {
+          refetchVideos();
+        }
       }
       prevTag.current = tag;
       prevSort.current = sort;
     }
-  }, [tag, sort, refetch]);
+  }, [tag, sort, refetch, refetchVideos]);
 
-  // LoadMore function for AlbumGrid
+  // LoadMore function for ContentGrid (images/albums)
   const loadMore = () => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
+    }
+  };
+
+  // LoadMore function for VideoRow
+  const loadMoreVideos = () => {
+    if (hasNextVideos && !isFetchingNextVideos) {
+      fetchNextVideos();
     }
   };
 
@@ -121,6 +176,9 @@ export function DiscoverClient({
     return `discover-content-grid-${tagKey}-${sortKey}`;
   }, [tag, sort]);
 
+  // Determine if we should show the video section (not when filtering by tag)
+  const showVideoSection = !tag;
+
   return (
     <SectionErrorBoundary context="Discover Page">
       {/* Sort Navigation Tabs */}
@@ -130,9 +188,46 @@ export function DiscoverClient({
         </div>
       </ComponentErrorBoundary>
 
+      {/* Video Row Section */}
+      {showVideoSection && (
+        <SectionErrorBoundary context="Video Row">
+          <VideoRow
+            videos={videos}
+            isLoading={isLoadingVideos}
+            hasMore={hasNextVideos}
+            onLoadMore={loadMoreVideos}
+            isFetchingNextPage={isFetchingNextVideos}
+            scrollRestorationKey={`${scrollRestorationKey}-videos`}
+          />
+        </SectionErrorBoundary>
+      )}
+
+      {/* Album Row Section */}
+      {showVideoSection && (
+        <SectionErrorBoundary context="Album Row">
+          <AlbumRow
+            albums={albums}
+            isLoading={isActuallyLoading}
+            hasMore={hasNextPage}
+            onLoadMore={loadMore}
+            isFetchingNextPage={isFetchingNextPage}
+            scrollRestorationKey={`${scrollRestorationKey}-albums`}
+          />
+        </SectionErrorBoundary>
+      )}
+
+      {/* Images Section */}
       <SectionErrorBoundary context="Content Grid">
+        {showVideoSection && images.length > 0 && (
+          <div className="flex items-center gap-2 mb-4">
+            <ImageIcon className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">
+              {t("images")}
+            </h2>
+          </div>
+        )}
         <ContentGrid
-          items={items}
+          items={showVideoSection ? images : items}
           loadMore={loadMore}
           loading={isActuallyLoading || isFetchingNextPage}
           hasMore={hasNextPage}

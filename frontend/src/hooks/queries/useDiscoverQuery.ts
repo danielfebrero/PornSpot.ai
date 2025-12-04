@@ -22,6 +22,19 @@ interface UseDiscoverParams
   };
 }
 
+interface UseDiscoverVideosParams {
+  limit?: number;
+  sort?: string;
+  enabled?: boolean;
+  initialData?: {
+    items: Media[];
+    cursors?: {
+      albums: string | null;
+      media: string | null;
+    };
+  };
+}
+
 // Hook for fetching mixed content (albums and media) with infinite scroll support
 export function useDiscover(params: UseDiscoverParams = {}) {
   const { limit = 20, initialData, ...restParams } = params;
@@ -87,6 +100,64 @@ export function useDiscover(params: UseDiscoverParams = {}) {
     // Fresh data for 3 minutes, then stale-while-revalidate
     staleTime: STALE_TIME_MS,
     // Enable background refetching for discover content
+    refetchOnWindowFocus: false,
+  });
+}
+
+// Hook for fetching videos only with infinite scroll support
+export function useDiscoverVideos(params: UseDiscoverVideosParams = {}) {
+  const { limit = 10, sort, enabled = true, initialData } = params;
+
+  // Transform initial data for TanStack Query if provided
+  const transformedInitialData = initialData
+    ? {
+        pages: [
+          {
+            items: initialData.items,
+            cursors: initialData.cursors || { albums: null, media: null },
+            metadata: {
+              totalItems: initialData.items.length,
+              albumCount: 0,
+              mediaCount: initialData.items.length,
+              diversificationApplied: true,
+              timeWindow: "video-recent",
+            },
+          },
+        ],
+        pageParams: [{ albums: null, media: null }],
+      }
+    : undefined;
+
+  return useInfiniteQuery({
+    queryKey: queryKeys.discover.videos({ limit, sort }),
+    queryFn: async ({ pageParam }): Promise<DiscoverContent> => {
+      return await discoverApi.getDiscover({
+        limit,
+        sort,
+        mediaType: "video",
+        cursorMedia: pageParam?.media || undefined,
+      });
+    },
+    initialPageParam: { albums: null, media: null } as {
+      albums: string | null;
+      media: string | null;
+    },
+    initialData: transformedInitialData,
+    enabled,
+    refetchOnMount: (query) => {
+      const lastUpdatedAt = query.state.dataUpdatedAt ?? 0;
+      if (!lastUpdatedAt) return true;
+      return Date.now() - lastUpdatedAt > STALE_TIME_MS;
+    },
+    refetchOnReconnect: false,
+    getNextPageParam: (lastPage: DiscoverContent) => {
+      // For video-only queries, only media cursor is used
+      return lastPage.cursors.media
+        ? { albums: null, media: lastPage.cursors.media }
+        : undefined;
+    },
+    getPreviousPageParam: () => undefined,
+    staleTime: STALE_TIME_MS,
     refetchOnWindowFocus: false,
   });
 }

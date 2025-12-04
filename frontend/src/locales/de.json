@@ -2133,7 +2133,12 @@
     "clearFilter": "Filter löschen",
     "discover": "Entdecken",
     "popular": "Beliebt",
-    "following": "Folge ich"
+    "following": "Folge ich",
+    "videos": "Videos",
+    "albums": "Alben",
+    "images": "Bilder",
+    "viewAll": "Alle anzeigen",
+    "collapse": "Einklappen"
   },
   "mediaDetail": {
     "goBack": "Zurück",

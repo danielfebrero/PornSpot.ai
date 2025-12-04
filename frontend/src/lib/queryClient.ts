@@ -244,8 +244,10 @@ export const queryKeys = {
   // Discover
   discover: {
     all: () => ["discover"] as const,
-    list: (params?: { limit?: number; tag?: string }) =>
+    list: (params?: { limit?: number; tag?: string; sort?: string; mediaType?: "video" | "image" }) =>
       ["discover", "list", params] as const,
+    videos: (params?: { limit?: number; sort?: string }) =>
+      ["discover", "videos", params] as const,
   },
 
   // Leaderboard

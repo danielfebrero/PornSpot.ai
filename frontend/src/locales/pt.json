@@ -2174,7 +2174,12 @@
     "clearFilter": "Limpar filtro",
     "discover": "Descobrir",
     "popular": "Popular",
-    "following": "Seguindo"
+    "following": "Seguindo",
+    "videos": "Vídeos",
+    "albums": "Álbuns",
+    "images": "Imagens",
+    "viewAll": "Ver tudo",
+    "collapse": "Recolher"
   },
   "mediaDetail": {
     "goBack": "Voltar",

@@ -2166,7 +2166,12 @@
     "clearFilter": "Очистить фильтр",
     "discover": "Открыть",
     "popular": "Популярное",
-    "following": "Подписки"
+    "following": "Подписки",
+    "videos": "Видео",
+    "albums": "Альбомы",
+    "images": "Изображения",
+    "viewAll": "Показать все",
+    "collapse": "Свернуть"
   },
   "mediaDetail": {
     "goBack": "Назад",

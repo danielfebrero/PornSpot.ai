@@ -2170,7 +2170,12 @@
     "clearFilter": "फ़िल्टर साफ़ करें",
     "discover": "खोजें",
     "popular": "लोकप्रिय",
-    "following": "फ़ॉलोइंग"
+    "following": "फ़ॉलोइंग",
+    "videos": "वीडियो",
+    "albums": "एल्बम",
+    "images": "चित्र",
+    "viewAll": "सभी देखें",
+    "collapse": "छोटा करें"
   },
   "mediaDetail": {
     "goBack": "पीछे जाएँ",

@@ -33,5 +33,6 @@ export interface DiscoverParams {
   cursorMedia?: string;
   tag?: string;
   sort?: string;
+  mediaType?: "video" | "image"; // Filter by media type - returns only media (no albums)
   fetchOptions?: RequestInit;
 }

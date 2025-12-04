@@ -2161,7 +2161,12 @@
     "clearFilter": "清除过滤器",
     "discover": "发现",
     "popular": "热门",
-    "following": "关注中"
+    "following": "关注中",
+    "videos": "视频",
+    "albums": "专辑",
+    "images": "图片",
+    "viewAll": "查看全部",
+    "collapse": "收起"
   },
   "mediaDetail": {
     "goBack": "返回",
