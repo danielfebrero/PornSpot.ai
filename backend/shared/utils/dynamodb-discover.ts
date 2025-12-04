@@ -408,6 +408,7 @@ export class DynamoDBDiscoverService {
    * Query public media by type (video or image) using GSI9
    * GSI9PK: RECENT_MEDIA_BY_TYPE, GSI9SK: {type}#{createdAt}#{mediaId}
    * Filters for public media only
+   * Note: Uses pagination to handle DynamoDB's Limit-before-Filter behavior
    */
   static async queryPublicMediaByType(
     mediaType: "video" | "image",
@@ -417,33 +418,50 @@ export class DynamoDBDiscoverService {
     media: Media[];
     lastEvaluatedKey?: Record<string, unknown>;
   }> {
-    const queryParams: QueryCommandInput = {
-      TableName: TABLE_NAME,
-      IndexName: "GSI9",
-      KeyConditionExpression:
-        "GSI9PK = :gsi9pk AND begins_with(GSI9SK, :gsi9sk)",
-      FilterExpression: "isPublic = :isPublic",
-      ExpressionAttributeValues: {
-        ":gsi9pk": "RECENT_MEDIA_BY_TYPE",
-        ":gsi9sk": `${mediaType}#`,
-        ":isPublic": "true",
-      },
-      ScanIndexForward: false, // Most recent first
-      Limit: limit,
-      ExclusiveStartKey: lastEvaluatedKey,
-    };
+    const collectedMedia: Media[] = [];
+    let currentLastKey = lastEvaluatedKey;
+    let iterations = 0;
+    const batchSize = 100;
+    const maxIterations = Math.ceil(10000 / batchSize); // Scan up to 10,000 items
 
-    const result = await docClient.send(new QueryCommand(queryParams));
-    const mediaEntities = (result.Items as MediaEntity[]) || [];
+    // Keep fetching until we have enough items or run out of data
+    while (collectedMedia.length < limit && iterations < maxIterations) {
+      iterations++;
 
-    // Convert MediaEntity to Media format
-    const media: Media[] = mediaEntities.map((entity) =>
-      DynamoDBService.convertMediaEntityToMedia(entity)
-    );
+      const queryParams: QueryCommandInput = {
+        TableName: TABLE_NAME,
+        IndexName: "GSI9",
+        KeyConditionExpression:
+          "GSI9PK = :gsi9pk AND begins_with(GSI9SK, :gsi9sk)",
+        FilterExpression: "isPublic = :isPublic",
+        ExpressionAttributeValues: {
+          ":gsi9pk": "RECENT_MEDIA_BY_TYPE",
+          ":gsi9sk": `${mediaType}#`,
+          ":isPublic": "true",
+        },
+        ScanIndexForward: false, // Most recent first
+        Limit: batchSize,
+        ExclusiveStartKey: currentLastKey,
+      };
+
+      const result = await docClient.send(new QueryCommand(queryParams));
+      const mediaEntities = (result.Items as MediaEntity[]) || [];
+
+      // Convert and add to collected items
+      for (const entity of mediaEntities) {
+        if (collectedMedia.length >= limit) break;
+        collectedMedia.push(DynamoDBService.convertMediaEntityToMedia(entity));
+      }
+
+      currentLastKey = result.LastEvaluatedKey;
+
+      // No more data to fetch
+      if (!currentLastKey) break;
+    }
 
     return {
-      media,
-      lastEvaluatedKey: result.LastEvaluatedKey,
+      media: collectedMedia.slice(0, limit),
+      lastEvaluatedKey: currentLastKey,
     };
   }
 
@@ -451,6 +469,7 @@ export class DynamoDBDiscoverService {
    * Query popular public media by type using GSI6 with type filter
    * GSI6PK: POPULARITY, GSI6SK: popularity score
    * Filters for public media of specific type only
+   * Note: Uses pagination to handle DynamoDB's Limit-before-Filter behavior
    */
   static async queryPopularMediaByType(
     mediaType: "video" | "image",
@@ -460,36 +479,53 @@ export class DynamoDBDiscoverService {
     media: Media[];
     lastEvaluatedKey?: Record<string, unknown>;
   }> {
-    const queryParams: QueryCommandInput = {
-      TableName: TABLE_NAME,
-      IndexName: "GSI6",
-      KeyConditionExpression: "GSI6PK = :gsi6pk",
-      FilterExpression: "EntityType = :entityType AND isPublic = :isPublic AND #mediaType = :mediaType",
-      ExpressionAttributeNames: {
-        "#mediaType": "type",
-      },
-      ExpressionAttributeValues: {
-        ":gsi6pk": "POPULARITY",
-        ":entityType": "Media",
-        ":isPublic": "true",
-        ":mediaType": mediaType,
-      },
-      ScanIndexForward: false, // Highest popularity first (descending)
-      Limit: limit,
-      ExclusiveStartKey: lastEvaluatedKey,
-    };
+    const collectedMedia: Media[] = [];
+    let currentLastKey = lastEvaluatedKey;
+    let iterations = 0;
+    const batchSize = 100;
+    const maxIterations = Math.ceil(10000 / batchSize); // Scan up to 10,000 items
 
-    const result = await docClient.send(new QueryCommand(queryParams));
-    const mediaEntities = (result.Items as MediaEntity[]) || [];
+    // Keep fetching until we have enough items or run out of data
+    while (collectedMedia.length < limit && iterations < maxIterations) {
+      iterations++;
+      
+      const queryParams: QueryCommandInput = {
+        TableName: TABLE_NAME,
+        IndexName: "GSI6",
+        KeyConditionExpression: "GSI6PK = :gsi6pk",
+        FilterExpression: "EntityType = :entityType AND isPublic = :isPublic AND #mediaType = :mediaType",
+        ExpressionAttributeNames: {
+          "#mediaType": "type",
+        },
+        ExpressionAttributeValues: {
+          ":gsi6pk": "POPULARITY",
+          ":entityType": "Media",
+          ":isPublic": "true",
+          ":mediaType": mediaType,
+        },
+        ScanIndexForward: false, // Highest popularity first (descending)
+        Limit: batchSize,
+        ExclusiveStartKey: currentLastKey,
+      };
 
-    // Convert MediaEntity to Media format
-    const media: Media[] = mediaEntities.map((entity) =>
-      DynamoDBService.convertMediaEntityToMedia(entity)
-    );
+      const result = await docClient.send(new QueryCommand(queryParams));
+      const mediaEntities = (result.Items as MediaEntity[]) || [];
+
+      // Convert and add to collected items
+      for (const entity of mediaEntities) {
+        if (collectedMedia.length >= limit) break;
+        collectedMedia.push(DynamoDBService.convertMediaEntityToMedia(entity));
+      }
+
+      currentLastKey = result.LastEvaluatedKey;
+      
+      // No more data to fetch
+      if (!currentLastKey) break;
+    }
 
     return {
-      media,
-      lastEvaluatedKey: result.LastEvaluatedKey,
+      media: collectedMedia.slice(0, limit),
+      lastEvaluatedKey: currentLastKey,
     };
   }
 }
